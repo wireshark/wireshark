@@ -38,6 +38,8 @@ typedef struct _gsm_map_tap_rec_t {
 ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
+void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 extern const value_string ssCode_vals[];
 extern const value_string gsm_map_PDP_Type_Organisation_vals[];
 extern const value_string gsm_map_ietf_defined_pdp_vals[];

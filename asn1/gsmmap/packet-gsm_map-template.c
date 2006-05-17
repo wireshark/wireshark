@@ -113,6 +113,23 @@ static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
 static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
 static int hf_gsm_map_GSNAddress_IPv4 = -1;
 static int hf_gsm_map_GSNAddress_IPv6 = -1;
+static int hf_geo_loc_type_of_shape = -1;
+static int hf_geo_loc_sign_of_lat	= -1;
+static int hf_geo_loc_deg_of_lat =-1;
+static int hf_geo_loc_deg_of_long =-1;
+static int hf_geo_loc_uncertainty_code = -1;
+static int hf_geo_loc_uncertainty_semi_major = -1;
+static int hf_geo_loc_uncertainty_semi_minor = -1;
+static int hf_geo_loc_orientation_of_major_axis = -1;
+static int hf_geo_loc_confidence = -1;
+static int hf_geo_loc_no_of_points = -1;
+static int hf_geo_loc_D = -1;
+static int hf_geo_loc_altitude = -1;
+static int hf_geo_loc_inner_radius = -1;
+static int hf_geo_loc_uncertainty_radius = -1;
+static int hf_geo_loc_offset_angle = -1;
+static int hf_geo_loc_included_angle = -1;
+
 #include "packet-gsm_map-hf.c"
 
 /* Initialize the subtree pointers */
@@ -349,6 +366,151 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 }
 
+#define  ELLIPSOID_POINT 0
+
+
+/* TS 23 032 Table 2a: Coding of Type of Shape */
+static const value_string type_of_shape_vals[] = {
+	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
+	{ 1,		"Ellipsoid point with uncertainty Circle"},
+	{ 3,		"Ellipsoid point with uncertainty Ellipse"},
+	{ 5,		"Polygon"},
+	{ 8,		"Ellipsoid point with altitude"},
+	{ 9,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ 10,		"Ellipsoid Arc"},
+	{ 0,	NULL }
+};
+
+/* 3GPP TS 23.032 7.3.1 */
+static const value_string sign_of_latitude_vals[] = {
+	{ 0,		"North"},
+	{ 1,		"South"},
+	{ 0,	NULL }
+};
+
+static const value_string dir_of_alt_vals[] = {
+	{ 0,		"Altitude expresses height"},
+	{ 1,		"Altitude expresses depth"},
+	{ 0,	NULL }
+};
+
+
+void
+dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	guint8 type_of_shape;
+	guint8 no_of_points;
+	int offset = 0;
+	int length;
+
+	length = tvb_reported_length_remaining(tvb,0);
+	/* Geographical Location 
+	 * The Location Estimate field is composed of 1 or more octets with an internal structure 
+	 * according to section 7 in [23.032].
+	 */
+	proto_tree_add_item(tree, hf_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
+	if (length<2)
+		return;
+	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
+	switch (type_of_shape){
+	case ELLIPSOID_POINT:	/* Ellipsoid Point */
+	case 2:					/* Ellipsoid Point with uncertainty Circle */
+	case 3:					/* Ellipsoid Point with uncertainty Ellipse */
+	case 8:					/* Ellipsoid Point with Altitude */
+	case 9:					/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+	case 10:				/* Ellipsoid Arc */
+		offset++;
+		if (length<4)
+			return;
+		proto_tree_add_item(tree, hf_geo_loc_sign_of_lat, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
+		if (length<7)
+			return;
+		offset = offset + 3;
+		proto_tree_add_item(tree, hf_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
+		offset = offset + 3;
+		if(type_of_shape==2){
+			/* Ellipsoid Point with uncertainty Circle */
+			if (length<8)
+				return;
+			/* Uncertainty code */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_code, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==3){
+			/* Ellipsoid Point with uncertainty Ellipse */
+			/* Uncertainty semi-major */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			offset++;
+			/* Uncertainty semi-minor */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			offset++;
+			/* Orientation of major axis */
+			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==8){
+			/* Ellipsoid Point with Altitude */
+			offset++;
+			/*D: Direction of Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			/* Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+		}else if(type_of_shape==9){
+			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+			offset++;
+			/*D: Direction of Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			/* Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+			offset++;
+			/* Uncertainty semi-major */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			offset++;
+			/* Uncertainty semi-minor */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			offset++;
+			/* Orientation of major axis */
+			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==10){
+			/* Ellipsoid Arc */
+			offset++;
+			/* Inner radius */
+			proto_tree_add_item(tree, hf_geo_loc_inner_radius, tvb, offset, 2, FALSE);
+			offset= offset +2;
+			/* Uncertainty radius */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_radius, tvb, offset, 1, FALSE);
+			offset++;
+			/* Offset angle */
+			proto_tree_add_item(tree, hf_geo_loc_offset_angle, tvb, offset, 1, FALSE);
+			offset++;
+			/* Included angle */
+			proto_tree_add_item(tree, hf_geo_loc_included_angle, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}
+
+		break;
+	case 5:					/* Polygon */
+		/* Number of points */
+		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
+		proto_tree_add_item(tree, hf_geo_loc_no_of_points, tvb, offset, 1, FALSE);
+		/*
+		while ( no_of_points > 0){
+			offset++;
+
+			no_of_points--;
+		}
+		*/
+		break;
+	default:
+		break;
+	}
+
+}
 #include "packet-gsm_map-fn.c"
 
 const value_string gsm_map_opr_code_strings[] = {
@@ -1906,6 +2068,86 @@ void proto_register_gsm_map(void) {
       { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
 	  FT_IPv4, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
+	{ &hf_geo_loc_type_of_shape,
+		{ "Location estimate","gad.location_estimate",
+		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,          
+		"Location estimate", HFILL }
+	},
+	{ &hf_geo_loc_sign_of_lat,
+		{ "Sign of latitude","gad.sign_of_latitude",
+		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
+		"Sign of latitude", HFILL }
+	},
+	{ &hf_geo_loc_deg_of_lat,
+		{ "Degrees of latitude","gad.sign_of_latitude",
+		FT_UINT32,BASE_DEC, NULL, 0x3fffff,          
+		"Degrees of latitude", HFILL }
+	},
+	{ &hf_geo_loc_deg_of_long,
+		{ "Degrees of longitude","gad.sign_of_longitude",
+		FT_UINT32,BASE_DEC, NULL, 0xffffff,          
+		"Degrees of longitude", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_code,
+		{ "Uncertainty code","gad.uncertainty_code",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty code", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_semi_major,
+		{ "Uncertainty semi-major","gad.uncertainty_semi_major",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty semi-majore", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_semi_minor,
+		{ "Uncertainty semi-minor","gad.uncertainty_semi_minor",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty semi-minor", HFILL }
+	},
+	{ &hf_geo_loc_orientation_of_major_axis,
+		{ "Orientation of major axis","gad.orientation_of_major_axis",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Orientation of major axis", HFILL }
+	},
+	{ &hf_geo_loc_confidence,
+		{ "Confidence","gad.confidence",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Confidence", HFILL }
+	},
+	{ &hf_geo_loc_no_of_points,
+		{ "Number of points","gad.no_of_points",
+		FT_UINT8,BASE_DEC, NULL, 0x0f,          
+		"Number of points", HFILL }
+	},
+	{ &hf_geo_loc_D,
+		{ "D: Direction of Altitude","gad.D",
+		FT_UINT8,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
+		"D: Direction of Altitude", HFILL }
+	},
+	{ &hf_geo_loc_altitude,
+		{ "Altitude","gad.altitude",
+		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
+		"Altitude", HFILL }
+	},
+	{ &hf_geo_loc_inner_radius,
+		{ "Inner radius","gad.altitude",
+		FT_UINT16,BASE_DEC, NULL, 0x0,          
+		"Inner radius", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_radius,
+		{ "Uncertainty radius","gad.no_of_points",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty radius", HFILL }
+	},
+	{ &hf_geo_loc_offset_angle,
+		{ "Offset angle","gad.offset_angle",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Offset angle", HFILL }
+	},
+	{ &hf_geo_loc_included_angle,
+		{ "Included angle","gad.included_angle",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Included angle", HFILL }
+	},
 
 #include "packet-gsm_map-hfarr.c"
   };

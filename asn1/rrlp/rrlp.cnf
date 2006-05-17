@@ -19,3 +19,11 @@ PDU
 #.END
 
 
+#.FN_BODY Ext-GeographicalInformation VAL_PTR = &parameter_tvb
+
+tvbuff_t *parameter_tvb = NULL;
+
+  %(DEFAULT_BODY)s
+
+  if(parameter_tvb)
+	dissect_geographical_description(parameter_tvb, pinfo, tree);

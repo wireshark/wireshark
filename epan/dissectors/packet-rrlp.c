@@ -455,8 +455,17 @@ static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       1, 20, NULL);
+#line 23 "rrlp.cnf"
+
+tvbuff_t *parameter_tvb = NULL;
+
+    offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       1, 20, &parameter_tvb);
+
+
+  if(parameter_tvb)
+	dissect_geographical_description(parameter_tvb, pinfo, tree);
+
 
   return offset;
 }

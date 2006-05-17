@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2eth.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn
+
+#.MODULE
+MAP-Protocol  gsm_map
+#.END
+
 #.IMPORT_TAG
 LocalErrorcode           BER_CLASS_UNI BER_UNI_TAG_INTEGER
 SupportedCamelPhases     BER_CLASS_UNI BER_UNI_TAG_BITSTRING

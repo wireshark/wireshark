@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-gsm_map.c                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
+/* ../../tools/asn2eth.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
@@ -55,6 +55,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
+#include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
@@ -120,6 +121,23 @@ static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
 static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
 static int hf_gsm_map_GSNAddress_IPv4 = -1;
 static int hf_gsm_map_GSNAddress_IPv6 = -1;
+static int hf_geo_loc_type_of_shape = -1;
+static int hf_geo_loc_sign_of_lat	= -1;
+static int hf_geo_loc_deg_of_lat =-1;
+static int hf_geo_loc_deg_of_long =-1;
+static int hf_geo_loc_uncertainty_code = -1;
+static int hf_geo_loc_uncertainty_semi_major = -1;
+static int hf_geo_loc_uncertainty_semi_minor = -1;
+static int hf_geo_loc_orientation_of_major_axis = -1;
+static int hf_geo_loc_confidence = -1;
+static int hf_geo_loc_no_of_points = -1;
+static int hf_geo_loc_D = -1;
+static int hf_geo_loc_altitude = -1;
+static int hf_geo_loc_inner_radius = -1;
+static int hf_geo_loc_uncertainty_radius = -1;
+static int hf_geo_loc_offset_angle = -1;
+static int hf_geo_loc_included_angle = -1;
+
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
 #line 1 "packet-gsm_map-hf.c"
@@ -944,7 +962,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 116 "packet-gsm_map-template.c"
+#line 134 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -959,6 +977,7 @@ static gint ett_gsm_map_ext_qos_subscribed = -1;
 static gint ett_gsm_map_pdptypenumber = -1;
 static gint ett_gsm_map_RAIdentity = -1; 
 static gint ett_gsm_map_LAIFixedLength = -1;
+static gint ett_gsm_map_isdn_address_string = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -1361,7 +1380,7 @@ static gint ett_gsm_map_ExtensionContainer = -1;
 static gint ett_gsm_map_AccessTypePriv = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 132 "packet-gsm_map-template.c"
+#line 151 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -1580,6 +1599,151 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 }
 
+#define  ELLIPSOID_POINT 0
+
+
+/* TS 23 032 Table 2a: Coding of Type of Shape */
+static const value_string type_of_shape_vals[] = {
+	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
+	{ 1,		"Ellipsoid point with uncertainty Circle"},
+	{ 3,		"Ellipsoid point with uncertainty Ellipse"},
+	{ 5,		"Polygon"},
+	{ 8,		"Ellipsoid point with altitude"},
+	{ 9,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ 10,		"Ellipsoid Arc"},
+	{ 0,	NULL }
+};
+
+/* 3GPP TS 23.032 7.3.1 */
+static const value_string sign_of_latitude_vals[] = {
+	{ 0,		"North"},
+	{ 1,		"South"},
+	{ 0,	NULL }
+};
+
+static const value_string dir_of_alt_vals[] = {
+	{ 0,		"Altitude expresses height"},
+	{ 1,		"Altitude expresses depth"},
+	{ 0,	NULL }
+};
+
+
+void
+dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	guint8 type_of_shape;
+	guint8 no_of_points;
+	int offset = 0;
+	int length;
+
+	length = tvb_reported_length_remaining(tvb,0);
+	/* Geographical Location 
+	 * The Location Estimate field is composed of 1 or more octets with an internal structure 
+	 * according to section 7 in [23.032].
+	 */
+	proto_tree_add_item(tree, hf_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
+	if (length<2)
+		return;
+	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
+	switch (type_of_shape){
+	case ELLIPSOID_POINT:	/* Ellipsoid Point */
+	case 2:					/* Ellipsoid Point with uncertainty Circle */
+	case 3:					/* Ellipsoid Point with uncertainty Ellipse */
+	case 8:					/* Ellipsoid Point with Altitude */
+	case 9:					/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+	case 10:				/* Ellipsoid Arc */
+		offset++;
+		if (length<4)
+			return;
+		proto_tree_add_item(tree, hf_geo_loc_sign_of_lat, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
+		if (length<7)
+			return;
+		offset = offset + 3;
+		proto_tree_add_item(tree, hf_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
+		offset = offset + 3;
+		if(type_of_shape==2){
+			/* Ellipsoid Point with uncertainty Circle */
+			if (length<8)
+				return;
+			/* Uncertainty code */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_code, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==3){
+			/* Ellipsoid Point with uncertainty Ellipse */
+			/* Uncertainty semi-major */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			offset++;
+			/* Uncertainty semi-minor */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			offset++;
+			/* Orientation of major axis */
+			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==8){
+			/* Ellipsoid Point with Altitude */
+			offset++;
+			/*D: Direction of Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			/* Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+		}else if(type_of_shape==9){
+			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+			offset++;
+			/*D: Direction of Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			/* Altitude */
+			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+			offset++;
+			/* Uncertainty semi-major */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			offset++;
+			/* Uncertainty semi-minor */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			offset++;
+			/* Orientation of major axis */
+			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}else if(type_of_shape==10){
+			/* Ellipsoid Arc */
+			offset++;
+			/* Inner radius */
+			proto_tree_add_item(tree, hf_geo_loc_inner_radius, tvb, offset, 2, FALSE);
+			offset= offset +2;
+			/* Uncertainty radius */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_radius, tvb, offset, 1, FALSE);
+			offset++;
+			/* Offset angle */
+			proto_tree_add_item(tree, hf_geo_loc_offset_angle, tvb, offset, 1, FALSE);
+			offset++;
+			/* Included angle */
+			proto_tree_add_item(tree, hf_geo_loc_included_angle, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence */
+			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+		}
+
+		break;
+	case 5:					/* Polygon */
+		/* Number of points */
+		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
+		proto_tree_add_item(tree, hf_geo_loc_no_of_points, tvb, offset, 1, FALSE);
+		/*
+		while ( no_of_points > 0){
+			offset++;
+
+			no_of_points--;
+		}
+		*/
+		break;
+	default:
+		break;
+	}
+
+}
 
 /*--- Included file: packet-gsm_map-fn.c ---*/
 #line 1 "packet-gsm_map-fn.c"
@@ -2502,6 +2666,7 @@ static const value_string gsm_map_ProtocolId_vals[] = {
   { 0, NULL }
 };
 
+static guint32 ProtocolId_value_map[4+0] = {1, 2, 3, 4};
 
 static int
 dissect_gsm_map_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -2518,7 +2683,7 @@ static int dissect_protocolId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 338 "gsmmap.cnf"
+#line 366 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -2574,7 +2739,7 @@ static int dissect_diagnosticInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 451 "gsmmap.cnf"
+#line 479 "gsmmap.cnf"
 
 	
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
@@ -2774,6 +2939,11 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
+ guint8		octet;
+ guint8		na;
+ guint8		np;
+ proto_item *item;
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -2782,13 +2952,22 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  if (!parameter_tvb)
 	return offset;
 
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
+
+ proto_tree_add_item(subtree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
 
  digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(subtree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+ na = (octet & 0x70)>>4;
+ np = octet & 0x0f;
+ if ((na == 1) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
@@ -3082,7 +3261,7 @@ static int dissect_vlr_Capability_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 int
 dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 535 "gsmmap.cnf"
+#line 563 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -3478,7 +3657,7 @@ static int dissect_numberOfRequestedVectors(packet_info *pinfo, proto_tree *tree
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 583 "gsmmap.cnf"
+#line 611 "gsmmap.cnf"
 
         tvbuff_t        *parameter_tvb; 
         proto_item *item; 
@@ -3899,6 +4078,7 @@ static const value_string gsm_map_AccessNetworkProtocolId_vals[] = {
   { 0, NULL }
 };
 
+static guint32 AccessNetworkProtocolId_value_map[2+0] = {1, 2};
 
 static int
 dissect_gsm_map_AccessNetworkProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -3915,7 +4095,7 @@ static int dissect_accessNetworkProtocolId(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 382 "gsmmap.cnf"
+#line 410 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -5158,6 +5338,7 @@ static const value_string gsm_map_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
+static guint32 BcsmTriggerDetectionPoint_value_map[5+0] = {2, 4, 12, 13, 14};
 
 static int
 dissect_gsm_map_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -5262,6 +5443,7 @@ static const value_string gsm_map_O_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
+static guint32 O_BcsmTriggerDetectionPoint_value_map[1+1] = {2, 4};
 
 static int
 dissect_gsm_map_O_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -5506,7 +5688,7 @@ static int dissect_BasicServiceCriteria_item(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 300 "gsmmap.cnf"
+#line 328 "gsmmap.cnf"
  /* Note Ext-SS-Status can have more than one byte */
 
  tvbuff_t	*parameter_tvb;
@@ -5573,7 +5755,7 @@ static int
 dissect_gsm_map_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
-#line 470 "gsmmap.cnf"
+#line 498 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -5604,10 +5786,15 @@ static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo, proto_tree 
 
 int
 dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 250 "gsmmap.cnf"
+#line 264 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
+ guint8		octet;
+ guint8		na;
+ guint8		np;
+ proto_item *item;
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5616,6 +5803,9 @@ dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  if (!parameter_tvb)
 	return offset;
 
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
+
  proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
@@ -5623,6 +5813,12 @@ dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+ na = (octet & 0x70)>>4;
+ np = octet & 0x0f;
+ if ((na == 1) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
 
 
 
@@ -6547,6 +6743,7 @@ static const value_string gsm_map_SMS_TriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
+static guint32 SMS_TriggerDetectionPoint_value_map[1+1] = {1, 2};
 
 static int
 dissect_gsm_map_SMS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -6650,6 +6847,7 @@ static const value_string gsm_map_T_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
+static guint32 T_BcsmTriggerDetectionPoint_value_map[1+2] = {12, 13, 14};
 
 static int
 dissect_gsm_map_T_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -7002,7 +7200,7 @@ static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 481 "gsmmap.cnf"
+#line 509 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -7051,7 +7249,7 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 507 "gsmmap.cnf"
+#line 535 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -7097,7 +7295,7 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 521 "gsmmap.cnf"
+#line 549 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -7764,6 +7962,7 @@ static const value_string gsm_map_GPRS_TriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
+static guint32 GPRS_TriggerDetectionPoint_value_map[5+0] = {1, 2, 11, 12, 14};
 
 static int
 dissect_gsm_map_GPRS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -8198,7 +8397,7 @@ dissect_gsm_map_DeleteSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 int
 dissect_gsm_map_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 273 "gsmmap.cnf"
+#line 301 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -8327,7 +8526,7 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
-#line 464 "gsmmap.cnf"
+#line 492 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -8844,6 +9043,7 @@ static const value_string gsm_map_Ext_ProtocolId_vals[] = {
   { 0, NULL }
 };
 
+static guint32 Ext_ProtocolId_value_map[1+0] = {1};
 
 static int
 dissect_gsm_map_Ext_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -9209,7 +9409,7 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 565 "gsmmap.cnf"
+#line 593 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_item *item;
@@ -9508,6 +9708,7 @@ static const value_string gsm_map_NumberPortabilityStatus_vals[] = {
   { 0, NULL }
 };
 
+static guint32 NumberPortabilityStatus_value_map[3+2] = {0, 1, 2, 4, 5};
 
 static int
 dissect_gsm_map_NumberPortabilityStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -9618,6 +9819,7 @@ static const value_string gsm_map_UnavailabilityCause_vals[] = {
   { 0, NULL }
 };
 
+static guint32 UnavailabilityCause_value_map[6+0] = {1, 2, 3, 4, 5, 6};
 
 static int
 dissect_gsm_map_UnavailabilityCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -10553,7 +10755,7 @@ dissect_gsm_map_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 int
 dissect_gsm_map_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 414 "gsmmap.cnf"
+#line 442 "gsmmap.cnf"
 
  guint8		octet;
  guint8		length;
@@ -10581,7 +10783,7 @@ static int dissect_dataCodingScheme_impl(packet_info *pinfo, proto_tree *tree, t
 
 int
 dissect_gsm_map_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 429 "gsmmap.cnf"
+#line 457 "gsmmap.cnf"
 
   guint8		octet;
   guint8		length;
@@ -13708,6 +13910,7 @@ static const value_string gsm_map_T_roamingNotAllowedCause_vals[] = {
   { 0, NULL }
 };
 
+static guint32 T_roamingNotAllowedCause_value_map[2+0] = {0, 3};
 
 static int
 dissect_gsm_map_T_roamingNotAllowedCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14095,6 +14298,7 @@ static const value_string gsm_map_CUG_RejectCause_vals[] = {
   { 0, NULL }
 };
 
+static guint32 CUG_RejectCause_value_map[4+0] = {0, 1, 5, 7};
 
 static int
 dissect_gsm_map_CUG_RejectCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14436,6 +14640,7 @@ static const value_string gsm_map_Access_vals[] = {
   { 0, NULL }
 };
 
+static guint32 Access_value_map[3+0] = {1, 2, 3};
 
 static int
 dissect_gsm_map_Access(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14484,7 +14689,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 351 "packet-gsm_map-template.c"
+#line 515 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -16041,6 +16246,86 @@ void proto_register_gsm_map(void) {
       { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
 	  FT_IPv4, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
+	{ &hf_geo_loc_type_of_shape,
+		{ "Location estimate","gad.location_estimate",
+		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,          
+		"Location estimate", HFILL }
+	},
+	{ &hf_geo_loc_sign_of_lat,
+		{ "Sign of latitude","gad.sign_of_latitude",
+		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
+		"Sign of latitude", HFILL }
+	},
+	{ &hf_geo_loc_deg_of_lat,
+		{ "Degrees of latitude","gad.sign_of_latitude",
+		FT_UINT32,BASE_DEC, NULL, 0x3fffff,          
+		"Degrees of latitude", HFILL }
+	},
+	{ &hf_geo_loc_deg_of_long,
+		{ "Degrees of longitude","gad.sign_of_longitude",
+		FT_UINT32,BASE_DEC, NULL, 0xffffff,          
+		"Degrees of longitude", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_code,
+		{ "Uncertainty code","gad.uncertainty_code",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty code", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_semi_major,
+		{ "Uncertainty semi-major","gad.uncertainty_semi_major",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty semi-majore", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_semi_minor,
+		{ "Uncertainty semi-minor","gad.uncertainty_semi_minor",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty semi-minor", HFILL }
+	},
+	{ &hf_geo_loc_orientation_of_major_axis,
+		{ "Orientation of major axis","gad.orientation_of_major_axis",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Orientation of major axis", HFILL }
+	},
+	{ &hf_geo_loc_confidence,
+		{ "Confidence","gad.confidence",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Confidence", HFILL }
+	},
+	{ &hf_geo_loc_no_of_points,
+		{ "Number of points","gad.no_of_points",
+		FT_UINT8,BASE_DEC, NULL, 0x0f,          
+		"Number of points", HFILL }
+	},
+	{ &hf_geo_loc_D,
+		{ "D: Direction of Altitude","gad.D",
+		FT_UINT8,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
+		"D: Direction of Altitude", HFILL }
+	},
+	{ &hf_geo_loc_altitude,
+		{ "Altitude","gad.altitude",
+		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
+		"Altitude", HFILL }
+	},
+	{ &hf_geo_loc_inner_radius,
+		{ "Inner radius","gad.altitude",
+		FT_UINT16,BASE_DEC, NULL, 0x0,          
+		"Inner radius", HFILL }
+	},
+	{ &hf_geo_loc_uncertainty_radius,
+		{ "Uncertainty radius","gad.no_of_points",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Uncertainty radius", HFILL }
+	},
+	{ &hf_geo_loc_offset_angle,
+		{ "Offset angle","gad.offset_angle",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Offset angle", HFILL }
+	},
+	{ &hf_geo_loc_included_angle,
+		{ "Included angle","gad.included_angle",
+		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		"Included angle", HFILL }
+	},
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -19319,7 +19604,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 1909 "packet-gsm_map-template.c"
+#line 2153 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19336,6 +19621,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_pdptypenumber,
 	&ett_gsm_map_RAIdentity,
 	&ett_gsm_map_LAIFixedLength,
+	&ett_gsm_map_isdn_address_string,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -19738,7 +20024,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_AccessTypePriv,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 1927 "packet-gsm_map-template.c"
+#line 2172 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
