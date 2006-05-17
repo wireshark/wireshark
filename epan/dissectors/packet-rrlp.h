@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-rrlp.h                                                            */
-/* ../../tools/asn2eth.py -X -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
+/* ../../tools/asn2eth.py -u -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
 
 /* Input file: packet-rrlp-template.h */
 

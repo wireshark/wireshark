@@ -444,34 +444,40 @@ static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 /*--- End of included file: packet-rrlp-val.h ---*/
 #line 65 "packet-rrlp-template.c"
 
-/* If trying to use module import the "dissect_gsm_map_ExtensionContainer" will be wrongly constructed
- * presumably because it assumes it will be PER encoded
- */
-static int
-dissect_MAP_ExtensionDataTypes_ExtensionContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index){
-
-	return dissect_gsm_map_ExtensionContainer(TRUE, tvb, offset, pinfo, tree, hf_index);
-}
-
-static int
-dissect_MAP_LCS_DataTypes_Ext_GeographicalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index){
-
-	return dissect_gsm_map_Ext_GeographicalInformation(TRUE, tvb, offset, pinfo, tree, hf_index);
-}
 
 
 /*--- Included file: packet-rrlp-fn.c ---*/
 #line 1 "packet-rrlp-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_extensionContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_MAP_ExtensionDataTypes_ExtensionContainer(tvb, offset, pinfo, tree, hf_rrlp_extensionContainer);
+
+
+
+static int
+dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       1, 20, NULL);
+
+  return offset;
 }
 static int dissect_posEstimate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_MAP_LCS_DataTypes_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_rrlp_posEstimate);
+  return dissect_rrlp_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_rrlp_posEstimate);
 }
 static int dissect_threeDLocation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_MAP_LCS_DataTypes_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_rrlp_threeDLocation);
+  return dissect_rrlp_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_rrlp_threeDLocation);
+}
+
+
+
+static int
+dissect_rrlp_ExtensionContainer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, NULL);
+
+  return offset;
+}
+static int dissect_extensionContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_rrlp_ExtensionContainer(tvb, offset, pinfo, tree, hf_rrlp_extensionContainer);
 }
 
 
@@ -712,7 +718,7 @@ static int dissect_timeSlotScheme(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_rrlp_BTSPosition(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_MAP_LCS_DataTypes_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_rrlp_Ext_GeographicalInformation(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -3796,7 +3802,7 @@ static const per_sequence_t PDU_sequence[] = {
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 #line 10 "rrlp.cnf"
-
+	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -3821,7 +3827,7 @@ static void dissect_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 82 "packet-rrlp-template.c"
+#line 68 "packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -3887,7 +3893,7 @@ void proto_register_rrlp(void) {
         "", HFILL }},
     { &hf_rrlp_extensionContainer,
       { "extensionContainer", "rrlp.extensionContainer",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_rrlp_rel98_MsrPosition_Req_extension,
       { "rel98-MsrPosition-Req-extension", "rrlp.rel98_MsrPosition_Req_extension",
@@ -4003,7 +4009,7 @@ void proto_register_rrlp(void) {
         "", HFILL }},
     { &hf_rrlp_btsPosition,
       { "btsPosition", "rrlp.btsPosition",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ReferenceAssistData/btsPosition", HFILL }},
     { &hf_rrlp_msrAssistList,
       { "msrAssistList", "rrlp.msrAssistList",
@@ -4219,7 +4225,7 @@ void proto_register_rrlp(void) {
         "LocationInfo/fixType", HFILL }},
     { &hf_rrlp_posEstimate,
       { "posEstimate", "rrlp.posEstimate",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "LocationInfo/posEstimate", HFILL }},
     { &hf_rrlp_gpsMsrSetList,
       { "gpsMsrSetList", "rrlp.gpsMsrSetList",
@@ -4375,7 +4381,7 @@ void proto_register_rrlp(void) {
         "GSMTime/bitNumber", HFILL }},
     { &hf_rrlp_threeDLocation,
       { "threeDLocation", "rrlp.threeDLocation",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "RefLocation/threeDLocation", HFILL }},
     { &hf_rrlp_gpsTOW2,
       { "gpsTOW", "rrlp.gpsTOW",
@@ -4879,7 +4885,7 @@ void proto_register_rrlp(void) {
         "Extended-reference/transaction-ID", HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 91 "packet-rrlp-template.c"
+#line 77 "packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -4986,7 +4992,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_Rel_5_ProtocolError_Extension,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 97 "packet-rrlp-template.c"
+#line 83 "packet-rrlp-template.c"
   };
 
 

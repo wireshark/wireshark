@@ -16,17 +16,38 @@ BEGIN
 --;
 
 IMPORTS
-	Ext-GeographicalInformation
-FROM
-	MAP-LCS-DataTypes {
-	ccitt identified-organization (4) etsi (0) mobileDomain (0)
-	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version5 (5)}
+--	Ext-GeographicalInformation
+--FROM
+--	MAP-LCS-DataTypes {
+--	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+--	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version5 (5)}
 
-	ExtensionContainer
-FROM MAP-ExtensionDataTypes {
-	ccitt identified-organization (4) etsi (0) mobileDomain (0)
-	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version4 (4)}
+--	ExtensionContainer
+--FROM MAP-ExtensionDataTypes {
+--	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+--	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version4 (4)}
 	;
+-- local import
+-- maxExt-GeographicalInformation INTEGER ::= 20
+Ext-GeographicalInformation ::= OCTET STRING (SIZE (1..20))
+ExtensionContainer ::= OCTET STRING
+
+--ExtensionContainer ::=    SEQUENCE {
+--   privateExtensionList [0] IMPLICIT PrivateExtensionList OPTIONAL, 
+--   pcsExtensions     [1] IMPLICIT PcsExtensions OPTIONAL, 
+--   ... }
+
+--PrivateExtensionList ::= SEQUENCE OF PrivateExtension
+
+--PrivateExtension ::=  SEQUENCE {
+--  extId      OBJECT IDENTIFIER,  MAP-EXTENSION .&extensionId
+--  extType    ANY OPTIONAL  { @extId   }
+--} 
+
+--PcsExtensions ::= SEQUENCE {
+--          ...
+-- }
+
 
 PDU ::= SEQUENCE {
 	referenceNumber 	INTEGER (0..7),

@@ -7,7 +7,7 @@
 PDU
 
 #.FN_BODY PDU
-
+	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -17,4 +17,5 @@ PDU
 
   %(DEFAULT_BODY)s
 #.END
+
 

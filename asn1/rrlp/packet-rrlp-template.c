@@ -63,20 +63,6 @@ static gint ett_rrlp = -1;
 /* Include constants */
 #include "packet-rrlp-val.h"
 
-/* If trying to use module import the "dissect_gsm_map_ExtensionContainer" will be wrongly constructed
- * presumably because it assumes it will be PER encoded
- */
-static int
-dissect_MAP_ExtensionDataTypes_ExtensionContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index){
-
-	return dissect_gsm_map_ExtensionContainer(TRUE, tvb, offset, pinfo, tree, hf_index);
-}
-
-static int
-dissect_MAP_LCS_DataTypes_Ext_GeographicalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index){
-
-	return dissect_gsm_map_Ext_GeographicalInformation(TRUE, tvb, offset, pinfo, tree, hf_index);
-}
 
 #include "packet-rrlp-fn.c"
 
