@@ -205,14 +205,18 @@ ep_init_chunk(void)
 	pagesize = sysinfo.dwPageSize;
 
 	versinfo.dwOSVersionInfoSize = sizeof(versinfo);
-	GetVersionEx(&versinfo);
+    if( !GetVersionEx(&versinfo) ) {
+        /* the GetVersionEx() call may fail on some older Win95/98 systems */
+        /* force the id so we don't care about VirtualProtect() return values */
+        versinfo.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
+    }
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
 #endif /* _WIN32 / USE_GUARD_PAGES */
 #endif /* SE_DEBUG_FREE */
-
-
 }
+
+
 /* Initialize the capture-lifetime memory allocation pool.
  * This function should be called only once when Ethereal or Tethereal starts
  * up.
