@@ -1,8 +1,12 @@
 /* packet-btl2cap.c
  * Routines for the Bluetooth L2CAP dissection
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
+ *  From: http://affix.sourceforge.net/archive/ethereal_affix-3.patch
  *
- * $Id: packet-btl2cap.c,v 1.6 2003/03/26 15:53:15 kds Exp $
+ * Refactored for ethereal checkin
+ *   Ronnie Sahlberg 2006
+ *
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -618,6 +622,11 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
 		if(psm){
+			proto_item *psm_item;
+
+			psm_item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
+			PROTO_ITEM_SET_GENERATED(psm_item);
+
 			/* call next dissector */
 			if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm, 
 						next_tvb, pinfo, tree)) {
