@@ -1550,6 +1550,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				 */
 				tvb_set_free_cb(out_tvb, g_free );
 				tvb_set_child_real_data_tvbuff(tvb,out_tvb);
+				add_new_data_source(pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
 			}
 		}
 		val_length = length;
