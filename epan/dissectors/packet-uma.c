@@ -172,10 +172,6 @@ static int hf_uma_urr_channel			= -1;
 static int hf_uma_urr_PDU_in_error		= -1;
 static int hf_uma_urr_sample_size		= -1;
 static int hf_uma_urr_payload_type		= -1;
-static int hf_uma_urr_multirate_speech_ver = -1;
-static int hf_uma_urr_NCSB				= -1;
-static int hf_uma_urr_ICMI				= -1;
-static int hf_uma_urr_start_mode		= -1;
 static int hf_uma_urr_LLC_PDU			= -1;
 static int hf_uma_urr_LBLI				= -1;
 static int hf_uma_urr_RI				= -1;
@@ -201,6 +197,7 @@ static int hf_uma_urr_GPRS_port			= -1;
 static int hf_uma_urr_UNC_tcp_port		= -1;
 static int hf_uma_urr_RTP_port			= -1;
 static int hf_uma_urr_RTCP_port			= -1;
+static int hf_uma_urr_RXLEV_NCELL		= -1;
 
 /* Initialize the subtree pointers */
 static int ett_uma = -1;
@@ -714,24 +711,6 @@ static const value_string sample_size_vals[] = {
 	{ 0,	NULL }
 };
 	
-/*	Multirate speech version Octet 3 Bits 8 7 6 */
-static const value_string multirate_speech_ver_vals[] = {
-	{ 1,		"Adaptive Multirate speech version 1"},
-	{ 2,		"Adaptive Multirate speech version 2"},
-	{ 0,	NULL }
-};
-/* Bit	5 	NSCB: Noise Suppression Control Bit */
-static const value_string NSCB_vals[] = {
-	{ 0,		"Noise Suppression can be used (default)"},
-	{ 1,		"Noise Suppression shall be turned off"},
-	{ 0,	NULL }
-};
-/* Bit	4	ICMI: Initial Codec Mode Indicator */
-static const value_string ICMI_vals[] = {
-	{ 0,		"The initial codec mode is defined by the implicit rule provided in 3GPP TS 05.09"},
-	{ 1,		"The initial codec mode is defined by the Start Mode field"},
-	{ 0,	NULL }
-};
 
 /* MPS, Manual PLMN Selection indicator (octet 3) */
 static const value_string mps_vals[] = {
@@ -1078,8 +1057,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Handover From UMAN Command 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
 		 * TODO: Find out RAT target
-		 * dtap_rr_ho_cmd(tvb, urr_ie_tree, offset, ie_len);
 		 */
+		 dtap_rr_ho_cmd(tvb, urr_ie_tree, offset, ie_len);
 		/*
 		 * If the target RAT is UTRAN, the rest of the IE is coded as
 		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
@@ -1190,28 +1169,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 55:		
 		/* Multi-rate Configuration 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
-		 * Octet 3 Multirate speech version	NSCB	ICMI	spare	Start mode
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_multirate_speech_ver, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NCSB, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ICMI, tvb, ie_offset, 1, FALSE);
-		/* The initial codec mode is coded as in 3GPP TS 45.009 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_start_mode, tvb, ie_offset, 1, FALSE);
-		octet = ( tvb_get_guint8(tvb,ie_offset) &0xe0 ) >> 5;
-		ie_offset++;
-		switch ( octet){
-		case 1:
-			/* Adaptive Multirate speech version 1 */
-			/* Set of AMR codec modes */
-			break;
-		case 2:
-			/* Adaptive Multirate speech version 2 */
-			break;
-		default:
-			proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"Unknown version");
-			break;
-		}
-		ie_offset++;
+		de_rr_multirate_conf(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 56:		
 		/* Mobile Station Classmark 3 
@@ -1320,6 +1279,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	/* 11.2.70 Received Signal Level List */
 	case 70:
 		/* Received Signal Level List */
+		while(ie_offset<=(offset + ie_len)){
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			ie_offset++;
+		}
 		break;
 	/* 11.2.71 Required UMA Services */
 	case 71:
@@ -1489,6 +1452,20 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			src_addr.data=(guint8 *)&rtcp_ipv4_address;
 
 			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
+		}
+		break;
+	case 106:
+		/* 11.2.70 GERAN Received Signal Level List */
+		while(ie_offset<=(offset + ie_len)){
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			ie_offset++;
+		}
+		break;
+	case 107:
+		/* 11.2.70 UTRAN Received Signal Level List */
+		while(ie_offset<=(offset + ie_len)){
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			ie_offset++;
 		}
 		break;
 	default:
@@ -2109,26 +2086,6 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Payload Type", HFILL }
 		},
-		{ &hf_uma_urr_multirate_speech_ver,
-			{ "Multirate speech version","uma.urr.multirate_speech_ver",
-			FT_UINT8,BASE_DEC,  VALS(multirate_speech_ver_vals), 0xe0,          
-			"Multirate speech version", HFILL }
-		},
-		{ &hf_uma_urr_NCSB,
-			{ "NSCB: Noise Suppression Control Bit","uma.urr.NCSB",
-			FT_UINT8,BASE_DEC,  VALS(NSCB_vals), 0x10,          
-			"NSCB: Noise Suppression Control Bit", HFILL }
-		},
-		{ &hf_uma_urr_ICMI,
-			{ "ICMI: Initial Codec Mode Indicator","uma.urr.ICMI",
-			FT_UINT8,BASE_DEC,  VALS(ICMI_vals), 0x8,          
-			"ICMI: Initial Codec Mode Indicator", HFILL }
-		},
-		{ &hf_uma_urr_start_mode,
-			{ "Start Mode","uma.urr.start_mode",
-			FT_UINT8,BASE_DEC,  NULL, 0x3,          
-			"Start Mode", HFILL }
-		},
 		{ &hf_uma_urr_LLC_PDU,
 			{ "LLC-PDU","uma.urr.llc_pdu",
 			FT_BYTES,BASE_HEX,  NULL, 0x0,          
@@ -2253,6 +2210,11 @@ proto_register_uma(void)
 			{ "RTCP UDP port","uma.urr.rtcp_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
 			"RTCP UDP port", HFILL }
+		},
+		{ &hf_uma_urr_RXLEV_NCELL,
+			{ "RX Level","uma.urr.rxlevel",
+			FT_UINT8,BASE_DEC,  NULL, 0x0,          
+			"RX Level", HFILL }
 		},
 	};
 
