@@ -342,7 +342,7 @@ init_progfile_dir(const char *arg0
 			    strerror(errno));
 		}
 		curdir = g_malloc(path_max);
-		if (getcwd(curdir, sizeof curdir) == NULL) {
+		if (getcwd(curdir, path_max) == NULL) {
 			/*
 			 * It failed - give up, and just stick
 			 * with DATAFILE_DIR.
