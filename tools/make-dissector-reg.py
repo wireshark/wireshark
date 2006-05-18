@@ -152,7 +152,7 @@ for symbol in handoff_reg:
 reg_code.write("}\n")
 
 if registertype == "plugin":
-	reg_code.write("#endif");
+	reg_code.write("#endif\n");
 
 # Close the file
 reg_code.close()
