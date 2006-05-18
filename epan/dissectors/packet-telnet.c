@@ -50,6 +50,9 @@ static int hf_telnet_auth_mod_cred_fwd = -1;
 static int hf_telnet_auth_mod_enc = -1;
 static int hf_telnet_auth_krb5_type = -1;
 
+static int hf_telnet_enc_cmd = -1;
+static int hf_telnet_enc_type = -1;
+
 static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
 static gint ett_status_subopt = -1;
@@ -593,6 +596,50 @@ dissect_rfc_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tv
                       val_to_str(cmd, rfc_opt_vals, "Unknown (%u)"));
 }
 
+#define TN_ENC_IS		0
+#define TN_ENC_SUPPORT		1
+#define TN_ENC_REPLY		2
+#define TN_ENC_START		3
+#define TN_ENC_END		4
+#define TN_ENC_REQUEST_START	5
+#define TN_ENC_REQUEST_END	6
+#define TN_ENC_ENC_KEYID	7
+#define TN_ENC_DEC_KEYID	8
+static const value_string enc_cmd_vals[] = {
+	{ TN_ENC_IS,		"IS" },
+	{ TN_ENC_SUPPORT,	"SUPPORT" },
+	{ TN_ENC_REPLY,		"REPLY" },
+	{ TN_ENC_START,		"START" },
+	{ TN_ENC_END,		"END" },
+	{ TN_ENC_REQUEST_START,	"REQUEST-START" },
+	{ TN_ENC_REQUEST_END,	"REQUEST-END" },
+	{ TN_ENC_ENC_KEYID,	"ENC_KEYID" },
+	{ TN_ENC_DEC_KEYID,	"DEC_KEYID" },
+	{ 0, NULL }
+};
+
+#define TN_ENCTYPE_NULL			0
+#define TN_ENCTYPE_DES_CFB64		1
+#define TN_ENCTYPE_DES_OFB64		2
+#define TN_ENCTYPE_DES3_CFB64		3
+#define TN_ENCTYPE_DES3_OFB64		4
+#define TN_ENCTYPE_CAST5_40_CFB64	8
+#define TN_ENCTYPE_CAST5_40_OFB64	9
+#define TN_ENCTYPE_CAST128_CFB64	10
+#define TN_ENCTYPE_CAST128_OFB64	11
+static const value_string enc_type_vals[] = {
+    { TN_ENCTYPE_NULL,			"NULL" },
+    { TN_ENCTYPE_DES_CFB64,		"DES_CFB64" },
+    { TN_ENCTYPE_DES_OFB64,		"DES_OFB64" },
+    { TN_ENCTYPE_DES3_CFB64,		"DES3_CFB64" },
+    { TN_ENCTYPE_DES3_OFB64,		"DES3_OFB64" },
+    { TN_ENCTYPE_CAST5_40_CFB64,	"CAST5_40_CFB64" },
+    { TN_ENCTYPE_CAST5_40_OFB64,	"CAST5_40_OFB64" },
+    { TN_ENCTYPE_CAST128_CFB64,		"CAST128_CFB64" },
+    { TN_ENCTYPE_CAST128_OFB64,		"CAST128_OFB64" },
+    { 0, NULL }
+};
+
 
 #define TN_AC_IS	0
 #define TN_AC_SEND	1
@@ -833,6 +880,79 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
 		}
 		proto_tree_add_string(tree, hf_telnet_auth_name, tvb, offset, len, name);
 		break;
+	}
+}
+
+/* This function only uses the octet in the buffer at 'offset' */
+static void dissect_encryption_type(tvbuff_t *tvb, int offset, proto_tree *tree) {
+	guint8 etype;
+	etype = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_telnet_enc_type, tvb, offset, 1, etype);
+}
+
+static void
+dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+{
+	guint8 ecmd, key_first_octet;
+
+	ecmd = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_telnet_enc_cmd, tvb, offset, 1, ecmd);
+	
+	offset++;
+	len--;
+
+	switch(ecmd) {
+	case TN_ENC_IS:
+	case TN_ENC_REPLY:
+		/* encryption type, type-specific data ... */
+		if (len > 0) {
+			dissect_encryption_type(tvb, offset, tree);
+			offset++;
+			len--;
+			proto_tree_add_text(tree, tvb, offset, len, "Type-specific data");
+		}
+		break;
+
+	case TN_ENC_SUPPORT:
+		/* list of encryption types ... */
+		while (len > 0) {
+			dissect_encryption_type(tvb, offset, tree);
+			offset++;
+			len--;
+		}
+		break;
+		
+	case TN_ENC_START:
+		/* keyid ... */
+		if (len > 0) {
+			key_first_octet = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, len, (key_first_octet == 0) ? "Default key" : "Key ID");
+		}
+		break;
+
+	case TN_ENC_END:
+		/* no data */
+		break;
+
+	case TN_ENC_REQUEST_START:
+		/* (optional) keyid */
+		if (len > 0)
+			proto_tree_add_text(tree, tvb, offset, len, "Key ID (advisory)");
+		break;
+
+	case TN_ENC_REQUEST_END:
+		/* no data */
+		break;
+		
+	case TN_ENC_ENC_KEYID:
+	case TN_ENC_DEC_KEYID:
+		/* (optional) keyid - if not supplied, there are no more known keys */
+		if (len > 0)
+			proto_tree_add_text(tree, tvb, offset, len, "Key ID");
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, len, "Unknown command");
 	}
 }
 
@@ -1108,7 +1228,7 @@ static tn_opt options[] = {
     &ett_enc_subopt,
     VARIABLE_LENGTH,
     1,
-    NULL					/* XXX - fill me in */
+    dissect_encryption_subopt
   },
   {
     "New Environment Option",			/* RFC 1572 */
@@ -1151,7 +1271,7 @@ static tn_opt options[] = {
     VARIABLE_LENGTH,
     1,
     dissect_comport_subopt
-  },
+  }
   
 };
 
@@ -1556,7 +1676,12 @@ proto_register_telnet(void)
        	{ &hf_telnet_auth_krb5_type,
 		{ "Command", "telnet.auth.krb5.cmd", FT_UINT8, BASE_DEC,
 		  VALS(auth_krb5_types), 0, "Krb5 Authentication sub-command", HFILL }},
-		
+	{ &hf_telnet_enc_cmd,
+		{ "Enc Cmd", "telnet.enc.cmd", FT_UINT8, BASE_DEC,
+		  VALS(enc_cmd_vals), 0, "Encryption command", HFILL }},
+	{ &hf_telnet_enc_type,
+		{ "Enc Type", "telnet.enc.type", FT_UINT8, BASE_DEC,
+		  VALS(enc_type_vals), 0, "Encryption type", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_telnet,
@@ -1596,7 +1721,7 @@ proto_register_telnet(void)
 		&ett_xauth_subopt,
 		&ett_charset_subopt,
 		&ett_rsp_subopt,
-		&ett_comport_subopt,
+		&ett_comport_subopt
 	};
 
         proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
