@@ -650,13 +650,13 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (phdr->ts.nsecs >= wdh->dump.dct2000->start_time.nsecs)
     {
         g_snprintf(time_string, 16, "%ld.%04d",
-                 phdr->ts.secs - wdh->dump.dct2000->start_time.secs,
+                 (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs),
                  (phdr->ts.nsecs - wdh->dump.dct2000->start_time.nsecs) / 100000);
     }
     else
     {
         g_snprintf(time_string, 16, "%ld.%04u",
-                 phdr->ts.secs - wdh->dump.dct2000->start_time.secs-1,
+                 (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs-1),
                  ((1000000000 + (phdr->ts.nsecs / 100000)) - (wdh->dump.dct2000->start_time.nsecs / 100000)) % 10000);
     }
 
