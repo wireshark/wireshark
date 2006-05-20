@@ -628,6 +628,17 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
   }
 
+/* XXX - will this work for tethereal? */
+#ifdef MUST_DO_SELECT
+  if (!ld->from_cap_pipe) {
+#ifdef HAVE_PCAP_GET_SELECTABLE_FD
+    ld->pcap_fd = pcap_get_selectable_fd(ld->pcap_h);
+#else
+    ld->pcap_fd = pcap_fileno(ld->pcap_h);
+#endif
+  }
+#endif
+
   /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
      returned a warning; print it, but keep capturing. */
   if (open_err_str[0] != '\0') {
@@ -832,43 +843,115 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #endif /* _WIN32 */
     {
       /* dispatch from pcap */
+#ifdef MUST_DO_SELECT
+      /*
+       * Sigh.  The semantics of the read timeout argument to
+       * "pcap_open_live()" aren't particularly well specified by
+       * the "pcap" man page - at least with the BSD BPF code, the
+       * intent appears to be, at least in part, a way of cutting
+       * down the number of reads done on a capture, by blocking
+       * until the buffer fills or a timer expires - and the Linux
+       * libpcap doesn't actually support it, so we can't use it
+       * to break out of the "pcap_dispatch()" every 1/4 of a second
+       * or so.  Linux's libpcap is not the only libpcap that doesn't
+       * support the read timeout.
+       *
+       * Furthermore, at least on Solaris, the bufmod STREAMS module's
+       * read timeout won't go off if no data has arrived, i.e. it cannot
+       * be used to guarantee that a read from a DLPI stream will return
+       * within a specified amount of time regardless of whether any
+       * data arrives or not.
+       *
+       * Thus, on all platforms other than BSD, we do a "select()" on the
+       * file descriptor for the capture, with a timeout of CAP_READ_TIMEOUT
+       * milliseconds, or CAP_READ_TIMEOUT*1000 microseconds.
+       *
+       * "select()", on BPF devices, doesn't work as you might expect;
+       * at least on some versions of some flavors of BSD, the timer
+       * doesn't start until a read is done, so it won't expire if
+       * only a "select()" or "poll()" is posted.
+       *
+       * If we have "pcap_get_selectable_fd()", we use it to get the
+       * descriptor on which to select; if that's -1, it means there
+       * is no descriptor on which you can do a "select()" (perhaps
+       * because you're capturing on a special device, and that device's
+       * driver unfortunately doesn't support "select()", in which case
+       * we don't do the select - which means Ethereal might block,
+       * unable to accept user input, until a packet arrives.  If
+       * that's unacceptable, plead with whoever supplies the software
+       * for that device to add "select()" support.
+       */
+#ifdef LOG_CAPTURE_VERBOSE
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
+#endif
+      if (ld->pcap_fd != -1) {
+        FD_ZERO(&set1);
+        FD_SET(ld->pcap_fd, &set1);
+        timeout.tv_sec = 0;
+        timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+        sel_ret = select(ld->pcap_fd+1, &set1, NULL, NULL, &timeout);
+        if (sel_ret > 0) {
+          /*
+           * "select()" says we can read from it without blocking; go for
+           * it.
+           */
+          inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *)ld);
+          if (inpkts < 0) {
+            ld->pcap_err = TRUE;
+            ld->go = FALSE;
+          }
+        } else {
+          inpkts = 0;
+          if (sel_ret < 0 && errno != EINTR) {
+            g_snprintf(errmsg, errmsg_len,
+              "Unexpected error from select: %s", strerror(errno));
+            report_capture_error(errmsg, please_report);
+            ld->go = FALSE;
+          }
+        }
+      }
+      else
+#endif /* MUST_DO_SELECT */
+      {
+        /* dispatch from pcap without select */
 #if 1
 #ifdef LOG_CAPTURE_VERBOSE
-      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
 #endif
-      inpkts = pcap_dispatch(ld->pcap_h, -1, ld->packet_cb, (u_char *) ld);
-      if (inpkts < 0) {
-        ld->pcap_err = TRUE;
-        ld->go = FALSE;
-      }
-#else
-#ifdef LOG_CAPTURE_VERBOSE
-      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_next_ex");
-#endif
-      /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
-
-      /* WinPcap's remote capturing feature doesn't work, see http://wiki.ethereal.com/CaptureSetup_2fWinPcapRemote */
-      /* for reference, an example remote interface: rpcap://[1.2.3.4]/\Device\NPF_{39993D68-7C9B-4439-A329-F2D888DA7C5C} */
-
-      /* emulate dispatch from pcap */
-      {
-        int in;
-        struct pcap_pkthdr *pkt_header;
-        u_char *pkt_data;
-
-        inpkts = 0;
-        while( (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
-          ld->packet_cb( (u_char *) ld, pkt_header, pkt_data);
-          inpkts++;
-        }
-
-        if(in < 0) {
+        inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *) ld);
+        if (inpkts < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE;
-          inpkts = in;
         }
-      }
+#else
+        {
+#ifdef LOG_CAPTURE_VERBOSE
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_next_ex");
 #endif
+            /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
+
+            /* WinPcap's remote capturing feature doesn't work, see http://wiki.ethereal.com/CaptureSetup_2fWinPcapRemote */
+            /* for reference, an example remote interface: rpcap://[1.2.3.4]/\Device\NPF_{39993D68-7C9B-4439-A329-F2D888DA7C5C} */
+
+            /* emulate dispatch from pcap */
+            int in;
+            struct pcap_pkthdr *pkt_header;
+		    u_char *pkt_data;
+
+            inpkts = 0;
+            while( (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
+                ld->packet_cb( (u_char *) ld, pkt_header, pkt_data);
+                inpkts++;
+            }
+
+            if(in < 0) {
+              ld->pcap_err = TRUE;
+              ld->go = FALSE;
+              inpkts = in;
+            }
+        }
+#endif
+      }
     }
 
 #ifdef LOG_CAPTURE_VERBOSE
@@ -1018,6 +1101,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.pdh                = NULL;
 #ifndef _WIN32
   ld.cap_pipe_fd        = -1;
+#endif
+#ifdef MUST_DO_SELECT
+  ld.pcap_fd            = 0;
 #endif
   ld.packet_cb          = capture_loop_packet_cb;
 
