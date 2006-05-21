@@ -2,16 +2,16 @@
 
 #
 # competh.py
-# ASN.1 to Ethereal dissector compiler
+# ASN.1 to Wireshark dissector compiler
 # 2004 Tomas Kukosa 
 #
 # $Id$
 #
 
-"""ASN.1 to Ethereal dissector compiler"""
+"""ASN.1 to Wireshark dissector compiler"""
 
 #
-# Compiler from ASN.1 specification to the Ethereal dissector
+# Compiler from ASN.1 specification to the Wireshark dissector
 #
 # Based on ASN.1 to Python compiler from Aaron S. Lav's PyZ3950 package licensed under the X Consortium license
 # http://www.pobox.com/~asl2/software/PyZ3950/
@@ -1253,22 +1253,22 @@ class EthCtx:
       for t in self.value_imp:
         print "%-40s %-24s %-24s" % (t, self.value[t]['import'], self.value[t]['proto'])
       print "\n# Exported Types"
-      print "%-31s %s" % ("Ethereal type", "Export Flag")
+      print "%-31s %s" % ("Wireshark type", "Export Flag")
       print "-" * 100
       for t in self.eth_export_ord:
         print "%-31s 0x%02X" % (t, self.eth_type[t]['export'])
       print "\n# Exported Values"
-      print "%-40s %s" % ("Ethereal name", "Value")
+      print "%-40s %s" % ("Wireshark name", "Value")
       print "-" * 100
       for v in self.eth_vexport_ord:
         print "%-40s %s" % (v, self.eth_value[v]['value'])
       print "\n# ASN.1 Types"
-      print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Ethereal type")
+      print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Wireshark type")
       print "-" * 100
       for t in self.type_ord:
         print "%-49s %-24s %-24s" % (t, self.type[t]['tname'], self.type[t]['ethname'])
-      print "\n# Ethereal Types"
-      print "Ethereal type                   References (ASN.1 types)"
+      print "\n# Wireshark Types"
+      print "Wireshark type                   References (ASN.1 types)"
       print "-" * 100
       for t in self.eth_type_ord:
         print "%-31s %d" % (t, len(self.eth_type[t]['ref'])),
@@ -1281,18 +1281,18 @@ class EthCtx:
           print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'].to_str())
         else:
           print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'])
-      print "\n# Ethereal Values"
-      print "%-40s %s" % ("Ethereal name", "Value")
+      print "\n# Wireshark Values"
+      print "%-40s %s" % ("Wireshark name", "Value")
       print "-" * 100
       for v in self.eth_value_ord:
         print "%-40s %s" % (v, self.eth_value[v]['value'])
       print "\n# ASN.1 Fields"
-      print "ASN.1 unique name                        Ethereal name        ASN.1 type"
+      print "ASN.1 unique name                        Wireshark name        ASN.1 type"
       print "-" * 100
       for f in (self.pdu_ord + self.field_ord):
         print "%-40s %-20s %s" % (f, self.field[f]['ethname'], self.field[f]['type'])
-      print "\n# Ethereal Fields"
-      print "Ethereal name                  Ethereal type        References (ASN.1 fields)"
+      print "\n# Wireshark Fields"
+      print "Wireshark name                  Wireshark type        References (ASN.1 fields)"
       print "-" * 100
       for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
         print "%-30s %-20s %s" % (f, self.eth_hf[f]['ethtype'], len(self.eth_hf[f]['ref'])),
@@ -1715,7 +1715,7 @@ class EthOut:
         return '/* %-74s */\n' % (ln)
     out = ''
     out += outln('Do not modify this file.')
-    out += outln('It is created automatically by the ASN.1 to Ethereal dissector compiler')
+    out += outln('It is created automatically by the ASN.1 to Wireshark dissector compiler')
     out += outln(fn)
     out += outln(' '.join(sys.argv))
     out += '\n'
@@ -4551,10 +4551,10 @@ from PyZ3950 import asn1""" % (fn, time_str)
       eth_do_module (module, defined_dict)
 
 
-# Ethereal compiler
+# Wireshark compiler
 def eth_usage():
   print """
-asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
+asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -h|?       : usage
   -b         : BER (default is PER)
   -u         : unaligned (default is aligned)
@@ -4581,7 +4581,7 @@ asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 """
 
 def eth_main():
-  print "ASN.1 to Ethereal dissector compiler";
+  print "ASN.1 to Wireshark dissector compiler";
   try:
     opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:o:O:c:eSs:k");
   except getopt.GetoptError:
@@ -4683,7 +4683,7 @@ def main():
 #--- BODY ---------------------------------------------------------------------
 
 if __name__ == '__main__':
-  if ('asn2eth' == os.path.splitext(os.path.basename(sys.argv[0]))[0].lower()):
+  if (os.path.splitext(os.path.basename(sys.argv[0]))[0].lower() in ('asn2wrs', 'asn2eth')):
     eth_main()
   else:
     main()
