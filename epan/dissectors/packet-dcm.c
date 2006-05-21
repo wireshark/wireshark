@@ -17,8 +17,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 #endif
 
 /* Notes:
- * This is my first pass at a Ethereal dissector to display
+ * This is my first pass at a Wireshark dissector to display
  * DICOM (Digital Imaging and Communications in Medicine) packets. 
  * 
  * - It currently displays most of the DICOM packets.
@@ -66,7 +66,7 @@
  * - Fixed the dissect code to display all the tags in the pdu
  *
  * 28 Apr 2005
- * - fix memory leak when Assoc packet is processed repeatedly in ethereal
+ * - fix memory leak when Assoc packet is processed repeatedly in wireshark
  *
  * - removed unused partial packet flag
  *
@@ -1113,7 +1113,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.

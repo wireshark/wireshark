@@ -10,8 +10,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
@@ -1913,7 +1913,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   dissect_message(message_tvb, pinfo, tree, m3ua_tree);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_m3ua(void)
 {
@@ -2006,7 +2006,7 @@ proto_register_m3ua(void)
   register_dissector("m3ua", dissect_m3ua, proto_m3ua);
 
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
-  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Ethereal", &version, options, FALSE);
+  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, FALSE);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m3ua, hf, array_length(hf));

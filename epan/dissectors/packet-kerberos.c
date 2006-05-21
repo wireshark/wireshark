@@ -25,8 +25,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -396,7 +396,7 @@ read_keytab_file(const char *filename, krb5_context *context)
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
 
-	/* should use a file in the ethereal users dir */
+	/* should use a file in the wireshark users dir */
 	ret = krb5_kt_resolve(*context, filename, &keytab);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
@@ -519,7 +519,7 @@ read_keytab_file(const char *filename, krb5_context *context)
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
 
-	/* should use a file in the ethereal users dir */
+	/* should use a file in the wireshark users dir */
 	ret = krb5_kt_resolve(*context, filename, &keytab);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);

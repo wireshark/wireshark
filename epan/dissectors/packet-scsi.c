@@ -6,8 +6,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2002 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@
  * - The SCSI CDB is typically embedded inside the transport along with other
  *   header fields that have nothing to do with SCSI. So, it is required to be
 
- * - Originally, Ethereal couldn't do filtering on protocol trees that were not
+ * - Originally, Wireshark couldn't do filtering on protocol trees that were not
  *   on the top level.
  *
  * There are four main routines that are provided:

@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@
  * You need to be looking at: jk/doc/AJP13.html in the
  * jakarta-tomcat-connectors repository.
  *
- * If you're an ethereal dissector guru, then you can skip the rest of
+ * If you're an wireshark dissector guru, then you can skip the rest of
  * this. I'm writing it all down because I've written 3 dissectors so
  * far and every time I've forgotten it all and had to re-learn it
  * from scratch. Not this time, damnit.
@@ -83,9 +83,9 @@
  * order. Users don't normally care, because the low-level kernel
  * networking code takes care of reassembling them properly. But we're
  * looking at raw network packets, aren't we? The stuff on the
- * wire. Ethereal has been getting better and better at helping
+ * wire. Wireshark has been getting better and better at helping
  * dissectors with this. I'm a little fuzzy on the details, but my
- * uderstanding is that ethereal now contains a fairly substantial
+ * uderstanding is that wireshark now contains a fairly substantial
  * user-space TCP/IP stack so it can re-assemble the data. But I might
  * be wrong. Since AJP13 is going to be used either on the loopback
  * interface or on a LAN, it isn't likely to be a big issues anyway.
@@ -97,12 +97,12 @@
  * obviously possible, but a royal pain. During the "phase one"
  * in-order pass you have to keep track of a bunch of offsets and
  * store which PDU goes with which TCP segment. Luckly, recent
- * (0.9.4+) versions of ethereal provide the "tcp_dissect_pdus()"
+ * (0.9.4+) versions of wireshark provide the "tcp_dissect_pdus()"
  * function that takes care of much of the work. See the comments in
  * packet-tcp.c, the example code in packet-dns.c, or check the
  * ethereal-dev archives for details.
  *
- * 3) Ethereal isn't guaranteed to see all the data. I'm a little
+ * 3) Wireshark isn't guaranteed to see all the data. I'm a little
  * unclear on all the possible failure modes, but it comes down to: a)
  * Not your fault: it's an imperfect world, we're eavesdroppers, and
  * stuff happens. We might totally miss packets or get garbled
@@ -630,7 +630,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
 
 
-/* main dissector function. ethereal calls it for segments in both
+/* main dissector function. wireshark calls it for segments in both
  * directions.
  */
 static void

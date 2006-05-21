@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@
  */
 
 /*
- * Excerpts from Brian's posting to ethereal-dev:
+ * Excerpts from Brian's posting to wireshark-dev:
  *
  * The TDS Protocol is actually a protocol within a protocol.  On the outside
  * there is netlib which is not so much a encapsulation as a blocking of the
@@ -1954,7 +1954,7 @@ tds_init(void)
 
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is required because a script is used to build the C function
    that calls all the protocol registration.

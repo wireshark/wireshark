@@ -5,8 +5,8 @@
  *
  * Copyright (c) 2000 by Talarian Corp
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

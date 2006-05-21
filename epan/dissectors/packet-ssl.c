@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1304,7 +1304,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * packets.
      *
      * Handling the single ssl record across multiple packets
-     * may be possible using ethereal conversations, but
+     * may be possible using wireshark conversations, but
      * probably not cleanly.  May have to wait for tcp stream
      * reassembly.
      */
@@ -3942,7 +3942,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
 
 /*********************************************************************
  *
- * Standard Ethereal Protocol Registration and housekeeping
+ * Standard Wireshark Protocol Registration and housekeeping
  *
  *********************************************************************/
 void

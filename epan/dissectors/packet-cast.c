@@ -1089,7 +1089,7 @@ static void dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tcp_dissect_pdus(tvb, pinfo, tree, cast_desegment, 4, get_cast_pdu_len, dissect_cast_pdu);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_cast(void)
 {

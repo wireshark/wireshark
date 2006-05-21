@@ -6,8 +6,8 @@
  *
  * $Id: README.developer 15753 2005-09-10 19:43:41Z guy $
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -4890,7 +4890,7 @@ tvb_get_fixed_point(tvbuff_t *tvb, int offset, gint byte_order)
     return fixed / 128.0F;
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_cigi(void)
 {                 

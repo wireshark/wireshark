@@ -6,8 +6,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -2290,7 +2290,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, conver
 
 
 
-/* Ethereal Protocol Registration */
+/* Wireshark Protocol Registration */
 void
 proto_register_t38(void)
 {

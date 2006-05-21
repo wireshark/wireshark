@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* ./packet-ldap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
@@ -13,8 +13,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -3132,12 +3132,12 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Type of <please tell ethereal developers what this type is>", HFILL }},
+        "Type of <please tell wireshark developers what this type is>", HFILL }},
 
     { &hf_mscldap_netlogon_version,
       { "Version", "mscldap.netlogon.version",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Version of <please tell ethereal developers what this type is>", HFILL }},
+        "Version of <please tell wireshark developers what this type is>", HFILL }},
 
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",

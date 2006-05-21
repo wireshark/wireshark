@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -158,7 +158,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
-       the pseudo-header needed (in some cases) by the ethereal dissector */
+       the pseudo-header needed (in some cases) by the wireshark dissector */
 
 
     /***********************************************************************/
@@ -290,9 +290,9 @@ void proto_register_catapult_dct2000(void)
             }
         },
         { &hf_catapult_dct2000_encap,
-            { "Ethereal encapsulation",
+            { "Wireshark encapsulation",
               "dct2000.encapsulation", FT_UINT8, BASE_DEC, VALS(encap_vals), 0x0,
-              "Ethereal encapsulation used", HFILL
+              "Wireshark encapsulation used", HFILL
             }
         },
         { &hf_catapult_dct2000_unparsed_data,

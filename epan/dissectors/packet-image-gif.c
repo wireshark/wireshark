@@ -8,8 +8,8 @@
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Compuserve GIF media decoding functionality provided by Olivier Biot.
@@ -436,7 +436,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 
-/****************** Register the protocol with Ethereal ******************/
+/****************** Register the protocol with Wireshark ******************/
 
 
 /* This format is required because a script is used to build the C function

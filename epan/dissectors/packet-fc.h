@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT const value_string fc_fc4_val[];
 

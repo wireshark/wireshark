@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -332,15 +332,15 @@ static hf_register_info hf[] = {
 
 	{ &hf_mapi_unknown_string,
 		{ "Unknown string", "mapi.unknown_string", FT_STRING, BASE_NONE,
-		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_mapi_unknown_short,
 		{ "Unknown short", "mapi.unknown_short", FT_UINT16, BASE_HEX,
-		NULL, 0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown short. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_mapi_unknown_long,
 		{ "Unknown long", "mapi.unknown_long", FT_UINT32, BASE_HEX,
-		NULL, 0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_mapi_encap_datalen,
 		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC,

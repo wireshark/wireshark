@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -4063,7 +4063,7 @@ static dissector_handle_t ndps_data_handle;
  * Function and Program numbers. The response, unfortunately, only
  * identifies itself via the Exchange ID; you have to know what type of NDPS
  * request the request packet contained in order to successfully parse the 
- * response. A global method for doing this does not exist in ethereal yet
+ * response. A global method for doing this does not exist in wireshark yet
  * (NFS also requires it), so for now the NDPS section will keep its own hash
  * table keeping track of NDPS packets.
  *
@@ -4115,7 +4115,7 @@ ndps_hash(gconstpointer v)
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in ethereal */
+ * file is loaded or re-loaded in wireshark */
 static void
 ndps_init_protocol(void)
 {

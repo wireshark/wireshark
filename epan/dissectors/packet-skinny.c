@@ -6,15 +6,15 @@
  *
  * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode
  * skeleton to report values for most message/message fields.
- * Much help from Guy Harris on figuring out the ethereal api.
+ * Much help from Guy Harris on figuring out the wireshark api.
  *
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -2586,7 +2586,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	get_skinny_pdu_len, dissect_skinny_pdu);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_skinny(void)
 {

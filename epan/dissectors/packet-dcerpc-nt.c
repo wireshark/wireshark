@@ -7,8 +7,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 
 /*
  * This file contains helper routines that are used by the DCERPC over SMB
- * dissectors for ethereal.
+ * dissectors for wireshark.
  */
 
 /*
@@ -1684,7 +1684,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  { "Unknown char", "nt.unknown.char",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "Unknown char. If you know what this is, contact "
-		    "ethereal developers.", HFILL }},
+		    "wireshark developers.", HFILL }},
 
 		/* Misc */
 

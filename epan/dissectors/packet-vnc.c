@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -93,17 +93,17 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	(a) Operational dissection
 
-		In this mode, Ethereal is only interested in the way protocols
+		In this mode, Wireshark is only interested in the way protocols
 		interact, protocol conversations are created, packets are reassembled
 		and handed over to higher-level protocol dissectors.
-		In this mode Ethereal does not build a so-called "protocol tree".
+		In this mode Wireshark does not build a so-called "protocol tree".
 
 	(b) Detailed dissection
 
-		In this mode, Ethereal is also interested in all details of a given
+		In this mode, Wireshark is also interested in all details of a given
 		protocol, so a "protocol tree" is created.
 
-   Ethereal distinguishes between the 2 modes with the proto_tree pointer:
+   Wireshark distinguishes between the 2 modes with the proto_tree pointer:
 	(a) <=> tree == NULL
 	(b) <=> tree != NULL
 
@@ -167,7 +167,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.

@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -185,7 +185,7 @@ dissect_isup_thin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
    create the code that calls these routines.

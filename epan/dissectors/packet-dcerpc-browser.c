@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -98,7 +98,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -147,7 +147,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -753,7 +753,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -945,7 +945,7 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -1155,19 +1155,19 @@ static hf_register_info hf[] = {
 
 	{ &hf_browser_unknown_long, {
 		"Unknown long", "rpc_browser.unknown.long", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_browser_unknown_hyper, {
 		"Unknown hyper", "rpc_browser.unknown.hyper", FT_UINT64, BASE_HEX,
-		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown hyper. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_browser_unknown_bytes, {
 		"Unknown bytes", "rpc_browser.unknown.bytes", FT_BYTES, BASE_HEX,
-		NULL, 0x0, "Unknown bytes. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_browser_unknown_string, {
 		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_HEX,
-		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }}
+		NULL, 0x0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }}
 
 	};
         static gint *ett[] = {

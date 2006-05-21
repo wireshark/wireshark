@@ -7,8 +7,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -49,7 +49,7 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 
-/* Define version if we are not building ethereal statically */
+/* Define version if we are not building wireshark statically */
 #ifndef ENABLE_STATIC
 #include <gmodule.h>
 G_MODULE_EXPORT const gchar version[] = "0.1";

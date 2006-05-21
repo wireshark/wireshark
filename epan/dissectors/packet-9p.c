@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * File permission bits decoding taken from packet-nfs.c
@@ -675,7 +675,7 @@ static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * item,int offset,int iscr
 	decode_boolean_bitfield(dm,      01, 32, "Execute permission for others", "no Execute permission for others"));
 }
 
-/* Register 9P with Ethereal */
+/* Register 9P with Wireshark */
 void proto_register_9P(void)
 {
 	static hf_register_info hf[] = {

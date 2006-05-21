@@ -15,8 +15,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
@@ -691,7 +691,7 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   dissect_asap_message(message_tvb, pinfo, asap_tree);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_asap(void)
 {

@@ -5,8 +5,8 @@
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -344,7 +344,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
       proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
-                          "   (Warning: this version of Ethereal only knows about versions 0, 2 & 3)");
+                          "   (Warning: this version of Wireshark only knows about versions 0, 2 & 3)");
       break;
     }
     proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb, BPDU_TYPE, 1, bpdu_type);

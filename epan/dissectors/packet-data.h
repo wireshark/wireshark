@@ -2,8 +2,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 #ifndef __PACKET_DATA_H__
 #define __PACKET_DATA_H__
 
-/* "proto_data" is exported from libethereal.dll. 
+/* "proto_data" is exported from libwireshark.dll. 
  * Thus we need a special declaration. 
  */
 ETH_VAR_IMPORT int proto_data;

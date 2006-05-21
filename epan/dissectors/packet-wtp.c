@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
@@ -686,11 +686,11 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pinfo->fragmented = TRUE;
 			fd_wtp = fragment_add_seq(tvb, dataOffset, pinfo, TID,
 					wtp_fragment_table, psn, dataLen, !fTTR);
-			/* XXX - fragment_add_seq() yields NULL unless Ethereal knows
+			/* XXX - fragment_add_seq() yields NULL unless Wireshark knows
 			 * that the packet is part of a reassembled whole. This means
-			 * that fd_wtp will be NULL as long as Ethereal did not encounter
+			 * that fd_wtp will be NULL as long as Wireshark did not encounter
 			 * (and process) the packet containing the last fragment.
-			 * This implies that Ethereal needs two passes over the data for
+			 * This implies that Wireshark needs two passes over the data for
 			 * correct reassembly. At the first pass, a capture containing
 			 * three fragments plus a retransmssion of the last fragment
 			 * will progressively show:
@@ -813,7 +813,7 @@ dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_wtp_common(tvb, pinfo, tree);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_wtp(void)
 {
@@ -1068,7 +1068,7 @@ proto_register_wtp(void)
 
     /* Register the protocol name and description */
     proto_wtp = proto_register_protocol(
-	"Wireless Transaction Protocol",   /* protocol name for use by ethereal */
+	"Wireless Transaction Protocol",   /* protocol name for use by wireshark */
 	"WTP",                             /* short version of name */
 	"wtp"                      /* Abbreviated protocol name, should Match IANA
 					    < URL:http://www.iana.org/assignments/port-numbers/ >

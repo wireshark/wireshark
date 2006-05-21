@@ -12,8 +12,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
@@ -6886,7 +6886,7 @@ static int msg_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_diss
 }
 
 /*---------------------------------------------------------------------*/
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_isup(void)
 {

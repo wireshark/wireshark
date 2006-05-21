@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ register_frame_end_routine(void (*func)(void));
  */
 extern int proto_malformed;
 
-/* following variables are exported from libethereal.dll. 
+/* following variables are exported from libwireshark.dll. 
  * Thus we need a special declaration. 
  */
 ETH_VAR_IMPORT int proto_frame;

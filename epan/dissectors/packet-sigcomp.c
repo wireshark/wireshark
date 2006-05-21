@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -722,7 +722,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 
 			if ( result_code != 0 ){
-				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Ethereal UDVM diagnostic: %s.",
+				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
 					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
 				g_free(buff);
 				return tvb_length(tvb);
@@ -2188,7 +2188,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 	}
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 
 /* If this dissector uses sub-dissector registration add a registration routine.

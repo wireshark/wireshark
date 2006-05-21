@@ -2,8 +2,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  *
  * Start of RedBack SE400/800 tcpdump trace disassembly
  * Copyright 2005 Florian Lohoff <flo@rfc822.org>

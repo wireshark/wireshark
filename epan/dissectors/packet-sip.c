@@ -21,8 +21,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-cops.c
@@ -580,7 +580,7 @@ static guint sip_hash_func(gconstpointer v)
 
 
 /* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in ethereal */
+ * file is loaded or re-loaded in wireshark */
 static void
 sip_init_protocol(void)
 {
@@ -2365,7 +2365,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void proto_register_sip(void)
 {
 

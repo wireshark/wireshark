@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
@@ -274,7 +274,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal. This format is require because a script
+/* Register the protocol with Wireshark. This format is require because a script
  * is used to build the C function that calls all the protocol registration.
  */
 
@@ -343,7 +343,7 @@ proto_reg_handoff_mdshdr(void)
     if (!mdshdr_prefs_initialized) {
         /*
          * This is the first time this has been called (i.e.,
-         * Ethereal/Tethereal is starting up), so create a handle for
+         * Wireshark/Tethereal is starting up), so create a handle for
          * the MDS Header dissector, register the dissector for
          * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
          * Channel handles.

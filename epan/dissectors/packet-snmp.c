@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* ./packet-snmp.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
@@ -23,8 +23,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Some stuff from:
@@ -2829,7 +2829,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * See if this looks like SNMP or not. if not, return 0 so
-	 * ethereal can try som other dissector instead.
+	 * wireshark can try som other dissector instead.
 	 */
 	/* All SNMP packets are BER encoded and consist of a SEQUENCE
 	 * that spans the entire PDU. The first item is an INTEGER that
@@ -2938,7 +2938,7 @@ process_prefs(void)
 	}
 
 	/*
-	 * Cannot check if MIBS is already set, as it could be set by Ethereal.
+	 * Cannot check if MIBS is already set, as it could be set by Wireshark.
 	 *
 	 * If we have a list of modules to load, put that list in MIBS,
 	 * otherwise clear MIBS.
@@ -2950,7 +2950,7 @@ process_prefs(void)
 		 * Windows.  Do the converse on non-Windows systems.  This
 		 * handles cases where we've copied a preferences file
 		 * between a non-Windows box and a Windows box or upgraded
-		 * from an older version of Ethereal under Windows.
+		 * from an older version of Wireshark under Windows.
 		 */
 		g_strdelimit(tmp_mib_modules, IMPORT_SEPARATOR, ENV_SEPARATOR_CHAR);
 

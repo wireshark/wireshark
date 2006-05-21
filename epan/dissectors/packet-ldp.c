@@ -8,8 +8,8 @@
  * CRLDP (RFC3212) is now supported
  *   - (c) 2002 Michael Rozhavsky <mike[AT]tochna.technion.ac.il>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

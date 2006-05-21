@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -4177,7 +4177,7 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_unknown_string,
 		{ "Unknown string", "lsa.unknown_string", FT_STRING, BASE_NONE,
-		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_lsa_hnd,
 		{ "Context Handle", "lsa.hnd", FT_BYTES, BASE_NONE,
@@ -4193,19 +4193,19 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_unknown_hyper,
 		{ "Unknown hyper", "lsa.unknown.hyper", FT_UINT64, BASE_HEX,
-		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown hyper. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_lsa_unknown_long,
 		{ "Unknown long", "lsa.unknown.long", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_lsa_unknown_short,
 		{ "Unknown short", "lsa.unknown.short", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown short. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_lsa_unknown_char,
 		{ "Unknown char", "lsa.unknown.char", FT_UINT8, BASE_HEX,
-		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown char. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_lsa_rc,
 		{ "Return code", "lsa.rc", FT_UINT32, BASE_HEX,

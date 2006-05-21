@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer,v 1.23
@@ -421,6 +421,6 @@ proto_reg_handoff_bvlc(void)
  * a violation of this protocol.
  *
  * This dissector does not analyse UDP packets other than on port 0xBAC0.
- * If you changed your BACnet port locally, use the ethereal feature
+ * If you changed your BACnet port locally, use the wireshark feature
  * "Decode As".
  */

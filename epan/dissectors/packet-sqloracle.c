@@ -1,13 +1,13 @@
 /* packet-sqloracle.c
  * Routines for SQL ORcle packet dissection
  *
- * The initial Ethereal version of this file was imported from the
+ * The initial Wireshark version of this file was imported from the
  * ClearSight source code package.
  * No author/copyright given in the original file.
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

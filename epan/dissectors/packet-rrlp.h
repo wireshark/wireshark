@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* .\packet-rrlp.h                                                            */
 /* ../../tools/asn2eth.py -u -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
 
@@ -12,8 +12,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

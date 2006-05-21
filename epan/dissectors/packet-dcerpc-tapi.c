@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -121,7 +121,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -215,13 +215,13 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Context handle", HFILL }},
 	{ &hf_tapi_unknown_long, {
 		"Unknown long", "tapi.unknown.long", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_tapi_unknown_string, {
 		"Unknown string", "tapi.unknown.string", FT_STRING, BASE_HEX,
-		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_tapi_unknown_bytes, {
 		"Unknown bytes", "tapi.unknown.bytes", FT_BYTES, BASE_HEX,
-		NULL, 0x0, "Unknown bytes. If you know what this is, contact ethereal developers.", HFILL }}
+		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }}
 	};
 
         static gint *ett[] = {

@@ -8,8 +8,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -457,7 +457,7 @@ spx_hash_func(gconstpointer v)
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in ethereal */
+ * file is loaded or re-loaded in wireshark */
 static void
 spx_init_protocol(void)
 {

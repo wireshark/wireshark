@@ -150,7 +150,7 @@ struct v9_template {
 static struct v9_template v9_template_cache[V9TEMPLATE_CACHE_MAX_ENTRIES];
 
 /*
- * ethereal tree identifiers
+ * wireshark tree identifiers
  */
 
 static int      proto_netflow = -1;

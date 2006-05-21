@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -567,7 +567,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 }
 
 /*
- * Register the protocol with Ethereal.
+ * Register the protocol with Wireshark.
  *
  * This format is required because a script is used to build the C function
  * that calls all the protocol registration.

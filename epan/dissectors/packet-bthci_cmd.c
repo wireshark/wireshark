@@ -3,13 +3,13 @@
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
  *  From: http://affix.sourceforge.net/archive/ethereal_affix-3.patch
  *
- * Refactored for ethereal checkin
+ * Refactored for wireshark checkin
  *   Ronnie Sahlberg 2006
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1268,7 +1268,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.

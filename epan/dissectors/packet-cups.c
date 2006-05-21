@@ -1,6 +1,6 @@
 /* packet-cups.c
 * Routines for Common Unix Printing System (CUPS) Browsing Protocol
-* packet disassembly for the Ethereal network traffic analyzer.
+* packet disassembly for the Wireshark network traffic analyzer.
 *
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert

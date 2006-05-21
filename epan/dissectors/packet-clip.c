@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  *
  * This file created by Thierry Andry <Thierry.Andry@advalvas.be>
  * from nearly-the-same packet-raw.c created by Mike Hall <mlh@io.com>

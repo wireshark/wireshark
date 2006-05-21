@@ -6,8 +6,8 @@
  *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1087,7 +1087,7 @@ proto_register_edp(void)
 	/* Unknown element */
 		{ &hf_edp_unknown,
 		{ "Unknown",	"edp.unknown", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Element unknown to Ethereal", HFILL }},
+			0x0, "Element unknown to Wireshark", HFILL }},
 
 	/* Null element */
 		{ &hf_edp_null,

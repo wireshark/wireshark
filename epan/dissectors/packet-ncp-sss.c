@@ -6,8 +6,8 @@
  *
  * $Id: packet-ncp-sss.c,v 1.00 2003/06/26 11:36:14 guy Exp $
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

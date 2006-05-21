@@ -15,12 +15,12 @@
  *
  *    www.packetcable.com
  *
- * Implemented in ethereal at April 7-8, 2004
+ * Implemented in wireshark at April 7-8, 2004
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1737,7 +1737,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void proto_register_cops(void)
 {
   /* Setup list of header fields */

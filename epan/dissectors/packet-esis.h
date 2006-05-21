@@ -4,7 +4,7 @@
  * $Id$
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *

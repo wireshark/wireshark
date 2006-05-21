@@ -5,8 +5,8 @@
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -101,7 +101,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* As there is no guarantee that we will only see frames in the
      * the SMTP conversation once, and that we will see them in
-     * order - in Ethereal, the user could randomly click on frames
+     * order - in Wireshark, the user could randomly click on frames
      * in the conversation in any order in which they choose - we
      * have to store information with each frame indicating whether
      * it contains commands or data or an EOM indication.

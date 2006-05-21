@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -743,7 +743,7 @@ const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
 
 
 /* Function to find the name of a registered protocol
- * or NULL if the protocol/version is not known to ethereal.
+ * or NULL if the protocol/version is not known to wireshark.
  */
 const char *
 dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
@@ -760,7 +760,7 @@ dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
 }
 
 /* Function to find the opnum hf-field of a registered protocol
- * or -1 if the protocol/version is not known to ethereal.
+ * or -1 if the protocol/version is not known to wireshark.
  */
 int
 dcerpc_get_proto_hf_opnum(e_uuid_t *uuid, guint16 ver)
@@ -805,7 +805,7 @@ value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd)
 }
 
 /* Function to find the subdissector table of a registered protocol
- * or NULL if the protocol/version is not known to ethereal.
+ * or NULL if the protocol/version is not known to wireshark.
  */
 dcerpc_sub_dissector *
 dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver)

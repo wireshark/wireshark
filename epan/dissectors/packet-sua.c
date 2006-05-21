@@ -8,8 +8,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
@@ -1870,7 +1870,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_sua(void)
 {
@@ -2008,7 +2008,7 @@ proto_register_sua(void)
 
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
-  prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Ethereal", &version, options, FALSE);
+  prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
 
 }
 

@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -2414,7 +2414,7 @@ static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
         guint32 level;
 
 	/* Guy has pointed out that this dissection looks wrong.  In
-	   the ethereal output for a USER_LEVEL_1 it looks like the 
+	   the wireshark output for a USER_LEVEL_1 it looks like the 
            info level and container pointer are transposed.  I'm not 
            even sure this structure is a container. */
 

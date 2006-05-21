@@ -3,8 +3,8 @@
  * Copyright 2005, Angelo Bannack <angelo.bannack@siemens.com>
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2003 Gerald Combs
  *
  * Copied from packet-ans.c

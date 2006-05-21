@@ -5,8 +5,8 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -97,7 +97,7 @@ void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT const value_string gsm_a_bssmap_msg_strings[];
 ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_mm_strings[];

@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* .\packet-h225.h                                                            */
 /* ../../tools/asn2eth.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
@@ -12,8 +12,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -81,7 +81,7 @@ typedef struct _h225_packet_info {
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 
 

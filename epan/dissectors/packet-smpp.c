@@ -13,8 +13,8 @@
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1808,7 +1808,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Dissect the PDU
 	 *
-	 * If "tree" is NULL, Ethereal is only interested in creation
+	 * If "tree" is NULL, Wireshark is only interested in creation
 	 * of conversations, reassembly and subdissection but not in
 	 * the detailed protocol tree.
 	 * In the interest of speed, skip the generation of protocol tree
@@ -1958,7 +1958,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_smpp(void)
 {

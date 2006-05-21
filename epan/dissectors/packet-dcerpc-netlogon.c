@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -6731,20 +6731,20 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_unknown_string,
 		{ "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
-		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_netlogon_unknown_long,
 		{ "Unknown long", "netlogon.unknown.long", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_netlogon_reserved,
 		{ "Reserved", "netlogon.reserved", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Reserved", HFILL }},
 	{ &hf_netlogon_unknown_short,
 		{ "Unknown short", "netlogon.unknown.short", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown short. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_netlogon_unknown_char,
 		{ "Unknown char", "netlogon.unknown.char", FT_UINT8, BASE_HEX,
-		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown char. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_netlogon_acct_expiry_time,
 		{ "Acct Expiry Time", "netlogon.acct.expiry_time", FT_ABSOLUTE_TIME, BASE_NONE,

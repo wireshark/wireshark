@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  *
  * This file created by Mike Hall <mlh@io.com>
  * Copyright 1998
@@ -133,7 +133,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *			00AA0000
    *
    * However, according to Gerald Combs, a FreeBSD ISDN PPP dump that
-   * Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL,
+   * Andreas Klemm sent to wireshark-dev has a packet type of DLT_NULL,
    * and the family bits look like PPP's protocol field.  (Was this an
    * older, or different, ISDN driver?)  Looking at what appears to be
    * that capture file, it appears that it's using PPP in HDLC framing,
