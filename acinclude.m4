@@ -437,7 +437,7 @@ and did you also install that package?]]))
 	else
 		AC_MSG_RESULT(no)
 	fi
-	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
+	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode pcap_breakloop)
 	#
 	# Later versions of Mac OS X 10.3[.x] ship a pcap.h that
 	# doesn't define pcap_if_t but ship an 0.8[.x] libpcap,

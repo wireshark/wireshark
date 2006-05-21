@@ -49,6 +49,11 @@ gboolean has_wpcap = FALSE;
 
 #ifdef HAVE_LIBPCAP
 
+/*
+ * XXX - should we require at least WinPcap 3.1 both for building an
+ * for using Wireshark?
+ */
+
 static char*   (*p_pcap_lookupdev) (char *);
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
@@ -79,6 +84,9 @@ static int (*p_pcap_datalink_name_to_val) (const char *);
 #endif
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 static const char *(*p_pcap_datalink_val_to_name) (int);
+#endif
+#ifdef HAVE_PCAP_BREAKLOOP
+static void    (*p_pcap_breakloop) (pcap_t *);
 #endif
 static const char *(*p_pcap_lib_version) (void);
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
@@ -120,6 +128,14 @@ load_wpcap(void)
 #endif
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 		SYM(pcap_datalink_val_to_name, TRUE),
+#endif
+#ifdef HAVE_PCAP_BREAKLOOP
+		/*
+		 * We don't try to work around the lack of this at
+		 * run time; it's present in WinPcap 3.1, which is
+		 * the version we build with and ship with.
+		 */
+		SYM(pcap_breakloop, FALSE),
 #endif
 		SYM(pcap_lib_version, TRUE),
 		SYM(pcap_setbuff, TRUE),
@@ -419,6 +435,13 @@ pcap_datalink_val_to_name(int dlt)
 		}
 		return NULL;
 	}
+}
+#endif
+
+#ifdef HAVE_PCAP_BREAKLOOP
+void pcap_breakloop(pcap_t *a)
+{
+	p_pcap_breakloop(a);
 }
 #endif
 

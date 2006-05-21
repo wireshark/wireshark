@@ -51,28 +51,49 @@ extern void capture_loop_stop(void);
 /*** the following is internal only (should be moved to capture_loop_int.h) ***/
 
 
+#ifndef HAVE_PCAP_BREAKLOOP
 /*
- * We don't want to do a "select()" on the pcap_t's file descriptor on
- * BSD (because "select()" doesn't work correctly on BPF devices on at
- * least some releases of some flavors of BSD), and we don't want to do
- * it on Windows (because "select()" is something for sockets, not for
- * arbitrary handles).  (Note that "Windows" here includes Cygwin;
- * even in its pretend-it's-UNIX environment, we're using WinPcap, not
- * a UNIX libpcap.)
+ * We don't have pcap_breakloop(), which is the only way to ensure that
+ * pcap_dispatch(), pcap_loop(), or even pcap_next() or pcap_next_ex()
+ * won't, if the call to read the next packet or batch of packets is
+ * is interrupted by a signal on UN*X, just go back and try again to
+ * read again.
  *
- * We *do* want to do it on other platforms, as, on other platforms (with
- * the possible exception of Ultrix and Digital UNIX), the read timeout
- * doesn't expire if no packets have arrived, so a "pcap_dispatch()" call
- * will block until packets arrive, causing the UI to hang.
+ * On UN*X, we catch SIGUSR1 as a "stop capturing" signal, and, in
+ * the signal handler, set a flag to stop capturing; however, without
+ * a guarantee of that sort, we can't guarantee that we'll stop capturing
+ * if the read will be retried and won't time out if no packets arrive.
+ *
+ * Therefore, on at least some platforms, we work around the lack of
+ * pcap_breakloop() by doing a select() on the pcap_t's file descriptor
+ * to wait for packets to arrive, so that we're probably going to be
+ * blocked in the select() when the signal arrives, and can just bail
+ * out of the loop at that point.
+ *
+ * However, we don't want to that on BSD (because "select()" doesn't work
+ * correctly on BPF devices on at least some releases of some flavors of
+ * BSD), and we don't want to do it on Windows (because "select()" is
+ * something for sockets, not for arbitrary handles).  (Note that "Windows"
+ * here includes Cygwin; even in its pretend-it's-UNIX environment, we're
+ * using WinPcap, not a UNIX libpcap.)
+ *
+ * Fortunately, we don't need to do it on BSD, because the libpcap timeout
+ * on BSD times out even if no packets have arrived, so we'll eventually
+ * exit pcap_dispatch() with an indication that no packets have arrived,
+ * and will break out of the capture loop at that point.
+ *
+ * On Windows, we can't send a SIGUSR1 to stop capturing, so none of this
+ * applies in any case.
  *
  * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
  * want to include it if it's not present on this platform, however.
  */
-#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
+# if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
     !defined(__bsdi__) && !defined(__APPLE__) && !defined(_WIN32) && \
     !defined(__CYGWIN__)
-# define MUST_DO_SELECT
-#endif
+#  define MUST_DO_SELECT
+# endif /* avoid select */
+#endif /* HAVE_PCAP_BREAKLOOP */
 
 typedef void (*capture_packet_cb_fct)(u_char *, const struct pcap_pkthdr *, const u_char *);
 
