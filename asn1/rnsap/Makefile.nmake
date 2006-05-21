@@ -13,11 +13,11 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py rnsap.asn packet-rnsap-template.c packet-rnsap-template.h rnsap.cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py rnsap.asn packet-rnsap-template.c packet-rnsap-template.h rnsap.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -e -p $(PROTOCOL_NAME) -c rnsap.cnf -s packet-rnsap-template rnsap.asn
+	$(PYTHON) ../../tools/asn2wrs.py -e -p $(PROTOCOL_NAME) -c rnsap.cnf -s packet-rnsap-template rnsap.asn
 !ELSE
-	@echo Error: You need Python to use asn2eth.py
+	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
 !ENDIF
 

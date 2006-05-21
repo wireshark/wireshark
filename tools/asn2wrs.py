@@ -2853,6 +2853,7 @@ class EnumeratedType (Type):
     return pars
 
   def eth_type_default_table(self, ectx, tname):
+   if (not ectx.Per()): return ''
     map_table = self.get_vals_etc(ectx)[3]
     if (map_table == None): return ''
     table = "static guint32 %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"

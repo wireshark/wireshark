@@ -13,11 +13,11 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py GSMMAP.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h gsmmap.cnf 
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py GSMMAP.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h gsmmap.cnf 
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -b -e -p $(PROTOCOL_NAME) -c gsmmap.cnf -s packet-$(PROTOCOL_NAME)-template GSMMAP.asn
+	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c gsmmap.cnf -s packet-$(PROTOCOL_NAME)-template GSMMAP.asn
 !ELSE
-	@echo Error: You need Python to use asn2eth.py
+	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
 !ENDIF
 

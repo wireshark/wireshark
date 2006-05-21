@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py acse.asn packet-acse-template.c packet-acse-template.h acse.cnf
-	python ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py acse.asn packet-acse-template.c packet-acse-template.h acse.cnf
+	python ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

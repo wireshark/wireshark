@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py MAP_DialoguePDU.asn packet-MAP-DialoguePDU-template.c packet-MAP-DialoguePDU-template.h MAP_DialoguePDU.cnf
-	python ../../tools/asn2eth.py -X -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py MAP_DialoguePDU.asn packet-MAP-DialoguePDU-template.c packet-MAP-DialoguePDU-template.h MAP_DialoguePDU.cnf
+	python ../../tools/asn2wrs.py -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

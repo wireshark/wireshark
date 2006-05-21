@@ -12,8 +12,8 @@ ASN_EXPORTS=		../x509if/x509if-exp.cnf \
 			../ros/ros-exp.cnf \
 			../acse/acse-exp.cnf 
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py dap.asn packet-dap-template.c packet-dap-template.h dap.cnf $(ASN_EXPORTS)
-	python ../../tools/asn2eth.py -X -b -e -p dap -c dap.cnf -s packet-dap-template  dap.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py dap.asn packet-dap-template.c packet-dap-template.h dap.cnf $(ASN_EXPORTS)
+	python ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template  dap.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

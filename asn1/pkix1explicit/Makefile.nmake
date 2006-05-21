@@ -13,11 +13,11 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py PKIX1EXPLICIT93.asn packet-pkix1explicit-template.c packet-pkix1explicit-template.h pkix1explicit.cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py PKIX1EXPLICIT93.asn packet-pkix1explicit-template.c packet-pkix1explicit-template.h pkix1explicit.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -e -X -b -p $(PROTOCOL_NAME) -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn 
+	$(PYTHON) ../../tools/asn2wrs.py -e -b -p $(PROTOCOL_NAME) -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn 
 !ELSE
-	@echo Error: You need Python to use asn2eth.py
+	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
 !ENDIF
 
