@@ -7,7 +7,7 @@
 
 
 /*
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  */

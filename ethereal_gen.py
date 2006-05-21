@@ -2057,7 +2057,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
     template_ethereal_copyright = """\
 /*
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  */

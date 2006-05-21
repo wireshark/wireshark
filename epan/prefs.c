@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1398,7 +1398,7 @@ prefs_set_pref(char *prefarg)
  * This applies to more than just captures, so it's not "capture.name_resolve";
  * "capture.name_resolve" is supported on input for backwards compatibility.
  *
- * It's not a preference for a particular part of Ethereal, it's used all
+ * It's not a preference for a particular part of Wireshark, it's used all
  * over the place, so its name doesn't have two components.
  */
 #define PRS_NAME_RESOLVE "name_resolve"
@@ -1815,7 +1815,7 @@ set_pref(gchar *pref_name, gchar *value)
 
         /*
          * XXX - "Diameter" rather than "diameter" was used in earlier
-         * versions of Ethereal; if we didn't find the module, and its name
+         * versions of Wireshark; if we didn't find the module, and its name
          * was "Diameter", look for "diameter" instead.
          *
          * In addition, the BEEP protocol used to be the BXXP protocol,
@@ -1851,7 +1851,7 @@ set_pref(gchar *pref_name, gchar *value)
         /*
          * XXX - "mgcp.display raw text toggle" and "mgcp.display dissect tree"
          * rather than "mgcp.display_raw_text" and "mgcp.display_dissect_tree"
-         * were used in earlier versions of Ethereal; if we didn't find the
+         * were used in earlier versions of Wireshark; if we didn't find the
          * preference, it was an MGCP preference, and its name was
          * "display raw text toggle" or "display dissect tree", look for
          * "display_raw_text" or "display_dissect_tree" instead.
@@ -2158,7 +2158,7 @@ write_pref(gpointer data, gpointer user_data)
 	case PREF_ENUM:
 		/*
 		 * For now, we save the "description" value, so that if we
-		 * save the preferences older versions of Ethereal can at
+		 * save the preferences older versions of Wireshark can at
 		 * least read preferences that they supported; we support
 		 * either the short name or the description when reading
 		 * the preferences file or a "-o" option.
@@ -2247,7 +2247,7 @@ write_prefs(char **pf_path_return)
     pf = stdout;
   }
 
-  fputs("# Configuration file for Ethereal " VERSION ".\n"
+  fputs("# Configuration file for Wireshark " VERSION ".\n"
     "#\n"
     "# This file is regenerated each time preferences are saved within\n"
     "# Ethereal.  Making manual changes should be safe, however.\n", pf);

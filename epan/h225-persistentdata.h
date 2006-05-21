@@ -1,14 +1,14 @@
 /*
  * h225-persistentdata.h
- * Definitions for lists and hash tables used in ethereal's h225 dissector
+ * Definitions for lists and hash tables used in wireshark's h225 dissector
  * for calculation of delays in h225-calls
  *
  * Copyright 2003 Lars Roland
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

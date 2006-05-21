@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2006 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

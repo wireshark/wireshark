@@ -4,8 +4,8 @@
  * $Id$
  * Copied from gtk/sip_stat.c and tap-httpstat.c
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

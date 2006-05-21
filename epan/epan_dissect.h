@@ -2,9 +2,9 @@
  *
  * $Id$
  *
- * Ethereal Protocol Analyzer Library
+ * Wireshark Protocol Analyzer Library
  *
- * Copyright (c) 2001 by Gerald Combs <gerald@ethereal.com>
+ * Copyright (c) 2001 by Gerald Combs <gerald@wireshark.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -4,10 +4,10 @@
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id:$
+ * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

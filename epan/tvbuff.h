@@ -13,8 +13,8 @@
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -414,7 +414,7 @@ extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
  *                    be g_free() by the caller.
  * tvb_get_ephemeral_faked_unicode() returns a buffer that does not need
  *                    to be explicitely freed. Instead this buffer is
- *                    automatically freed when ethereal starts dissecting
+ *                    automatically freed when wireshark starts dissecting
  *                    the next packet.
  */
 extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,

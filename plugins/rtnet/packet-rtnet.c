@@ -6,8 +6,8 @@
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  * Copyright (c) 2004 by Jan Kiszka <jan.kiszka@web.de>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

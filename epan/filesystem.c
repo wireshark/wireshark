@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -479,7 +479,7 @@ get_progfile_dir(void)
  * stored.
  *
  * XXX - if we ever make libethereal a real library, used by multiple
- * applications (more than just Tethereal and versions of Ethereal with
+ * applications (more than just Tethereal and versions of Wireshark with
  * various UIs), should the configuration files belong to the library
  * (and be shared by all those applications) or to the applications?
  *

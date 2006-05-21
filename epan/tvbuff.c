@@ -16,8 +16,8 @@
  * Code to convert IEEE floating point formats to native floating point
  * derived from code Copyright (c) Ashok Narayanan, 2000
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1022,7 +1022,7 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
  * 
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
- * when ethereal starts decoding the next packet.
+ * when wireshark starts decoding the next packet.
  * Do not use this function if you want the allocated memory to be persistent
  * after the current packet has been dissected.
  */
@@ -1105,9 +1105,9 @@ tvb_get_ntoh64(tvbuff_t *tvb, gint offset)
  * huge surprise).
  *
  * I don't know whether there are any other machines that
- * could run Ethereal and that don't use IEEE format.
+ * could run Wireshark and that don't use IEEE format.
  * As far as I know, all of the main commercial microprocessor
- * families on which OSes that support Ethereal can run
+ * families on which OSes that support Wireshark can run
  * use IEEE format (x86, 68k, SPARC, MIPS, PA-RISC, Alpha,
  * IA-64, and so on).
  */
@@ -1745,7 +1745,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
  *
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
- * when ethereal starts decoding the next packet.
+ * when wireshark starts decoding the next packet.
  */
 char *
 tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
@@ -1853,7 +1853,7 @@ tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
  *
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
- * when ethereal starts decoding the next packet.
+ * when wireshark starts decoding the next packet.
  * Do not use this function if you want the allocated memory to be persistent
  * after the current packet has been dissected.
  */
@@ -1905,7 +1905,7 @@ tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
  *
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
- * when ethereal starts decoding the next packet.
+ * when wireshark starts decoding the next packet.
  * Do not use this function if you want the allocated memory to be persistent
  * after the current packet has been dissected.
  */

@@ -2,7 +2,7 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 2001 Gerald Combs
  *

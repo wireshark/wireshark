@@ -46,7 +46,7 @@ A small example of a very basic stats_tree plugin follows.
  *
  * $ ~Id:  $
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.org>
  * Copyright 1998 Gerald Combs
  *

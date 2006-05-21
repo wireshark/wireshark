@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "Ethereal capture file library\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "wiretap @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@ethereal.com>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "wiretap-@VERSION@.dll\0"
             VALUE "ProductName", "Ethereal\0"
             VALUE "ProductVersion", "@VERSION@\0"

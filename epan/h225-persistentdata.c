@@ -1,14 +1,14 @@
 /*
  * h225-persistentdata.c
- * Source for lists and hash tables used in ethereal's h225 dissector
+ * Source for lists and hash tables used in wireshark's h225 dissector
  * for calculation of delays in h225-calls
  *
  * Copyright 2003 Lars Roland
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -127,7 +127,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
 
 
 /* Init routine for hash tables and delay calculation
-   This routine will be called by Ethereal, before it
+   This routine will be called by Wireshark, before it
    is (re-)dissecting a trace file from beginning.
    We need to discard and init any state we've saved */
 

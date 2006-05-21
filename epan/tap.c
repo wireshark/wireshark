@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ static volatile tap_listener_t *tap_listener_queue=NULL;
 /* **********************************************************************
  * Init routine only called from epan at application startup
  * ********************************************************************** */
-/* This function is called once when ethereal starts up and is used
+/* This function is called once when wireshark starts up and is used
    to init any data structures we may need later.
 */
 void

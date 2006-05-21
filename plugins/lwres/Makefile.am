@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Ethereal - Network traffic analyzer / light waight resolver (part of Bind9)
+# Wireshark - Network traffic analyzer / light waight resolver (part of Bind9)
 # By Steve Oleg Terletsky <oleg.terletsky@comverse.com>
 # Copyright 2003
 # 

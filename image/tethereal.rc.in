@@ -23,7 +23,7 @@ BEGIN
             VALUE "FileDescription", "Tethereal\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "Tethereal @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@ethereal.com>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "Tethereal.exe\0"
             VALUE "ProductName", "Tethereal\0"
             VALUE "ProductVersion", "@VERSION@\0"

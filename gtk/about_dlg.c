@@ -4,8 +4,8 @@
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -100,7 +100,7 @@ splash_new(char *message)
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
-    about_ethereal(win, main_vb, "Ethereal - Network Protocol Analyzer");
+    about_ethereal(win, main_vb, "Wireshark - Network Protocol Analyzer");
 
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
@@ -143,7 +143,7 @@ about_ethereal_page_new(void)
 {
   GtkWidget   *main_vb, *msg_label /*, *icon*/;
   gchar       *message;
-  const char   title[] = "Ethereal - Network Protocol Analyzer";
+  const char   title[] = "Wireshark - Network Protocol Analyzer";
 
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 12);

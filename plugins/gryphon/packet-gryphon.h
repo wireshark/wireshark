@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *

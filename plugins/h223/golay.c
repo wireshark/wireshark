@@ -6,8 +6,8 @@
  * This implementation will detect up to 4 errors in a codeword (without
  * being able to correct them); it will correct up to 3 errors.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
 
 #include "epan/epan.h"
 
-/* With MSVC and a libethereal.dll, we need a 
+/* With MSVC and a libwireshark.dll, we need a 
  * special declaration of num_tap_filters.
  */
 ETH_VAR_IMPORT int num_tap_filters;

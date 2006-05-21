@@ -583,8 +583,8 @@ SVN repository (checked in).
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
@@ -3336,5 +3336,5 @@ Gilbert Ramirez <gram@alumni.rice.edu>
 Jeff Foster <jfoste@woodward.com>
 Olivier Abad <oabad@cybercable.fr>
 Laurent Deniel <laurent.deniel@free.fr>
-Gerald Combs <gerald@ethereal.com>
+Gerald Combs <gerald@wireshark.org>
 Guy Harris <guy@alum.mit.edu>
