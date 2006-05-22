@@ -66,7 +66,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./configure.in /tmp/dpep-work.rT2mW8/et
 +fi
 +
 +
- dnl Check if ethereal should be installed setuid
+ dnl Check if wireshark should be installed setuid
  AC_ARG_ENABLE(setuid-install,
  [  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
 @@ -1322,3 +1363,4 @@

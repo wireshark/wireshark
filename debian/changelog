@@ -629,7 +629,7 @@ ethereal (0.9.1-6) unstable; urgency=low
 
 ethereal (0.9.1-5) unstable; urgency=low
 
-  * debian/rules: added --disable-ssl so that ethereal is not built with
+  * debian/rules: added --disable-ssl so that wireshark is not built with
     ssl support and may be uploaded to main. (closes: #134273)
 
  -- Frederic Peters <fpeters@debian.org>  Mon, 18 Feb 2002 09:33:30 +0100

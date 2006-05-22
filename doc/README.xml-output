@@ -8,7 +8,7 @@ Ethereal has the ability to export its protocol dissection in an
 XML format, tethereal has similar functionality by using the "-Tpdml" 
 option. 
 
-The XML that ethereal produces follows the Packet Details Markup
+The XML that wireshark produces follows the Packet Details Markup
 Language (PDML) specified by the group at the Politecnico Di Torino
 working on Analyzer. The specification can be found at:
 
@@ -27,8 +27,8 @@ be ambiguous.
 
 PDML
 ====
-The PDML that ethereal produces is known not to be loadable into Analyzer.
-It causes Analyzer to crash. As such, the PDML that ethereal produces
+The PDML that wireshark produces is known not to be loadable into Analyzer.
+It causes Analyzer to crash. As such, the PDML that wireshark produces
 is be labled with a version number of "0", which means that the PDML does
 not fully follow the PDML spec. Furthemore, a creator attribute in the
 "<pdml>" tag gives the version number of [t]ethereal that produced the PDML.
@@ -94,7 +94,7 @@ Many dissectors label the undissected payload of a protocol as belonging
 to a "data" protocol, and the "data" protocol usually resided inside
 that last protocol dissected. In the PDML, The "data" protocol becomes
 a "data" field, placed exactly where the "data" protocol is in wireshark's
-protocol tree. So, if ethereal would normally show:
+protocol tree. So, if wireshark would normally show:
 
 +-- Frame
 |

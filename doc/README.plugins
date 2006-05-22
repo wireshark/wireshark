@@ -196,7 +196,7 @@ The good news is that if you are working on a single plugin
 then you will find recompiling the plugin MUCH faster than 
 recompiling a dissector and then linking it back into ethereal.
 
-The bad news is that ethereal will not use the plugin unless the 
+The bad news is that wireshark will not use the plugin unless the 
 plugin is installed in one of the places it expects to look.
 
 One way to deal with this problem is to set up a working root for 

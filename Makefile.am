@@ -264,7 +264,7 @@ endif		# HAVE_PLUGINS
 # linked into the ethereal executable.
 # They will also be linked into the tethereal executable; if this
 # list ever grows to include something that can't be linked with
-# tethereal, or if tethereal needs something that ethereal doesn't,
+# tethereal, or if tethereal needs something that wireshark doesn't,
 # we should probably split this into stuff needed both
 # by wireshark and tethereal and stuff needed only by one or the
 # other.
