@@ -141,7 +141,7 @@ static print_stream_t *print_stream;
  * Standard secondary message for unexpected errors.
  */
 static const char please_report[] =
-    "Please report this to the Ethereal developers";
+    "Please report this to the Wireshark developers";
 
 #ifdef HAVE_LIBPCAP
 /*

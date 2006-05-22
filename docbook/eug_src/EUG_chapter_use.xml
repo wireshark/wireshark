@@ -11,7 +11,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    How the Ethereal user interface works
+	    How the Wireshark user interface works
 	  </para>
 	</listitem>
 	<listitem>
@@ -132,7 +132,7 @@
 	
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
-      The Wireshark menu sits on top of the Ethereal window. 
+      The Wireshark menu sits on top of the Wireshark window. 
       An example is shown in <xref linkend="ChUseEtherealMenu"/>.
     </para>
 	<note><title>Note!</title>
@@ -342,7 +342,7 @@
 		<entry></entry>
 		<entry><para>
 			This menu item allows you to show a list of files in a file set. 
-			It pops up the Ethereal List File Set dialog box (which is 
+			It pops up the Wireshark List File Set dialog box (which is 
 			discussed further in <xref linkend="ChIOFileSetSection"/>).
 		  </para></entry>
 	      </row>
@@ -375,7 +375,7 @@
 		<entry><para>
 		    This menu item allows you to export all, or some, of the packets in 
 		    the capture file to a plain ASCII text file. 
-			It pops up the Ethereal Export dialog box (which is discussed further in 
+			It pops up the Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPlainDialog"/>).
 		  </para></entry>
 	      </row>
@@ -385,7 +385,7 @@
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
 		    the capture file to a PostScript file. 
-			It pops up the Ethereal Export dialog box (which is discussed further in 
+			It pops up the Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPSDialog"/>).
 		  </para></entry>
 	      </row>
@@ -395,7 +395,7 @@
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packet summaries in 
 		    the capture file to a .csv file (e.g. used by spreadsheet programs). 
-			It pops up the Ethereal Export dialog box (which is discussed further in 
+			It pops up the Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportCSVDialog"/>).
 		  </para></entry>
 	      </row>
@@ -405,7 +405,7 @@
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
 		    the capture file to a PSML (packet summary markup language) XML file. 
-			It pops up the Ethereal Export dialog box (which is discussed further in 
+			It pops up the Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPSMLDialog"/>).
 		  </para></entry>
 	      </row>
@@ -415,7 +415,7 @@
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
 		    the capture file to a PDML (packet details markup language) XML file. 
-			It pops up the Ethereal Export dialog box (which is discussed further in 
+			It pops up the Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPDMLDialog"/>).
 		  </para></entry>
 	      </row>
@@ -439,7 +439,7 @@
 		<entry>Ctrl+P</entry>
 		<entry><para>
 		    This menu item allows you to print all (or some of) the packets in 
-		    the capture file. It pops up the Ethereal Print dialog 
+		    the capture file. It pops up the Wireshark Print dialog 
 		    box (which is discussed further in 
 		    <xref linkend="ChIOPrintSection"/>).
 		  </para></entry>
@@ -1586,7 +1586,7 @@
 		<entry>File/Print...</entry>
 		<entry><para>
 		    This item allows you to print all (or some of) the packets in 
-		    the capture file. It pops up the Ethereal Print dialog 
+		    the capture file. It pops up the Wireshark Print dialog 
 		    box (which is discussed further in 
 		    <xref linkend="ChIOPrintSection"/>).
 		  </para></entry>

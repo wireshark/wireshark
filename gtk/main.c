@@ -3275,13 +3275,13 @@ welcome_new(void)
 #if (GLIB_MAJOR_VERSION >= 2)
     item_hb = welcome_item(GTK_STOCK_HOME,
         "Home",
-        "Visit the Ethereal homepage",
+        "Visit the Wireshark homepage",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 
     item_hb = welcome_item(ETHEREAL_STOCK_WEB_SUPPORT,
         "User's Guide",
-        "Open the Ethereal User's Guide",
+        "Open the Wireshark User's Guide",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 #endif

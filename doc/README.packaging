@@ -7,7 +7,7 @@ distributing a software package containing Ethereal:
 
     http://www.ethereal.com/distribution/all-versions/ethereal-0.55.71.tar.bz2
 
-    If your packaging system downloads a copy of the Ethereal sources,
+    If your packaging system downloads a copy of the Wireshark sources,
     use this location.
 
 2.  The Wireshark web site URL is http://www.ethereal.com/ .
@@ -22,7 +22,7 @@ distributing a software package containing Ethereal:
     you use this to differentiate your package from official Ethereal
     releases.
 
-6.  Ethereal icons can be found in the "image" directory of the Ethereal 
+6.  Ethereal icons can be found in the "image" directory of the Wireshark 
     sources.  Larger versions of the logo can be found at
     http://www.ethereal.com/~gerald/ethereal_logo/povray/ .
 

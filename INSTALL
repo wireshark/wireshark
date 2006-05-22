@@ -1,4 +1,4 @@
-NOTE: this document applies to the Ethereal source releases.  It also
+NOTE: this document applies to the Wireshark source releases.  It also
 applies to buildbot source tarballs, but it does not apply to source
 code checked out directly from Subversion, as files such as the
 configuration script are not checked into Subversion, but need to be
@@ -57,7 +57,7 @@ README.win32 for those instructions.
     Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
     .rpm to go along with the "libpcap" .rpm.
 
-4. Run './configure' in the Ethereal distribution directory.
+4. Run './configure' in the Wireshark distribution directory.
     Running './configure --help' displays a list of options.
     The file 'INSTALL.configure' contains general instructions for
     using 'configure' and 'make'. Ethereal has some non-generic configure 

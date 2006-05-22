@@ -1,6 +1,6 @@
 -- ExtendedSecurityServices as defined in RFC2634
 -- 
--- The ASN definition has been modified to suit the Ethereal ASN2ETH compiler
+-- The ASN definition has been modified to suit the Wireshark ASN2ETH compiler
 -- 
 -- 
 -- 

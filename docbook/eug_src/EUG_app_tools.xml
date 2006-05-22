@@ -8,7 +8,7 @@
   <section id="AppToolsIntroduction">
     <title>Introduction</title>
     <para>
-	Beside the Ethereal GUI application, there are some command line tools, 
+	Beside the Wireshark GUI application, there are some command line tools, 
 	which can be helpful for doing some more specialized things. These tools 
 	will be described in this chapter.
 	</para>
@@ -42,7 +42,7 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     </para>
 	<note><title>Note!</title>
 	<para>
-	tcpdump is not part of the Ethereal distribution. You can get it from:
+	tcpdump is not part of the Wireshark distribution. You can get it from:
 	<ulink url="http://www.tcpdump.org">http://www.tcpdump.org</ulink> for various 
 	platforms.
 	</para>

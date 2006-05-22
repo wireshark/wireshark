@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test the file I/O of the Ethereal tools
+# Test the file I/O of the Wireshark tools
 #
 # $Id$
 #

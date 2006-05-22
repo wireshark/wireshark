@@ -150,7 +150,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2deb /tmp/dpep-work.K2bQz4/etherea
 +Depends: ethereal (= %s), ${shlibs:Depends}
 +Description: GIOP dissector for CORBA interface %s
 + This package provides a dissector for GIOP (General Inter-ORB
-+ Protocol) for the Ethereal protocol analyser.  It decodes the CORBA
++ Protocol) for the Wireshark protocol analyser.  It decodes the CORBA
 + (Common Object Request Broker Architecture) interfaces described
 + in the IDL (Interface Definition Language) file '%s.idl'.
 +""" % (base, name, email, base, deb, base, base))

@@ -20,7 +20,7 @@
 	needed to develop Ethereal.
   </para>
   <para>
-	The second part of this book will describe how to change the Ethereal 
+	The second part of this book will describe how to change the Wireshark 
 	source code.
   </para>
   <para>
@@ -55,7 +55,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Gerald Combs, for initiating the Ethereal project.
+	  Gerald Combs, for initiating the Wireshark project.
 	</para>
       </listitem>
       <listitem>

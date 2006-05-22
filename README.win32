@@ -4,7 +4,7 @@ Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
 These are the instructions for installing Ethereal
 from the installation executable that is provided on
-the Ethereal website at:
+the Wireshark website at:
 
 http://www.ethereal.com/distribution/win32
 
@@ -30,7 +30,7 @@ All binaries in Wireshark package are now built with debugging
 information embedded. If you are experiencing a crash when running
 Ethereal or other binaries, Dr. Watson or your debugger
 can use the information embedded in the binary to provide useful 
-information to the Ethereal developers that will help them pinpoint 
+information to the Wireshark developers that will help them pinpoint 
 the problem. 
 
 In the past, two versions of Ethereal binaries were published -- a
@@ -42,7 +42,7 @@ to capture packets on Win32 platforms.
 
 As of WinPcap 2.1, all the WinPcap libraries have been released as DLLs. 
 This means that Ethereal can detect the presence of WinPcap at run time,
-which means that only one version of the Ethereal binaries needs to be
+which means that only one version of the Wireshark binaries needs to be
 shipped.
 
 If you don't want to capture packets, just install the Ethereal
@@ -88,7 +88,7 @@ The rest of this documentation is only interesting if
 you want to compile Ethereal yourself.
 
 
-Compiling the Ethereal distribution from source
+Compiling the Wireshark distribution from source
 ===============================================
 
 Developer's Guide
@@ -244,7 +244,7 @@ The gettext runtime package provides intl.dll, which is needed by
 GLib 2.4.7.
 
 
-Compiling the Ethereal distribution using GTK+2
+Compiling the Wireshark distribution using GTK+2
 -----------------------------------------------
 
 The more recent version 2 of the GTK+ can be used to compile 
@@ -299,7 +299,7 @@ Yes, the location of plugins needs to be more flexible.
 
 Instructions for MS Visual C++
 ----------------------------
-Modify the config.nmake file in the top directory of the Ethereal source
+Modify the config.nmake file in the top directory of the Wireshark source
 tree to work for your local configuration; if you don't have Python,
 comment out the line that defines PYTHON, otherwise set it to refer to
 the pathname of your Python interpreter executable.  You should not have
@@ -384,7 +384,7 @@ make-tapreg-dotc, tap-*.c       tethereal-tap-register.c
 make-tapreg-dotc, tap files	gtk/ethereal-tap-register.c
     in the gtk subdirectory                             Bash + grep + sed
 
-The Makefile.nmake supplied with the Ethereal distribution will, if
+The Makefile.nmake supplied with the Wireshark distribution will, if
 PYTHON is defined in config.nmake, attempt to make register.c with
 Python, since it is much much much faster than the shell version.  The
 reason it is faster is because the shell version launches multiple
@@ -444,7 +444,7 @@ GTK-Wimp can be used to get a native Look-and-Feel on WinXP machines,
 especially with the new "coloured" WinXP theme. It will only take effect
 together with the GTK2 version of Ethereal. 
 
-No changes to the Ethereal sources are needed, GTK-Wimp simply changes the 
+No changes to the Wireshark sources are needed, GTK-Wimp simply changes the 
 way GTK2 displays the widgets (by changing the GTK2 default theme).
 
 GTK-Wimp will be automatically installed if you use the official Ethereal Setup. 
@@ -481,7 +481,7 @@ ANSI-C functions like fopen, malloc, etc..  MSVCRT.DLL is shipped with
 the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's
 like the one's for gtk, glib and such.  The MSVC 7 compiler now uses and
 ships MSVCRT71.DLL with it, which is incompatible with MSVCRT.DLL.  So
-when using the MSVC 7 compiler, some parts of the Ethereal code uses
+when using the MSVC 7 compiler, some parts of the Wireshark code uses
 MSVCRT71.DLL, and some others (indirectly from e.g. the gtk DLL) will
 use MSVCRT.DLL.  This will result in incorrect file handles and such.
 

@@ -10,7 +10,7 @@
     would like from Ethereal because of the lack of documentation.
   </para>
   <para>
-    This document is part of an effort by the Ethereal team to improve the 
+    This document is part of an effort by the Wireshark team to improve the 
 	usability of Ethereal.
   </para>
   <para>
@@ -32,7 +32,7 @@
   <para>
   This book is not intended to explain network sniffing in general and it will
   not provide details about specific network protocols. A lot of useful 
-  information regarding these topics can be found at the Ethereal Wiki at
+  information regarding these topics can be found at the Wireshark Wiki at
   <ulink url="&EtherealWikiPage;">&EtherealWikiPage;</ulink>
   </para>
   <para>
@@ -53,7 +53,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Gerald Combs, for initiating the Ethereal project and funding to 
+	  Gerald Combs, for initiating the Wireshark project and funding to 
 	  do this documentation.
 	</para>
       </listitem>
@@ -124,7 +124,7 @@
     <para>
       This book was originally developed by 
       <ulink url="mailto:&AuthorEmail;">Richard Sharpe</ulink> with 
-      funds provided from the Ethereal Fund. It was updated by 
+      funds provided from the Wireshark Fund. It was updated by 
 	  <ulink url="mailto:&AuthorEmail2;">Ed Warnicke</ulink> and more recently 
 	  redesigned and updated by <ulink url="mailto:&AuthorEmail3;">Ulf 
 	  Lamping</ulink>.

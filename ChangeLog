@@ -74,7 +74,7 @@ problem).
 I've also reworked the tcptrace display code slightly to properly handle 
 the initial ack packet of a sequence;
 
-As an example of the some of the fixes the Ethereal tcptrace style graph 
+As an example of the some of the fixes the Wireshark tcptrace style graph 
 of the following conversation fragment will now be similar to the graph 
 produced by Tcptrace.
 
@@ -1570,7 +1570,7 @@ Changed paths:
 
 Repeatedly indicate that "-w" is for writing binary packet data, and
 that if you want to send text to a file, just redirect the standard
-output.  I've seen at least one message on the Ethereal lists from
+output.  I've seen at least one message on the Wireshark lists from
 somebody who didn't realize that, and I think I've seen more.
 
 ------------------------------------------------------------------------
@@ -2288,7 +2288,7 @@ New protocol : CIGI  (with minor updates to make it heuristic)
 Hi,
 
 This patch is for a CIGI dissector (complete versions 2 and 3).  It has
-been [fuzz] tested on GNU/Linux using the Ethereal 0.10.13 codebase.
+been [fuzz] tested on GNU/Linux using the Wireshark 0.10.13 codebase.
 However, the patch here is against the svn repository.
 
 More information about CIGI can be found at http://cigi.sourceforge.net/
@@ -5922,7 +5922,7 @@ Changed paths:
    M /trunk/tap-iostat.c
 
 Make the processing of "-z" arguments in the Tethereal I/O stat tap more
-like that of the Ethereal I/O stat tap.  Improve error messages in both
+like that of the Wireshark I/O stat tap.  Improve error messages in both
 taps.
 
 Use nstime() routines and structure assignment to do operations on

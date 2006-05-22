@@ -494,7 +494,7 @@ get_progfile_dir(void)
  * Note that some of those configuration files might be used by code in
  * libethereal, some of them might be used by dissectors (would they
  * belong to libethereal, the application, or a separate library?),
- * and some of them might be used by other code (the Ethereal preferences
+ * and some of them might be used by other code (the Wireshark preferences
  * file includes resolver preferences that control the behavior of code
  * in libethereal, dissector preferences, and UI preferences, for
  * example).

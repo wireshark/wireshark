@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# Make-faq - Creates a plain text version of the Ethereal FAQ
+# Make-faq - Creates a plain text version of the Wireshark FAQ
 #	from http://www.ethereal.com/faq.html
 
 rm -f FAQ

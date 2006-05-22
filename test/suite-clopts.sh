@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test the command line options of the Ethereal tools
+# Test the command line options of the Wireshark tools
 #
 # $Id$
 #

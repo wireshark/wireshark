@@ -28,7 +28,7 @@
 	  </para></listitem>
 	</itemizedlist>
 	There are other Ethereal frontends existing, not developped nor
-	maintained by the Ethereal development team:
+	maintained by the Wireshark development team:
 	<itemizedlist>
 	  <listitem><para>
 	  Packetyzer (Win32 native interface, written in Delphi and released
@@ -40,7 +40,7 @@
 	  finished)
 	  </para></listitem>
 	</itemizedlist>
-	This chapter is focussed on the Ethereal frontend, and especially on
+	This chapter is focussed on the Wireshark frontend, and especially on
 	the GTK specific things.
 	</para>
   </section>

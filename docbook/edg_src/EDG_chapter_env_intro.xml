@@ -104,7 +104,7 @@
     </title>
     <para>
       Ethereal was initially developed by Gerald Combs. Ongoing development 
-      and maintenance of Wireshark is handled by the Ethereal team, a loose 
+      and maintenance of Wireshark is handled by the Wireshark team, a loose 
       group of individuals who fix bugs and provide new functionality.  
     </para>
     <para>
@@ -112,7 +112,7 @@
       protocol dissectors to Ethereal, and it is expected that this will 
       continue.  You can find a list of the people who have contributed 
       code to Ethereal by checking the about dialog box of Ethereal, or have 
-	  a look at the <ulink url="&EtherealAuthorsPage;"/> page on the Ethereal 
+	  a look at the <ulink url="&EtherealAuthorsPage;"/> page on the Wireshark 
 	  web site.
     </para>
     <para>
@@ -142,7 +142,7 @@
     <para>
 	So unless you are going to change the development process of Ethereal 
 	itself, you won't come in touch with any other programming language than 
-	ANSI C (such as perl or python, which are used only in the Ethereal build 
+	ANSI C (such as perl or python, which are used only in the Wireshark build 
 	process).
     </para>
     <para>
@@ -169,7 +169,7 @@
     <para>
 	  You are welcome to 
       modify Ethereal to suit your own needs, and it would be appreciated 
-      if you contribute your improvements back to the Ethereal team.
+      if you contribute your improvements back to the Wireshark team.
     </para>
     <para>
       You gain three benefits by contributing your improvements back to the 
@@ -204,7 +204,7 @@
     </para>
     <para>
       The Wireshark source code and binary kits for some platforms are all 
-      available on the download page of the Ethereal website: 
+      available on the download page of the Wireshark website: 
       <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.
     </para>
 	
@@ -283,7 +283,7 @@
     <para>
 	You should use the released sources if you want to build Ethereal from
 	source on your platform for productive use. However, if you going to 
-	develop changes to the Ethereal sources, it might be better to use the 
+	develop changes to the Wireshark sources, it might be better to use the 
 	latest SVN sources. For details about the different ways to get the 
 	Ethereal source code see <xref linkend="ChSrcObtain"/>.
     </para>
@@ -305,7 +305,7 @@
 
         <section id="ChIntroHomepage"><title>Website</title>
     <para>
-        You will find lot's of useful information on the Ethereal homepage at
+        You will find lot's of useful information on the Wireshark homepage at
         <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
         </para>
         </section>
@@ -402,10 +402,10 @@
 	  </listitem>
 	</varlistentry>
       </variablelist>
-      You can subscribe to each of these lists from the Ethereal web site: 
+      You can subscribe to each of these lists from the Wireshark web site: 
       <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.  Simply 
       select the <command>mailing lists</command> link on the left hand 
-      side of the site. The lists are archived at the Ethereal web site 
+      side of the site. The lists are archived at the Wireshark web site 
       as well.
 	<tip><title>Tip!</title>
 	<para>
@@ -557,7 +557,7 @@ $
 	<itemizedlist>
 	<listitem>
 	<para>
-    have a look at the Ethereal source code
+    have a look at the Wireshark source code
 	</para>
 	</listitem>
 	<listitem>

@@ -185,7 +185,7 @@ and, if you're including it to get routines such as "open()", "close()",
 
 in order to declare the Windows C library routines "_open()",
 "_close()", "_read()", and "_write()".  Your file must include <glib.h>
-- which many of the Ethereal header files include, so you might not have
+- which many of the Wireshark header files include, so you might not have
 to include it explicitly - in order to get "open()", "close()",
 "read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
 "_write()", etc..
@@ -301,7 +301,7 @@ mechanisms that are present in GLib 1.2[.x] and GTK+ 1.2[.x], use #if's
 to conditionally use older or newer mechanisms depending on the platform
 on which Wireshark is being built, or, if the code in GLib or GTK+ that
 implements that mechanism will build with GLib 1.2[.x]/GTK+ 1.2[.x],
-conditionally include that code as part of the Ethereal source and use
+conditionally include that code as part of the Wireshark source and use
 the included version with GLib 1.2[.x] or GTK+ 1.2[.x].  In particular,
 if the GLib 2.x or GTK+ 2.x mechanism indicates that a routine is
 deprecated and shouldn't be used in new code, and that it was renamed in

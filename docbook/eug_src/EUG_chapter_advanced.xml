@@ -25,7 +25,7 @@
     <para>
       Simply select a TCP packet in the packet list of the stream/connection 
 	  you are interested in and then select the Follow TCP Stream menu item 
-	  from the Ethereal Tools menu (or use the context menu in the packet 
+	  from the Wireshark Tools menu (or use the context menu in the packet 
 	  list).
 	  Ethereal will set an appropriate display filter and pop up a dialog
 	  box with all the data from the TCP stream laid out in order, 
@@ -883,7 +883,7 @@
 	</listitem>
 	<listitem>
 	<para>
-	Turn off checksum validation of the specific protocol in the Ethereal 
+	Turn off checksum validation of the specific protocol in the Wireshark 
 	preferences.
 	</para>
 	</listitem>

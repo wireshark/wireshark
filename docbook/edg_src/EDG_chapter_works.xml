@@ -92,7 +92,7 @@
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	  <term><command>Win-/libpcap (not part of the Ethereal package)</command></term>
+	  <term><command>Win-/libpcap (not part of the Wireshark package)</command></term>
 	    <listitem>
 	      <para>
 		  The platform dependant packet capture library, including the capture 

@@ -23,7 +23,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # 
 
-# path to the Ethereal binaries, only used for the settings below
+# path to the Wireshark binaries, only used for the settings below
 ETH_BIN_PATH=../Debug_GTK2
 
 # Tweak the following to your liking.

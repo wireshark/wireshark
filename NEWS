@@ -91,7 +91,7 @@ Getting Ethereal
    Most Linux and Unix vendors supply their own Ethereal packages.
    You can install or upgrade Ethereal using the package management
    system specific to that platform. A list of third-party packages
-   can be found on the [5]download page on the Ethereal web site.
+   can be found on the [5]download page on the Wireshark web site.
 
 File Locations
 
@@ -216,7 +216,7 @@ Ethereal 0.10.13 has been released.
        manually through the View/Time Display Format menu items.
 
      o The WinPcap version 3.1 installer was released since the last Ethereal
-       release. The version included in the Ethereal Windows installer has
+       release. The version included in the Wireshark Windows installer has
        been updated from 3.1 beta 4 to 3.1. If you want to upgrade WinPcap
        separately or install a different version you can download it from:
        [3]the WinPcap web site.
@@ -289,7 +289,7 @@ Getting Ethereal
    Most Linux and Unix vendors supply their own Ethereal packages. You can
    install or upgrade Ethereal using the package management system specific
    to that platform. A list of third-party packages can be found on the
-   [7]download page on the Ethereal web site.
+   [7]download page on the Wireshark web site.
 
 File Locations
 
@@ -449,7 +449,7 @@ New and updated features
 
   A lot of documentation was updated
 
-  Some command line parameters have changed, see the Ethereal / Tethereal
+  Some command line parameters have changed, see the Wireshark / Tethereal
   manual pages
 
   A "File/File Set" submenu was added to better handle multiple files

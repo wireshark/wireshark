@@ -41,7 +41,7 @@
 	</para>
 	<para>
 	The following sections give a very brief description of 
-	what the particular tool is doing, how it is used in the Ethereal project 
+	what the particular tool is doing, how it is used in the Wireshark project 
 	and how it can be installed and tested.
 	</para>
 	<para>
@@ -193,7 +193,7 @@
 	  <entry><xref linkend="ChToolsSubversion"/></entry>
 	  <entry>-</entry>
 	  <entry><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></entry>
-	  <entry>Only needed if you access the Ethereal sources using 
+	  <entry>Only needed if you access the Wireshark sources using 
 	  the subversion repository (the recommended way).</entry>
 	</row>
 	<row>
@@ -338,7 +338,7 @@
 	<section>
 	<title>TortoiseSVN</title>
 	<para>
-	If you want to work with the Ethereal subversion source repositories 
+	If you want to work with the Wireshark subversion source repositories 
 	(which is highly recommended, see <xref linkend="ChSrcObtain"/>), 
 	it's recommended to use TortoiseSVN. You can download the setup from 
 	<ulink url="http://tortoisesvn.tigris.org/"/> and simply install it.
@@ -353,7 +353,7 @@
 	</para>
 	<para>
 	You may check the MAKENSIS setting in the file 
-	<filename>config.nmake</filename> of the Ethereal sources.
+	<filename>config.nmake</filename> of the Wireshark sources.
 	</para>
 	</section>
 	</section>
@@ -361,14 +361,14 @@
 	<section id="ChToolsWin32Verify">
 	<title>Verify installed tools</title>
 	<para>
-	After you've installed the Ethereal sources (see <xref 
+	After you've installed the Wireshark sources (see <xref 
 	linkend="ChSrcObtain"/>), you can check the correct installation of 
 	all tools by using the verify_tools target of the 
 	<filename>Makefile.nmake</filename> from the source package.
 	</para>
 	<warning><title>Warning!</title>
 	<para>
-	You will need the Ethereal sources and some tools (nmake, bash) installed, 
+	You will need the Wireshark sources and some tools (nmake, bash) installed, 
 	before this verification is able to work.
 	</para>
 	</warning>
@@ -1075,14 +1075,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<para>
 	The Wireshark project uses it's own subversion (or short SVN) server to keep 
 	track of all the changes done to the source code. Details about the usage
-	of subversion in the Ethereal project can be found in <xref 
+	of subversion in the Wireshark project can be found in <xref 
 	linkend="ChSrcSVNServer"/>.
 	</para>
 	<para>	
 	If you want to work with the source code and planning to commit your
-	changes back to the Ethereal community, it is recommended to use a SVN 
+	changes back to the Wireshark community, it is recommended to use a SVN 
 	client to get the latest source files. For detailed information about the 
-	different ways to obtain the Ethereal sources, see 
+	different ways to obtain the Wireshark sources, see 
 	<xref linkend="ChSrcObtain"/>.
 	</para>
 	<para>
@@ -1147,7 +1147,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	Diff is used to get a file of all differences between two source
 	files/trees (sometimes called a patch). The diff tool isn't needed for 
 	building Ethereal, but it's needed if you are going to commit your changes 
-	back to the Ethereal community.
+	back to the Wireshark community.
 	</para>
 	<note><title>Note!</title>
 	<para>
@@ -1367,7 +1367,7 @@ written by Larry Wall and Paul Eggert]]>
 	<section id="ChToolsCVS">
 	<title>Obsolete: CVS client</title>
 	<para>
-	Some time ago, the Ethereal project was using CVS to keep track of all 
+	Some time ago, the Wireshark project was using CVS to keep track of all 
 	the source code changes. As now subversion (SVN) is used, a CVS client
 	is no longer helpful, see <xref linkend="ChToolsSubversion"/> for details 
 	about subversion clients.

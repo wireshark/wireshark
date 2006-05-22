@@ -62,7 +62,7 @@
   <section id="ChBuildInstallDistro">
     <title>Obtaining the source and binary distributions</title>
     <para>
-      You can obtain both source and binary distributions from the Ethereal 
+      You can obtain both source and binary distributions from the Wireshark 
       web site: <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>. 
       Simply select the download link, and then select either the source 
       package or binary package of your choice from the mirror site closest 
@@ -307,7 +307,7 @@ tar xvf ethereal-&EtherealCurrentVersion;-tar
 	    <note>
 	      <title>Note!</title>
 	      <para>
-		If you have downloaded the Ethereal tarball under Windows, 
+		If you have downloaded the Wireshark tarball under Windows, 
 		you may find that your browser has created a file with 
 		underscores rather than periods in its file name.
 	      </para>
@@ -316,7 +316,7 @@ tar xvf ethereal-&EtherealCurrentVersion;-tar
 	</listitem>
 	<listitem>
 	  <para>
-	    Change directory to the Ethereal source directory.
+	    Change directory to the Wireshark source directory.
 	  </para>
 	</listitem>
 	<listitem>
@@ -365,15 +365,15 @@ make install
       In general, installing the binary under your version of UNIX will be 
       specific to the installation methods used with your version of UNIX.  
       For example, under AIX, you would use <command>smit</command> to 
-      install the Ethereal binary package, while under Tru64 UNIX 
+      install the Wireshark binary package, while under Tru64 UNIX 
       (formerly Digital UNIX) you would use <command>setld</command>.
     </para>
   
   <section>
     <title>Installing from rpm's under RedHat and alike</title>
     <para>
-      Use the following command to install the Ethereal RPM that you have 
-      downloaded from the Ethereal web site:
+      Use the following command to install the Wireshark RPM that you have 
+      downloaded from the Wireshark web site:
       <programlisting>
 rpm -ivh ethereal-0.10.5-0.2.2.i386.rpm
       </programlisting>
@@ -460,7 +460,7 @@ apt-get install ethereal
 		<filename>ethereal-setup-x.y.z.exe</filename>.
 	</para>
 	<para>
-	    Simply download the Ethereal installer from:
+	    Simply download the Wireshark installer from:
 	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink> 
 		and execute it.
 	</para>
@@ -474,7 +474,7 @@ apt-get install ethereal
   <section id="ChBuildInstallEtherealCommandLine">
     <title>Command line options</title>
     <para>
-	You can simply start the Ethereal installer without any command line 
+	You can simply start the Wireshark installer without any command line 
 	parameters, it will show you the usual interactive installer.
     </para>
     <para>
@@ -620,7 +620,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
     <title>Install WinPcap</title>
     <note><title>Note!</title>
 	<para>
-	<command>As mentioned above, the Ethereal installer 
+	<command>As mentioned above, the Wireshark installer 
 	(since version 0.10.12) takes care of the installation of WinPcap, 
 	so usually you don't have to worry about WinPcap at all!</command> 
     </para>
@@ -630,7 +630,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	capture files, but you will not be able to capture live network traffic.
     </para>
     <para>
-	While running, the Ethereal installer detects which WinPcap version is 
+	While running, the Wireshark installer detects which WinPcap version is 
 	currently installed and will install WinPcap, if none or an older version is 
 	detected. 
     </para>
@@ -651,7 +651,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
     <title>Manual WinPcap Installation</title>
     <para>
 	The following is only necessary if you want to 
-	try a different version than the one included in the Ethereal installer, 
+	try a different version than the one included in the Wireshark installer, 
 	e.g. because a new WinPcap (beta) version was released.
     </para>
     <para>

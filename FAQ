@@ -270,7 +270,7 @@
    cannot, for example, make a "derived work" from Ethereal, by making
    modifications to it, and then sell the resulting derived work and not allow
    recipients to give away the resulting work. You must also make the changes
-   you've made to the Ethereal source available to all recipients of your
+   you've made to the Wireshark source available to all recipients of your
    modified version; those changes must also be licensed under the terms of the
    GPL. See the GPL FAQ for more details; in particular, note the answer to the
    question about modifying a GPLed program and selling it commercially, and
@@ -1409,7 +1409,7 @@ cies
    single port so that you can plug your analyzer into that single port to
    sniff all traffic. You would have to check the documentation for the switch
    to see if this is possible and, if so, to see how to do this. See the switch
-   reference page on the Ethereal Wiki for information on some switches. (Note
+   reference page on the Wireshark Wiki for information on some switches. (Note
    that it's a Wiki, so you can update or fix that information, or add
    additional information on those switches or information on new switches,
    yourself.)
@@ -1457,7 +1457,7 @@ cies
 
    In the case of token ring interfaces, the drivers for some of them, on
    Windows, may require you to enable promiscuous mode in order to capture in
-   promiscuous mode. See the Ethereal Wiki item on Token Ring capturing for
+   promiscuous mode. See the Wireshark Wiki item on Token Ring capturing for
    details.
 
    In the case of wireless LAN interfaces, it appears that, when those
@@ -1532,7 +1532,7 @@ cies
    of Ethereal and a shared libpcap library with DAG support, in order to do so
    with Ethereal. You should ask Endace whether that could be used to capture
    traffic on, for example, your T1/E1 link.
-   See the SS7 capture setup page on the Ethereal Wiki for current information
+   See the SS7 capture setup page on the Wireshark Wiki for current information
    on capturing SS7 traffic on TDM links.
 
    Q 7.6: How do I put an interface into promiscuous mode?
@@ -1681,7 +1681,7 @@ cies
    In order to see the raw Ethernet packets, rather than "de-VLANized" packets,
    you would have to capture not on the virtual interface for the VLAN, but on
    the interface corresponding to the physical network device, if possible. See
-   the Ethereal Wiki item on VLAN capturing for details.
+   the Wireshark Wiki item on VLAN capturing for details.
 
    Q 7.12: Why does Ethereal hang after I stop a capture?
 
@@ -1728,13 +1728,13 @@ cies
    running the most recent release of Ethereal, you should first upgrade to
    that release, as, if there's a bug of that sort, it might've been fixed in a
    release after the one you're running. If the hang occurs in the most recent
-   release of Ethereal, the bug should be reported to the Ethereal developers'
+   release of Ethereal, the bug should be reported to the Wireshark developers'
    mailing list at ethereal-dev@ethereal.com.
 
    On UNIX-flavored OSes, please try to force Ethereal to dump core, by sending
    it a SIGABRT signal (usually signal 6) with the kill command, and then get a
    stack trace if you have a debugger installed. A stack trace can be obtained
-   by using your debugger (gdb in this example), the Ethereal binary, and the
+   by using your debugger (gdb in this example), the Wireshark binary, and the
    resulting core file. Here's an example of how to use the gdb command
    backtrace to do so.
         $ gdb ethereal core
@@ -1819,7 +1819,7 @@ cies
        4.0 or Windows Vista Beta 1, you should be able to capture on the
        "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it
        the "NdisWanAdapter"; if you're using a 3.1 beta release, you should
-       un-install it and install the final 3.1 release.) See the Ethereal Wiki
+       un-install it and install the final 3.1 release.) See the Wireshark Wiki
        item on PPP capturing for details.
     4. WinPcap prior to 3.0 does not support multiprocessor machines (note that
        machines with a single multi-threaded processor, such as Intel's new
@@ -1909,7 +1909,7 @@ cies
    or Windows Vista Beta 1, you should be able to capture on the
    "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
    "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
-   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   it and install the final 3.1 release.) See the Wireshark Wiki item on PPP
    capturing for details.
 
    Q 8.4: I'm running Ethereal on Windows NT 4.0/Windows 2000/Windows
@@ -1930,7 +1930,7 @@ cies
    or Windows Vista Beta 1, you should be able to capture on the
    "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
    "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
-   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   it and install the final 3.1 release.) See the Wireshark Wiki item on PPP
    capturing for details.
 
    Q 8.5: I'm running Ethereal on Windows 95/98/Me, on a machine with more than
@@ -2018,14 +2018,14 @@ cies
    account sufficient privileges to capture packets. Only those interfaces that
    Ethereal can open for capturing show up in that list; if you don't have
    sufficient privileges to capture on any interfaces, no interfaces will show
-   up in the list. See the Ethereal Wiki item on capture privileges for details
+   up in the list. See the Wireshark Wiki item on capture privileges for details
    on how to give a particular account or account group capture privileges on
    platforms where that can be done.
 
    If you are running Ethereal from an account with sufficient privileges, then
    note that Ethereal relies on the libpcap library, and on the facilities that
    come with the OS on which it's running in order to do captures. On some
-   OSes, those facilities aren't present by default; see the Ethereal Wiki item
+   OSes, those facilities aren't present by default; see the Wireshark Wiki item
    on adding capture support for details.
 
    And, even if you're running with an account that has sufficient privileges
@@ -2142,7 +2142,7 @@ cies
    resolve the name because it will not be able to communicate with any DNS or
    NIS servers.
 
-   See the Ethereal Wiki item on 802.11 capturing for details.
+   See the Wireshark Wiki item on 802.11 capturing for details.
 
    Q 10.2: How do I capture on an 802.11 device in monitor mode?
 
@@ -2179,7 +2179,7 @@ cies
    possible" option, clicking "Save" if you want to save that setting in your
    preference file, and clicking "OK".
 
-   It can also be set on the Ethereal or Tethereal command line with a -o
+   It can also be set on the Wireshark or Tethereal command line with a -o
    tcp.check_checksum:false command-line flag, or manually set in your
    preferences file by adding a tcp.check_checksum:false line.
 
@@ -2267,7 +2267,7 @@ cies
    Q 12.3: How do I filter a capture to see traffic for virus XXX?
 
    A: For some viruses/worms there might be a capture filter to recognize the
-   virus traffic. Check the CaptureFilters page on the Ethereal Wiki to see if
+   virus traffic. Check the CaptureFilters page on the Wireshark Wiki to see if
    anybody's added such a filter.
 
    Note that Ethereal was not designed to be an intrusion detection system; you

@@ -263,7 +263,7 @@
   <section id="ChIntroDownload">
     <title>Where to get Ethereal?</title>
     <para>
-      You can get the latest copy of the program from the Ethereal website: 
+      You can get the latest copy of the program from the Wireshark website: 
       <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.  The 
       website allows you to choose from among several mirrors for 
       downloading.
@@ -341,7 +341,7 @@
     </title>
     <para>
       Ethereal was initially developed by Gerald Combs. Ongoing development 
-      and maintenance of Wireshark is handled by the Ethereal team, a loose 
+      and maintenance of Wireshark is handled by the Wireshark team, a loose 
       group of individuals who fix bugs and provide new functionality.  
     </para>
     <para>
@@ -357,7 +357,7 @@
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
 	  All source code is freely available under the GPL.  You are welcome to 
       modify Ethereal to suit your own needs, and it would be appreciated 
-      if you contribute your improvements back to the Ethereal team.
+      if you contribute your improvements back to the Wireshark team.
     </para>
     <para>
       You gain three benefits by contributing your improvements back to the 
@@ -392,7 +392,7 @@
     </para>
     <para>
       The Wireshark source code and binary kits for some platforms are all 
-      available on the download page of the Ethereal website: 
+      available on the download page of the Wireshark website: 
       <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.
     </para>
   </section>
@@ -407,7 +407,7 @@
 
 	<section id="ChIntroHomepage"><title>Website</title>
     <para>
-	You will find lot's of useful information on the Ethereal homepage at
+	You will find lot's of useful information on the Wireshark homepage at
 	<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
 	</para>
 	</section>
@@ -481,10 +481,10 @@
 	  </listitem>
 	</varlistentry>
       </variablelist>
-      You can subscribe to each of these lists from the Ethereal web site: 
+      You can subscribe to each of these lists from the Wireshark web site: 
       <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.  Simply 
       select the <command>mailing lists</command> link on the left hand 
-      side of the site. The lists are archived at the Ethereal web site 
+      side of the site. The lists are archived at the Wireshark web site 
       as well.
 	<tip><title>Tip!</title>
 	<para>

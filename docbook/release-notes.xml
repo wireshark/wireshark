@@ -131,7 +131,7 @@ Ethereal Info
 	Most Linux and Unix vendors supply their own Ethereal packages.
 	You can install or upgrade Ethereal using the package management
 	system specific to that platform.  A list of third-party packages
-        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Ethereal web site.
+        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
     </section>
 

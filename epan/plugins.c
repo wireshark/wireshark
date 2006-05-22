@@ -352,7 +352,7 @@ char *get_plugins_global_dir(const char *plugin_dir)
 	 *
 	 * Assume we're running the installed version of Wireshark;
 	 * on Windows, the data file directory is the directory
-	 * in which the Ethereal binary resides.
+	 * in which the Wireshark binary resides.
 	 */
 	install_plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(), VERSION);
 

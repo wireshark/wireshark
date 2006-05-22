@@ -4,7 +4,7 @@ Capture Filters are used to filter out uninteresting packets already at capture 
 
 Ethereal uses the pcap (libpcap/WinPcap) filter language for capture filters. This language is explained in the tcpdump man page under "expression" (http://www.tcpdump.org and search for "selects which").
 
-Note: This capture filter language is different from the one used for the Ethereal display filters!
+Note: This capture filter language is different from the one used for the Wireshark display filters!
 
 -------------------------------------------------
 

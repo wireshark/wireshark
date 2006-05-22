@@ -765,7 +765,7 @@ ethereal -i eth0 -k
       </para>
     </tip>
     <para>
-      You enter the capture filter into the Filter field of the Ethereal 
+      You enter the capture filter into the Filter field of the Wireshark 
       Capture Options dialog box, as shown in 
       <xref linkend="ChCapCaptureOptionsDialog"/>. The following is an outline 
 	  of the syntax of the <command>tcpdump</command> capture filter language. 

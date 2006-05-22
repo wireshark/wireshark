@@ -39,7 +39,7 @@
 # The Wireshark 'manuf' file, which started out as a subset of Michael
 # Patton's list and grew from there.
 #
-# In the event of data set collisions the Ethereal entries have been given
+# In the event of data set collisions the Wireshark entries have been given
 # precedence, followed by Michael Patton's, followed by the IEEE.
 #
 # This file is in the same format as ethers(4) except that vendor names

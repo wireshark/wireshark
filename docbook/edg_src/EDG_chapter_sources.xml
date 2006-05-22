@@ -2,12 +2,12 @@
 <!-- $Id$ -->
 
 <chapter id="ChapterSources">
-  <title>Work with the Ethereal sources</title>
+  <title>Work with the Wireshark sources</title>
 
   <section id="ChSrcIntro">
 	<title>Introduction</title>
 	<para>
-	This chapter will explain how to work with the Ethereal source code.
+	This chapter will explain how to work with the Wireshark source code.
 	It will show you how to:
 	<itemizedlist>
 	<listitem><para>
@@ -32,7 +32,7 @@
   <section id="ChSrcSVNServer">
 	<title>The Wireshark Subversion repository</title>
 	<para>
-	Subversion is used to keep track of the changes made to the Ethereal 
+	Subversion is used to keep track of the changes made to the Wireshark 
 	source code. The Wireshark source code is stored inside Ethereal project's 
 	Subversion repository located at a server at the ethereal.com domain.
 	</para>
@@ -75,7 +75,7 @@
 	see which person changed a specific piece of code
 	</para></listitem>
 	<listitem><para>
-	... and a lot more things related to the history of the Ethereal source 
+	... and a lot more things related to the history of the Wireshark source 
 	code development
 	</para></listitem>
 	</itemizedlist>
@@ -101,9 +101,9 @@
 	</para>
 	<tip><title>Tip!</title>
 	<para>
-	As the Ethereal project has switched from CVS (Concurrent versioning 
+	As the Wireshark project has switched from CVS (Concurrent versioning 
 	system) to Subversion some time ago, you may still find old references to 
-	CVS in the Ethereal documentation and source files.
+	CVS in the Wireshark documentation and source files.
 	</para>
 	</tip>
   </section>
@@ -111,7 +111,7 @@
   <section id="ChSrcWebInterface">
 	<title>The web interface to the Subversion repository</title>
 	<para>
-	If you need a quick look at the Ethereal source code, 
+	If you need a quick look at the Wireshark source code, 
 	you will only need a Web browser.
 	</para>
 	<para>
@@ -143,7 +143,7 @@
   </section>	
 
   <section id="ChSrcObtain">
-	<title>Obtain the Ethereal sources</title>
+	<title>Obtain the Wireshark sources</title>
 	<para>
 	There are several ways to obtain the sources from Ethereal's Subversion 
 	server.
@@ -160,7 +160,7 @@
 	</tip>
 	<note><title>Note!</title>
 	<para>
-	The following ways to retrieve the Ethereal sources are sorted in 
+	The following ways to retrieve the Wireshark sources are sorted in 
 	decreasing 
 	actuality. If you plan to commit changes you've made to the sources,
 	it's a good idea to keep your private source tree as actual as possible.
@@ -273,9 +273,9 @@
   </section>
 
   <section id="ChSrcUpdating">
-	<title>Update the Ethereal sources</title>
+	<title>Update the Wireshark sources</title>
 	<para>
-	After you obtained the Ethereal sources for the first time, you 
+	After you obtained the Wireshark sources for the first time, you 
 	might want to keep them in sync with the sources at the Subversion 
 	repository.
 	</para>
@@ -284,7 +284,7 @@
 	<title>... with Anonymous Subversion access</title>
 	<para>
 	After the first time checkout is done, updating your 
-	sources is simply done by typing (in the Ethereal source dir):
+	sources is simply done by typing (in the Wireshark source dir):
 	</para>
 	<para>
 	<prompt>$</prompt> 
@@ -301,7 +301,7 @@
 	<section id="ChSrcZipUpdate">
 	<title>... from zip files</title>
 	<para>
-	Independant of the way you retrieve the zip file of the Ethereal sources
+	Independant of the way you retrieve the zip file of the Wireshark sources
 	(as <xref linkend="ChSrcObtain"/> is providing several ways), the way to 
 	bring the changes from the official sources into your personal source tree
 	is identical.
@@ -444,9 +444,9 @@ make
   </section>
 	
   <section id="ChSrcChange">
-	<title>Make changes to the Ethereal sources</title>
+	<title>Make changes to the Wireshark sources</title>
 	<para>
-	As the Ethereal developers working on many different platforms, a lot of 
+	As the Wireshark developers working on many different platforms, a lot of 
 	editors are used to develop Ethereal (emacs, vi, Microsoft Visual Studio
 	and many many others). There's no "standard" or "default" development 
 	environment.
@@ -460,7 +460,7 @@ make
 	  <listitem><para>fix a bug</para></listitem>
 	  <listitem><para>implement a new glorious feature :-)</para></listitem>
 	</itemizedlist>
-	The internal structure of the Ethereal sources will be described in 
+	The internal structure of the Wireshark sources will be described in 
 	<xref linkend="PartDevelopment"/>.
 	</para>
 	<tip><title>Tip!</title>
@@ -481,8 +481,8 @@ make
   <section id="ChSrcCommit">
 	<title>Commit changed sources</title>
 	<para>
-	If you have finished changing the Ethereal sources to suit your needs,
-	you might want to contribute your changes back to the Ethereal SVN
+	If you have finished changing the Wireshark sources to suit your needs,
+	you might want to contribute your changes back to the Wireshark SVN
 	repository.
 	</para>
 	<para>
@@ -766,7 +766,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	</warning>
 	<itemizedlist>
 	  <listitem><para>
-	  <command>Follow the Ethereal source code style guide.</command> 
+	  <command>Follow the Wireshark source code style guide.</command> 
 	  Just because something compiles on your platform, that doesn't 
 	  mean it'll compile on all of the other platforms for which Wireshark is 
 	  built. 
@@ -814,7 +814,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	harder to apply your patch.
 	</para>
 	<para>
-	When someone from the Ethereal core maintainers finds the time to look
+	When someone from the Wireshark core maintainers finds the time to look
 	at your patch, it will be merged into the SVN repository, so
 	the latest SVN revisions and new releases will include it :-)
 	</para>
@@ -928,7 +928,7 @@ diff -c -r1.5 dlnames.c
 	</para>
 	<para>
 	For "cvs diff -c" or "cvs diff -u" diffs, there's a Python script
-	"cvsdiff-fix.py" in the "tools" directory in the Ethereal source tree; it
+	"cvsdiff-fix.py" in the "tools" directory in the Wireshark source tree; it
 	will fix up those lines in "cvs diff" output.  It reads its standard input
 	by default, or can be given a file name on the command line, and writes to
 	the standard output, so if you're typing at a command interpreter that
@@ -971,7 +971,7 @@ diff -c -r1.5 dlnames.c
 	<orderedlist>
 	<listitem>
 	<para>
-	Add the Ethereal boilerplate to the new file(s).
+	Add the Wireshark boilerplate to the new file(s).
 	</para>
 	</listitem>
 	<listitem>
@@ -1052,7 +1052,7 @@ $Id$
 	The "Nullsoft Install System" is a free installer generator for win32
 	based systems, instructions how to install it can be found in <xref 
 	linkend="ChToolsNSIS"/>. 
-	NSIS is script based, you will find the Ethereal installer
+	NSIS is script based, you will find the Wireshark installer
 	generation script at: <filename>packaging/nsis/ethereal.nsi</filename>.
 	</para>
 	<para>

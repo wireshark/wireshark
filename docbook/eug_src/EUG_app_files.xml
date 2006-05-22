@@ -119,7 +119,7 @@
 	%APPDATA% points to the personal configuration folder, typically 
 	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename> 
 	(for further details, have a look at <xref linkend="ChWindowsProfiles"/>), 
-	%ETHEREAL% points to the Ethereal program folder, typically 
+	%ETHEREAL% points to the Wireshark program folder, typically 
 	<filename>C:\Program Files\Ethereal</filename>
 	</para>
 	</note>

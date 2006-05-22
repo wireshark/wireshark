@@ -283,7 +283,7 @@ The AIX documentation is not so well written.
 But basically, after I fixed up pcap-dlpi.c, I managed to get libpcap
 working under AIX.  This enabled me to successfully run Ethereal,
 ie. all the packets on my Ethernet network correctly showed up
-as Ethernet and not Token Ring in the Ethereal screen.
+as Ethernet and not Token Ring in the Wireshark screen.
 
 YAY!
 -- 
@@ -309,7 +309,7 @@ On Thu, Nov 11, 1999 at 11:50:23AM -0800, Guy Harris wrote:
 > > Any ideas why this causes trouble?
 > 
 > Mismatches between the layouts of data structures as declared in the
-> "gtk/gtk*.h" files in the Ethereal source tree and the layouts as
+> "gtk/gtk*.h" files in the Wireshark source tree and the layouts as
 > declared in the header files in the GTK+ source (either due to header
 > file differences - although the header files appear to be identical to
 > the GTK+ 1.2.6 ones - or due to compiler behavior differences)?

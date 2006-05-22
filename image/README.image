@@ -1,4 +1,4 @@
-This directory contains a set of images and icons for the Ethereal suite of
+This directory contains a set of images and icons for the Wireshark suite of
 applications.  Of particular note for people creating packages for
 distribution are the files ethereal.ico, hi??-app-ethereal.png, and
 lo??-app-ethereal.png.
