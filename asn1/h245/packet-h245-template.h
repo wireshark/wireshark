@@ -113,6 +113,8 @@ struct _h223_mux_element {
 };
 
 #include <epan/packet_info.h>
+#include "packet-per.h"
+
 typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me );
 extern void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 

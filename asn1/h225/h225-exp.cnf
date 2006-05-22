@@ -1,7 +1,7 @@
 # Do not modify this file.
-# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\h225-exp.cnf
-# ../../tools/asn2eth.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn
+# ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn
 
 #.MODULE
 H323-MESSAGES  h225

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-h245.h                                                            */
-/* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
+/* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.h */
 
@@ -121,6 +121,8 @@ struct _h223_mux_element {
 };
 
 #include <epan/packet_info.h>
+#include "packet-per.h"
+
 typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me );
 extern void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 
@@ -131,12 +133,12 @@ extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 /*--- Included file: packet-h245-exp.h ---*/
 #line 1 "packet-h245-exp.h"
 extern const value_string DataProtocolCapability_vals[];
-int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h245-exp.h ---*/
-#line 123 "packet-h245-template.h"
+#line 125 "packet-h245-template.h"
 void dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

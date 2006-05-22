@@ -298,8 +298,8 @@ static const value_string localOpcode_vals[] = {
 	{  0, NULL }
 };
 
-static int dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_ind _U_);
+static int dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
 
 
 
@@ -317,9 +317,9 @@ static const value_string InvokeProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_h4501_InvokeProblem, 0, 7, NULL, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_InvokeProblem, 0, 7, NULL, FALSE);
    return offset;
 }
 
@@ -331,9 +331,9 @@ static const value_string ReturnResultProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_h4501_ReturnResultProblem, 0, 2, NULL, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnResultProblem, 0, 2, NULL, FALSE);
    return offset;
 }
 
@@ -347,9 +347,9 @@ static const value_string ReturnErrorProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_h4501_ReturnErrorProblem, 0, 4, NULL, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnErrorProblem, 0, 4, NULL, FALSE);
    return offset;
 }
 
@@ -360,56 +360,56 @@ static const value_string GeneralProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_h4501_GeneralProblem, 0, 2, NULL, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_GeneralProblem, 0, 2, NULL, FALSE);
    return offset;
 }
 static int
-dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
    tvbuff_t *result_tvb = NULL;
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, NO_BOUND, NO_BOUND, &result_tvb);
+   offset=dissect_per_octet_string(tvb, offset, actx, tree, -1, NO_BOUND, NO_BOUND, &result_tvb);
 
    if(tvb_length(result_tvb)){
       switch (localOpcode) {
       case CallTransferIdentify:
-         dissect_h450_CTIdentifyRes(result_tvb, 0, pinfo, tree, hf_h4502_CTIdentifyRes);
+         dissect_h450_CTIdentifyRes(result_tvb, 0, actx, tree, hf_h4502_CTIdentifyRes);
          break;
 
       case CallTransferInitiate:
       case CallTransferSetup:
-         dissect_h450_DummyRes(result_tvb, 0, pinfo , tree, hf_h4502_DummyRes);
+         dissect_h450_DummyRes(result_tvb, 0, actx , tree, hf_h4502_DummyRes);
          break;
 
 	  case ActivateDiversionQ:
-		  dissect_ActivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  dissect_ActivateDiversionQRes_PDU(result_tvb, actx->pinfo, tree);
 		  break;
 	  case DeactivateDiversionQ:
-		  dissect_DeactivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  dissect_DeactivateDiversionQRes_PDU(result_tvb, actx->pinfo, tree);
 		  break;
 	  case InterrogateDiversionQ:
-		  dissect_InterrogateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  dissect_InterrogateDiversionQRes_PDU(result_tvb, actx->pinfo, tree);
 		  break;
 	  case CheckRestriction:
-		  dissect_CheckRestrictionRes_PDU(result_tvb, pinfo, tree);
+		  dissect_CheckRestrictionRes_PDU(result_tvb, actx->pinfo, tree);
 		  break;
 	  case CallRerouting:
-		  dissect_CallReroutingRes_PDU(result_tvb, pinfo, tree);
+		  dissect_CallReroutingRes_PDU(result_tvb, actx->pinfo, tree);
 		  break;
 
 	case RemoteRetrieve:
-         dissect_h450_RemoteRetrieveRes(result_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveRes);
+         dissect_h450_RemoteRetrieveRes(result_tvb, 0, actx , tree, hf_h4504_RemoteRetrieveRes);
          break;
 	case MWIActivate:
-		dissect_h450_MwiDummyRes(result_tvb, 0, pinfo , tree, hf_h4507_MwiDummyRes);
+		dissect_h450_MwiDummyRes(result_tvb, 0, actx , tree, hf_h4507_MwiDummyRes);
 		break;
 	case MWIDeactivate:
-		dissect_h450_MwiDummyRes(result_tvb, 0, pinfo , tree, hf_h4507_MwiDummyRes);
+		dissect_h450_MwiDummyRes(result_tvb, 0, actx , tree, hf_h4507_MwiDummyRes);
 		break;
 	case MWIInterrogate:
-		dissect_h450_MWIInterrogateRes(result_tvb, 0, pinfo , tree, hf_h4507_MWIInterrogateRes);
+		dissect_h450_MWIInterrogateRes(result_tvb, 0, actx , tree, hf_h4507_MWIInterrogateRes);
 		break;
 
       default:
@@ -422,18 +422,18 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x return result");
 }
 
 static int
-dissect_h4501_localOpcode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_localOpcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_integer(tvb, offset, pinfo, tree, hf_h4501_localOpcode, &localOpcode, NULL);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localOpcode, &localOpcode);
    is_globalcode = FALSE;
 	return offset;
 }
 
 
 static int
-dissect_h4501_globalCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_globalCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-	offset=dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_h4501_globalCode, &globalcode_oid_str);
+	offset=dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_h4501_globalCode, &globalcode_oid_str);
 	is_globalcode = TRUE;
    return offset;
 }
@@ -452,9 +452,9 @@ static const per_choice_t opcode_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_opcode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_opcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, NULL);
    return offset;
 }
 
@@ -466,17 +466,17 @@ static const per_sequence_t result_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h4501_result, ett_h4501_result, result_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_result, ett_h4501_result, result_sequence);
    return offset;
 }
 
 static int
-dissect_h4501_parameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_parameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, NO_BOUND, NO_BOUND, NULL);
+   offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_h4501_parameter, NO_BOUND, NO_BOUND, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -528,9 +528,9 @@ static const value_string localErrorCode_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_localErrorCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_localErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_integer(tvb, offset, pinfo, tree, hf_h4501_localErrorCode, &localErrorCode, NULL);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localErrorCode, &localErrorCode);
 	return offset;
 }
 
@@ -548,9 +548,9 @@ static const per_choice_t errorCode_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_errorCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_errorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, NULL);
    return offset;
 }
 
@@ -573,23 +573,23 @@ static const per_choice_t problem_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_problem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_problem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, NULL);
    return offset;
 }
 static int
-dissect_h4501_constrained_invokeId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_constrained_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_h4501_constrained_invokeId, 0, 65535, NULL, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_constrained_invokeId, 0, 65535, NULL, FALSE);
 	return offset;
 }
 
 
 static int
-dissect_h4501_invokeId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_integer(tvb, offset, pinfo, tree, hf_h4501_invokeId, NULL, NULL);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_invokeId, NULL);
 	return offset;
 }
 
@@ -601,9 +601,9 @@ static const per_sequence_t Reject_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Reject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h4501_Reject, ett_h4501_Reject, Reject_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Reject, ett_h4501_Reject, Reject_sequence);
    return offset;
 }
 
@@ -617,9 +617,9 @@ static const per_sequence_t ReturnError_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h4501_ReturnError, ett_h4501_ReturnError, ReturnError_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnError, ett_h4501_ReturnError, ReturnError_sequence);
    return offset;
 }
 
@@ -631,9 +631,9 @@ static const per_sequence_t ReturnResult_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h4501_ReturnResult, ett_h4501_ReturnResult, ReturnResult_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnResult, ett_h4501_ReturnResult, ReturnResult_sequence);
    return offset;
 }
 
@@ -649,9 +649,9 @@ static const per_sequence_t Invoke_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Invoke(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h4501_Invoke, ett_h4501_Invoke, Invoke_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Invoke, ett_h4501_Invoke, Invoke_sequence);
    return offset;
 }
 
@@ -674,14 +674,14 @@ static const per_choice_t ROS_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_ROS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_ROS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_ROS, ett_h4501_ROS, ROS_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_ROS, ett_h4501_ROS, ROS_choice, NULL);
    return offset;
 }
 
 static int
-dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
    tvbuff_t *argument_tvb = NULL;
 
@@ -689,84 +689,84 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	  /* TODO call oid dissector
 	   * call_ber_oid_callback isn't realy apropriate ?
 	   */
-	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, NO_BOUND, NO_BOUND, NULL);
+	  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_h4501_globalargument, NO_BOUND, NO_BOUND, NULL);
 	  is_globalcode = FALSE;
 	  return offset;
 
   }
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, NO_BOUND, NO_BOUND, &argument_tvb);
+   offset=dissect_per_octet_string(tvb, offset, actx, tree, -1, NO_BOUND, NO_BOUND, &argument_tvb);
 
    if(tvb_length(argument_tvb)){
       switch (localOpcode) {
 		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */
-			  dissect_CallTransferIdentify_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferIdentify_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 	      case CallTransferAbandon:   /* Localvalue 8 */
-			  dissect_CallTransferAbandon_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferAbandon_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 		   case CallTransferInitiate:  /* Localvalue 9 */
-			  dissect_CallTransferInitiate_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferInitiate_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 	      case CallTransferSetup:		/* Localvalue 10 */
-			  dissect_CallTransferSetup_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferSetup_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 	      case CallTransferUpdate:		/* Localvalue 13 */
-			  dissect_CallTransferUpdate_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferUpdate_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 		  case SubaddressTransfer:		/* Localvalue 14 */
-			  dissect_SubaddressTransfer_PDU(argument_tvb, pinfo, tree);
+			  dissect_SubaddressTransfer_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 	      case CallTransferComplete:	/* Localvalue 12 */
-			  dissect_CallTransferComplete_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferComplete_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 	      case CallTransferActive:		/* Localvalue 11 */
-			  dissect_CallTransferActive_PDU(argument_tvb, pinfo, tree);
+			  dissect_CallTransferActive_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 		  /* h450.3*/
 		  case ActivateDiversionQ:          /* Localvalue 15 */
-			  dissect_ActivateDiversionQArg_PDU(argument_tvb, pinfo, tree);
+			  dissect_ActivateDiversionQArg_PDU(argument_tvb, actx->pinfo, tree);
 			  break;
 		  case DeactivateDiversionQ:        /* Localvalue 16 */
-	         dissect_h450_DeactivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503DeactivateDiversionQArg);
+	         dissect_h450_DeactivateDiversionQArg(argument_tvb, 0, actx , tree, hf_h4503DeactivateDiversionQArg);
 		     break;
 		  case InterrogateDiversionQ:       /* Localvalue 17 */
-	         dissect_h450_InterrogateDiversionQ(argument_tvb, 0, pinfo , tree, hf_h4503InterrogateDiversionQ);
+	         dissect_h450_InterrogateDiversionQ(argument_tvb, 0, actx , tree, hf_h4503InterrogateDiversionQ);
 		     break;
 		  case CheckRestriction:            /* Localvalue 18 */
-	         dissect_h450_CheckRestrictionArg(argument_tvb, 0, pinfo , tree, hf_h4503CheckRestrictionArg);
+	         dissect_h450_CheckRestrictionArg(argument_tvb, 0, actx , tree, hf_h4503CheckRestrictionArg);
 		     break;
 		  case CallRerouting:               /* Localvalue 19 */
-	         dissect_h450_CallReroutingArg(argument_tvb, 0, pinfo , tree, hf_h4503CallReroutingArg);
+	         dissect_h450_CallReroutingArg(argument_tvb, 0, actx , tree, hf_h4503CallReroutingArg);
 		     break;
 		  case DivertingLegInformation1:    /* Localvalue 20 */
-	         dissect_h450_DivertingLegInformation1Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation1Arg);
+	         dissect_h450_DivertingLegInformation1Arg(argument_tvb, 0, actx , tree, hf_h4503DivertingLegInformation1Arg);
 		     break;
 		  case DivertingLegInformation2:   /* Localvalue 21 */
-	         dissect_h450_DivertingLegInformation2Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation2Arg);
+	         dissect_h450_DivertingLegInformation2Arg(argument_tvb, 0, actx , tree, hf_h4503DivertingLegInformation2Arg);
 		     break;
 		  case DivertingLegInformation3:   /* Localvalue 22 */
-	         dissect_h450_DivertingLegInformation3Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation3Arg);
+	         dissect_h450_DivertingLegInformation3Arg(argument_tvb, 0, actx , tree, hf_h4503DivertingLegInformation3Arg);
 		     break;
 		  case DivertingLegInformation4:    /* Localvalue 100 */
-	         dissect_h450_DivertingLegInformation4Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation4Arg);
+	         dissect_h450_DivertingLegInformation4Arg(argument_tvb, 0, actx , tree, hf_h4503DivertingLegInformation4Arg);
 		     break;
 		  case CfnrDivertedLegFailed:       /* Localvalue 23 */
-	         dissect_h450_CfnrDivertedLegFailedArg(argument_tvb, 0, pinfo , tree, hf_h4503CfnrDivertedLegFailedArg);
+	         dissect_h450_CfnrDivertedLegFailedArg(argument_tvb, 0, actx , tree, hf_h4503CfnrDivertedLegFailedArg);
 		     break;
 		  /* H.450.4 Call Hold */
 	      case HoldNotific:				/* Localvalue 101 */
-			   dissect_h450_HoldNotificArg(argument_tvb, 0, pinfo , tree, hf_h4504_HoldNotificArg);
+			   dissect_h450_HoldNotificArg(argument_tvb, 0, actx , tree, hf_h4504_HoldNotificArg);
 		     break;
 	      case RetrieveNotific:			/* Localvalue 102 */
-			   dissect_h450_RetrieveNotificArg(argument_tvb, 0, pinfo , tree, hf_h4504_RetrieveNotificArg);
+			   dissect_h450_RetrieveNotificArg(argument_tvb, 0, actx , tree, hf_h4504_RetrieveNotificArg);
 		     break;
 	      case RemoteHold:				/* Localvalue 103 */
-			   dissect_h450_RemoteHoldArg(argument_tvb, 0, pinfo , tree, hf_h4504_RemoteHoldArg);
+			   dissect_h450_RemoteHoldArg(argument_tvb, 0, actx , tree, hf_h4504_RemoteHoldArg);
 		     break;
 	      case RemoteRetrieve:			/* Localvalue 104 */
-			   dissect_h450_RemoteRetrieveArg(argument_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveArg);
+			   dissect_h450_RemoteRetrieveArg(argument_tvb, 0, actx , tree, hf_h4504_RemoteRetrieveArg);
 		     break;
 
 /* H.450.5 Call Park and Pickup constants */
@@ -787,27 +787,27 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
 
 		  /* H.450.7 Message Waiting Indication  */
 		  case MWIActivate:				/* Localvalue 80 */
-			   dissect_h450_MWIActivateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIActivateArg);
+			   dissect_h450_MWIActivateArg(argument_tvb, 0, actx , tree, hf_h4507_MWIActivateArg);
 		     break;
 		  case MWIDeactivate:			/* Localvalue 81 */
-			   dissect_h450_MWIDeactivateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIDeactivateArg);
+			   dissect_h450_MWIDeactivateArg(argument_tvb, 0, actx , tree, hf_h4507_MWIDeactivateArg);
 		     break;
 		  case MWIInterrogate:			/* Localvalue 82 */
-			   dissect_h450_MWIInterrogateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIInterrogateArg);
+			   dissect_h450_MWIInterrogateArg(argument_tvb, 0, actx , tree, hf_h4507_MWIInterrogateArg);
 		     break;
 
 		  /* H.450.8 Name Identification */
 		  case NIcallingName:			/* Localvalue 0 */
-			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_CallingNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, actx , tree, hf_h4508_CallingNameArg);
 			  break;
 		  case NIalertingName:			/* Localvalue 1 */
-			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_AlertingNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, actx , tree, hf_h4508_AlertingNameArg);
 			  break;
 		  case NIconnectedName:			/* Localvalue 2 */
-			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_ConnectedNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, actx , tree, hf_h4508_ConnectedNameArg);
 			  break;
 		  case NIbusyName:			/* Localvalue 3 */
-			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_BusyNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, actx , tree, hf_h4508_BusyNameArg);
 			  break;
 
 /* H.450.9 Call Completion constants */
@@ -836,10 +836,10 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
 break;
 /* H.450.12 Common Information Operations constants */
 		  case CmnRequest:					/* Localvalue 84 */
-			  dissect_h450_CmnRequestArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnRequest);
+			  dissect_h450_CmnRequestArg(argument_tvb, 0, actx , tree, hf_h45012_CmnRequest);
 			  break;
 		  case CmnInform:					/* Localvalue 85 */
-			  dissect_h450_CmnArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnInform);
+			  dissect_h450_CmnArg(argument_tvb, 0, actx , tree, hf_h45012_CmnInform);
 			  break;
 
 	      /* TODO - decode other H.450.x invoke arguments here */
@@ -851,9 +851,9 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
    return offset;
 }
 static int 
-dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_ind _U_){
+dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_ind _U_){
 
-	offset = dissect_h4501_ROS(tvb, offset, pinfo, tree);
+	offset = dissect_h4501_ROS(tvb, offset, actx, tree);
 	return offset;
 
 }
@@ -863,11 +863,13 @@ dissect_h4501(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree)
    proto_item *it;
    proto_tree *tr;
    guint32 offset=0;
+   asn_ctx_t asn_ctx;
 
    it=proto_tree_add_protocol_format(tree, proto_h4501, tvb, 0, -1, "H.450.1");
    tr=proto_item_add_subtree(it, ett_h4501);
 
-   dissect_h450_H4501SupplementaryService(tvb, offset, pinfo, tr, hf_h4501);
+   asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+   dissect_h450_H4501SupplementaryService(tvb, offset, &asn_ctx, tr, hf_h4501);
 }
 
 /*--- proto_register_h450 -------------------------------------------*/

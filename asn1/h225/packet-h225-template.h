@@ -76,6 +76,7 @@ typedef struct _h225_packet_info {
  * libethereal.dll, we need a special declaration.
  */
 
+#include "packet-per.h"
 
 #include "packet-h225-exp.h" 
 

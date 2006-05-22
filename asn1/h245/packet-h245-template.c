@@ -44,17 +44,16 @@
 #include <string.h>
 
 #include <epan/prefs.h>
-#include "tap.h"
-#include "packet-h245.h"
-#include "packet-tpkt.h"
-#include "packet-per.h"
 #include <epan/t35.h>
 #include <epan/emem.h>
+#include <epan/oid_resolv.h>
+#include "tap.h"
+#include "packet-tpkt.h"
+#include "packet-per.h"
+#include "packet-h245.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-t38.h"
-#include "packet-ber.h"
-#include <epan/emem.h>
 
 #define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
 #define PSNAME "H.245"
@@ -304,6 +303,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
+	asn_ctx_t asn_ctx;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -317,8 +317,8 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		init_h245_packet_info(h245_pi);
-		per_aligment_type_callback(TRUE);
-		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
+		asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn_ctx, tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
 		CLEANUP_CALL_AND_POP;
@@ -384,21 +384,21 @@ void proto_register_h245(void) {
   h245_tap = register_tap("h245");
   h245dg_tap = register_tap("h245dg");
 
-  register_ber_oid_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
-  register_ber_oid_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
-  register_ber_oid_name("0.0.8.239.2","itu-t(0) recommendation(0) h(8) h239(239) generic-message(2)");
-  register_ber_oid_name("0.0.8.245.0.3","itu-t(0) recommendation(0) h(8) h245(245) version(0) 3");
-  register_ber_oid_name("0.0.8.245.0.4","itu-t(0) recommendation(0) h(8) h245(245) version(0) 4");
-  register_ber_oid_name("0.0.8.245.0.5","itu-t(0) recommendation(0) h(8) h245(245) version(0) 5");
-  register_ber_oid_name("0.0.8.245.0.6","itu-t(0) recommendation(0) h(8) h245(245) version(0) 6");
-  register_ber_oid_name("0.0.8.245.0.7","itu-t(0) recommendation(0) h(8) h245(245) version(0) 7");
-  register_ber_oid_name("0.0.8.245.0.8","itu-t(0) recommendation(0) h(8) h245(245) version(0) 8");
-  register_ber_oid_name("0.0.8.245.0.10","itu-t(0) recommendation(0) h(8) h245(245) version(0) 10");
-  register_ber_oid_name("0.0.8.245.1.0.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) video (0) ISO/IEC 14496-2 (0)= MPEG-4 video");
-  register_ber_oid_name("0.0.8.245.1.1.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio (1) ISO/IEC 14496-3 (0)= MPEG-4 audio");
-  register_ber_oid_name("0.0.8.245.1.1.1","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio(1) amr(1)");
+  add_oid_str_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
+  add_oid_str_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
+  add_oid_str_name("0.0.8.239.2","itu-t(0) recommendation(0) h(8) h239(239) generic-message(2)");
+  add_oid_str_name("0.0.8.245.0.3","itu-t(0) recommendation(0) h(8) h245(245) version(0) 3");
+  add_oid_str_name("0.0.8.245.0.4","itu-t(0) recommendation(0) h(8) h245(245) version(0) 4");
+  add_oid_str_name("0.0.8.245.0.5","itu-t(0) recommendation(0) h(8) h245(245) version(0) 5");
+  add_oid_str_name("0.0.8.245.0.6","itu-t(0) recommendation(0) h(8) h245(245) version(0) 6");
+  add_oid_str_name("0.0.8.245.0.7","itu-t(0) recommendation(0) h(8) h245(245) version(0) 7");
+  add_oid_str_name("0.0.8.245.0.8","itu-t(0) recommendation(0) h(8) h245(245) version(0) 8");
+  add_oid_str_name("0.0.8.245.0.10","itu-t(0) recommendation(0) h(8) h245(245) version(0) 10");
+  add_oid_str_name("0.0.8.245.1.0.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) video (0) ISO/IEC 14496-2 (0)= MPEG-4 video");
+  add_oid_str_name("0.0.8.245.1.1.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio (1) ISO/IEC 14496-3 (0)= MPEG-4 audio");
+  add_oid_str_name("0.0.8.245.1.1.1","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio(1) amr(1)");
 
-  register_ber_oid_name("0.0.8.241.0.0.1","itu-t(0) recommendation(0) h(8) h241(241) specificVideoCodecCapabilities(0) h264(0) generic-capabilities(1)");
+  add_oid_str_name("0.0.8.241.0.0.1","itu-t(0) recommendation(0) h(8) h241(241) specificVideoCodecCapabilities(0) h264(0) generic-capabilities(1)");
 
 
 }

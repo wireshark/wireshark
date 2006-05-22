@@ -50,7 +50,7 @@ int proto_h235 = -1;
 #include "packet-h235-ett.c"
 
 static guint32
-dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 PER_NOT_DECODED_YET("ToBeSigned");
   return offset;
 }

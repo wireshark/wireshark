@@ -34,6 +34,7 @@ asn1_subid_decode
 asn1_tag_decode
 asn1_uint32_decode
 asn1_uint32_value_decode
+asn_ctx_init
 BandRejectReason_vals           DATA
 build_follow_filter
 bytes_to_str_punct

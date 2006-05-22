@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-h225.h                                                            */
-/* ../../tools/asn2eth.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
+/* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.h */
 
@@ -81,9 +81,10 @@ typedef struct _h225_packet_info {
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 
- * libwireshark.dll, we need a special declaration.
+ * libethereal.dll, we need a special declaration.
  */
 
+#include "packet-per.h"
 
 
 /*--- Included file: packet-h225-exp.h ---*/
@@ -106,17 +107,17 @@ ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageRejectReason_vals[];
 ETH_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
-int dissect_h225_PresentationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_CallIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_PresentationIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_CallIdentifier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_GenericData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h225-exp.h ---*/
-#line 81 "packet-h225-template.h"
+#line 82 "packet-h225-template.h"
 
 #endif  /* PACKET_H225_H */
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-h450.h                                                            */
-/* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
+/* ../../tools/asn2wrs.py -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.h */
 

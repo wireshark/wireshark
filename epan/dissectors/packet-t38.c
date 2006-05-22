@@ -1233,7 +1233,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 /* T38 Routines */
 
 static int
-dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, asn_ctx_t *actx _U_, proto_tree *tree _U_)
 {
 	return offset;
 }
@@ -1316,14 +1316,14 @@ const value_string t30_indicator_vals[] = {
 };
 
 static int
-dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-    offset=dissect_per_choice(tvb, offset, pinfo,
+    offset=dissect_per_choice(tvb, offset, actx,
         tree, hf_t38_t30_indicator, ett_t38_t30_indicator,
         t30_indicator_choice, &T30ind_value);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
-        col_append_fstr(pinfo->cinfo, COL_INFO, " t30ind: %s",
+	if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
          val_to_str(T30ind_value,t30_indicator_vals,"<unknown>"));
 	}
 
@@ -1388,14 +1388,14 @@ const value_string t30_data_vals[] = {
 };
 
 static int
-dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-    offset=dissect_per_choice(tvb, offset, pinfo,
+    offset=dissect_per_choice(tvb, offset, actx,
         tree, hf_t38_data, ett_t38_data,
         data_choice, &Data_value);
 
-    if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
-        col_append_fstr(pinfo->cinfo, COL_INFO, " data:%s:",
+    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
          val_to_str(Data_value,t30_data_vals,"<unknown>"));
 	}
 
@@ -1421,8 +1421,8 @@ static const value_string Type_of_msg_vals[] = {
     { 0, NULL}
 };
 static int
-dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                               ett_t38_Type_of_msg, Type_of_msg_choice,
                               &Type_of_msg_value);
 
@@ -1433,8 +1433,8 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
   return offset;
 }
 
-static int dissect_type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_t38_Type_of_msg(tvb, offset, pinfo, tree, hf_t38_Type_of_msg);
+static int dissect_type_of_msg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_t38_Type_of_msg(tvb, offset, actx, tree, hf_t38_Type_of_msg);
 }
 
 static const per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
@@ -1606,21 +1606,21 @@ force_reassmeble_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 }
 
 static int
-dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
 	if(use_pre_corrigendum_asn1_specification){
-		offset=dissect_per_choice(tvb, offset, pinfo,
+		offset=dissect_per_choice(tvb, offset, actx,
 			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
 			Data_Field_field_type_PreCorrigendum_choice, &Data_Field_field_type_value);
 	}
 	else{
-		offset=dissect_per_choice(tvb, offset, pinfo,
+		offset=dissect_per_choice(tvb, offset, actx,
 			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
 			Data_Field_field_type_choice, &Data_Field_field_type_value);
 	}
 
-    if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
          val_to_str(Data_Field_field_type_value,Data_Field_field_type_vals,"<unknown>"));
 	}
 
@@ -1632,13 +1632,13 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (Data_Field_field_type_value == 2 || Data_Field_field_type_value == 4 || Data_Field_field_type_value == 7) {/* hdlc-fcs-OK or hdlc-fcs-OK-sig-end or t4-non-ecm-sig-end*/
 			fragment_data *frag_msg = NULL;
 			tvbuff_t* new_tvb = NULL;
-			gboolean save_fragmented = pinfo->fragmented;
+			gboolean save_fragmented = actx->pinfo->fragmented;
 
-			pinfo->fragmented = TRUE;
+			actx->pinfo->fragmented = TRUE;
 
 			/* if reass_start_seqnum=-1 it means we have received the end of the fragmente, without received any fragment data */
 			if (p_t38_packet_conv_info->reass_start_seqnum != -1) {
-				frag_msg = fragment_add_seq(tvb, offset, pinfo,
+				frag_msg = fragment_add_seq(tvb, offset, actx->pinfo,
 					p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
 					data_fragment_table, /* list of message fragments */
 					seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum,  /* fragment sequence number */
@@ -1652,13 +1652,13 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 * and get some stat, like packet lost and burst number of packet lost
 					*/
 					if (!frag_msg) {
-						force_reassmeble_seq(tvb, offset, pinfo,
+						force_reassmeble_seq(tvb, offset, actx->pinfo,
 							p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
 							data_fragment_table, /* list of message fragments */
 							seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum);  /* fragment sequence number */
 					} else {
-						if (check_col(pinfo->cinfo, COL_INFO))
-							col_append_str(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");	
+						if (check_col(actx->pinfo->cinfo, COL_INFO))
+							col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");	
 						
 						g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
 					}
@@ -1670,33 +1670,33 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
 					}
 
-					new_tvb = process_reassembled_data(tvb, offset, pinfo,
+					new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
 								"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
 
 					/* Now reset fragmentation information in pinfo */
-					pinfo->fragmented = save_fragmented;
+					actx->pinfo->fragmented = save_fragmented;
 
 					t38_info->time_first_t4_data = p_t38_packet_conv_info->time_first_t4_data; 
 					t38_info->frame_num_first_t4_data = p_t38_packet_conv_info->reass_ID; /* The reass_ID is the Frame number of the first t4 fragment */
 
 				} else {
-					new_tvb = process_reassembled_data(tvb, offset, pinfo,
+					new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
 								"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
 
 					/* Now reset fragmentation information in pinfo */
-					pinfo->fragmented = save_fragmented;
+					actx->pinfo->fragmented = save_fragmented;
 
-					if (new_tvb) dissect_t30_hdlc(new_tvb, 0, pinfo, tree); 
+					if (new_tvb) dissect_t30_hdlc(new_tvb, 0, actx->pinfo, tree); 
 				}
 			} else {
 				if(tree){
 					proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 						"[RECEIVED END OF FRAGMENT W/OUT ANY FRAGMENT DATA]");
 				}
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
+				if (check_col(actx->pinfo->cinfo, COL_INFO)){
+					col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Malformed?]");
 				}
-				pinfo->fragmented = save_fragmented;
+				actx->pinfo->fragmented = save_fragmented;
 			}
 		}
 
@@ -1711,23 +1711,23 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
 	tvbuff_t *value_tvb = NULL;
 	guint32 value_len;
 
-	offset=dissect_per_octet_string(tvb, offset, pinfo,
+	offset=dissect_per_octet_string(tvb, offset, actx,
         tree, hf_t38_Data_Field_field_data, 1, 65535,
         &value_tvb);
 	value_len = tvb_length(value_tvb);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
+	if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
         if(value_len < 8){
-        	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
+        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
                tvb_bytes_to_str(value_tvb,0,value_len));
         }
         else {
-        	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s...]",
+        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s...]",
                tvb_bytes_to_str(value_tvb,0,7));
         }
 	}
@@ -1742,43 +1742,43 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 		/* HDLC Data or t4-non-ecm-data */
 		if (Data_Field_field_type_value == 0 || Data_Field_field_type_value == 6) { /* 0=HDLC Data or 6=t4-non-ecm-data*/
-			gboolean save_fragmented = pinfo->fragmented;
+			gboolean save_fragmented = actx->pinfo->fragmented;
 
-			pinfo->fragmented = TRUE;
+			actx->pinfo->fragmented = TRUE;
 
 			/* if we have not reassembled this packet and it is the first fragment, reset the reassemble ID and the start seq number*/
 			if (p_t38_packet_conv && p_t38_conv && (p_t38_packet_conv_info->reass_ID == 0)) {
 				/* we use the first fragment's frame_number as fragment ID because the protocol doesn't provide it */
-					p_t38_conv_info->reass_ID = pinfo->fd->num;
+					p_t38_conv_info->reass_ID = actx->pinfo->fd->num;
 					p_t38_conv_info->reass_start_seqnum = seq_number;
-					p_t38_conv_info->time_first_t4_data = nstime_to_sec(&pinfo->fd->rel_ts);
+					p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->fd->rel_ts);
 					p_t38_packet_conv_info->reass_ID = p_t38_conv_info->reass_ID;
 					p_t38_packet_conv_info->reass_start_seqnum = p_t38_conv_info->reass_start_seqnum;
 					p_t38_packet_conv_info->time_first_t4_data = p_t38_conv_info->time_first_t4_data;
 			}
 
-			frag_msg = fragment_add_seq(value_tvb, 0, pinfo,
+			frag_msg = fragment_add_seq(value_tvb, 0, actx->pinfo,
 				p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
 				data_fragment_table, /* list of message fragments */
 				seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum, /* fragment sequence number */
 				value_len, /* fragment length */
 				TRUE); /* More fragments */
 
-			new_tvb = process_reassembled_data(tvb, offset, pinfo,
+			new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
 						"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
 
 			if (!frag_msg) { /* Not last packet of reassembled */
 				if (Data_Field_field_type_value == 0) {
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_fstr(pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+					if (check_col(actx->pinfo->cinfo, COL_INFO))
+						col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
 				} else {
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_fstr(pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+					if (check_col(actx->pinfo->cinfo, COL_INFO))
+						col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
 				}
 			}
 
 			/* Now reset fragmentation information in pinfo */
-			pinfo->fragmented = save_fragmented;
+			actx->pinfo->fragmented = save_fragmented;
 		}
 	}
 
@@ -1794,9 +1794,9 @@ static const per_sequence_t Data_Field_item_sequence[] = {
 };
 
 static int
-dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo,
+	offset=dissect_per_sequence(tvb, offset, actx,
         tree, hf_t38_Data_Field_item, ett_t38_Data_Field_item,
         Data_Field_item_sequence);
 
@@ -1810,14 +1810,14 @@ static const per_sequence_t t38_Data_Field_sequence_of[1] = {
 };
 
 static int
-dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+dissect_t38_Data_Field(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_t38_Data_Field, t38_Data_Field_sequence_of);
 
   return offset;
 }
-static int dissect_data_field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_t38_Data_Field(tvb, offset, pinfo, tree, hf_t38_Data_Field);
+static int dissect_data_field(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_t38_Data_Field(tvb, offset, actx, tree, hf_t38_Data_Field);
 }
 
 static const per_sequence_t IFPPacket_sequence[] = {
@@ -1827,45 +1827,45 @@ static const per_sequence_t IFPPacket_sequence[] = {
 };
 
 static int
-dissect_t38_IFPPacket(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_IFPPacket(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo,
+	offset=dissect_per_sequence(tvb, offset, actx,
         tree, hf_t38_IFPPacket, ett_t38_IFPPacket,
         IFPPacket_sequence);
 	return offset;
 }
 
 static int
-dissect_t38_seq_number(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_seq_number(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+	offset=dissect_per_constrained_integer(tvb, offset, actx,
 		tree, hf_t38_seq_number, 0, 65535,
-		&seq_number, NULL, FALSE);
+		&seq_number, FALSE);
 	
 	/* info for tap */
 	if (primary_part)
 		t38_info->seq_num = seq_number;
 
-      if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
+      if (check_col(actx->pinfo->cinfo, COL_INFO)){
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
 	}
 	return offset;
 }
 
 static int
-dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
     guint32 length;
 
 	primary_part = TRUE;
 
-    offset=dissect_per_length_determinant(tvb, offset, pinfo,
+    offset=dissect_per_length_determinant(tvb, offset, actx,
         tree, hf_t38_primary_ifp_packet_length, &length);
-    offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tree);
+    offset=dissect_t38_IFPPacket(tvb, offset, actx, tree);
 
 	/* if is a valid t38 packet, add to tap */
-	if (p_t38_packet_conv && (!pinfo->in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
-		tap_queue_packet(t38_tap, pinfo, t38_info);
+	if (p_t38_packet_conv && (!actx->pinfo->in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
+		tap_queue_packet(t38_tap, actx->pinfo, t38_info);
 
 	if (p_t38_conv) p_t38_conv_info->last_seqnum = (gint32) seq_number;
 
@@ -1873,13 +1873,13 @@ dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static int
-dissect_t38_secondary_ifp_packets_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
     guint32 length;
 
-    offset=dissect_per_length_determinant(tvb, offset, pinfo,
+    offset=dissect_per_length_determinant(tvb, offset, actx,
         tree, hf_t38_secondary_ifp_packets_item_length, &length);
-    offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tree);
+    offset=dissect_t38_IFPPacket(tvb, offset, actx, tree);
 	return offset;
 }
 
@@ -1888,7 +1888,7 @@ static const per_sequence_t SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of[1]
 };
 
 static int
-dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
     /* When the field-data is not present, we MUST offset 1 byte*/
     if((Data_Field_field_type_value != 0) &&
@@ -1898,25 +1898,23 @@ dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset=offset+8;
     }
 
-    offset=dissect_per_sequence_of(tvb, offset, pinfo,
+    offset=dissect_per_sequence_of(tvb, offset, actx,
         tree, hf_t38_secondary_ifp_packets, ett_t38_secondary_ifp_packets,
         SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of);
 	return offset;
 }
 
 static int
-dissect_t38_fec_npackets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_fec_npackets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-    offset=dissect_per_integer(tvb, offset, pinfo,
-        tree, hf_t38_fec_npackets,
-        NULL, NULL);
+    offset=dissect_per_integer(tvb, offset, actx, tree, hf_t38_fec_npackets, NULL);
 	return offset;
 }
 
 static int
-dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-    offset=dissect_per_octet_string(tvb, offset, pinfo,
+    offset=dissect_per_octet_string(tvb, offset, actx,
         tree, hf_t38_fec_data_item, NO_BOUND, NO_BOUND,
         NULL);
 	return offset;
@@ -1925,9 +1923,9 @@ static const per_sequence_t T_t38_fec_data_sequence_of[1] = {
   { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_fec_data_item },
 };
 static int
-dissect_t38_fec_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_fec_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-    offset=dissect_per_sequence_of(tvb, offset, pinfo,
+    offset=dissect_per_sequence_of(tvb, offset, actx,
         tree, hf_t38_fec_data, ett_t38_fec_data,
         T_t38_fec_data_sequence_of);
 	return offset;
@@ -1942,9 +1940,9 @@ static const per_sequence_t fec_info_sequence[] = {
 };
 
 static int
-dissect_t38_fec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_fec_info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo,
+	offset=dissect_per_sequence(tvb, offset, actx,
         tree, hf_t38_fec_info, ett_t38_fec_info,
         fec_info_sequence);
 	return offset;
@@ -1965,11 +1963,11 @@ static const value_string error_recovery_vals[] = {
 };
 
 static int
-dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_error_recovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
 	primary_part = FALSE;
 
-    offset=dissect_per_choice(tvb, offset, pinfo,
+    offset=dissect_per_choice(tvb, offset, actx,
         tree, hf_t38_error_recovery, ett_t38_error_recovery,
         error_recovery_choice, NULL);
 
@@ -1989,12 +1987,12 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 };
 
 static int
-dissect_t38_UDPTLPacket(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_t38_UDPTLPacket(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 {
     /* Initialize to something else than data type */
     Data_Field_field_type_value = 1;
 
-	offset=dissect_per_sequence(tvb, offset, pinfo,
+	offset=dissect_per_sequence(tvb, offset, actx,
         tree, hf_t38_UDPTLPacket, ett_t38_UDPTLPacket,
         UDPTLPacket_sequence);
     return offset;
@@ -2109,6 +2107,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
+	asn_ctx_t asn_ctx;
 
 	/*
 	 * XXX - heuristic to check for misidentified packets.
@@ -2148,7 +2147,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
 	}
 
-	offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
+	asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+	offset=dissect_t38_UDPTLPacket(tvb, offset, &asn_ctx, tr);
 
 	if (offset&0x07){
 		offset=(offset&0xfffffff8)+8;
@@ -2171,6 +2171,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *tr;
 	guint32 offset=0;
 	guint16 ifp_packet_number=1;
+	asn_ctx_t asn_ctx;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
@@ -2201,7 +2202,8 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	while(tvb_length_remaining(tvb,offset>>3)>0)
 	{
-		offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tr);
+		asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+		offset=dissect_t38_IFPPacket(tvb, offset, &asn_ctx, tr);
 		ifp_packet_number++;
 
 		if(offset&0x07){

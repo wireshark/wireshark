@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-h235.c                                                            */
-/* ../../tools/asn2eth.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -200,7 +200,7 @@ static gint ett_h235_FecOrder = -1;
 #line 51 "packet-h235-template.c"
 
 static guint32
-dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 PER_NOT_DECODED_YET("ToBeSigned");
   return offset;
 }
@@ -210,171 +210,170 @@ PER_NOT_DECODED_YET("ToBeSigned");
 #line 1 "packet-h235-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_xxx_ToBeSigned(tvb, offset, pinfo, tree, hf_h235_toBeSigned);
+static int dissect_toBeSigned(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_xxx_ToBeSigned(tvb, offset, actx, tree, hf_h235_toBeSigned);
 }
-static int dissect_newParameter_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_GenericData(tvb, offset, pinfo, tree, hf_h235_newParameter_item);
+static int dissect_newParameter_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h225_GenericData(tvb, offset, actx, tree, hf_h235_newParameter_item);
 }
 
 
 
 static int
-dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 128, NULL);
 
   return offset;
 }
-static int dissect_challenge(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ChallengeString(tvb, offset, pinfo, tree, hf_h235_challenge);
+static int dissect_challenge(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ChallengeString(tvb, offset, actx, tree, hf_h235_challenge);
 }
 
 
 
 int
-dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              1U, 4294967295U, NULL, NULL, FALSE);
+dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              1U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
-static int dissect_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h235_timeStamp);
+static int dissect_timeStamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_TimeStamp(tvb, offset, actx, tree, hf_h235_timeStamp);
 }
 
 
 
 static int
-dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
-                                  NULL, NULL);
+dissect_h235_RandomVal(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
 }
-static int dissect_random(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_random);
+static int dissect_random(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_RandomVal(tvb, offset, actx, tree, hf_h235_random);
 }
 
 
 
 static int
-dissect_h235_Password(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_Password(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
                                           1, 128);
 
   return offset;
 }
-static int dissect_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Password(tvb, offset, pinfo, tree, hf_h235_password);
+static int dissect_password(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Password(tvb, offset, actx, tree, hf_h235_password);
 }
 
 
 
 static int
-dissect_h235_Identifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_Identifier(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
                                           1, 128);
 
   return offset;
 }
-static int dissect_generalID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_generalID);
+static int dissect_generalID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Identifier(tvb, offset, actx, tree, hf_h235_generalID);
 }
-static int dissect_sendersID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_sendersID);
+static int dissect_sendersID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Identifier(tvb, offset, actx, tree, hf_h235_sendersID);
 }
 
 
 
 static int
-dissect_h235_KeyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_KeyMaterial(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 2048, FALSE);
 
   return offset;
 }
-static int dissect_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_KeyMaterial(tvb, offset, pinfo, tree, hf_h235_secureChannel);
+static int dissect_secureChannel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_KeyMaterial(tvb, offset, actx, tree, hf_h235_secureChannel);
 }
 
 
 
 static int
-dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, NULL);
+dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
 }
-static int dissect_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_nonStandardIdentifier);
+static int dissect_nonStandardIdentifier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_nonStandardIdentifier);
 }
-static int dissect_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_type);
+static int dissect_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_type);
 }
-static int dissect_keyExch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_keyExch);
+static int dissect_keyExch(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_keyExch);
 }
-static int dissect_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_tokenOID);
+static int dissect_tokenOID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_tokenOID);
 }
-static int dissect_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_algorithmOID);
+static int dissect_algorithmOID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_algorithmOID);
 }
-static int dissect_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_keyDerivationOID);
+static int dissect_keyDerivationOID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_keyDerivationOID);
 }
-static int dissect_cryptoSuite(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_cryptoSuite);
+static int dissect_cryptoSuite(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h235_cryptoSuite);
 }
 
 
 
 static int
-dissect_h235_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_OCTET_STRING(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
-static int dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_data);
+static int dissect_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_data);
 }
-static int dissect_certificatedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_certificatedata);
+static int dissect_certificatedata(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_certificatedata);
 }
-static int dissect_octets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_octets);
+static int dissect_octets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_octets);
 }
-static int dissect_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedData);
+static int dissect_encryptedData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_encryptedData);
 }
-static int dissect_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_iv);
+static int dissect_iv(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_iv);
 }
-static int dissect_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSalt);
+static int dissect_clearSalt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_clearSalt);
 }
-static int dissect_encryptedSessionKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedSessionKey);
+static int dissect_encryptedSessionKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_encryptedSessionKey);
 }
-static int dissect_encryptedSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedSaltingKey);
+static int dissect_encryptedSaltingKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_encryptedSaltingKey);
 }
-static int dissect_clearSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSaltingKey);
+static int dissect_clearSaltingKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_clearSaltingKey);
 }
-static int dissect_genericKeyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_genericKeyMaterial);
+static int dissect_genericKeyMaterial(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_genericKeyMaterial);
 }
-static int dissect_masterKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_masterKey);
+static int dissect_masterKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_masterKey);
 }
-static int dissect_masterSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_masterSalt);
+static int dissect_masterSalt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_masterSalt);
 }
-static int dissect_value(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_value);
+static int dissect_value(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, actx, tree, hf_h235_value);
 }
 
 
@@ -385,33 +384,33 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 };
 
 static int
-dissect_h235_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_NonStandardParameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_NonStandardParameter, NonStandardParameter_sequence);
 
   return offset;
 }
-static int dissect_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NonStandardParameter(tvb, offset, pinfo, tree, hf_h235_nonStandard);
+static int dissect_nonStandard(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NonStandardParameter(tvb, offset, actx, tree, hf_h235_nonStandard);
 }
 
 
 
 static int
-dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      0, 2048, FALSE);
 
   return offset;
 }
-static int dissect_halfkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_halfkey);
+static int dissect_halfkey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, actx, tree, hf_h235_halfkey);
 }
-static int dissect_modSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_modSize);
+static int dissect_modSize(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, actx, tree, hf_h235_modSize);
 }
-static int dissect_generator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_generator);
+static int dissect_generator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, actx, tree, hf_h235_generator);
 }
 
 
@@ -423,42 +422,42 @@ static const per_sequence_t DHset_sequence[] = {
 };
 
 static int
-dissect_h235_DHset(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_DHset(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_DHset, DHset_sequence);
 
   return offset;
 }
-static int dissect_dhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_DHset(tvb, offset, pinfo, tree, hf_h235_dhkey);
+static int dissect_dhkey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_DHset(tvb, offset, actx, tree, hf_h235_dhkey);
 }
 
 
 
 static int
-dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      0, 511, FALSE);
 
   return offset;
 }
-static int dissect_x(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_x);
+static int dissect_x(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_x);
 }
-static int dissect_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_y);
+static int dissect_y(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_y);
 }
-static int dissect_modulus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_modulus);
+static int dissect_modulus(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_modulus);
 }
-static int dissect_weierstrassA(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_weierstrassA);
+static int dissect_weierstrassA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_weierstrassA);
 }
-static int dissect_weierstrassB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_weierstrassB);
+static int dissect_weierstrassB(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_weierstrassB);
 }
-static int dissect_fieldSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_fieldSize);
+static int dissect_fieldSize(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, actx, tree, hf_h235_fieldSize);
 }
 
 
@@ -469,17 +468,17 @@ static const per_sequence_t ECpoint_sequence[] = {
 };
 
 static int
-dissect_h235_ECpoint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_ECpoint(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ECpoint, ECpoint_sequence);
 
   return offset;
 }
-static int dissect_public_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ECpoint(tvb, offset, pinfo, tree, hf_h235_public_key);
+static int dissect_public_key(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ECpoint(tvb, offset, actx, tree, hf_h235_public_key);
 }
-static int dissect_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ECpoint(tvb, offset, pinfo, tree, hf_h235_base);
+static int dissect_base(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ECpoint(tvb, offset, actx, tree, hf_h235_base);
 }
 
 
@@ -493,14 +492,14 @@ static const per_sequence_t T_eckasdhp_sequence[] = {
 };
 
 static int
-dissect_h235_T_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_eckasdhp(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_eckasdhp, T_eckasdhp_sequence);
 
   return offset;
 }
-static int dissect_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_eckasdhp(tvb, offset, pinfo, tree, hf_h235_eckasdhp);
+static int dissect_eckasdhp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_eckasdhp(tvb, offset, actx, tree, hf_h235_eckasdhp);
 }
 
 
@@ -514,14 +513,14 @@ static const per_sequence_t T_eckasdh2_sequence[] = {
 };
 
 static int
-dissect_h235_T_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_eckasdh2(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_eckasdh2, T_eckasdh2_sequence);
 
   return offset;
 }
-static int dissect_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_eckasdh2(tvb, offset, pinfo, tree, hf_h235_eckasdh2);
+static int dissect_eckasdh2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_eckasdh2(tvb, offset, actx, tree, hf_h235_eckasdh2);
 }
 
 
@@ -538,15 +537,15 @@ static const per_choice_t ECKASDH_choice[] = {
 };
 
 static int
-dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_ECKASDH, ECKASDH_choice,
                                  NULL);
 
   return offset;
 }
-static int dissect_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ECKASDH(tvb, offset, pinfo, tree, hf_h235_eckasdhkey);
+static int dissect_eckasdhkey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ECKASDH(tvb, offset, actx, tree, hf_h235_eckasdhkey);
 }
 
 
@@ -557,53 +556,53 @@ static const per_sequence_t TypedCertificate_sequence[] = {
 };
 
 static int
-dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_TypedCertificate, TypedCertificate_sequence);
 
   return offset;
 }
-static int dissect_certificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_TypedCertificate(tvb, offset, pinfo, tree, hf_h235_certificate);
+static int dissect_certificate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_TypedCertificate(tvb, offset, actx, tree, hf_h235_certificate);
 }
 
 
 
 static int
-dissect_h235_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+dissect_h235_NULL(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_default(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_default);
+static int dissect_default(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_default);
 }
-static int dissect_radius(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_radius);
+static int dissect_radius(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_radius);
 }
-static int dissect_dhExch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_dhExch);
+static int dissect_dhExch(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_dhExch);
 }
-static int dissect_pwdSymEnc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_pwdSymEnc);
+static int dissect_pwdSymEnc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_pwdSymEnc);
 }
-static int dissect_pwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_pwdHash);
+static int dissect_pwdHash(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_pwdHash);
 }
-static int dissect_certSign(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_certSign);
+static int dissect_certSign(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_certSign);
 }
-static int dissect_ipsec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_ipsec);
+static int dissect_ipsec(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_ipsec);
 }
-static int dissect_tls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_tls);
+static int dissect_tls(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_tls);
 }
-static int dissect_fecBeforeSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_fecBeforeSrtp);
+static int dissect_fecBeforeSrtp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_fecBeforeSrtp);
 }
-static int dissect_fecAfterSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_fecAfterSrtp);
+static int dissect_fecAfterSrtp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, actx, tree, hf_h235_fecAfterSrtp);
 }
 
 
@@ -620,15 +619,15 @@ static const per_choice_t AuthenticationBES_choice[] = {
 };
 
 static int
-dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_AuthenticationBES, AuthenticationBES_choice,
                                  NULL);
 
   return offset;
 }
-static int dissect_authenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_AuthenticationBES(tvb, offset, pinfo, tree, hf_h235_authenticationBES);
+static int dissect_authenticationBES(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_AuthenticationBES(tvb, offset, actx, tree, hf_h235_authenticationBES);
 }
 
 
@@ -659,8 +658,8 @@ static const per_choice_t AuthenticationMechanism_choice[] = {
 };
 
 int
-dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice,
                                  NULL);
 
@@ -670,49 +669,48 @@ dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
-dissect_h235_INTEGER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
-                                  NULL, NULL);
+dissect_h235_INTEGER(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
 }
-static int dissect_integer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_integer);
+static int dissect_integer(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, actx, tree, hf_h235_integer);
 }
-static int dissect_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_ranInt);
+static int dissect_ranInt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, actx, tree, hf_h235_ranInt);
 }
-static int dissect_powerOfTwo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_powerOfTwo);
+static int dissect_powerOfTwo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, actx, tree, hf_h235_powerOfTwo);
 }
-static int dissect_specific(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_specific);
+static int dissect_specific(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, actx, tree, hf_h235_specific);
 }
 
 
 
 static int
-dissect_h235_IV8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_IV8(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, NULL);
 
   return offset;
 }
-static int dissect_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_IV8(tvb, offset, pinfo, tree, hf_h235_iv8);
+static int dissect_iv8(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_IV8(tvb, offset, actx, tree, hf_h235_iv8);
 }
 
 
 
 static int
-dissect_h235_IV16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_IV16(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        16, 16, NULL);
 
   return offset;
 }
-static int dissect_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_IV16(tvb, offset, pinfo, tree, hf_h235_iv16);
+static int dissect_iv16(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_IV16(tvb, offset, actx, tree, hf_h235_iv16);
 }
 
 
@@ -726,17 +724,17 @@ static const per_sequence_t Params_sequence[] = {
 };
 
 static int
-dissect_h235_Params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_Params(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_Params, Params_sequence);
 
   return offset;
 }
-static int dissect_paramS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Params(tvb, offset, pinfo, tree, hf_h235_paramS);
+static int dissect_paramS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Params(tvb, offset, actx, tree, hf_h235_paramS);
 }
-static int dissect_paramSsalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Params(tvb, offset, pinfo, tree, hf_h235_paramSsalt);
+static int dissect_paramSsalt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Params(tvb, offset, actx, tree, hf_h235_paramSsalt);
 }
 
 
@@ -748,42 +746,42 @@ static const per_sequence_t ENCRYPTEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 #line 53 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ENCRYPTEDxxx, ENCRYPTEDxxx_sequence);
 
   return offset;
 }
-static int dissect_encryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_encryptedToken);
+static int dissect_encryptedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ENCRYPTEDxxx(tvb, offset, actx, tree, hf_h235_encryptedToken);
 }
-static int dissect_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_cryptoPwdEncr);
+static int dissect_cryptoPwdEncr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ENCRYPTEDxxx(tvb, offset, actx, tree, hf_h235_cryptoPwdEncr);
 }
-static int dissect_sharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_sharedSecret);
+static int dissect_sharedSecret(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ENCRYPTEDxxx(tvb, offset, actx, tree, hf_h235_sharedSecret);
 }
 
 
 
 static int
-dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
-static int dissect_bits(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_bits);
+static int dissect_bits(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING(tvb, offset, actx, tree, hf_h235_bits);
 }
-static int dissect_signaturedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_signaturedata);
+static int dissect_signaturedata(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING(tvb, offset, actx, tree, hf_h235_signaturedata);
 }
-static int dissect_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_hash);
+static int dissect_hash(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BIT_STRING(tvb, offset, actx, tree, hf_h235_hash);
 }
 
 
@@ -796,20 +794,20 @@ static const per_sequence_t SIGNEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 #line 50 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SIGNEDxxx, SIGNEDxxx_sequence);
 
   return offset;
 }
-static int dissect_signedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_signedToken);
+static int dissect_signedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SIGNEDxxx(tvb, offset, actx, tree, hf_h235_signedToken);
 }
-static int dissect_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_certProtectedKey);
+static int dissect_certProtectedKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SIGNEDxxx(tvb, offset, actx, tree, hf_h235_certProtectedKey);
 }
 
 
@@ -827,14 +825,14 @@ static const per_sequence_t V3KeySyncMaterial_sequence[] = {
 };
 
 static int
-dissect_h235_V3KeySyncMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_V3KeySyncMaterial(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_V3KeySyncMaterial, V3KeySyncMaterial_sequence);
 
   return offset;
 }
-static int dissect_secureSharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_V3KeySyncMaterial(tvb, offset, pinfo, tree, hf_h235_secureSharedSecret);
+static int dissect_secureSharedSecret(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_V3KeySyncMaterial(tvb, offset, actx, tree, hf_h235_secureSharedSecret);
 }
 
 
@@ -855,66 +853,65 @@ static const per_choice_t H235Key_choice[] = {
 };
 
 static int
-dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_H235Key(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_H235Key, H235Key_choice,
                                  NULL);
 
   return offset;
 }
-static int dissect_h235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_H235Key(tvb, offset, pinfo, tree, hf_h235_h235Key);
+static int dissect_h235Key(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_H235Key(tvb, offset, actx, tree, hf_h235_h235Key);
 }
 
 
 
 static int
-dissect_h235_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0U, 255U, NULL, NULL, FALSE);
+dissect_h235_INTEGER_0_255(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 255U, NULL, FALSE);
 
   return offset;
 }
-static int dissect_elementID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h235_elementID);
+static int dissect_elementID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER_0_255(tvb, offset, actx, tree, hf_h235_elementID);
 }
 
 
 
 static int
-dissect_h235_BMPString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_BMPString(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
                                           NO_BOUND, NO_BOUND);
 
   return offset;
 }
-static int dissect_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BMPString(tvb, offset, pinfo, tree, hf_h235_name);
+static int dissect_name(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BMPString(tvb, offset, actx, tree, hf_h235_name);
 }
 
 
 
 static int
-dissect_h235_BOOLEAN(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
-                                  NULL, NULL);
+dissect_h235_BOOLEAN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
 }
-static int dissect_flag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_flag);
+static int dissect_flag(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, actx, tree, hf_h235_flag);
 }
-static int dissect_allowMKI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_allowMKI);
+static int dissect_allowMKI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, actx, tree, hf_h235_allowMKI);
 }
-static int dissect_unencryptedSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unencryptedSrtp);
+static int dissect_unencryptedSrtp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, actx, tree, hf_h235_unencryptedSrtp);
 }
-static int dissect_unencryptedSrtcp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unencryptedSrtcp);
+static int dissect_unencryptedSrtcp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, actx, tree, hf_h235_unencryptedSrtcp);
 }
-static int dissect_unauthenticatedSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unauthenticatedSrtp);
+static int dissect_unauthenticatedSrtp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, actx, tree, hf_h235_unauthenticatedSrtp);
 }
 
 
@@ -937,15 +934,15 @@ static const per_choice_t Element_choice[] = {
 };
 
 static int
-dissect_h235_Element(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_Element(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_Element, Element_choice,
                                  NULL);
 
   return offset;
 }
-static int dissect_element(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Element(tvb, offset, pinfo, tree, hf_h235_element);
+static int dissect_element(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_Element(tvb, offset, actx, tree, hf_h235_element);
 }
 
 
@@ -957,14 +954,14 @@ static const per_sequence_t ProfileElement_sequence[] = {
 };
 
 static int
-dissect_h235_ProfileElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_ProfileElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ProfileElement, ProfileElement_sequence);
 
   return offset;
 }
-static int dissect_profileInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ProfileElement(tvb, offset, pinfo, tree, hf_h235_profileInfo_item);
+static int dissect_profileInfo_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ProfileElement(tvb, offset, actx, tree, hf_h235_profileInfo_item);
 }
 
 
@@ -973,14 +970,14 @@ static const per_sequence_t SEQUENCE_OF_ProfileElement_sequence_of[1] = {
 };
 
 static int
-dissect_h235_SEQUENCE_OF_ProfileElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SEQUENCE_OF_ProfileElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_h235_SEQUENCE_OF_ProfileElement, SEQUENCE_OF_ProfileElement_sequence_of);
 
   return offset;
 }
-static int dissect_profileInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SEQUENCE_OF_ProfileElement(tvb, offset, pinfo, tree, hf_h235_profileInfo);
+static int dissect_profileInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SEQUENCE_OF_ProfileElement(tvb, offset, actx, tree, hf_h235_profileInfo);
 }
 
 
@@ -1002,17 +999,17 @@ static const per_sequence_t ClearToken_sequence[] = {
 };
 
 int
-dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h235_ClearToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 #line 60 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ClearToken, ClearToken_sequence);
 
   return offset;
 }
-static int dissect_hashedVals(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ClearToken(tvb, offset, pinfo, tree, hf_h235_hashedVals);
+static int dissect_hashedVals(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_ClearToken(tvb, offset, actx, tree, hf_h235_hashedVals);
 }
 
 
@@ -1024,17 +1021,17 @@ static const per_sequence_t HASHEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 #line 56 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_HASHEDxxx, HASHEDxxx_sequence);
 
   return offset;
 }
-static int dissect_hashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h235_hashedToken);
+static int dissect_hashedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_HASHEDxxx(tvb, offset, actx, tree, hf_h235_hashedToken);
 }
 
 
@@ -1045,14 +1042,14 @@ static const per_sequence_t T_cryptoEncryptedToken_sequence[] = {
 };
 
 static int
-dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_cryptoEncryptedToken, T_cryptoEncryptedToken_sequence);
 
   return offset;
 }
-static int dissect_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_cryptoEncryptedToken(tvb, offset, pinfo, tree, hf_h235_cryptoEncryptedToken);
+static int dissect_cryptoEncryptedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_cryptoEncryptedToken(tvb, offset, actx, tree, hf_h235_cryptoEncryptedToken);
 }
 
 
@@ -1063,14 +1060,14 @@ static const per_sequence_t T_cryptoSignedToken_sequence[] = {
 };
 
 static int
-dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_cryptoSignedToken, T_cryptoSignedToken_sequence);
 
   return offset;
 }
-static int dissect_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_cryptoSignedToken(tvb, offset, pinfo, tree, hf_h235_cryptoSignedToken);
+static int dissect_cryptoSignedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_cryptoSignedToken(tvb, offset, actx, tree, hf_h235_cryptoSignedToken);
 }
 
 
@@ -1082,14 +1079,14 @@ static const per_sequence_t T_cryptoHashedToken_sequence[] = {
 };
 
 static int
-dissect_h235_T_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_cryptoHashedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_cryptoHashedToken, T_cryptoHashedToken_sequence);
 
   return offset;
 }
-static int dissect_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_cryptoHashedToken(tvb, offset, pinfo, tree, hf_h235_cryptoHashedToken);
+static int dissect_cryptoHashedToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_cryptoHashedToken(tvb, offset, actx, tree, hf_h235_cryptoHashedToken);
 }
 
 
@@ -1110,11 +1107,11 @@ static const per_choice_t CryptoToken_choice[] = {
 };
 
 int
-dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 #line 64 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_CryptoToken, CryptoToken_choice,
                                  NULL);
 
@@ -1124,14 +1121,14 @@ dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 
 static int
-dissect_h235_INTEGER_0_24(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0U, 24U, NULL, NULL, FALSE);
+dissect_h235_INTEGER_0_24(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 24U, NULL, FALSE);
 
   return offset;
 }
-static int dissect_kdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER_0_24(tvb, offset, pinfo, tree, hf_h235_kdr);
+static int dissect_kdr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER_0_24(tvb, offset, actx, tree, hf_h235_kdr);
 }
 
 
@@ -1142,27 +1139,27 @@ static const per_sequence_t FecOrder_sequence[] = {
 };
 
 static int
-dissect_h235_FecOrder(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_FecOrder(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_FecOrder, FecOrder_sequence);
 
   return offset;
 }
-static int dissect_fecOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_FecOrder(tvb, offset, pinfo, tree, hf_h235_fecOrder);
+static int dissect_fecOrder(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_FecOrder(tvb, offset, actx, tree, hf_h235_fecOrder);
 }
 
 
 
 static int
-dissect_h235_INTEGER_64_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              64U, 65535U, NULL, NULL, FALSE);
+dissect_h235_INTEGER_64_65535(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              64U, 65535U, NULL, FALSE);
 
   return offset;
 }
-static int dissect_windowSizeHint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER_64_65535(tvb, offset, pinfo, tree, hf_h235_windowSizeHint);
+static int dissect_windowSizeHint(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER_64_65535(tvb, offset, actx, tree, hf_h235_windowSizeHint);
 }
 
 
@@ -1171,14 +1168,14 @@ static const per_sequence_t SEQUENCE_OF_GenericData_sequence_of[1] = {
 };
 
 static int
-dissect_h235_SEQUENCE_OF_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SEQUENCE_OF_GenericData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_h235_SEQUENCE_OF_GenericData, SEQUENCE_OF_GenericData_sequence_of);
 
   return offset;
 }
-static int dissect_newParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SEQUENCE_OF_GenericData(tvb, offset, pinfo, tree, hf_h235_newParameter);
+static int dissect_newParameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SEQUENCE_OF_GenericData(tvb, offset, actx, tree, hf_h235_newParameter);
 }
 
 
@@ -1194,14 +1191,14 @@ static const per_sequence_t SrtpSessionParameters_sequence[] = {
 };
 
 static int
-dissect_h235_SrtpSessionParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SrtpSessionParameters(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SrtpSessionParameters, SrtpSessionParameters_sequence);
 
   return offset;
 }
-static int dissect_sessionParams(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SrtpSessionParameters(tvb, offset, pinfo, tree, hf_h235_sessionParams);
+static int dissect_sessionParams(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SrtpSessionParameters(tvb, offset, actx, tree, hf_h235_sessionParams);
 }
 
 
@@ -1213,14 +1210,14 @@ static const per_sequence_t SrtpCryptoInfo_sequence[] = {
 };
 
 static int
-dissect_h235_SrtpCryptoInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SrtpCryptoInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SrtpCryptoInfo, SrtpCryptoInfo_sequence);
 
   return offset;
 }
-static int dissect_SrtpCryptoCapability_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SrtpCryptoInfo(tvb, offset, pinfo, tree, hf_h235_SrtpCryptoCapability_item);
+static int dissect_SrtpCryptoCapability_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SrtpCryptoInfo(tvb, offset, actx, tree, hf_h235_SrtpCryptoCapability_item);
 }
 
 
@@ -1229,8 +1226,8 @@ static const per_sequence_t SrtpCryptoCapability_sequence_of[1] = {
 };
 
 int
-dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_h235_SrtpCryptoCapability, SrtpCryptoCapability_sequence_of);
 
   return offset;
@@ -1250,28 +1247,28 @@ static const per_choice_t T_lifetime_choice[] = {
 };
 
 static int
-dissect_h235_T_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_lifetime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_T_lifetime, T_lifetime_choice,
                                  NULL);
 
   return offset;
 }
-static int dissect_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_lifetime(tvb, offset, pinfo, tree, hf_h235_lifetime);
+static int dissect_lifetime(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_lifetime(tvb, offset, actx, tree, hf_h235_lifetime);
 }
 
 
 
 static int
-dissect_h235_INTEGER_1_128(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              1U, 128U, NULL, NULL, FALSE);
+dissect_h235_INTEGER_1_128(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              1U, 128U, NULL, FALSE);
 
   return offset;
 }
-static int dissect_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_INTEGER_1_128(tvb, offset, pinfo, tree, hf_h235_length);
+static int dissect_length(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_INTEGER_1_128(tvb, offset, actx, tree, hf_h235_length);
 }
 
 
@@ -1282,14 +1279,14 @@ static const per_sequence_t T_mki_sequence[] = {
 };
 
 static int
-dissect_h235_T_mki(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_T_mki(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_T_mki, T_mki_sequence);
 
   return offset;
 }
-static int dissect_mki(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_T_mki(tvb, offset, pinfo, tree, hf_h235_mki);
+static int dissect_mki(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_T_mki(tvb, offset, actx, tree, hf_h235_mki);
 }
 
 
@@ -1302,14 +1299,14 @@ static const per_sequence_t SrtpKeyParameters_sequence[] = {
 };
 
 static int
-dissect_h235_SrtpKeyParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SrtpKeyParameters(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SrtpKeyParameters, SrtpKeyParameters_sequence);
 
   return offset;
 }
-static int dissect_SrtpKeys_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SrtpKeyParameters(tvb, offset, pinfo, tree, hf_h235_SrtpKeys_item);
+static int dissect_SrtpKeys_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h235_SrtpKeyParameters(tvb, offset, actx, tree, hf_h235_SrtpKeys_item);
 }
 
 
@@ -1318,8 +1315,8 @@ static const per_sequence_t SrtpKeys_sequence_of[1] = {
 };
 
 int
-dissect_h235_SrtpKeys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+dissect_h235_SrtpKeys(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_h235_SrtpKeys, SrtpKeys_sequence_of);
 
   return offset;

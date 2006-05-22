@@ -138,8 +138,8 @@ CallIdentifier/guid guid
 
 	contains_faststart = FALSE;
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %%s ",
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "CS: %%s ",
 			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
         }
 
@@ -150,13 +150,13 @@ CallIdentifier/guid guid
 
 	if (contains_faststart == TRUE )
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
+		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
 		{
-			col_append_str(pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
+			col_append_str(%(ACTX)s->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
 		}
 	}
 
-	col_set_fence(pinfo->cinfo,COL_INFO);
+	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ CallIdentifier/guid guid
 
 %(DEFAULT_BODY)s
 	if (value_tvb && tvb_length(value_tvb)) {
-		dissect_h245_OpenLogicalChannelCodec(value_tvb, pinfo, tree, codec_str);
+		dissect_h245_OpenLogicalChannelCodec(value_tvb, %(ACTX)s->pinfo, tree, codec_str);
 	}
 
     /* Add to packet info */
@@ -180,8 +180,8 @@ CallIdentifier/guid guid
   	guint32 rasmessage_value;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %%s ",
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "RAS: %%s ",
 			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
 	}
 
@@ -327,7 +327,7 @@ CallIdentifier/guid guid
 	h225_pi->h245_address = ipv4_address;	
 	h225_pi->h245_port = ipv4_port;	
 
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
+	if((!actx->pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
 		address src_addr;
 		conversation_t *conv=NULL;
 
@@ -335,9 +335,9 @@ CallIdentifier/guid guid
 		src_addr.len=4;
 		src_addr.data=(const guint8 *)&ipv4_address;
 
-		conv=find_conversation(pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		conv=find_conversation(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
-			conv=conversation_new(pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+			conv=conversation_new(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
 			conversation_set_dissector(conv, h245_handle);
 		}
 	}
@@ -445,7 +445,7 @@ ReleaseCompleteReason     VAL_PTR = &value
 #.FN_BODY CallIdentifier/guid
   tvbuff_t *guid_tvb;
 
-  offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,GUID_LEN,GUID_LEN,&guid_tvb);
+  offset = dissect_per_octet_string(tvb,offset,%(ACTX)s,tree,hf_index,GUID_LEN,GUID_LEN,&guid_tvb);
   tvb_memcpy(guid_tvb,(guint8 *)&h225_pi->guid,0,GUID_LEN);
 #.END
 #----------------------------------------------------------------------------------------
@@ -456,7 +456,7 @@ ReleaseCompleteReason     VAL_PTR = &value
 
 %(DEFAULT_BODY)s
 	if (h4501_tvb && tvb_length(h4501_tvb)) {
-		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
+		call_dissector(h4501_handle, h4501_tvb, %(ACTX)s->pinfo, tree);
 	}
 #.END
 #----------------------------------------------------------------------------------------
@@ -525,7 +525,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 %(DEFAULT_BODY)s
   if (next_tvb && tvb_length(next_tvb)) {
-    call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
+    call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END
 

@@ -67,7 +67,7 @@ static gint ett_per_sequence_of_item = -1;
 
 /*
 #define DEBUG_ENTRY(x) \
-printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
+printf("#%d  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
 */
 #define DEBUG_ENTRY(x) \
 	;
@@ -98,14 +98,14 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
-gboolean is_per_byte_aligned = TRUE;
-
-void
-per_aligment_type_callback(gboolean byte_aligned){
-
-	is_per_byte_aligned = byte_aligned;
-
+void asn_ctx_init(asn_ctx_t *actx, asn_enc_e encoding, gboolean aligned, packet_info *pinfo) {
+  actx->encoding = encoding;
+  actx->aligned = aligned;
+  actx->pinfo = pinfo;
+  actx->created_item = NULL;
+  actx->private_data = NULL;
 }
+
 
 #define BYTE_ALIGN_OFFSET(offset)		\
 	if(offset&0x07){			\
@@ -114,7 +114,7 @@ per_aligment_type_callback(gboolean byte_aligned){
 
 /* 10.9 General rules for encoding a length determinant -------------------- */
 guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, guint32 *length)
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
 {
 	guint8 byte;
 	guint32 len;
@@ -156,7 +156,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 
 /* 10.6   normally small non-negative whole number */
 static guint32
-dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 *length)
+dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
 {
 	gboolean small_number;
 	guint32 len;
@@ -167,14 +167,14 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 		length=&len;
 	}
 
-	offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_small_number_bit, &small_number, &pi);
-	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+	offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_small_number_bit, &small_number);
+	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	if(!small_number){
 		int i;
 		/* 10.6.1 */
 		*length=0;
 		for(i=0;i<6;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &small_number, NULL);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &small_number);
 			*length<<=1;
 			if(small_number){
 				*length|=1;
@@ -192,7 +192,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 	}
 
 	/* 10.6.2 */
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_index, length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_index, length);
 
 	return offset;
 }
@@ -208,11 +208,11 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
    there is a 1 byte general string encoded
 */
 guint32
-dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index)
+dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	guint32 length;
 
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_GeneralString_length, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_GeneralString_length, &length);
 
 	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
 
@@ -223,7 +223,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
 /* 17 Encoding the null type */
 guint32
-dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_per_null(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   proto_item *ti_tmp;
 
   ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
@@ -234,7 +234,7 @@ dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tr
 
 /* 19 this function dissects a sequence of */
 static guint32
-dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), guint32 length)
+dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int (*func)(tvbuff_t *, int , asn_ctx_t *, proto_tree *), guint32 length)
 {
 	guint32 i;
 
@@ -247,14 +247,14 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 		litem=proto_tree_add_text(tree, tvb, offset>>3, 0, "Item %d", i);
 		ltree=proto_item_add_subtree(litem, ett_per_sequence_of_item);
 
-		offset=(*func)(tvb, offset, pinfo, ltree);
+		offset=(*func)(tvb, offset, actx, ltree);
 		proto_item_set_len(litem, (offset>>3)!=(lold_offset>>3)?(offset>>3)-(lold_offset>>3):1);
 	}
 
 	return offset;
 }
 guint32
-dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
+dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -267,7 +267,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	/* semi-constrained whole number for number of elements */
 	/* each element encoded as 10.9 */
 
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, hf_per_sequence_of_length, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length);
 
 	hfi = proto_registrar_get_nth(hf_index);
 	if (IS_FT_UINT(hfi->type)) {
@@ -278,7 +278,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
-	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, seq->func, length);
+	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -290,16 +290,16 @@ DEBUG_ENTRY("dissect_per_sequence_of");
    i.e. no FROM stuff limiting the alphabet
 */
 guint32
-dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, NULL);
+	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, NULL);
 
 	return offset;
 }
 
 /* XXX we dont do >64k length strings   yet */
 static guint32
-dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
 	guint32 length;
 	gboolean byte_aligned;
@@ -307,7 +307,6 @@ dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, pa
 	guint char_pos;
 	int bits_per_char;
 	guint32 old_offset;
-	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_restricted_character_string");
 
@@ -369,14 +368,14 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x */
 	length=max_len;
 	if (max_len == NO_BOUND) {
-		offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
+		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_octet_string_length, &length);
 		/* the unconstrained strings are always byte aligned (27.6.3)*/
 		byte_aligned=TRUE;
 	} else if(min_len!=max_len){
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_octet_string_length, min_len, max_len,
-			&length, &pi, FALSE);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			&length, FALSE);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
 
 	if(!length){
@@ -399,7 +398,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 		val=0;
 		for(i=0;i<bits_per_char;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 			val=(val<<1)|bit;
 		}
 		/* ALIGNED PER does not do any remapping of chars if 
@@ -450,7 +449,7 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 }
 
 guint32
-dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
   const char *alphabet_ptr;
   char sorted_alphabet[128];
@@ -460,37 +459,36 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_in
   } else {
     alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length);
   }
-  return dissect_per_restricted_character_string_sorted(tvb, offset, pinfo, tree, hf_index, min_len, max_len, alphabet_ptr, alphabet_length, value_tvb);
+  return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, alphabet_ptr, alphabet_length, value_tvb);
 }
 
 guint32
-dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, pinfo, tree, hf_index, min_len, max_len, 
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
 		" 0123456789", 11, NULL);
 
 	return offset;
 }
 guint32
-dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, pinfo, tree, hf_index, min_len, max_len, 
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
 		" '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
 	return offset;
 }
 guint32
-dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, pinfo, tree, hf_index, min_len, max_len,
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
 		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL);
 	return offset;
 }
 guint32
-dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	guint32 length;
 	static char *str;
-	proto_item *pi;
 
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
@@ -506,10 +504,10 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 	/* xx.x */
 	length=max_len;
 	if(min_len!=max_len){
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_octet_string_length, min_len, max_len,
-			&length, &pi, FALSE);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			&length, FALSE);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
 
 
@@ -533,14 +531,13 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 
 /* this function dissects a constrained sequence of */
 guint32
-dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
 	guint32 length;
 	header_field_info *hfi;
-	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
@@ -554,16 +551,16 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	if(max_len>=65536){
 		/* semi-constrained whole number for number of elements */
 		/* each element encoded as 10.9 */
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, hf_per_sequence_of_length, &length);
+		offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length);
 		length+=min_len;
 		goto call_sohelper;
 	}
 
 	/* constrained whole number for number of elements */
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+	offset=dissect_per_constrained_integer(tvb, offset, actx,
 		parent_tree, hf_per_sequence_of_length, min_len, max_len,
-		&length, &pi, FALSE);
-	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		&length, FALSE);
+	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 
 call_sohelper:
 	hfi = proto_registrar_get_nth(hf_index);
@@ -575,7 +572,7 @@ call_sohelper:
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
-	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, seq->func, length);
+	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -584,11 +581,11 @@ call_sohelper:
 
 /* this function dissects a constrained set of */
 guint32
-dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_constrained_set_of");
-	offset=dissect_per_constrained_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, seq, min_len, max_len);
+	offset=dissect_per_constrained_sequence_of(tvb, offset, actx, parent_tree, hf_index, ett_index, seq, min_len, max_len);
 	return offset;
 }
 
@@ -599,11 +596,11 @@ DEBUG_ENTRY("dissect_per_constrained_set_of");
 
 /* this function dissects a set of */
 guint32
-dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
+dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_set_of");
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, seq);
+	offset=dissect_per_sequence_of(tvb, offset, actx, parent_tree, hf_index, ett_index, seq);
 	return offset;
 }
 
@@ -612,7 +609,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* 23 Encoding the object identifier type */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
   guint length;
   char *str;
@@ -621,7 +618,7 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
-  offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_object_identifier_length, &length);
+  offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
 	
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
@@ -642,12 +639,12 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 }
 
 guint32
-dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, const char **value_string)
+dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string)
 {
   tvbuff_t *value_tvb = NULL;
   guint length;
 
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, (value_string) ? &value_tvb : NULL);
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, (value_string) ? &value_tvb : NULL);
 
   if (value_string) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
@@ -664,12 +661,11 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, packet_info *pi
 
 /* this function reads a single bit */
 guint32
-dissect_per_boolean(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, gboolean *bool, proto_item **item)
+dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool)
 {
 	guint8 ch, mask;
 	gboolean value;
 	header_field_info *hfi;
-	proto_item *it;
 
 DEBUG_ENTRY("dissect_per_boolean");
 
@@ -696,10 +692,9 @@ DEBUG_ENTRY("dissect_per_boolean");
 			hfi->name,
 			value?"True":"False"
 		);
-		it=proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, str);
-		if(item){
-			*item=it;
-		}
+		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, str);
+	} else {
+		actx->created_item = NULL;
 	}
 
 	if(bool){
@@ -713,7 +708,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 
 /* we currently only handle integers up to 32 bits in length. */
 guint32
-dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint32 *value, proto_item **item)
+dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
 {
 	guint32 i, length;
 	gint32 val;
@@ -721,7 +716,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tre
 	header_field_info *hfi;
 
 	/* 12.2.6 b */
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
 	/* gassert here? */
 	if(length>4){
 PER_NOT_DECODED_YET("too long integer");
@@ -756,9 +751,8 @@ PER_NOT_DECODED_YET("too long integer");
 	}
 
 
-	if(item){
-		*item=it;
-	}
+	actx->created_item = it;
+
 	if(value){
 		*value=val;
 	}
@@ -789,7 +783,7 @@ PER_NOT_DECODED_YET("too long integer");
 	10.5.7.4
 */
 guint32
-dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension)
+dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension)
 {
 	proto_item *it=NULL;
 	guint32 range, val;
@@ -799,17 +793,14 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 	int num_bits;
 	int pad;
 	gboolean tmp;
-	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
 		gboolean extension_present;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_present, &pi);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		if(extension_present){
-			offset=dissect_per_integer(tvb, offset, pinfo, tree,
-				hf_index,
-				value, NULL);
+			offset = dissect_per_integer(tvb, offset, actx, tree,	hf_index,	value);
 			return offset;
 		}
 	}
@@ -820,7 +811,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	 * 10.5.7	In the case of the ALIGNED variant the encoding depends on whether
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
-	if(((max-min)>65536)&&(is_per_byte_aligned)){
+	if(((max-min)>65536)&&(actx->aligned)){
 		/* just set range really big so it will fall through
 		   to the bottom of the encoding */
 		range=1000000;
@@ -836,7 +827,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(range==1){
 		val_start = offset>>3; val_length = 0;
 		val = min; 
-	} else if((range<=255)||(!is_per_byte_aligned)) {
+	} else if((range<=255)||(!actx->aligned)) {
 		/* 10.5.7.1 
 		 * 10.5.6	In the case of the UNALIGNED variant the value ("n" - "lb") shall be encoded
 		 * as a non-negative  binary integer in a bit field as specified in 10.3 with the minimum
@@ -882,7 +873,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 				strcat(str, " ");
 			}
 			bit++;
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &tmp, NULL);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
@@ -934,9 +925,9 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		/* 10.5.7.4 */
 		/* 12.2.6 */
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 		num_bytes=bit;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 		num_bytes=(num_bytes<<1)|bit;
 
 		num_bytes++;  /* lower bound for length determinant is 1 */
@@ -964,32 +955,31 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else {
 		THROW(ReportedBoundsError);
 	}
-	if (item) *item = it;
+	actx->created_item = it;
 	if (value) *value = val;
 	return offset;}
 
 /* 13 Enemerated */
 guint32
-dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, proto_item **item, gboolean has_extension, guint32 ext_num, guint32 *value_map)
+dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map)
 {
 
 	proto_item *it=NULL;
 	guint32 enum_index, val;
-	proto_item *pi;
 	guint32 start_offset = offset;
 	gboolean extension_present = FALSE;
 	header_field_info *hfi;
 
 	if (has_extension) {
 		/* Extension bit */
-		offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_present, &pi);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
 
 	if (!extension_present) {
 		/* 13.2  */
-		offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_per_enum_index, 0, root_num - 1, &enum_index, &pi, FALSE);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_per_enum_index, 0, root_num - 1, &enum_index, FALSE);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	} else {
 		/* 13.3  */
 		if (ext_num == 1) {
@@ -1007,7 +997,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 			 *
 			 */
 			BYTE_ALIGN_OFFSET(offset);
-			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_per_enum_extension_index, &enum_index);
+			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_enum_extension_index, &enum_index);
 		}
 		enum_index += root_num;
 	}
@@ -1018,14 +1008,14 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 	} else {
 		THROW(ReportedBoundsError);
 	}
-	if (item) *item = it;
+	actx->created_item = it;
 	if (value) *value = val;
 	return offset;
 }
 
 /* 22 Encoding the choice type */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
@@ -1036,7 +1026,6 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree
 	guint32 old_offset = offset;
 	proto_item *choice_item = NULL;
 	proto_tree *choice_tree = NULL;
-	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_choice");
 
@@ -1046,8 +1035,8 @@ DEBUG_ENTRY("dissect_per_choice");
 		extension_flag = FALSE;
 	} else {
 		extension_present = TRUE;
-		offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_bit, &extension_flag, &pi);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
 
 	/* count the number of entries in the extension root and extension addition */
@@ -1069,10 +1058,10 @@ DEBUG_ENTRY("dissect_per_choice");
 		if (extension_root_entries == 1) {  /* 22.5 */
 			choice_index = 0;
 		} else {
-			offset = dissect_per_constrained_integer(tvb, offset, pinfo,
+			offset = dissect_per_constrained_integer(tvb, offset, actx,
 				tree, hf_per_choice_index, 0, extension_root_entries - 1,
-				&choice_index, &pi, FALSE);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+				&choice_index, FALSE);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		}
 
 		index = -1; cidx = choice_index;
@@ -1083,8 +1072,8 @@ DEBUG_ENTRY("dissect_per_choice");
 			}
 		}
 	} else {  /* 22.8 */
-		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_per_choice_extension_index, &choice_index);
-		offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_open_type_length, &ext_length);
+		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_choice_extension_index, &choice_index);
+		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &ext_length);
 
 		index = -1; cidx = choice_index;
 		for (i=0; choice[i].func; i++) {
@@ -1099,9 +1088,9 @@ DEBUG_ENTRY("dissect_per_choice");
 		choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset>>3, 0, choice[index].value);
 		choice_tree = proto_item_add_subtree(choice_item, ett_index);
 		if (!extension_flag) {
-			offset = choice[index].func(tvb, offset, pinfo, choice_tree);
+			offset = choice[index].func(tvb, offset, actx, choice_tree);
 		} else {
-			choice[index].func(tvb, offset, pinfo, choice_tree);
+			choice[index].func(tvb, offset, actx, choice_tree);
 			offset += ext_length * 8;
 		}
 		proto_item_set_len(choice_item, BLEN(old_offset, offset));
@@ -1166,7 +1155,7 @@ index_get_extension_name(const per_sequence_t *sequence, int index)
 	   18.9
 */
 guint32
-dissect_per_sequence(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
+dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
 {
 	gboolean extension_present, extension_flag, optional_field_flag;
 	proto_item *item;
@@ -1174,8 +1163,6 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 	guint32 old_offset=offset;
 	guint32 i, num_opts;
 	guint32 optional_mask;
-	proto_item *pi;
-
 
 DEBUG_ENTRY("dissect_per_sequence");
 
@@ -1192,8 +1179,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 		extension_present=0;
 	} else {
 		extension_present=1;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_bit, &extension_flag, &pi);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
 	/* 18.2 */
 	num_opts=0;
@@ -1206,8 +1193,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
 		proto_item *it=NULL;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_optional_field_bit, &optional_field_flag, &it);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(it);
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		optional_mask<<=1;
 		if(optional_field_flag){
 			optional_mask|=0x01;
@@ -1234,7 +1221,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				}
 			}
 			if(sequence[i].func){
-				offset=sequence[i].func(tvb, offset, pinfo, tree);
+				offset=sequence[i].func(tvb, offset, actx, tree);
 			} else {
 				PER_NOT_DECODED_YET(sequence[i].name);
 			}
@@ -1249,7 +1236,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		guint32 extension_mask;
 		proto_item *it=NULL;
 
-		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_per_num_sequence_extensions, &num_extensions);
+		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_num_sequence_extensions, &num_extensions);
 		/* the X.691 standard is VERY unclear here.
 		   there is no mention that the lower bound lb for this
 		   (apparently) semiconstrained value is 1,
@@ -1270,8 +1257,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 		extension_mask=0;
 		for(i=0;i<num_extensions;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_bit, &it);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(it);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_bit);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 			extension_mask=(extension_mask<<1)|extension_bit;
 			if(it){
 				proto_item_append_text(it, " (%s %s present)",
@@ -1302,7 +1289,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				continue;
 			}
 
-			offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_open_type_length, &length);
+			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &length);
 
 			if(i>=num_known_extensions){
 				/* we dont know how to decode this extension */
@@ -1323,7 +1310,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			}
 
 			if(sequence[extension_index].func){
-				new_offset=sequence[extension_index].func(tvb, offset, pinfo, tree);
+				new_offset=sequence[extension_index].func(tvb, offset, actx, tree);
 			} else {
 				PER_NOT_DECODED_YET(sequence[extension_index].name);
 			}
@@ -1345,7 +1332,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 */
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	guint32 length;
 	header_field_info *hfi;
@@ -1372,17 +1359,17 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		bytes[0]=bytes[1]=bytes[2]=0;
 		if(min_len<=8){
 			for(i=0;i<min_len;i++){
-				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 				bytes[0]=(bytes[0]<<1)|bit;
 			}
 		}
 		if(min_len>8){
 			for(i=0;i<8;i++){
-				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 				bytes[0]=(bytes[0]<<1)|bit;
 			}
 			for(i=8;i<min_len;i++){
-				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 				bytes[1]=(bytes[1]<<1)|bit;
 			}
 		}
@@ -1406,14 +1393,12 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.11 */
 	if (max_len != NO_BOUND) {
-		proto_item *pi;
-
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_bit_string_length, min_len, max_len,
-			&length, &pi, has_extension);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			&length, has_extension);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	} else {
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_bit_string_length, &length);
+		offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length);
 	}
 	if(length){
 		/* align to byte */
@@ -1443,7 +1428,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
    hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
-dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
+dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
 {
 	proto_item *it = NULL;
 	gint val_start, val_length;
@@ -1451,7 +1436,6 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 	header_field_info *hfi;
 	static guint8 bytes[4];
 	guint8 *pbytes = NULL;
-	proto_item *pi;
 	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
@@ -1470,12 +1454,12 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		gboolean bit;
 
 		for(i=0;i<8;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 			bytes[0]=(bytes[0]<<1)|bit;
 		}
 		if(min_len==2){
 			for(i=0;i<8;i++){
-				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 				bytes[1]=(bytes[1]<<1)|bit;
 			}
 		}
@@ -1485,11 +1469,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		val_length = min_len+((offset&0x07)?1:0);
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
-		/* align to byte */
-		val_start = offset>>3;
 
-		if (is_per_byte_aligned){
+		/* align to byte */
+		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);			 
+			val_start = offset>>3;
 			val_length = min_len;
 			offset+=min_len*8;
 		}else{
@@ -1498,10 +1482,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			guint32 j = 0;
 			gboolean bit;
 
+			val_start = offset>>3;
 			buff = ep_alloc(min_len);
 			while (j < (guint32)min_len){
 				for(i=0;i<8;i++){
-					offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+					offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 					buff[j]=(buff[j]<<1)|bit;
 				}
 				j = j+1;
@@ -1513,21 +1498,21 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	} else {  /* 16.8 */
 		if(max_len>0) {  
-			offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree,
+			offset = dissect_per_constrained_integer(tvb, offset, actx, tree,
 				hf_per_octet_string_length, min_len, max_len,
-				&length, &pi, FALSE);
-				if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+				&length, FALSE);
+				if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		} else {
-			offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, 
+			offset = dissect_per_length_determinant(tvb, offset, actx, tree, 
 				hf_per_octet_string_length, &length);
 		}
 
 		if(length){
 			/* align to byte */
-			if (is_per_byte_aligned){
+			if (actx->aligned){
 				BYTE_ALIGN_OFFSET(offset);
-				offset+=length*8;
 				val_start = offset>>3; 
+				offset+=length*8;
 			}else{
 				guint8 *buff;
 				guint32 i = 0;
@@ -1538,7 +1523,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				buff = g_malloc(length);
 				while (j < length){
 					for(i=0;i<8;i++){
-						offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+						offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 						buff[j]=(buff[j]<<1)|bit;
 					}
 				j = j+1;
@@ -1550,7 +1535,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				 */
 				tvb_set_free_cb(out_tvb, g_free );
 				tvb_set_child_real_data_tvbuff(tvb,out_tvb);
-				add_new_data_source(pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
+				add_new_data_source(actx->pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
 			}
 		}
 		val_length = length;

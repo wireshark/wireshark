@@ -10,10 +10,10 @@ ULP-PDU
 
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
+		col_clear(%(ACTX)s->pinfo->cinfo, COL_INFO);
 
   %(DEFAULT_BODY)s
 
@@ -23,9 +23,9 @@ guint32 UlpMessage;
 
   %(DEFAULT_BODY)s
 
-	if (check_col(pinfo->cinfo, COL_INFO))
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
 	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+	    col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
 	}
 #.END
 
@@ -35,6 +35,6 @@ guint32 UlpMessage;
 %(DEFAULT_BODY)s
 
   if (rrlp_tvb){
-	call_dissector(rrlp_handle, rrlp_tvb, pinfo, tree);
+	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
 
   }

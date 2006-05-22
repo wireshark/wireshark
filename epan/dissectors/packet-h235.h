@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-h235.h                                                            */
-/* ../../tools/asn2eth.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.h */
 
@@ -39,15 +39,15 @@
 #line 1 "packet-h235-exp.h"
 extern const value_string h235_AuthenticationMechanism_vals[];
 extern const value_string h235_CryptoToken_vals[];
-int dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_h235_SrtpKeys(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_ClearToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h235_SrtpKeys(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h235-exp.h ---*/
 #line 30 "packet-h235-template.h"

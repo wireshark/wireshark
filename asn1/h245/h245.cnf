@@ -18,7 +18,7 @@ OpenLogicalChannel
   h223_mc = 0;
 %(DEFAULT_BODY)s
   if(h223_set_mc_handle)
-    (*h223_set_mc_handle)(pinfo, h223_mc, h223_me);
+    (*h223_set_mc_handle)(%(ACTX)s->pinfo, h223_mc, h223_me);
  /* stuff */
 #.END
 #----------------------------------------------------------------------------------------
@@ -92,8 +92,8 @@ OpenLogicalChannel
 	pending->fw_channel_params = h223_fw_lc_params;
 	pending->rev_channel_params = h223_rev_lc_params;
 	temp = h223_fw_lc_num;
-	if (pinfo->p2p_dir > -1)
-		g_hash_table_insert(h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
+	if (%(ACTX)s->pinfo->p2p_dir > -1)
+		g_hash_table_insert(h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -215,25 +215,25 @@ OpenLogicalChannel
 	
 %(DEFAULT_BODY)s
   temp = h223_fw_lc_num;
-  p2p_dir = pinfo->p2p_dir;
+  p2p_dir = %(ACTX)s->pinfo->p2p_dir;
   
-  if(pinfo->p2p_dir == P2P_DIR_SENT)
-	pinfo->p2p_dir = P2P_DIR_RECV;
+  if(%(ACTX)s->pinfo->p2p_dir == P2P_DIR_SENT)
+	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_RECV;
   else
-	pinfo->p2p_dir = P2P_DIR_SENT;
-  pend = g_hash_table_lookup( h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_SENT;
+  pend = g_hash_table_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
   if (pend) {
 	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
 				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
 	if(h223_add_lc_handle) {
-	  (*h223_add_lc_handle)( pinfo, h223_fw_lc_num, pend->fw_channel_params );
+	  (*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_fw_lc_num, pend->fw_channel_params );
 	  if(h223_rev_lc_num)
-		(*h223_add_lc_handle)( pinfo, h223_rev_lc_num, pend->rev_channel_params );
+		(*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_rev_lc_num, pend->rev_channel_params );
 	}
   } else {
 	/* we missed the OpenLogicalChannel packet */
   }
-  pinfo->p2p_dir = p2p_dir;
+  %(ACTX)s->pinfo->p2p_dir = p2p_dir;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelAck/forwardLogicalChannelNumber
@@ -252,24 +252,24 @@ OpenLogicalChannel
   guint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
 	}
 
-	if (( check_col(pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%%s) ", codec_type );
+	if (( check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
+		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "(%%s) ", codec_type );
 	}
 
-        col_set_fence(pinfo->cinfo,COL_INFO);
+        col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
     /* Add to packet info */
 
@@ -290,20 +290,20 @@ OpenLogicalChannel
   guint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
 	}
 
-	col_set_fence(pinfo->cinfo,COL_INFO);
+	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
@@ -315,20 +315,20 @@ OpenLogicalChannel
   guint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
 	}
 
-	col_set_fence(pinfo->cinfo,COL_INFO);
+	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
 	g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
@@ -339,20 +339,20 @@ OpenLogicalChannel
   guint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
 	}
 
-	col_set_fence(pinfo->cinfo,COL_INFO);
+	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
 	g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
@@ -578,7 +578,7 @@ OpenLogicalChannel
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelAck/forwardMultiplexAckParameters
 	
-	if (!pinfo->fd->flags.visited) {
+	if (!actx->pinfo->fd->flags.visited) {
 		if (codec_type && strcmp(codec_type, "t38fax")==0) {
 			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
 				address src_addr;
@@ -587,7 +587,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+				t38_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num);
 			}
 		} else {
 			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
@@ -597,7 +597,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
 			}
 			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 				address src_addr;
@@ -606,7 +606,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&rtcp_ipv4_address;
 
-				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+				rtcp_add_address(actx->pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", actx->pinfo->fd->num);
 			}
 		}
 	}
@@ -622,7 +622,7 @@ OpenLogicalChannel
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
 	
-	if (!pinfo->fd->flags.visited) {
+	if (!actx->pinfo->fd->flags.visited) {
 		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
 			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
 				address src_addr;
@@ -631,7 +631,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+				t38_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num);
 			}
 		} else {
 			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
@@ -641,7 +641,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
 			}
 			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 				address src_addr;
@@ -650,7 +650,7 @@ OpenLogicalChannel
 				src_addr.len=4;
 				src_addr.data=(guint8*)&rtcp_ipv4_address;
 
-				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+				rtcp_add_address(actx->pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", actx->pinfo->fd->num);
 			}
 		}
 	}
@@ -700,7 +700,7 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
 
 %(DEFAULT_BODY)s
   if (next_tvb && tvb_length(next_tvb)) {
-    call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
+    call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END
 

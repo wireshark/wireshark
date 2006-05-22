@@ -30,8 +30,8 @@ VAL_PTR = &type_of_message
 VAL_PTR = &ProcedureCode
 
 #.FN_FTR ProcedureCode
-	if (check_col(pinfo->cinfo, COL_INFO))
-       col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
                               "unknown message"));
 #.FN_PARS ProtocolIE-ID
@@ -44,11 +44,11 @@ VAL_PTR = &ProtocolIE_ID
 
 #.FN_BODY Value
 	
-	offset = dissect_ranap_messages(tvb, offset, pinfo, tree);
+	offset = dissect_ranap_messages(tvb, offset, %(ACTX)s, tree);
 
 #.FN_BODY RANAP_PROTOCOL_IES_Value
 
-	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
+	offset = dissect_ranap_ies(tvb, offset, %(ACTX)s, tree);
 
 #.FN_BODY NAS-PDU  VAL_PTR = &nas_pdu_tvb
 
@@ -57,17 +57,17 @@ tvbuff_t *nas_pdu_tvb=NULL;
 %(DEFAULT_BODY)s
 
 	if (nas_pdu_tvb)
-		dissector_try_port(nas_pdu_dissector_table, 0x1, nas_pdu_tvb, pinfo, top_tree);
+		dissector_try_port(nas_pdu_dissector_table, 0x1, nas_pdu_tvb, %(ACTX)s->pinfo, top_tree);
 
 #.FN_BODY SecondValue
-	offset = dissect_ranap_SecondValue_ies(tvb, offset, pinfo, tree);
+	offset = dissect_ranap_SecondValue_ies(tvb, offset, %(ACTX)s, tree);
 
 #.FN_BODY FirstValue
-	offset = dissect_ranap_FirstValue_ies(tvb, offset, pinfo, tree);
+	offset = dissect_ranap_FirstValue_ies(tvb, offset, %(ACTX)s, tree);
 
 #.FN_BODY Extension
 
-	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
+	offset = dissect_ranap_ies(tvb, offset, %(ACTX)s, tree);
 
 #.FN_BODY RANAP_PRIVATE_IES_Value
 /* FIX ME */

@@ -10,10 +10,10 @@ PDU
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
+		col_clear(%(ACTX)s->pinfo->cinfo, COL_INFO);
 
   %(DEFAULT_BODY)s
 #.END
@@ -26,4 +26,4 @@ tvbuff_t *parameter_tvb = NULL;
   %(DEFAULT_BODY)s
 
   if(parameter_tvb)
-	dissect_geographical_description(parameter_tvb, pinfo, tree);
+	dissect_geographical_description(parameter_tvb, %(ACTX)s->pinfo, tree);
