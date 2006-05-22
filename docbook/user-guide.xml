@@ -54,7 +54,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">

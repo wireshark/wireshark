@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Parse::Pidl::Ethereal::Conformance - Conformance file parser for Ethereal
+Parse::Pidl::Ethereal::Conformance - Conformance file parser for Wireshark
 
 =head1 DESCRIPTION
 

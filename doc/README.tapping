@@ -1,6 +1,6 @@
 $Id$
 
-The TAP system in ethereal is a powerful and flexible mechanism to get event 
+The TAP system in wireshark is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.
 In order to use the tapping system, very little knowledge of ethereal
 internals are required.

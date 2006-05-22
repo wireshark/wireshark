@@ -1,15 +1,15 @@
-Overview of changes in Ethereal DOCSIS Plugin 0.0.2
+Overview of changes in Wireshark DOCSIS Plugin 0.0.2
 * Fixed a number of cosmetic things.
 
-Overview of changes in Ethereal DOCSIS Plugin 0.0.3
+Overview of changes in Wireshark DOCSIS Plugin 0.0.3
 * Added Checks to each TLV Type to validate length. If the length is invalid
  an Exception is thrown.
 * Cleaned up the code in all dissctors so that they are a little more readable.
 
-Overview of changes in Ethereal DOCSIS Plugin 0.0.4
+Overview of changes in Wireshark DOCSIS Plugin 0.0.4
 * Added Support for Baseline Privacy Key Management Messages
 * Added Concatenation Support
 
-Overview of changes in Ethereal DOCSIS Plugin 0.0.5
+Overview of changes in Wireshark DOCSIS Plugin 0.0.5
 * Added Support in packet-tlv.c for SNMPv3 Kickstart TLV's
 * Added Support in packet-tlv.c for Subscriber Management TLV's

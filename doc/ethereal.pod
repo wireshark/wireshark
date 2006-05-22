@@ -1512,13 +1512,13 @@ item can be set to use either inverse video, or bold characters.
 
 =item Save Window Position
 
-If this item is selected, the position of the main Ethereal window will
-be saved when Ethereal exits, and used when Ethereal is started again.
+If this item is selected, the position of the main Wireshark window will
+be saved when Ethereal exits, and used when Wireshark is started again.
 
 =item Save Window Size
 
-If this item is selected, the size of the main Ethereal window will
-be saved when Ethereal exits, and used when Ethereal is started again.
+If this item is selected, the size of the main Wireshark window will
+be saved when Ethereal exits, and used when Wireshark is started again.
 
 =item File Open Dialog Behavior
 
@@ -1879,7 +1879,7 @@ you specify that Ethereal should stop capturing after the file to which
 captured packets are being saved grows as large as or larger than some 
 specified number of megabytes. If the check box is not checked, Ethereal 
 will not stop capturing at some capture file size (although the operating 
-system on which Ethereal is running, or the available disk space, may still 
+system on which Wireshark is running, or the available disk space, may still 
 limit the maximum size of a capture file). This option is disabled, if 
 "multiple files" mode is used, 
 
@@ -2011,7 +2011,7 @@ The settings in this file have the same format as in the F<preferences>
 files, and the same directory as for the personal preferences file is
 used.
 
-Note: Whenever Ethereal is closed, your recent file
+Note: Whenever Wireshark is closed, your recent file
 will be overwritten with the new settings, destroying any comments and 
 unknown/obsolete settings that were in the file.
 

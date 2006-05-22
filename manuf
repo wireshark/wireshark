@@ -36,7 +36,7 @@
 # <http://www.cavebear.com/CaveBear/Ethernet/>
 # <ftp://ftp.cavebear.com/pub/Ethernet.txt>
 #
-# The Ethereal 'manuf' file, which started out as a subset of Michael
+# The Wireshark 'manuf' file, which started out as a subset of Michael
 # Patton's list and grew from there.
 #
 # In the event of data set collisions the Ethereal entries have been given

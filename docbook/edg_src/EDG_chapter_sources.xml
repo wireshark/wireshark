@@ -30,10 +30,10 @@
   </section>
 	
   <section id="ChSrcSVNServer">
-	<title>The Ethereal Subversion repository</title>
+	<title>The Wireshark Subversion repository</title>
 	<para>
 	Subversion is used to keep track of the changes made to the Ethereal 
-	source code. The Ethereal source code is stored inside Ethereal project's 
+	source code. The Wireshark source code is stored inside Ethereal project's 
 	Subversion repository located at a server at the ethereal.com domain.
 	</para>
 	<para>
@@ -338,7 +338,7 @@
 	<para>
 	So after obtaining the sources, tools and libraries, the
 	first place to look at is <filename>doc/README.developer</filename>,
-	here you will get the latest infos for Ethereal development for all
+	here you will get the latest infos for Wireshark development for all
 	supported platforms.
 	</para>
 	<tip><title>Tip!</title>
@@ -502,7 +502,7 @@ make
 	<listitem><para>
 	The maintainers and developers of Ethereal will maintain your code as 
 	well, fixing it when API changes or other changes are made, and generally 
-	keeping it in tune with what is happening with Ethereal. So if Ethereal is 
+	keeping it in tune with what is happening with Ethereal. So if Wireshark is 
 	updated (which is done often), you can get a new Ethereal version from 
 	the website and your changes will already be included without any effort 
 	for you. The maintainers and developers of Ethereal will maintain your
@@ -531,7 +531,7 @@ make
 	</tip>
 	</para>
 	<para>
-	The Ethereal community is using patches to transfer source code changes 
+	The Wireshark community is using patches to transfer source code changes 
 	between the authors.
 	</para>
 	<para>
@@ -559,7 +559,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	sign indicates a deleted line compared to the original sources.
  	</para>
  	<para>
-	As we always use so called "unified" diff files in Ethereal development, 
+	As we always use so called "unified" diff files in Wireshark development, 
 	three unchanged lines before and after the actual changed parts are 
 	included. This will make it much easier for a merge/patch tool to find 
 	the right place(s) to change in the existing sources.
@@ -768,7 +768,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	  <listitem><para>
 	  <command>Follow the Ethereal source code style guide.</command> 
 	  Just because something compiles on your platform, that doesn't 
-	  mean it'll compile on all of the other platforms for which Ethereal is 
+	  mean it'll compile on all of the other platforms for which Wireshark is 
 	  built. 
 	  Ethereal runs on many platforms, and can be compiled with a number of 
 	  different compilers. See <xref linkend="ChCodeStyle"/> for details.

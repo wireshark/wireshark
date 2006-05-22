@@ -641,7 +641,7 @@ int ProtoField_register(lua_State* L) {
 
 ELUA_CLASS_DEFINE(Proto,NOP)
 /*
-  A new protocol in ethereal. Protocols have more uses, the main one is to dissect
+  A new protocol in wireshark. Protocols have more uses, the main one is to dissect
   a protocol. But they can be just dummies used to register preferences for
   other purposes.
  */

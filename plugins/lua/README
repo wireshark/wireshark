@@ -29,9 +29,9 @@ SubTreeType -- a class to represent an ett
 SubTreeTypeArr -- a class that represents the ett array for a protocol
   .new(subtree*,...) -- creates an array
   :add(subtree*,...) -- adds Etts to the array
-  :register() -- registers the ett array with ethereal
+  :register() -- registers the ett array with wireshark
 
-Proto -- a class that represents protocol info in ethereal
+Proto -- a class that represents protocol info in wireshark
  .new(name,filter_name,descr) -- creates and registers a new protocol
  :register_field_array(field_array) -- registers a field array as this protocol's
  :add_uint_pref(abbr,...) -- adds an uint preference to this protocol

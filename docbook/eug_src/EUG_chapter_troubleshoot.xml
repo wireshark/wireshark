@@ -6,7 +6,7 @@
   <section>
     <title>An approach to troubleshooting with Ethereal</title>
     <para>
-      Ethereal is a very useful tool for network troubleshooting, since it 
+      Wireshark is a very useful tool for network troubleshooting, since it 
       contains a number of features that allow you to quickly focus on 
       problems in your networkfor several reasons:
       <itemizedlist>

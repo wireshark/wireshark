@@ -260,7 +260,7 @@ print_usage(gboolean print_ver)
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
-  fprintf(output, "  -R <read filter>         packet filter in Ethereal display filter syntax\n");
+  fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
   fprintf(output, "  -d %s ...\n", decode_as_arg_template);
@@ -2469,7 +2469,7 @@ print_columns(capture_file *cf)
        *
        * (XXX - it might be nice to be able to save and print at
        * the same time, sort of like an "Update list of packets
-       * in real time" capture in Ethereal.)
+       * in real time" capture in Wireshark.)
        */
       if (capture_opts.iface != NULL)
         continue;

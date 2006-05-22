@@ -1,8 +1,8 @@
-Overview of changes in Ethereal MGCP plugin 0.0.9:
+Overview of changes in Wireshark MGCP plugin 0.0.9:
 * Added calculation of request-to-response time delay
 * support for building detailed delay statistics by the tapping 
   subsystem of ethereal
 
-Overview of changes in Ethereal MGCP plugin 0.0.2:
+Overview of changes in Wireshark MGCP plugin 0.0.2:
 * Fixed misc problems with improperly dissecting some xgcp packets as 
   short or malformed.  

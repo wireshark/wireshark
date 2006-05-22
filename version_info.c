@@ -1,5 +1,5 @@
 /* version_info.c
- * Routines to report version information for stuff used by Ethereal
+ * Routines to report version information for stuff used by Wireshark
  *
  * $Id$
  *
@@ -213,7 +213,7 @@ get_compiled_version_info(GString *str)
 #ifndef HAVE_LIBPCRE
 	break_point = str->len - 1;
 	g_string_append(str,
-			"\nNOTE: this build doesn't support the \"matches\" operator for Ethereal filter"
+			"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
 			"\nsyntax.");
 	do_word_wrap(str, break_point);
 #endif	/* HAVE_LIBPCRE */

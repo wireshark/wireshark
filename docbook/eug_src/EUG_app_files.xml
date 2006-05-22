@@ -235,7 +235,7 @@ udp
 	  </term>
 	  <listitem>
 	    <para>
-	      When Ethereal is trying to translate Ethernet hardware 
+	      When Wireshark is trying to translate Ethernet hardware 
 	      addresses to names, it consults the files listed in 
 		  <xref linkend="AppFilesTabFolders"/>.
 	      If an address is not found in /etc/ethers, 
@@ -252,7 +252,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 00.2b.08.93.4b.a1    Freds_machine
 	      </programlisting>
  		The settings from this file are read in at program start and never 
-		written by Ethereal.
+		written by Wireshark.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -273,7 +273,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	    </para>
 		<para>
  		The settings from this file are read in at program start and never 
-		written by Ethereal.
+		written by Wireshark.
 		</para>
 	  </listitem>
 	</varlistentry>
@@ -296,7 +296,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	    </para>
 		<para>
  		The settings from this file are read in at program start and never 
-		written by Ethereal.
+		written by Wireshark.
 		</para>
 	  </listitem>
 	</varlistentry>
@@ -318,7 +318,7 @@ c0-a8-1c-00      CEO
 	    </para>
 		<para>
  		The settings from this file are read in at program start and never 
-		written by Ethereal.
+		written by Wireshark.
 		</para>
 	  </listitem>
 	</varlistentry>
@@ -347,7 +347,7 @@ c0-a8-1c-00      CEO
 
 	<section id="ChWindowsFolder"><title>Windows folders</title>
 	<para>
-	Here you will find some details about the folders used in Ethereal 
+	Here you will find some details about the folders used in Wireshark 
 	on different Windows versions. 
 	</para>
 	<para>
@@ -371,7 +371,7 @@ c0-a8-1c-00      CEO
 	</note>
 	<para>
 	The following will try to guide 
-	you to the right place where to look for Ethereals profile data.
+	you to the right place where to look for Wiresharks profile data.
 	</para>
 	<para>
       <variablelist>
@@ -427,7 +427,7 @@ c0-a8-1c-00      CEO
 	you are currently working on, but on the domain server.
 	</para>
 	<para>
-	As Ethereal is using the correct places to store it's profile data,
+	As Wireshark is using the correct places to store it's profile data,
 	your settings will travel with you, if you logon to a different computer 
 	the next time.
 	</para>

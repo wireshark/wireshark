@@ -128,7 +128,7 @@ README.win32 for those instructions.
         By default, if 'configure' finds zlib (a.k.a, libz), the
         wiretap library will be built so that it can read compressed
         capture files. If you have zlib but do not wish to build
-        it into the wiretap library, used by Ethereal, Tethereal, and
+        it into the wiretap library, used by Wireshark, Tethereal, and
         the capture-file utilities that come in this package, use
         this switch.
 

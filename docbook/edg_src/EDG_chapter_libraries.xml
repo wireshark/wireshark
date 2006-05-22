@@ -81,7 +81,7 @@
 	<title>Win32: cygwin gcc</title>
 	<para>
 	Cygwin provides most of the required libraries (with file extension .a/.lib) 
-	for Ethereal suitable for cygwin's gcc compiler.
+	for Wireshark suitable for cygwin's gcc compiler.
 	</para>
 	</section>
   </section>

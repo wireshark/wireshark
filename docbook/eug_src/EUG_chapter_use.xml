@@ -132,7 +132,7 @@
 	
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
-      The Ethereal menu sits on top of the Ethereal window. 
+      The Wireshark menu sits on top of the Ethereal window. 
       An example is shown in <xref linkend="ChUseEtherealMenu"/>.
     </para>
 	<note><title>Note!</title>
@@ -238,7 +238,7 @@
 
   <section id="ChUseFileMenuSection"><title>The "File" menu</title>
     <para>
-      The Ethereal file menu contains the fields shown in 
+      The Wireshark file menu contains the fields shown in 
       <xref linkend="ChUseTabFile"/>.
     </para>
     <figure id="ChUseEtherealFileMenu">
@@ -465,7 +465,7 @@
   
   <section id="ChUseEditMenuSection"><title>The "Edit" menu</title>
     <para>
-      The Ethereal Edit menu contains the fields shown in 
+      The Wireshark Edit menu contains the fields shown in 
       <xref linkend="ChUseTabEdit"/>.
     </para>
     <figure id="ChUseEtherealEditMenu">
@@ -583,7 +583,7 @@
 
   <section id="ChUseViewMenuSection"><title>The "View" menu</title>
     <para>
-      The Ethereal View menu contains the fields shown in 
+      The Wireshark View menu contains the fields shown in 
       <xref linkend="ChUseTabView"/>.
     </para>
     <figure id="ChUseEtherealViewMenu">
@@ -912,7 +912,7 @@
 
   <section id="ChUseGoMenuSection"><title>The "Go" menu</title>
     <para>
-      The Ethereal Go menu contains the fields shown in 
+      The Wireshark Go menu contains the fields shown in 
       <xref linkend="ChUseTabGo"/>.
     </para>
     <figure id="ChUseEtherealGoMenu">
@@ -992,7 +992,7 @@
 
   <section id="ChUseCaptureMenuSection"><title>The "Capture" menu</title>
     <para>
-      The Ethereal Capture menu contains the fields shown in 
+      The Wireshark Capture menu contains the fields shown in 
       <xref linkend="ChUseTabCap"/>.
     </para>
     <figure id="ChUseEtherealCaptureMenu">
@@ -1073,7 +1073,7 @@
   
   <section id="ChUseAnalyzeMenuSection"><title>The "Analyze" menu</title>
     <para>
-      The Ethereal Analyze menu contains the fields shown in 
+      The Wireshark Analyze menu contains the fields shown in 
       <xref linkend="ChUseAnalyze"/>.
     </para>
     <figure id="ChUseEtherealAnalyzeMenu">
@@ -1176,7 +1176,7 @@
 
   <section id="ChUseStatisticsMenuSection"><title>The "Statistics" menu</title>
     <para>
-      The Ethereal Statistics menu contains the fields shown in 
+      The Wireshark Statistics menu contains the fields shown in 
       <xref linkend="ChUseStatistics"/>.
     </para>
     <figure id="ChUseEtherealStatisticsMenu">
@@ -1363,7 +1363,7 @@
   
   <section id="ChUseHelpMenuSection"><title>The "Help" menu</title>
     <para>
-      The Ethereal Help menu contains the fields shown in 
+      The Wireshark Help menu contains the fields shown in 
       <xref linkend="ChUseHelp"/>.
     </para>
     <figure id="ChUseEtherealHelpMenu">
@@ -2016,7 +2016,7 @@
       <graphic entityref="EtherealStatusbarEmpty" format="PNG"/>
     </figure>
 	This statusbar is shown while no capture file is loaded, e.g. when 
-	Ethereal is started.
+	Wireshark is started.
 	</para>
 	<para>
 		<figure id="ChUseEtherealStatusbarLoaded">

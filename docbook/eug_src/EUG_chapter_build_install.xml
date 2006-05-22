@@ -467,7 +467,7 @@ apt-get install ethereal
 	<note><title>Note!</title>
 	<para>
 	<command>Since Ethereal Version 0.10.12, the WinPcap installer has become 
-	part of the main Ethereal installer, so you don't need to download and 
+	part of the main Wireshark installer, so you don't need to download and 
 	install two separate packages any longer!</command>
     </para>
 	</note>
@@ -542,11 +542,11 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	(both Ethereal GTK1 and 2 cannot be installed at the same time):
 	<itemizedlist>
 	<listitem><para>
-	<command>Etheral GTK1</command> - Ethereal is a GUI network protocol 
+	<command>Etheral GTK1</command> - Wireshark is a GUI network protocol 
 	analyzer.
 	</para></listitem>
 	<listitem><para>
-	<command>Etheral GTK2</command> - Ethereal is a GUI network protocol 
+	<command>Etheral GTK2</command> - Wireshark is a GUI network protocol 
 	analyzer (using the modern GTK2 GUI toolkit, recommended).
 	</para></listitem>
 	<listitem><para>
@@ -558,7 +558,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	protocol analyzer.
 	</para></listitem>
 	</itemizedlist>
-	The dissection extensions for Ethereal and Tethereal:
+	The dissection extensions for Wireshark and Tethereal:
 	<itemizedlist>
 	<listitem><para>
 	<command>Dissector Plugins</command> - Plugins with some extended dissections.
@@ -686,13 +686,13 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
     <title>Update Ethereal</title>
 	<para>
 	From time to time you may want to update your installed Ethereal to a more
-	recent version. If you join Ethereal's announce mailing list, you will be 
+	recent version. If you join Wireshark's announce mailing list, you will be 
 	informed about new Ethereal versions, see <xref 
 	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
     </para>
     <para>
 	New versions of Ethereal usually become available every 4-8 weeks.
-	Updating Ethereal is done the same way as installing it, you simply 
+	Updating Wireshark is done the same way as installing it, you simply 
 	download and start the installer exe. A reboot is usually not required and
 	all your personal settings remain unchanged.
     </para>
@@ -723,7 +723,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	start the uninstallation procedure.
     </para>
     <para>
-	The Ethereal uninstaller will provide several options which things to be 
+	The Wireshark uninstaller will provide several options which things to be 
 	uninstalled, the default is to remove the core components but keep the personal 
 	settings, WinPcap and alike.
     </para>

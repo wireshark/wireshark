@@ -1,5 +1,5 @@
 dnl Macros that test for specific features.
-dnl This file is part of the Autoconf packaging for Ethereal.
+dnl This file is part of the Autoconf packaging for Wireshark.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
 dnl $Id$

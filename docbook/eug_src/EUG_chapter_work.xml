@@ -27,7 +27,7 @@
 	</figure>
     </para>
     <para>
-      You can also select and view packets the same way, while Ethereal is 
+      You can also select and view packets the same way, while Wireshark is 
 	  capturing, if you selected "Update list of packets in real time" in the 
 	  Ethereal Capture Preferences dialog box.
     </para>
@@ -753,7 +753,7 @@ ip.len le 0x436
       <section>
 	<title>Combining expressions</title>
 	<para>
-	  You can combine filter expressions in Ethereal using the 
+	  You can combine filter expressions in Wireshark using the 
 	  logical operators shown in <xref linkend="FiltLogOps"/>
 	</para>
 	<table id="FiltLogOps">

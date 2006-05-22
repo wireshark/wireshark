@@ -83,7 +83,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	  <varlistentry><term><command>-a &lt;capture autostop condition></command></term>
 	  <listitem>
 		<para>
-    	Specify a criterion that specifies when Ethereal is to stop writing 
+    	Specify a criterion that specifies when Wireshark is to stop writing 
 		to a capture file. The criterion is of the form test:value, where test 
 		is one of: 
 		<variablelist>
@@ -194,7 +194,7 @@ interface name is a somewhat complex string.
 Note that "can capture" means that Ethereal was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
-example, as root), then, if Ethereal is run with the <command>-D</command> flag and
+example, as root), then, if Wireshark is run with the <command>-D</command> flag and
 is not run from such an account, it will not list any interfaces.
 	    </para>
 	  </listitem>
@@ -281,7 +281,7 @@ standard libpcap format.
 	  <listitem>
 	    <para>
 	      This option sets the name of the font used for most text 
-	      displayed by Ethereal. XXX - add an example!
+	      displayed by Wireshark. XXX - add an example!
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -349,7 +349,7 @@ standard libpcap format.
 	      the interface might be in promiscuous mode for some other 
 	      reason; hence, -p cannot be used to ensure that the only 
 	      traffic that is captured is traffic sent to or from the 
-	      machine on which Ethereal is running, broadcast traffic, and 
+	      machine on which Wireshark is running, broadcast traffic, and 
 	      multicast traffic to addresses received by that machine.
 	    </para>
 	  </listitem>
@@ -367,7 +367,7 @@ standard libpcap format.
 	<varlistentry><term><command>-r &lt;infile></command></term>
 	  <listitem>
 	    <para>
-	      This option provides the name of a capture file for Ethereal 
+	      This option provides the name of a capture file for Wireshark 
 	      to read and display. This capture file can be in one of the 
 	      formats Ethereal understands.
 	    </para>
@@ -491,7 +491,7 @@ standard libpcap format.
    
   <section id="ChCustColorizationSection"><title>Packet colorization</title>
     <para>
-      A very useful mechanism available in Ethereal is packet colorization.  
+      A very useful mechanism available in Wireshark is packet colorization.  
       You can set-up Ethereal so that it will colorize packets according to a 
       filter. This allows you to emphasize the packets you are usually 
 	  interested in.
@@ -569,7 +569,7 @@ standard libpcap format.
     </note>
     <para>
       <xref linkend="ChCustColorFilterMany"/> shows an example of several color 
-	filters being used in Ethereal. You may not like the color choices, 
+	filters being used in Wireshark. You may not like the color choices, 
 	however, feel free to choose your own.
     </para>
     <figure id="ChCustColorFilterMany">
@@ -629,7 +629,7 @@ standard libpcap format.
 		<para>
 		You have to use the Save button to save your settings. The OK or Apply 
 		buttons will not save your changes permanently, so they will be lost 
-		when Ethereal is closed.
+		when Wireshark is closed.
 		</para>
 	</warning>
     <para>

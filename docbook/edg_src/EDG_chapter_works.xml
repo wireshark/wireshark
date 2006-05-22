@@ -7,7 +7,7 @@
   <section id="ChWorksIntro">
 	<title>Introduction</title>
 	<para>
-	This chapter will give you a short overview, how Ethereal is working.
+	This chapter will give you a short overview, how Wireshark is working.
 	</para>
   </section>
 
@@ -137,7 +137,7 @@
 	<section id="ChWorksDissectPackets">
 	<title>Dissect packets</title>
 	<para>
-	While Ethereal is loading packets from a file, each packet is dissected. 
+	While Wireshark is loading packets from a file, each packet is dissected. 
 	Ethereal tries to detect what kind of packet it is and getting as much 
 	information from it as possible. In this run, only the information showed 
 	in the packet list pane is needed though. 

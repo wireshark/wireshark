@@ -16,7 +16,7 @@
     <title>What is <application>Ethereal?</application></title>
     <para>
 	Well, if you want to start Ethereal development, you might already 
-	know what Ethereal is doing. If not, please have a look at the 
+	know what Wireshark is doing. If not, please have a look at the 
 	<ulink url="&EtherealUsersGuidePage;">Ethereal User's Guide</ulink>, 
 	which will provide a lot of general information about it.
     </para>
@@ -31,7 +31,7 @@
 	  order to run.
     </para>
     <para>
-	As Ethereal is developed in a platform independant way and uses libraries 
+	As Wireshark is developed in a platform independant way and uses libraries 
 	which are available for a lot of different platforms (such as the GTK+ 
 	GUI library), it's available on a such a wide variety of platforms.
     </para>
@@ -104,7 +104,7 @@
     </title>
     <para>
       Ethereal was initially developed by Gerald Combs. Ongoing development 
-      and maintenance of Ethereal is handled by the Ethereal team, a loose 
+      and maintenance of Wireshark is handled by the Ethereal team, a loose 
       group of individuals who fix bugs and provide new functionality.  
     </para>
     <para>
@@ -131,13 +131,13 @@
 	
 	<section><title>Programming language(s) used</title>
     <para>
-	Almost any part of Ethereal is implemented in plain ANSI C. 
+	Almost any part of Wireshark is implemented in plain ANSI C. 
     </para>
     <para>
 	The typical task for a new Ethereal developer is to extend an existing, 
 	or write a new dissector for a specific network protocol. As (almost) any 
 	dissector is written in plain old ANSI C, a good knowledge about ANSI C 
-	will be sufficient for Ethereal development in almost any case.
+	will be sufficient for Wireshark development in almost any case.
     </para>
     <para>
 	So unless you are going to change the development process of Ethereal 
@@ -149,7 +149,7 @@
 	Beside the usual tools for developing a program in C (compiler, make, ...), 
 	the build process uses some additional helper tools (Perl, Python, Sed, 
 	...), which are needed for the build process and in the case Ethereal 
-	should be installed from the released source packages. If Ethereal is 
+	should be installed from the released source packages. If Wireshark is 
 	installed from a binary package, none of these helper tools are needed on 
 	the target system.
 	</para>
@@ -158,7 +158,7 @@
 	
 	<section><title>Open Source Software</title>
     <para>
-      Ethereal is an open source software project, and is released under 
+      Wireshark is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
 	  You can freely use Ethereal on any number of computers you like, without 
 	  worrying about license keys or fees or such. In addition, all source 
@@ -195,7 +195,7 @@
 	    The maintainers and developers of Ethereal will maintain your 
 	    code as well, fixing it when API changes or other changes are 
 	    made, and generally keeping it in tune with what is happening 
-	    with Ethereal. So if Ethereal is updated (which is done often),
+	    with Ethereal. So if Wireshark is updated (which is done often),
 		you can get a new Ethereal version from the website and your changes 
 		will already be included without any effort for you.
 	  </para>
@@ -203,7 +203,7 @@
       </itemizedlist>
     </para>
     <para>
-      The Ethereal source code and binary kits for some platforms are all 
+      The Wireshark source code and binary kits for some platforms are all 
       available on the download page of the Ethereal website: 
       <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.
     </para>
@@ -312,7 +312,7 @@
 
         <section id="ChIntroWiki"><title>Wiki</title>
     <para>
-        The Ethereal Wiki at <ulink
+        The Wireshark Wiki at <ulink
         url="&EtherealWikiSite;">&EtherealWikiSite;</ulink> provides a wide range
         of information related to Ethereal and packet capturing in general.
         You will find a lot of information not part of this developer's guide. For
@@ -373,7 +373,7 @@
 	<varlistentry><term><command>ethereal-dev</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Ethereal developers. People post questions about 
+	      This list is for Wireshark developers. People post questions about 
 		  the development of Ethereal, others (hopefully) provide answers. 
 		  If you want to start developing a protocol dissector, join this list.
 	    </para>
@@ -382,7 +382,7 @@
 	<varlistentry><term><command>ethereal-bugs</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Ethereal developers. Everytime a change to the bug 
+	      This list is for Wireshark developers. Everytime a change to the bug 
 		  database occurs, a mail to this mailing list is generated.
 		  If you want to be notified about all the changes to the bug 
 		  database, join this list. Details about the bug database can be 
@@ -393,7 +393,7 @@
 	<varlistentry><term><command>ethereal-cvs</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Ethereal developers. Everytime a change to the SVN 
+	      This list is for Wireshark developers. Everytime a change to the SVN 
 		  repository is checked in, a mail to this mailing list is generated.
 		  If you want to be notified about all the changes to the SVN 
 		  repository, join this list. Details about the SVN repository can be 

@@ -48,7 +48,7 @@
 	<section id="ChUIGTK">
 	<title>The GTK library</title>
 	<para>
-	Ethereal is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
+	Wireshark is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
 	for
 	details. GTK is designed to hide the details of the underlying GUI in
 	a platform independant way. As this is appreciated for a
@@ -69,7 +69,7 @@
 	<para>
 	There are other similar toolkits like Qt, wxwidgets, ..., which could
 	also
-	be used for Ethereal. There's no "one and only" reason for or against
+	be used for Wireshark. There's no "one and only" reason for or against
 	any of these toolkits. However, the decision towards GTK was made a
 	long time ago :-)
 	</para>
@@ -203,7 +203,7 @@
 	gtk.h headers.
 	</para>
 	<para>
-	There are some common compatibility issues in Ethereal between the two
+	There are some common compatibility issues in Wireshark between the two
 	versions. 
 	</para>
 	<para>
@@ -232,7 +232,7 @@
 	<para>
 	First of all, have a look at: <ulink url="http://www.gtk.org"/> as this 
 	will be the first place to look at. If you want to develop GTK related 
-	things for Ethereal, the most important place might 
+	things for Wireshark, the most important place might 
 	be the GTK API documentation at: <ulink url="http://gtk.org/api/"/>.
 	</para>
 	<para>
@@ -261,7 +261,7 @@
 	<section id="ChUIGUIDocs">
 	<title>GUI Reference documents</title>
 	<para>
-	Although the GUI development of Ethereal is platform independant, the 
+	Although the GUI development of Wireshark is platform independant, the 
 	Ethereal development team tries to
 	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
 	This is the case, because both GNOME and Ethereal are based on the GTK+ 

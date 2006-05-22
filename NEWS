@@ -229,7 +229,7 @@ Ethereal 0.10.13 has been released.
      o A new capture file format "Nanosecond libpcap (Ethereal)" was added.
        It is very similar to the common libpcap file format but is capable of
        keeping nanosecond resolution timestamps. This format is currently
-       supported only by Ethereal.
+       supported only by Wireshark.
 
      o Ethereal's memory managment has been greatly improved.
 
@@ -931,7 +931,7 @@ New and updated capture file support
 
 Ethereal 0.10.6 has been released.
 
-  This release fixes a preferences bug present in Ethereal which displayed
+  This release fixes a preferences bug present in Wireshark which displayed
  
     (ethereal.exe:3512): Gtk-CRITICAL **: file gtkwindow.c: line 3107
     (gtk_window_resize): assertion `height > 0' failed
@@ -1387,7 +1387,7 @@ New and updated features
 
   A preference file has been added for disabled protocols.
 
-  Color filters may now be imported and exported from within Ethereal.
+  Color filters may now be imported and exported from within Wireshark.
 
   A new column type has been added for cumulative bytes.
 
@@ -1711,7 +1711,7 @@ New and Updated Features
 
   A protocol hierarchy statistics tap was added to tethereal.  This
   code
-  may be used to replace the hierarchy statistics code in Ethereal.
+  may be used to replace the hierarchy statistics code in Wireshark.
 
   More updates have been added to TCP analysis.
 

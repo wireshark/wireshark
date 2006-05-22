@@ -32,7 +32,7 @@ It causes Analyzer to crash. As such, the PDML that ethereal produces
 is be labled with a version number of "0", which means that the PDML does
 not fully follow the PDML spec. Furthemore, a creator attribute in the
 "<pdml>" tag gives the version number of [t]ethereal that produced the PDML.
-In that way, as the PDML produced by ethereal matures, but still does not
+In that way, as the PDML produced by wireshark matures, but still does not
 meet the PDML spec, scripts can make intelligent decisions about how to
 best parse the PDML, based on the "creator" attribute.
 
@@ -93,7 +93,7 @@ a field with a field-name. Those appear in PDML as "<field>" tags with no
 Many dissectors label the undissected payload of a protocol as belonging
 to a "data" protocol, and the "data" protocol usually resided inside
 that last protocol dissected. In the PDML, The "data" protocol becomes
-a "data" field, placed exactly where the "data" protocol is in ethereal's
+a "data" field, placed exactly where the "data" protocol is in wireshark's
 protocol tree. So, if ethereal would normally show:
 
 +-- Frame

@@ -17,7 +17,7 @@ Ethereal provides its own version of red black binary trees designed in
 particular to be easy to use and to eliminate most of the memory management
 often associated with such trees.
 
-The trees supported by ethereal are currently all created using SEasonal 
+The trees supported by wireshark are currently all created using SEasonal 
 storage which means that when you load a new trace into ethereal, the SEasonal
 memory management will automatically release every single byte of data
 associated with the tree.

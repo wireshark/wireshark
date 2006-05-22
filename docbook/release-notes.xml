@@ -21,7 +21,7 @@ Ethereal Info
 
   <section id="WhatIs"><title>What is Ethereal?</title>
     <para>
-      Ethereal is the world's most popular network protocol analyzer.  It
+      Wireshark is the world's most popular network protocol analyzer.  It
       is used for troubleshooting, analysis, development, and education.
     </para>
   </section>
@@ -47,7 +47,7 @@ Ethereal Info
 
       Under a grant funded by the U.S. Department of Homeland Security,
       <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered
-      a number of vulnerabilities in Ethereal:
+      a number of vulnerabilities in Wireshark:
       <itemizedlist>
 
         <!-- CID 1 - 149: Fixed for 0.99.0 -->

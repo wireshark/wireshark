@@ -36,7 +36,7 @@ which we could support.
 Wiretap is very good at reading many file formats, as per #2
 above. Wiretap has no filter capability at present; it currently doesn't
 support packet capture, so it wouldn't be useful there, and filtering
-when reading a capture file is done by Ethereal, using a more powerful
+when reading a capture file is done by Wireshark, using a more powerful
 filtering mechanism than that provided by BPF.
 
 

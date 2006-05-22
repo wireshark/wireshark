@@ -10,7 +10,7 @@
 	Capturing live network data is one of the major features of Ethereal.
 	</para>
 	<para>
-	The Ethereal capture engine provides the following features:
+	The Wireshark capture engine provides the following features:
 	</para>
 	<para>
 	<itemizedlist>
@@ -581,7 +581,7 @@ ethereal -i eth0 -k
 	<para>
 	While capturing, the underlying libpcap capturing engine will grab the 
 	packets from the network card and keep the packet data in a (relatively) 
-	small kernel buffer. This data is read by Ethereal and saved into 
+	small kernel buffer. This data is read by Wireshark and saved into 
 	the capture file(s) the user specified.
 	</para>
 

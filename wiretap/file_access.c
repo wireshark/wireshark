@@ -155,7 +155,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 /* Opens a file and prepares a wtap struct.
    If "do_random" is TRUE, it opens the file twice; the second open
    allows the application to do random-access I/O without moving
-   the seek offset for sequential I/O, which is used by Ethereal
+   the seek offset for sequential I/O, which is used by Wireshark
    so that it can do sequential I/O to a capture file that's being
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */

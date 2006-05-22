@@ -65,7 +65,7 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     <title><command>capinfos</command>: Print information about capture files
 	</title>
     <para>
-      Included with Ethereal is a small utility called 
+      Included with Wireshark is a small utility called 
       <command>capinfos</command>, which is a command-line utility to
 	  print information about binary capture files.
     </para>
@@ -98,7 +98,7 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
   <section id="AppToolseditcap">
     <title><command>editcap</command>: Edit capture files</title>
     <para>
-      Included with Ethereal is a small utility called 
+      Included with Wireshark is a small utility called 
       <command>editcap</command>, which is a command-line utility for 
       working with capture files.  Its main function is to remove 
       packets from capture files, but it can also be used to convert 

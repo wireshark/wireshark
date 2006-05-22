@@ -7,7 +7,7 @@
     <title>Introduction</title>
 	<para>
 	This chapter will provide you with information how to install 
-	the various tools needed for Ethereal development.
+	the various tools needed for Wireshark development.
 	</para>
 	<para>
 	None of the tools mentioned in this chapter is needed to run Ethereal,
@@ -931,7 +931,7 @@ Built 18:08:02 Feb  4 2003
 	<title>sed</title>
 	<para>
 	Sed it the streaming editor. It makes it easy for example to replace
-	specially marked texts inside a source code file. The Ethereal build
+	specially marked texts inside a source code file. The Wireshark build
 	process uses this to stamp version strings into various places.
 	</para>
 
@@ -1073,7 +1073,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section id="ChToolsSubversion">
 	<title>Subversion (SVN) client (optional)</title>
 	<para>
-	The Ethereal project uses it's own subversion (or short SVN) server to keep 
+	The Wireshark project uses it's own subversion (or short SVN) server to keep 
 	track of all the changes done to the source code. Details about the usage
 	of subversion in the Ethereal project can be found in <xref 
 	linkend="ChSrcSVNServer"/>.

@@ -1114,7 +1114,7 @@ concentrate common capture related code in capture_opts.c, e.g. trying to find t
 
 remove redundant code from dumpcap.c
 
-this also implements command line option -D (and indexed interfaces at -i) for Ethereal and Dumpcap (as we have it in Tethereal already for a while)
+this also implements command line option -D (and indexed interfaces at -i) for Wireshark and Dumpcap (as we have it in Tethereal already for a while)
 
 ------------------------------------------------------------------------
 r16786 | ulfl | 2005-12-13 16:35:28 -0600 (Tue, 13 Dec 2005) | 1 line
@@ -1414,7 +1414,7 @@ Changed paths:
    M /trunk/tools/pidl/lib/Parse/Pidl/Ethereal/NDR.pm
 
 The Bitmap routine in lib/Parse/Pidl/Ethereal/NDR.pm in Pidl generates
-fields as BASE_DEC; bitmaps are typically displayed in hex in Ethereal,
+fields as BASE_DEC; bitmaps are typically displayed in hex in Wireshark,
 so it should generate BASE_HEX instead.  (Submitted to
 bugzilla.samba.org as bug 3313.)
 
@@ -2242,7 +2242,7 @@ Changed paths:
 
 replace all appearances of 'fprintf(stderr, "tethereal: ' with 'cmdarg_err("', this is:
 a) smaller
-b) makes it possible to use some functions for Ethereal too
+b) makes it possible to use some functions for Wireshark too
 c) is the wrong name now, as some outputs are not command line related :-(
 
 use capture_opts_trim()
@@ -3914,7 +3914,7 @@ Changed paths:
    M /trunk/gtk/main.c
    M /trunk/tethereal.c
 
-Handle "-G" only in Tethereal - it doesn't work in Ethereal, and isn't
+Handle "-G" only in Tethereal - it doesn't work in Wireshark, and isn't
 necessary there.
 
 Add a "cmdarg_err()" routine to report command-line option errors; it
@@ -5864,7 +5864,7 @@ Changed paths:
    M /trunk/epan/libethereal.def
    M /trunk/ethereal_gen.py
 
-1. replace "and" with "&&" in ethereal_gen.py:2103
+1. replace "and" with "&&" in wireshark_gen.py:2103
 
 2. add make_printable_string in libethereal.def
 

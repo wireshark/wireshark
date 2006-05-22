@@ -1351,7 +1351,7 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
  * of NCP request and give a sequence ID. The response, unfortunately, only
  * identifies itself via the sequence ID; you have to know what type of NCP
  * request the request packet contained in order to successfully parse the NCP
- * response. A global method for doing this does not exist in ethereal yet
+ * response. A global method for doing this does not exist in wireshark yet
  * (NFS also requires it), so for now the NCP section will keep its own hash
  * table keeping track of NCP packet types.
  *
@@ -1453,7 +1453,7 @@ ncp_req_eid_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in ethereal */
+ * file is loaded or re-loaded in wireshark */
 static void
 ncp_init_protocol(void)
 {

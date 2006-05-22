@@ -1,6 +1,6 @@
 $Id$
 
-This file is a HOWTO for Ethereal developers. It describes how to start coding
+This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
 variables.
 
@@ -144,7 +144,7 @@ and dereferencing that pointer.  That point won't necessarily be aligned
 on the proper boundary, which can cause crashes on some platforms (even
 if it doesn't crash on an x86-based PC); furthermore, the data in a
 packet is not necessarily in the byte order of the machine on which
-Ethereal is running.  Use the tvbuff routines to extract individual
+Wireshark is running.  Use the tvbuff routines to extract individual
 items from the packet, or use "proto_tree_add_item()" and let it extract
 the items for you.
 
@@ -299,7 +299,7 @@ Ethereal supports both platforms with GLib 1.2[.x]/GTK+ 1.2[.x] and GLib
 2.x/GTK+ 1.3[.x] and 2.x.  If at all possible, either use only
 mechanisms that are present in GLib 1.2[.x] and GTK+ 1.2[.x], use #if's
 to conditionally use older or newer mechanisms depending on the platform
-on which Ethereal is being built, or, if the code in GLib or GTK+ that
+on which Wireshark is being built, or, if the code in GLib or GTK+ that
 implements that mechanism will build with GLib 1.2[.x]/GTK+ 1.2[.x],
 conditionally include that code as part of the Ethereal source and use
 the included version with GLib 1.2[.x] or GTK+ 1.2[.x].  In particular,
@@ -311,7 +311,7 @@ also work with GLib 1.2[.x] and GTK+ 1.2[.x].
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever
-possible, however; note that there are some routines in Ethereal with
+possible, however; note that there are some routines in Wireshark with
 platform-dependent implementations and platform-independent APIs, such
 as the routines in epan/filesystem.c, allowing the code that calls it to
 be written portably without #ifdefs.
@@ -380,8 +380,8 @@ Please read README.malloc .
 
 1.1.3 Robustness.
 
-Ethereal is not guaranteed to read only network traces that contain correctly-
-formed packets. Ethereal is commonly used is to track down networking problems, 
+Wireshark is not guaranteed to read only network traces that contain correctly-
+formed packets. Wireshark is commonly used is to track down networking problems, 
 and the problems might be due to a buggy protocol implementation sending out 
 bad packets.
 
@@ -523,7 +523,7 @@ Avoid using tab expansions different from 8 spaces, as not all text editors in
 use by the developers support this.
 
 When creating a new file, you are free to choose an indentation logic. Most of
-the files in Ethereal tend to use 2-space or 4-space indentation. You are
+the files in Wireshark tend to use 2-space or 4-space indentation. You are
 encouraged to write a short comment on the indentation logic at the beginning
 of this new file.
 
@@ -689,14 +689,14 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	(a) Operational dissection
 
-		In this mode, Ethereal is only interested in the way protocols
+		In this mode, Wireshark is only interested in the way protocols
 		interact, protocol conversations are created, packets are reassembled
 		and handed over to higher-level protocol dissectors.
 		In this mode Ethereal does not build a so-called "protocol tree".
 
 	(b) Detailed dissection
 
-		In this mode, Ethereal is also interested in all details of a given
+		In this mode, Wireshark is also interested in all details of a given
 		protocol, so a "protocol tree" is created.
 
    Ethereal distinguishes between the 2 modes with the proto_tree pointer:
@@ -2725,7 +2725,7 @@ whether it is registered to our protocol or not.
 We should do this because is uncommon but it does happen that multiple 
 different protocols can use the same socketpair during different stages of 
 an application cycle. By keeping track of the frame number a conversation
-was started in ethereal can still tell these different protocols apart.
+was started in wireshark can still tell these different protocols apart.
 
 The second argument to conversation_set_dissector is a dissector handle,
 which is created with a call to create_dissector_handle or

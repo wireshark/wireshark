@@ -208,7 +208,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	 * if it's omitted?
 	 *
 	 * XXX - should this be called "srt" rather than "rtt"?  The
-	 * equivalent tap for Ethereal calls it "srt", for "Service
+	 * equivalent tap for Wireshark calls it "srt", for "Service
 	 * Response Time", rather than "rtt" for "Round-Trip Time".
 	 */
 	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){

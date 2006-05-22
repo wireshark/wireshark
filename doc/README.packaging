@@ -10,9 +10,9 @@ distributing a software package containing Ethereal:
     If your packaging system downloads a copy of the Ethereal sources,
     use this location.
 
-2.  The Ethereal web site URL is http://www.ethereal.com/ .
+2.  The Wireshark web site URL is http://www.ethereal.com/ .
 
-3.  Ethereal is released under the GNU General Public License.  Make sure
+3.  Wireshark is released under the GNU General Public License.  Make sure
     your package complies with this license, or we send in the marmots.
 
 4.  Ethereal and the "e" logo are registered trademarks of Ethereal, Inc.

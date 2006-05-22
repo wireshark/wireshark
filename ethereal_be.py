@@ -13,8 +13,8 @@
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #  
 #
-#  Please see packet-giop.h in Ethereal distro for API description.
-#  Ethereal is available at http://www.ethereal.com/
+#  Please see packet-giop.h in Wireshark distro for API description.
+#  Wireshark is available at http://www.ethereal.com/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://www.uk.research.att.com/omniORB/omniORB.html

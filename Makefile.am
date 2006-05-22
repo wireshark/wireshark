@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Ethereal
+# Automake file for Wireshark
 #
 # $Id$
 #
@@ -266,7 +266,7 @@ endif		# HAVE_PLUGINS
 # list ever grows to include something that can't be linked with
 # tethereal, or if tethereal needs something that ethereal doesn't,
 # we should probably split this into stuff needed both
-# by ethereal and tethereal and stuff needed only by one or the
+# by wireshark and tethereal and stuff needed only by one or the
 # other.
 ethereal_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@

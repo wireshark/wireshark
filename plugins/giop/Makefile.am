@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Ethereal/GIOP subdissectors 
+# Automake file for Wireshark/GIOP subdissectors 
 #
 # $Id$
 #

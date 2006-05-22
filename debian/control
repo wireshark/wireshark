@@ -12,7 +12,7 @@ Depends: ${shlibs:Depends}
 Recommends: ethereal (>= 0.9.1-3) | tethereal (>= 0.9.1-3)
 Conflicts: ethereal (<< 0.9.1-3), tethereal (<< 0.9.1-3)
 Description: network traffic analyser (common files)
- Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Wireshark is a network traffic analyzer, or "sniffer", for Unix and
  Unix-like operating systems. A sniffer is a tool used to capture 
  packets off the wire. Ethereal decodes numerous protocols (too many
  to list).
@@ -25,7 +25,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ethereal-common (= ${Source-Version})
 Recommends: gksu
 Description: network traffic analyzer
- Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Wireshark is a network traffic analyzer, or "sniffer", for Unix and
  Unix-like operating systems. A sniffer is a tool used to capture 
  packets off the wire. Ethereal decodes numerous protocols (too many
  to list).
@@ -36,7 +36,7 @@ Package: tethereal
 Architecture: any
 Depends: ${shlibs:Depends}, ethereal-common (= ${Source-Version})
 Description: network traffic analyzer (console)
- Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Wireshark is a network traffic analyzer, or "sniffer", for Unix and
  Unix-like operating systems. A sniffer is a tool used to capture 
  packets off the wire. Ethereal decodes numerous protocols (too many
  to list).
@@ -49,7 +49,7 @@ Architecture: any
 Section: devel
 Depends: ${shlibs:Depends}, omniidl (>> 1:3.0.4.1-10) | omniidl4 (>= 4.0.1-2) , libpcap0.8-dev, libtool, libglib2.0-dev, python, snacc, autotools-dev, debhelper, cdbs, automake1.7, autoconf
 Description: network traffic analyser (development tools)
- Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Wireshark is a network traffic analyzer, or "sniffer", for Unix and
  Unix-like operating systems. A sniffer is a tool used to capture 
  packets off the wire. Ethereal decodes numerous protocols (too many
  to list).

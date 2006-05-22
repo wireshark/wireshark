@@ -34,7 +34,7 @@ typedef enum {
 	TS_ABSOLUTE_WITH_DATE,
 	TS_DELTA,
 /*
- * Special value used for the command-line setting in Ethereal, to indicate
+ * Special value used for the command-line setting in Wireshark, to indicate
  * that no value has been set from the command line.
  */
 	TS_NOT_SET

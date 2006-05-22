@@ -52,7 +52,7 @@ SimpleSyntax ::=
 
         objectID-value		ObjectID-value,
 		empty				Empty
-		-- Added from RFC 1155 for Ethereal
+		-- Added from RFC 1155 for Wireshark
 							      }
 String-value ::= OCTET STRING (SIZE (0..65535))
 
@@ -68,7 +68,7 @@ Integer32 ::= INTEGER (-2147483648..2147483647)
 ObjectID-value ::= OBJECT IDENTIFIER
 
 Empty ::= NULL
-							-- Added from RFC 1155 for Ethereal
+							-- Added from RFC 1155 for Wireshark
 
 -- application-wide types
 

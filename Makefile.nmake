@@ -590,7 +590,7 @@ setup: verify_tools
 		gtk-wimp gtk-wimp/gtk-wimp-0.7.0-bin.zip
 !ENDIF
 	@echo.
-	@echo Ethereal is ready to build.
+	@echo Wireshark is ready to build.
 
 # Cleanup files installed by the setup target. It will not remove the 
 # downloaded zip files.

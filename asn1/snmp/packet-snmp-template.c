@@ -1284,7 +1284,7 @@ process_prefs(void)
 	}
 
 	/*
-	 * Cannot check if MIBS is already set, as it could be set by Ethereal.
+	 * Cannot check if MIBS is already set, as it could be set by Wireshark.
 	 *
 	 * If we have a list of modules to load, put that list in MIBS,
 	 * otherwise clear MIBS.

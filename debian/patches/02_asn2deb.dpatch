@@ -12,10 +12,10 @@ diff -urNad --exclude=CVS --exclude=.svn ./asn2deb /tmp/dpep-work.5BSR7A/etherea
 +#!/usr/bin/env python
 +
 +# asn2deb - quick hack by W. Borgert <debacle@debian.org> to create
-+# Debian GNU/Linux packages from ASN.1 files for Ethereal.
++# Debian GNU/Linux packages from ASN.1 files for Wireshark.
 +# Copyright 2004, W. Borgert
 +
-+# ASN.1 module for Ethereal, use of snacc type table:
++# ASN.1 module for Wireshark, use of snacc type table:
 +# Copyright 2003, Matthijs Melchior <matthijs.melchior@xs4all.nl>
 +#
 +# Wireshark - Network traffic analyzer

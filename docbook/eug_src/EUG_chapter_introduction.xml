@@ -7,7 +7,7 @@
   <section id="ChIntroWhatIs">
     <title>What is <application>Ethereal?</application></title>
     <para>
-	Ethereal is a network packet analyzer. A network packet 
+	Wireshark is a network packet analyzer. A network packet 
 	analyzer will try to capture network packets and tries to display
 	that packet data as detailed as possible.
     </para>
@@ -141,14 +141,14 @@
 	<title>Many protocol decoders</title>
 	<para>
       There are protocol decoders (or dissectors, as they are 
-      known in Ethereal) for a great many protocols: 
+      known in Wireshark) for a great many protocols: 
 	  see <xref linkend="AppProtocols"/>.
 	</para>
 	</section>
 	
 	<section><title>Open Source Software</title>
     <para>
-      Ethereal is an open source software project, and is released under 
+      Wireshark is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
 	  You can freely use Ethereal on any number of computers you like, without 
 	  worrying about license keys or fees or such. In addition, all source 
@@ -158,7 +158,7 @@
     </para>
 	</section>
 	
-    <section id="ChIntroNoFeatures"><title>What Ethereal is not</title>
+    <section id="ChIntroNoFeatures"><title>What Wireshark is not</title>
 	<para>
 	Here are some things Ethereal does not provide:
       <itemizedlist>
@@ -341,7 +341,7 @@
     </title>
     <para>
       Ethereal was initially developed by Gerald Combs. Ongoing development 
-      and maintenance of Ethereal is handled by the Ethereal team, a loose 
+      and maintenance of Wireshark is handled by the Ethereal team, a loose 
       group of individuals who fix bugs and provide new functionality.  
     </para>
     <para>
@@ -353,7 +353,7 @@
       Ethereal web site.
     </para>
     <para>
-      Ethereal is an open source software project, and is released under 
+      Wireshark is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
 	  All source code is freely available under the GPL.  You are welcome to 
       modify Ethereal to suit your own needs, and it would be appreciated 
@@ -383,7 +383,7 @@
 	    The maintainers and developers of Ethereal will maintain your 
 	    code as well, fixing it when API changes or other changes are 
 	    made, and generally keeping it in tune with what is happening 
-	    with Ethereal. So if Ethereal is updated (which is done often),
+	    with Ethereal. So if Wireshark is updated (which is done often),
 		you can get a new Ethereal version from the website and your changes 
 		will already be included without any effort for you.
 	  </para>
@@ -391,7 +391,7 @@
       </itemizedlist>
     </para>
     <para>
-      The Ethereal source code and binary kits for some platforms are all 
+      The Wireshark source code and binary kits for some platforms are all 
       available on the download page of the Ethereal website: 
       <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.
     </para>
@@ -414,7 +414,7 @@
 
 	<section id="ChIntroWiki"><title>Wiki</title>
     <para>
-	The Ethereal Wiki at <ulink 
+	The Wireshark Wiki at <ulink 
 	url="&EtherealWikiPage;">&EtherealWikiPage;</ulink> provides a wide range 
 	of information related to Ethereal and packet capturing in general.
 	You will find a lot of information not part of this user's guide. For 
@@ -475,7 +475,7 @@
 	<varlistentry><term><command>ethereal-dev</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Ethereal developers. If you want to start 
+	      This list is for Wireshark developers. If you want to start 
 	      developing a protocol dissector, join this list.
 	    </para>
 	  </listitem>

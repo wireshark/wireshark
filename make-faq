@@ -8,7 +8,7 @@
 rm -f FAQ
 cat >FAQ <<EOF
 
-   The Ethereal FAQ
+   The Wireshark FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
          date. Please go to http://www.ethereal.com/faq.html for the up

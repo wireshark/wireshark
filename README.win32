@@ -16,7 +16,7 @@ The installation package allows you to install:
 	o Tethereal - the console, line-mode version
 	o Editcap - a console, line-mode utility to convert
 	  capture files from one format to another.
-	  (The same functions are available in Ethereal)
+	  (The same functions are available in Wireshark)
 	o Text2Pcap - a console, line-mode utility to generate 
 	  a capture file from an ASCII hexdump of packets
 	o Mergecap - a console, line-mode utility to merge two 
@@ -26,7 +26,7 @@ Additionally, the installation package contains a "plugins"
 option, which installs some additional dissector plugins
 for use with Ethereal and Tethereal.
 
-All binaries in Ethereal package are now built with debugging
+All binaries in Wireshark package are now built with debugging
 information embedded. If you are experiencing a crash when running
 Ethereal or other binaries, Dr. Watson or your debugger
 can use the information embedded in the binary to provide useful 
@@ -66,7 +66,7 @@ version , you will have to decide which applications to keep, since
 WinPcap 2.0/2.02 and later versions cannot be installed on the same
 system at the same time.
 
-If Ethereal is not capturing packets and you have WinPcap installed, you
+If Wireshark is not capturing packets and you have WinPcap installed, you
 can test your WinPcap installation by installing WinDump (tcpdump for
 Windows) ported by the same folks who make WinPcap.  It's at:
 
@@ -475,7 +475,7 @@ Problems with MS Visual C++ Version 7 / VC.NET
 ----------------------------------------------
 
 Beside licensing problems with these compilers, there are known problems
-with DLL's.  If Ethereal is compiled with MSVC Version 7, there are
+with DLL's.  If Wireshark is compiled with MSVC Version 7, there are
 conflicts in the MSVCRT DLL's, The MSVCRT.DLL includes the standard
 ANSI-C functions like fopen, malloc, etc..  MSVCRT.DLL is shipped with
 the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's
@@ -565,7 +565,7 @@ To get it running, execute the following steps:
 
     Or you can start it from C:\cygwin\usr\X11R6\bin\startxwin.bat 
 
-8. Run ethereal (add /opt/gnome/bin to $PATH if this is not yet done)
+8. Run wireshark (add /opt/gnome/bin to $PATH if this is not yet done)
 
      $ <ethereal-src>/ethereal
 

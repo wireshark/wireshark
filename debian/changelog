@@ -291,13 +291,13 @@ ethereal (0.10.3-1) unstable; urgency=high
     (closes: #71994)
   * added another .desktop entry to start ethereal with gksu from Gnome menu
   * Upstream changes; libethereal and libwiretap handled differently; they may
-    end up in new packages (but go in ethereal-common for now)
+    end up in new packages (but go in wireshark-common for now)
 
  -- Frederic Peters <fpeters@debian.org>  Sat, 27 Mar 2004 14:09:49 +0100
 
 ethereal (0.10.2-2) unstable; urgency=low
 
-  * New files in ethereal-dev (closes: #236702)
+  * New files in wireshark-dev (closes: #236702)
 
  -- Frederic Peters <fpeters@debian.org>  Sun,  7 Mar 2004 21:43:17 +0100
 

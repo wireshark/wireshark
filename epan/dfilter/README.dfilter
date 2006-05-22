@@ -92,13 +92,13 @@ Go to ethereal/epan/ftypes/
 
 Edit ftypes.h and declare the fvalue_foo(), ftype_can_foo() and fvalue_foo() methods. Add the cmp_foo() method to the struct _ftype_t.
 
-This is the first time that a make in ethereal/epan/dfilter/ can succeed. If it fails, then some code in the previously edited files must be corrected.
+This is the first time that a make in wireshark/epan/dfilter/ can succeed. If it fails, then some code in the previously edited files must be corrected.
 
 Edit ftypes.c and define the fvalue_foo() method with its associated logic. Define also the ftype_can_foo() and fvalue_foo() methods.
 
 Edit all ftype-*.c files and add the required fvalue_foo() methods.
 
-This is the point where you should be able to compile without errors in ethereal/epan/ftypes/. If not, first fix the errors.
+This is the point where you should be able to compile without errors in wireshark/epan/ftypes/. If not, first fix the errors.
 
 Go to ethereal/epan/ and run make. If this one succeeds, then we're almost done as no errors should occur here.
 

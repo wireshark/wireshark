@@ -419,7 +419,7 @@ init_plugins(const char *plugin_dir)
 	 * If the program wasn't started with special privileges,
 	 * scan the users plugin directory.  (Even if we relinquish
 	 * them, plugins aren't safe unless we've *permanently*
-	 * relinquished them, and we can't do that in Ethereal as,
+	 * relinquished them, and we can't do that in Wireshark as,
 	 * if we need privileges to start capturing, we'd need to
 	 * reclaim them before each time we start capturing.)
 	 */

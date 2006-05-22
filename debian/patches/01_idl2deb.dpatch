@@ -12,7 +12,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2deb /tmp/dpep-work.K2bQz4/etherea
 +#!/usr/bin/env python
 +
 +# idl2deb - quick hack by W. Borgert <debacle@debian.org> to create
-+# Debian GNU/Linux packages from idl2eth modules for Ethereal.
++# Debian GNU/Linux packages from idl2eth modules for Wireshark.
 +# Copyright 2003, W. Borgert
 +
 +# Makefile.am and configure.ac code by:

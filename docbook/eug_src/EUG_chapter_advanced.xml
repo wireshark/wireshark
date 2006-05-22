@@ -184,7 +184,7 @@
 	time stamp precision itself (whatever the benefit may be).
 	</para>
 	<para>
-	The common libpcap capture file format that is used by Ethereal (and a 
+	The common libpcap capture file format that is used by Wireshark (and a 
 	lot of other tools) supports a fixed microsecond resolution "0.123456" 
 	only. 
 	</para>
@@ -201,7 +201,7 @@
   </section>
   <section><title>Accuracy</title>
 	<para>
-	It's often asked: "Which time stamp accuracy is provided by Ethereal?". 
+	It's often asked: "Which time stamp accuracy is provided by Wireshark?". 
 	Well, Ethereal doesn't create any time stamps itself but simply get's them
 	from "somewhere else" and displays them. So accuracy will depend on the 
 	capture system (operating system, performance, ...) that you use. 
@@ -371,7 +371,7 @@
 	UN*X systems, and "Windows NT based" systems (Windows NT 4.0, 
 	Windows 2000, Windows XP, Windows Server 2003, Windows Vista) 
 	represent time internally as UTC.
-	When Ethereal is capturing, no conversion is necessary.
+	When Wireshark is capturing, no conversion is necessary.
 	However, if the system time zone is not set
 	correctly, the system's UTC time might not be correctly set even
 	if the system clock appears to display correct local time. 
@@ -604,7 +604,7 @@
 	<para>
 	<command>Name resolution will often fail.</command> The name to be 
 	resolved might simply be unknown by the name servers asked or the servers 
-	are just not available and the name is also not found in Ethereal's 
+	are just not available and the name is also not found in Wireshark's 
 	configuration files.
     </para>
 	</listitem>
@@ -630,12 +630,12 @@
 	</listitem>
 	<listitem>
     <para>
-	<command>Resolved DNS names are cached by Ethereal.</command>
+	<command>Resolved DNS names are cached by Wireshark.</command>
 	This is required for acceptable performance.
 	However, if the name resolution information
-	should change while Ethereal is running, 
+	should change while Wireshark is running, 
 	Ethereal won't notice a change to the name resolution information once 
-	it's get cached. If this information changes while Ethereal is running, 
+	it's get cached. If this information changes while Wireshark is running, 
 	e.g. a new DHCP lease takes effect, Ethereal won't notice it.
 	XXX - is this true for all or only for DNS info?
     </para>

@@ -1,5 +1,5 @@
 Dearborn Group Technology has released under GPL this plugin
-for Ethereal. It decodes the protocol used by their Gryphon
+for Wireshark. It decodes the protocol used by their Gryphon
 automotive network tool.
 
 The plugin decodes the communication protocol, but not any

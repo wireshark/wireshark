@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Parse::Pidl::Ethereal::NDR - Parser generator for Ethereal
+Parse::Pidl::Ethereal::NDR - Parser generator for Wireshark
 
 =cut
 

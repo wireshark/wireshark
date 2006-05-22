@@ -1,5 +1,5 @@
 
-   The Ethereal FAQ
+   The Wireshark FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
          date. Please go to http://www.ethereal.com/faq.html for the up
@@ -247,11 +247,11 @@
 
    Q 1.2: How much does Ethereal cost?
 
-   A: Ethereal is "free software"; you can download it without paying any
+   A: Wireshark is "free software"; you can download it without paying any
    license fee. The version of Ethereal you download isn't a "demo" version,
    with limitations not present in a "full" version; it is the full version.
 
-   The license under which Ethereal is issued is the GNU General Public
+   The license under which Wireshark is issued is the GNU General Public
    License. See the GNU GPL FAQ for some more information.
 
    Q 1.3: Can I use Ethereal commercially?
@@ -265,7 +265,7 @@
 
    Q 1.4: Can I use Ethereal as part of my commercial product?
 
-   A: As noted, Ethereal is licensed under the GNU General Public License. The
+   A: As noted, Wireshark is licensed under the GNU General Public License. The
    GPL imposes conditions on your use of GPL'ed code in your own products; you
    cannot, for example, make a "derived work" from Ethereal, by making
    modifications to it, and then sell the resulting derived work and not allow
@@ -1172,15 +1172,15 @@ cies
    Q 3.1: I installed an Ethereal RPM; why did it install Tethereal but not
    Ethereal?
 
-   A: Older versions of the Red Hat RPMs for Ethereal put only the non-GUI
-   components into the ethereal RPM, the fact that Ethereal is a GUI program
+   A: Older versions of the Red Hat RPMs for Wireshark put only the non-GUI
+   components into the ethereal RPM, the fact that Wireshark is a GUI program
    nonwithstanding; newer versions make it a bit clearer by giving that RPM a
-   name starting with ethereal-base.
+   name starting with wireshark-base.
 
    In those older versions, there's a separate ethereal-gnome RPM that includes
    GUI components such as Ethereal itself, the fact that Ethereal doesn't use
    GNOME nonwithstanding; newer versions make it a bit clearer by giving that
-   RPM a name starting with ethereal-gtk+.
+   RPM a name starting with wireshark-gtk+.
 
    Find the ethereal-gnome or ethereal-gtk+ RPM, and install that also.
 
@@ -1275,7 +1275,7 @@ cies
 
      "** ERROR **: file print.c: line 691 (print_line): should not be reached.
 
-   A: This is a bug in Ethereal 0.10.0a, which is fixed in 0.10.1 and later
+   A: This is a bug in Wireshark 0.10.0a, which is fixed in 0.10.1 and later
    releases. To work around the bug, don't use "-x" unless you're also using
    "-V"; note that "-V" produces a full dissection of each packet, so you might
    not want to use it.
@@ -1293,7 +1293,7 @@ cies
    A: Ethereal can only be linked with version 4.2.2 or later of UCD SNMP. Your
    version of Ethereal was dynamically linked with such a version of UCD SNMP;
    however, you have an older version of UCD SNMP installed, which means that
-   when Ethereal is run, it tries to link to the older version, and fails. You
+   when Wireshark is run, it tries to link to the older version, and fails. You
    will have to replace that version of UCD SNMP with version 4.2.2 or a later
    version.
 
@@ -1322,7 +1322,7 @@ cies
 
    when I try to run Ethereal on Windows?
 
-   A: Ethereal is built using the GTK+ toolkit, which supports most
+   A: Wireshark is built using the GTK+ toolkit, which supports most
    UNIX-flavored OSes, and also supports Windows.
 
    Windows versions of Ethereal before 0.9.14 were built with an older version
@@ -1354,7 +1354,7 @@ cies
      Gtk-CRITICAL **: file gtkwindow.c: line 3107 (gtk_window_resize):
      assertion `height > 0' failed.
 
-   A: This is a bug in Ethereal 0.10.5 and 0.10.5a, which is fixed in Ethereal
+   A: This is a bug in Wireshark 0.10.5 and 0.10.5a, which is fixed in Wireshark
    0.10.6 and later releases.
 
    Q 6.2: I have an XXX network card on my machine; if I try to capture on it,
@@ -1561,8 +1561,8 @@ cies
    A: Capture filters currently use a different syntax than display filters.
    Here's the corresponding section from the ethereal(1) man page:
 
-   "Display filters in Ethereal are very powerful; more fields are filterable
-   in Ethereal than in other protocol analyzers, and the syntax you can use to
+   "Display filters in Wireshark are very powerful; more fields are filterable
+   in Wireshark than in other protocol analyzers, and the syntax you can use to
    create your filters is richer. As Ethereal progresses, expect more and more
    protocol fields to be allowed in display filters.
 
@@ -1593,7 +1593,7 @@ cies
    this bug.
 
    If you are running Ethereal on a UNIX-flavored platform, run "ethereal -v",
-   or select "About Ethereal..." from the "Help" menu in Ethereal, to see what
+   or select "About Ethereal..." from the "Help" menu in Wireshark, to see what
    version of libpcap it's using. If it's not 0.6 or later, you will need
    either to upgrade your OS to get a later version of libpcap, or will need to
    build and install a later version of libpcap from the tcpdump.org Web site
@@ -1685,7 +1685,7 @@ cies
 
    Q 7.12: Why does Ethereal hang after I stop a capture?
 
-   A: The most likely reason for this is that Ethereal is trying to look up an
+   A: The most likely reason for this is that Wireshark is trying to look up an
    IP address in the capture to convert it to a name (so that, for example, it
    can display the name in the source address or destination address columns),
    and that lookup process is taking a very long time.
@@ -1941,7 +1941,7 @@ cies
    A: Unfortunately, Windows 95/98/Me gives the same name to multiple instances
    of the type of same network adapter. Therefore, WinPcap cannot distinguish
    between them, so a WinPcap-based application can capture only on the first
-   such interface; Ethereal is a libpcap/WinPcap-based application.
+   such interface; Wireshark is a libpcap/WinPcap-based application.
 
    Q 8.6: I'm running Ethereal on Windows; why am I not seeing any traffic
    being sent by the machine running Ethereal?
@@ -2156,7 +2156,7 @@ cies
    Q 11.1: Why am I seeing lots of packets with incorrect TCP checksums?
 
    A: If the packets that have incorrect TCP checksums are all being sent by
-   the machine on which Ethereal is running, this is probably because the
+   the machine on which Wireshark is running, this is probably because the
    network interface on which you're capturing does TCP checksum offloading.
    That means that the TCP checksum is added to the packet by the network
    interface, not by the OS's TCP/IP stack; when capturing on an interface,
@@ -2212,7 +2212,7 @@ cies
    subsequent RTP traffic will be identified. Currently, that's the only place
    we do that; there may be other places.
 
-   However, there will always be places where Ethereal is simply incapable of
+   However, there will always be places where Wireshark is simply incapable of
    deducing that a given UDP flow is RTP; a mechanism would be needed to allow
    the user to specify that a given conversation should be treated as RTP. As
    of Ethereal 0.8.16, such a mechanism exists; if you select a UDP or TCP

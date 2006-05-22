@@ -75,7 +75,7 @@ smbsids_init(const char *optarg _U_, void* userdata _U_)
 
 	if(!sid_name_snooping){
 		fprintf(stderr,"The -z smb,sids function needs SMB/SID-Snooping to be enabled.\n");
-		fprintf(stderr,"Either enable Edit/Preferences/Protocols/SMB/Snoop SID name mappings  in ethereal\n");
+		fprintf(stderr,"Either enable Edit/Preferences/Protocols/SMB/Snoop SID name mappings  in wireshark\n");
 		fprintf(stderr,"or override the preference file by specifying\n");
 		fprintf(stderr,"  -o \"smb.sid_name_snooping=TRUE\"\n");
 		fprintf(stderr,"on the tethereal command line.\n");

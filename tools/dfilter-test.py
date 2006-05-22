@@ -950,7 +950,7 @@ class String(Test):
 		return self.DFilterCount(pkt_http,
 			'http.request.method <= "HEAE"', 1)
 
-	# XXX - this isn't handled in ethereal yet
+	# XXX - this isn't handled in wireshark yet
 	def ck_slice_1(self):
 		return self.DFilterCount(pkt_http,
 			'http.request.method[0] == "H"', 1)
@@ -1220,7 +1220,7 @@ class TVB(Test):
 		return self.DFilterCount(pkt_http,
 			"ip[2:2] == 00:c1", 1)
 
-	# These don't work yet in Ethereal
+	# These don't work yet in Wireshark
 	def ck_slice_4(self):
 		return self.DFilterCount(pkt_http,
 			"ip[-5] == 0x86", 1)

@@ -389,7 +389,7 @@ Mark Muhlestein         <mmm[AT]netapp.com> {
 }
 
 Graham Bloice           <graham.bloice[AT]trihedral.com> {
-	Win32 icon for Ethereal, and Win32 resource-compiler files to
+	Win32 icon for Wireshark, and Win32 resource-compiler files to
 	    add version/copyright/etc. information to Win32 executables
 	Support for sorting columns in the summary by clicking on them
 	Win32 Makefile improvements

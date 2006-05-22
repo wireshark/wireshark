@@ -28,7 +28,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
