@@ -403,7 +403,7 @@ mcast_on_params                      (GtkButton       *button _U_,
                 return;
         }
 
-	mcast_params_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Set parameters for Multicast Stream Analysis");
+	mcast_params_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Set parameters for Multicast Stream Analysis");
         gtk_window_set_default_size(GTK_WINDOW(mcast_params_dlg), 210, 210);
 
         gtk_widget_show(mcast_params_dlg);
@@ -495,7 +495,7 @@ static void mcaststream_dlg_create (void)
     GtkWidget *column_lb;
     int i;
 
-    mcaststream_dlg_w = dlg_window_new("Ethereal: Multicast Streams");
+    mcaststream_dlg_w = dlg_window_new("Wireshark: Multicast Streams");
     gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
 
     main_vb = gtk_vbox_new (FALSE, 0);

@@ -344,10 +344,10 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	sp->pdu_stats=g_malloc( (sp->num_pdus+1) * sizeof( wsp_pdu_t) );
 	if(filter){
 		sp->filter=g_strdup(filter);
-		title=g_strdup_printf("Ethereal: WAP-WSP statistics with filter: %s", filter);
+		title=g_strdup_printf("Wireshark: WAP-WSP statistics with filter: %s", filter);
 	} else {
 		sp->filter=NULL;
-		title=g_strdup("Ethereal: WAP-WSP statistics");
+		title=g_strdup("Wireshark: WAP-WSP statistics");
 	}
 	for (i=0;i<=sp->num_pdus; i++)
 	{

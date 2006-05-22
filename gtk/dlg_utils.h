@@ -29,7 +29,7 @@
  *
  * Normal dialogs are created using dlg_window_new().
  *
- * - "About" about_ethereal_cb()
+ * - "About" about_wireshark_cb()
  * - "Capture Options" capture_prep()
  * - "Capture" capture_info_ui_create()
  * - "Interface Options" ifopts_edit_cb()
@@ -70,7 +70,7 @@
 #define __DLG_UTILS_H__
 
 
-/** Create a dialog box window that belongs to Ethereal's main window.
+/** Create a dialog box window that belongs to Wireshark's main window.
  * If you want to create a window, use window_new() instead. 
  * See window_new() for general window usage.
  *

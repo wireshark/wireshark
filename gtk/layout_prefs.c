@@ -557,7 +557,7 @@ layout_prefs_fetch(GtkWidget *w)
 void
 layout_prefs_apply(GtkWidget *w _U_)
 {
-    set_main_window_name("The Ethereal Network Analyzer");
+    set_main_window_name("The Wireshark Network Analyzer");
     main_widgets_rearrange();
 }
 

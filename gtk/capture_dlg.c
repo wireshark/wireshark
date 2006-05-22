@@ -549,7 +549,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if (!has_wpcap) {
     char *detailed_err;
 
-    detailed_err = cant_load_winpcap_err("Ethereal");
+    detailed_err = cant_load_winpcap_err("Wireshark");
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
     g_free(detailed_err);
     return;
@@ -565,7 +565,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* use user-defined title if preference is set */
-  cap_title = create_user_window_title("Ethereal: Capture Options");
+  cap_title = create_user_window_title("Wireshark: Capture Options");
 
   cap_open_w = dlg_window_new(cap_title);
   g_free(cap_title);
@@ -1188,7 +1188,7 @@ capture_start_confirmed(void) {
                         ESD_BTN_OK,
                         PRIMARY_TEXT_START "No capture interface selected!" PRIMARY_TEXT_END "\n\n"
                         "To select an interface use:\n\n"
-                        "Capture->Options (until Ethereal is stopped)\n"
+                        "Capture->Options (until Wireshark is stopped)\n"
                         "Edit->Preferences/Capture (permanent, if saved)");
             return;
         }
@@ -1239,7 +1239,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
-      char * err_msg = cant_load_winpcap_err("Ethereal");
+      char * err_msg = cant_load_winpcap_err("Wireshark");
 
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           err_msg);
@@ -1282,7 +1282,7 @@ select_link_type_cb(GtkWidget *w, gpointer data)
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Specify a Capture File", FILE_SELECTION_WRITE_BROWSE);
+    file_selection_browse(file_bt, file_te, "Wireshark: Specify a Capture File", FILE_SELECTION_WRITE_BROWSE);
 }
 
 
@@ -1392,14 +1392,14 @@ capture_dlg_prep(gpointer parent_w) {
      in that series, don't bind the AF_PACKET socket to an interface
      until a filter is set, which means they aren't bound at all if
      no filter is set, which means no packets arrive as input on that
-     socket, which means Ethereal never sees any packets. */
+     socket, which means Wireshark never sees any packets. */
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (capture_opts->cfilter)
     g_free(capture_opts->cfilter);
   g_assert(filter_text != NULL);
   capture_opts->cfilter = g_strdup(filter_text);
 
-  /* Ethereal always saves to a capture file. */
+  /* Wireshark always saves to a capture file. */
   capture_opts->saving_to_file = TRUE;
   g_save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (g_save_file && g_save_file[0]) {

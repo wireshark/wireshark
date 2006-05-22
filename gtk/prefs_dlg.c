@@ -436,7 +436,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
      if the user presses "Cancel". */
   copy_prefs(&saved_prefs, &prefs);
 
-  prefs_w = dlg_window_new("Ethereal: Preferences");
+  prefs_w = dlg_window_new("Wireshark: Preferences");
 
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
@@ -1299,7 +1299,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 	1) by saving the preferences they presumably indicate that they
 	   like them;
 
-	2) the next time they fire Ethereal up, those preferences will
+	2) the next time they fire Wireshark up, those preferences will
 	   apply;
 
 	3) we'd have to buffer "must_redissect" so that if they do

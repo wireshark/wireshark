@@ -137,7 +137,7 @@ GtkWidget * printer_prefs_show(void)
 static void
 printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Print to a File",
+    file_selection_browse(file_bt, file_te, "Wireshark: Print to a File",
                           FILE_SELECTION_WRITE_BROWSE);
 }
 

@@ -1,5 +1,5 @@
 /* rtp_analysis.c
- * RTP analysis addition for ethereal
+ * RTP analysis addition for Wireshark
  *
  * $Id$
  *
@@ -2408,7 +2408,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 	
-	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Ethereal: Save Data As CSV");
+	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Wireshark: Save Data As CSV");
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -2992,7 +2992,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 	
     /* XXX - use file_selection from dlg_utils instead! */
-	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Ethereal: Save Payload As ...");
+	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Wireshark: Save Payload As ...");
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -3411,7 +3411,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	column_arrows *col_arrows_fwd;
 	column_arrows *col_arrows_rev;
 	
-	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
+	window = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: RTP Stream Analysis");
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
 	/* Container for each row of widgets */

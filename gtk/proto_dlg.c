@@ -113,7 +113,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  proto_w = dlg_window_new("Ethereal: Enabled Protocols");
+  proto_w = dlg_window_new("Wireshark: Enabled Protocols");
   gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT);
 
   /* Container for each row of widgets */

@@ -47,20 +47,20 @@
 #include "main.h"
 #include "plugins_dlg.h"
 
-static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
+static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
 
 
 /*
- * Keep a static pointer to the current "About Ethereal" window, if any, so
- * that if somebody tries to do "About Ethereal" while there's already an
- * "About Ethereal" window up, we just pop up the existing one, rather than
+ * Keep a static pointer to the current "About Wireshark" window, if any, so
+ * that if somebody tries to do "About Wireshark" while there's already an
+ * "About Wireshark" window up, we just pop up the existing one, rather than
  * creating a new one.
  */
-static GtkWidget *about_ethereal_w;
+static GtkWidget *about_wireshark_w;
 
 
 static void
-about_ethereal(GtkWidget *parent, GtkWidget *main_vb, const char *title)
+about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 {
   GtkWidget   *msg_label, *icon;
 #if GTK_MAJOR_VERSION >= 2
@@ -90,7 +90,7 @@ splash_new(char *message)
 
     win = splash_window_new();
 
-    /* When calling about_ethereal(), we must realize the top-level
+    /* When calling about_wireshark(), we must realize the top-level
        widget for the window, otherwise GTK will throw a warning
        because we don't have a colormap associated with that window and
        can't handle the pixmap. */
@@ -100,7 +100,7 @@ splash_new(char *message)
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
-    about_ethereal(win, main_vb, "Wireshark - Network Protocol Analyzer");
+    about_wireshark(win, main_vb, "Wireshark - Network Protocol Analyzer");
 
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
@@ -139,7 +139,7 @@ splash_destroy(GtkWidget *win)
 
 
 static GtkWidget *
-about_ethereal_page_new(void)
+about_wireshark_page_new(void)
 {
   GtkWidget   *main_vb, *msg_label /*, *icon*/;
   gchar       *message;
@@ -148,7 +148,7 @@ about_ethereal_page_new(void)
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 
-  about_ethereal(top_level, main_vb, title);
+  about_wireshark(top_level, main_vb, title);
 
   /* Construct the message string */
   message = g_strdup_printf(
@@ -160,7 +160,7 @@ about_ethereal_page_new(void)
        "\n"
        "%s"
        "\n"
-       "Ethereal is Open Source Software released under the GNU General Public License.\n"
+       "Wireshark is Open Source Software released under the GNU General Public License.\n"
        "\n"
        "Check the man page and http://www.ethereal.com for more information.",
        svnversion, get_copyright_info(), comp_info_str->str,
@@ -270,7 +270,7 @@ about_folders_page_new(void)
 
 
 void
-about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
+about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
 
@@ -279,9 +279,9 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   GtkWidget   *authors_page;
 #endif
 
-  if (about_ethereal_w != NULL) {
-    /* There's already an "About Ethereal" dialog box; reactivate it. */
-    reactivate_window(about_ethereal_w);
+  if (about_wireshark_w != NULL) {
+    /* There's already an "About Wireshark" dialog box; reactivate it. */
+    reactivate_window(about_wireshark_w);
     return;
   }
 
@@ -291,28 +291,28 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
    * is the GTK+ 2.x GtkDialog appropriate but the 1.2[.x] one
    * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
    */
-  about_ethereal_w = dlg_window_new("About Ethereal");
+  about_wireshark_w = dlg_window_new("About Wireshark");
   /* set the initial position (must be done, before show is called!) */
   /* default position is not appropriate for the about dialog */
 #if GTK_MAJOR_VERSION >= 2
-  gtk_window_set_position(GTK_WINDOW(about_ethereal_w), GTK_WIN_POS_CENTER_ON_PARENT);
+  gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER_ON_PARENT);
 #else
-  gtk_window_set_position(GTK_WINDOW(about_ethereal_w), GTK_WIN_POS_CENTER);
+  gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER);
 #endif
   /* setting the size is dangerous here, as making it too short will 
    * clip content on GTK1, so simply use the natural size */
-  /*gtk_window_set_default_size(GTK_WINDOW(about_ethereal_w), 600, 400);*/
-  gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 6);
+  /*gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);*/
+  gtk_container_border_width(GTK_CONTAINER(about_wireshark_w), 6);
 
   main_vb = gtk_vbox_new(FALSE, 12);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
-  gtk_container_add(GTK_CONTAINER(about_ethereal_w), main_vb);
+  gtk_container_add(GTK_CONTAINER(about_wireshark_w), main_vb);
 
   main_nb = gtk_notebook_new();
   gtk_box_pack_start(GTK_BOX(main_vb), main_nb, TRUE, TRUE, 0);
 
-  about_page = about_ethereal_page_new();
-  page_lb = gtk_label_new("Ethereal");
+  about_page = about_wireshark_page_new();
+  page_lb = gtk_label_new("Wireshark");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
@@ -336,20 +336,20 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
   ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  window_set_cancel_button(about_ethereal_w, ok_btn, window_cancel_button_cb);
+  window_set_cancel_button(about_wireshark_w, ok_btn, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(about_ethereal_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
+  SIGNAL_CONNECT(about_wireshark_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(about_wireshark_w, "destroy", about_wireshark_destroy_cb, NULL);
 
-  gtk_widget_show_all(about_ethereal_w);
-  window_present(about_ethereal_w);
+  gtk_widget_show_all(about_wireshark_w);
+  window_present(about_wireshark_w);
 }
 
 static void
-about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+about_wireshark_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  /* Note that we no longer have an "About Ethereal" dialog box. */
-  about_ethereal_w = NULL;
+  /* Note that we no longer have an "About Wireshark" dialog box. */
+  about_wireshark_w = NULL;
 }
 
 

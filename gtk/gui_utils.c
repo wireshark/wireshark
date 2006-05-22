@@ -99,11 +99,11 @@ static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
    specified by the WM_NAME property of a window or the resource
    or class name specified by the WM_CLASS property and base the
    choice of icon for the window on one of those; WM_CLASS for
-   Ethereal's windows has a resource name of "ethereal" and a class
+   Wireshark's windows has a resource name of "ethereal" and a class
    name of "Ethereal".  However, the way that's done is window-manager-
    specific, and there's no way to determine what size a particular
    window manager would want, so there's no way to automate this as
-   part of the installation of Ethereal.
+   part of the installation of Wireshark.
    */
 static void
 window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
@@ -126,7 +126,7 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 
 
 /* Create a new window, of the specified type, with the specified title
-   (if any) and the Ethereal icon. */
+   (if any) and the Wireshark icon. */
 GtkWidget *
 window_new(GtkWindowType type, const gchar *title)
 {

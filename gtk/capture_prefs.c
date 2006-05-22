@@ -263,7 +263,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	}
 	
 	/* create a new dialog */
-	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
+	ifopts_edit_dlg = dlg_window_new("Wireshark: Preferences: Interface Options");
     gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 300);
 
     main_vb = gtk_vbox_new(FALSE, 1);

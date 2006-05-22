@@ -30,7 +30,7 @@
  *  @ingroup dialog_group
  */
 
-/** Create a splash screen showed when Ethereal is started. 
+/** Create a splash screen showed when Wireshark is started. 
  *
  * @param message the new message to be displayed
  * @return the newly created window handle
@@ -56,7 +56,7 @@ extern guint splash_destroy(GtkWidget *win);
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void about_ethereal_cb( GtkWidget *widget, gpointer data);
+extern void about_wireshark_cb( GtkWidget *widget, gpointer data);
 
 
 #endif /* __ABOUT_DLG_H__ */

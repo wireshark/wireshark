@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply SRT statistics to tethereal.
- * It is only used by tethereal and not ethereal
+/* This module provides rpc call/reply SRT statistics to Wireshark.
+ * It is only used by Wireshark and not Tethereal
  *
  * It serves as an example on how to use the tap api.
  */

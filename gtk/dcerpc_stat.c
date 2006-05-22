@@ -22,9 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply SRT statistics to ethereal,
+/* This module provides rpc call/reply SRT statistics to Wireshark,
  * and displays them graphically.
- * It is only used by ethereal and not tethereal
+ * It is only used by Wireshark and not tethereal
  *
  * It serves as an example on how to use the tap api.
  */
@@ -561,7 +561,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=dlg_window_new("Ethereal: Compute DCE-RPC SRT statistics");
+	dlg=dlg_window_new("Wireshark: Compute DCE-RPC SRT statistics");
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);

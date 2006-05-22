@@ -1,5 +1,5 @@
 /* rtp_stream_dlg.c
- * RTP streams summary addition for ethereal
+ * RTP streams summary addition for Wireshark
  *
  * $Id$
  *
@@ -315,7 +315,7 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 	}
 
 	/* XXX - use file_selection from dlg_utils instead! */
-	rtpstream_save_dlg = gtk_file_selection_new("Ethereal: Save selected stream in rtpdump ('-F dump') format");
+	rtpstream_save_dlg = gtk_file_selection_new("Wireshark: Save selected stream in rtpdump ('-F dump') format");
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -663,7 +663,7 @@ static void rtpstream_dlg_create (void)
     GtkWidget *column_lb;
     int i;
 
-    rtpstream_dlg_w = dlg_window_new("Ethereal: RTP Streams");
+    rtpstream_dlg_w = dlg_window_new("Wireshark: RTP Streams");
     gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 200);
 
     main_vb = gtk_vbox_new (FALSE, 0);

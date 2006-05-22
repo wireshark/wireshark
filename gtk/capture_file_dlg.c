@@ -440,7 +440,7 @@ file_open_cmd(GtkWidget *w)
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
-  	"Ethereal: Read Filter",
+  	"Wireshark: Read Filter",
   	FALSE,
   	FALSE,
     TRUE
@@ -452,7 +452,7 @@ file_open_cmd(GtkWidget *w)
     return;
   }
 
-  file_open_w = file_selection_new("Ethereal: Open Capture File",
+  file_open_w = file_selection_new("Wireshark: Open Capture File",
                                    FILE_SELECTION_OPEN);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   /* it's annoying, that the file chooser dialog is already shown here,
@@ -776,7 +776,7 @@ file_merge_cmd(GtkWidget *w)
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
-  	"Ethereal: Read Filter",
+  	"Wireshark: Read Filter",
   	FALSE,
   	FALSE,
     TRUE
@@ -791,7 +791,7 @@ file_merge_cmd(GtkWidget *w)
   /* Default to saving all packets, in the file's current format. */
   filetype = cfile.cd_t;
 
-  file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
+  file_merge_w = file_selection_new("Wireshark: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   /* it's annoying, that the file chooser dialog is already shown here,
@@ -1280,7 +1280,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   tooltips = gtk_tooltips_new();
 
   /* build the file selection */
-  file_save_as_w = file_selection_new ("Ethereal: Save Capture File As",
+  file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",
                                        FILE_SELECTION_SAVE);
 
   /* as the dialog might already be gone, when using this values, we cannot
@@ -1638,7 +1638,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
     return;
   }
 
-  file_color_import_w = file_selection_new("Ethereal: Import Color Filters",
+  file_color_import_w = file_selection_new("Wireshark: Import Color Filters",
                                            FILE_SELECTION_OPEN);
 
 #if GTK_MAJOR_VERSION < 2
@@ -1799,7 +1799,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   color_marked   = FALSE;
   filetype = cfile.cd_t;
 
-  file_color_export_w = file_selection_new("Ethereal: Export Color Filters",
+  file_color_export_w = file_selection_new("Wireshark: Export Color Filters",
                                            FILE_SELECTION_SAVE);
 
   /* Container for each row of widgets */

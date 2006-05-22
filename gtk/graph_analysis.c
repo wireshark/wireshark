@@ -1,5 +1,5 @@
 /* graph_analysis.c
- * Graphic Analysis addition for ethereal
+ * Graphic Analysis addition for Wireshark
  *
  * $Id$
  *
@@ -73,7 +73,7 @@
 
 /* XXX FIXME */
 /* GTK-1.x does not have GDK_IS_DRAWABLE so just define is as always being true
- * so that ethereal compiles.
+ * so that Wireshark compiles.
  * At later stage we should implement it as a real fallback for gtk-1.x
  * but for the time being   us very few gtk-1.2 users at elast can compile.
  */
@@ -564,7 +564,7 @@ on_save_bt_clicked                    (GtkButton       *button _U_,
 		return;
 	}
 
-	save_to_file_w = gtk_file_selection_new("Ethereal: Save graph to file");
+	save_to_file_w = gtk_file_selection_new("Wireshark: Save graph to file");
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);

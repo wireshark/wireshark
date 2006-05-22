@@ -1,5 +1,5 @@
 /* rtp_stream.c
- * RTP streams summary addition for ethereal
+ * RTP streams summary addition for Wireshark
  *
  * $Id$
  *

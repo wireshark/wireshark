@@ -1998,7 +1998,7 @@ capture_if_details_open_win(char *iface)
     }
 
     /* open a new window */
-    details_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Interface Details");
+    details_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Interface Details");
 
     /* Container for the window contents */
     main_vb = gtk_vbox_new(FALSE, 12);

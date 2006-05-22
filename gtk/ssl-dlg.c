@@ -914,7 +914,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	return;
     }
 
-    new_win = file_selection_new("Ethereal: Save SSL Follow Stream As",
+    new_win = file_selection_new("Wireshark: Save SSL Follow Stream As",
                                  FILE_SELECTION_SAVE);
     follow_info->follow_save_as_w = new_win;
 

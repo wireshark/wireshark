@@ -133,9 +133,9 @@ write_recent(void)
     return FALSE;
   }
 
-  fputs("# Recent settings file for Ethereal " VERSION ".\n"
+  fputs("# Recent settings file for Wireshark " VERSION ".\n"
     "#\n"
-    "# This file is regenerated each time Ethereal is quit.\n"
+    "# This file is regenerated each time Wireshark is quit.\n"
     "# So be careful, if you want to make manual changes here.\n"
     "\n"
     "######## Recent capture files (latest last), cannot be altered through command line ########\n"

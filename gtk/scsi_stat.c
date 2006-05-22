@@ -23,7 +23,7 @@
  */
 
 /* This module provides rpc call/reply SRT (Server Response Time) statistics 
- * to ethereal.
+ * to Wireshark.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -313,7 +313,7 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=dlg_window_new("Ethereal: Compute SCSI SRT statistics");
+	dlg=dlg_window_new("Wireshark: Compute SCSI SRT statistics");
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);

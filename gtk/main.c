@@ -156,7 +156,7 @@
 
 /*
  * Files under personal and global preferences directories in which
- * GTK settings for Ethereal are stored.
+ * GTK settings for Wireshark are stored.
  */
 #define RC_FILE "gtkrc"
 
@@ -1119,7 +1119,7 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "Ethereal " VERSION "%s\n"
+    fprintf(output, "Wireshark " VERSION "%s\n"
         "Interactively dump and analyze network traffic.\n"
         "See http://www.ethereal.com for more information.\n"
         "\n"
@@ -1139,7 +1139,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
   fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
-  fprintf(output, "  -Q                       quit Ethereal after capturing\n");
+  fprintf(output, "  -Q                       quit Wireshark after capturing\n");
   fprintf(output, "  -S                       update packet display when new packets are captured\n");
   fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef _WIN32
@@ -1167,7 +1167,7 @@ print_usage(gboolean print_ver) {
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
-  fprintf(output, "  -R <read filter>         packet filter in Ethereal display filter syntax\n");
+  fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
 
@@ -1271,7 +1271,7 @@ update_cb(gpointer data _U_)
 }
 #else
 
-/* if these three functions are copied to gtk1 ethereal, since gtk1 does not
+/* if these three functions are copied to gtk1 Wireshark, since gtk1 does not
    use threads all updte_thread_mutex can be dropped and protect/unprotect
    would just be empty functions.
 
@@ -1353,7 +1353,7 @@ set_display_filename(capture_file *cf)
   g_free(status_msg);
 
   /* window title */
-  win_name = g_strdup_printf("%s - Ethereal", name_ptr);
+  win_name = g_strdup_printf("%s - Wireshark", name_ptr);
   set_main_window_name(win_name);
   g_free(win_name);
 }
@@ -1389,7 +1389,7 @@ main_cf_cb_file_closing(capture_file *cf)
     statusbar_pop_file_msg();
 
     /* Restore the standard title bar message. */
-    set_main_window_name("The Ethereal Network Analyzer");
+    set_main_window_name("The Wireshark Network Analyzer");
 
     /* Disable all menu items that make sense only if you have a capture. */
     set_menus_for_capture_file(FALSE);
@@ -1501,10 +1501,10 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 
 
     if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Ethereal",
+        title = g_strdup_printf("%s: Capturing - Wireshark",
                             get_interface_descriptive_name(capture_opts->iface));
     } else {
-        title = g_strdup_printf("Capturing - Ethereal");
+        title = g_strdup_printf("Capturing - Wireshark");
     }
     set_main_window_name(title);
     g_free(title);
@@ -1536,10 +1536,10 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
     if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Ethereal",
+        title = g_strdup_printf("%s: Capturing - Wireshark",
                             get_interface_descriptive_name(capture_opts->iface));
     } else {
-        title = g_strdup_printf("Capturing - Ethereal");
+        title = g_strdup_printf("Capturing - Wireshark");
     }
     set_main_window_name(title);
     g_free(title);
@@ -1709,7 +1709,7 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 
     /* Restore the standard title bar message */
     /* (just in case we have trouble opening the capture file). */
-    set_main_window_name("The Ethereal Network Analyzer");
+    set_main_window_name("The Wireshark Network Analyzer");
 
 #if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
@@ -2132,12 +2132,12 @@ main(int argc, char *argv[])
 #endif
 
   /* We won't come till here, if we had a "console only" command line parameter. */
-  splash_win = splash_new("Loading Ethereal ...");
+  splash_win = splash_new("Loading Wireshark ...");
   if (init_progfile_dir_error != NULL) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Can't get pathname of Ethereal: %s.\n"
+        "Can't get pathname of Wireshark: %s.\n"
         "It won't be possible to capture traffic.\n"
-        "Report this to the Ethereal developers.",
+        "Report this to the Wireshark developers.",
         init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   }
@@ -2508,7 +2508,7 @@ main(int argc, char *argv[])
   if (arg_error) {
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {
-      cmdarg_err("This version of Ethereal was not built with support for capturing packets.");
+      cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
     }
 #endif
     print_usage(FALSE);
@@ -2887,7 +2887,7 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-	SetConsoleTitle(_T("Ethereal Debug Console"));
+	SetConsoleTitle(_T("Wireshark Debug Console"));
   }
 }
 
@@ -3241,9 +3241,9 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 5);
 
 #if GTK_MAJOR_VERSION < 2
-    message = "Welcome to Ethereal!";
+    message = "Welcome to Wireshark!";
 #else
-    message = "<span weight=\"bold\" size=\"25000\">" "Welcome to Ethereal!" "</span>";
+    message = "<span weight=\"bold\" size=\"25000\">" "Welcome to Wireshark!" "</span>";
 #endif
     w = gtk_label_new(message);
 #if GTK_MAJOR_VERSION >= 2
@@ -3442,19 +3442,19 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
     GtkAccelGroup *accel;
-	gchar         *title;
+    gchar         *title;
     /* Display filter construct dialog has an Apply button, and "OK" not
        only sets our text widget, it activates it (i.e., it causes us to
        filter the capture). */
     static construct_args_t args = {
-        "Ethereal: Display Filter",
+        "Wireshark: Display Filter",
         TRUE,
         TRUE,
         FALSE
     };
 
     /* use user-defined title if preference is set */
-    title = create_user_window_title("The Ethereal Network Analyzer");
+    title = create_user_window_title("The Wireshark Network Analyzer");
 
     /* Main window */
     top_level = window_new(GTK_WINDOW_TOPLEVEL, title);

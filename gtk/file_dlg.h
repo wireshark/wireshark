@@ -59,7 +59,7 @@ typedef enum {
 	FILE_SELECTION_WRITE_BROWSE     /**< browse for a file to write to */
 } file_selection_action_t;
 
-/** Create a file selection dialog box window that belongs to Ethereal's
+/** Create a file selection dialog box window that belongs to Wireshark's
  *  main window. See window_new() for usage.
  *
  * @param title the title for the new file selection dialog

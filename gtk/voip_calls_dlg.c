@@ -1,5 +1,5 @@
 /* voip_calls_dlg.c
- * VoIP calls summary addition for ethereal
+ * VoIP calls summary addition for Wireshark
  *
  * $Id$
  *
@@ -555,7 +555,7 @@ static void voip_calls_dlg_create (void)
 	GtkWidget *column_lb;
 	int i;
 
-	voip_calls_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: VoIP Calls");
+	voip_calls_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: VoIP Calls");
 
 	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 840, 350);
 

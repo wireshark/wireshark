@@ -350,7 +350,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if (!has_wpcap) {
     char *detailed_err;
 
-    detailed_err = cant_load_winpcap_err("Ethereal");
+    detailed_err = cant_load_winpcap_err("Wireshark");
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
     g_free(detailed_err);
     return;
@@ -366,7 +366,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  cap_if_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Capture Interfaces");
+  cap_if_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Capture Interfaces");
 
   tooltips = gtk_tooltips_new();
 

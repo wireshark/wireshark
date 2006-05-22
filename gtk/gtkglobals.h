@@ -29,7 +29,7 @@
  *
  * @section intro Introduction
  *
- * Ethereal uses GTK (the Gimp ToolKit) as it's user interface toolkit.
+ * Wireshark uses GTK (the Gimp ToolKit) as its user interface toolkit.
  *
  * See Modules for a list of submodules.
  *

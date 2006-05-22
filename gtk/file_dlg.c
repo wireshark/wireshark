@@ -66,7 +66,7 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 /* Keys ... */
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 
-/* Create a file selection dialog box window that belongs to Ethereal's
+/* Create a file selection dialog box window that belongs to Wireshark's
    main window. */
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
 GtkWidget *

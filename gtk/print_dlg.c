@@ -153,7 +153,7 @@ file_print_cmd(gboolean print_selected)
       args->range.process = range_process_selected;
   }
 
-  print_win = open_print_dialog("Ethereal: Print", output_action_print, args);
+  print_win = open_print_dialog("Wireshark: Print", output_action_print, args);
   SIGNAL_CONNECT(print_win, "destroy", print_destroy_cb, &print_win);
 }
 
@@ -213,7 +213,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_text_win = open_print_dialog("Ethereal: Export as \"Plain Text\" File", output_action_export_text, args);
+  export_text_win = open_print_dialog("Wireshark: Export as \"Plain Text\" File", output_action_export_text, args);
   SIGNAL_CONNECT(export_text_win, "destroy", print_destroy_cb, &export_text_win);
 }
 
@@ -262,7 +262,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_ps_win = open_print_dialog("Ethereal: Export as \"PostScript\" file", output_action_export_ps, args);
+  export_ps_win = open_print_dialog("Wireshark: Export as \"PostScript\" file", output_action_export_ps, args);
   SIGNAL_CONNECT(export_ps_win, "destroy", print_destroy_cb, &export_ps_win);
 }
 
@@ -311,7 +311,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_psml_win = open_print_dialog("Ethereal: Export as \"PSML\" file", output_action_export_psml, args);
+  export_psml_win = open_print_dialog("Wireshark: Export as \"PSML\" file", output_action_export_psml, args);
   SIGNAL_CONNECT(export_psml_win, "destroy", print_destroy_cb, &export_psml_win);
 }
 
@@ -360,7 +360,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_pdml_win = open_print_dialog("Ethereal: Export as \"PDML\" file", output_action_export_pdml, args);
+  export_pdml_win = open_print_dialog("Wireshark: Export as \"PDML\" file", output_action_export_pdml, args);
   SIGNAL_CONNECT(export_pdml_win, "destroy", print_destroy_cb, &export_pdml_win);
 }
 
@@ -407,14 +407,14 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_csv_win = open_print_dialog("Ethereal: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
+  export_csv_win = open_print_dialog("Wireshark: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
   SIGNAL_CONNECT(export_csv_win, "destroy", print_destroy_cb, &export_csv_win);
 }
 
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Print to File",
+    file_selection_browse(file_bt, file_te, "Wireshark: Print to File",
                           FILE_SELECTION_WRITE_BROWSE);
 }
 

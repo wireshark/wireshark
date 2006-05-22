@@ -152,7 +152,7 @@ gtk_sctperror_dlg(void)
 	GtkWidget *column_lb;
 	int i;
 
-	sctp_error_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Ethereal: SCTP Associations");
+	sctp_error_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_error_dlg_w), GTK_WIN_POS_CENTER);
 	SIGNAL_CONNECT(sctp_error_dlg_w, "destroy", dlg_destroy,NULL);
 

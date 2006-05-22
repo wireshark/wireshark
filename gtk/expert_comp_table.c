@@ -284,7 +284,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     if (action != 6 && action != 7) {
         if (err->procedures[selection].fvalue_value==NULL) {
             if (action != 2 && action != 3 && action != 4) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Ethereal cannot create a filter on this item - %s, try using find instead.", err->procedures[selection].entries[2]);
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.", err->procedures[selection].entries[2]);
                 return;
             }
         }

@@ -427,7 +427,7 @@ packet_list_set_sel_browse(gboolean val)
         static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
 
         /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
-         * think "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
+         * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
         new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
 
 	if (mode == new_mode) {

@@ -332,7 +332,7 @@ static void dlg_destroy_cb(GtkWidget *dialog _U_, gpointer data	_U_)
 }
 
 
-/* Create a dialog box window that belongs to Ethereal's main window. */
+/* Create a dialog box window that belongs to Wireshark's main window. */
 GtkWidget *
 dlg_window_new(const gchar *title)
 {

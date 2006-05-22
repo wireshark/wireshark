@@ -24,11 +24,11 @@
  */
 
 /*
- * This file implements a "main" toolbar for Ethereal (suitable for gtk1 and
+ * This file implements a "main" toolbar for Wireshark (suitable for gtk1 and
  * gtk2).
  *
  * As it is desirable to have the same toolbar implementation for gtk1 and gtk2 
- * in Ethereal, only those library calls available in the gtk1 libraries 
+ * in Wireshark, only those library calls available in the gtk1 libraries 
  * are used inside this file.
  *
  * Hint: gtk2 in comparison to gtk1 has a better way to handle with "common"
@@ -108,7 +108,7 @@
 #include "../image/toolbar/capture_filter_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/display_filter_24.xpm"
-/* these icons are standard stock icons, but used for ethereal specific stock icon labels */
+/* these icons are standard stock icons, but used for Wireshark specific stock icon labels */
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_add_24.xpm"
 #endif
@@ -166,7 +166,7 @@ typedef struct stock_pixmap_tag{
 } stock_pixmap_t;
 
 /* generate application specific stock items */
-static void ethereal_stock_icons(void) {
+static void wireshark_stock_icons(void) {
     GtkIconFactory * factory;
     gint32 i;
 
@@ -486,7 +486,7 @@ toolbar_new(void)
     
 #if GTK_MAJOR_VERSION >= 2
     /* create application specific stock icons */
-    ethereal_stock_icons();
+    wireshark_stock_icons();
 #endif
 
     /* this function should be only called once! */

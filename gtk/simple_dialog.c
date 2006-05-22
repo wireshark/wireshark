@@ -123,14 +123,14 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
    * shouldn't say "error", as that provides no useful information.
    *
    * So we give it a title on Win32, and don't give it one on UN*X.
-   * For now, we give it a Win32 title of just "Ethereal"; we should
+   * For now, we give it a Win32 title of just "Wireshark"; we should
    * arguably take an argument for the title.
    */
   if(btn_mask == ESD_BTN_NONE) {
 	win = splash_window_new();
   } else {
 #ifdef _WIN32
-	win = dlg_window_new("Ethereal");
+    win = dlg_window_new("Wireshark");
 #else
     win = dlg_window_new("");
 #endif

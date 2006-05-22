@@ -971,7 +971,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	/*
 	 * Build the dialog box we need.
 	 */
-    savehex_dlg = file_selection_new("Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
+    savehex_dlg = file_selection_new("Wireshark: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
 
     /* label */
     label = g_strdup_printf("Will save %u %s of raw binary data to specified file.",
@@ -1569,7 +1569,7 @@ set_ptree_sel_browse(GtkWidget *tree, gboolean val)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 #endif
     /* Yeah, GTK uses "browse" in the case where we do not, but oh well.
-       I think "browse" in Ethereal makes more sense than "SINGLE" in
+       I think "browse" in Wireshark makes more sense than "SINGLE" in
        GTK+ */
     if (val) {
 #if GTK_MAJOR_VERSION < 2

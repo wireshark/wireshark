@@ -27,7 +27,7 @@
  */
 
 /*
- * Most of the code here has been harvested from other ethereal gtk modules.
+ * Most of the code here has been harvested from other Wireshark gtk modules.
  * most from prefs_dlg.c and about_dlg.c
  */
 

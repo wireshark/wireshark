@@ -132,7 +132,7 @@ void help_dialog(void)
     return;
   }
 
-  help_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, "Ethereal: Help", "help");
+  help_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, "Wireshark: Help", "help");
   gtk_window_set_default_size(GTK_WINDOW(help_w), DEF_WIDTH, DEF_HEIGHT);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 

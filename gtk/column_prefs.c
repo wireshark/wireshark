@@ -294,7 +294,7 @@ column_prefs_show() {
   gtk_widget_show(fmt_m);
 
   lb = gtk_label_new("Unlike all other preferences, you have to \"Save\" "
-      "and restart Ethereal to let column changes take effect!");
+      "and restart Wireshark to let column changes take effect!");
   gtk_misc_set_alignment(GTK_MISC(lb), 0.5, 0.5);
   gtk_box_pack_start (GTK_BOX (main_vb), lb, FALSE, FALSE, 0);
   gtk_widget_show(lb);

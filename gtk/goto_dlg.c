@@ -51,7 +51,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget     *goto_frame_w, *main_vb, *fnumber_hb, *fnumber_lb, *fnumber_te,
                 *bbox, *ok_bt, *cancel_bt, *help_bt;
 
-  goto_frame_w = dlg_window_new("Ethereal: Go To Packet");
+  goto_frame_w = dlg_window_new("Wireshark: Go To Packet");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);

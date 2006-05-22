@@ -210,7 +210,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
     gtk_widget_set_sensitive(fs_lb, entry->current);
     gtk_widget_show(fs_lb);
 
-    title = g_strdup_printf("Ethereal: %u File%s in Set", row, plurality(row, "", "s"));
+    title = g_strdup_printf("Wireshark: %u File%s in Set", row, plurality(row, "", "s"));
     gtk_window_set_title(GTK_WINDOW(fs_w), title);
     g_free(title);
 
@@ -257,7 +257,7 @@ fileset_init_table(GtkWidget *parent)
 
   gtk_widget_hide(fs_tb);
 
-  gtk_window_set_title(GTK_WINDOW(fs_w), "Ethereal: 0 Files in Set");
+  gtk_window_set_title(GTK_WINDOW(fs_w), "Wireshark: 0 Files in Set");
 
   gtk_label_set(GTK_LABEL(fs_dir_lb), "No capture file loaded!");
 

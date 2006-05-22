@@ -96,7 +96,7 @@
  *  @todo Move these window functions to a new file win_utils.h?
  *  @{ */
 
-/** Create a new window with the Ethereal icon. 
+/** Create a new window with the Wireshark icon. 
  *  If you want to create a dialog, use dlg_window_new() instead. 
  *
  * @param type window type, typical GTK_WINDOW_TOPLEVEL 
@@ -275,7 +275,7 @@ extern void simple_list_append(GtkWidget *list, ...);
 extern void set_tree_styles_all(void);
 
 /** Convert an xpm picture into a GtkWidget showing it.
- * Beware: Ethereal's main window must already be visible!
+ * Beware: Wireshark's main window must already be visible!
  *
  * @param xpm the character array containing the picture
  * @return a newly created GtkWidget showing the picture

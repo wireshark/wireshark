@@ -412,7 +412,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, topic_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Help/_About Wireshark", NULL, about_wireshark_cb,
                        0, ETHEREAL_STOCK_ABOUT)
 };
 
