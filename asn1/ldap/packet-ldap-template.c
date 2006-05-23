@@ -63,7 +63,7 @@
  *
  * Stefan Metzmacher <metze@samba.org>
  *
- * 15-NOV-2005 - Changed to use the asn2eth compiler
+ * 15-NOV-2005 - Changed to use the asn2wrs compiler
  * Anders Broman <anders.broman@ericsson.com>
  */
 
@@ -1170,12 +1170,12 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Type of <please tell ethereal developers what this type is>", HFILL }},
+        "Type of <please tell Wireshark developers what this type is>", HFILL }},
 
     { &hf_mscldap_netlogon_version,
       { "Version", "mscldap.netlogon.version",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Version of <please tell ethereal developers what this type is>", HFILL }},
+        "Version of <please tell Wireshark developers what this type is>", HFILL }},
 
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",

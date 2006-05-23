@@ -412,7 +412,7 @@ TransportAddress ::= CHOICE {
   nonStandardAddress  NonStandardParameter,
   ...
 }
--- Ethereal adaptation
+-- Wireshark adaptation
 H245TransportAddress ::= CHOICE {
   h245ipAddress
     SEQUENCE {h245ipv4    OCTET STRING(SIZE (4)),

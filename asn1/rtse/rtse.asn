@@ -1,6 +1,6 @@
 -- RTSE definition from 
 --   http://www.itu.int/ITU-T/asn1/database/itu-t/x/x228/1988/Reliable-Transfer-APDU.html
--- and modified to pass through ASN2ETH
+-- and modified to pass through asn2wrs
 --
 --
 -- Module Reliable-Transfer-APDU (X.228:11/1988)
@@ -139,9 +139,9 @@ AbortReason ::= INTEGER {
 -- I can't use the ACSE External as it dispatches out of the 
 -- ber_callbacks and I want to dispatch out of the rtse_callbacks
 
--- Workaround for bug in ASN2ETH in the .cnf file
+-- Workaround for bug in asn2wrs in the .cnf file
 -- to handle the lack of support for tagged assignments.
--- remove that workaround once asn2eth learns how to handle
+-- remove that workaround once asn2wrs learns how to handle
 -- tagged assignments.
 EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
      {

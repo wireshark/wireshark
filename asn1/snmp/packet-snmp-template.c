@@ -9,7 +9,7 @@
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u [historic].
  *
  * See RFCs 2570-2576 for SNMPv3
- * Updated to use the asn2eth compiler made by Tomas Kukosa
+ * Updated to use the asn2wrs compiler made by Tomas Kukosa
  * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
  *
  *
@@ -1175,7 +1175,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * See if this looks like SNMP or not. if not, return 0 so
-	 * ethereal can try som other dissector instead.
+	 * wireshark can try som other dissector instead.
 	 */
 	/* All SNMP packets are BER encoded and consist of a SEQUENCE
 	 * that spans the entire PDU. The first item is an INTEGER that
@@ -1296,7 +1296,7 @@ process_prefs(void)
 		 * Windows.  Do the converse on non-Windows systems.  This
 		 * handles cases where we've copied a preferences file
 		 * between a non-Windows box and a Windows box or upgraded
-		 * from an older version of Ethereal under Windows.
+		 * from an older version of Wireshark under Windows.
 		 */
 		g_strdelimit(tmp_mib_modules, IMPORT_SEPARATOR, ENV_SEPARATOR_CHAR);
 

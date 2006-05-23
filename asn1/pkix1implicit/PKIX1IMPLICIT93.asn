@@ -33,7 +33,7 @@
 --
 --NOTE: This ASN1 definition have been significantly modified from the original
 --version in RFC2459 in order to accomodate the featuresets available
---in the ethereal projects asn2eth compiler.
+--in the Wireshark projects asn2wrs compiler.
 --It has also been modified and structures have been commented out that
 --are already implemented in the X509 dissectors.
 --Dissectors present already in the X509 dissectors should be implemented in 

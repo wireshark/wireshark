@@ -1,5 +1,5 @@
 -- This ASN1 definition is taken from RFC2511 and modified to pass through 
--- the ASN2ETH compiler.
+-- the asn2wrs compiler.
 -- 
 -- The copyright statement from the original description in RFC2511
 -- follows below:

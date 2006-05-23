@@ -1,6 +1,6 @@
 --   PKIXProxy
 --   This ASN.1 definition is taken from RFC3820 and modified to pass
---   through the ASN2ETH compiler.
+--   through the asn2wrs compiler.
 --   
 --   The original copyright of the ASN.1 module follows below:
 --

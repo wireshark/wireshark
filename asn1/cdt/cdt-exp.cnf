@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\cdt-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn
+
+#.MODULE
+CompressedDataType  cdt
+#.END
+
 #.IMPORT_TAG
 CompressedData           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END

@@ -100,7 +100,7 @@ EXTERNAL
   guint32 len1;
 
   if(!implicit_tag) {
-    /* XXX  asn2eth can not yet handle tagged assignment so for the
+    /* XXX  asn2wrs can not yet handle tagged assignment so for the
      * time being  just remove this tag manually inside the EXTERNAL
      * dissector.
      */

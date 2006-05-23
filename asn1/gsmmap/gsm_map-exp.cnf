@@ -1,7 +1,7 @@
 # Do not modify this file.
-# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\gsm_map-exp.cnf
-# ../../tools/asn2eth.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn
+# ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn
 
 #.MODULE
 MAP-Protocol  gsm_map

@@ -1,5 +1,5 @@
--- This ASN.1 module was taken from RFC3709 and modified to fit through Ethereals
--- ANS2ETH compiler
+-- This ASN.1 module was taken from RFC3709 and modified to fit through Wiresharks
+-- ANS2WRS compiler
 -- 
 -- The copyright statement of the RFC as follows :
 -- 

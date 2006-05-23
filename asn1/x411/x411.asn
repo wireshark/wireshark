@@ -187,7 +187,7 @@ MessageTransferEnvelope ::= SET {
   originator-name                     MTAOriginatorName,
   original-encoded-information-types  OriginalEncodedInformationTypes OPTIONAL,
   content-type                        ContentType,
--- asn2eth seems to have a problem with untagged choices - so we will expand 'in situ' for now
+-- asn2wrs seems to have a problem with untagged choices - so we will expand 'in situ' for now
 -- it's not the greatest solution - but should be OK
 --  built-in-content-type			BuiltInContentType OPTIONAL,
 --  extended-content-type			ExtendedContentType OPTIONAL,

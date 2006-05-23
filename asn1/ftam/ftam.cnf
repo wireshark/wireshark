@@ -94,7 +94,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -111,7 +111,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -128,7 +128,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -145,7 +145,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -163,7 +163,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -181,7 +181,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -197,7 +197,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -214,7 +214,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -230,7 +230,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -246,7 +246,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -263,7 +263,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -279,7 +279,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -295,7 +295,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
    if(!implicit_tag){
-     /* XXX  asn2eth can not yet handle tagged assignment yes so this
+     /* XXX  asn2wrs can not yet handle tagged assignment yes so this
       * XXX is some conformance file magic to work around that bug
       */
       offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -311,7 +311,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -327,7 +327,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -344,7 +344,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -360,7 +360,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -377,7 +377,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -394,7 +394,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -411,7 +411,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -427,7 +427,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -443,7 +443,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -462,7 +462,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -478,7 +478,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -494,7 +494,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -510,7 +510,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -526,7 +526,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -542,7 +542,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -558,7 +558,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -575,7 +575,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -591,7 +591,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -607,7 +607,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -622,7 +622,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -637,7 +637,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -652,7 +652,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -669,7 +669,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -685,7 +685,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);

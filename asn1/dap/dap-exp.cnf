@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\dap-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn
+
+#.MODULE
+DirectoryAbstractService  dap
+#.END
+
 #.IMPORT_TAG
 CommonResults            BER_CLASS_UNI BER_UNI_TAG_SET
 ContextSelection         BER_CLASS_ANY/*choice*/ -1/*choice*/

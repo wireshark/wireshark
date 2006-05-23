@@ -28,7 +28,7 @@
  * to hack it by hand, but it is incomplete and buggy and it is good when
  * it will go away."
  * Ronnie did a great job and all the VoIP users had made good use of it!
- * Credit to Tomas Kukosa for developing the Asn2eth compiler.
+ * Credit to Tomas Kukosa for developing the asn2wrs compiler.
  *
  */
 

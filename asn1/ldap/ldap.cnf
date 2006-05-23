@@ -418,7 +418,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY UnbindRequest
 
- implicit_tag = TRUE; /* correct problem with asn2eth */
+ implicit_tag = TRUE; /* correct problem with asn2wrs */
 
  %(DEFAULT_BODY)s
 

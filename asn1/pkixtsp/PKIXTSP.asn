@@ -1,7 +1,7 @@
 -- This ASN.1 definition defined the Time-Stamp Protocol
 -- as of RFC3161.
 -- This definition is taken from RFC3161 and modified to pass through
--- the ASN2ETH compiler.
+-- the asn2wrs compiler.
 -- 
 -- Copyright statement of the original ASN.1 definition of RFC3161 as follows
 -- 

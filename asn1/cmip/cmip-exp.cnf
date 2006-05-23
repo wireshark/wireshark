@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\cmip-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn
+
+#.MODULE
+CMIP-A-ASSOCIATE-Information  cmip
+#.END
+
 #.IMPORT_TAG
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ObjectClass              BER_CLASS_ANY/*choice*/ -1/*choice*/

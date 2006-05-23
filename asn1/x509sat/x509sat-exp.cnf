@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\x509sat-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn
+
+#.MODULE
+SelectedAttributeTypes  x509sat
+#.END
+
 #.IMPORT_TAG
 DirectoryString          BER_CLASS_ANY/*choice*/ -1/*choice*/
 UniqueIdentifier         BER_CLASS_UNI BER_UNI_TAG_BITSTRING

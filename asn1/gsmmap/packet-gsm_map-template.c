@@ -738,7 +738,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  3: /*cancelLocation*/
  	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /*   */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -810,7 +810,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 29: /*sendEndSignal*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -829,7 +829,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 33: /*processAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -842,7 +842,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 34: /*forwardAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -933,7 +933,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-	/* XXX  asn2eth can not yet handle tagged assignment yes so this
+	/* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	 * XXX is some conformance file magic to work around that bug
 	 */
 	offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -943,7 +943,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-		/* XXX  asn2eth can not yet handle tagged assignment yes so this
+		/* XXX  asn2wrs can not yet handle tagged assignment yes so this
 		 * XXX is some conformance file magic to work around that bug
 		 */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -1143,7 +1143,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 			*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -1154,7 +1154,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 56: /*sendAuthenticationInfo*/
     octet = tvb_get_guint8(tvb,0) & 0xf;
     if ( octet == 3){ /* This is a V3 message ??? */
-      /* XXX  asn2eth can not yet handle tagged assignment yes so this
+      /* XXX  asn2wrs can not yet handle tagged assignment yes so this
        * XXX is some conformance file magic to work around that bug
        */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -1196,7 +1196,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);

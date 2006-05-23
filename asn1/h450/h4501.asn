@@ -173,7 +173,7 @@ PresentationAllowedIndicator ::= BOOLEAN
 -- Module Call-Transfer-Operations (H.450.2:02/1998)
 -- Call-Transfer-Operations {itu-t recommendation h 450 2 version1(0)
 --  call-transfer-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
---  Edited for ethereal purposes
+--  Edited for Wireshark purposes
 
 CallTransferIdentify ::= DummyArg
 CallTransferAbandon ::= DummyArg
@@ -557,7 +557,7 @@ SubscriptionOption ::= ENUMERATED {
 --             nonStandard  NonStandardParameter}
 --   CODE       local:1008
 -- }
--- BasicService defined for MWI should do for ethereal purposes
+-- BasicService defined for MWI should do for Wireshark purposes
  -- BasicService ::= ENUMERATED {
  -- allServices(0),
   -- speech (1),
@@ -573,7 +573,7 @@ SubscriptionOption ::= ENUMERATED {
 
 -- For multimedia calls the value "allServices" shall be used only. 
 -- The usage of the other codepoints for multimedia calls is for further study.
--- Defined elsewhere for ethereal
+-- Defined elsewhere for Wireshark
 -- ExtensionSeq ::= SEQUENCE OF Extension
 --
 -- ExtensionSet EXTENSION ::=
@@ -1695,7 +1695,7 @@ CIStatusInformation ::= CHOICE {
 -- H323CommonInformationOperations OPERATION ::= {cmnRequest | cmnInform}
 
 -- cmnRequest OPERATION ::= {
---   ARGUMENT  DummyArg  used as CmnRequestArg ( Ethereal )
+--   ARGUMENT  DummyArg  used as CmnRequestArg ( Wireshark )
 --   OPTIONAL  TRUE
 --   RESULT    CmnArg
 --   ERRORS    {undefined}
@@ -1878,7 +1878,7 @@ H225InformationElement ::= OCTET STRING
 --  extensionId        EXTENSION.&extensionId({ExtensionSet}),
 --  extensionArgument  EXTENSION.&ArgumentType({ExtensionSet}{@extensionId})
 --}
--- Ethereal adaptation NEEDS VERIFICATION !
+-- Wireshark adaptation NEEDS VERIFICATION !
  Extension ::= SEQUENCE {
   extensionId        OBJECT IDENTIFIER,
   extensionArgument  ExtensionArgument

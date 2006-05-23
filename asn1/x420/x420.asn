@@ -275,7 +275,7 @@ ExtensionsField ::= SET OF IPMSExtension --{{HeadingExtensions}}
 -- Body
 Body ::= SEQUENCE OF BodyPart
 
--- asn2eth seems to have problems with this CHOICE CHOICE
+-- asn2wrs seems to have problems with this CHOICE CHOICE
 BodyPart ::= CHOICE {
 --  basic
 --    CHOICE { -- ia5-text             [0]  IA5TextBodyPart,

@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\mms-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn
+
+#.MODULE
+MMS  mms
+#.END
+
 #.IMPORT_TAG
 MMSpdu                   BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END

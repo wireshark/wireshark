@@ -1,9 +1,9 @@
 /*XXX
-  There is a bug in asn2eth that it can not yet handle tagged assignments such
+  There is a bug in asn2wrs that it can not yet handle tagged assignments such
   as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
 
   This bug is workedaround by some .cnf magic but this should be cleaned up
-  once asn2eth learns how to deal with tagged assignments
+  once asn2wrs learns how to deal with tagged assignments
 */
 
 /* packet-acse.c

@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\rtse-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn
+
+#.MODULE
+Reliable-Transfer-APDU  rtse
+#.END
+
 #.IMPORT_TAG
 RTORQapdu                BER_CLASS_UNI BER_UNI_TAG_SET
 RTOACapdu                BER_CLASS_UNI BER_UNI_TAG_SET

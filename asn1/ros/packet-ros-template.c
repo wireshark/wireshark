@@ -106,7 +106,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 		}
