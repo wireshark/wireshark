@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-snmp.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-snmp.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -17,7 +17,7 @@
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u [historic].
  *
  * See RFCs 2570-2576 for SNMPv3
- * Updated to use the asn2eth compiler made by Tomas Kukosa
+ * Updated to use the asn2wrs compiler made by Tomas Kukosa
  * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
  *
  *
@@ -920,6 +920,12 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
 	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
 
+	if(vb_length == 0){
+		length = offset - start;
+		*lengthp = length;
+		return;
+	}
+
 	vb_value_start = offset;
 
 	/* Convert the class, constructed flag, and tag to a type. */
@@ -1707,7 +1713,7 @@ dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1743,7 +1749,7 @@ dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1779,7 +1785,7 @@ dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1815,7 +1821,7 @@ dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1901,7 +1907,7 @@ dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1979,7 +1985,7 @@ dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2015,7 +2021,7 @@ dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2051,7 +2057,7 @@ dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2087,7 +2093,7 @@ dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2676,7 +2682,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1026 "packet-snmp-template.c"
+#line 1032 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3366,7 +3372,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1379 "packet-snmp-template.c"
+#line 1385 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3404,7 +3410,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1388 "packet-snmp-template.c"
+#line 1394 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 

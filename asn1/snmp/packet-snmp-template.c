@@ -795,6 +795,12 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
 	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
 
+	if(vb_length == 0){
+		length = offset - start;
+		*lengthp = length;
+		return;
+	}
+
 	vb_value_start = offset;
 
 	/* Convert the class, constructed flag, and tag to a type. */
