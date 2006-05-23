@@ -1,9 +1,11 @@
-## Makefile for building ethereal.exe with Microsoft C and nmake
+## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
 
-all: \
+all: ber per
+
+ber: \
 	acse	\
 	acp133 \
 	camel	\
@@ -20,17 +22,12 @@ all: \
 	gnm	\
 	gsmmap	\
 	gsm_ss	\
-	h225	\
-	h235	\
-	h245	\
 	h248	\
-	h450	\
 	inap	\
-	ldap	\
+	ldap \
 	logotype-cert-extn	\
 	MAP_Dialogue	\
 	mms	\
-	nbap	\
 	ns-cert-exts	\
 	ocsp	\
 	pkcs1	\
@@ -43,8 +40,6 @@ all: \
 	pkixqualified	\
 	pkixtsp	\
 	pres	\
-	ranap	\
-	rnsap	\
 	ros	\
 	rtse	\
 	s4406	\
@@ -52,7 +47,6 @@ all: \
 	snmp	\
 	spnego	\
 	tcap	\
-	ulp	\
 	wlancertextn	\
 	x411	\
 	x420	\
@@ -60,6 +54,17 @@ all: \
 	x509ce	\
 	x509if	\
 	x509sat	
+	
+per: \
+	h225	\
+	h235	\
+	h245	\
+	h450	\
+	nbap	\
+	ranap	\
+	rnsap	\
+	rrlp	\
+	ulp
 	
 clean:
 	cd acse
@@ -235,67 +240,6 @@ distclean: clean
 
 maintainer-clean: distclean
 	
-ber: \
-	acse	\
-	acp133 \
-	camel	\
-	cdt	\
-	cmip	\
-	cms	\
-	dap	\
-	dop	\
-	disp	\
-	dsp	\
-	ess	\
-	ftam	\
-	ftbp	\
-	gnm	\
-	gsmmap	\
-	gsm_ss	\
-	h248	\
-	inap	\
-	ldap \
-	logotype-cert-extn	\
-	MAP_Dialogue	\
-	mms	\
-	ns-cert-exts	\
-	ocsp	\
-	pkcs1	\
-	pkinit	\
-	pkix1explicit	\
-	pkix1implicit	\
-	pkixcmp	\
-	pkixcrmf	\
-	pkixproxy	\
-	pkixqualified	\
-	pkixtsp	\
-	pres	\
-	ros	\
-	rtse	\
-	s4406	\
-	smrse	\
-	snmp	\
-	spnego	\
-	tcap	\
-	wlancertextn	\
-	x411	\
-	x420	\
-	x509af	\
-	x509ce	\
-	x509if	\
-	x509sat	
-	
-per: \
-	h225	\
-	h235	\
-	h245	\
-	h450	\
-	nbap	\
-	ranap	\
-	rnsap	\
-	rrlp	\
-	ulp
-
 acse::
 	cd acse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
