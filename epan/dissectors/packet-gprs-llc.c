@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -220,7 +220,7 @@ static const value_string xid_param_type_str[] = {
 static const value_string tompd_formats[] = {
 	{0x0, "Not specified"},
 	{0x1, "TIA/EIA-136"},
-	{0x2, "Reserved value 2"},
+	{0x2, "RRLP"},
 	{0x3, "Reserved value 3"},
 	{0x4, "Reserved value 4"},
 	{0x5, "Reserved value 5"},
@@ -1164,7 +1164,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Wireshark */
+/* Register the protocol with Ethereal */
 /* this format is require because a script is used to build the C function */
 /* that calls all the protocol registration. */
 

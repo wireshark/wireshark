@@ -12,8 +12,8 @@
  *
  * $Id$
  *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -353,6 +353,7 @@ static gint ett_bssap_global_cn_id = -1;
 static gint ett_bssap_plmn = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t rrlp_handle;
 
 static dissector_table_t bssap_dissector_table;
 static dissector_table_t bsap_dissector_table;
@@ -754,11 +755,14 @@ dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.3 Downlink Tunnel Payload Control and Info */
 static int
-dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
+	tvbuff_t *next_tvb;
 	guint8 ie_len;
+	guint8 octet;
+	guint8 prot_disc;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_dlink_tnl_pld_cntrl_amd_inf_ie, tvb, offset, ie_len+2, FALSE);
@@ -773,11 +777,28 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, proto_tree *t
 	 * TOM Protocol Discriminator: Identifies the protocol using tunnelling of non-GSM signalling.
 	 * For coding, see 3GPP TS 44.064.
 	 */
-	/* Bit 3
-	 * E: Cipher Request. When set to 1 indicates that the SGSN shall cipher the payload, when
-	 * set to 0 indicates that the SGSN shall not cipher the payload.
+
+	proto_tree_add_item(ie_tree, hf_bssap_tom_prot_disc, tvb, offset, 1, FALSE);
+	octet = tvb_get_guint8(tvb,offset);
+	prot_disc = (octet&0x78)>>3;
+
+	/* octet 3 bit 3 E: Cipher Request. When set to 1 indicates that the SGSN received the payload in ciphered form,
+	 * when set to 0 indicates that the SGSN did not receive the payload in ciphered form.
 	 */
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_e_bit, tvb, offset, 1, FALSE);
+
+	/* octet 3 bit 2 - 1 
+	 * Tunnel Priority: Indicates the priority of the Tunnel Payload. For coding, see Table 20.1: Association
+	 * between Tunnel Priority and LLC SAPs.
+	 */
+	proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, FALSE);
+	/* Tunnel payload */
+	next_tvb = tvb_new_subset(tvb, offset, ie_len-4, ie_len-4);
+
+	if ((prot_disc == 2)&&(rrlp_handle))
+		call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
+	else
+		call_dissector(data_handle, next_tvb, pinfo, ie_tree);
 
 
 	return offset + ie_len;
@@ -1459,11 +1480,14 @@ static const value_string bssap_tom_prot_disc_values[] = {
     { 0,                NULL } 
 };
 static int
-dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
+	tvbuff_t *next_tvb;
 	guint8 ie_len;
+	guint8 octet;
+	guint8 prot_disc;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_ulink_tnl_pld_cntrl_amd_inf_ie, tvb, offset, ie_len+2, FALSE);
@@ -1479,6 +1503,8 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, proto_tree *t
 	 * For coding, see 3GPP TS 44.064.
 	 */
 	proto_tree_add_item(ie_tree, hf_bssap_tom_prot_disc, tvb, offset, 1, FALSE);
+	octet = tvb_get_guint8(tvb,offset);
+	prot_disc = (octet&0x78)>>3;
 
 	/* octet 3 bit 3 E: Cipher Request. When set to 1 indicates that the SGSN received the payload in ciphered form,
 	 * when set to 0 indicates that the SGSN did not receive the payload in ciphered form.
@@ -1490,6 +1516,13 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, proto_tree *t
 	 * between Tunnel Priority and LLC SAPs.
 	 */
 	proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, FALSE);
+	/* Tunnel payload */
+	next_tvb = tvb_new_subset(tvb, offset, ie_len-4, ie_len-4);
+
+	if ((prot_disc == 2)&&(rrlp_handle))
+		call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
+	else
+		call_dissector(data_handle, next_tvb, pinfo, ie_tree);
 
 	return offset + ie_len;
 
@@ -1671,7 +1704,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		/* Downlink Tunnel Payload Control and Info 18.4.3 M TLV 3-223 */ 
 		if ( check_ie(tvb, tree, &offset, BSSAP_DLINK_TNL_PLD_CTR_AND_INF))
-			offset = dissect_bssap_dlink_tunnel_payload_control_and_info(tvb, bssap_tree, offset);
+			offset = dissect_bssap_dlink_tunnel_payload_control_and_info(tvb, pinfo, bssap_tree, offset);
 
 		if (tvb_length_remaining(tvb,offset) == 0)
 			return;
@@ -1684,7 +1717,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		/* Uplink Tunnel Payload Control and Info 18.4.25 M TLV 3-223 */
 		if ( check_ie(tvb, tree, &offset, BSSAP_ULINK_TNL_PLD_CTR_AND_INF))
-			offset = dissect_bssap_ulink_tunnel_payload_control_and_info(tvb, bssap_tree, offset);
+			offset = dissect_bssap_ulink_tunnel_payload_control_and_info(tvb, pinfo, bssap_tree, offset);
 
 		if (tvb_length_remaining(tvb,offset) == 0)
 			return;
@@ -2116,7 +2149,7 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return(TRUE);
 }
 
-/* Register the protocol with Wireshark */
+/* Register the protocol with Ethereal */
 void
 proto_register_bssap(void)
 {
@@ -2470,4 +2503,6 @@ proto_reg_handoff_bssap(void)
 	dissector_add("sccp.ssn", SCCP_SSN_BSSAP_PLUS, bssap_plus_handle);
 
     data_handle = find_dissector("data");
+	rrlp_handle = find_dissector("rrlp");
+
 }
