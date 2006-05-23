@@ -847,6 +847,8 @@ void proto_register_mgcp(void)
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&mgcp_init_protocol);
 
+	register_dissector("mgcp", dissect_mgcp, proto_mgcp);
+
     /* Register our configuration options */
     mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
 
@@ -950,7 +952,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 	/* Read the string into 'word' and see if it looks like the start of a verb */
 	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
 	{
-		if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration|")) ||
+		if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
 		    ((strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
 		    ((strncasecmp(word, "MDCX", 4) == 0) && (*verb_name = "ModifyConnection")) ||
 		    ((strncasecmp(word, "DLCX", 4) == 0) && (*verb_name = "DeleteConnection")) ||

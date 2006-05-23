@@ -41,11 +41,14 @@ static int hf_catapult_dct2000_context = -1;
 static int hf_catapult_dct2000_port_number = -1;
 static int hf_catapult_dct2000_timestamp = -1;
 static int hf_catapult_dct2000_protocol = -1;
+static int hf_catapult_dct2000_variant = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
 
+/* Variables used for preferences */
 gboolean catapult_dct2000_board_ports_only;
+gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -69,6 +72,56 @@ static const value_string encap_vals[] = {
     { 0,                                 NULL },
 };
 
+/* Look for the protocol data within an ipprim packet.
+   Only set *data_offset if data field found. */
+gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
+{
+    guint8 length;
+    int offset = *data_offset;
+    gboolean is_udp;
+
+    /* Get the ipprim command code. */
+    guint8 tag = tvb_get_guint8(tvb, offset++);
+
+    /* Only accept UDP or TCP data request or indication */
+    switch (tag)
+    {
+        case 0x23:  /* UDP data request */
+        case 0x24:  /* UDP data indication */
+            is_udp = TRUE;
+            break;
+        case 0x45:  /* TCP data request */
+        case 0x46:  /* TCP data indication */
+            is_udp = FALSE;
+            break;
+        default:
+            return FALSE;
+    }
+
+    /* Skip any other TLC fields before reach payload */
+    while (tvb_length_remaining(tvb, offset) > 2)
+    {
+        /* Look at next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+
+        /* Is this the data payload we're expecting? */
+        if ((tag == 0x34 && is_udp) || (tag == 0x48 && !is_udp))
+        {
+            *data_offset = offset;
+            return TRUE;
+        }
+        else
+        {
+            /* Read length in next byte */
+            length = tvb_get_guint8(tvb, offset++);
+            /* Skip the following value */
+            offset += length;
+        }
+    }
+
+    /* No data found... */
+    return FALSE;
+}
 
 /*****************************************/
 /* Main dissection function.             */
@@ -81,6 +134,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        offset = 0;
     gint        context_length;
     guint8      port_number;
+    guint8      variant;
     gint        protocol_start;
     gint        protocol_length;
     gint        timestamp_start;
@@ -89,6 +143,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t    *next_tvb;
     int         encap;
     dissector_handle_t protocol_handle = 0;
+    dissector_handle_t heur_ipprim_protocol_handle = 0;
     int sub_dissector_result = 0;
 
     /* Protocol name */
@@ -134,6 +189,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         offset, protocol_length, FALSE);
     offset += protocol_length;
 
+    /* Variant */
+    variant = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
+                        offset, 1, FALSE);
+    offset++;
+
     /* Direction */
     direction = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_direction, tvb,
@@ -149,12 +210,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_set_len(dct2000_tree, offset);
 
     /* Add useful details to protocol tree label */
-    proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s",
+    proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%d)",
                            tvb_get_ephemeral_string(tvb, 0, context_length),
                            port_number,
                            tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
                            (direction == 0) ? 'S' : 'R',
-                           tvb_get_ephemeral_string(tvb, protocol_start, protocol_length));
+                           tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
+                           variant);
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
@@ -197,7 +259,24 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             protocol_handle = find_dissector("mtp2");
             break;
         case DCT2000_ENCAP_UNHANDLED:
+            /* Many DCT2000 protocols have at least one IPPrim variant. If the
+               protocol names match, try to find the UDP/TCP data inside them and
+               pass that offset to dissector
+            */
             protocol_handle = 0;
+
+            /* Try IP Prim heuristic if configured to */
+            if (catapult_dct2000_try_ipprim_heuristic)
+            {
+                heur_ipprim_protocol_handle =
+                        find_dissector(tvb_get_ephemeral_string(tvb, protocol_start,
+                                                                protocol_length));
+                if ((heur_ipprim_protocol_handle != 0) &&
+                    find_ipprim_data_offset(tvb, &offset))
+                {
+                    protocol_handle = heur_ipprim_protocol_handle;
+                }
+            }
             break;
 
         default:
@@ -205,7 +284,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                this dissector and the wiretap module catapult_dct2000.c !!
             */
             DISSECTOR_ASSERT_NOT_REACHED();
-                return;
+            return;
     }
 
 
@@ -230,12 +309,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "Unparsed protocol data (context=%s.%u   t=%s   %c   prot=%s)",
+                         "Unparsed protocol data (context=%s.%u   t=%s   %c   prot=%s (v=%d))",
                          tvb_get_ephemeral_string(tvb, 0, context_length),
                          port_number,
                          tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
                          (direction == 0) ? 'S' : 'R',
-                         tvb_get_ephemeral_string(tvb, protocol_start, protocol_length));
+                         tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
+                         variant);
         }
     }
 }
@@ -281,6 +361,12 @@ void proto_register_catapult_dct2000(void)
             { "DCT2000 protocol",
               "dct2000.protocol", FT_STRING, BASE_NONE, NULL, 0x0,
               "Original (DCT2000) protocol name", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_variant,
+            { "Protocol variant",
+              "dct2000.variant", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "DCT2000 protocol variant", HFILL
             }
         },
         { &hf_catapult_dct2000_direction,
@@ -331,5 +417,16 @@ void proto_register_catapult_dct2000(void)
                                    "contexts on the same card.  The capture file "
                                    "needs to be (re)-loaded before effect will be seen",
                                    &catapult_dct2000_board_ports_only);
+
+    /* Determines whether for not-handled protocols we should try to parse it if:
+       - it looks like its embedded in an ipprim message, AND
+       - the DCT2000 protocol name matches an ethereal dissector name */
+    prefs_register_bool_preference(catapult_dct2000_module, "ipprim_heuristic",
+                                   "Use IP Primitive heuristic",
+                                   "If a payload looks like its embedded in an "
+                                   "IP primitive messages, and there is an ethereal "
+                                   "dissector matching the DCT2000 protocol name, "
+                                   "try parsing the payload using that dissector",
+                                   &catapult_dct2000_try_ipprim_heuristic);
 }
 

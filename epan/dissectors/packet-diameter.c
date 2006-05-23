@@ -2291,6 +2291,9 @@ proto_register_diameter(void)
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Allow dissector to find be found by name. */
+	new_register_dissector("diameter", dissect_diameter, proto_diameter);
+
 	/* Register a configuration option for port */
 	diameter_module = prefs_register_protocol(proto_diameter,
 											  proto_reg_handoff_diameter);

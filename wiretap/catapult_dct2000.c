@@ -42,6 +42,7 @@
 #define MAX_CONTEXT_NAME           64
 #define MAX_PROTOCOL_NAME          64
 #define MAX_PORT_DIGITS            2
+#define MAX_VARIANT_DIGITS         2
 #define AAL_HEADER_CHARS           12
 
 /* TODO:
@@ -101,8 +102,10 @@ static const gchar catapult_dct2000_magic[] = "Session Transcript";
 static gchar context_name[MAX_CONTEXT_NAME];
 static guint8 context_port;
 
-/* The DCT2000 protocol name of the packet */
+/* The DCT2000 protocol name of the packet, plus variant number */
 static gchar protocol_name[MAX_PROTOCOL_NAME+1];
+static gchar variant;
+
 
 /*************************************************/
 /* Preference state (shared with stub protocol). */
@@ -136,6 +139,8 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            packet_direction_t *direction,
                            int *encap,
                            gboolean seek_read);
+int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+                      packet_direction_t direction, int encap);
 static guchar hex_from_char(gchar c);
 static gchar char_from_hex(guchar hex);
 
@@ -356,30 +361,8 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /*********************/
             /* Write stub header */
-
-            /* Context name */
-            strcpy((char*)frame_buffer, context_name);
-            stub_offset += (strlen(context_name) + 1);
-
-            /* Context port number */
-            frame_buffer[stub_offset] = context_port;
-            stub_offset++;
-
-            /* Timestamp within file */
-            strcpy((char*)&frame_buffer[stub_offset], timestamp_string);
-            stub_offset += (strlen(timestamp_string) + 1);
-
-            /* Protocol name */
-            strcpy((char*)&frame_buffer[stub_offset], protocol_name);
-            stub_offset += (strlen(protocol_name) + 1);
-
-            /* Direction */
-            frame_buffer[stub_offset] = direction;
-            stub_offset++;
-
-            /* Encap */
-            frame_buffer[stub_offset] = (guint8)encap;
-            stub_offset++;
+            stub_offset = write_stub_header(frame_buffer, timestamp_string,
+                                            direction, encap);
 
             /* Binary data length is half bytestring length + stub header */
             wth->phdr.len = data_chars/2 + stub_offset;
@@ -394,7 +377,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                     (hex_from_char(linebuff[dollar_offset+n]) << 4) |
                      hex_from_char(linebuff[dollar_offset+n+1]);
             }
-            
+
             /* Store the packet prefix in the hash table */
             line_prefix_info = g_malloc(sizeof(line_prefix_info_t));
 
@@ -474,29 +457,9 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
 
         /*********************/
         /* Write stub header */
+        stub_offset = write_stub_header((char*)pd, timestamp_string,
+                                        direction, encap);
 
-        strcpy((char*)pd, context_name);
-        stub_offset += (strlen(context_name) + 1);
-
-        /* Context port number */
-        pd[stub_offset] = context_port;
-        stub_offset++;
-
-        /* Timestamp within file */
-        strcpy((char*)&pd[stub_offset], timestamp_string);
-        stub_offset += (strlen(timestamp_string) + 1);
-
-        /* Protocol name */
-        strcpy((char*)&pd[stub_offset], protocol_name);
-        stub_offset += (strlen(protocol_name) + 1);
-
-        /* Direction */
-        pd[stub_offset] = direction;
-        stub_offset++;
-
-        /* Encap */
-        pd[stub_offset] = encap;
-        stub_offset++;
 
         /********************************/
         /* Copy packet data into buffer */
@@ -776,6 +739,9 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     int  n = 0;
     int  port_digits = 0;
     char port_number_string[MAX_PORT_DIGITS+1];
+    int  variant_digits = 0;
+    char variant_number_string[MAX_VARIANT_DIGITS+1];
+
     int  protocol_chars = 0;
 
     char seconds_buff[MAX_SECONDS_CHARS+1];
@@ -859,6 +825,8 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     {
         return FALSE;
     }
+    /* Skip it */
+    n++;
 
 
     /******************************************************************/
@@ -928,6 +896,32 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             /* Not a supported protocol/encap, but should show as raw data anyway */
             *encap = DCT2000_ENCAP_UNHANDLED;
         }
+    }
+
+
+    /* Following the / is the variant number.  No digits indicate 1 */
+    for (variant_digits = 0;
+         (isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+         n++, variant_digits++)
+    {
+        if (!isdigit(linebuff[n]))
+        {
+            return FALSE;
+        }
+        variant_number_string[variant_digits] = linebuff[n];
+    }
+    if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
+    {
+        return FALSE;
+    }
+    if (variant_digits > 0)
+    {
+        variant_number_string[variant_digits] = '\0';
+        variant = atoi(variant_number_string);
+    }
+    else
+    {
+        variant = 1;
     }
 
 
@@ -1086,6 +1080,44 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
 
     return TRUE;
+}
+
+/*****************************************************************/
+/* Write the stub info to the data buffer while reading a packet */
+/*****************************************************************/
+int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+                      packet_direction_t direction, int encap)
+{
+    int stub_offset = 0;
+    
+    strcpy((char*)frame_buffer, context_name);
+    stub_offset += (strlen(context_name) + 1);
+
+    /* Context port number */
+    frame_buffer[stub_offset] = context_port;
+    stub_offset++;
+
+    /* Timestamp within file */
+    strcpy((char*)&frame_buffer[stub_offset], timestamp_string);
+    stub_offset += (strlen(timestamp_string) + 1);
+
+    /* Protocol name */
+    strcpy((char*)&frame_buffer[stub_offset], protocol_name);
+    stub_offset += (strlen(protocol_name) + 1);
+
+    /* Protocol variant number */
+    frame_buffer[stub_offset] = variant;
+    stub_offset++;
+    
+    /* Direction */
+    frame_buffer[stub_offset] = direction;
+    stub_offset++;
+
+    /* Encap */
+    frame_buffer[stub_offset] = (guint8)encap;
+    stub_offset++;
+    
+    return stub_offset;
 }
 
 

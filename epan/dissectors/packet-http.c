@@ -2036,6 +2036,7 @@ proto_register_http(void)
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("http", dissect_http, proto_http);
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",
 	    "Reassemble HTTP headers spanning multiple TCP segments",
