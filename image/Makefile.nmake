@@ -4,10 +4,10 @@
 
 include ..\config.nmake
 
-ALL_RC=ethereal.rc libethereal.rc tethereal.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc ethereal.exe.manifest
+ALL_RC=ethereal.rc libethereal.rc tethereal.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
-ethereal.exe.manifest: ethereal.exe.manifest.in ..\config.nmake
+wireshark.exe.manifest: ethereal.exe.manifest.in ..\config.nmake
 	sed -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
 		-e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
 		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
