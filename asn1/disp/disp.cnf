@@ -2,12 +2,6 @@
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.MODULE_IMPORT
-InformationFramework	x509if
-AuthenticationFramework	x509af
-ACSE-1			acse
-DirectoryAbstractService	dap
-DistributedOperations		dsp
-DSAOperationalAttributeTypes	dop
 OperationalBindingManagement	dop
 
 #.INCLUDE ../x509if/x509if-exp.cnf

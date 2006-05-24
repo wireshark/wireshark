@@ -3,11 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-CertificateExtensions x509ce
-AuthenticationFramework x509af
-SelectedAttributeTypes x509sat
-
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../x509sat/x509sat-exp.cnf

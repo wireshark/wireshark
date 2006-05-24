@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-dsp.c                                                             */
-/* ../../tools/asn2eth.py -X -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
+/* ../../tools/asn2wrs.py -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
 
 /* Input file: packet-dsp-template.c */
 

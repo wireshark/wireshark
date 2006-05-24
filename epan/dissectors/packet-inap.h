@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-inap.h                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
+/* ../../tools/asn2wrs.py -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
 
 /* Input file: packet-inap-template.h */
 

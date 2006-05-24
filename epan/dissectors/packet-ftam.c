@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-ftam.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
+/* ../../tools/asn2wrs.py -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
 
@@ -679,14 +679,14 @@ static const asn_namedbit Protocol_Version_bits[] = {
 
 static int
 dissect_ftam_Protocol_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 108 "ftam.cnf"
+#line 105 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -708,14 +708,14 @@ static int dissect_protocol_Version(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_ftam_Implementation_Information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 91 "ftam.cnf"
+#line 88 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -772,14 +772,14 @@ static const asn_namedbit Service_Class_bits[] = {
 
 static int
 dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 125 "ftam.cnf"
+#line 122 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -819,14 +819,14 @@ static const asn_namedbit Functional_Units_bits[] = {
 
 static int
 dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 142 "ftam.cnf"
+#line 139 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -856,14 +856,14 @@ static const asn_namedbit Attribute_Groups_bits[] = {
 
 static int
 dissect_ftam_Attribute_Groups(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 160 "ftam.cnf"
+#line 157 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -909,14 +909,14 @@ static const value_string ftam_FTAM_Quality_of_Service_vals[] = {
 
 static int
 dissect_ftam_FTAM_Quality_of_Service(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 178 "ftam.cnf"
+#line 175 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -949,14 +949,14 @@ static int dissect_document_type_name_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_ftam_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 243 "ftam.cnf"
+#line 240 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1012,14 +1012,14 @@ static const ber_sequence_t Contents_Type_List_sequence_of[1] = {
 
 static int
 dissect_ftam_Contents_Type_List(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 194 "ftam.cnf"
+#line 191 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1041,14 +1041,14 @@ static int dissect_contents_type_list(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ftam_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 523 "ftam.cnf"
+#line 520 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1075,14 +1075,14 @@ static int dissect_actual_values6(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ftam_Account(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 308 "ftam.cnf"
+#line 305 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1165,14 +1165,14 @@ static const ber_choice_t Password_choice[] = {
 
 static int
 dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 649 "ftam.cnf"
+#line 646 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1371,14 +1371,14 @@ static const value_string ftam_State_Result_vals[] = {
 
 static int
 dissect_ftam_State_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 507 "ftam.cnf"
+#line 504 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1406,14 +1406,14 @@ static const value_string ftam_Action_Result_vals[] = {
 
 static int
 dissect_ftam_Action_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 324 "ftam.cnf"
+#line 321 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1506,14 +1506,14 @@ static const ber_sequence_t Diagnostic_sequence_of[1] = {
 
 static int
 dissect_ftam_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 440 "ftam.cnf"
+#line 437 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1603,14 +1603,14 @@ static const ber_sequence_t Charging_sequence_of[1] = {
 
 static int
 dissect_ftam_Charging(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 374 "ftam.cnf"
+#line 371 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1705,7 +1705,7 @@ static const ber_choice_t FTAM_Regime_PDU_choice[] = {
 
 static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 700 "ftam.cnf"
+#line 697 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1797,14 +1797,14 @@ static const ber_sequence_t Select_Attributes_sequence[] = {
 
 static int
 dissect_ftam_Select_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 491 "ftam.cnf"
+#line 488 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1836,14 +1836,14 @@ static const asn_namedbit Access_Request_bits[] = {
 
 static int
 dissect_ftam_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 292 "ftam.cnf"
+#line 289 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
    if(!implicit_tag){
-     /* XXX  asn2eth can not yet handle tagged assignment yes so this
+     /* XXX  asn2wrs can not yet handle tagged assignment yes so this
       * XXX is some conformance file magic to work around that bug
       */
       offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1896,14 +1896,14 @@ static const ber_sequence_t Access_Passwords_sequence[] = {
 
 static int
 dissect_ftam_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 276 "ftam.cnf"
+#line 273 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1956,14 +1956,14 @@ static const ber_sequence_t Path_Access_Passwords_sequence_of[1] = {
 
 static int
 dissect_ftam_Path_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 572 "ftam.cnf"
+#line 569 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2037,14 +2037,14 @@ static const ber_sequence_t Concurrency_Control_sequence[] = {
 
 static int
 dissect_ftam_Concurrency_Control(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 391 "ftam.cnf"
+#line 388 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2089,14 +2089,14 @@ static int dissect_f_select_request_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ftam_Referent_Indicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 634 "ftam.cnf"
+#line 631 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2246,7 +2246,7 @@ static int dissect_permitted_actions_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ftam_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 74 "ftam.cnf"
+#line 71 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -2279,14 +2279,14 @@ static int dissect_document_type_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ftam_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 408 "ftam.cnf"
+#line 405 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -2537,7 +2537,7 @@ static int dissect_concurrency_access_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_ftam_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 86 "ftam.cnf"
+#line 83 "ftam.cnf"
 	/* XXX have no idea about this one */
 
 
@@ -2551,7 +2551,7 @@ static int dissect_ap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 
 static int
 dissect_ftam_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 88 "ftam.cnf"
+#line 85 "ftam.cnf"
 	/* XXX have no idea about this one */
 
 
@@ -2749,7 +2749,7 @@ static int dissect_extension_attribute_identifier(packet_info *pinfo, proto_tree
 
 static int
 dissect_ftam_T_extension_attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 77 "ftam.cnf"
+#line 74 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -2847,14 +2847,14 @@ static const ber_sequence_t Create_Attributes_sequence[] = {
 
 static int
 dissect_ftam_Create_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 424 "ftam.cnf"
+#line 421 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3204,14 +3204,14 @@ static const ber_sequence_t Read_Attributes_sequence[] = {
 
 static int
 dissect_ftam_Read_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 475 "ftam.cnf"
+#line 472 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3318,14 +3318,14 @@ static const ber_sequence_t Change_Attributes_sequence[] = {
 
 static int
 dissect_ftam_Change_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 357 "ftam.cnf"
+#line 354 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3430,14 +3430,14 @@ static int dissect_open_contents_type(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ftam_Activity_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 341 "ftam.cnf"
+#line 338 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3504,14 +3504,14 @@ static const value_string ftam_Degree_Of_Overlap_vals[] = {
 
 static int
 dissect_ftam_Degree_Of_Overlap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 211 "ftam.cnf"
+#line 208 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3868,14 +3868,14 @@ static const ber_choice_t FADU_Identity_choice[] = {
 
 static int
 dissect_ftam_FADU_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 666 "ftam.cnf"
+#line 663 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3902,14 +3902,14 @@ static const value_string ftam_FADU_Lock_vals[] = {
 
 static int
 dissect_ftam_FADU_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 459 "ftam.cnf"
+#line 456 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -4061,7 +4061,7 @@ static const ber_choice_t File_PDU_choice[] = {
 
 static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 714 "ftam.cnf"
+#line 711 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -4116,14 +4116,14 @@ static const ber_sequence_t Access_Context_sequence[] = {
 
 static int
 dissect_ftam_Access_Context(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 260 "ftam.cnf"
+#line 257 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -4228,14 +4228,14 @@ static const value_string ftam_Request_Type_vals[] = {
 
 static int
 dissect_ftam_Request_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 227 "ftam.cnf"
+#line 224 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -4419,7 +4419,7 @@ static const ber_choice_t Bulk_Data_PDU_choice[] = {
 
 static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 728 "ftam.cnf"
+#line 725 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -4891,7 +4891,7 @@ static int dissect_attribute_extension_attribute_identifier(packet_info *pinfo, 
 
 static int
 dissect_ftam_T_extension_attribute_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 83 "ftam.cnf"
+#line 80 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -5059,14 +5059,14 @@ static const ber_sequence_t Attribute_Value_Assertions_sequence_of[1] = {
 
 static int
 dissect_ftam_Attribute_Value_Assertions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 619 "ftam.cnf"
+#line 616 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -5129,14 +5129,14 @@ static const ber_sequence_t Scope_sequence_of[1] = {
 
 static int
 dissect_ftam_Scope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 539 "ftam.cnf"
+#line 536 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -5182,14 +5182,14 @@ static const ber_sequence_t Objects_Attributes_List_sequence_of[1] = {
 
 static int
 dissect_ftam_Objects_Attributes_List(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 555 "ftam.cnf"
+#line 552 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -5280,14 +5280,14 @@ static const value_string ftam_Request_Operation_Result_vals[] = {
 
 static int
 dissect_ftam_Request_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 588 "ftam.cnf"
+#line 585 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -5353,14 +5353,14 @@ static const ber_choice_t Operation_Result_choice[] = {
 
 static int
 dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 682 "ftam.cnf"
+#line 679 "ftam.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  guint32 len1;
 
  if(!implicit_tag){
-   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -5978,7 +5978,7 @@ static const ber_choice_t FSM_PDU_choice[] = {
 
 static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 742 "ftam.cnf"
+#line 739 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,

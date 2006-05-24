@@ -1,12 +1,3 @@
-#.MODULE_IMPORT
-SelectedAttributeTypes		x509sat
-DistributedOperations		dsp
-DirectoryAbstractService	dap
-InformationFramework		x509if
-AuthenticationFramework		x509af
-BasicAccessControl		crmf
-ACSE-1				acse
-
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
@@ -15,6 +6,8 @@ ACSE-1				acse
 #.INCLUDE ../pkixcrmf/crmf-exp.cnf
 #.INCLUDE ../acse/acse-exp.cnf
 
+#.MODULE_IMPORT
+BasicAccessControl		crmf
 
 #.EXPORTS
 DSEType

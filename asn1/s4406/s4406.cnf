@@ -1,6 +1,5 @@
 #.MODULE_IMPORT 
 MTSAbstractService	x411
-IPMSInformationObjects	x420
 
 #.INCLUDE ../x411/x411-exp.cnf
 #.INCLUDE ../x420/x420-exp.cnf

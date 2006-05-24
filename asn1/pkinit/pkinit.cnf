@@ -5,7 +5,6 @@
 
 #.MODULE_IMPORT
 PKIX1Explicit88              pkix1explicit
-CryptographicMessageSyntax   cms
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../cms/cms-exp.cnf

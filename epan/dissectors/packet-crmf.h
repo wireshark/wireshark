@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-crmf.h                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-crmf.h                                                            */
+/* ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
 
 /* Input file: packet-crmf-template.h */
 

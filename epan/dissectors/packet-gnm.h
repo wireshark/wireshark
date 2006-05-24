@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-gnm.h                                                             */
-/* ../../tools/asn2eth.py -X -b -e -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-gnm.h                                                             */
+/* ../../tools/asn2wrs.py -b -e -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
 
 /* Input file: packet-gnm-template.h */
 

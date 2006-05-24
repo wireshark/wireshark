@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-disp.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
+/* ../../tools/asn2wrs.py -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
 
 /* Input file: packet-disp-template.c */
 
@@ -859,7 +859,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 69 "disp.cnf"
+#line 63 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1081,7 +1081,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 81 "disp.cnf"
+#line 75 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1108,7 +1108,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 45 "disp.cnf"
+#line 39 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1231,7 +1231,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 93 "disp.cnf"
+#line 87 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1586,7 +1586,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 57 "disp.cnf"
+#line 51 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1686,7 +1686,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 105 "disp.cnf"
+#line 99 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1722,7 +1722,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 117 "disp.cnf"
+#line 111 "disp.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,

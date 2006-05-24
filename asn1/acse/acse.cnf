@@ -3,9 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-InformationFramework x509if
-
 #.INCLUDE ../x509if/x509if-exp.cnf
 
 #.EXPORTS

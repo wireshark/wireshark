@@ -3,11 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-AuthenticationFramework		x509af
-CertificateExtensions		x509ce
-CryptographicMessageSyntax	cms
-
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../cms/cms-exp.cnf

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-s4406.h                                                           */
-/* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-s4406.h                                                           */
+/* ../../tools/asn2wrs.py -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.h */
 

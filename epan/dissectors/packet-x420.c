@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x420.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x420.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
 
 /* Input file: packet-x420-template.c */
 
@@ -645,7 +645,7 @@ static int dissect_telex_compatible_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 116 "x420.cnf"
+#line 113 "x420.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -666,7 +666,7 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 124 "x420.cnf"
+#line 121 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
@@ -903,7 +903,7 @@ static int dissect_related_IPMs_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 146 "x420.cnf"
+#line 143 "x420.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1235,7 +1235,7 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 165 "x420.cnf"
+#line 162 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1551,7 +1551,7 @@ static int dissect_bilaterally_defined_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 168 "x420.cnf"
+#line 165 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1652,7 +1652,7 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 128 "x420.cnf"
+#line 125 "x420.cnf"
 
  if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
@@ -1978,7 +1978,7 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 136 "x420.cnf"
+#line 133 "x420.cnf"
 
  if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
@@ -2664,7 +2664,7 @@ dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 157 "x420.cnf"
+#line 154 "x420.cnf"
   guint32 crs;
   proto_item *pi;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,

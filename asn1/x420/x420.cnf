@@ -3,9 +3,6 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.MODULE_IMPORT
 MTSAbstractService	x411
-AuthenticationFramework	x509af
-CertificateExtensions	x509ce
-ACSE-1			acse
 
 #.INCLUDE ../x411/x411-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf

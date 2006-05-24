@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-ess.c                                                             */
-/* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-ess.c                                                             */
+/* ../../tools/asn2wrs.py -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.c */
 
@@ -489,7 +489,7 @@ static int dissect_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 47 "ess.cnf"
+#line 42 "ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 

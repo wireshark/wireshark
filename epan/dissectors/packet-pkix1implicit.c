@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-pkix1implicit.c                                                   */
-/* ../../tools/asn2eth.py -e -X -b -p pkix1implicit -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-pkix1implicit.c                                                   */
+/* ../../tools/asn2wrs.py -e -b -p pkix1implicit -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn */
 
 /* Input file: packet-pkix1implicit-template.c */
 

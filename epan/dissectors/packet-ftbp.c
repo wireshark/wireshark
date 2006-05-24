@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-ftbp.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-ftbp.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
 
 /* Input file: packet-ftbp-template.c */
 
@@ -531,7 +531,7 @@ static int dissect_document_type_name(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ftbp_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 26 "ftbp.cnf"
+#line 23 "ftbp.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -738,7 +738,7 @@ static int dissect_environment_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_ftbp_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 29 "ftbp.cnf"
+#line 26 "ftbp.cnf"
 /* XXX: Not implemented yet */
 
   return offset;

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-camel.h                                                           */
-/* ../../tools/asn2eth.py -X -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
+/* ../../tools/asn2wrs.py -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.h */
 

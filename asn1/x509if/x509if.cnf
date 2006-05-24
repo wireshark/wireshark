@@ -3,9 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-SelectedAttributeTypes x509sat
-
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS

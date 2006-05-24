@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-pkixqualified.c                                                   */
-/* ../../tools/asn2eth.py -X -b -e -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-pkixqualified.c                                                   */
+/* ../../tools/asn2wrs.py -b -e -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
@@ -273,7 +273,7 @@ static int dissect_statementId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 38 "pkixqualified.cnf"
+#line 33 "pkixqualified.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -386,7 +386,7 @@ void proto_register_pkixqualified(void) {
         "Generalizedtime", HFILL }},
     { &hf_pkixqualified_Directorystring_PDU,
       { "Directorystring", "pkixqualified.Directorystring",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "Directorystring", HFILL }},
     { &hf_pkixqualified_Printablestring_PDU,
       { "Printablestring", "pkixqualified.Printablestring",

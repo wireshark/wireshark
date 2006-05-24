@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x509if.c                                                          */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x509if.c                                                          */
+/* ../../tools/asn2wrs.py -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
 
@@ -372,7 +372,7 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 140 "x509if.cnf"
+#line 137 "x509if.cnf"
   const char *fmt; 
   const char *name;
 
@@ -433,7 +433,7 @@ static int dissect_restrictionType(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 170 "x509if.cnf"
+#line 167 "x509if.cnf"
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char  	*value = NULL;
@@ -506,7 +506,7 @@ static int dissect_selectedValues_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_x509if_ValuesWithContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 222 "x509if.cnf"
+#line 219 "x509if.cnf"
   offset=call_ber_oid_callback("unknown", tvb, offset, pinfo, tree);
 
 
@@ -691,7 +691,7 @@ static int dissect_ca_contextType(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_x509if_ContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 134 "x509if.cnf"
+#line 131 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -790,7 +790,7 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 299 "x509if.cnf"
+#line 296 "x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
@@ -892,7 +892,7 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 253 "x509if.cnf"
+#line 250 "x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
@@ -923,7 +923,7 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 225 "x509if.cnf"
+#line 222 "x509if.cnf"
   char *temp_dn;
 
   rdn_one_value = FALSE;
@@ -962,7 +962,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 288 "x509if.cnf"
+#line 285 "x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -989,7 +989,7 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 268 "x509if.cnf"
+#line 265 "x509if.cnf"
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
@@ -1510,7 +1510,7 @@ static int dissect_level(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 static int
 dissect_x509if_SelectedValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 213 "x509if.cnf"
+#line 210 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1553,7 +1553,7 @@ static int dissect_entryType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_x509if_DefaultValueValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 219 "x509if.cnf"
+#line 216 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 

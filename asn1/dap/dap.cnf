@@ -1,21 +1,3 @@
-#.MODULE_IMPORT
-InformationFramework	x509if
-ServiceAdministration	x509if
-
-AuthenticationFramework	x509af
-AttributeCertificateDefinitions	x509af
-
-SelectedAttributeTypes	x509sat
-
-BasicAccessControl	crmf
-
-Remote-Operations-Generic-ROS-PDUs	ros
-Remote-Operations-Information-Objects	ros
-
-ACSE-1			acse
-DistributedOperations	dsp
-DirectoryShadowAbstractService	disp
-
 #.INCLUDE	../x509if/x509if-exp.cnf
 #.INCLUDE	../x509af/x509af-exp.cnf
 #.INCLUDE	../x509sat/x509sat-exp.cnf
@@ -24,6 +6,16 @@ DirectoryShadowAbstractService	disp
 #.INCLUDE	../disp/disp-exp.cnf
 #.INCLUDE	../ros/ros-exp.cnf
 #.INCLUDE	../acse/acse-exp.cnf
+
+#.MODULE_IMPORT
+ServiceAdministration	x509if
+
+AttributeCertificateDefinitions	x509af
+
+BasicAccessControl	crmf
+
+Remote-Operations-Information-Objects	ros
+
 
 #.EXPORTS
 Filter

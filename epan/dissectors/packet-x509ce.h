@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x509ce.h                                                          */
-/* ../../tools/asn2eth.py -X -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x509ce.h                                                          */
+/* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.h */
 

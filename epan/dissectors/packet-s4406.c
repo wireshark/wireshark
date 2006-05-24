@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-s4406.c                                                           */
-/* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-s4406.c                                                           */
+/* ../../tools/asn2wrs.py -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -294,7 +294,7 @@ static int dissect_dist_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 64 "s4406.cnf"
+#line 63 "s4406.cnf"
 /* XXX: not implemented */
 
 
@@ -439,7 +439,7 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 69 "s4406.cnf"
+#line 68 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
@@ -469,7 +469,7 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 77 "s4406.cnf"
+#line 76 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);

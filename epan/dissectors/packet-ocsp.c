@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-ocsp.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-ocsp.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */
 
@@ -402,7 +402,7 @@ static int dissect_responseType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 38 "ocsp.cnf"
+#line 36 "ocsp.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;

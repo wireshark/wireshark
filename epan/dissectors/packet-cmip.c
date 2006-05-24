@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-cmip.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-cmip.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
 
@@ -384,7 +384,7 @@ static int dissect_attributeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cmip_T_attributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 214 "cmip.cnf"
+#line 211 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -418,7 +418,7 @@ static int dissect_modificationList_item(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_cmip_T_ocglobalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 179 "cmip.cnf"
+#line 176 "cmip.cnf"
   objectclassform = OBJECTCLASS_GLOBAL_FORM;
 
   offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &objectclass_identifier_id);
@@ -433,7 +433,7 @@ static int dissect_ocglobalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_cmip_T_oclocalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 184 "cmip.cnf"
+#line 181 "cmip.cnf"
   objectclassform = OBJECTCLASS_LOCAL_FORM;
 
 
@@ -490,7 +490,7 @@ static int dissect_id1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_cmip_T_value1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 102 "cmip.cnf"
+#line 99 "cmip.cnf"
     offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, pinfo, tree);
 
 
@@ -653,7 +653,7 @@ static int dissect_errorStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 86 "cmip.cnf"
+#line 83 "cmip.cnf"
   attributeform = ATTRIBUTE_GLOBAL_FORM;
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &attribute_identifier_id);
 
@@ -670,7 +670,7 @@ static int dissect_globalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_cmip_T_localForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 90 "cmip.cnf"
+#line 87 "cmip.cnf"
   attributeform = ATTRIBUTE_LOCAL_FORM;
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
 
@@ -738,7 +738,7 @@ static int dissect_attributeIdError_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_cmip_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 94 "cmip.cnf"
+#line 91 "cmip.cnf"
   /*XXX handle local form here */
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
@@ -898,7 +898,7 @@ static int dissect_attributeId2(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cmip_T_attributeValue1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 226 "cmip.cnf"
+#line 223 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1124,7 +1124,7 @@ static int dissect_actionType3(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cmip_T_actionInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 190 "cmip.cnf"
+#line 187 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1172,7 +1172,7 @@ static int dissect_eventType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_cmip_T_eventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 241 "cmip.cnf"
+#line 238 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1307,7 +1307,7 @@ static int dissect_errorId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_cmip_T_errorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 220 "cmip.cnf"
+#line 217 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1720,7 +1720,7 @@ static int dissect_actionType2(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cmip_T_actionReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 196 "cmip.cnf"
+#line 193 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1840,7 +1840,7 @@ static int dissect_eventType2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_cmip_T_eventReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 208 "cmip.cnf"
+#line 205 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1902,7 +1902,7 @@ static int dissect_eventType3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_cmip_T_eventInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 202 "cmip.cnf"
+#line 199 "cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -2246,7 +2246,7 @@ dissect_cmip_GetArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_cmip_Argument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 105 "cmip.cnf"
+#line 102 "cmip.cnf"
   switch(opcode_type){
   case OPCODE_INVOKE:
     switch(opcode){
@@ -2347,7 +2347,7 @@ static const value_string cmip_Opcode_vals[] = {
 
 static int
 dissect_cmip_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 51 "cmip.cnf"
+#line 48 "cmip.cnf"
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &opcode);
 
@@ -2463,7 +2463,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_cmip_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 58 "cmip.cnf"
+#line 55 "cmip.cnf"
   opcode_type=OPCODE_INVOKE;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Invoke ");
@@ -2487,7 +2487,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_cmip_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 65 "cmip.cnf"
+#line 62 "cmip.cnf"
   opcode_type=OPCODE_RETURN_RESULT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnResult ");
@@ -2510,7 +2510,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_cmip_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 72 "cmip.cnf"
+#line 69 "cmip.cnf"
   opcode_type=OPCODE_RETURN_ERROR;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnError ");
@@ -2683,7 +2683,7 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_cmip_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 79 "cmip.cnf"
+#line 76 "cmip.cnf"
   opcode_type=OPCODE_REJECT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Reject ");
@@ -2734,7 +2734,7 @@ static const value_string cmip_CMIPAbortSource_vals[] = {
 
 static int
 dissect_cmip_CMIPAbortSource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 42 "cmip.cnf"
+#line 39 "cmip.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2760,7 +2760,7 @@ static const ber_sequence_t CMIPAbortInfo_sequence[] = {
 
 int
 dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 30 "cmip.cnf"
+#line 27 "cmip.cnf"
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
   }
@@ -2823,7 +2823,7 @@ static const ber_sequence_t CMIPUserInfo_sequence[] = {
 
 int
 dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 36 "cmip.cnf"
+#line 33 "cmip.cnf"
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
   }

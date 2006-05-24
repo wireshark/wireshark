@@ -1,17 +1,17 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-acse.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-acse.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
 
 #line 1 "packet-acse-template.c"
 /*XXX
-  There is a bug in asn2eth that it can not yet handle tagged assignments such
+  There is a bug in asn2wrs that it can not yet handle tagged assignments such
   as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
 
   This bug is workedaround by some .cnf magic but this should be cleaned up
-  once asn2eth learns how to deal with tagged assignments
+  once asn2wrs learns how to deal with tagged assignments
 */
 
 /* packet-acse.c
@@ -321,7 +321,7 @@ static int dissect_direct_reference(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 86 "acse.cnf"
+#line 83 "acse.cnf"
   char *oid;
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
                 hf_acse_indirect_reference,
@@ -361,7 +361,7 @@ static int dissect_data_value_descriptor(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 103 "acse.cnf"
+#line 100 "acse.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
 
 
@@ -440,14 +440,14 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
 
 int
 dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 44 "acse.cnf"
+#line 41 "acse.cnf"
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
   guint32 len1;
 
   if(!implicit_tag) {
-    /* XXX  asn2eth can not yet handle tagged assignment so for the
+    /* XXX  asn2wrs can not yet handle tagged assignment so for the
      * time being  just remove this tag manually inside the EXTERNAL
      * dissector.
      */
@@ -502,7 +502,7 @@ static int dissect_ASO_context_name_list_item(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_acse_T_AARQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 70 "acse.cnf"
+#line 67 "acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -782,7 +782,7 @@ static int dissect_other_mechanism_name(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_acse_T_other_mechanism_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 64 "acse.cnf"
+#line 61 "acse.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
 
 
@@ -1170,7 +1170,7 @@ static int dissect_aARE_protocol_version_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_acse_T_AARE_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 74 "acse.cnf"
+#line 71 "acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -1411,7 +1411,7 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 109 "acse.cnf"
+#line 106 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1461,7 +1461,7 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "acse.cnf"
+#line 118 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1597,7 +1597,7 @@ static int dissect_simply_encoded_data(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_acse_T_simple_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 67 "acse.cnf"
+#line 64 "acse.cnf"
 /*XXX not implemented yet */
 
 
@@ -1704,7 +1704,7 @@ static int dissect_adt_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_acse_T_ACRQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 78 "acse.cnf"
+#line 75 "acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -1742,7 +1742,7 @@ static int dissect_acrq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_acse_T_ACRP_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 82 "acse.cnf"
+#line 79 "acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 

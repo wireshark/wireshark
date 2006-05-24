@@ -1,12 +1,12 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-pkix1explicit.c                                                   */
-/* ../../tools/asn2eth.py -e -X -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-pkix1explicit.c                                                   */
+/* ../../tools/asn2wrs.py -e -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
 
 #line 1 "packet-pkix1explicit-template.c"
-#define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2eth */
+#define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2wrs */
 
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection

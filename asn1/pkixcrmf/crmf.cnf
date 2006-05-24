@@ -4,7 +4,6 @@
 # $Id$
 
 #.MODULE_IMPORT
-CryptographicMessageSyntax cms
 PKIX1Explicit88	pkix1explicit
 PKIX1Implicit88	pkix1implicit
 		

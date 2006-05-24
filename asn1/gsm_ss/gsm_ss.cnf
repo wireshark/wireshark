@@ -3,10 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-
-MAP-Protocol gsm_map
-
 #.INCLUDE ../gsmmap/gsm_map-exp.cnf
 
 #.EXPORTS

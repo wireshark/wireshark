@@ -1,7 +1,4 @@
 #.MODULE_IMPORT
-ISO8571-FTAM		ftam
-ACSE-1			acse
-IPMSInformationObjects	x420
 MTSAbstractService	x411
 
 #.INCLUDE ../ftam/ftam-exp.cnf

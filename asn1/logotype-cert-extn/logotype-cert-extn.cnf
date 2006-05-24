@@ -3,9 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-AuthenticationFramework		x509af
-
 #.INCLUDE ../x509af/x509af-exp.cnf
 
 #.EXPORTS

@@ -1,12 +1,6 @@
 #.MODULE_IMPORT
-DirectoryAbstractService	dap
 DirectoryAccessProtocol		dap
-ACSE-1				acse
-InformationFramework		x509if
 ServiceAdministration		x509if
-AuthenticationFramework		x509af
-
-SelectedAttributeTypes		x509sat
 
 #.INCLUDE	../dap/dap-exp.cnf
 #.INCLUDE	../x509if/x509if-exp.cnf

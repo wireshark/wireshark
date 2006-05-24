@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-gsm_map.c                                                         */
-/* ../../tools/asn2eth.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
+/* ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
@@ -2666,7 +2666,6 @@ static const value_string gsm_map_ProtocolId_vals[] = {
   { 0, NULL }
 };
 
-static guint32 ProtocolId_value_map[4+0] = {1, 2, 3, 4};
 
 static int
 dissect_gsm_map_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -4078,7 +4077,6 @@ static const value_string gsm_map_AccessNetworkProtocolId_vals[] = {
   { 0, NULL }
 };
 
-static guint32 AccessNetworkProtocolId_value_map[2+0] = {1, 2};
 
 static int
 dissect_gsm_map_AccessNetworkProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -5338,7 +5336,6 @@ static const value_string gsm_map_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
-static guint32 BcsmTriggerDetectionPoint_value_map[5+0] = {2, 4, 12, 13, 14};
 
 static int
 dissect_gsm_map_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -5443,7 +5440,6 @@ static const value_string gsm_map_O_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
-static guint32 O_BcsmTriggerDetectionPoint_value_map[1+1] = {2, 4};
 
 static int
 dissect_gsm_map_O_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -6743,7 +6739,6 @@ static const value_string gsm_map_SMS_TriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
-static guint32 SMS_TriggerDetectionPoint_value_map[1+1] = {1, 2};
 
 static int
 dissect_gsm_map_SMS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -6847,7 +6842,6 @@ static const value_string gsm_map_T_BcsmTriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
-static guint32 T_BcsmTriggerDetectionPoint_value_map[1+2] = {12, 13, 14};
 
 static int
 dissect_gsm_map_T_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -7962,7 +7956,6 @@ static const value_string gsm_map_GPRS_TriggerDetectionPoint_vals[] = {
   { 0, NULL }
 };
 
-static guint32 GPRS_TriggerDetectionPoint_value_map[5+0] = {1, 2, 11, 12, 14};
 
 static int
 dissect_gsm_map_GPRS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -9043,7 +9036,6 @@ static const value_string gsm_map_Ext_ProtocolId_vals[] = {
   { 0, NULL }
 };
 
-static guint32 Ext_ProtocolId_value_map[1+0] = {1};
 
 static int
 dissect_gsm_map_Ext_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -9708,7 +9700,6 @@ static const value_string gsm_map_NumberPortabilityStatus_vals[] = {
   { 0, NULL }
 };
 
-static guint32 NumberPortabilityStatus_value_map[3+2] = {0, 1, 2, 4, 5};
 
 static int
 dissect_gsm_map_NumberPortabilityStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -9819,7 +9810,6 @@ static const value_string gsm_map_UnavailabilityCause_vals[] = {
   { 0, NULL }
 };
 
-static guint32 UnavailabilityCause_value_map[6+0] = {1, 2, 3, 4, 5, 6};
 
 static int
 dissect_gsm_map_UnavailabilityCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -13910,7 +13900,6 @@ static const value_string gsm_map_T_roamingNotAllowedCause_vals[] = {
   { 0, NULL }
 };
 
-static guint32 T_roamingNotAllowedCause_value_map[2+0] = {0, 3};
 
 static int
 dissect_gsm_map_T_roamingNotAllowedCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14298,7 +14287,6 @@ static const value_string gsm_map_CUG_RejectCause_vals[] = {
   { 0, NULL }
 };
 
-static guint32 CUG_RejectCause_value_map[4+0] = {0, 1, 5, 7};
 
 static int
 dissect_gsm_map_CUG_RejectCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14640,7 +14628,6 @@ static const value_string gsm_map_Access_vals[] = {
   { 0, NULL }
 };
 
-static guint32 Access_value_map[3+0] = {1, 2, 3};
 
 static int
 dissect_gsm_map_Access(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -14916,7 +14903,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  3: /*cancelLocation*/
  	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /*   */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -14988,7 +14975,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 29: /*sendEndSignal*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15007,7 +14994,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 33: /*processAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15020,7 +15007,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 34: /*forwardAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15111,7 +15098,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-	/* XXX  asn2eth can not yet handle tagged assignment yes so this
+	/* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	 * XXX is some conformance file magic to work around that bug
 	 */
 	offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15121,7 +15108,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-		/* XXX  asn2eth can not yet handle tagged assignment yes so this
+		/* XXX  asn2wrs can not yet handle tagged assignment yes so this
 		 * XXX is some conformance file magic to work around that bug
 		 */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15321,7 +15308,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 			*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15332,7 +15319,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 56: /*sendAuthenticationInfo*/
     octet = tvb_get_guint8(tvb,0) & 0xf;
     if ( octet == 3){ /* This is a V3 message ??? */
-      /* XXX  asn2eth can not yet handle tagged assignment yes so this
+      /* XXX  asn2wrs can not yet handle tagged assignment yes so this
        * XXX is some conformance file magic to work around that bug
        */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
@@ -15374,7 +15361,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
 	   * XXX is some conformance file magic to work around that bug
 	   */
 		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);

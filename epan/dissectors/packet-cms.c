@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-cms.c                                                             */
-/* ../../tools/asn2eth.py -X -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-cms.c                                                             */
+/* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -198,7 +198,7 @@ static gint ett_cms_ExtendedCertificateInfo = -1;
 /*--- End of included file: packet-cms-ett.c ---*/
 #line 56 "packet-cms-template.c"
 
-static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2eth stops generating these silly wrappers */
+static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
 
 static const char *object_identifier_id;
@@ -313,7 +313,7 @@ static int dissect_encryptedContentType(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 60 "cms.cnf"
+#line 56 "cms.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_cms_ci_contentType, &object_identifier_id);
 
@@ -329,7 +329,7 @@ static int dissect_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 64 "cms.cnf"
+#line 60 "cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -349,7 +349,7 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 54 "cms.cnf"
+#line 50 "cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
@@ -422,7 +422,7 @@ static int dissect_digestAlgorithms(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_T_eContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 67 "cms.cnf"
+#line 63 "cms.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_cms_ci_contentType, &object_identifier_id);
 
@@ -438,7 +438,7 @@ static int dissect_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 71 "cms.cnf"
+#line 67 "cms.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -485,7 +485,7 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 98 "cms.cnf"
+#line 94 "cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -508,7 +508,7 @@ static int dissect_attrType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 108 "cms.cnf"
+#line 104 "cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
@@ -1064,7 +1064,7 @@ static int dissect_keyAttrId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 91 "cms.cnf"
+#line 87 "cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1479,7 +1479,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 112 "cms.cnf"
+#line 108 "cms.cnf"
   proto_item *pi;
   int old_offset = offset;
 

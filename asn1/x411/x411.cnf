@@ -2,12 +2,6 @@
 CountryName 	   	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
-#.MODULE_IMPORT
-InformationFramework x509if
-CertificateExtensions x509ce
-SelectedAttributeTypes x509sat
-AuthenticationFramework x509af
-
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509sat/x509sat-exp.cnf

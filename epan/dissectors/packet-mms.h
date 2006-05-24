@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-mms.h                                                             */
-/* ../../tools/asn2eth.py -X -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-mms.h                                                             */
+/* ../../tools/asn2wrs.py -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn */
 
 /* Input file: packet-mms-template.h */
 

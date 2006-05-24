@@ -1,16 +1,13 @@
 # acp133.cnf
 # ACP133 conformation file
 
-#.MODULE_IMPORT
-CertificateExtensions 	x509ce
-AuthenticationFramework	x509af
-InformationFramework	x509if
-MTSAbstractService 	x411
-
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../x411/x411-exp.cnf
+
+#.MODULE_IMPORT
+MTSAbstractService 	x411
 
 #.PDU
 ACPPreferredDelivery

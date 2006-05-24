@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x411.h                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x411.h                                                            */
+/* ../../tools/asn2wrs.py -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.h */
 

@@ -4,8 +4,6 @@
 # $Id$
 
 #.MODULE_IMPORT
-AuthenticationFramework x509af
-CertificateExtensions x509ce
 PKIX1Implicit88 pkix1implicit
 PKIX1Explicit88 pkix1explicit
 

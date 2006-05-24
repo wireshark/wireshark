@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-crmf.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-crmf.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
 
 /* Input file: packet-crmf-template.c */
 
@@ -387,7 +387,7 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 60 "crmf.cnf"
+#line 59 "crmf.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x509af.c                                                          */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x509af.c                                                          */
+/* ../../tools/asn2wrs.py -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
 
@@ -264,7 +264,7 @@ static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 74 "x509af.cnf"
+#line 69 "x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
@@ -288,7 +288,7 @@ static int dissect_algorithmId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 85 "x509af.cnf"
+#line 80 "x509af.cnf"
   offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 
 
@@ -426,7 +426,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 112 "x509af.cnf"
+#line 107 "x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -487,7 +487,7 @@ static int dissect_subjectPublicKeyInfo(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 91 "x509af.cnf"
+#line 86 "x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
@@ -523,7 +523,7 @@ static int dissect_critical(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 102 "x509af.cnf"
+#line 97 "x509af.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;

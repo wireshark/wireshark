@@ -4,9 +4,6 @@
 # $Id$
 
 #.MODULE_IMPORT
-InformationFramework x509if
-AuthenticationFramework x509af
-SelectedAttributeTypes x509sat
 MTSAbstractService	x411
 
 #.INCLUDE ../x509if/x509if-exp.cnf

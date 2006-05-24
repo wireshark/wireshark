@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-ess.h                                                             */
-/* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-ess.h                                                             */
+/* ../../tools/asn2wrs.py -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.h */
 

@@ -3,9 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-ACSE-1 acse
-
 #.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS

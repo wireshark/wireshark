@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-cdt.h                                                             */
-/* ../../tools/asn2eth.py -X -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-cdt.h                                                             */
+/* ../../tools/asn2wrs.py -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.h */
 

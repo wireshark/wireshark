@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-pres.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-pres.c                                                            */
+/* ../../tools/asn2wrs.py -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
 
@@ -386,7 +386,7 @@ static int dissect_called_presentation_selector_impl(packet_info *pinfo, proto_t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 72 "pres.cnf"
+#line 69 "pres.cnf"
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &presentation_context_identifier);
@@ -471,13 +471,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 79 "pres.cnf"
+#line 76 "pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 82 "pres.cnf"
+#line 79 "pres.cnf"
 	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -631,7 +631,7 @@ static int dissect_simply_encoded_data_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 38 "pres.cnf"
+#line 35 "pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -658,7 +658,7 @@ static int dissect_single_ASN1_type_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 51 "pres.cnf"
+#line 48 "pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 

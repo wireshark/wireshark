@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
-/* ./packet-x509ce.c                                                          */
-/* ../../tools/asn2eth.py -X -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-x509ce.c                                                          */
+/* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -349,7 +349,7 @@ static int dissect_type_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 123 "x509ce.cnf"
+#line 120 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -420,7 +420,7 @@ static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 116 "x509ce.cnf"
+#line 113 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -696,7 +696,7 @@ static int dissect_policyQualifierId(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 113 "x509ce.cnf"
+#line 110 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
