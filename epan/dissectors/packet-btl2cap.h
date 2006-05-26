@@ -28,4 +28,13 @@
 #define BTL2CAP_PSM_RFCOMM	0x0003
 #define BTL2CAP_PSM_BNEP	0x000f
 
+/* This structure is passed to higher layer protocols through 
+ * pinfo->private_data so that they can track "conversations" based on
+ * chandle, cid and direction
+ */
+typedef struct _btl2cap_data_t {
+	guint16 chandle;  /* only low 12 bits used */
+	guint16 cid;
+} btl2cap_data_t;
+
 #endif

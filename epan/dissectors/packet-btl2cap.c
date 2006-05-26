@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <etypes.h>
 #include <epan/emem.h>
+#include "packet-bthci_acl.h"
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
@@ -435,7 +436,11 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 
 
-/* Code to actually dissect the packets */
+/* Code to actually dissect the packets
+ * This dissector will only be called ontop of BTHCI ACL
+ * and this dissector _REQUIRES_ that 
+ * pinfo->private_data points to a valid bthci_acl_data_t structure
+ */
 static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset=0;
@@ -445,6 +450,8 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 psm;
 	tvbuff_t *next_tvb;
 	psm_data_t *psm_data;
+	bthci_acl_data_t *acl_data;
+	btl2cap_data_t *l2cap_data;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
@@ -459,7 +466,6 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		btl2cap_tree=proto_item_add_subtree(ti, ett_btl2cap);
 	}
 
-
 	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -468,6 +474,11 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, TRUE);
 	offset+=2;
 
+	acl_data=(bthci_acl_data_t *)pinfo->private_data;
+	l2cap_data=ep_alloc(sizeof(btl2cap_data_t));
+	l2cap_data->chandle=acl_data->chandle;
+	l2cap_data->cid=cid;
+	pinfo->private_data=l2cap_data;
 
 	if(cid==0x0001){ /* This is a command packet*/
 		while(offset<(length+4)) {
