@@ -33,8 +33,10 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <etypes.h>
 #include <packet-hci_h4.h>
+#include <packet-bthci_acl.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_btacl = -1;
@@ -75,6 +77,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset=0;
 	guint16 pb_flag, l2cap_length;
 	tvbuff_t *next_tvb;
+	bthci_acl_data_t *acl_data;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
@@ -91,6 +94,10 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(btacl_tree, hf_btacl_pb_flag, tvb, offset, 2, TRUE);
 	proto_tree_add_item(btacl_tree, hf_btacl_bc_flag, tvb, offset, 2, TRUE);
 	offset+=2;
+
+	acl_data=ep_alloc(sizeof(bthci_acl_data_t));
+	pinfo->private_data=acl_data;
+	acl_data->chandle=flags&0x0fff;
 
 
 	length = tvb_get_letohs(tvb, offset);
