@@ -12,6 +12,7 @@
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
  *
  * Added Dissection of Radio Resource Management Information Elements
+ * and othere enhancements and fixes.
  * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
  *
  * Title		3GPP			Other
@@ -3999,17 +4000,88 @@ static guint8
 de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
+    guint8  oct,bit,byte;
+	guint16 arfcn;
+	proto_item	*item;
+
 
     len = len;
     curr_offset = offset;
 
+    oct = tvb_get_guint8(tvb, curr_offset);
+
 	/* FORMAT-ID, Format Identifier (part of octet 3)*/
 	proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
 	/* Cell Channel Description */ 
-	proto_tree_add_text(tree,tvb, curr_offset, len-1,"Cell Channel Description(Not decoded)");
 
+	if ((oct & 0xc0) == 0x00)
+	{
+		/* bit map 0 */
+		item = proto_tree_add_text(tree,tvb, curr_offset, 16,"list of ARFCN for hopping = ");
+		bit = 4;
+		arfcn = 125;
+		for (byte = 0;byte <= 15;byte++)
+		{
+			oct = tvb_get_guint8(tvb, curr_offset);
+			while (bit-- != 0)
+			{
+				arfcn--;
+				if (((oct >> bit) & 1) == 1)
+				{
+					proto_item_append_text(item," %4d",arfcn);
+				}
+			}
+			bit = 8;
+			curr_offset++;
+		}
+	}
+    else if ((oct & 0xf8) == 0x80)
+	{ 
+		/* 1024 range */
+		proto_tree_add_text(tree,tvb, curr_offset, 16,"Cell Channel Description (1024 range) (Not decoded)");
+		curr_offset = curr_offset + 16;
+	}
+	else if ((oct & 0xfe) == 0x88)
+	{
+		/* 512 range */
+		proto_tree_add_text(tree,tvb, curr_offset, 16,"Cell Channel Description (512 range) (Not decoded)");
+		curr_offset = curr_offset + 16;
+	}
+	else if ((oct & 0xfe) == 0x8a)
+	{
+		/* 256 range */
+		proto_tree_add_text(tree,tvb, curr_offset, 16,"Cell Channel Description (256 range) (Not decoded)");
+		curr_offset = curr_offset + 16;
+	}
+	else if ((oct & 0xfe) == 0x8c)
+	{
+		/* 128 range */
+		proto_tree_add_text(tree,tvb, curr_offset, 16,"Cell Channel Description (128 range) (Not decoded)");
+		curr_offset = curr_offset + 16;
+	}
+	else if ((oct & 0xfe) == 0x8e)
+	{
+		/* variable bit map */
+		arfcn = ((oct & 0x01) << 9) | (tvb_get_guint8(tvb, curr_offset+1) << 1) | ((tvb_get_guint8(tvb, curr_offset + 2) & 0x80) >> 7);
+		item = proto_tree_add_text(tree,tvb, curr_offset, 16,"list of ARFCN for hopping = %d",arfcn);
+		curr_offset = curr_offset + 2;
+		bit = 7;
+		for (byte = 0;byte <= 13;byte++)
+		{
+			oct = tvb_get_guint8(tvb, curr_offset);
+			while (bit-- != 0)
+			{
+				arfcn++;
+				if (((oct >> bit) & 1) == 1)
+				{
+					proto_item_append_text(item," %4d",arfcn);
+				}
+			}
+			bit = 8;
+			curr_offset++;
+		}
+	}	
 	
-	curr_offset = curr_offset + 17;
 
     return(curr_offset - offset);
 }
@@ -4063,13 +4135,86 @@ static guint8
 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
+    guint8	oct8,subchannel;
+    guint16 arfcn, hsn, maio;
+	proto_tree	*subtree;
+	proto_item	*item;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
 
-    proto_tree_add_text(tree,tvb, curr_offset, 4,"Channel Description(Not decoded)");
-	
-	curr_offset = curr_offset + 4;
+    item = proto_tree_add_text(tree,tvb, curr_offset, 3,gsm_dtap_elem_strings[DE_RR_CH_DSC].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_CH_DSC]);
+
+    /* Octet 2 */
+    oct8 = tvb_get_guint8(tvb, curr_offset);
+    
+    if ((oct8 & 0xf8) == 0x08)
+    {
+    	str = "TCH/F + ACCHs"; 
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+    }
+    else 
+    {
+    	if ((oct8 & 0xf0) == 0x10) 
+    	{
+    		str = "TCH/H + ACCHs, Subchannel";
+    		subchannel = ((oct8 & 0x08)>>3);
+    	}
+    	else if ((oct8 & 0xe0) == 0x20)
+    	{
+    		str = "SDCCH/4 + SACCH/C4 or CBCH (SDCCH/4), Subchannel";
+    		subchannel = ((oct8 & 0x18)>>3);
+    	}
+    	else if ((oct8 & 0xc0) == 0x40)
+    	{
+    		str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
+    		subchannel = ((oct8 % 0x38)>>3);
+   	 	}
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
+    }
+
+	other_decode_bitfield_value(a_bigbuf, oct8, 0x07, 8);
+    proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Timeslot: %d",a_bigbuf,(oct8 & 0x07));
+
+	curr_offset +=1;
+		
+	/* Octet 3 */
+	oct8 = tvb_get_guint8(tvb, curr_offset);
+    other_decode_bitfield_value(a_bigbuf, oct8, 0xe0, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Training Sequence: %d",a_bigbuf,((oct8 & 0xe0)>>5));
+		
+    
+	if ((oct8 & 0x10) == 0x10)
+	{
+		/* Hopping sequence */
+		maio = ((oct8 & 0x0f)<<2) | ((tvb_get_guint8(tvb,curr_offset+1) & 0xc0) >> 6);
+		hsn = (tvb_get_guint8(tvb,curr_offset+1) & 0x3f);
+		str = "Yes";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: MAIO %d",maio);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: HSN %d",hsn);
+	}
+	else
+	{
+		/* sinlge ARFCN */
+		arfcn = ((oct8 & 0x03) << 8) | tvb_get_guint8(tvb,curr_offset+1);
+		str = "No";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x0c, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Spare",a_bigbuf);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Single channel : ARFCN %d",arfcn);
+	}
+		
+	curr_offset = curr_offset + 2;
 
     return(curr_offset - offset);
 }
@@ -4080,13 +4225,108 @@ static guint8
 de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
+    guint8	oct8,subchannel;
+    guint16 arfcn, hsn, maio;
+	proto_tree	*subtree;
+	proto_item	*item;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
 
-    proto_tree_add_text(tree,tvb, curr_offset, 3,"Channel Description 2(Not decoded)");
-	
-	curr_offset = curr_offset + 3;
+    item = proto_tree_add_text(tree,tvb, curr_offset, 3,gsm_dtap_elem_strings[DE_RR_CH_DSC2].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_CH_DSC2]);
+
+    /* Octet 2 */
+    oct8 = tvb_get_guint8(tvb, curr_offset);
+    
+    if ((oct8 & 0xf8) == 0x0)
+    {
+    	str = "TCH/F + FACCH/F and SACCH/M"; 
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+    }
+	else if ((oct8 & 0xf8) == 0x08)
+    {
+    	str = "TCH/F + FACCH/F and SACCH/F"; 
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+    }
+	else if ((oct8 & 0xf8) == 0xf0)
+	{
+		str = "TCH/F + FACCH/F and SACCH/M + bi- and unidirectional channels";
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+	}
+    else 
+    {
+    	if ((oct8 & 0xf0) == 0x10) 
+    	{
+    		str = "TCH/H + ACCHs, Subchannel";
+    		subchannel = ((oct8 & 0x08)>>3);
+    	}
+    	else if ((oct8 & 0xe0) == 0x20)
+    	{
+    		str = "SDCCH/4 + SACCH/C4 or CBCH (SDCCH/4), Subchannel";
+    		subchannel = ((oct8 & 0x18)>>3);
+    	}
+    	else if ((oct8 & 0xc0) == 0x40)
+    	{
+    		str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
+    		subchannel = ((oct8 % 0x38)>>3);
+   	 	}
+		else if ((oct8 & 0xc0) == 0x80)
+		{
+			str = "TCH/F + FACCH/F and SACCH/M + bidirectional channels at timeslot";
+			subchannel = ((oct8 % 0x38)>>3);
+		}
+		else if ((oct8 & 0xe0) == 0xc0)
+		{
+			str = "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot";
+			subchannel = ((oct8 % 0x38)>>3);
+		}
+		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+    	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
+    }
+
+	other_decode_bitfield_value(a_bigbuf, oct8, 0x07, 8);
+    proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Timeslot: %d",a_bigbuf,(oct8 & 0x07));
+
+	curr_offset +=1;
+		
+	/* Octet 3 */
+	oct8 = tvb_get_guint8(tvb, curr_offset);
+    other_decode_bitfield_value(a_bigbuf, oct8, 0xe0, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Training Sequence: %d",a_bigbuf,((oct8 & 0xe0)>>5));
+		
+    
+	if ((oct8 & 0x10) == 0x10)
+	{
+		/* Hopping sequence */
+		maio = ((oct8 & 0x0f)<<2) | ((tvb_get_guint8(tvb,curr_offset+1) & 0xc0) >> 6);
+		hsn = (tvb_get_guint8(tvb,curr_offset+1) & 0x3f);
+		str = "Yes";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: MAIO %d",maio);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: HSN %d",hsn);
+	}
+	else
+	{
+		/* sinlge ARFCN */
+		arfcn = ((oct8 & 0x03) << 8) | tvb_get_guint8(tvb,curr_offset+1);
+		str = "No";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x0c, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Spare",a_bigbuf);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Single channel : ARFCN %d",arfcn);
+	}
+		
+	curr_offset = curr_offset + 2;
 
     return(curr_offset - offset);
 }
@@ -4317,10 +4557,10 @@ de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     len = len;
     curr_offset = offset;
 
-	proto_tree_add_text(tree,tvb, curr_offset, 3,"Frequency Channel Sequence(Not decoded)");
+	proto_tree_add_text(tree,tvb, curr_offset, 9,"Frequency Channel Sequence(Not decoded)");
 
 	
-	curr_offset = curr_offset + 10;
+	curr_offset = curr_offset + 9;
 
     return(curr_offset - offset);
 }  
@@ -4404,7 +4644,7 @@ de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* Frequency list */ 
 	proto_tree_add_text(tree,tvb, curr_offset, 9,"Frequency Data(Not decoded)");
 
-	curr_offset = curr_offset + 10;
+	curr_offset = curr_offset + 9;
     return(curr_offset - offset);
 
 }
@@ -4801,7 +5041,7 @@ de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	proto_tree_add_text(tree,tvb, curr_offset, 3 ,"Data(Not decoded)");
 
-	curr_offset = curr_offset + 3;
+	curr_offset = curr_offset + 2;
     return(curr_offset - offset);
 }
 /*
@@ -4948,7 +5188,7 @@ de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
 
-	curr_offset = curr_offset + 3;
+	curr_offset = curr_offset + 2;
     return(curr_offset - offset);
 }
 /*
@@ -15167,7 +15407,7 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Dedicated Service Information,	Dedicated Service Information 10.5.2.59*/
 	ELEM_OPT_TV(0x51,BSSAP_PDU_TYPE_DTAP, DE_RR_DED_SERV_INF, "");
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 }
 /*
@@ -18199,7 +18439,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Wireshark */
+/* Register the protocol with Ethereal */
 void
 proto_register_gsm_a(void)
 {
