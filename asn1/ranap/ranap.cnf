@@ -3,6 +3,9 @@
 
 # $Id$
 
+#.EXPORTS
+TargetID
+
 #.PDU_NEW
 RANAP-PDU
 

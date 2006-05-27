@@ -31,6 +31,13 @@
 
 #ifndef PACKET_RANAP_H
 #define PACKET_RANAP_H
-/* #include "packet-ranap-exp.h"*/
+
+/*--- Included file: packet-ranap-exp.h ---*/
+#line 1 "packet-ranap-exp.h"
+extern const value_string ranap_TargetID_vals[];
+int dissect_ranap_TargetID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-ranap-exp.h ---*/
+#line 27 "packet-ranap-template.h"
 
 #endif  /* PACKET_RANAP_H */

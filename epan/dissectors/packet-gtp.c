@@ -4,6 +4,9 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
+ * Updates and corrections:
+ * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -23,6 +26,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Ref: 3GPP TS 29.060 version 6.8.0 Release 6
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,6 +48,8 @@
 #include "packet-bssap.h"
 #include "packet-gsm_a.h"
 #include "packet-gsm_map.h"
+#include "packet-per.h"
+#include "packet-ranap.h"
 
 static dissector_table_t ppp_subdissector_table;
 
@@ -185,6 +191,7 @@ static int hf_gtp_ext_length		= -1;
 static int hf_gtp_ext_apn_res		= -1;
 static int hf_gtp_ext_rat_type		= -1;
 static int hf_gtp_ext_imeisv		= -1;
+static int hf_gtp_TargetID			= -1;
 
 
 /* Initialize the subtree pointers */
@@ -252,6 +259,8 @@ static gint ett_gtp_ext_cell_id 			= -1;
 static gint ett_gtp_ext_pdu_no 				= -1;
 static gint ett_gtp_ext_bssgp_cause 		= -1;
 static gint ett_gtp_ext_ra_prio_lcs 		= -1;
+static gint ett_gtp_target_id				= -1;
+static gint ett_gtp_utran_cont				= -1;
 	
 static gboolean	gtp_tpdu			= TRUE;
 static gboolean	gtp_over_tcp		= TRUE;
@@ -2113,68 +2122,69 @@ static _gtp_mess_items umts_mess_items[] = {
 },
 {
 	GTP_MSG_FORW_RELOC_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_MANDATORY },
 		{ GTP_EXT_RANAP_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_MM_CNTXT,	GTP_MANDATORY },
+		{ GTP_EXT_MM_CNTXT,		GTP_MANDATORY },
 		{ GTP_EXT_PDP_CNTXT,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
 		{ GTP_EXT_TARGET_ID,	GTP_MANDATORY },
 		{ GTP_EXT_UTRAN_CONT,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
+		{ GTP_EXT_SSGN_NO,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FORW_RELOC_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
 		{ GTP_EXT_RANAP_CAUSE,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
 		{ GTP_EXT_UTRAN_CONT,	GTP_OPTIONAL },
 		{ GTP_EXT_RAB_SETUP,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FORW_RELOC_COMP, {
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_RELOC_CANCEL_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_RELOC_CANCEL_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FORW_RELOC_ACK, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FORW_SRNS_CNTXT, {
 		{ GTP_EXT_RAB_CNTXT,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FORW_SRNS_CNTXT_ACK, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
@@ -2659,27 +2669,22 @@ decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 static int
 decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	guint8		nsapi, dl_pdcp_seq, ul_pdcp_seq;
-	guint16		dl_gtpu_seq, ul_gtpu_seq;
+	guint8		nsapi;
 	proto_tree	*ext_tree_rab_cntxt;
 	proto_item	*te;
 
-	te = proto_tree_add_text(tree, tvb, offset, 8, val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
+	te = proto_tree_add_text(tree, tvb, offset, 10, val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_rab_cntxt = proto_item_add_subtree(te, ett_gtp_rab_cntxt);
 
 	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;
-	dl_gtpu_seq = tvb_get_ntohs(tvb, offset+2);
-	ul_gtpu_seq = tvb_get_ntohs(tvb, offset+4);
-	dl_pdcp_seq = tvb_get_guint8(tvb, offset+6);
-	ul_pdcp_seq = tvb_get_guint8(tvb, offset+7);
 
 	proto_tree_add_uint (ext_tree_rab_cntxt, hf_gtp_nsapi, tvb, offset+1, 1, nsapi);
-	proto_tree_add_uint(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_dn, tvb, offset+2, 2, dl_gtpu_seq);
-	proto_tree_add_uint(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_up, tvb, offset+4, 2, ul_gtpu_seq);
-	proto_tree_add_uint(ext_tree_rab_cntxt, hf_gtp_rab_pdu_dn, tvb, offset+6, 1, dl_pdcp_seq);
-	proto_tree_add_uint(ext_tree_rab_cntxt, hf_gtp_rab_pdu_up, tvb, offset+7, 1, ul_pdcp_seq);
+	proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_dn, tvb, offset+2, 2, FALSE);
+	proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_up, tvb, offset+4, 2, FALSE);
+	proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_dn, tvb, offset+6, 2, FALSE);
+	proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_up, tvb, offset+8, 2, FALSE);
 
-	return 8;
+	return 10;
 }
 
 
@@ -3482,7 +3487,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	pdp_addr_len = tvb_get_guint8(tvb, offset+2);
 
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "PDP organization: %s", val_to_str(pdp_type_org, pdp_type, "Unknown PDP org"));
-	proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 1, "PDP type: %s", val_to_str(pdp_type_num, pdp_org_type, "Unknown PDP type"));
+	proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 1, "PDP type: %s", val_to_str(pdp_type_num, pdp_type, "Unknown PDP type"));
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+2, 1, "PDP address length: %u", pdp_addr_len);
 
 	if (pdp_addr_len > 0) {
@@ -3926,16 +3931,28 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
 /* GPRS:	not present
  * UMTS:	29.060 v4.0, chapter 7.7.37
- * 		25.413 v3.4, chapter ???
+ * Type = 138 (Decimal)
+ * 		25.413(RANAP) TargetID 
  */
 static int
 decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
-
+	proto_item	*target_id_item;
+	proto_tree	*ext_tree;
+	tvbuff_t	*next_tvb;
+	asn_ctx_t asn_ctx;
+	asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+	
 	length = tvb_get_ntohs(tvb, offset + 1);
 
-	proto_tree_add_text(tree, tvb, offset, 3 + length, "Targer Identification");
+	target_id_item = proto_tree_add_text (tree, tvb, offset, 3 + length, "Target Identification");
+	ext_tree = proto_item_add_subtree (target_id_item, ett_gtp_target_id);
+	offset = offset +1;
+	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+	next_tvb = tvb_new_subset (tvb, offset, length, length);
+	dissect_ranap_TargetID(next_tvb, 0, &asn_ctx, ext_tree, hf_gtp_TargetID);
 
 	return 3 + length;
 }
@@ -3948,10 +3965,18 @@ static int
 decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
+	proto_item	*utran_cont_item;
+	proto_tree	*ext_tree;
+	tvbuff_t	*next_tvb;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
 
-	proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent field");
+	utran_cont_item = proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent field");
+	ext_tree = proto_item_add_subtree (utran_cont_item, ett_gtp_utran_cont);
+	offset = offset +1;
+	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+	next_tvb = tvb_new_subset (tvb, offset, length, length);
 
 	return 3 + length;
 
@@ -5390,8 +5415,8 @@ proto_register_gtp(void)
 		{ &hf_gtp_ptmsi_sig, { "P-TMSI Signature", "gtp.ptmsi_sig", FT_UINT24, BASE_HEX, NULL, 0, "P-TMSI Signature", HFILL }},
 		{ &hf_gtp_rab_gtpu_dn, { "Downlink GTP-U seq number", "gtp.rab_gtp_dn", FT_UINT16, BASE_DEC, NULL, 0, "Downlink GTP-U sequence number", HFILL }},
 		{ &hf_gtp_rab_gtpu_up, { "Uplink GTP-U seq number", "gtp.rab_gtp_up", FT_UINT16, BASE_DEC, NULL, 0, "Uplink GTP-U sequence number", HFILL }},
-		{ &hf_gtp_rab_pdu_dn, { "Downlink next PDCP-PDU seq number", "gtp.rab_pdu_dn", FT_UINT8, BASE_DEC, NULL, 0, "Downlink next PDCP-PDU sequence number", HFILL }},
-		{ &hf_gtp_rab_pdu_up, { "Uplink next PDCP-PDU seq number", "gtp.rab_pdu_up", FT_UINT8, BASE_DEC, NULL, 0, "Uplink next PDCP-PDU sequence number", HFILL }},
+		{ &hf_gtp_rab_pdu_dn, { "Downlink next PDCP-PDU seq number", "gtp.rab_pdu_dn", FT_UINT16, BASE_DEC, NULL, 0, "Downlink next PDCP-PDU sequence number", HFILL }},
+		{ &hf_gtp_rab_pdu_up, { "Uplink next PDCP-PDU seq number", "gtp.rab_pdu_up", FT_UINT16, BASE_DEC, NULL, 0, "Uplink next PDCP-PDU sequence number", HFILL }},
 		{ &hf_gtp_rai_mcc, { "MCC", "gtp.mcc", FT_UINT16, BASE_DEC, NULL, 0, "Mobile Country Code", HFILL }},
 		{ &hf_gtp_rai_mnc, { "MNC", "gtp.mnc", FT_UINT8, BASE_DEC, NULL, 0, "Mobile Network Code", HFILL }},
 		{ &hf_gtp_rai_rac, { "RAC", "gtp.rac", FT_UINT8, BASE_DEC, NULL, 0, "Routing Area Code", HFILL }},
@@ -5477,6 +5502,11 @@ proto_register_gtp(void)
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"IMEI(SV)", HFILL }
 		},
+		{ &hf_gtp_TargetID,
+			{ "TargetID", "gtp.TargetID",
+			FT_UINT32, BASE_DEC, VALS(ranap_TargetID_vals), 0,
+			"TargetID", HFILL }},
+
 	};
 
 	static gint *ett_gtp_array[] = {
@@ -5544,6 +5574,8 @@ proto_register_gtp(void)
 		&ett_gtp_ext_pdu_no,
 		&ett_gtp_ext_bssgp_cause,
 		&ett_gtp_ext_ra_prio_lcs,
+		&ett_gtp_target_id,
+		&ett_gtp_utran_cont,
 	};
 
 	module_t	*gtp_module;
