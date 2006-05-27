@@ -489,7 +489,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			ti_command=proto_tree_add_none_format(btl2cap_tree, 
 					hf_btl2cap_command, tvb,
-					offset, -1,
+					offset, length,
 					"Command: ");      
 			btl2cap_cmd_tree=proto_item_add_subtree(ti_command, ett_btl2cap_cmd);
 
@@ -616,7 +616,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm, 
 					next_tvb, pinfo, tree)){
 			/* unknown protocol. declare as data */
-			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, -1, TRUE);
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 		}
 		offset+=tvb_length_remaining(tvb, offset);
 	} else if((cid >= 0x0040) && (cid <= 0xFFFF)){ /* Connection oriented channel */
@@ -642,11 +642,11 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm, 
 						next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, -1, TRUE);
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 			}
 			offset+=tvb_length_remaining(tvb, offset);
 		} else {
-			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, -1, TRUE);
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 			offset+=tvb_length_remaining(tvb, offset);
 		}
 	} else { /* Something else */
@@ -654,8 +654,8 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_clear(pinfo->cinfo, COL_INFO);
 		}
 
-		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, -1, TRUE);
-		offset+=tvb_length_remaining(tvb, offset);
+		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+		offset+=length;
 	}
 }
 
@@ -679,7 +679,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_payload,
 			{ "Payload",           "btl2cap.payload",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_BYTES, BASE_HEX, NULL, 0x0,          
 				"L2CAP Payload", HFILL }
 		},
 		{ &hf_btl2cap_command,

@@ -1,3 +1,5 @@
+/* TODO mix direction bit into the chandle tree lookup   so we can handle when fragments sent in both directions simultaneously on the same chandle */
+
 /* packet-btacl_acl.c
  * Routines for the Bluetooth ACL dissection
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
@@ -34,6 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/prefs.h>
 #include <etypes.h>
 #include <packet-hci_h4.h>
 #include <packet-bthci_acl.h>
@@ -45,11 +48,29 @@ static int hf_btacl_pb_flag = -1;
 static int hf_btacl_bc_flag = -1;
 static int hf_btacl_length = -1;
 static int hf_btacl_data = -1;
+static int hf_btacl_continuation_to = -1;
+static int hf_btacl_reassembled_in = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btacl = -1;
 
 dissector_handle_t btl2cap_handle=NULL;
+
+static gboolean acl_reassembly = TRUE;
+
+typedef struct _multi_fragment_pdu_t {
+	guint32 first_frame;
+	guint32 last_frame;
+	guint16 tot_len;
+	char *reassembled;
+	int cur_off;	/* counter used by reassembly */
+} multi_fragment_pdu_t;
+
+typedef struct _chandle_data_t {
+	se_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
+} chandle_data_t;
+
+static se_tree_t *chandle_tree=NULL;
 
 static const value_string pb_flag_vals[] = {
 	{1, "Continuing Fragment"},
@@ -75,9 +96,10 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 flags, length;
 	gboolean fragmented;
 	int offset=0;
-	guint16 pb_flag, l2cap_length;
+	guint16 pb_flag, l2cap_length=0;
 	tvbuff_t *next_tvb;
 	bthci_acl_data_t *acl_data;
+	chandle_data_t *chandle_data;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
@@ -96,9 +118,16 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset+=2;
 
 	acl_data=ep_alloc(sizeof(bthci_acl_data_t));
-	pinfo->private_data=acl_data;
 	acl_data->chandle=flags&0x0fff;
+	pinfo->private_data=acl_data;
 
+	/* find the chandle_data structure associated with this chandle */
+	chandle_data=se_tree_lookup32(chandle_tree, acl_data->chandle);
+	if(!chandle_data){
+		chandle_data=se_alloc(sizeof(chandle_data_t));
+		chandle_data->start_fragments=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "bthci_acl fragment starts");
+		se_tree_insert32(chandle_tree, acl_data->chandle, chandle_data);
+	}
 
 	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(btacl_tree, hf_btacl_length, tvb, offset, 2, TRUE);
@@ -110,12 +139,8 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		fragmented = TRUE;
 		break;
 	case 0x02:	/* Start fragment */
-		if(length < 2){
-			fragmented=TRUE;
-		} else {
-			l2cap_length=tvb_get_letohs(tvb, offset);
-			fragmented=((l2cap_length+4)!=length);
-		}
+		l2cap_length=tvb_get_letohs(tvb, offset);
+		fragmented=((l2cap_length+4)!=length);	
 		break;
 	default:
 		/* unknown pb_flag */
@@ -123,8 +148,11 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	if(!fragmented){
-		/* call L2CAP dissector */
+	if((!fragmented)
+	|| ((!acl_reassembly)&&(pb_flag==0x02)) ){
+		/* call L2CAP dissector for PDUs that are not fragmented
+		 * also for the first fragment if reassembly is disabled
+		 */
 		next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 		if(btl2cap_handle){
 			call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
@@ -132,109 +160,62 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
+	if(fragmented && acl_reassembly){
+		multi_fragment_pdu_t *mfp=NULL;
 
-#ifdef REMOVED   offset==4 here
-/* the code below should be rewritten from scratch once a doc explaining how fragmented bt packets work and example captures are collected.
-*/
-	guint16 chandle, handle;
-	struct l2cap_packet *l2p;
-
-	proto_tree_add_item(btacl_tree, hf_btacl_data, tvb, 4, -1, TRUE);
-
-	if (pinfo->fd->flags.visited == 0) { /* This is the first pass */
-
-		chandle = flags & 0x0FFF;
-
-		/* same connection handle but differnet direction needs to be
-		   distinguished, therefore we set the highest bit of the
-		   handle for outgoing packets 
-		 */
-		if (pinfo->p2p_dir == P2P_DIR_RECV) {
-			handle = chandle;
-		} else {
-			handle = chandle + 0x8000;
-		}
-
-		l2p = NULL;
-		if (pb_flag == 2) { /* Start Fragment */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, " (Start Fragment)");
-
-			if (get_l2p(handle)) { /* Error: There is still data for the same handle */
-				fprintf(stderr, "Incomplete L2CAP packet detected: packet no. %d\n", pinfo->fd->num);
-				del_l2p(handle, 1);
-			}
-
-			/* Start reassembly */
-			if ((l2p = add_l2p(handle))) {
-				l2p->pkt_len = 65540; /* Maybe we don't know the length now */
-				/* So we have to set it to maximum */
-
-				/* memcpy the data */
-				tvb_memcpy(tvb, l2p->data, 4, length);
-				l2p->rx_count = length;
+		if(pb_flag==0x02){ /* first fragment */
+			if(!pinfo->fd->flags.visited){
+				mfp=se_alloc(sizeof(multi_fragment_pdu_t));
+				mfp->first_frame=pinfo->fd->num;
+				mfp->last_frame=0;
+				mfp->tot_len=l2cap_length+4;
+				mfp->reassembled=se_alloc(l2cap_length+4);
+				tvb_memcpy(tvb, mfp->reassembled, offset, tvb_length_remaining(tvb, offset));
+				mfp->cur_off=tvb_length_remaining(tvb, offset);
+				se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
 			} else {
-				fprintf(stderr, "no more handles!\n");
+				mfp=se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
 			}
-
-		} else if (pb_flag == 1) { /* Continuing Fragment */
-			if (!(l2p = get_l2p(handle))) { /* Error: Cont fragment without start */
-				fprintf(stderr, "Cont. fragment without start detected!\n");
-			} else {
-				/* OK: Continue reassembly */
-				/* memcpy the data */
-				tvb_memcpy(tvb, l2p->data + l2p->rx_count, 4, length);
-				l2p->rx_count += length;
-			}
-		}
-
-		if (l2p) {
-			if (l2p->rx_count > 1) /* We have collected enough bytes */
-				l2p->pkt_len = (l2p->data[1] << 8) + l2p->data[0] + 4;
-
-			if (l2p->rx_count > l2p->pkt_len) {
-				fprintf(stderr, "Packet too long!\n");
-				del_l2p(handle, 1);
-				l2p = NULL;
-			} else if (l2p->rx_count == l2p->pkt_len) {
-
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO, " (End Fragment)");
-
-				del_l2p(handle, 0);
-				/* save reassembled packet ???????? */
-				p_add_proto_data(pinfo->fd, proto_btacl, l2p);
-			} else { /* Packet is not complete */
-				l2p = NULL;
-				if (pb_flag == 1) {
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_str(pinfo->cinfo, COL_INFO, " (Continuation Fragment)");
+			if(mfp && mfp->last_frame){
+				proto_item *item;
+				item=proto_tree_add_uint(btacl_tree, hf_btacl_reassembled_in, tvb, 0, 0, mfp->last_frame);
+				PROTO_ITEM_SET_GENERATED(item);
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
 				}
 			}
 		}
-	} else { /* This is an additional pass */
-		/* Is there a reassembled packet saved ? */
-		l2p = p_get_proto_data(pinfo->fd, proto_btacl);
-	}
+		if(pb_flag==0x01){ /* continuation fragment */
+			mfp=se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
+			if(!pinfo->fd->flags.visited){
+				if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+tvb_length_remaining(tvb, offset))){
+					tvb_memcpy(tvb, mfp->reassembled+mfp->cur_off, offset, tvb_length_remaining(tvb, offset));
+					mfp->cur_off+=tvb_length_remaining(tvb, offset);
+					if(mfp->cur_off==mfp->tot_len){
+						mfp->last_frame=pinfo->fd->num;
+					}
+				}
+			}
+			if(mfp){
+				proto_item *item;
+				item=proto_tree_add_uint(btacl_tree, hf_btacl_continuation_to, tvb, 0, 0, mfp->first_frame);
+				PROTO_ITEM_SET_GENERATED(item);
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
+				}
+			}
+			if(mfp && mfp->last_frame==pinfo->fd->num){
+				next_tvb = tvb_new_real_data(mfp->reassembled, mfp->tot_len, mfp->tot_len);
+				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+				add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ACL");
 
-	if (l2p) {
-		next_tvb = tvb_new_real_data(l2p->data, l2p->pkt_len, l2p->pkt_len);
-		//tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-		add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
-
-		/* call L2CAP dissector */
-		if(btl2cap_handle){
-			call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
+				/* call L2CAP dissector */
+				if(btl2cap_handle){
+					call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
+				}
+			}
 		}
 	}
-#endif
-#if 0
-	/* decrypt successful, let's set up a new data tvb. */
-	decr_tvb = tvb_new_real_data(tmp, len-8, len-8);
-	tvb_set_free_cb(decr_tvb, g_free);
-	tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
-#endif
 }
 
 
@@ -269,12 +250,19 @@ proto_register_btacl(void)
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Data", HFILL }
 		},
+		{ &hf_btacl_continuation_to,
+			{ "This is a continuation to the PDU in frame",		"btacl.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is a continuation to the PDU in frame #", HFILL }},
+		{ &hf_btacl_reassembled_in,
+			{ "This PDU is reassembled in frame",		"btacl.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This PDU is reassembled in frame #", HFILL }},
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_btacl,
 	};
+	module_t *btacl_module;
 
 	/* Register the protocol name and description */
 	proto_btacl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
@@ -283,6 +271,15 @@ proto_register_btacl(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_btacl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register configuration preferences */
+	btacl_module = prefs_register_protocol(proto_btacl, NULL);
+	prefs_register_bool_preference(btacl_module, "btacl_reassembly",
+	    "Reassemble ACL Fragments",
+	    "Whether the ACL dissector should reassemble fragmented PDUs",
+	    &acl_reassembly);
+
+	chandle_tree=se_tree_create(SE_TREE_TYPE_RED_BLACK, "bthci_acl chandles");
 }
 
 
