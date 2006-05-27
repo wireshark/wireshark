@@ -191,6 +191,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int toc_offset = 0;
 	guint8 octet;
 	proto_item *item;
+	gboolean first_time;
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti,*toc_item;
@@ -268,8 +269,10 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 		toc_item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload Table of Contents");
 		toc_tree = proto_item_add_subtree(toc_item, ett_amr_toc);
-
-		while ( ( octet& 0x80 ) == 0x80 ){
+		
+		first_time = TRUE;
+		while ((( octet& 0x80 ) == 0x80)||(first_time == TRUE)){
+			first_time = FALSE;
 			octet = tvb_get_guint8(tvb,offset);	
 			proto_tree_add_item(amr_tree, hf_amr_toc_f, tvb, offset, 1, FALSE);
 			proto_tree_add_item(amr_tree, hf_amr_toc_ft, tvb, offset, 1, FALSE);
