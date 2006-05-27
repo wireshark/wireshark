@@ -870,8 +870,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gc, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uc, tvb, ie_offset, 1, FALSE);
 		/* UMA Protocols (Stage 3) R1.0.3 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
-		break;
+		if(ie_len>1){
+			ie_offset++;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
+		}		break;
 	case 8:			
 		/* Geographical Location 
 		 * The Location Estimate field is composed of 1 or more octets with an internal structure 
@@ -951,7 +953,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
 		break;
 	case 17:		/* GSM RR State */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 1, FALSE);
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
@@ -1760,7 +1762,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_rrs,
 			{ "RTP Redundancy Support(RRS)","uma.urr.rrs",
-			FT_UINT8,BASE_DEC, VALS(rrs_vals), 0xc,          
+			FT_UINT8,BASE_DEC, VALS(rrs_vals), 0x01,          
 			"RTP Redundancy Support(RRS)", HFILL }
 		},
 		{ &hf_uma_urr_IP_Address_type,
