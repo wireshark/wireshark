@@ -2468,6 +2468,10 @@ Christoph Scholz	<scholz [AT] cs.uni-bonn.de> {
 	Bluetooth stack: http://affix.sourceforge.net/archive/ethereal_affix-3.patch
 }
 
+Wolfgang Hansmann	<hansmann [AT] cs.uni-bonn.de> {
+	Part of bluetooth stack from http://affix.sourceforge.net/archive/ethereal_affix-3.patch
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 

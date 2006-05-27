@@ -135,6 +135,7 @@ DISSECTOR_SRC =	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\
 	packet-btl2cap.c	\
+	packet-btrfcomm.c	\
 	packet-bvlc.c	\
 	packet-camel.c	\
 	packet-cast.c	\
