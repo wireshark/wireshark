@@ -45,7 +45,7 @@ get_credential_info(void)
  * For now, we say the program wasn't started with special privileges.
  * There are ways of running programs with credentials other than those
  * for the session in which it's run, but I don't know whether that'd be
- * done with Ethereal/Tethereal or not.
+ * done with Wireshark/Twireshark or not.
  */
 gboolean
 started_with_special_privs(void)

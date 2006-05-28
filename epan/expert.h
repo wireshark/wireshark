@@ -1,7 +1,7 @@
 /* expert.h
  * Collecting of Expert information.
  *
- * For further info, see: http://wiki.ethereal.com/Development/ExpertInfo 
+ * For further info, see: http://wiki.wireshark.org/Development/ExpertInfo 
  *
  * $Id$
  *

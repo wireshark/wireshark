@@ -36,7 +36,7 @@ my $debug = 0;
 
 #
 # Example:
-# ~/work/ethereal/trunk/epan/dissectors> ../../tools/checkhf.pl packet-afs.c
+# ~/work/wireshark/trunk/epan/dissectors> ../../tools/checkhf.pl packet-afs.c
 # Unused entry: packet-afs.c, hf_afs_ubik_voteend
 # Unused entry: packet-afs.c, hf_afs_ubik_errcode
 # Unused entry: packet-afs.c, hf_afs_ubik_votetype
@@ -47,7 +47,7 @@ my $debug = 0;
 # NOTE: This tool currently generates false positives!
 #
 # The "NO ARRAY" messages - if accurate - point to an error that will
-# cause (t)ethereal to terminate with an assertion when a packet containing
+# cause (t)(wire)shark to terminate with an assertion when a packet containing
 # this particular element is being dissected.
 #
 # The "Unused entry" message indicates the opposite: 

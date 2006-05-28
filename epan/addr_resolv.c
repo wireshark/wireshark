@@ -737,7 +737,7 @@ static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
    *  See the ethers(4) or ethers(5) man page for ethers file format
    *  (not available on all systems).
    *  We allow both ethernet address separators (':' and '-'),
-   *  as well as Ethereal's '.' separator.
+   *  as well as Wireshark's '.' separator.
    */
 
   gchar *cp;

@@ -248,7 +248,7 @@ init_progfile_dir(const char *arg0
 		 * marks the end of the directory pathname.
 		 *
 		 * XXX - Can the pathname be something such as
-		 * "C:ethereal.exe"?  Or is it always a full pathname
+		 * "C:wireshark.exe"?  Or is it always a full pathname
 		 * beginning with "\" after the drive letter?
 		 */
 		dir_end = strrchr(prog_pathname, '\\');
@@ -479,7 +479,7 @@ get_progfile_dir(void)
  * stored.
  *
  * XXX - if we ever make libethereal a real library, used by multiple
- * applications (more than just Tethereal and versions of Wireshark with
+ * applications (more than just Twireshark and versions of Wireshark with
  * various UIs), should the configuration files belong to the library
  * (and be shared by all those applications) or to the applications?
  *
@@ -510,7 +510,7 @@ get_datafile_dir(void)
 	 * default.
 	 *
 	 * XXX - does NSIS put the installation directory into
-	 * "\HKEY_LOCAL_MACHINE\SOFTWARE\Ethereal\InstallDir"?
+	 * "\HKEY_LOCAL_MACHINE\SOFTWARE\Wireshark\InstallDir"?
 	 * If so, perhaps we should read that from the registry,
 	 * instead.
 	 */
@@ -521,7 +521,7 @@ get_datafile_dir(void)
 	 * No, we don't.
 	 * Fall back on the default installation directory.
 	 */
-	return "C:\\Program Files\\Ethereal\\";
+	return "C:\\Program Files\\Wireshark\\";
 #else
 	/*
 	 * Just use DATAFILE_DIR, as that's what the configure script
@@ -552,13 +552,13 @@ get_systemfile_dir(void)
  * personal configuration files are stored.
  */
 #ifdef _WIN32
-#define PF_DIR "Ethereal"
+#define PF_DIR "Wireshark"
 #else
 /*
  * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
- * it ".ethereal" for now.
+ * it ".wireshark" for now.
  */
-#define PF_DIR ".ethereal"
+#define PF_DIR ".wireshark"
 #endif
 
 #ifdef WIN32
@@ -608,8 +608,8 @@ char *getenv_utf8(const char *varname)
 
 /*
  * Get the directory in which personal configuration files reside;
- * in UNIX-compatible systems, it's ".ethereal", under the user's home
- * directory, and on Windows systems, it's "Ethereal", under %APPDATA%
+ * in UNIX-compatible systems, it's ".wireshark", under the user's home
+ * directory, and on Windows systems, it's "Wireshark", under %APPDATA%
  * or, if %APPDATA% isn't set, it's "%USERPROFILE%\Application Data"
  * (which is what %APPDATA% normally is on Windows 2000).
  */
@@ -635,13 +635,13 @@ get_persconffile_dir(void)
 	 * stored in the user profile, rather than in the home directory.
 	 * The Windows convention is to store configuration information
 	 * in the user profile, and doing so means you can use
-	 * Ethereal even if the home directory is an inaccessible
+	 * Wireshark even if the home directory is an inaccessible
 	 * network drive.
 	 */
 	appdatadir = getenv_utf8("APPDATA");
 	if (appdatadir != NULL) {
 		/*
-		 * Concatenate %APPDATA% with "\Ethereal".
+		 * Concatenate %APPDATA% with "\Wireshark".
 		 */
 		pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 			appdatadir, PF_DIR);
@@ -819,7 +819,7 @@ get_home_dir(void)
  * file name.
  *
  * On Win32, if "for_writing" is FALSE, we check whether the file exists
- * and, if not, construct a path name relative to the ".ethereal"
+ * and, if not, construct a path name relative to the ".wireshark"
  * subdirectory of the user's home directory, and check whether that
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.
@@ -844,11 +844,11 @@ get_persconffile_path(const char *filename, gboolean for_writing
 		if (eth_stat(path, &s_buf) != 0 && errno == ENOENT) {
 			/*
 			 * OK, it's not in the personal configuration file
-			 * directory; is it in the ".ethereal" subdirectory
+			 * directory; is it in the ".wireshark" subdirectory
 			 * of their home directory?
 			 */
 			old_path = g_strdup_printf(
-			    "%s" G_DIR_SEPARATOR_S ".ethereal" G_DIR_SEPARATOR_S "%s",
+			    "%s" G_DIR_SEPARATOR_S ".wireshark" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
 			if (eth_stat(old_path, &s_buf) == 0) {
 				/*

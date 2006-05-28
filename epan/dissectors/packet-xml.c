@@ -1,5 +1,5 @@
 /* packet-xml.c
- * ethereal's xml dissector .
+ * wireshark's xml dissector .
  *
  * (C) 2005, Luis E. Garcia Ontanon.
  *

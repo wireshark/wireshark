@@ -101,9 +101,9 @@ static int weak_iv(guchar *iv);
 /* When this is set, an unlimited number of WEP keys can be set in the
    environment:
 
-   ETHEREAL_WEPKEYNUM=##
-   ETHEREAL_WEPKEY1=aa:bb:cc:dd:...
-   ETHEREAL_WEPKEY2=aa:bab:cc:dd:ee:...
+   WIRESHARK_WEPKEYNUM=##
+   WIRESHARK_WEPKEY1=aa:bb:cc:dd:...
+   WIRESHARK_WEPKEY2=aa:bab:cc:dd:ee:...
 
    ... you get the idea.
 
@@ -4337,7 +4337,7 @@ static void init_wepkeys(void) {
 #ifdef USE_ENV
   guint8 *buf;
 
-  tmp = getenv("ETHEREAL_WEPKEYNUM");
+  tmp = getenv("WIRESHARK_WEPKEYNUM");
   if (!tmp) {
     num_wepkeys = 0;
     return;
@@ -4367,7 +4367,7 @@ static void init_wepkeys(void) {
 
 #ifdef USE_ENV
     buf=ep_alloc(128);
-    g_snprintf(buf, 128, "ETHEREAL_WEPKEY%d", i+1);
+    g_snprintf(buf, 128, "WIRESHARK_WEPKEY%d", i+1);
     tmp = getenv(buf);
 #else
     tmp = wep_keystr[i];

@@ -120,7 +120,7 @@ void get_addr_name_buf(address *addr, gchar *buf, guint size);
 extern void host_name_lookup_init(void);
 
 /* host_name_lookup_process does ADNS processing in GTK+ timeouts in Wireshark,
-   and before processing each packet in Tethereal, if we're using ADNS */
+   and before processing each packet in Twireshark, if we're using ADNS */
 extern gint host_name_lookup_process(gpointer data);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */

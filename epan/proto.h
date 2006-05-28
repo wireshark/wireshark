@@ -87,13 +87,13 @@ typedef struct _protocol protocol_t;
  * If that string is dynamically allocated, it should be allocated with
  * ep_alloc(); using ep_strdup_printf() would work.
  *
- * If the ETHEREAL_ABORT_ON_DISSECTOR_BUG environment variable is set,
+ * If the WIRESHARK_ABORT_ON_DISSECTOR_BUG environment variable is set,
  * it will call abort(), instead, to make it easier to get a stack trace.
  *
  * @param message string to use as the message
  */
 #define REPORT_DISSECTOR_BUG(message)  \
-  ((getenv("ETHEREAL_ABORT_ON_DISSECTOR_BUG") != NULL) ? \
+  ((getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) ? \
     abort() : \
     THROW_MESSAGE(DissectorError, message))
 
@@ -272,7 +272,7 @@ typedef proto_node proto_item;
 /** The protocol field indicates a security probem (e.g. unsecure implementation) */
 /*#define PI_SECURITY			0x8000*/
 
-/* add more, see http://wiki.ethereal.com/Development/ExpertInfo */
+/* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
 
 
 /** is this protocol field hidden from the protocol tree display (used for filtering only)? */
@@ -320,7 +320,7 @@ extern void proto_cleanup(void);
     you will still need to call any subdissector with the original value of 
     tree or filtering will break.
 
-    The purpose of this is to optimize ethereal for speed and make it
+    The purpose of this is to optimize wireshark for speed and make it
     faster for when filters are being used.
 */
 extern gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);

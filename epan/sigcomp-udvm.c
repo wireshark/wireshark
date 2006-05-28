@@ -348,7 +348,7 @@ execute_next_instruction:
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 			"Addr: %u ## DECOMPRESSION-FAILURE(0)",
 			current_address);
-		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Ethereal UDVM diagnostic: %s.",
+		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Wireshark UDVM diagnostic: %s.",
 				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
 		if ( output_address > 0 ){
 			/* At least something got decompressed, show it */

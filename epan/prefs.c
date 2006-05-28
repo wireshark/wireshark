@@ -62,7 +62,7 @@ static void   clear_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
 #define PF_NAME		"preferences"
-#define OLD_GPF_NAME	"ethereal.conf"	/* old name for global preferences file */
+#define OLD_GPF_NAME	"wireshark.conf"	/* old name for global preferences file */
 
 static gboolean prefs_initialized = FALSE;
 static gchar *gpf_path = NULL;
@@ -893,7 +893,7 @@ find_index_from_string_array(char *needle, const char **haystack, int default_va
 # This is a comment line
 print.command: lpr
 print.file: /a/very/long/path/
-	to/ethereal-out.ps
+	to/wireshark-out.ps
  *
  */
 
@@ -916,7 +916,7 @@ init_prefs(void) {
 
   prefs.pr_format  = PR_FMT_TEXT;
   prefs.pr_dest    = PR_DEST_CMD;
-  prefs.pr_file    = g_strdup("ethereal.out");
+  prefs.pr_file    = g_strdup("wireshark.out");
   prefs.pr_cmd     = g_strdup("lpr");
   prefs.col_list = NULL;
   for (i = 0; i < DEF_NUM_COLS; i++) {
@@ -981,7 +981,7 @@ init_prefs(void) {
    *
    *  2) if you use a font set, the text to be drawn must be a
    *	   multi-byte string in the appropriate locale, but
-   *	   Ethereal does *NOT* guarantee that's the case - in
+   *	   Wireshark does *NOT* guarantee that's the case - in
    *	   the hex-dump window, each character in the text portion
    *	   of the display must be a *single* byte, and in the
    *	   packet-list and protocol-tree windows, text extracted
@@ -2250,7 +2250,7 @@ write_prefs(char **pf_path_return)
   fputs("# Configuration file for Wireshark " VERSION ".\n"
     "#\n"
     "# This file is regenerated each time preferences are saved within\n"
-    "# Ethereal.  Making manual changes should be safe, however.\n", pf);
+    "# Wireshark.  Making manual changes should be safe, however.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
   

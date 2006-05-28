@@ -334,7 +334,7 @@ draw_tap_listeners(gboolean draw_all)
 /* **********************************************************************
  * Functions used by tap to
  * 1, register that a really simple extension is available for use by
- *    ethereal. 
+ *    Wireshark. 
  * 2, start tapping from a subdissector 
  * 3, close an already open tap
  * ********************************************************************** */

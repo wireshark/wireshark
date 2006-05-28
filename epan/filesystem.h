@@ -90,7 +90,7 @@ extern char *get_datafile_path(const char *filename);
 /*
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,
- * there's no "/etc" directory, so we get them from the Ethereal
+ * there's no "/etc" directory, so we get them from the Wireshark
  * global configuration and data file directory.
  */
 extern const char *get_systemfile_dir(void);
@@ -109,7 +109,7 @@ extern int create_persconffile_dir(char **pf_dir_path_return);
  * file name.
  *
  * On Win32, if "for_writing" is FALSE, we check whether the file exists
- * and, if not, construct a path name relative to the ".ethereal"
+ * and, if not, construct a path name relative to the ".wireshark"
  * subdirectory of the user's home directory, and check whether that
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.

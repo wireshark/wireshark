@@ -5,10 +5,10 @@
 #include "except.h"
 #endif
 
-/* Ethereal has only one exception group, to make these macros simple */
-#define XCEPT_GROUP_ETHEREAL 1
+/* Wireshark has only one exception group, to make these macros simple */
+#define XCEPT_GROUP_WIRESHARK 1
 
-/* Ethereal's exceptions */
+/* Wireshark's exceptions */
 
 /**
     Index is out of range.
@@ -170,7 +170,7 @@
 	except_t *exc; \
 	volatile int except_state = 0; \
 	static const except_id_t catch_spec[] = { \
-		{ XCEPT_GROUP_ETHEREAL, XCEPT_CODE_ANY } }; \
+		{ XCEPT_GROUP_WIRESHARK, XCEPT_CODE_ANY } }; \
 	except_try_push(catch_spec, 1, &exc); \
 	                                               \
     	if(except_state & EXCEPT_CAUGHT)               \
@@ -213,10 +213,10 @@
 		/* user's code goes here */
 
 #define THROW(x) \
-	except_throw(XCEPT_GROUP_ETHEREAL, (x), NULL)
+	except_throw(XCEPT_GROUP_WIRESHARK, (x), NULL)
 
 #define THROW_MESSAGE(x, y) \
-	except_throw(XCEPT_GROUP_ETHEREAL, (x), (y))
+	except_throw(XCEPT_GROUP_WIRESHARK, (x), (y))
 
 #define GET_MESSAGE			except_message(exc)
 
@@ -243,7 +243,7 @@
 
 /* Register cleanup functions in case an exception is thrown and not caught.
  * From the Kazlib documentation, with modifications for use with the
- * Ethereal-specific macros:
+ * Wireshark-specific macros:
  *
  * CLEANUP_PUSH(func, arg)
  *

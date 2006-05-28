@@ -1,5 +1,5 @@
 /* emem.c
- * Ethereal memory management and garbage collection functions
+ * Wireshark memory management and garbage collection functions
  * Ronnie Sahlberg 2005
  *
  * $Id$
@@ -185,7 +185,7 @@ emem_canary_pad (size_t allocation) {
 
 
 /* Initialize the packet-lifetime memory allocation pool.
- * This function should be called only once when Ethereal or Tethereal starts
+ * This function should be called only once when Wireshark or Twireshark starts
  * up.
  */
 void
@@ -223,7 +223,7 @@ ep_init_chunk(void)
 
 }
 /* Initialize the capture-lifetime memory allocation pool.
- * This function should be called only once when Ethereal or Tethereal starts
+ * This function should be called only once when Wireshark or Twireshark starts
  * up.
  */
 void

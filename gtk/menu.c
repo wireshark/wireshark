@@ -396,7 +396,7 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Wireshark", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Wireshark Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Twireshark", NULL, topic_menu_cb, LOCALPAGE_MAN_TWIRESHARK, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Dumpcap", NULL, topic_menu_cb, LOCALPAGE_MAN_DUMPCAP, NULL, NULL),

@@ -1033,7 +1033,7 @@ check_test(stnode_t *st_node)
 #ifdef HAVE_LIBPCRE
 			check_relation("matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);
 #else
-			dfilter_fail("This Ethereal version does not support the \"matches\" operation.");
+			dfilter_fail("This Wireshark version does not support the \"matches\" operation.");
 			THROW(TypeError);
 #endif
 			break;

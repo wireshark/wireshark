@@ -1,7 +1,7 @@
 /*
  *  dtd.h
  *
- * XML dissector for ethereal 
+ * XML dissector for Wireshark 
  * DTD import declarations
  *
  * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>

@@ -1,5 +1,5 @@
 /* emem.h
- * Definitions for ethereal memory management and garbage collection
+ * Definitions for Wireshark memory management and garbage collection
  * Ronnie Sahlberg 2005
  *
  * $Id$
@@ -31,8 +31,8 @@
 /* Functions for handling memory allocation and garbage collection with 
  * a packet lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
- * until ethereal starts dissecting the next packet in the list.
- * Everytime ethereal starts decoding the next packet all memory allocated
+ * until Wireshark starts dissecting the next packet in the list.
+ * Everytime Wireshark starts decoding the next packet all memory allocated
  * through these functions will be released back to the free pool.
  *
  * These functions are very fast and offer automatic garbage collection:
@@ -40,7 +40,7 @@
  * the previous packet is freed.
  */
 /* Initialize packet-lifetime memory allocation pool. This function is called 
- * once when [t]ethereal is initialized to set up the required structures.
+ * once when [t]Wireshark is initialized to set up the required structures.
  */
 void ep_init_chunk(void);
 
@@ -116,15 +116,15 @@ void* ep_stack_pop(ep_stack_t stack);
 /* Functions for handling memory allocation and garbage collection with 
  * a capture lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
- * until ethereal opens a new capture or capture file.
- * Everytime ethereal starts a new capture or opens a new capture file
+ * until Wireshark opens a new capture or capture file.
+ * Everytime Wireshark starts a new capture or opens a new capture file
  * all the data allocated through these functions will be released back 
  * to the free pool.
  *
  * These functions are very fast and offer automatic garbage collection.
  */
 /* Initialize capture-lifetime memory allocation pool. This function is called 
- * once when [t]ethereal is initialized to set up the required structures.
+ * once when [t]Wireshark is initialized to set up the required structures.
  */
 void se_init_chunk(void);
 
