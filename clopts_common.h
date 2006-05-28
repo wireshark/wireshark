@@ -1,5 +1,5 @@
 /* clopts_common.h
- * Handle command-line arguments common to Ethereal and Tethereal
+ * Handle command-line arguments common to Wireshark and Twireshark
  *
  * $Id$
  *

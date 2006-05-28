@@ -229,15 +229,15 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+		fprintf(stderr, "twireshark: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 	if (major < 0 || major > 65535) {
-		fprintf(stderr,"tethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
+		fprintf(stderr,"twireshark: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
 		exit(1);
 	}
 	if (minor < 0 || minor > 65535) {
-		fprintf(stderr,"tethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
+		fprintf(stderr,"twireshark: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
 		exit(1);
 	}
 	ver = major;
@@ -246,7 +246,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
+		fprintf(stderr,"twireshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
 		exit(1);
 	}
 	procs=dcerpc_get_proto_sub_dissector(&uuid, ver);
@@ -291,7 +291,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tethereal: Couldn't register dcerpc,rtt tap: %s\n",
+		fprintf(stderr, "twireshark: Couldn't register dcerpc,rtt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

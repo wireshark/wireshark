@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to tethereal.
- * It is only used by tethereal and not ethereal
+/* This module provides rpc call/reply RTT statistics to twireshark.
+ * It is only used by twireshark and not wireshark
  *
  * It serves as an example on how to use the tap api.
  */
@@ -66,11 +66,11 @@ typedef struct _rpcstat_t {
 
 
 
-/* This callback is never used by tethereal but it is here for completeness.
+/* This callback is never used by twireshark but it is here for completeness.
  * When registering below, we could just have left this function as NULL.
  *
  * When used by wireshark, this function will be called whenever we would need
- * to reset all state. Such as when ethereal opens a new file, when it
+ * to reset all state. Such as when wireshark opens a new file, when it
  * starts a new capture, when it rescans the packetlist after some prefs have
  * changed etc.
  * So if your aplication has some state it needs to clean up in those
@@ -102,7 +102,7 @@ rpcstat_reset(void *prs)
  * later.
  *
  * This function should be as lightweight as possible since it executes together
- * with the normal ethereal dissectors. Try to push as much processing as
+ * with the normal wireshark dissectors. Try to push as much processing as
  * possible into (*draw) instead since that function executes asynchronously
  * and does not affect the main threads performance.
  *
@@ -186,10 +186,10 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	return 1;
 }
 
-/* This callback is used when tethereal wants us to draw/update our
- * data to the output device. Since this is tethereal only output is
+/* This callback is used when twireshark wants us to draw/update our
+ * data to the output device. Since this is twireshark only output is
  * stdout.
- * Tethereal will only call this callback once, which is when tethereal has
+ * Twireshark will only call this callback once, which is when twireshark has
  * finished reading all packets and exists.
  * If used with wireshark this may be called any time, perhaps once every 3 
  * seconds or so.
@@ -268,7 +268,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 /* When called, this function will create a new instance of rpcstat.
  * program and version are whick onc-rpc program/version we want to
  * collect statistics for.
- * This function is called from tethereal when it parses the -z rpc, arguments
+ * This function is called from twireshark when it parses the -z rpc, arguments
  * and it creates a new instance to store statistics in and registers this
  * new instance for the rpc tap.
  */
@@ -289,7 +289,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
+		fprintf(stderr, "twireshark: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -309,8 +309,8 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 	rpc_max_proc=-1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	if(rpc_min_proc==-1){
-		fprintf(stderr,"tethereal: Invalid -z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
-		fprintf(stderr,"   Program:%d version:%d isn't supported by tethereal.\n", rpc_program, rpc_version);
+		fprintf(stderr,"twireshark: Invalid -z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
+		fprintf(stderr,"   Program:%d version:%d isn't supported by twireshark.\n", rpc_program, rpc_version);
 		exit(1);
 	}
 
@@ -345,7 +345,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tethereal: Couldn't register rpc,rtt tap: %s\n",
+		fprintf(stderr, "twireshark: Couldn't register rpc,rtt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

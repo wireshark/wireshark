@@ -57,7 +57,7 @@ failure_alert_box(const char *msg_format, va_list ap)
  * various HIGs suggest that you should, for example, suggest that the
  * user remove files if the file system is full.  Perhaps that's because
  * they're providing guidelines for people less sophisticated than the
- * typical Ethereal user is, but....
+ * typical Wireshark user is, but....
  */
 void
 open_failure_alert_box(const char *filename, int err, gboolean for_writing)
@@ -86,7 +86,7 @@ read_failure_alert_box(const char *filename, int err)
  * various HIGs suggest that you should, for example, suggest that the
  * user remove files if the file system is full.  Perhaps that's because
  * they're providing guidelines for people less sophisticated than the
- * typical Ethereal user is, but....
+ * typical Wireshark user is, but....
  */
 void
 write_failure_alert_box(const char *filename, int err)

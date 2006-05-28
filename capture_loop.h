@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -98,9 +98,9 @@ extern void capture_loop_stop(void);
 typedef void (*capture_packet_cb_fct)(u_char *, const struct pcap_pkthdr *, const u_char *);
 
 
-/* moved from capture_loop.c here, so we can combine it (and the related functions) with tethereal */
+/* moved from capture_loop.c here, so we can combine it (and the related functions) with twireshark */
 /* XXX - should be moved back to capture_loop.c */
-/* E: capture_loop.c only (Ethereal/dumpcap) T: tethereal only */
+/* E: capture_loop.c only (Wireshark/dumpcap) T: twireshark only */
 typedef struct _loop_data {
   /* common */
   gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */

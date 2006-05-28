@@ -1,5 +1,5 @@
 /* tap-stats_tree.c
- * tethereal's tap implememntation of stats_tree
+ * twireshark's tap implememntation of stats_tree
  * 2005, Luis E. G. Ontanon
  *
  * $Id$

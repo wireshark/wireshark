@@ -93,7 +93,7 @@ usage(void)
 #endif
 	  "\n", VERSION);
   fprintf(stderr, "Merge two or more capture files into one.\n");
-  fprintf(stderr, "See http://www.ethereal.com for more information.\n");
+  fprintf(stderr, "See http://www.wireshark.org for more information.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Usage: mergecap [options] -w <outfile|-> <infile> ...\n");
   fprintf(stderr, "\n");

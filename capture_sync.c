@@ -1,5 +1,5 @@
 /* capture_sync.c
- * Synchronisation between Ethereal capture parent and child instances
+ * Synchronisation between Wireshark capture parent and child instances
  *
  * $Id$
  *
@@ -265,7 +265,7 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = g_malloc(sizeof (char *));
     *argv = NULL;
 
-    /* take ethereal's absolute program path and replace "ethereal" with "dumpcap" */
+    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
     exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
 
     /* Make that the first argument in the argument list (argv[0]). */
@@ -445,7 +445,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if ((capture_opts->fork_child = fork()) == 0) {
       /*
-       * Child process - run Ethereal with the right arguments to make
+       * Child process - run Wireshark with the right arguments to make
        * it just pop up the live capture dialog box and capture with
        * the specified capture parameters, writing to the specified file.
        */
@@ -895,7 +895,7 @@ sync_pipe_stop(capture_options *capture_opts)
 }
 
 
-/* Ethereal has to exit, force the capture child to close */
+/* Wireshark has to exit, force the capture child to close */
 void
 sync_pipe_kill(capture_options *capture_opts)
 {

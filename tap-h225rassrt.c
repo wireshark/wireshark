@@ -1,5 +1,5 @@
 /* tap_h225rassrt.c
- * h225 RAS Service Response Time statistics for ethereal
+ * h225 RAS Service Response Time statistics for wireshark
  * Copyright 2003 Lars Roland
  *
  * $Id$
@@ -236,7 +236,7 @@ h225rassrt_init(const char *optarg, void* userdata _U_)
 		g_free(hs->filter);
 		g_free(hs);
 
-		fprintf(stderr, "tethereal: Couldn't register h225,srt tap: %s\n",
+		fprintf(stderr, "twireshark: Couldn't register h225,srt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

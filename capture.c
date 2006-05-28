@@ -225,7 +225,7 @@ guint32 drops)
 "\n"
 "Help about capturing can be found at:\n"
 "\n"
-"       http://wiki.ethereal.com/CaptureSetup"
+"       http://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
 "\n\n"
 "Wireless (Wi-Fi/WLAN):\n"
@@ -494,7 +494,7 @@ capture_input_closed(capture_options *capture_opts)
 "\n"
 "Help about capturing can be found at:\n"
 "\n"
-"       http://wiki.ethereal.com/CaptureSetup"
+"       http://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
 "\n\n"
 "Wireless (Wi-Fi/WLAN):\n"

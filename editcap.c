@@ -236,7 +236,7 @@ static void usage(void)
 #endif
 	  "\n", VERSION);
   fprintf(stderr, "Edit and/or translate the format of capture files.\n");
-  fprintf(stderr, "See http://www.ethereal.com for more information.\n");
+  fprintf(stderr, "See http://www.wireshark.org for more information.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
   fprintf(stderr, "\n");

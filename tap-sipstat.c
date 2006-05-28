@@ -1,5 +1,5 @@
 /* tap_sipstat.c
- * sip message counter for ethereal
+ * sip message counter for wireshark
  *
  * $Id$
  * Copied from gtk/sip_stat.c and tap-httpstat.c
@@ -378,7 +378,7 @@ sipstat_init(const char *optarg, void* userdata _U_)
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
 		g_free(sp);
-		fprintf (stderr, "tethereal: Couldn't register sip,stat tap: %s\n",
+		fprintf (stderr, "twireshark: Couldn't register sip,stat tap: %s\n",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

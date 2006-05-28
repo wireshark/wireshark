@@ -507,7 +507,7 @@ cf_read(capture_file *cf)
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The capture file has a packet with a network type that Ethereal doesn't support.\n(%s)",
+               "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
@@ -569,7 +569,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 
   while (to_read != 0 && (wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
-      /* Well, the user decided to exit Ethereal.  Break out of the
+      /* Well, the user decided to exit Wireshark.  Break out of the
          loop, and let the code below (which is called even if there
 	 aren't any packets left to read) exit. */
       break;
@@ -589,7 +589,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
   packet_list_thaw();
 
   if (cf->state == FILE_READ_ABORTED) {
-    /* Well, the user decided to exit Ethereal.  Return CF_READ_ABORTED
+    /* Well, the user decided to exit Wireshark.  Return CF_READ_ABORTED
        so that our caller can kill off the capture child process;
        this will cause an EOF on the pipe from the child, so
        "cf_finish_tail()" will be called, and it will clean up
@@ -1136,7 +1136,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
 	case WTAP_ERR_UNSUPPORTED_ENCAP:
 	  g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-		   "The capture file %%s has a packet with a network type that Ethereal doesn't support.\n(%s)",
+		   "The capture file %%s has a packet with a network type that Wireshark doesn't support.\n(%s)",
 		   err_info);
 	  g_free(err_info);
 	  errmsg = errmsg_errno;
@@ -1476,7 +1476,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        these frames, as they won't have been seen by this sequential
        pass, but the only alternative I see is to keep scanning them
        even though the user requested that the scan stop, and that
-       would leave the user stuck with an Ethereal grinding on
+       would leave the user stuck with an Wireshark grinding on
        until it finishes.  Should we just stick them with that? */
     for (; fdata != NULL; fdata = fdata->next) {
       fdata->flags.visited = 0;
@@ -3357,21 +3357,21 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" is a pipe or FIFO; Ethereal can't read pipe or FIFO files.",
+		    "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.",
 		    filename);
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" isn't a capture file in a format Ethereal understands.",
+		    "The file \"%s\" isn't a capture file in a format Wireshark understands.",
 		    filename);
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" isn't a capture file in a format Ethereal understands.\n"
+		    "The file \"%s\" isn't a capture file in a format Wireshark understands.\n"
 		    "(%s)",
 		    filename, err_info);
       g_free(err_info);
@@ -3388,16 +3388,16 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Ethereal doesn't support writing capture files in that format.");
+		    "Wireshark doesn't support writing capture files in that format.");
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Ethereal can't save this capture in that format.");
+		      "Wireshark can't save this capture in that format.");
       } else {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.\n"
+		      "The file \"%s\" is a capture for a network type that Wireshark doesn't support.\n"
 		      "(%s)",
 		      filename, err_info);
         g_free(err_info);
@@ -3407,10 +3407,10 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Ethereal can't save this capture in that format.");
+		      "Wireshark can't save this capture in that format.");
       } else {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.",
+		      "The file \"%s\" is a capture for a network type that Wireshark doesn't support.",
 		      filename);
       }
       break;
@@ -3503,7 +3503,7 @@ cf_read_error_message(int err, const gchar *err_info)
 
   case WTAP_ERR_UNSUPPORTED_ENCAP:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" has a packet with a network type that Ethereal doesn't support.\n(%s)",
+               "The file \"%%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
                err_info);
       break;
 

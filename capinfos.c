@@ -216,7 +216,7 @@ static void usage(gboolean is_error)
 #endif
 	  "\n", VERSION);
   fprintf(output, "Prints information about capture files.\n");
-  fprintf(output, "See http://www.ethereal.com for more information.\n");
+  fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
   fprintf(output, "Usage: capinfos [options] <infile> ...\n");
   fprintf(output, "\n");

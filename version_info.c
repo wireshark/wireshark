@@ -247,7 +247,7 @@ get_runtime_version_info(GString *str)
 	 * flavor of Windows on which you're running.  Implementing more
 	 * of that is left as an exercise to the reader - who should
 	 * check any copyright information about code samples on MSDN
-	 * before cutting and pasting into Ethereal.
+	 * before cutting and pasting into Wireshark.
 	 *
 	 * They should also note that you need an OSVERSIONINFOEX structure
 	 * to get some of that information, and that not only is that

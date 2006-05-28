@@ -1,5 +1,5 @@
 /* capture_sync.h
- * Synchronisation between Ethereal capture parent and child instances
+ * Synchronisation between Wireshark capture parent and child instances
  *
  * $Id$
  *
@@ -27,7 +27,7 @@
  *  
  *  Sync mode capture (internal interface).
  *
- *  Will start a new Ethereal child instance which will do the actual capture 
+ *  Will start a new Wireshark child instance which will do the actual capture 
  *  work.
  */
 

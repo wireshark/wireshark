@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -165,7 +165,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
   /*
-   * XXX (T)Ethereal blocks until we return
+   * XXX (T)Wireshark blocks until we return
    */
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
@@ -458,7 +458,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
 
 
-/* XXX - opening Winsock on tethereal? */
+/* XXX - opening Winsock on twireshark? */
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -567,7 +567,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "\n"
 "Help can be found at:\n"
 "\n"
-"       http://wiki.ethereal.com/CaptureSetup\n"
+"       http://wiki.wireshark.org/CaptureSetup\n"
 "\n"
 "64-bit Windows:\n"
 "WinPcap does not support 64-bit Windows; you will have to use some other\n"
@@ -592,16 +592,16 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	/* Pipe doesn't exist, so output message for interface */
 
 	/* If we got a "can't find PPA for X" message, warn the user (who
-	   is running (T)Ethereal on HP-UX) that they don't have a version
+	   is running (T)Wireshark on HP-UX) that they don't have a version
 	   of libpcap that properly handles HP-UX (libpcap 0.6.x and later
 	   versions, which properly handle HP-UX, say "can't find /dev/dlpi
 	   PPA for X" rather than "can't find PPA for X"). */
 	if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	  libpcap_warn =
 	    "\n\n"
-	    "You are running (T)Ethereal with a version of the libpcap library\n"
+	    "You are running (T)Wireshark with a version of the libpcap library\n"
 	    "that doesn't handle HP-UX network devices well; this means that\n"
-	    "(T)Ethereal may not be able to capture packets.\n"
+	    "(T)Wireshark may not be able to capture packets.\n"
 	    "\n"
 	    "To fix this, you should install libpcap 0.6.2, or a later version\n"
 	    "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
@@ -628,7 +628,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
   }
 
-/* XXX - will this work for tethereal? */
+/* XXX - will this work for twireshark? */
 #ifdef MUST_DO_SELECT
   if (!ld->from_cap_pipe) {
 #ifdef HAVE_PCAP_GET_SELECTABLE_FD
@@ -753,7 +753,7 @@ gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_f
 
   if (ld->pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
-    /* XXX - use cf_open_error_message from tethereal instead? */
+    /* XXX - use cf_open_error_message from twireshark instead? */
     switch (err) {
 
     case WTAP_ERR_CANT_OPEN:
@@ -854,7 +854,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
      * to stop a capture until a packet arrives.  If that's unacceptable,
      * plead with whoever supplies the software for that device to add
      * "select()" support, or upgrade to libpcap 0.8.1 or later, and
-     * rebuild Ethereal or get a version built with libpcap 0.8.1 or
+     * rebuild Wireshark or get a version built with libpcap 0.8.1 or
      * later, so it can use pcap_breakloop().
      */
 #ifdef LOG_CAPTURE_VERBOSE
@@ -923,7 +923,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 
       /*
        * WinPcap's remote capturing feature doesn't work with pcap_dispatch(),
-       * see http://wiki.ethereal.com/CaptureSetup_2fWinPcapRemote
+       * see http://wiki.wireshark.org/CaptureSetup_2fWinPcapRemote
        * This should be fixed in the WinPcap 4.0 alpha release.
        *
        * For reference, an example remote interface:

@@ -30,7 +30,7 @@
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
- * as input.  Until we fix up Ethereal to properly handle non-ASCII
+ * as input.  Until we fix up Wireshark to properly handle non-ASCII
  * characters in all output (both GUI displays and text printouts)
  * in those versions of GTK+, we work around the problem by escaping
  * all characters that aren't printable ASCII.

@@ -1,4 +1,4 @@
-/* tethereal.c
+/* twireshark.c
  *
  * $Id$
  *
@@ -216,9 +216,9 @@ print_usage(gboolean print_ver)
   if (print_ver) {
     output = stdout;
     fprintf(output, 
-        "Tethereal " VERSION "%s\n"
+        "Twireshark " VERSION "%s\n"
         "Dump and analyze network traffic.\n"
-        "See http://www.ethereal.com for more information.\n"
+        "See http://www.wireshark.com for more information.\n"
         "\n"
         "%s",
 	svnversion, get_copyright_info());
@@ -226,7 +226,7 @@ print_usage(gboolean print_ver)
     output = stderr;
   }
   fprintf(output, "\n");
-  fprintf(output, "Usage: tethereal [options] ...\n");
+  fprintf(output, "Usage: twireshark [options] ...\n");
   fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
@@ -1030,7 +1030,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
-        printf("Tethereal " VERSION "%s\n"
+        printf("Twireshark " VERSION "%s\n"
                "\n"
                "%s"
                "\n"
@@ -1123,7 +1123,7 @@ main(int argc, char *argv[])
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
-    cmdarg_err("This version of Tethereal was not built with support for capturing packets.");
+    cmdarg_err("This version of Twireshark was not built with support for capturing packets.");
 #endif
   if (arg_error) {
     print_usage(FALSE);
@@ -1385,7 +1385,7 @@ main(int argc, char *argv[])
 
     /*
      * Immediately relinquish any special privileges we have; we must not
-     * be allowed to read any capture files the user running Tethereal
+     * be allowed to read any capture files the user running Twireshark
      * can't open.
      */
     relinquish_special_privs_perm();
@@ -1438,7 +1438,7 @@ main(int argc, char *argv[])
       char *detailed_err;
 
       cmdarg_err("WinPcap couldn't be found.");
-      detailed_err = cant_load_winpcap_err("Tethereal");
+      detailed_err = cant_load_winpcap_err("Twireshark");
       cmdarg_err_cont("%s", detailed_err);
       g_free(detailed_err);
       exit(2);
@@ -1481,7 +1481,7 @@ main(int argc, char *argv[])
     }
 #else
     /* No - complain. */
-    cmdarg_err("This version of Tethereal was not built with support for capturing packets.");
+    cmdarg_err("This version of Twireshark was not built with support for capturing packets.");
     exit(2);
 #endif
   }
@@ -1981,13 +1981,13 @@ capture_cleanup(DWORD ctrltype _U_)
      no other handler - such as one that would terminate the process -
      gets called.
 
-     XXX - for some reason, typing ^C to Tethereal, if you run this in
+     XXX - for some reason, typing ^C to Twireshark, if you run this in
      a Cygwin console window in at least some versions of Cygwin,
-     causes Tethereal to terminate immediately; this routine gets
+     causes Twireshark to terminate immediately; this routine gets
      called, but the main loop doesn't get a chance to run and
      exit cleanly, at least if this is compiled with Microsoft Visual
      C++ (i.e., it's a property of the Cygwin console window or Bash;
-     it happens if Tethereal is not built with Cygwin - for all I know,
+     it happens if Twireshark is not built with Cygwin - for all I know,
      building it with Cygwin may make the problem go away). */
   ld.go = FALSE;
   return TRUE;
@@ -2130,7 +2130,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      cmdarg_err("\"%s\" has a packet with a network type that Tethereal doesn't support.\n(%s)",
+      cmdarg_err("\"%s\" has a packet with a network type that Twireshark doesn't support.\n(%s)",
                  cf->filename, err_info);
       break;
 
@@ -2334,7 +2334,7 @@ process_packet(capture_file *cf, long offset, const struct wtap_pkthdr *whdr,
          tree for a single packet without waiting for anything to happen,
          it should be as good as line-buffered mode if we're printing
          protocol trees.  (The whole reason for the "-l" flag in either
-         tcpdump or Tethereal is to allow the output of a live capture to
+         tcpdump or Twireshark is to allow the output of a live capture to
          be piped to a program or script and to have that script see the
          information for the packet as soon as it's printed, rather than
          having to wait until a standard I/O buffer fills up. */
@@ -2798,13 +2798,13 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" isn't a capture file in a format Tethereal understands.";
+      errmsg = "The file \"%s\" isn't a capture file in a format Twireshark understands.";
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" isn't a capture file in a format Tethereal understands.\n"
+               "The file \"%%s\" isn't a capture file in a format Twireshark understands.\n"
                "(%s)", err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
@@ -2820,15 +2820,15 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
-      errmsg = "Tethereal doesn't support writing capture files in that format.";
+      errmsg = "Twireshark doesn't support writing capture files in that format.";
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing)
-        errmsg = "Tethereal can't save this capture in that format.";
+        errmsg = "Twireshark can't save this capture in that format.";
       else {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a capture for a network type that Tethereal doesn't support.\n"
+                 "The file \"%%s\" is a capture for a network type that Twireshark doesn't support.\n"
                  "(%s)", err_info);
         g_free(err_info);
         errmsg = errmsg_errno;
@@ -2837,9 +2837,9 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing)
-        errmsg = "Tethereal can't save this capture in that format.";
+        errmsg = "Twireshark can't save this capture in that format.";
       else
-        errmsg = "The file \"%s\" is a capture for a network type that Tethereal doesn't support.";
+        errmsg = "The file \"%s\" is a capture for a network type that Twireshark doesn't support.";
       break;
 
     case WTAP_ERR_BAD_RECORD:
@@ -2881,12 +2881,12 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 }
 
 /*
- * Open/create errors are reported with an console message in Tethereal.
+ * Open/create errors are reported with an console message in Twireshark.
  */
 static void
 open_failure_message(const char *filename, int err, gboolean for_writing)
 {
-  fprintf(stderr, "tethereal: ");
+  fprintf(stderr, "twireshark: ");
   fprintf(stderr, file_open_error_message(err, for_writing), filename);
   fprintf(stderr, "\n");
 }
@@ -2947,18 +2947,18 @@ fail:
 
 
 /*
- * General errors are reported with an console message in Tethereal.
+ * General errors are reported with an console message in Twireshark.
  */
 static void
 failure_message(const char *msg_format, va_list ap)
 {
-  fprintf(stderr, "tethereal: ");
+  fprintf(stderr, "twireshark: ");
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
 
 /*
- * Read errors are reported with an console message in Tethereal.
+ * Read errors are reported with an console message in Twireshark.
  */
 static void
 read_failure_message(const char *filename, int err)
@@ -2976,7 +2976,7 @@ cmdarg_err(const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  fprintf(stderr, "tethereal: ");
+  fprintf(stderr, "twireshark: ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
   va_end(ap);

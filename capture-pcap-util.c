@@ -105,11 +105,11 @@ get_pcap_linktype(pcap_t *pch, const char *devname
 	 * value, rather than as a DLT_ value, we will assume this is AIX's
 	 * non-standard, incompatible libpcap, rather than a standard libpcap,
 	 * and will map the link-layer type to the standard DLT_ value for
-	 * that link-layer type, as that's what the rest of Ethereal expects.
+	 * that link-layer type, as that's what the rest of Wireshark expects.
 	 *
 	 * (This means the capture files won't be readable by a tcpdump
 	 * linked with AIX's non-standard libpcap, but so it goes.  They
-	 * *will* be readable by standard versions of tcpdump, Ethereal,
+	 * *will* be readable by standard versions of tcpdump, Wireshark,
 	 * and so on.)
 	 *
 	 * XXX - if we conclude we're using AIX libpcap, should we also
@@ -141,7 +141,7 @@ get_pcap_linktype(pcap_t *pch, const char *devname
 			/*
 			 * That's the RFC 1573 value for 802.3; map it to
 			 * DLT_EN10MB.
-			 * (libpcap, tcpdump, Ethereal, etc. don't care if
+			 * (libpcap, tcpdump, Wireshark, etc. don't care if
 			 * it's Ethernet or 802.3.)
 			 */
 			linktype = 1;
