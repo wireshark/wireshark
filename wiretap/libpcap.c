@@ -160,7 +160,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * variants use for different encapsulation types, we check what
  * <pcap.h> defined to determine how to interpret them, so that we
  * interpret them the way the libpcap with which we're building
- * Ethereal/Wiretap interprets them (which, if it doesn't support
+ * Wireshark/Wiretap interprets them (which, if it doesn't support
  * them at all, means we don't support them either - any capture files
  * using them are foreign, and we don't hazard a guess as to which
  * platform they came from; we could, I guess, choose the most likely
@@ -185,7 +185,7 @@ static const struct {
 	 * These are the values that are almost certainly the same
 	 * in all libpcaps (I've yet to find one where the values
 	 * in question are used for some purpose other than the
-	 * one below, but...), and that Wiretap and Ethereal
+	 * one below, but...), and that Wiretap and Wireshark
 	 * currently support.
 	 */
 	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
@@ -227,7 +227,7 @@ static const struct {
 	 * I also don't see anything immediately obvious that munges
 	 * the address field for sync PPP, either.
 	 *
-	 * Ethereal currently assumes that if the first octet of a
+	 * Wireshark currently assumes that if the first octet of a
 	 * PPP frame is 0xFF, it's the address field and is followed
 	 * by a control field and a 2-byte protocol, otherwise the
 	 * address and control fields are absent and the frame begins
@@ -272,7 +272,7 @@ static const struct {
 	/*
 	 * These are the values that libpcap 0.5 and later use in
 	 * capture file headers, in an attempt to work around the
-	 * confusion decried above, and that Wiretap and Ethereal
+	 * confusion decried above, and that Wiretap and Wireshark
 	 * currently support.
 	 */
 	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
@@ -430,7 +430,7 @@ static const struct {
 	 *
 	 * We put these *after* the entries for the platform-independent
 	 * libpcap type values for those Wiretap encapsulation types, so
-	 * that Ethereal chooses the platform-independent libpcap type
+	 * that Wireshark chooses the platform-independent libpcap type
 	 * value for those encapsulatioin types, not the platform-dependent
 	 * one.
 	 */
@@ -468,7 +468,7 @@ static const struct {
 	 *
 	 * We don't yet handle DLT_C_HDLC, but we can handle DLT_LOOP
 	 * (it's just like DLT_NULL, only with the AF_ value in network
-	 * rather than host byte order - Ethereal figures out the
+	 * rather than host byte order - Wireshark figures out the
 	 * byte order from the data, so we don't care what byte order
 	 * it's in), so if DLT_LOOP is defined as 12, interpret 12
 	 * as WTAP_ENCAP_NULL, otherwise, unless DLT_C_HDLC is defined
@@ -762,7 +762,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	 * in AIX libpcap rather than PPP in standard libpcap, as
 	 * you're probably more likely to be handing an AIX libpcap
 	 * token-ring capture than an old (pre-libpcap 0.4) PPP capture
-	 * to Ethereal.
+	 * to Wireshark.
 	 */
 	aix = FALSE;	/* assume it's not AIX */
 	if (hdr.version_major == 2 && hdr.version_minor == 2) {
@@ -883,7 +883,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	 *	RH 6.1 has a tcpdump that writes out files that can't
 	 *	be read by any software that expects non-modified headers
 	 *	if the magic number isn't the modified magic number (e.g.,
-	 *	any normal version of tcpdump, and Ethereal if we don't
+	 *	any normal version of tcpdump, and Wireshark if we don't
 	 *	do this gross heuristic).
 	 *
 	 *	If this file had the modified magic number, it may be

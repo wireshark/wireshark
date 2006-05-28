@@ -41,7 +41,7 @@
  *
  * For a time there was an error in iplogging and the ip length, flags, and id
  * were byteswapped. We will check for this and handle it before handing to
- * ethereal.
+ * wireshark.
  */
 
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,

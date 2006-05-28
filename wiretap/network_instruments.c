@@ -490,7 +490,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	time(&system_time);
 	current_time = localtime(&system_time);
 	memset(&comment, 0x00, sizeof(comment));
-	sprintf(comment, "This capture was saved from Ethereal on %s", asctime(current_time));
+	sprintf(comment, "This capture was saved from Wireshark on %s", asctime(current_time));
 
 	/* create the file header */
 	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {

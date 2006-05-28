@@ -58,7 +58,7 @@ Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
   [..              ]-   48-[02 04]
 
 
-Alternative HEX only output, slightly more efficient and all ethereal needs:
+Alternative HEX only output, slightly more efficient and all wireshark needs:
 ------------------------------------------------------------------------------
 From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
 Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
