@@ -117,7 +117,7 @@ GtkWidget * printer_prefs_show(void)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 1, 2, 3, 4);
 	gtk_widget_show(file_bt_hb);
 
-    file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
+    file_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_BROWSE);
 	gtk_box_pack_end(GTK_BOX(file_bt_hb), file_bt, FALSE, FALSE, 0);
 	gtk_widget_show(file_bt);
 

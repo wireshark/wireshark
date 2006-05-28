@@ -162,7 +162,7 @@ about_wireshark_page_new(void)
        "\n"
        "Wireshark is Open Source Software released under the GNU General Public License.\n"
        "\n"
-       "Check the man page and http://www.ethereal.com for more information.",
+       "Check the man page and http://www.wireshark.org for more information.",
        svnversion, get_copyright_info(), comp_info_str->str,
        runtime_info_str->str);
 

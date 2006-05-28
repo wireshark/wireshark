@@ -234,7 +234,7 @@ static void help_topic(const gchar *topic) {
     HWND hw;
     GString *url = g_string_new("");
 
-    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Ethereal Help", 
+    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Wireshark Help", 
         get_datafile_dir(), topic);
 
     hw = HtmlHelpW(NULL, 
@@ -335,36 +335,36 @@ void help_redraw(void)
 static void
 topic_action(topic_action_e action)
 {
-    /* pages online at www.ethereal.com */
+    /* pages online at www.wireshark.org */
     switch(action) {
     case(ONLINEPAGE_HOME):
-        browser_open_url ("http://www.ethereal.com");
+        browser_open_url ("http://www.wireshark.org");
         break;
     case(ONLINEPAGE_WIKI):
-        browser_open_url ("http://wiki.ethereal.com");
+        browser_open_url ("http://wiki.wireshark.org");
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        browser_open_url ("http://www.ethereal.com/download.html");
+        browser_open_url ("http://www.wireshark.org/download.html");
         break;
     case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.ethereal.com/docs/eug_html_chunked");
+        browser_open_url ("http://www.wireshark.org/docs/eug_html_chunked");
         break;
     case(ONLINEPAGE_FAQ):
-        browser_open_url ("http://www.ethereal.com/faq.html");
+        browser_open_url ("http://www.wireshark.org/faq.html");
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        browser_open_url ("http://wiki.ethereal.com/SampleCaptures");
+        browser_open_url ("http://wiki.wireshark.org/SampleCaptures");
         break;
 
     /* local manual pages */
-    case(LOCALPAGE_MAN_ETHEREAL):
-        browser_open_data_file("ethereal.html");
+    case(LOCALPAGE_MAN_WIRESHARK):
+        browser_open_data_file("wireshark.html");
         break;
-    case(LOCALPAGE_MAN_ETHEREAL_FILTER):
-        browser_open_data_file("ethereal-filter.html");
+    case(LOCALPAGE_MAN_WIRESHARK_FILTER):
+        browser_open_data_file("wireshark-filter.html");
         break;
-    case(LOCALPAGE_MAN_TETHEREAL):
-        browser_open_data_file("tethereal.html");
+    case(LOCALPAGE_MAN_TWIRESHARK):
+        browser_open_data_file("twireshark.html");
         break;
     case(LOCALPAGE_MAN_DUMPCAP):
         browser_open_data_file("dumpcap.html");

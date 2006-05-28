@@ -507,7 +507,7 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
-  filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+  filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
@@ -861,7 +861,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
-  filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+  filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);

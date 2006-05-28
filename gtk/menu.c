@@ -189,9 +189,9 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE_AS),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/File Set", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/List Files", NULL, fileset_cb, 0, ETHEREAL_STOCK_FILE_SET_LIST),
-    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Next File", NULL, fileset_next_cb, 0, ETHEREAL_STOCK_FILE_SET_NEXT),
-    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Previous File", NULL, fileset_previous_cb, 0, ETHEREAL_STOCK_FILE_SET_PREVIOUS),
+    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/List Files", NULL, fileset_cb, 0, WIRESHARK_STOCK_FILE_SET_LIST),
+    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Next File", NULL, fileset_next_cb, 0, WIRESHARK_STOCK_FILE_SET_NEXT),
+    ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Previous File", NULL, fileset_previous_cb, 0, WIRESHARK_STOCK_FILE_SET_PREVIOUS),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as \"Plain _Text\" file...", NULL, export_text_cmd_cb,
@@ -232,7 +232,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Time Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 
-                        REFTIME_TOGGLE, ETHEREAL_STOCK_TIME),
+                        REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Mark Packet (toggle)", "<control>M", packet_list_mark_frame_cb,
@@ -295,7 +295,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Normal Size", "<control>equal", view_zoom_100_cb,
                              0, GTK_STOCK_ZOOM_100),
     ITEM_FACTORY_STOCK_ENTRY("/View/Resize All Columns", NULL, packet_list_resize_columns_cb,
-                       0, ETHEREAL_STOCK_RESIZE_COLUMNS),
+                       0, WIRESHARK_STOCK_RESIZE_COLUMNS),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/E_xpand Subtrees", NULL, expand_tree_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
@@ -327,21 +327,21 @@ static GtkItemFactoryEntry menu_items[] =
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Interfaces...", NULL,
-                             capture_if_cb, 0, ETHEREAL_STOCK_CAPTURE_INTERFACES),
+                             capture_if_cb, 0, WIRESHARK_STOCK_CAPTURE_INTERFACES),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Options...", "<control>K",
-                             capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_OPTIONS),
+                             capture_prep_cb, 0, WIRESHARK_STOCK_CAPTURE_OPTIONS),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start", NULL,
-                             capture_start_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
+                             capture_start_cb, 0, WIRESHARK_STOCK_CAPTURE_START),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
-                             0, ETHEREAL_STOCK_CAPTURE_STOP),
+                             0, WIRESHARK_STOCK_CAPTURE_STOP),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Restart", NULL, capture_restart_cb,
-                             0, ETHEREAL_STOCK_CAPTURE_RESTART),
+                             0, WIRESHARK_STOCK_CAPTURE_RESTART),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/Capture _Filters...", NULL, cfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_CAPTURE_FILTER),
+                       0, WIRESHARK_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
     ITEM_FACTORY_ENTRY("/_Analyze", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Display Filters...", NULL, dfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
+                       0, WIRESHARK_STOCK_DISPLAY_FILTER),
     ITEM_FACTORY_ENTRY("/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Selected", NULL, match_selected_ptree_cb, 
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
@@ -369,11 +369,11 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb, 
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, ETHEREAL_STOCK_CHECKBOX),
+    ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, WIRESHARK_STOCK_CHECKBOX),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
-                       0, ETHEREAL_STOCK_DECODE_AS),
+                       0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_User Specified Decodes...", NULL,
-                       decode_show_cb, 0, ETHEREAL_STOCK_DECODE_AS),
+                       decode_show_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
                        follow_stream_cb, 0, NULL, NULL),    
@@ -384,9 +384,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/Conversations", NULL,
-                       init_conversation_notebook_cb, 0, ETHEREAL_STOCK_CONVERSATIONS),
+                       init_conversation_notebook_cb, 0, WIRESHARK_STOCK_CONVERSATIONS),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/Endpoints", NULL,
-                       init_hostlist_notebook_cb, 0, ETHEREAL_STOCK_ENDPOINTS),
+                       init_hostlist_notebook_cb, 0, WIRESHARK_STOCK_ENDPOINTS),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
@@ -395,25 +395,25 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/User's Guide", NULL, topic_menu_cb, HELP_CONTENT, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, topic_menu_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Wireshark", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Tethereal", NULL, topic_menu_cb, LOCALPAGE_MAN_TETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Twireshark", NULL, topic_menu_cb, LOCALPAGE_MAN_TWIRESHARK, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Dumpcap", NULL, topic_menu_cb, LOCALPAGE_MAN_DUMPCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Mergecap", NULL, topic_menu_cb, LOCALPAGE_MAN_MERGECAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Editcap", NULL, topic_menu_cb, LOCALPAGE_MAN_EDITCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, topic_menu_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, topic_menu_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Wiki", NULL, topic_menu_cb, ONLINEPAGE_WIKI, ETHEREAL_STOCK_WIKI),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/User's Guide", NULL, topic_menu_cb, ONLINEPAGE_USERGUIDE, ETHEREAL_STOCK_WEB_SUPPORT),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, topic_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, topic_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, topic_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Wireshark Online", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Wireshark Online/Home Page", NULL, topic_menu_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Wireshark Online/Wiki", NULL, topic_menu_cb, ONLINEPAGE_WIKI, WIRESHARK_STOCK_WIKI),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Wireshark Online/User's Guide", NULL, topic_menu_cb, ONLINEPAGE_USERGUIDE, WIRESHARK_STOCK_WEB_SUPPORT),
+    ITEM_FACTORY_ENTRY("/Help/Wireshark Online/FAQ's", NULL, topic_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Wireshark Online/Downloads", NULL, topic_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Wireshark Online/Example Files", NULL, topic_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_About Wireshark", NULL, about_wireshark_cb,
-                       0, ETHEREAL_STOCK_ABOUT)
+                       0, WIRESHARK_STOCK_ABOUT)
 };
 
 
@@ -425,7 +425,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Mark Packet (toggle)", NULL, packet_list_mark_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, ETHEREAL_STOCK_TIME),
+    ITEM_FACTORY_STOCK_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
 
@@ -466,7 +466,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
-    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, ETHEREAL_STOCK_DECODE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_STOCK_ENTRY("/Print...", NULL, file_print_selected_cmd_cb, 0, GTK_STOCK_PRINT),
     ITEM_FACTORY_ENTRY("/Show Packet in New Window", NULL, new_window_cb,
                        0, NULL, NULL)
@@ -520,13 +520,13 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_STOCK_ENTRY("/Wiki Protocol Page", NULL, selected_ptree_info_cb,
-                       0, ETHEREAL_STOCK_WIKI),
+                       0, WIRESHARK_STOCK_WIKI),
     ITEM_FACTORY_STOCK_ENTRY("/Filter Field Reference", NULL, selected_ptree_ref_cb,
-                       0, ETHEREAL_STOCK_INTERNET),
+                       0, WIRESHARK_STOCK_INTERNET),
     ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, ETHEREAL_STOCK_DECODE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
 };
@@ -825,19 +825,19 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_STAT_GROUP_CONVERSATION_LIST):
                 entry->item_type = "<StockItem>";
-                entry->extra_data = ETHEREAL_STOCK_CONVERSATIONS;
+                entry->extra_data = WIRESHARK_STOCK_CONVERSATIONS;
                 break;
             case(REGISTER_STAT_GROUP_ENDPOINT_LIST):
                 entry->item_type = "<StockItem>";
-                entry->extra_data = ETHEREAL_STOCK_ENDPOINTS;
+                entry->extra_data = WIRESHARK_STOCK_ENDPOINTS;
                 break;
             case(REGISTER_STAT_GROUP_RESPONSE_TIME):
                 entry->item_type = "<StockItem>";
-                entry->extra_data = ETHEREAL_STOCK_TIME;
+                entry->extra_data = WIRESHARK_STOCK_TIME;
                 break;
             case(REGISTER_STAT_GROUP_TELEPHONY):
                 entry->item_type = "<StockItem>";
-                entry->extra_data = ETHEREAL_STOCK_TELEPHONY;
+                entry->extra_data = WIRESHARK_STOCK_TELEPHONY;
                 break;
             case(REGISTER_ANALYZE_GROUP_NONE):
                 break;

@@ -114,13 +114,13 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     while(stock_id != NULL) {
         if (strcmp(stock_id, GTK_STOCK_OK) == 0) {
             ok = stock_id;
-        } else if (strcmp(stock_id, ETHEREAL_STOCK_CREATE_STAT) == 0) {
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_CREATE_STAT) == 0) {
             create_stat = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_APPLY) == 0) {
             apply = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
             save = stock_id;
-        } else if (strcmp(stock_id, ETHEREAL_STOCK_DONT_SAVE) == 0) {
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_DONT_SAVE) == 0) {
         	dont_save = stock_id;  
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
@@ -129,7 +129,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
             clear = stock_id;
 #ifdef HAVE_LIBPCAP
-        } else if (strcmp(stock_id, ETHEREAL_STOCK_CAPTURE_START) == 0) {
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_START) == 0) {
             start = stock_id;
 #endif /* HAVE_LIBPCAP */
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
@@ -146,7 +146,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             yes = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_NO) == 0) {
             no = stock_id;
-        } else if (strcmp(stock_id, ETHEREAL_STOCK_FILTER_OUT_STREAM) == 0) {
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_FILTER_OUT_STREAM) == 0) {
             start = stock_id;
         } else {
             /* we don't know that button! */

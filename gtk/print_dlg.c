@@ -568,7 +568,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
     gtk_widget_grab_focus(file_te);
 
   /* "Browse" button */
-  file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
+  file_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_BROWSE);
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_BT_KEY, file_bt);
   OBJECT_SET_DATA(file_bt, PRINT_TE_PTR_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_bt, "Browse output filename in filesystem", NULL);
@@ -898,7 +898,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     /* then delete this file again. After this, the name MUST be available. */
     /* */
     /* Don't use tmpnam() or such, as this will fail under some ACL */
-    /* circumstances: http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=358 */
+    /* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358 */
 
     tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "ethprint");
     if(tmp_fd == -1) {

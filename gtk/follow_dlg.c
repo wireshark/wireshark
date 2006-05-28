@@ -445,14 +445,14 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
     /* Button row: (help), filter out, close button */
     if(topic_available(HELP_FILESET_DIALOG)) {
-      bbox = dlg_button_row_new(ETHEREAL_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+      bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
-      bbox = dlg_button_row_new(ETHEREAL_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, NULL);
+      bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, NULL);
     }
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 5);
 
 
-    button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_FILTER_OUT_STREAM);
+    button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_FILTER_OUT_STREAM);
 	gtk_tooltips_set_tip (tooltips, button,
         "Build a display filter which cuts this stream from the capture", NULL);
 	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);

@@ -115,7 +115,7 @@ typedef struct _mcaststream_tapinfo {
 * Registers the mcast_streams tap listener (if not already done).
 * From that point on, the Mcast streams list will be updated with every redissection.
 * This function is also the entry point for the initialization routine of the tap system.
-* So whenever mcast_stream.c is added to the list of ETHEREAL_TAP_SRCs, the tap will be registered on startup.
+* So whenever mcast_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the mcast_streams and mcast_analysis functions that need it.
 */
 void register_tap_listener_mcast_stream(void);

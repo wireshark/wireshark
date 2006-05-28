@@ -1089,7 +1089,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 
 	error_string=enable_graph(&io->graphs[0], NULL, NULL);
 	if(error_string){
-		fprintf(stderr, "ethereal: Can't attach io_stat tap: %s\n",
+		fprintf(stderr, "wireshark: Can't attach io_stat tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		io->graphs[0].display=0;
@@ -1780,7 +1780,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 
 	/* filter prefs dialog */
-	gio->filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+	gio->filter_bt=BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 
 	g_snprintf(str, 256, "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
 	if(gio->args->title){

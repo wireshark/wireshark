@@ -174,81 +174,81 @@ static void wireshark_stock_icons(void) {
     /* register non-standard pixmaps with the gtk-stock engine */
     static const GtkStockItem stock_items[] = {
 #ifdef HAVE_LIBPCAP
-        { ETHEREAL_STOCK_CAPTURE_INTERFACES,    ETHEREAL_STOCK_LABEL_CAPTURE_INTERFACES,    0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_OPTIONS,       ETHEREAL_STOCK_LABEL_CAPTURE_OPTIONS,       0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_START,         ETHEREAL_STOCK_LABEL_CAPTURE_START,         0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_STOP,          ETHEREAL_STOCK_LABEL_CAPTURE_STOP,          0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_RESTART,       ETHEREAL_STOCK_LABEL_CAPTURE_RESTART,       0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_FILTER,        ETHEREAL_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_INTERFACES,    WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES,    0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_OPTIONS,       WIRESHARK_STOCK_LABEL_CAPTURE_OPTIONS,       0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_START,         WIRESHARK_STOCK_LABEL_CAPTURE_START,         0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_STOP,          WIRESHARK_STOCK_LABEL_CAPTURE_STOP,          0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_RESTART,       WIRESHARK_STOCK_LABEL_CAPTURE_RESTART,       0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_FILTER,        WIRESHARK_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
 #endif
-        { ETHEREAL_STOCK_DISPLAY_FILTER,        ETHEREAL_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
-        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
-        { ETHEREAL_STOCK_PREFS,                 ETHEREAL_STOCK_LABEL_PREFS,                 0, 0, NULL },
-        { ETHEREAL_STOCK_BROWSE,                ETHEREAL_STOCK_LABEL_BROWSE,                0, 0, NULL },
-        { ETHEREAL_STOCK_CREATE_STAT,           ETHEREAL_STOCK_LABEL_CREATE_STAT,           0, 0, NULL },
-        { ETHEREAL_STOCK_EXPORT,                ETHEREAL_STOCK_LABEL_EXPORT,                0, 0, NULL },
-        { ETHEREAL_STOCK_IMPORT,                ETHEREAL_STOCK_LABEL_IMPORT,                0, 0, NULL },
-        { ETHEREAL_STOCK_EDIT,                  ETHEREAL_STOCK_LABEL_EDIT,                  0, 0, NULL },
-        { ETHEREAL_STOCK_ADD_EXPRESSION,        ETHEREAL_STOCK_LABEL_ADD_EXPRESSION,        0, 0, NULL },
-        { ETHEREAL_STOCK_DONT_SAVE,             ETHEREAL_STOCK_LABEL_DONT_SAVE,             0, 0, NULL },
-        { ETHEREAL_STOCK_ABOUT,                 ETHEREAL_STOCK_LABEL_ABOUT,                 0, 0, NULL },
-        { ETHEREAL_STOCK_COLORIZE,              ETHEREAL_STOCK_LABEL_COLORIZE,              0, 0, NULL },
-        { ETHEREAL_STOCK_AUTOSCROLL,            ETHEREAL_STOCK_LABEL_AUTOSCROLL,            0, 0, NULL },
-        { ETHEREAL_STOCK_RESIZE_COLUMNS,        ETHEREAL_STOCK_LABEL_RESIZE_COLUMNS,        0, 0, NULL },
-        { ETHEREAL_STOCK_TIME,                  ETHEREAL_STOCK_LABEL_TIME,                  0, 0, NULL },
-        { ETHEREAL_STOCK_INTERNET,              ETHEREAL_STOCK_LABEL_INTERNET,              0, 0, NULL },
-        { ETHEREAL_STOCK_WEB_SUPPORT,           ETHEREAL_STOCK_LABEL_WEB_SUPPORT,           0, 0, NULL },
-        { ETHEREAL_STOCK_WIKI,                  ETHEREAL_STOCK_LABEL_WIKI,                  0, 0, NULL },
-        { ETHEREAL_STOCK_CONVERSATIONS,         ETHEREAL_STOCK_LABEL_CONVERSATIONS,         0, 0, NULL },
-        { ETHEREAL_STOCK_ENDPOINTS,             ETHEREAL_STOCK_LABEL_ENDPOINTS,             0, 0, NULL },
-        { ETHEREAL_STOCK_GRAPHS,                ETHEREAL_STOCK_LABEL_GRAPHS,                0, 0, NULL },
-        { ETHEREAL_STOCK_TELEPHONY,             ETHEREAL_STOCK_LABEL_TELEPHONY,             0, 0, NULL },
-        { ETHEREAL_STOCK_DECODE_AS,             ETHEREAL_STOCK_LABEL_DECODE_AS,             0, 0, NULL },
-        { ETHEREAL_STOCK_CHECKBOX,              ETHEREAL_STOCK_LABEL_CHECKBOX,              0, 0, NULL },
-        { ETHEREAL_STOCK_FILE_SET_LIST,         ETHEREAL_STOCK_LABEL_FILE_SET_LIST,         0, 0, NULL },
-        { ETHEREAL_STOCK_FILE_SET_NEXT,         ETHEREAL_STOCK_LABEL_FILE_SET_NEXT,         0, 0, NULL },
-        { ETHEREAL_STOCK_FILE_SET_PREVIOUS,     ETHEREAL_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL },
-        { ETHEREAL_STOCK_FILTER_OUT_STREAM,     ETHEREAL_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL }
+        { WIRESHARK_STOCK_DISPLAY_FILTER,        WIRESHARK_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
+        { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
+        { WIRESHARK_STOCK_PREFS,                 WIRESHARK_STOCK_LABEL_PREFS,                 0, 0, NULL },
+        { WIRESHARK_STOCK_BROWSE,                WIRESHARK_STOCK_LABEL_BROWSE,                0, 0, NULL },
+        { WIRESHARK_STOCK_CREATE_STAT,           WIRESHARK_STOCK_LABEL_CREATE_STAT,           0, 0, NULL },
+        { WIRESHARK_STOCK_EXPORT,                WIRESHARK_STOCK_LABEL_EXPORT,                0, 0, NULL },
+        { WIRESHARK_STOCK_IMPORT,                WIRESHARK_STOCK_LABEL_IMPORT,                0, 0, NULL },
+        { WIRESHARK_STOCK_EDIT,                  WIRESHARK_STOCK_LABEL_EDIT,                  0, 0, NULL },
+        { WIRESHARK_STOCK_ADD_EXPRESSION,        WIRESHARK_STOCK_LABEL_ADD_EXPRESSION,        0, 0, NULL },
+        { WIRESHARK_STOCK_DONT_SAVE,             WIRESHARK_STOCK_LABEL_DONT_SAVE,             0, 0, NULL },
+        { WIRESHARK_STOCK_ABOUT,                 WIRESHARK_STOCK_LABEL_ABOUT,                 0, 0, NULL },
+        { WIRESHARK_STOCK_COLORIZE,              WIRESHARK_STOCK_LABEL_COLORIZE,              0, 0, NULL },
+        { WIRESHARK_STOCK_AUTOSCROLL,            WIRESHARK_STOCK_LABEL_AUTOSCROLL,            0, 0, NULL },
+        { WIRESHARK_STOCK_RESIZE_COLUMNS,        WIRESHARK_STOCK_LABEL_RESIZE_COLUMNS,        0, 0, NULL },
+        { WIRESHARK_STOCK_TIME,                  WIRESHARK_STOCK_LABEL_TIME,                  0, 0, NULL },
+        { WIRESHARK_STOCK_INTERNET,              WIRESHARK_STOCK_LABEL_INTERNET,              0, 0, NULL },
+        { WIRESHARK_STOCK_WEB_SUPPORT,           WIRESHARK_STOCK_LABEL_WEB_SUPPORT,           0, 0, NULL },
+        { WIRESHARK_STOCK_WIKI,                  WIRESHARK_STOCK_LABEL_WIKI,                  0, 0, NULL },
+        { WIRESHARK_STOCK_CONVERSATIONS,         WIRESHARK_STOCK_LABEL_CONVERSATIONS,         0, 0, NULL },
+        { WIRESHARK_STOCK_ENDPOINTS,             WIRESHARK_STOCK_LABEL_ENDPOINTS,             0, 0, NULL },
+        { WIRESHARK_STOCK_GRAPHS,                WIRESHARK_STOCK_LABEL_GRAPHS,                0, 0, NULL },
+        { WIRESHARK_STOCK_TELEPHONY,             WIRESHARK_STOCK_LABEL_TELEPHONY,             0, 0, NULL },
+        { WIRESHARK_STOCK_DECODE_AS,             WIRESHARK_STOCK_LABEL_DECODE_AS,             0, 0, NULL },
+        { WIRESHARK_STOCK_CHECKBOX,              WIRESHARK_STOCK_LABEL_CHECKBOX,              0, 0, NULL },
+        { WIRESHARK_STOCK_FILE_SET_LIST,         WIRESHARK_STOCK_LABEL_FILE_SET_LIST,         0, 0, NULL },
+        { WIRESHARK_STOCK_FILE_SET_NEXT,         WIRESHARK_STOCK_LABEL_FILE_SET_NEXT,         0, 0, NULL },
+        { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     WIRESHARK_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL },
+        { WIRESHARK_STOCK_FILTER_OUT_STREAM,     WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
 #ifdef HAVE_LIBPCAP
-        { ETHEREAL_STOCK_CAPTURE_INTERFACES,    capture_interfaces_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_OPTIONS,       capture_options_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_START,         capture_start_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_STOP,          capture_stop_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_RESTART,       capture_restart_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_INTERFACES,    capture_interfaces_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_OPTIONS,       capture_options_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_START,         capture_start_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_STOP,          capture_stop_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_RESTART,       capture_restart_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
 #endif
-        { ETHEREAL_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
-        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
-        { ETHEREAL_STOCK_PREFS,                 stock_preferences_24_xpm },
-        { ETHEREAL_STOCK_BROWSE,                stock_open_24_xpm },
-        { ETHEREAL_STOCK_CREATE_STAT,           stock_ok_20_xpm },
-        { ETHEREAL_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
-        { ETHEREAL_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
-        { ETHEREAL_STOCK_EDIT,                  stock_properties_24_xpm },
-        { ETHEREAL_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
-        { ETHEREAL_STOCK_ABOUT,                 eicon3d16_xpm },
-        { ETHEREAL_STOCK_COLORIZE,              colorize_24_xpm },
-        { ETHEREAL_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
-        { ETHEREAL_STOCK_RESIZE_COLUMNS,        resize_columns_24_xpm},
-        { ETHEREAL_STOCK_TIME,                  time_24_xpm},
-        { ETHEREAL_STOCK_INTERNET,              internet_24_xpm},
-        { ETHEREAL_STOCK_WEB_SUPPORT,           web_support_24_xpm},
-        { ETHEREAL_STOCK_WIKI,                  wiki_24_xpm},
-        { ETHEREAL_STOCK_CONVERSATIONS,         conversations_16_xpm},
-        { ETHEREAL_STOCK_ENDPOINTS,             endpoints_16_xpm},
-        { ETHEREAL_STOCK_GRAPHS,                graphs_16_xpm},
-        { ETHEREAL_STOCK_TELEPHONY,             telephony_16_xpm},
-        { ETHEREAL_STOCK_DECODE_AS,             decode_as_16_xpm},
-        { ETHEREAL_STOCK_CHECKBOX,              checkbox_16_xpm},
-        { ETHEREAL_STOCK_FILE_SET_LIST,         file_set_list_16_xpm},
-        { ETHEREAL_STOCK_FILE_SET_NEXT,         file_set_next_16_xpm},
-        { ETHEREAL_STOCK_FILE_SET_PREVIOUS,     file_set_previous_16_xpm},
-        { ETHEREAL_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
+        { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
+        { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
+        { WIRESHARK_STOCK_PREFS,                 stock_preferences_24_xpm },
+        { WIRESHARK_STOCK_BROWSE,                stock_open_24_xpm },
+        { WIRESHARK_STOCK_CREATE_STAT,           stock_ok_20_xpm },
+        { WIRESHARK_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
+        { WIRESHARK_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
+        { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
+        { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
+        { WIRESHARK_STOCK_ABOUT,                 eicon3d16_xpm },
+        { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
+        { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
+        { WIRESHARK_STOCK_RESIZE_COLUMNS,        resize_columns_24_xpm},
+        { WIRESHARK_STOCK_TIME,                  time_24_xpm},
+        { WIRESHARK_STOCK_INTERNET,              internet_24_xpm},
+        { WIRESHARK_STOCK_WEB_SUPPORT,           web_support_24_xpm},
+        { WIRESHARK_STOCK_WIKI,                  wiki_24_xpm},
+        { WIRESHARK_STOCK_CONVERSATIONS,         conversations_16_xpm},
+        { WIRESHARK_STOCK_ENDPOINTS,             endpoints_16_xpm},
+        { WIRESHARK_STOCK_GRAPHS,                graphs_16_xpm},
+        { WIRESHARK_STOCK_TELEPHONY,             telephony_16_xpm},
+        { WIRESHARK_STOCK_DECODE_AS,             decode_as_16_xpm},
+        { WIRESHARK_STOCK_CHECKBOX,              checkbox_16_xpm},
+        { WIRESHARK_STOCK_FILE_SET_LIST,         file_set_list_16_xpm},
+        { WIRESHARK_STOCK_FILE_SET_NEXT,         file_set_next_16_xpm},
+        { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     file_set_previous_16_xpm},
+        { WIRESHARK_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
         { NULL, NULL }
     };
 
@@ -516,15 +516,15 @@ toolbar_new(void)
 
 #ifdef HAVE_LIBPCAP
     toolbar_item(if_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
     toolbar_item(capture_options_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
     toolbar_item(new_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
     toolbar_item(stop_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
     toolbar_item(clear_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
@@ -557,10 +557,10 @@ toolbar_new(void)
     toolbar_append_separator(main_tb);
 
     toolbar_toggle_button(colorize_button, window, main_tb, 
-        "Colorize"/*ETHEREAL_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+        "Colorize"/*WIRESHARK_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
 #ifdef HAVE_LIBPCAP
     toolbar_toggle_button(autoscroll_button, window, main_tb, 
-        "Auto Scroll" /*ETHEREAL_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+        "Auto Scroll" /*WIRESHARK_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
 #endif
     toolbar_append_separator(main_tb);
 
@@ -571,20 +571,20 @@ toolbar_new(void)
     toolbar_item(zoom_100_button, window, main_tb, 
         GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
     toolbar_item(resize_columns_button, window, main_tb, 
-        ETHEREAL_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
+        WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP
     toolbar_item(capture_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
     toolbar_item(display_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
+        WIRESHARK_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
     toolbar_item(color_display_button, window, main_tb, 
         GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, window, main_tb, 
-        ETHEREAL_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
+        WIRESHARK_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
     toolbar_append_separator(main_tb);
 
     toolbar_item(help_button, window, main_tb, 

@@ -204,7 +204,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, GTK_STOCK_CANCEL, NULL);
     break;
   case(ESD_BTNS_SAVE_DONTSAVE_CANCEL):
-    bbox = dlg_button_row_new(GTK_STOCK_SAVE, ETHEREAL_STOCK_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_SAVE, WIRESHARK_STOCK_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
     break;
   case(ESD_BTNS_YES_NO):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, NULL);
@@ -229,7 +229,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
       SIGNAL_CONNECT(save_bt, "clicked", simple_dialog_cancel_cb, win);
   }
   
-  dont_save_bt = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_DONT_SAVE);
+  dont_save_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_DONT_SAVE);
   if (dont_save_bt) {
       OBJECT_SET_DATA(dont_save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
       SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);  	

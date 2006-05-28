@@ -132,7 +132,7 @@ capture_prefs_show(void)
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0, 0.5);
 	gtk_widget_show(ifopts_lb);
 
-	ifopts_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
+	ifopts_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
     gtk_tooltips_set_tip(tooltips, ifopts_bt, 
         "Open a dialog box to set various interface options.", NULL);
 	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);

@@ -723,7 +723,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
 
-  filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY);
+  filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_tooltips_set_tip(tooltips, filter_bt,
@@ -789,7 +789,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
-  file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
+  file_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_BROWSE);
   gtk_tooltips_set_tip(tooltips, file_bt,
     "Select a file to which captured data will be written, "
     "instead of entering the file name directly. ",
@@ -1066,10 +1066,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
   /* Button row: "Start" and "Cancel" buttons */
-  bbox = dlg_button_row_new(ETHEREAL_STOCK_CAPTURE_START, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_bt = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CAPTURE_START);
+  ok_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CAPTURE_START);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_start_cb, cap_open_w);
   gtk_tooltips_set_tip(tooltips, ok_bt,
     "Start the capture process.", NULL);

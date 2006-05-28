@@ -734,24 +734,24 @@ void font_init(void)
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
-	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+	fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		prefs.gui_font_name1);
     } else {
       gdk_font_unref(m_r_font);
     }
     if (m_b_font == NULL) {
-	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+	fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
     } else {
       gdk_font_unref(m_b_font);
     }
     g_free(bold_font_name);
     if ((m_r_font = gdk_font_load("6x13")) == NULL) {
-      fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
+      fprintf(stderr, "wireshark: Error: font 6x13 not found\n");
       exit(1);
     }
     if ((m_b_font = gdk_font_load("6x13bold")) == NULL) {
-      fprintf(stderr, "ethereal: Error: font 6x13bold not found\n");
+      fprintf(stderr, "wireshark: Error: font 6x13bold not found\n");
       exit(1);
     }
     g_free(prefs.gui_font_name1);
@@ -764,24 +764,24 @@ void font_init(void)
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
-	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
+	fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
 		prefs.gui_font_name2);
     } else {
       pango_font_description_free(m_r_font);
     }
     if (m_b_font == NULL) {
-        fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
+        fprintf(stderr, "wireshark: Warning: bold font %s not found - defaulting"
                         " to Monospace 9\n", prefs.gui_font_name2);
     } else {
       pango_font_description_free(m_b_font);
     }
     if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
     {
-      fprintf(stderr, "ethereal: Error: font Monospace 9 not found\n");
+      fprintf(stderr, "wireshark: Error: font Monospace 9 not found\n");
       exit(1);
     }
     if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
-      fprintf(stderr, "ethereal: Error: font Monospace 9 bold not found\n");
+      fprintf(stderr, "wireshark: Error: font Monospace 9 bold not found\n");
       exit(1);
     }
     g_free(prefs.gui_font_name2);

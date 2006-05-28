@@ -299,7 +299,7 @@ static void selected_ptree_info_answered_cb(gpointer dialog _U_, gint btn, gpoin
     case(ESD_BTN_OK):
         if (cfile.finfo_selected) {
             /* open wiki page using the protocol abbreviation */
-            selected_proto_url = g_strdup_printf("http://wiki.ethereal.com/Protocols/%s", proto_abbrev);
+            selected_proto_url = g_strdup_printf("http://wiki.wireshark.org/Protocols/%s", proto_abbrev);
             browser_open_url(selected_proto_url);
             g_free(selected_proto_url);
         }
@@ -333,12 +333,12 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 
         /* ask the user if the wiki page really should be opened */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-                    PRIMARY_TEXT_START "Open Ethereal Wiki page of protocol \"%s\"?" PRIMARY_TEXT_END "\n"
+                    PRIMARY_TEXT_START "Open Wireshark Wiki page of protocol \"%s\"?" PRIMARY_TEXT_END "\n"
                     "\n"
-                    "This will open the \"%s\" related Ethereal Wiki page in your Web browser.\n"
+                    "This will open the \"%s\" related Wireshark Wiki page in your Web browser.\n"
                     "\n"
-                    "The Ethereal Wiki is a collaborative approach to provide information\n"
-                    "about Ethereal in several ways (not limited to protocol specifics).\n"
+                    "The Wireshark Wiki is a collaborative approach to provide information\n"
+                    "about Wireshark in several ways (not limited to protocol specifics).\n"
                     "\n"
                     "This Wiki is new, so the page of the selected protocol\n"
                     "may not exist and/or may not contain valuable information.\n"
@@ -376,7 +376,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
         proto_abbrev = proto_registrar_get_abbrev(field_id);
 
         /* open reference page using the protocol abbreviation */
-        selected_proto_url = g_strdup_printf("http://www.ethereal.com/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
+        selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
         browser_open_url(selected_proto_url);
         g_free(selected_proto_url);
     }
@@ -1121,7 +1121,7 @@ print_usage(gboolean print_ver) {
     output = stdout;
     fprintf(output, "Wireshark " VERSION "%s\n"
         "Interactively dump and analyze network traffic.\n"
-        "See http://www.ethereal.com for more information.\n"
+        "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
 	svnversion, get_copyright_info());
@@ -1129,7 +1129,7 @@ print_usage(gboolean print_ver) {
     output = stderr;
   }
   fprintf(output, "\n");
-  fprintf(output, "Usage: ethereal [options] ... [ <infile> ]\n");
+  fprintf(output, "Usage: wireshark [options] ... [ <infile> ]\n");
   fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
@@ -1231,7 +1231,7 @@ cmdarg_err(const char *fmt, ...)
   create_console();
 #endif
   va_start(ap, fmt);
-  fprintf(stderr, "ethereal: ");
+  fprintf(stderr, "wireshark: ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
   va_end(ap);
@@ -1276,7 +1276,7 @@ update_cb(gpointer data _U_)
    would just be empty functions.
 
    This allows gtk2-rpcstat.c and friends to be copied unmodified to
-   gtk1-ethereal and it will just work.
+   gtk1-wireshark and it will just work.
  */
 static GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
 gpointer
@@ -2478,7 +2478,7 @@ main(int argc, char *argv[])
        * Input file name not specified with "-r", and a command-line argument
        * was specified; treat it as the input file name.
        *
-       * Yes, this is different from tethereal, where non-flag command-line
+       * Yes, this is different from twireshark, where non-flag command-line
        * arguments are a filter, but this works better on GUI desktops
        * where a command can be specified to be run to open a particular
        * file - yes, you could have "-r" as the last part of the command,
@@ -3259,7 +3259,7 @@ welcome_new(void)
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
 
 #ifdef HAVE_LIBPCAP
-    item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START,
+    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
         "Capture",
         "Capture live data from your network",
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
@@ -3279,7 +3279,7 @@ welcome_new(void)
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 
-    item_hb = welcome_item(ETHEREAL_STOCK_WEB_SUPPORT,
+    item_hb = welcome_item(WIRESHARK_STOCK_WEB_SUPPORT,
         "User's Guide",
         "Open the Wireshark User's Guide",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
@@ -3547,7 +3547,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
-    filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+    filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_widget_show(filter_bt);
     OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
@@ -3580,7 +3580,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    filter_add_expr_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
+    filter_add_expr_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
     OBJECT_SET_DATA(filter_tb, E_FILT_FILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
     gtk_widget_show(filter_add_expr_bt);

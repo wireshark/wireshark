@@ -24,7 +24,7 @@
 
 /* This module provides rpc call/reply SRT statistics to Wireshark,
  * and displays them graphically.
- * It is only used by Wireshark and not tethereal
+ * It is only used by Wireshark and not twireshark
  *
  * It serves as an example on how to use the tap api.
  */
@@ -237,15 +237,15 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "ethereal: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+		fprintf(stderr, "wireshark: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 	if (major < 0 || major > 65535) {
-		fprintf(stderr,"ethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
+		fprintf(stderr,"wireshark: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
 		exit(1);
 	}
 	if (minor < 0 || minor > 65535) {
-		fprintf(stderr,"ethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
+		fprintf(stderr,"wireshark: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
 		exit(1);
 	}
 	ver = major;
@@ -254,7 +254,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
+		fprintf(stderr,"wireshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
 		exit(1);
 	}
 	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, ver);
@@ -624,7 +624,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter label */
-	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt=BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
@@ -645,11 +645,11 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);
 
 	/* button box */
-    bbox = dlg_button_row_new(ETHEREAL_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+    bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
+    start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
 	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
                               dcerpcstat_start_button_clicked, NULL);
 
