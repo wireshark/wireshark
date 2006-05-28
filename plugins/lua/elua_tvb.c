@@ -1,7 +1,7 @@
 /*
  * lua_tvb.c
  *
- * Ethereal's interface to the Lua Programming Language
+ * Wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
@@ -287,7 +287,7 @@ int ByteArray_register(lua_State* L) {
  *
  * a Tvb represents a tvbuff_t in Lua. 
  * a TvbRange represents a range in a tvb (tvb,offset,lenght) it's main purpose is to do bounds checking, 
- *            it helps too simplifing argument passing to Tree. In ethereal terms this is worthless nothing
+ *            it helps too simplifing argument passing to Tree. In wireshark terms this is worthless nothing
  *            not already done by the TVB itself. In lua's terms is necessary to avoid abusing TRY{}CATCH(){}
  *            via preemptive bounds checking. 
  *

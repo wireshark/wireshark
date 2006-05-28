@@ -795,7 +795,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 void proto_register_giop_coseventcomm(void) {
 

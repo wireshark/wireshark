@@ -320,7 +320,7 @@ maintainer-clean: distclean
 	cd ..
 
 ################################################################################
-# copy all plugins to /plugins/$(VERSION), so Ethereal will load them, when
+# copy all plugins to /plugins/$(VERSION), so Wireshark will load them, when
 # started from within the source tree.
 ################################################################################
 

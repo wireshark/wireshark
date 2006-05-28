@@ -93,7 +93,7 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.

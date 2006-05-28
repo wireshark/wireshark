@@ -49,10 +49,10 @@
 
 #define PROTO_TAG_H223	"H223"
 
-/* Ethereal ID of the H.223 protocol */
+/* Wireshark ID of the H.223 protocol */
 static int proto_h223 = -1;
 
-/* The following hf_* variables are used to hold the ethereal IDs of
+/* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_h223()
  */

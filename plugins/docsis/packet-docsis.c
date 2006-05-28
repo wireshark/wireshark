@@ -41,7 +41,7 @@
  * be specified for some interfaces on some platforms; for Ethernet
  * interfaces, it allows DOCSIS to be specified.  If an Ethernet capture
  * is done with a link-layer type of DOCSIS, the file will have a link-
- * layer type of DLT_DOCSIS; Ethereal will treat the frames in that capture
+ * layer type of DLT_DOCSIS; Wireshark will treat the frames in that capture
  * as DOCSIS frames.
  */
 
@@ -571,7 +571,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.

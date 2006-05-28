@@ -1,7 +1,7 @@
 /*
  * lua_tap.c
  *
- * Ethereal's interface to the Lua Programming Language
+ * Wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
@@ -272,7 +272,7 @@ static int Tap_newindex(lua_State* L) {
 		function tap.packet(pinfo,tvb,userdata) ... end
 	*/
 	/* ELUA_ATTRIBUTE Tap_draw WO A function that will be called once every few seconds to redraw the gui objects
-				in tethereal this funtion is called oly at the very end of the capture file.
+				in twireshark this funtion is called oly at the very end of the capture file.
 	
 		function tap.draw(userdata) ... end
 	*/
