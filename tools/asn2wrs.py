@@ -452,11 +452,11 @@ class EthCtx:
     return attr
 
   #--- eth_reg_assign ---------------------------------------------------------
-  def eth_reg_assign(self, ident, val):
+  def eth_reg_assign(self, ident, val, virt=False):
     #print "eth_reg_assign(ident='%s')" % (ident)
     if self.assign.has_key(ident):
       raise "Duplicate assignment for " + ident
-    self.assign[ident] = val
+    self.assign[ident] = { 'val' : val , 'virt' : virt }
     self.assign_ord.append(ident)
 
   #--- eth_reg_vassign --------------------------------------------------------
@@ -498,7 +498,7 @@ class EthCtx:
 
   #--- eth_reg_type -----------------------------------------------------------
   def eth_reg_type(self, ident, val):
-    #print "eth_reg_type(ident='%s')" % (ident)
+    #print "eth_reg_type(ident='%s', type='%s')" % (ident, val.type)
     if self.type.has_key(ident):
       raise "Duplicate type for " + ident
     self.type[ident] = { 'val' : val, 'import' : None }
@@ -624,9 +624,9 @@ class EthCtx:
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
         elif t.split('/')[-1] == '_item':  # Sequnce of type at next levels
-          nm = 'T_' + t.split('/')[-2] + t.split('/')[-1]
+          nm = 'T_' + self.conform.use_item('FIELD_RENAME', '/'.join(t.split('/')[0:-1]), val_dflt=t.split('/')[-2]) + t.split('/')[-1]
         else:
-          nm = 'T_' + t.split('/')[-1]
+          nm = 'T_' + self.conform.use_item('FIELD_RENAME', t, val_dflt=t.split('/')[-1])
         nm = asn2c(nm)
         if self.eth_type.has_key(nm):
           if self.eth_type_dupl.has_key(nm):
@@ -708,7 +708,7 @@ class EthCtx:
     #--- fields -------------------------
     for f in (self.pdu_ord + self.field_ord):
       if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce/Set of type
-        nm = f.split('/')[-2] + f.split('/')[-1]
+        nm = self.conform.use_item('FIELD_RENAME', '/'.join(f.split('/')[0:-1]), val_dflt=f.split('/')[-2]) + f.split('/')[-1]
       else:
         nm = f.split('/')[-1]
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
@@ -1239,7 +1239,10 @@ class EthCtx:
   def eth_do_output(self):
     if self.dbg('a'):
       print "\n# Assignments"
-      print "\n".join(self.assign_ord)
+      for a in self.assign_ord:
+        v = ' '
+        if (self.assign[a]['virt']): v = '*'
+        print v, a
       print "\n# Value assignments"
       print "\n".join(self.vassign_ord)
     if self.dbg('t'):
@@ -1336,6 +1339,8 @@ class EthCnf:
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MODULE']          = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : False }
     self.tblcfg['OMIT_ASSIGNMENT'] = { 'val_nm' : 'omit',     'val_dflt' : False, 'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['VIRTUAL_ASSGN']   = { 'val_nm' : 'name',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['SET_TYPE']        = { 'val_nm' : 'type',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['FIELD_RENAME']    = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['IMPORT_TAG']      = { 'val_nm' : 'ttag',     'val_dflt' : (),    'chk_dup' : True, 'chk_use' : False }
@@ -1396,6 +1401,7 @@ class EthCnf:
       return '';
     if (not self.fn[name][ctx]):
       return '';
+    self.fn[name][ctx]['used'] = True
     return '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'],self.fn[name][ctx]['fn'],self.fn[name][ctx]['text']);
 
   def add_pdu(self, par, is_new, fn, lineno):
@@ -1444,7 +1450,7 @@ class EthCnf:
       if len(par) < pmin:
         warnings.warn_explicit("Too few parameters. At least %d parameters are required" % (pmin), UserWarning, fn, lineno)
         return None
-      if len(par) > pmax:
+      if (pmax >= 0) and (len(par) > pmax):
         warnings.warn_explicit("Too many parameters. Only %d parameters are allowed" % (pmax), UserWarning, fn, lineno)
         return par[0:pmax]
       return par
@@ -1509,8 +1515,9 @@ class EthCnf:
       result = directive.search(line)
       if result:  # directive
         if result.group('name') in ('EXPORTS', 'PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
-                                    'USER_DEFINED', 'NO_EMIT', 'MODULE', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
-                                    'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
+                                    'USER_DEFINED', 'NO_EMIT', 'MODULE', 'MODULE_IMPORT', 
+                                    'OMIT_ASSIGNMENT', 'VIRTUAL_ASSGN', 'SET_TYPE',
+                                    'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR'):
@@ -1608,6 +1615,27 @@ class EthCnf:
         par = get_par(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
+      elif ctx == 'VIRTUAL_ASSGN':
+        if empty.match(line): continue
+        par = get_par(line, 2, -1, fn=fn, lineno=lineno)
+        if not par: continue
+        if (len(par[1].split('/')) > 1) and not self.check_item('SET_TYPE', par[1]):
+          self.add_item('SET_TYPE', par[1], type=par[0], fn=fn, lineno=lineno)
+        self.add_item('VIRTUAL_ASSGN', par[1], name=par[0], fn=fn, lineno=lineno)
+        for nm in par[2:]:
+          self.add_item('SET_TYPE', nm, type=par[0], fn=fn, lineno=lineno)
+        if not par[0][0].isupper():
+          warnings.warn_explicit("Virtual assignment should have uppercase name (%s)" % (par[0]),
+                                  UserWarning, fn, lineno)
+      elif ctx == 'SET_TYPE':
+        if empty.match(line): continue
+        par = get_par(line, 2, 2, fn=fn, lineno=lineno)
+        if not par: continue
+        if not self.check_item('VIRTUAL_ASSGN', par[0]):
+          self.add_item('SET_TYPE', par[0], type=par[1], fn=fn, lineno=lineno)
+        if not par[1][0].isupper():
+          warnings.warn_explicit("Set type should have uppercase name (%s)" % (par[1]),
+                                  UserWarning, fn, lineno)
       elif ctx == 'TYPE_RENAME':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
@@ -1622,6 +1650,20 @@ class EthCnf:
         if not par: continue
         self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
         if not par[1][0].islower():
+          warnings.warn_explicit("Field should be renamed to lowercase name (%s)" % (par[1]),
+                                  UserWarning, fn, lineno)
+      elif ctx == 'TF_RENAME':
+        if empty.match(line): continue
+        par = get_par(line, 2, 2, fn=fn, lineno=lineno)
+        if not par: continue
+        tmpu = par[1][0].upper() + par[1][1:]
+        tmpl = par[1][0].lower() + par[1][1:]
+        self.add_item('TYPE_RENAME', par[0], eth_name=tmpu, fn=fn, lineno=lineno)
+        if not tmpu[0].isupper():
+          warnings.warn_explicit("Type should be renamed to uppercase name (%s)" % (par[1]),
+                                  UserWarning, fn, lineno)
+        self.add_item('FIELD_RENAME', par[0], eth_name=tmpl, fn=fn, lineno=lineno)
+        if not tmpl[0].islower():
           warnings.warn_explicit("Field should be renamed to lowercase name (%s)" % (par[1]),
                                   UserWarning, fn, lineno)
       elif ctx in ('TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
@@ -1667,6 +1709,16 @@ class EthCnf:
         if not self.table[t][k]['used']:
           warnings.warn_explicit("Unused %s for %s" % (t, k),
                                   UserWarning, self.table[t][k]['fn'], self.table[t][k]['lineno'])
+    fnms = self.fn.keys()
+    fnms.sort()
+    for f in fnms:
+      keys = self.fn[f].keys()
+      keys.sort()
+      for k in keys:
+        if not self.fn[f][k]: continue
+        if not self.fn[f][k]['used']:
+          warnings.warn_explicit("Unused %s for %s" % (k, f),
+                                  UserWarning, self.fn[f][k]['fn'], self.fn[f][k]['lineno'])
 
 #--- EthOut -------------------------------------------------------------------
 class EthOut:
@@ -1933,20 +1985,34 @@ class Type (Node):
         ectx.eth_reg_type(nm, self)
       if (ectx.conform.check_item('PDU', nm)):
         ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', nm))
-    if self.type == 'Type_Ref':
+    virtual_tr = Type_Ref(val=ectx.conform.use_item('SET_TYPE', nm))
+    if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
       if ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm):
-        ectx.eth_reg_type(nm, self)  # new type
+        if ectx.conform.check_item('SET_TYPE', nm):
+          ectx.eth_reg_type(nm, virtual_tr)  # dummy Type Reference
+        else:
+          ectx.eth_reg_type(nm, self)  # new type
         trnm = nm
+      elif ectx.conform.check_item('SET_TYPE', nm):
+        trnm = ectx.conform.use_item('SET_TYPE', nm)
       else:
         trnm = self.val
     else:
       ectx.eth_reg_type(nm, self)
+    if ectx.conform.check_item('VIRTUAL_ASSGN', nm):
+      vnm = ectx.conform.use_item('VIRTUAL_ASSGN', nm)
+      ectx.eth_reg_assign(vnm, self, virt=True)
+      ectx.eth_reg_type(vnm, self)
+      self.eth_reg_sub(vnm, ectx)
     if ident:
-      if self.type == 'Type_Ref':
+      if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
         ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
       else:
         ectx.eth_reg_field(nm, nm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
-    self.eth_reg_sub(nm, ectx)
+    if ectx.conform.check_item('SET_TYPE', nm):
+      virtual_tr.eth_reg_sub(nm, ectx)
+    else:
+      self.eth_reg_sub(nm, ectx)
 
   def eth_get_size_constr(self):
     (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
