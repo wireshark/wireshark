@@ -300,6 +300,7 @@ static int hf_rtcp_fsn               = -1;
 static int hf_rtcp_blp               = -1;
 static int hf_rtcp_padding_count     = -1;
 static int hf_rtcp_padding_data      = -1;
+static int hf_rtcp_profile_specific_extension = -1;
 static int hf_rtcp_app_poc1_subtype  = -1;
 static int hf_rtcp_app_poc1_sip_uri  = -1;
 static int hf_rtcp_app_poc1_disp_name = -1;
@@ -1375,7 +1376,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
 static int
 dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
-    unsigned int count )
+    unsigned int count, unsigned int packet_length )
 {
 	unsigned int counter = 1;
 	proto_tree *ssrc_tree = (proto_tree*) NULL;
@@ -1384,6 +1385,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_item *ti = (proto_item*) NULL;
 	guint8 rr_flt;
 	unsigned int cum_nr = 0;
+	int rr_offset = offset; 
 
 	while ( counter <= count ) {
 		guint32 lsr, dlsr;
@@ -1455,16 +1457,25 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		counter++;
 	}
 
+	/* If length remaining, assume profile-specific extension bytes */
+	if ((offset-rr_offset) < (int)packet_length)
+	{
+		proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
+		                    packet_length - (offset - rr_offset), FALSE);
+		offset = rr_offset + packet_length;
+	}
+
 	return offset;
 }
 
 static int
 dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
-    unsigned int count )
+    unsigned int count, unsigned int packet_length )
 {
 	proto_item* item;
 	guint32 ts_msw, ts_lsw;
 	gchar *buff;
+	int sr_offset = offset;
 
 	/* NTP timestamp */
 	ts_msw = tvb_get_ntohl(tvb, offset);
@@ -1500,7 +1511,17 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 
 	/* The rest of the packet is equal to the RR packet */
 	if ( count != 0 )
-		offset = dissect_rtcp_rr( pinfo, tvb, offset, tree, count );
+		offset = dissect_rtcp_rr( pinfo, tvb, offset, tree, count, packet_length-(offset-sr_offset) );
+	else
+    {
+		/* If length remaining, assume profile-specific extension bytes */
+		if ((offset-sr_offset) < (int)packet_length)
+		{
+			proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
+			                    packet_length - (offset - sr_offset), FALSE);
+			offset = sr_offset + packet_length;
+		}
+	}
 
 	return offset;
 }
@@ -1927,8 +1948,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
 
-                if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( pinfo, tvb, offset, rtcp_tree, elem_count );
-                else offset = dissect_rtcp_rr( pinfo, tvb, offset, rtcp_tree, elem_count );
+                if ( packet_type == RTCP_SR )
+                    offset = dissect_rtcp_sr( pinfo, tvb, offset, rtcp_tree, elem_count, packet_length-8 );
+                else
+                    offset = dissect_rtcp_rr( pinfo, tvb, offset, rtcp_tree, elem_count, packet_length-8 );
                 break;
             case RTCP_SDES:
                 /* Source count, 5 bits */
@@ -2768,6 +2791,18 @@ proto_register_rtcp(void)
 				NULL,
 				0x0,
 				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_profile_specific_extension,
+			{
+				"Profile-specific extension",
+				"rtcp.profile-specific-extension",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Profile-specific extension", HFILL
 			}
 		},
 		{
