@@ -32,7 +32,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Credit to Tomas Kukosa for developing the Asn2eth compiler.
+ * Credit to Tomas Kukosa for developing the asn2wrs compiler.
  *
  */
 
@@ -318,20 +318,25 @@ static int hf_h450_IntResultList_item = -1;       /* IntResult */
 static int hf_h450_remoteEnabled = -1;            /* BOOLEAN */
 static int hf_h450_intResult_extension = -1;      /* IntResult_extension */
 static int hf_h450_holdNotificArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_extensionArg_item = -1;        /* MixedExtension */
+static int hf_h450_holdNotificArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_retrieveNotificArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_retrieveNotificArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_remoteHoldArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_remoteHoldArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_extensionRes = -1;             /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
 static int hf_h450_extensionRes_item = -1;        /* MixedExtension */
 static int hf_h450_remoteRetrieveArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_remoteRetrieveArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_mixedExtension_extension = -1;  /* Extension */
 static int hf_h450_parkingNumber = -1;            /* EndpointAddress */
 static int hf_h450_parkedNumber = -1;             /* EndpointAddress */
 static int hf_h450_parkedToNumber = -1;           /* EndpointAddress */
 static int hf_h450_parkedToPosition = -1;         /* ParkedToPosition */
 static int hf_h450_cpRequestArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cpRequestArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_parkCondition = -1;            /* ParkCondition */
 static int hf_h450_cpSetupArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cpSetupArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_callPickupId = -1;             /* CallIdentifier */
 static int hf_h450_groupMemberUserNr = -1;        /* EndpointAddress */
 static int hf_h450_retrieveCallType = -1;         /* CallType */
@@ -339,15 +344,23 @@ static int hf_h450_partyToRetrieve = -1;          /* EndpointAddress */
 static int hf_h450_retrieveAddress = -1;          /* EndpointAddress */
 static int hf_h450_parkPosition = -1;             /* ParkedToPosition */
 static int hf_h450_groupIndicationOnArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_groupIndicationOnArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_groupIndicationOffArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_groupIndicationOffArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_picking_upNumber = -1;         /* EndpointAddress */
 static int hf_h450_pickrequArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_pickrequArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_pickupArg_extensionArg = -1;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_pickupArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_pickExeArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_pickExeArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_cpNotifyArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cpNotifyArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_cpickupNotifyArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cpickupNotifyArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_nbOfAddWaitingCalls = -1;      /* INTEGER_0_255 */
 static int hf_h450_callWaitingArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_callWaitingArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_msgCentreId = -1;              /* MsgCentreId */
 static int hf_h450_nbOfMessages = -1;             /* NbOfMessages */
 static int hf_h450_originatingNr = -1;            /* EndpointAddress */
@@ -366,6 +379,7 @@ static int hf_h450_numericString = -1;            /* NumericString_SIZE_1_10 */
 static int hf_h450_ExtensionArg_item = -1;        /* MixedExtension */
 static int hf_h450_name = -1;                     /* Name */
 static int hf_h450_nameArg_extensionArg = -1;     /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_nameArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_namePresentationAllowed = -1;  /* NamePresentationAllowed */
 static int hf_h450_namePresentationRestricted = -1;  /* NamePresentationRestricted */
 static int hf_h450_nameNotAvailable = -1;         /* NULL */
@@ -379,36 +393,53 @@ static int hf_h450_service = -1;                  /* BasicService */
 static int hf_h450_can_retain_service = -1;       /* BOOLEAN */
 static int hf_h450_retain_sig_connection = -1;    /* BOOLEAN */
 static int hf_h450_ccRequestArg_extension = -1;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_extension_item = -1;           /* MixedExtension */
+static int hf_h450_ccRequestArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_retain_service = -1;           /* BOOLEAN */
 static int hf_h450_ccRequestRes_extension = -1;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_ccRequestRes_extension_item = -1;  /* MixedExtension */
 static int hf_h450_shortArg = -1;                 /* CcShortArg */
 static int hf_h450_longArg = -1;                  /* CcLongArg */
 static int hf_h450_ccShortArg_extension = -1;     /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_ccShortArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_ccLongArg_extension = -1;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_ccLongArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_coReqOptArg_extension = -1;    /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_coReqOptArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_rUAlertOptArg_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_rUAlertOptArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_cfbOvrOptArg_extension = -1;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cfbOvrOptArg_extension_item = -1;  /* MixedExtension */
 static int hf_h450_ciCapabilityLevel = -1;        /* CICapabilityLevel */
 static int hf_h450_cIRequestArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_argumentExtension_item = -1;   /* MixedExtension */
+static int hf_h450_cIRequestArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_ciStatusInformation = -1;      /* CIStatusInformation */
 static int hf_h450_cIRequestRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_resultExtension_item = -1;     /* MixedExtension */
+static int hf_h450_cIRequestRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIGetCIPLOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIGetCIPLOptArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_ciProtectionLevel = -1;        /* CIProtectionLevel */
 static int hf_h450_silentMonitoringPermitted = -1;  /* NULL */
 static int hf_h450_cIGetCIPLRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIGetCIPLRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIIsOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIIsOptArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIIsOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIIsOptRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIFrcRelArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIFrcRelArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIFrcRelOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIFrcRelOptRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIWobOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIWobOptArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cIWobOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cIWobOptRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_specificCall = -1;             /* CallIdentifier */
 static int hf_h450_cISilentArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cISilentArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cISilentOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cISilentOptRes_resultExtension_item = -1;  /* MixedExtension */
 static int hf_h450_cINotificationArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cINotificationArg_argumentExtension_item = -1;  /* MixedExtension */
 static int hf_h450_callIntrusionImpending = -1;   /* NULL */
 static int hf_h450_callIntruded = -1;             /* NULL */
 static int hf_h450_callIsolated = -1;             /* NULL */
@@ -419,7 +450,9 @@ static int hf_h450_featureList = -1;              /* FeatureList */
 static int hf_h450_featureValues = -1;            /* FeatureValues */
 static int hf_h450_featureControl = -1;           /* FeatureControl */
 static int hf_h450_cmnArg_extension = -1;         /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cmnArg_extension_item = -1;    /* MixedExtension */
 static int hf_h450_cmnRequestArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_cmnRequestArg_extensionArg_item = -1;  /* MixedExtension */
 static int hf_h450_ssCFreRoutingSupported = -1;   /* NULL */
 static int hf_h450_ssCTreRoutingSupported = -1;   /* NULL */
 static int hf_h450_ssCCBSPossible = -1;           /* NULL */
@@ -2611,11 +2644,50 @@ dissect_h450_MixedExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_extensionArg_item);
+static int dissect_holdNotificArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_holdNotificArg_extensionArg_item);
+}
+static int dissect_retrieveNotificArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_retrieveNotificArg_extensionArg_item);
+}
+static int dissect_remoteHoldArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteHoldArg_extensionArg_item);
 }
 static int dissect_extensionRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
   return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_extensionRes_item);
+}
+static int dissect_remoteRetrieveArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteRetrieveArg_extensionArg_item);
+}
+static int dissect_cpRequestArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpRequestArg_extensionArg_item);
+}
+static int dissect_cpSetupArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpSetupArg_extensionArg_item);
+}
+static int dissect_groupIndicationOnArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOnArg_extensionArg_item);
+}
+static int dissect_groupIndicationOffArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOffArg_extensionArg_item);
+}
+static int dissect_pickrequArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickrequArg_extensionArg_item);
+}
+static int dissect_pickupArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickupArg_extensionArg_item);
+}
+static int dissect_pickExeArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickExeArg_extensionArg_item);
+}
+static int dissect_cpNotifyArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpNotifyArg_extensionArg_item);
+}
+static int dissect_cpickupNotifyArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpickupNotifyArg_extensionArg_item);
+}
+static int dissect_callWaitingArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_callWaitingArg_extensionArg_item);
 }
 static int dissect_MwiDummyRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
   return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_MwiDummyRes_item);
@@ -2623,19 +2695,79 @@ static int dissect_MwiDummyRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static int dissect_ExtensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
   return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ExtensionArg_item);
 }
-static int dissect_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_extension_item);
+static int dissect_nameArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_nameArg_extensionArg_item);
 }
-static int dissect_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_argumentExtension_item);
+static int dissect_ccRequestArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestArg_extension_item);
 }
-static int dissect_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_resultExtension_item);
+static int dissect_ccRequestRes_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestRes_extension_item);
+}
+static int dissect_ccShortArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccShortArg_extension_item);
+}
+static int dissect_ccLongArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccLongArg_extension_item);
+}
+static int dissect_coReqOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_coReqOptArg_extension_item);
+}
+static int dissect_rUAlertOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_rUAlertOptArg_extension_item);
+}
+static int dissect_cfbOvrOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cfbOvrOptArg_extension_item);
+}
+static int dissect_cIRequestArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestArg_argumentExtension_item);
+}
+static int dissect_cIRequestRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestRes_resultExtension_item);
+}
+static int dissect_cIGetCIPLOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLOptArg_argumentExtension_item);
+}
+static int dissect_cIGetCIPLRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLRes_resultExtension_item);
+}
+static int dissect_cIIsOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptArg_argumentExtension_item);
+}
+static int dissect_cIIsOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptRes_resultExtension_item);
+}
+static int dissect_cIFrcRelArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelArg_argumentExtension_item);
+}
+static int dissect_cIFrcRelOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelOptRes_resultExtension_item);
+}
+static int dissect_cIWobOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptArg_argumentExtension_item);
+}
+static int dissect_cIWobOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptRes_resultExtension_item);
+}
+static int dissect_cISilentArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentArg_argumentExtension_item);
+}
+static int dissect_cISilentOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentOptRes_resultExtension_item);
+}
+static int dissect_cINotificationArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cINotificationArg_argumentExtension_item);
+}
+static int dissect_cmnArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnArg_extension_item);
+}
+static int dissect_cmnRequestArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
+  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnRequestArg_extensionArg_item);
 }
 
 
 static const per_sequence_t SEQUENCE_SIZE_0_255_OF_MixedExtension_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_extensionArg_item },
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_holdNotificArg_extensionArg_item },
 };
 
 static int
@@ -5387,18 +5519,26 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "HoldNotificArg/extensionArg", HFILL }},
-    { &hf_h450_extensionArg_item,
+    { &hf_h450_holdNotificArg_extensionArg_item,
       { "Item", "h450.extensionArg_item",
         FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
-        "", HFILL }},
+        "HoldNotificArg/extensionArg/_item", HFILL }},
     { &hf_h450_retrieveNotificArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RetrieveNotificArg/extensionArg", HFILL }},
+    { &hf_h450_retrieveNotificArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "RetrieveNotificArg/extensionArg/_item", HFILL }},
     { &hf_h450_remoteHoldArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RemoteHoldArg/extensionArg", HFILL }},
+    { &hf_h450_remoteHoldArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "RemoteHoldArg/extensionArg/_item", HFILL }},
     { &hf_h450_extensionRes,
       { "extensionRes", "h450.extensionRes",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5411,6 +5551,10 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RemoteRetrieveArg/extensionArg", HFILL }},
+    { &hf_h450_remoteRetrieveArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "RemoteRetrieveArg/extensionArg/_item", HFILL }},
     { &hf_h450_mixedExtension_extension,
       { "extension", "h450.extension",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5435,6 +5579,10 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CpRequestArg/extensionArg", HFILL }},
+    { &hf_h450_cpRequestArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CpRequestArg/extensionArg/_item", HFILL }},
     { &hf_h450_parkCondition,
       { "parkCondition", "h450.parkCondition",
         FT_UINT32, BASE_DEC, VALS(h450_ParkCondition_vals), 0,
@@ -5443,6 +5591,10 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CpSetupArg/extensionArg", HFILL }},
+    { &hf_h450_cpSetupArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CpSetupArg/extensionArg/_item", HFILL }},
     { &hf_h450_callPickupId,
       { "callPickupId", "h450.callPickupId",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5471,10 +5623,18 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "GroupIndicationOnArg/extensionArg", HFILL }},
+    { &hf_h450_groupIndicationOnArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "GroupIndicationOnArg/extensionArg/_item", HFILL }},
     { &hf_h450_groupIndicationOffArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "GroupIndicationOffArg/extensionArg", HFILL }},
+    { &hf_h450_groupIndicationOffArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "GroupIndicationOffArg/extensionArg/_item", HFILL }},
     { &hf_h450_picking_upNumber,
       { "picking-upNumber", "h450.picking_upNumber",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5483,22 +5643,42 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PickrequArg/extensionArg", HFILL }},
+    { &hf_h450_pickrequArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "PickrequArg/extensionArg/_item", HFILL }},
     { &hf_h450_pickupArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PickupArg/extensionArg", HFILL }},
+    { &hf_h450_pickupArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "PickupArg/extensionArg/_item", HFILL }},
     { &hf_h450_pickExeArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PickExeArg/extensionArg", HFILL }},
+    { &hf_h450_pickExeArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "PickExeArg/extensionArg/_item", HFILL }},
     { &hf_h450_cpNotifyArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CpNotifyArg/extensionArg", HFILL }},
+    { &hf_h450_cpNotifyArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CpNotifyArg/extensionArg/_item", HFILL }},
     { &hf_h450_cpickupNotifyArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CpickupNotifyArg/extensionArg", HFILL }},
+    { &hf_h450_cpickupNotifyArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CpickupNotifyArg/extensionArg/_item", HFILL }},
     { &hf_h450_nbOfAddWaitingCalls,
       { "nbOfAddWaitingCalls", "h450.nbOfAddWaitingCalls",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5507,6 +5687,10 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CallWaitingArg/extensionArg", HFILL }},
+    { &hf_h450_callWaitingArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CallWaitingArg/extensionArg/_item", HFILL }},
     { &hf_h450_msgCentreId,
       { "msgCentreId", "h450.msgCentreId",
         FT_UINT32, BASE_DEC, VALS(h450_MsgCentreId_vals), 0,
@@ -5579,6 +5763,10 @@ void proto_register_h450(void) {
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "NameArg/extensionArg", HFILL }},
+    { &hf_h450_nameArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "NameArg/extensionArg/_item", HFILL }},
     { &hf_h450_namePresentationAllowed,
       { "namePresentationAllowed", "h450.namePresentationAllowed",
         FT_UINT32, BASE_DEC, VALS(h450_NamePresentationAllowed_vals), 0,
@@ -5631,10 +5819,10 @@ void proto_register_h450(void) {
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CcRequestArg/extension", HFILL }},
-    { &hf_h450_extension_item,
+    { &hf_h450_ccRequestArg_extension_item,
       { "Item", "h450.extension_item",
         FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
-        "", HFILL }},
+        "CcRequestArg/extension/_item", HFILL }},
     { &hf_h450_retain_service,
       { "retain-service", "h450.retain_service",
         FT_BOOLEAN, 8, NULL, 0,
@@ -5643,6 +5831,10 @@ void proto_register_h450(void) {
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CcRequestRes/extension", HFILL }},
+    { &hf_h450_ccRequestRes_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CcRequestRes/extension/_item", HFILL }},
     { &hf_h450_shortArg,
       { "shortArg", "h450.shortArg",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5655,22 +5847,42 @@ void proto_register_h450(void) {
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CcShortArg/extension", HFILL }},
+    { &hf_h450_ccShortArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CcShortArg/extension/_item", HFILL }},
     { &hf_h450_ccLongArg_extension,
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CcLongArg/extension", HFILL }},
+    { &hf_h450_ccLongArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CcLongArg/extension/_item", HFILL }},
     { &hf_h450_coReqOptArg_extension,
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CoReqOptArg/extension", HFILL }},
+    { &hf_h450_coReqOptArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CoReqOptArg/extension/_item", HFILL }},
     { &hf_h450_rUAlertOptArg_extension,
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RUAlertOptArg/extension", HFILL }},
+    { &hf_h450_rUAlertOptArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "RUAlertOptArg/extension/_item", HFILL }},
     { &hf_h450_cfbOvrOptArg_extension,
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CfbOvrOptArg/extension", HFILL }},
+    { &hf_h450_cfbOvrOptArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CfbOvrOptArg/extension/_item", HFILL }},
     { &hf_h450_ciCapabilityLevel,
       { "ciCapabilityLevel", "h450.ciCapabilityLevel",
         FT_UINT32, BASE_DEC, VALS(h450_CICapabilityLevel_vals), 0,
@@ -5679,10 +5891,10 @@ void proto_register_h450(void) {
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIRequestArg/argumentExtension", HFILL }},
-    { &hf_h450_argumentExtension_item,
+    { &hf_h450_cIRequestArg_argumentExtension_item,
       { "Item", "h450.argumentExtension_item",
         FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
-        "", HFILL }},
+        "CIRequestArg/argumentExtension/_item", HFILL }},
     { &hf_h450_ciStatusInformation,
       { "ciStatusInformation", "h450.ciStatusInformation",
         FT_UINT32, BASE_DEC, VALS(h450_CIStatusInformation_vals), 0,
@@ -5691,14 +5903,18 @@ void proto_register_h450(void) {
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIRequestRes/resultExtension", HFILL }},
-    { &hf_h450_resultExtension_item,
+    { &hf_h450_cIRequestRes_resultExtension_item,
       { "Item", "h450.resultExtension_item",
         FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
-        "", HFILL }},
+        "CIRequestRes/resultExtension/_item", HFILL }},
     { &hf_h450_cIGetCIPLOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIGetCIPLOptArg/argumentExtension", HFILL }},
+    { &hf_h450_cIGetCIPLOptArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIGetCIPLOptArg/argumentExtension/_item", HFILL }},
     { &hf_h450_ciProtectionLevel,
       { "ciProtectionLevel", "h450.ciProtectionLevel",
         FT_UINT32, BASE_DEC, VALS(h450_CIProtectionLevel_vals), 0,
@@ -5711,30 +5927,58 @@ void proto_register_h450(void) {
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIGetCIPLRes/resultExtension", HFILL }},
+    { &hf_h450_cIGetCIPLRes_resultExtension_item,
+      { "Item", "h450.resultExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIGetCIPLRes/resultExtension/_item", HFILL }},
     { &hf_h450_cIIsOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIIsOptArg/argumentExtension", HFILL }},
+    { &hf_h450_cIIsOptArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIIsOptArg/argumentExtension/_item", HFILL }},
     { &hf_h450_cIIsOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIIsOptRes/resultExtension", HFILL }},
+    { &hf_h450_cIIsOptRes_resultExtension_item,
+      { "Item", "h450.resultExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIIsOptRes/resultExtension/_item", HFILL }},
     { &hf_h450_cIFrcRelArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIFrcRelArg/argumentExtension", HFILL }},
+    { &hf_h450_cIFrcRelArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIFrcRelArg/argumentExtension/_item", HFILL }},
     { &hf_h450_cIFrcRelOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIFrcRelOptRes/resultExtension", HFILL }},
+    { &hf_h450_cIFrcRelOptRes_resultExtension_item,
+      { "Item", "h450.resultExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIFrcRelOptRes/resultExtension/_item", HFILL }},
     { &hf_h450_cIWobOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIWobOptArg/argumentExtension", HFILL }},
+    { &hf_h450_cIWobOptArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIWobOptArg/argumentExtension/_item", HFILL }},
     { &hf_h450_cIWobOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CIWobOptRes/resultExtension", HFILL }},
+    { &hf_h450_cIWobOptRes_resultExtension_item,
+      { "Item", "h450.resultExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CIWobOptRes/resultExtension/_item", HFILL }},
     { &hf_h450_specificCall,
       { "specificCall", "h450.specificCall",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5743,14 +5987,26 @@ void proto_register_h450(void) {
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CISilentArg/argumentExtension", HFILL }},
+    { &hf_h450_cISilentArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CISilentArg/argumentExtension/_item", HFILL }},
     { &hf_h450_cISilentOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CISilentOptRes/resultExtension", HFILL }},
+    { &hf_h450_cISilentOptRes_resultExtension_item,
+      { "Item", "h450.resultExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CISilentOptRes/resultExtension/_item", HFILL }},
     { &hf_h450_cINotificationArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CINotificationArg/argumentExtension", HFILL }},
+    { &hf_h450_cINotificationArg_argumentExtension_item,
+      { "Item", "h450.argumentExtension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CINotificationArg/argumentExtension/_item", HFILL }},
     { &hf_h450_callIntrusionImpending,
       { "callIntrusionImpending", "h450.callIntrusionImpending",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5791,10 +6047,18 @@ void proto_register_h450(void) {
       { "extension", "h450.extension",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CmnArg/extension", HFILL }},
+    { &hf_h450_cmnArg_extension_item,
+      { "Item", "h450.extension_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CmnArg/extension/_item", HFILL }},
     { &hf_h450_cmnRequestArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CmnRequestArg/extensionArg", HFILL }},
+    { &hf_h450_cmnRequestArg_extensionArg_item,
+      { "Item", "h450.extensionArg_item",
+        FT_UINT32, BASE_DEC, VALS(h450_MixedExtension_vals), 0,
+        "CmnRequestArg/extensionArg/_item", HFILL }},
     { &hf_h450_ssCFreRoutingSupported,
       { "ssCFreRoutingSupported", "h450.ssCFreRoutingSupported",
         FT_NONE, BASE_NONE, NULL, 0,

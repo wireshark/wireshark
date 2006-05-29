@@ -12,6 +12,19 @@ OpenLogicalChannel
 OpenLogicalChannel
 
 #----------------------------------------------------------------------------------------
+
+#.VIRTUAL_ASSGN
+G723AnnexCAudioMode  G7231AnnexCCapability/g723AnnexCAudioMode  G7231AnnexCMode/g723AnnexCAudioMode
+Application  DataApplicationCapability/application
+Nlpid  Application/nlpid  DataMode/application/nlpid
+Al3 H223LogicalChannelParameters/adaptationLayerType/al3  H223ModeParameters/adaptationLayerType/al3  
+ArqType  H223AL1MParameters/arqType  H223AL3MParameters/arqType
+SeparateStream  FECData/rfc2733/mode/separateStream  FECMode/rfc2733Mode/mode/separateStream
+Restriction  FlowControlCommand/restriction  FlowControlIndication/restriction
+Scope  FlowControlCommand/scope  FlowControlIndication/scope  JitterIndication/scope
+EncryptedAlphanumeric  UserInputIndication/extendedAlphanumeric/encryptedAlphanumeric  UserInputIndication/encryptedAlphanumeric
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY MultiplexEntryDescriptor
   /*MultiplexEntryDescriptor*/
   h223_me = NULL;
@@ -240,7 +253,7 @@ OpenLogicalChannel
   h223_fw_lc_num = h245_lc_temp;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_FTR OpenLogicalChannelAck/reverseLogicalChannelParamaters/reverseLogicalChannelNumber
+#.FN_FTR OpenLogicalChannelAck/reverseLogicalChannelParameters/reverseLogicalChannelNumber
   h223_rev_lc_num = h245_lc_temp;
 #.END
 #----------------------------------------------------------------------------------------
@@ -911,6 +924,8 @@ H262VideoMode/profileAndLevel/profileAndLevel-HPatH-14      profileAndLevel_HPat
 H262VideoMode/profileAndLevel/profileAndLevel-HPatHL        profileAndLevel_HPatHLMode
                     
 RedundancyEncodingMode/secondaryEncoding/audioData audioMode
+RedundancyEncodingMode/secondaryEncoding  secondaryEncodingMode
+RedundancyEncodingCapability/secondaryEncoding  secondaryEncodingCapability
 
 UnicastAddress/iPAddress/network ip4_network
 UnicastAddress/iP6Address/network ip6_network
@@ -920,6 +935,7 @@ MulticastAddress/iP6Address mIP6Address
 MulticastAddress/iPAddress/network mip4_network
 
 RTPPayloadType/payloadDescriptor/nonStandardIdentifier nonStandard
+MediaPacketizationCapability/rtpPayloadType  rtpPayloadTypes
 T84Profile/t84Restricted/cif cif_bool
 T84Profile/t84Restricted/qcif qcif_bool
 H223ModeParameters/adaptationLayerType adaptationLayer
@@ -928,6 +944,9 @@ H263VideoMode/resolution h263_resolution
 H263VideoMode/resolution/custom custom_res
 CommunicationModeTableEntry/dataType entryDataType
 VCCapability/transportStream transportStream_bool
+MultiplePayloadStreamMode/elements  mpsmElements
+RedundancyEncodingDTMode/secondary  secondaryDTM
+MultiplexEntrySendReject/rejectionDescriptions sendRejectionDescriptions
 
 MultiplexEntrySendAck/multiplexTableEntryNumber multiplexTableEntryNumbers
 MultiplexEntrySendRelease/multiplexTableEntryNumber multiplexTableEntryNumbers
@@ -997,7 +1016,6 @@ H223AL3MParameters/crcLength crlength2
 SendTerminalCapabilitySet/specificRequest/multiplexCapability multiplexCapabilityBool
 FECCapability/rfc2733/redundancyEncoding redundancyEncodingBool
 FECData/rfc2733/mode/redundancyEncoding redundancyEncodingFlag
-Moderfc2733/redundancyEncoding redundancyEncodingFlag 
 FECMode/rfc2733Mode/mode/redundancyEncoding redundancyEncodingFlag
 
 H261VideoCapability/qcifMPI qcifMPI_1_4

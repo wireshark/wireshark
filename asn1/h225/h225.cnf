@@ -31,6 +31,53 @@ ScreeningIndicator
 CallIdentifier
 GenericData
 #----------------------------------------------------------------------------------------
+
+#.VIRTUAL_ASSGN
+FastStart  Setup-UUIE/fastStart 
+#.SET_TYPE
+Setup-UUIE/fastStart           FastStart
+CallProceeding-UUIE/fastStart  FastStart
+Connect-UUIE/fastStart         FastStart
+Alerting-UUIE/fastStart        FastStart
+Information-UUIE/fastStart     FastStart
+Facility-UUIE/fastStart        FastStart
+Progress-UUIE/fastStart        FastStart
+
+#.VIRTUAL_ASSGN
+H245Control  H323-UU-PDU/h245Control
+ParallelH245Control  Setup-UUIE/parallelH245Control
+DialedDigits  AliasAddress/dialedDigits
+
+#.VIRTUAL_ASSGN
+DestinationInfo  AdmissionRequest/destinationInfo 
+#.SET_TYPE
+AdmissionRequest/destinationInfo  DestinationInfo
+AdmissionConfirm/destinationInfo  DestinationInfo
+LocationRequest/destinationInfo   DestinationInfo
+LocationConfirm/destinationInfo   DestinationInfo
+
+#.VIRTUAL_ASSGN
+H245TransportAddress  TransportAddress
+#.SET_TYPE
+Setup-UUIE/h245Address           H245TransportAddress
+CallProceeding-UUIE/h245Address  H245TransportAddress
+Connect-UUIE/h245Address         H245TransportAddress
+Alerting-UUIE/h245Address        H245TransportAddress
+Facility-UUIE/h245Address        H245TransportAddress
+Progress-UUIE/h245Address        H245TransportAddress
+#.FIELD_RENAME
+H245TransportAddress/ipAddress       h245IpAddress
+H245TransportAddress/ipAddress/ip    h245Ip
+H245TransportAddress/ipAddress/port  h245IpPort
+H245TransportAddress/ipSourceRoute          h245IpSourceRoute
+H245TransportAddress/ipSourceRoute/route    h245Route
+H245TransportAddress/ipSourceRoute/routing  h245Routing
+H245TransportAddress/ipxAddress       h245IpxAddress
+H245TransportAddress/ipxAddress/port  h245IpxPort
+H245TransportAddress/ip6Address     h245Ip6Address
+H245TransportAddress/ip6Address/ip  h245Ip6
+
+#----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
 TunnelledProtocol/id TunnelledProtocol_id
@@ -211,7 +258,7 @@ CallIdentifier/guid guid
   }
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4  VAL_PTR = &value_tvb
+#.FN_BODY H245TransportAddress/ipAddress/ip  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb;
 
   ipv4_address = 0;
@@ -220,7 +267,7 @@ CallIdentifier/guid guid
     ipv4_address = tvb_get_ipv4(value_tvb, 0);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port  VAL_PTR = &ipv4_port
+#.FN_PARS H245TransportAddress/ipAddress/port  VAL_PTR = &ipv4_port
 #----------------------------------------------------------------------------------------
 #.FN_BODY ParallelH245Control/_item  VAL_PTR = &h245_tvb
 	tvbuff_t *h245_tvb = NULL;
@@ -533,8 +580,8 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
-H245TransportAddress/h245ipAddress/h245ipv4 TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
-H245TransportAddress/h245ip6Address/h245ipv6 TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+H245TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+H245TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 VendorIdentifier/productId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
 VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
 H323-UserInformation/user-data/protocol-discriminator TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(q931_protocol_discriminator_vals)

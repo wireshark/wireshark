@@ -1,3 +1,10 @@
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2003/H323-MESSAGES.asn
+--
+-- Features unbacked with ASN.1 to Wireshark compiler was commented out
+--
+
 -- Module H323-MESSAGES (H.225.0:07/2003)
 H323-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -49,7 +56,7 @@ H323-UU-PDU ::= SEQUENCE {
   -- Table 3/H.450.1
   h245Tunneling                      BOOLEAN,
   -- if TRUE, tunneling of H.245 messages is enabled
-  h245Control                        H245Control OPTIONAL,
+  h245Control                        SEQUENCE OF OCTET STRING OPTIONAL,
   nonStandardControl                 SEQUENCE OF NonStandardParameter OPTIONAL,
   callLinkage                        CallLinkage OPTIONAL,
   tunnelledSignallingMessage
@@ -64,8 +71,6 @@ H323-UU-PDU ::= SEQUENCE {
   genericData                        SEQUENCE OF GenericData OPTIONAL
 }
 
-H245Control ::= SEQUENCE OF OCTET STRING
-
 StimulusControl ::= SEQUENCE {
   nonStandard  NonStandardParameter OPTIONAL,
   isText       NULL OPTIONAL,
@@ -76,13 +81,13 @@ StimulusControl ::= SEQUENCE {
 Alerting-UUIE ::= SEQUENCE {
   protocolIdentifier        ProtocolIdentifier,
   destinationInfo           EndpointType,
-  h245Address               H245TransportAddress OPTIONAL,
+  h245Address               TransportAddress OPTIONAL,
   ...,
   callIdentifier            CallIdentifier,
   h245SecurityMode          H245Security OPTIONAL,
   tokens                    SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens              SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart                 FastStart OPTIONAL,
+  fastStart                 SEQUENCE OF OCTET STRING OPTIONAL,
   multipleCalls             BOOLEAN,
   maintainConnection        BOOLEAN,
   alertingAddress           SEQUENCE OF AliasAddress OPTIONAL,
@@ -92,18 +97,18 @@ Alerting-UUIE ::= SEQUENCE {
   serviceControl            SEQUENCE OF ServiceControlSession OPTIONAL,
   capacity                  CallCapacity OPTIONAL,
   featureSet                FeatureSet OPTIONAL
-} 
+}
 
 CallProceeding-UUIE ::= SEQUENCE {
   protocolIdentifier     ProtocolIdentifier,
   destinationInfo        EndpointType,
-  h245Address            H245TransportAddress OPTIONAL,
+  h245Address            TransportAddress OPTIONAL,
   ...,
   callIdentifier         CallIdentifier,
   h245SecurityMode       H245Security OPTIONAL,
   tokens                 SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens           SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart              FastStart OPTIONAL,
+  fastStart              SEQUENCE OF OCTET STRING OPTIONAL,
   multipleCalls          BOOLEAN,
   maintainConnection     BOOLEAN,
   fastConnectRefused     NULL OPTIONAL,
@@ -112,7 +117,7 @@ CallProceeding-UUIE ::= SEQUENCE {
 
 Connect-UUIE ::= SEQUENCE {
   protocolIdentifier        ProtocolIdentifier,
-  h245Address               H245TransportAddress OPTIONAL,
+  h245Address               TransportAddress OPTIONAL,
   destinationInfo           EndpointType,
   conferenceID              ConferenceIdentifier,
   ...,
@@ -120,7 +125,7 @@ Connect-UUIE ::= SEQUENCE {
   h245SecurityMode          H245Security OPTIONAL,
   tokens                    SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens              SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart                 FastStart OPTIONAL,
+  fastStart                 SEQUENCE OF OCTET STRING OPTIONAL,
   multipleCalls             BOOLEAN,
   maintainConnection        BOOLEAN,
   language                  SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL, -- RFC1766 language tag
@@ -139,7 +144,7 @@ Information-UUIE ::= SEQUENCE {
   callIdentifier         CallIdentifier,
   tokens                 SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens           SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart              FastStart OPTIONAL,
+  fastStart              SEQUENCE OF OCTET STRING OPTIONAL,
   fastConnectRefused     NULL OPTIONAL,
   circuitInfo            CircuitInfo OPTIONAL
 }
@@ -206,7 +211,7 @@ ReleaseCompleteReason ::= CHOICE {
 
 Setup-UUIE ::= SEQUENCE {
   protocolIdentifier             ProtocolIdentifier,
-  h245Address                    H245TransportAddress OPTIONAL,
+  h245Address                    TransportAddress OPTIONAL,
   sourceAddress                  SEQUENCE OF AliasAddress OPTIONAL,
   sourceInfo                     EndpointType,
   destinationAddress             SEQUENCE OF AliasAddress OPTIONAL,
@@ -231,7 +236,7 @@ Setup-UUIE ::= SEQUENCE {
   h245SecurityCapability         SEQUENCE OF H245Security OPTIONAL,
   tokens                         SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens                   SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart                      FastStart OPTIONAL,
+  fastStart                      SEQUENCE OF OCTET STRING OPTIONAL,
   mediaWaitForConnect            BOOLEAN,
   canOverlapSend                 BOOLEAN,
   endpointIdentifier             EndpointIdentifier OPTIONAL,
@@ -257,12 +262,10 @@ Setup-UUIE ::= SEQUENCE {
   neededFeatures                 SEQUENCE OF FeatureDescriptor OPTIONAL,
   desiredFeatures                SEQUENCE OF FeatureDescriptor OPTIONAL,
   supportedFeatures              SEQUENCE OF FeatureDescriptor OPTIONAL,
-  parallelH245Control            ParallelH245Control OPTIONAL,
+  parallelH245Control            SEQUENCE OF OCTET STRING OPTIONAL,
   additionalSourceAddresses      SEQUENCE OF ExtendedAliasAddress OPTIONAL,
   hopCount                       INTEGER(1..31) OPTIONAL
 }
-
-ParallelH245Control ::= SEQUENCE OF OCTET STRING
 
 ScnConnectionType ::= CHOICE {
   unknown     NULL, -- should be seleceted when connection type is unknown
@@ -334,8 +337,8 @@ Facility-UUIE ::= SEQUENCE {
   tokens                     SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens               SEQUENCE OF CryptoH323Token OPTIONAL,
   conferences                SEQUENCE OF ConferenceList OPTIONAL,
-  h245Address                H245TransportAddress OPTIONAL,
-  fastStart                  FastStart OPTIONAL,
+  h245Address                TransportAddress OPTIONAL,
+  fastStart                  SEQUENCE OF OCTET STRING OPTIONAL,
   multipleCalls              BOOLEAN,
   maintainConnection         BOOLEAN,
   fastConnectRefused         NULL OPTIONAL,
@@ -373,19 +376,17 @@ FacilityReason ::= CHOICE {
 Progress-UUIE ::= SEQUENCE {
   protocolIdentifier     ProtocolIdentifier,
   destinationInfo        EndpointType,
-  h245Address            H245TransportAddress OPTIONAL,
+  h245Address            TransportAddress OPTIONAL,
   callIdentifier         CallIdentifier,
   h245SecurityMode       H245Security OPTIONAL,
   tokens                 SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens           SEQUENCE OF CryptoH323Token OPTIONAL,
-  fastStart              FastStart OPTIONAL,
+  fastStart              SEQUENCE OF OCTET STRING OPTIONAL,
   ...,
   multipleCalls          BOOLEAN,
   maintainConnection     BOOLEAN,
   fastConnectRefused     NULL OPTIONAL
 }
-
-FastStart ::= SEQUENCE OF OCTET STRING
 
 TransportAddress ::= CHOICE {
   ipAddress
@@ -412,32 +413,7 @@ TransportAddress ::= CHOICE {
   nonStandardAddress  NonStandardParameter,
   ...
 }
--- Wireshark adaptation
-H245TransportAddress ::= CHOICE {
-  h245ipAddress
-    SEQUENCE {h245ipv4    OCTET STRING(SIZE (4)),
-              h245ipv4port  INTEGER(0..65535)},
-  h245ipSourceRoute
-    SEQUENCE {h245routeip       OCTET STRING(SIZE (4)),
-              h245routeport     INTEGER(0..65535),
-              h245route    SEQUENCE OF OCTET STRING(SIZE (4)),
-              h245routing  CHOICE {strict  NULL,
-                               loose   NULL,
-                               ...},
-              ...},
-  h245ipxAddress
-    SEQUENCE {node    OCTET STRING(SIZE (6)),
-              netnum  OCTET STRING(SIZE (4)),
-              h245ipxport    OCTET STRING(SIZE (2))},
-  h245ip6Address
-    SEQUENCE {h245ipv6    OCTET STRING(SIZE (16)),
-              h245ipv6port  INTEGER(0..65535),
-              ...},
-  h245netBios             OCTET STRING(SIZE (16)),
-  h245nsap                OCTET STRING(SIZE (1..20)),
-  nonStandardAddress  NonStandardParameter,
-  ...
-}
+
 Status-UUIE ::= SEQUENCE {
   protocolIdentifier  ProtocolIdentifier,
   callIdentifier      CallIdentifier,
@@ -647,7 +623,7 @@ NonStandardIdentifier ::= CHOICE {
 }
 
 AliasAddress ::= CHOICE {
-  dialedDigits  DialedDigits,
+  dialedDigits  IA5String(SIZE (1..128))(FROM ("0123456789#*,")),
   h323-ID       BMPString(SIZE (1..256)), -- Basic ISO/IEC 10646-1 (Unicode)
   ...,
   url-ID        IA5String(SIZE (1..512)), -- URL style address
@@ -656,7 +632,7 @@ AliasAddress ::= CHOICE {
   partyNumber   PartyNumber,
   mobileUIM     MobileUIM
 }
-DialedDigits ::= IA5String(SIZE (1..128))(FROM ("0123456789#*,"))
+
 AddressPattern ::= CHOICE {
   wildcard  AliasAddress,
   range     SEQUENCE {startOfRange  PartyNumber,
@@ -994,7 +970,7 @@ FastStartToken ::=
        dhkey      PRESENT,
        generalID  PRESENT
      
-     }) -- set to "alias" --
+     -- set to "alias" --})
 
 --EncodedFastStartToken ::= TYPE-IDENTIFIER.&Type(FastStartToken)
 
@@ -1573,7 +1549,7 @@ AdmissionRequest ::= SEQUENCE --(ARQ)
   callType                     CallType,
   callModel                    CallModel OPTIONAL,
   endpointIdentifier           EndpointIdentifier,
-  destinationInfo              DestinationInfo OPTIONAL,
+  destinationInfo              SEQUENCE OF AliasAddress OPTIONAL,
   destCallSignalAddress        TransportAddress OPTIONAL,
   destExtraCallInfo            SEQUENCE OF AliasAddress OPTIONAL,
   srcInfo                      SEQUENCE OF AliasAddress,
@@ -1606,7 +1582,6 @@ AdmissionRequest ::= SEQUENCE --(ARQ)
   genericData                  SEQUENCE OF GenericData OPTIONAL,
   canMapSrcAlias               BOOLEAN
 }
-DestinationInfo ::= SEQUENCE OF AliasAddress
 
 CallType ::= CHOICE {
   pointToPoint  NULL, -- Point-to-point
@@ -1637,7 +1612,7 @@ AdmissionConfirm ::= SEQUENCE --(ACF)
   irrFrequency                    INTEGER(1..65535) OPTIONAL,
   nonStandardData                 NonStandardParameter OPTIONAL,
   ...,
-  destinationInfo                 DestinationInfo OPTIONAL,
+  destinationInfo                 SEQUENCE OF AliasAddress OPTIONAL,
   destExtraCallInfo               SEQUENCE OF AliasAddress OPTIONAL,
   destinationType                 EndpointType OPTIONAL,
   remoteExtensionAddress          SEQUENCE OF AliasAddress OPTIONAL,
@@ -1790,7 +1765,7 @@ LocationRequest ::= SEQUENCE --(LRQ)
                      {
   requestSeqNum                RequestSeqNum,
   endpointIdentifier           EndpointIdentifier OPTIONAL,
-  destinationInfo              DestinationInfo,
+  destinationInfo              SEQUENCE OF AliasAddress,
   nonStandardData              NonStandardParameter OPTIONAL,
   replyAddress                 TransportAddress,
   ...,
@@ -1819,7 +1794,7 @@ LocationConfirm ::= SEQUENCE --(LCF)
   rasAddress                      TransportAddress,
   nonStandardData                 NonStandardParameter OPTIONAL,
   ...,
-  destinationInfo                 DestinationInfo OPTIONAL,
+  destinationInfo                 SEQUENCE OF AliasAddress OPTIONAL,
   destExtraCallInfo               SEQUENCE OF AliasAddress OPTIONAL,
   destinationType                 EndpointType OPTIONAL,
   remoteExtensionAddress          SEQUENCE OF AliasAddress OPTIONAL,

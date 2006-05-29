@@ -1,3 +1,8 @@
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h245/2003v10/MULTIMEDIA-SYSTEM-CONTROL.asn
+--
+
 -- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:07/2003)
 MULTIMEDIA-SYSTEM-CONTROL DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -433,7 +438,7 @@ H2250Capability ::= SEQUENCE {
 MediaPacketizationCapability ::= SEQUENCE {
   h261aVideoPacketization  BOOLEAN,
   ...,
-  rtpPayloadType2           SEQUENCE SIZE (1..256) OF RTPPayloadType OPTIONAL
+  rtpPayloadType           SEQUENCE SIZE (1..256) OF RTPPayloadType OPTIONAL
 }
 
 RSVPParameters ::= SEQUENCE {
@@ -497,7 +502,7 @@ TransportCapability ::= SEQUENCE {
 RedundancyEncodingCapability ::= SEQUENCE {
   redundancyEncodingMethod  RedundancyEncodingMethod,
   primaryEncoding           CapabilityTableEntryNumber,
-  secondaryEncoding2
+  secondaryEncoding
     SEQUENCE SIZE (1..256) OF CapabilityTableEntryNumber OPTIONAL,
   ...
 }
@@ -881,16 +886,16 @@ G729Extensions ::= SEQUENCE {
 G7231AnnexCCapability ::= SEQUENCE {
   maxAl-sduAudioFrames  INTEGER(1..256),
   silenceSuppression    BOOLEAN,
-  g723AnnexCAudioMode   G723AnnexCAudioMode OPTIONAL,
-  ...
-}
-G723AnnexCAudioMode ::= SEQUENCE {highRateMode0  INTEGER(27..78), -- units octets--
+  g723AnnexCAudioMode
+    SEQUENCE {highRateMode0  INTEGER(27..78), -- units octets--
               highRateMode1  INTEGER(27..78), -- units octets--
               lowRateMode0   INTEGER(23..66), -- units octets--
               lowRateMode1   INTEGER(23..66), -- units octets--
               sidMode0       INTEGER(6..17), -- units octets--
               sidMode1       INTEGER(6..17), -- units octets--
-              ...}
+              ...} OPTIONAL,
+  ...
+}
 
 IS11172AudioCapability ::= SEQUENCE {
   audioLayer1        BOOLEAN,
@@ -945,12 +950,8 @@ VBDCapability ::= SEQUENCE {type  AudioCapability, -- shall not be "vbd"
 -- Capability exchange definitions: Data capabilities
 -- ===================================================================================
 DataApplicationCapability ::= SEQUENCE {
-  application  Application,
-  maxBitRate   INTEGER(0..4294967295), -- units 100 bit/s
-  ...
-}
-
-Application ::= CHOICE {nonStandard            NonStandardParameter,
+  application
+    CHOICE {nonStandard            NonStandardParameter,
             t120                   DataProtocolCapability,
             dsm-cc                 DataProtocolCapability,
             userData               DataProtocolCapability,
@@ -959,7 +960,9 @@ Application ::= CHOICE {nonStandard            NonStandardParameter,
                         t84Profile   T84Profile},
             t434                   DataProtocolCapability,
             h224                   DataProtocolCapability,
-            nlpid                  Nlpid,
+            nlpid
+              SEQUENCE {nlpidProtocol  DataProtocolCapability,
+                        nlpidData      OCTET STRING},
             dsvdControl            NULL,
             h222DataPartitioning   DataProtocolCapability,
             ...,
@@ -968,7 +971,10 @@ Application ::= CHOICE {nonStandard            NonStandardParameter,
             t38fax
               SEQUENCE {t38FaxProtocol  DataProtocolCapability,
                         t38FaxProfile   T38FaxProfile},
-            genericDataCapability  GenericCapability}
+            genericDataCapability  GenericCapability},
+  maxBitRate   INTEGER(0..4294967295), -- units 100 bit/s
+  ...
+}
 
 DataProtocolCapability ::= CHOICE {
   nonStandard                NonStandardParameter,
@@ -1061,8 +1067,7 @@ T38FaxUdpOptions ::= SEQUENCE {
 T38FaxTcpOptions ::= SEQUENCE {t38TCPBidirectionalMode  BOOLEAN,
                                ...
 }
-Nlpid ::= SEQUENCE {nlpidProtocol  DataProtocolCapability,
-                        nlpidData      OCTET STRING}
+
 -- ===================================================================================
 -- Encryption Capability Definitions: 
 -- ===================================================================================
@@ -1382,7 +1387,10 @@ H223LogicalChannelParameters ::= SEQUENCE {
             al1NotFramed               NULL,
             al2WithoutSequenceNumbers  NULL,
             al2WithSequenceNumbers     NULL,
-            al3                        Al3,
+            al3
+              SEQUENCE {controlFieldOctets  INTEGER(0..2),
+                        sendBufferSize      INTEGER(0..16777215) -- units octets
+            },
             ...,
             al1M                       H223AL1MParameters,
             al2M                       H223AL2MParameters,
@@ -1390,9 +1398,7 @@ H223LogicalChannelParameters ::= SEQUENCE {
   segmentableFlag      BOOLEAN,
   ...
 }
-Al3 ::= SEQUENCE {controlFieldOctets  INTEGER(0..2),
-                        sendBufferSize      INTEGER(0..16777215) -- units octets
-            }
+
 H223AL1MParameters ::= SEQUENCE {
   transferMode         CHOICE {framed    NULL,
                                unframed  NULL,
@@ -1411,16 +1417,17 @@ H223AL1MParameters ::= SEQUENCE {
             crc32bit    NULL,
             crcNotUsed  NULL},
   rcpcCodeRate         INTEGER(8..32),
-  arqType			ArqType,
+  arqType
+    CHOICE {noArq      NULL,
+            typeIArq   H223AnnexCArqParameters,
+            typeIIArq  H223AnnexCArqParameters,
+            ...},
   alpduInterleaving    BOOLEAN,
   alsduSplitting       BOOLEAN,
   ...,
   rsCodeCorrection     INTEGER(0..127) OPTIONAL
 }
-ArqType ::= CHOICE {noArq      NULL,
-            typeIArq   H223AnnexCArqParameters,
-            typeIIArq  H223AnnexCArqParameters,
-            ...}
+
 H223AL2MParameters ::= SEQUENCE {
   headerFEC          CHOICE {sebch16-5   NULL,
                              golay24-12  NULL,
@@ -1444,7 +1451,11 @@ H223AL3MParameters ::= SEQUENCE {
             crc32bit    NULL,
             crcNotUsed  NULL},
   rcpcCodeRate         INTEGER(8..32),
-  arqType			ArqType,
+  arqType
+    CHOICE {noArq      NULL,
+            typeIArq   H223AnnexCArqParameters,
+            typeIIArq  H223AnnexCArqParameters,
+            ...},
   alpduInterleaving    BOOLEAN,
   ...,
   rsCodeCorrection     INTEGER(0..127) OPTIONAL
@@ -1528,7 +1539,7 @@ RTPPayloadType ::= SEQUENCE {
 
 RedundancyEncoding ::= SEQUENCE {
   redundancyEncodingMethod  RedundancyEncodingMethod,
-  secondaryEncoding3         DataType OPTIONAL, -- depends on method
+  secondaryEncoding         DataType OPTIONAL, -- depends on method
   ...,
   -- The sequence below may be used in place of the above secondaryEncoding field
   rtpRedundancyEncoding
@@ -1560,26 +1571,23 @@ MultiplePayloadStreamElement ::= SEQUENCE {
 
 FECData ::= CHOICE {
   rfc2733
-    SEQUENCE {mode CHOICE {redundancyEncoding  NULL,
-                        separateStream SeparateStream,
+    SEQUENCE {mode
+                CHOICE {redundancyEncoding  NULL,
+                        separateStream
+                          CHOICE {differentPort
+                                    SEQUENCE {protectedSessionID
+                                                INTEGER(1..255),
+                                              protectedPayloadType
+                                                INTEGER(0..127) OPTIONAL,
+                                              ...},
+                                  samePort
+                                    SEQUENCE {protectedPayloadType
+                                                INTEGER(0..127),
+                                              ...},
+                                  ...},
                         ...},
               ...}
 }
-Moderfc2733 ::= CHOICE {redundancyEncoding  NULL,
-                        separateStream SeparateStream,
-                        ...}
-
-SeparateStream ::= CHOICE {differentPort
-                             SEQUENCE {protectedSessionID
-                                         INTEGER(1..255),
-                                       protectedPayloadType
-                                         INTEGER(0..127) OPTIONAL,
-                                       ...},
-                            samePort
-                              SEQUENCE {protectedPayloadType
-                                         INTEGER(0..127),
-                                        ...},
-                            ...}
 
 TransportAddress ::= CHOICE {
   unicastAddress    UnicastAddress,
@@ -1794,7 +1802,7 @@ MultiplexEntrySendAck ::= SEQUENCE {
 
 MultiplexEntrySendReject ::= SEQUENCE {
   sequenceNumber         SequenceNumber,
-  rejectionDescriptions1
+  rejectionDescriptions
     SET SIZE (1..15) OF MultiplexEntryRejectionDescriptions,
   ...
 }
@@ -1825,7 +1833,7 @@ RequestMultiplexEntryAck ::= SEQUENCE {
 
 RequestMultiplexEntryReject ::= SEQUENCE {
   entryNumbers           SET SIZE (1..15) OF MultiplexTableEntryNumber,
-  rejectionDescriptions2
+  rejectionDescriptions
     SET SIZE (1..15) OF RequestMultiplexEntryRejectionDescriptions,
   ...
 }
@@ -1924,7 +1932,7 @@ MultiplexedStreamModeParameters ::= SEQUENCE {
 RedundancyEncodingDTMode ::= SEQUENCE {
   redundancyEncodingMethod  RedundancyEncodingMethod,
   primary                   RedundancyEncodingDTModeElement,
-  secondary2                 SEQUENCE OF RedundancyEncodingDTModeElement,
+  secondary                 SEQUENCE OF RedundancyEncodingDTModeElement,
   ...
 }
 
@@ -1941,17 +1949,29 @@ RedundancyEncodingDTModeElement ::= SEQUENCE {
 }
 
 MultiplePayloadStreamMode ::= SEQUENCE {
-  mpsmElements  SEQUENCE OF MultiplePayloadStreamElementMode,
+  elements  SEQUENCE OF MultiplePayloadStreamElementMode,
   ...
 }
+
 MultiplePayloadStreamElementMode ::= SEQUENCE {type  ModeElementType,
                                                ...
 }
 
 FECMode ::= CHOICE {
   rfc2733Mode
-    SEQUENCE {mode CHOICE {redundancyEncoding  NULL,
-                        separateStream SeparateStream,
+    SEQUENCE {mode
+                CHOICE {redundancyEncoding  NULL,
+                        separateStream
+                          CHOICE {differentPort
+                                    SEQUENCE {protectedSessionID
+                                                INTEGER(1..255),
+                                              protectedPayloadType
+                                                INTEGER(0..127) OPTIONAL,
+                                              ...},
+                                  samePort
+                                    SEQUENCE {protectedType  ModeElementType,
+                                              ...},
+                                  ...},
                         ...},
               ...},
   ...
@@ -1964,7 +1984,10 @@ H223ModeParameters ::= SEQUENCE {
             al1NotFramed               NULL,
             al2WithoutSequenceNumbers  NULL,
             al2WithSequenceNumbers     NULL,
-            al3                        Al3,
+            al3
+              SEQUENCE {controlFieldOctets  INTEGER(0..2),
+                        -- units octets 
+                        sendBufferSize      INTEGER(0..16777215)},
             ...,
             al1M                       H223AL1MParameters,
             al2M                       H223AL2MParameters,
@@ -2151,7 +2174,14 @@ IS13818AudioMode ::= SEQUENCE {
 G7231AnnexCMode ::= SEQUENCE {
   maxAl-sduAudioFrames  INTEGER(1..256),
   silenceSuppression    BOOLEAN,
-  g723AnnexCAudioMode   G723AnnexCAudioMode,
+  g723AnnexCAudioMode
+    SEQUENCE {highRateMode0  INTEGER(27..78), -- units octets--
+              highRateMode1  INTEGER(27..78), -- units octets--
+              lowRateMode0   INTEGER(23..66), -- units octets--
+              lowRateMode1   INTEGER(23..66), -- units octets--
+              sidMode0       INTEGER(6..17), -- units octets--
+              sidMode1       INTEGER(6..17), -- units octets--
+              ...},
   ...
 }
 
@@ -2163,7 +2193,7 @@ VBDMode ::= SEQUENCE {type  AudioMode, -- shall not be "vbd"
 -- Request mode definitions: Data modes
 -- ===================================================================================
 DataMode ::= SEQUENCE {
-  application 
+  application
     CHOICE {nonStandard           NonStandardParameter,
             t120                  DataProtocolCapability,
             dsm-cc                DataProtocolCapability,
@@ -2171,7 +2201,9 @@ DataMode ::= SEQUENCE {
             t84                   DataProtocolCapability,
             t434                  DataProtocolCapability,
             h224                  DataProtocolCapability,
-            nlpid                 Nlpid,
+            nlpid
+              SEQUENCE {nlpidProtocol  DataProtocolCapability,
+                        nlpidData      OCTET STRING},
             dsvdControl           NULL,
             h222DataPartitioning  DataProtocolCapability,
             ...,
@@ -2441,7 +2473,9 @@ MultilinkRequest ::= CHOICE {
     SEQUENCE {sequenceNumber      SequenceNumber, -- Unique ID of request--
               dialingInformation  DialingInformation,
               ...},
-  removeConnection RemoveConnection,
+  removeConnection
+    SEQUENCE {connectionIdentifier  ConnectionIdentifier,
+              ...},
   maximumHeaderInterval
     SEQUENCE {requestType
                 CHOICE {currentIntervalInformation  NULL,
@@ -2450,7 +2484,6 @@ MultilinkRequest ::= CHOICE {
               ...},
   ...
 }
-
 
 MultilinkResponse ::= CHOICE {
   nonStandard            NonStandardMessage,
@@ -2468,14 +2501,14 @@ MultilinkResponse ::= CHOICE {
                                   ...},
                         ...},
               ...},
-  removeConnection RemoveConnection,
+  removeConnection
+    SEQUENCE {connectionIdentifier  ConnectionIdentifier,
+              ...},
   maximumHeaderInterval
     SEQUENCE {currentInterval  INTEGER(0..65535), -- Max Header Interval, milliseconds--
               ...},
   ...
 }
-RemoveConnection ::= SEQUENCE {connectionIdentifier  ConnectionIdentifier,
-              ...}
 
 MultilinkIndication ::= CHOICE {
   nonStandard     NonStandardMessage,
@@ -2586,15 +2619,16 @@ EncryptionCommand ::= CHOICE {
 -- Command Message : Flow Control
 -- ===================================================================================
 FlowControlCommand ::= SEQUENCE {
-  scope	Scope,
-  restriction Restriction,
+  scope
+    CHOICE {logicalChannelNumber  LogicalChannelNumber,
+            resourceID            INTEGER(0..65535),
+            wholeMultiplex        NULL},
+  restriction
+    CHOICE {maximumBitRate  INTEGER(0..16777215), -- units 100 bit/s --
+            noRestriction   NULL},
   ...
 }
-Scope ::= CHOICE {logicalChannelNumber  LogicalChannelNumber,
-          resourceID            INTEGER(0..65535),
-          wholeMultiplex        NULL}
-Restriction ::= CHOICE {maximumBitRate  INTEGER(0..16777215), -- units 100 bit/s --
-            noRestriction   NULL}
+
 -- ===================================================================================
 -- Command Message : Change or End Session
 -- ===================================================================================
@@ -2672,7 +2706,12 @@ MiscellaneousCommand ::= SEQUENCE {
             switchReceiveMediaOff                 NULL,
             switchReceiveMediaOn                  NULL,
             progressiveRefinementStart
-              SEQUENCE {repeatCount RepeatCount,
+              SEQUENCE {repeatCount
+                          CHOICE {doOneProgression                     NULL,
+                                  doContinuousProgressions             NULL,
+                                  doOneIndependentProgression          NULL,
+                                  doContinuousIndependentProgressions  NULL,
+                                  ...},
                         ...},
             progressiveRefinementAbortOne         NULL,
             progressiveRefinementAbortContinuous  NULL,
@@ -2703,11 +2742,7 @@ MiscellaneousCommand ::= SEQUENCE {
   ...,
   direction             EncryptionUpdateDirection OPTIONAL
 }
-RepeatCount ::= CHOICE {doOneProgression                     NULL,
-                                  doContinuousProgressions             NULL,
-                                  doOneIndependentProgression          NULL,
-                                  doContinuousIndependentProgressions  NULL,
-                                  ...}
+
 KeyProtectionMethod ::=
   SEQUENCE -- specify how the new key is to be protected
    {
@@ -2897,7 +2932,10 @@ MiscellaneousIndication ::= SEQUENCE {
 -- Indication Message : Jitter Indication
 -- ===================================================================================
 JitterIndication ::= SEQUENCE {
-  scope	Scope,
+  scope
+    CHOICE {logicalChannelNumber  LogicalChannelNumber,
+            resourceID            INTEGER(0..65535),
+            wholeMultiplex        NULL},
   estimatedReceivedJitterMantissa  INTEGER(0..3),
   estimatedReceivedJitterExponent  INTEGER(0..7),
   skippedFrameCount                INTEGER(0..15) OPTIONAL,
@@ -3032,13 +3070,16 @@ UserInputIndication ::= CHOICE {
             encryptedIA5String      NULL,
             -- indicates encrypted general string
             encryptedGeneralString  NULL},
-
   signal
     SEQUENCE {signalType
-                IA5String(SIZE (1))(FROM ("0123456789#*ABCD!")),
+                IA5String(SIZE (1) ^ FROM ("0123456789#*ABCD!")),
               -- holds dummy "!" if encryptedSignalType is being used
               duration                 INTEGER(1..65535) OPTIONAL, -- milliseconds--
-              rtp		       Rtp OPTIONAL,
+              rtp
+                SEQUENCE {timestamp             INTEGER(0..4294967295) OPTIONAL,
+                          expirationTime        INTEGER(0..4294967295) OPTIONAL,
+                          logicalChannelNumber  LogicalChannelNumber,
+                          ...} OPTIONAL,
               ...,
               rtpPayloadIndication     NULL OPTIONAL,
               -- any "runtime" parameters
@@ -3057,23 +3098,29 @@ UserInputIndication ::= CHOICE {
               -- encryptedAlphanumeric is being used
               rtpPayloadIndication      NULL OPTIONAL,
               ...,
-              encryptedAlphanumeric     EncryptedAlphanumeric OPTIONAL},
-  encryptedAlphanumeric EncryptedAlphanumeric
-}
-EncryptedAlphanumeric ::= SEQUENCE {algorithmOID  OBJECT IDENTIFIER,
+              encryptedAlphanumeric
+                SEQUENCE {algorithmOID  OBJECT IDENTIFIER,
                           paramS        Params OPTIONAL, -- any "runtime" parameters--
                           encrypted     OCTET STRING, -- general string encrypted--
-                          ...}
-Rtp ::= SEQUENCE {timestamp             INTEGER(0..4294967295) OPTIONAL,
-                          expirationTime        INTEGER(0..4294967295) OPTIONAL,
-                          logicalChannelNumber  LogicalChannelNumber,
-                          ...}
+                          ...} OPTIONAL},
+  encryptedAlphanumeric
+    SEQUENCE {algorithmOID  OBJECT IDENTIFIER,
+              paramS        Params OPTIONAL, -- any "runtime" parameters--
+              encrypted     OCTET STRING, -- basic string encrypted--
+              ...}
+}
+
 -- ===================================================================================
 -- Indication Message : Flow Control
 -- ===================================================================================
 FlowControlIndication ::= SEQUENCE {
-  scope	Scope,
-  restriction Restriction,
+  scope
+    CHOICE {logicalChannelNumber  LogicalChannelNumber,
+            resourceID            INTEGER(0..65535),
+            wholeMultiplex        NULL},
+  restriction
+    CHOICE {maximumBitRate  INTEGER(0..16777215), -- units 100 bit/s --
+            noRestriction   NULL},
   ...
 }
 
