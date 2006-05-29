@@ -2,18 +2,18 @@
 #
 #  $Id$
 #
-#  File : idl2eth          
+#  File : idl2wrs          
 #
 #  Author : Frank Singleton (frank.singleton@ericsson.com)
 #
 #  Copyright (C) 2001 Frank Singleton, Ericsson Inc.
 #
 #  This file is a simple shell script wrapper for the IDL to 
-#  Ethereal dissector code.
+#  Wireshark dissector code.
 #
-#  ie: ethereal_be.py and ethereal_gen.py
+#  ie: wireshark_be.py and wireshark_gen.py
 #
-#  This file is used to generate "Ethereal" dissectors from IDL descriptions. 
+#  This file is used to generate "Wireshark" dissectors from IDL descriptions. 
 #  The output language generated is "C". It will generate code to use the 
 #  GIOP/IIOP get_CDR_XXX API.
 #
@@ -43,40 +43,40 @@
 #  Must at least supply an IDL file
 
 if [ $# -lt 1 ]; then
-    echo "idl2eth Error: no IDL file specified."
-    echo "Usage: idl2eth idl_file_name"
+    echo "idl2wrs Error: no IDL file specified."
+    echo "Usage: idl2wrs idl_file_name"
     exit 1;
 fi
 
 #
-# Run wireshark backend, looking for ethereal_be.py and ethereal_gen.py
+# Run wireshark backend, looking for wireshark_be.py and wireshark_gen.py
 # in pythons's "site-packages" directory. If cannot find that, then
 # try looking in current directory. If still cannot, then exit with
 # error.
 
-if [ -f $PYTHONPATH/site-packages/ethereal_be.py ] && [ -f $PYTHONPATH/site-packages/ethereal_gen.py ]; then
-    exec omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $@
+if [ -f $PYTHONPATH/site-packages/wireshark_be.py ] && [ -f $PYTHONPATH/site-packages/wireshark_gen.py ]; then
+    exec omniidl  -p $PYTHONPATH/site-packages -b wireshark_be $@
     /* not reached */
 fi
 
 # Try current directory.
 
-if [ -f ./ethereal_be.py ] && [ -f ./ethereal_gen.py ]; then
-    exec omniidl  -p ./ -b ethereal_be $@
+if [ -f ./wireshark_be.py ] && [ -f ./wireshark_gen.py ]; then
+    exec omniidl  -p ./ -b wireshark_be $@
     /* not reached */
 fi
 
-# Could not find both ethereal_be.py AND ethereal_gen.py
+# Could not find both wireshark_be.py AND wireshark_gen.py
 # So let's just try to run it without -p, hoping that the installation
 # set up a valid path.
 
-exec omniidl -b ethereal_be $@
+exec omniidl -b wireshark_be $@
 
 old code: not reached
 
-echo "idl2eth Error: Could not find both ethereal_be.py AND ethereal_gen.py."
-echo "Please ensure you have the PYTHONPATH variable set, or that ethereal_be.py "
-echo "and ethereal_gen.py exist in the current directory. "
+echo "idl2wrs Error: Could not find both wireshark_be.py AND wireshark_gen.py."
+echo "Please ensure you have the PYTHONPATH variable set, or that wireshark_be.py "
+echo "and wireshark_gen.py exist in the current directory. "
 echo
 echo "On this system, PYTHONPATH is : $PYTHONPATH"
 echo
