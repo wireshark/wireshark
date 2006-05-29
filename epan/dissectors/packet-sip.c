@@ -102,6 +102,9 @@ static gint hf_sip_auth_cnonce           = -1;
 static gint hf_sip_auth_uri              = -1;
 static gint hf_sip_auth_domain           = -1;
 static gint hf_sip_auth_stale            = -1;
+static gint hf_sip_auth_auts             = -1;
+static gint hf_sip_auth_rspauth          = -1;
+static gint hf_sip_auth_nextnonce        = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
@@ -428,6 +431,9 @@ static auth_parameter_t auth_parameters_hf_array[] =
 	{"uri",             &hf_sip_auth_uri},
 	{"domain",          &hf_sip_auth_domain},
 	{"stale",           &hf_sip_auth_stale},
+	{"auts",            &hf_sip_auth_auts},
+	{"rspauth",         &hf_sip_auth_rspauth},
+	{"nextnonce",       &hf_sip_auth_nextnonce},
 };
 
 /*
@@ -1792,9 +1798,11 @@ separator_found2:
 					case POS_WWW_AUTHENTICATE:
 					case POS_PROXY_AUTHENTICATE:
 					case POS_PROXY_AUTHORIZATION:
+					case POS_AUTHENTICATION_INFO:
 						/* Add tree using whole text of line */
 						if (hdr_tree) {
 							proto_item *ti;
+							/* Add whole line as header tree */
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
@@ -1802,6 +1810,8 @@ separator_found2:
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
+
+							/* Set sip.auth as a hidden field/filter */
 							ti = proto_tree_add_item(hdr_tree, hf_sip_auth, tvb,
 							                         offset, next_offset-offset,
 							                         FALSE);
@@ -1810,10 +1820,15 @@ separator_found2:
 
 						/* Parse each individual parameter in the line */
 						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n");
-						
-						proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
-							                tvb, value_offset, comma_offset - value_offset,
-							                FALSE);
+
+						/* Authentication-Info does not begin with the scheme name */
+						if (hf_index != POS_AUTHENTICATION_INFO)
+						{
+							proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
+												tvb, value_offset, comma_offset - value_offset,
+												FALSE);
+						}
+
 						while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
 						{
 							if(comma_offset == line_end_offset)
@@ -2950,6 +2965,21 @@ void proto_register_sip(void)
 			{ "Stale Flag",  "sip.auth.stale",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"SIP Authentication Stale Flag", HFILL}
+		},
+		{ &hf_sip_auth_auts,
+			{ "Authentication Token",  "sip.auth.auts",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Token", HFILL}
+		},
+		{ &hf_sip_auth_rspauth,
+			{ "Response auth",  "sip.auth.rspauth",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Response auth", HFILL}
+		},
+		{ &hf_sip_auth_nextnonce,
+			{ "Next Nonce",  "sip.auth.nextnonce",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Next Nonce", HFILL}
 		}};
 
 
