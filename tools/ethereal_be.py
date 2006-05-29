@@ -8,13 +8,13 @@
 #
 #    Copyright (C) 2001 Frank Singleton, Ericsson Inc.
 #
-#  This file is a backend to "omniidl", used to generate "Ethereal"
+#  This file is a backend to "omniidl", used to generate "Wireshark"
 #  dissectors from IDL descriptions. The output language generated
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #  
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
-#  Wireshark is available at http://www.ethereal.com/
+#  Wireshark is available at http://www.wireshark.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://www.uk.research.att.com/omniORB/omniORB.html
@@ -38,7 +38,7 @@
 #   
 #   Omniidl Back-end which parses an IDL data structure provided by the frontend
 #   and generates packet-idl-xxx.[ch] for compiling as a dissector in 
-#   Ethereal IP protocol anlayser.
+#   Wireshark IP protocol anlayser.
 #
 #  
 #
@@ -49,7 +49,7 @@
 # "Struct" and "Union" nodes.  Then store these nodes in lists.
 #
 # Pass these lists (via an object ref) to the src code
-# generator (ethereal_gen) class and let it do the hard work ! 
+# generator (wireshark_gen) class and let it do the hard work ! 
 #
 #
 # Dont forget structs can contain embedded structs etc .. so dont forget
@@ -58,20 +58,20 @@
 #
 
 
-"""Ethereal IDL compiler back-end."""
+"""Wireshark IDL compiler back-end."""
 
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
 import sys, string
 from os import path
-from ethereal_gen import ethereal_gen_C
+from wireshark_gen import wireshark_gen_C
 
 #
 # This class finds the "Operation" nodes ,Enum Nodes, "Attribute" nodes, Struct Nodes
 # and Union Nodes. Then it hands them off to an instance of the source code generator
-# class "ethereal_gen" 
+# class "wireshark_gen" 
 #
 
-class EtherealVisitor:
+class WiresharkVisitor:
 
     DEBUG = 0                           # debug flag
     
@@ -280,7 +280,7 @@ class EtherealVisitor:
 def run(tree, args):
 
     st = output.Stream(sys.stdout, 4)   # set indent for stream
-    ev = EtherealVisitor(st)            # create visitor object
+    ev = WiresharkVisitor(st)            # create visitor object
     
     ev.visitAST(tree)                   # go find some operations
     
@@ -313,7 +313,7 @@ def run(tree, args):
 
 
     
-    eg = ethereal_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
+    eg = wireshark_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
     eg.genCode(ev.oplist, ev.atlist, ev.enlist, ev.stlist, ev.unlist)    # pass them onto the C generator
     
 

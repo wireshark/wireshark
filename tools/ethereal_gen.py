@@ -8,12 +8,12 @@
 #
 #    Copyright (C) 2001 Frank Singleton, Ericsson Inc.
 #
-#  This file is a backend to "omniidl", used to generate "Ethereal"
+#  This file is a backend to "omniidl", used to generate "Wireshark"
 #  dissectors from CORBA IDL descriptions. The output language generated
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
-#  Wireshark is available at http://www.ethereal.com/
+#  Wireshark is available at http://www.wiresharl.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://www.uk.research.att.com/omniORB/omniORB.html
@@ -37,7 +37,7 @@
 #
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
 #   passed from ethereal_be2.py and generates "C" code for compiling
-#   as a plugin for the  Ethereal IP Protocol Analyser.
+#   as a plugin for the  Wireshark IP Protocol Analyser.
 #
 #
 # Strategy (sneaky but ...)
@@ -52,7 +52,7 @@
 #
 
 
-"""Ethereal IDL compiler back-end."""
+"""Wireshark IDL compiler back-end."""
 
 from omniidl import idlast, idltype, idlutil, output
 import sys, string
@@ -87,7 +87,7 @@ import tempfile
 #    For example, mutlidimensional arrays.
 # 9. wchar and wstring handling [giop API needs improving]
 # 10. Support Fixed [done]
-# 11. Support attributes (get/set) [started, needs language mapping option, perhaps ethereal GUI option
+# 11. Support attributes (get/set) [started, needs language mapping option, perhaps wireshark GUI option
 #     to set the attribute function prefix or suffix ? ] For now the prefix is "_get" and "_set"
 #     eg: attribute string apple  =>   _get_apple and _set_apple
 #
@@ -115,7 +115,7 @@ import tempfile
 #
 #
 
-class ethereal_gen_C:
+class wireshark_gen_C:
 
 
     #
@@ -192,7 +192,7 @@ class ethereal_gen_C:
 
         self.st = self.st_save
         self.genHeader()                # initial dissector comments
-        self.genEthCopyright()          # Ethereal Copyright comments.
+        self.genEthCopyright()          # Wireshark Copyright comments.
         self.genGPL()                   # GPL license
         self.genIncludes()
         self.genDeclares(oplist,atlist,enlist,stlist,unlist)
@@ -226,7 +226,7 @@ class ethereal_gen_C:
     #
     # genHeader
     #
-    # Generate Standard Ethereal Header Comments
+    # Generate Standard Wireshark Header Comments
     #
     #
 
@@ -241,14 +241,14 @@ class ethereal_gen_C:
     #
     # genEthCopyright
     #
-    # Ethereal Copyright Info
+    # Wireshark Copyright Info
     #
     #
 
     def genEthCopyright(self):
         if self.DEBUG:
             print "XXX genEthCopyright"
-        self.st.out(self.template_ethereal_copyright)
+        self.st.out(self.template_wireshark_copyright)
 
 
     #
@@ -1724,7 +1724,7 @@ plugin_reg_handoff(void){
 
     template_proto_register = """
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 void proto_register_giop_@dissector_name@(void) {
 
@@ -2055,11 +2055,11 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
 """
 
-    template_ethereal_copyright = """\
+    template_wireshark_copyright = """\
 /*
  * Wireshark - Network traffic analyzer
  * By Gerald Combs
- * Copyright 1999 Gerald Combs
+ * Copyright 1999 - 2006 Gerald Combs
  */
 
 """
