@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -314,7 +314,7 @@ proto_init(const char *plugin_dir
 	ftypes_initialize();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
-	   converting ethereal to new-style proto_tree. These fields
+	   converting wireshark to new-style proto_tree. These fields
 	   are merely strings on the GUI tree; they are not filterable */
 	proto_register_field_array(-1, hf, array_length(hf));
 
@@ -557,7 +557,7 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 
 /* Assume dissector set only its protocol fields.
    This function is called by dissectors and allowes to speed up filtering
-   in ethereal, if this function returns FALSE it is safe to reset tree to NULL
+   in wireshark, if this function returns FALSE it is safe to reset tree to NULL
    and thus skip calling most of the expensive proto_tree_add_...()
    functions.
    If the tree is visible we implicitely assume the field is referenced.

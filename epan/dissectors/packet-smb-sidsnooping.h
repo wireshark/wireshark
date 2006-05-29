@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@
 #ifndef _PACKET_SMB_SID_SNOOPING_H_
 #define _PACKET_SMB_SID_SNOOPING_H_
 
-/* With MSVC and a libethereal.dll, we need a 
+/* With MSVC and a libwireshark.dll, we need a 
  * special declaration for sid_name_table.
  */
 ETH_VAR_IMPORT GHashTable *sid_name_table;

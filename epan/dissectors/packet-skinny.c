@@ -2586,7 +2586,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	get_skinny_pdu_len, dissect_skinny_pdu);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_skinny(void)
 {

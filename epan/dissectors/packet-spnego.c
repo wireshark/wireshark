@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* ./packet-spnego.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
@@ -17,8 +17,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 /* The heimdal code for decryption of GSSAPI wrappers using heimdal comes from
-   Heimdal 1.6 and has been modified for ethereal's requirements.
+   Heimdal 1.6 and has been modified for wireshark's requirements.
 */
 
 #ifdef HAVE_CONFIG_H

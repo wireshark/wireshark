@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -350,7 +350,7 @@ char *get_plugins_global_dir(const char *plugin_dir)
 	 * On Windows, the data file directory is the installation
 	 * directory; the plugins are stored under it.
 	 *
-	 * Assume we're running the installed version of Ethereal;
+	 * Assume we're running the installed version of Wireshark;
 	 * on Windows, the data file directory is the directory
 	 * in which the Ethereal binary resides.
 	 */
@@ -365,11 +365,11 @@ char *get_plugins_global_dir(const char *plugin_dir)
 		 * refers to something that doesn't exist.
 		 *
 		 * Assume that means we're running, for example,
-		 * a version of Ethereal we've built in a source
+		 * a version of Wireshark we've built in a source
 		 * directory, and fall back on the default
 		 * installation directory, so you can put the plugins
 		 * somewhere so they can be used with this version
-		 * of Ethereal.
+		 * of Wireshark.
 		 *
 		 * XXX - should we, instead, have the Windows build
 		 * procedure create a subdirectory of the "plugins"

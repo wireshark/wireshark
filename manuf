@@ -8,7 +8,7 @@
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
-# Ethereal - Network traffic analyzer
+# Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
 # Copyright 1998 Gerald Combs
 #
@@ -9233,7 +9233,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # $Id$
 #
-# Ethereal - Network traffic analyzer
+# Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
 # Copyright 1998 Gerald Combs
 #

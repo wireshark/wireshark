@@ -1737,7 +1737,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void proto_register_cops(void)
 {
   /* Setup list of header fields */

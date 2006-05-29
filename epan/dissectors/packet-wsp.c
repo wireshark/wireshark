@@ -7,8 +7,8 @@
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
@@ -6040,7 +6040,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_wsp(void)
 {
@@ -7346,7 +7346,7 @@ proto_register_wsp(void)
 
 /* Register the protocol name and description */
 	proto_wsp = proto_register_protocol(
-		"Wireless Session Protocol",   	/* protocol name for use by ethereal */
+		"Wireless Session Protocol",   	/* protocol name for use by wireshark */
 		"WSP",                          /* short version of name */
 		"wsp"                   	    /* Abbreviated protocol name,
 										   should Match IANA:
@@ -7399,7 +7399,7 @@ proto_reg_handoff_wsp(void)
  * Session Initiation Request
  */
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_sir(void)
 {
@@ -7512,7 +7512,7 @@ proto_register_sir(void)
 
 	/* Register the dissector */
 	proto_sir = proto_register_protocol(
-		"WAP Session Initiation Request",  	/* protocol name for use by ethereal */
+		"WAP Session Initiation Request",  	/* protocol name for use by wireshark */
 		"WAP SIR",                          /* short version of name */
 		"wap-sir"                   	    /* Abbreviated protocol name,
 											   should Match IANA:

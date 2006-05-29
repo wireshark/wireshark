@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -70,7 +70,7 @@ static gboolean rpc_desegment = TRUE;
 static gboolean rpc_defragment = TRUE;
 
 /* try to dissect RPC packets for programs that are not known
- * (proprietary ones) by ethereal.
+ * (proprietary ones) by wireshark.
  */
 static gboolean rpc_dissect_unknown_programs = FALSE;
 
@@ -428,7 +428,7 @@ int rpc_prog_hf(guint32 prog, guint32 vers)
 
 /*	return the name associated with a previously registered program. This
 	should probably eventually be expanded to use the rpc YP/NIS map
-	so that it can give names for programs not handled by ethereal */
+	so that it can give names for programs not handled by wireshark */
 const char *rpc_prog_name(guint32 prog)
 {
 	const char *progname = NULL;
@@ -1776,7 +1776,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		/* let the user be able to weaken the heuristics if he need
 		 * to look at proprietary protocols not known
-		 * to ethereal.
+		 * to wireshark.
 		 */
 		if(rpc_dissect_unknown_programs){
 			guint32 version;
@@ -3778,7 +3778,7 @@ proto_register_rpc(void)
 
 	prefs_register_bool_preference(rpc_module, "dissect_unknown_programs",
 		"Dissect unknown RPC program numbers",
-		"Whether the RPC dissector should attempt to dissect RPC PDUs containing programs that are not known to Ethereal. This will make the heuristics significantly weaker and elevate the risk for falsely identifying and misdissecting packets significantly.",
+		"Whether the RPC dissector should attempt to dissect RPC PDUs containing programs that are not known to Wireshark. This will make the heuristics significantly weaker and elevate the risk for falsely identifying and misdissecting packets significantly.",
 		&rpc_dissect_unknown_programs);
 
 	prefs_register_bool_preference(rpc_module, "find_fragment_start",

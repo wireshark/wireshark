@@ -10,8 +10,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1439,7 +1439,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
@@ -1697,7 +1697,7 @@ void proto_register_isns(void)
 	{ &hf_isns_not_decoded_yet,
 	  { "Not Decoded Yet","isns.not_decoded_yet",
 	    FT_NONE, BASE_NONE, NULL,0,
-	    "This tag is not yet decoded by ethereal" ,HFILL}
+	    "This tag is not yet decoded by wireshark" ,HFILL}
 	},
 
 	{ &hf_isns_heartbeat_ipv6_addr,

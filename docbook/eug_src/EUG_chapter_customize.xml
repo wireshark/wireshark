@@ -51,7 +51,7 @@
 	  <title>Help information available from Ethereal</title>
 	  <programlisting>
 This is ethereal 0.10.13
- (C) 1998-2005 Gerald Combs &lt;gerald@ethereal.com>
+ (C) 1998-2005 Gerald Combs &lt;gerald@wireshark.org>
 
 Compiled with GTK+ 2.6.9, with GLib 2.6.6, with WinPcap (version unknown),
 with libz 1.2.3, with libpcre 6.3, with Net-SNMP 5.2.1.2, with ADNS.

@@ -7,8 +7,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -148,7 +148,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
 	{
 	    proto_tree_add_text(gmrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16),
- "   (Warning: this version of Ethereal only knows about protocol id = 1)");
+ "   (Warning: this version of Wireshark only knows about protocol id = 1)");
 	    call_dissector(data_handle,
 	        tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
 	        pinfo, tree);
@@ -339,7 +339,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_gmrp(void)
 {

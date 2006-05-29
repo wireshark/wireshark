@@ -127,7 +127,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
 
 
 /* Init routine for hash tables and delay calculation
-   This routine will be called by Ethereal, before it
+   This routine will be called by Wireshark, before it
    is (re-)dissecting a trace file from beginning.
    We need to discard and init any state we've saved */
 

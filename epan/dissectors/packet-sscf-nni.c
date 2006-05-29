@@ -2,7 +2,7 @@
  * Routines for SSCF-NNI (Q.2140) frame disassembly
  * Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -105,7 +105,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 
 	/*
 	 * XXX - this assumes the string is just ISO 8859-1; we need
-	 * to better handle multiple character sets in Ethereal,
+	 * to better handle multiple character sets in Wireshark,
 	 * including Unicode/ISO 10646, and multiple encodings of
 	 * that character set (UCS-2, UTF-8, etc.).
 	 */

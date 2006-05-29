@@ -19,8 +19,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -244,8 +244,8 @@ void lct_info_column(struct _lct *lct, packet_info *pinfo)
 /* ---------- */
 
 /* Dissect an LCT header:
- * l - ptr to the logical LCT packet representation to fill, and related ethereal stuffs
- * f - ptr to the FEC infos to fill (EXT_FTI), and related ethereal stuffs
+ * l - ptr to the logical LCT packet representation to fill, and related wireshark stuffs
+ * f - ptr to the FEC infos to fill (EXT_FTI), and related wireshark stuffs
  * tvb - buffer
  * pinfo - packet info
  * tree - tree where to add LCT header subtree

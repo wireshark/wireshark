@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -288,12 +288,12 @@ typedef struct _dcerpc_info {
 
 
 /* the init_protocol hooks. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT GHookList dcerpc_hooks_init_protos;
 
 /* the registered subdissectors. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT GHashTable *dcerpc_uuids;
 

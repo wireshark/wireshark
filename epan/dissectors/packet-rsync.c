@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -273,7 +273,7 @@ dissect_rsync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_rsync_encap(tvb, pinfo, tree, rsync_desegment);
 }
 
-/* Register protocol with Ethereal. */
+/* Register protocol with Wireshark. */
 void
 proto_register_rsync(void)
 {

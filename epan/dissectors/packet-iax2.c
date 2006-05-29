@@ -10,8 +10,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -57,10 +57,10 @@
 /* #define DEBUG_HASHING */
 /* #define DEBUG_DESEGMENT */
 
-/* Ethereal ID of the IAX2 protocol */
+/* Wireshark ID of the IAX2 protocol */
 static int proto_iax2 = -1;
 
-/* The following hf_* variables are used to hold the ethereal IDs of
+/* The following hf_* variables are used to hold the wireshark IDs of
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_iax2()
  */
@@ -1980,7 +1980,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_callno,
      {"Call identifier", "iax2.call", FT_UINT32, BASE_DEC, NULL, 0,
-      "This is the identifier Ethereal assigns to identify this call. It does "
+      "This is the identifier Wireshark assigns to identify this call. It does "
       "not correspond to any real field in the protocol", HFILL }},
 
     {&hf_iax2_scallno,

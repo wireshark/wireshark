@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -215,116 +215,116 @@ static int hf_dcom_vt_dispatch = -1;
 /*
  * Flag bits in connection-oriented PDU header.
  */
-#define ETHEREAL_FADF_AUTO			0x0001
-#define ETHEREAL_FADF_STATIC		0x0002
-#define ETHEREAL_FADF_EMBEDDED		0x0004
-#define ETHEREAL_FADF_FIXEDSIZE		0x0010
-#define ETHEREAL_FADF_RECORD		0x0020
-#define ETHEREAL_FADF_HAVEIID		0x0040
-#define ETHEREAL_FADF_HAVEVARTYPE	0x0080
-#define ETHEREAL_FADF_BSTR			0x0100
-#define ETHEREAL_FADF_UNKNOWN		0x0200
-#define ETHEREAL_FADF_DISPATCH		0x0400
-#define ETHEREAL_FADF_VARIANT		0x0800
+#define WIRESHARK_FADF_AUTO			0x0001
+#define WIRESHARK_FADF_STATIC		0x0002
+#define WIRESHARK_FADF_EMBEDDED		0x0004
+#define WIRESHARK_FADF_FIXEDSIZE		0x0010
+#define WIRESHARK_FADF_RECORD		0x0020
+#define WIRESHARK_FADF_HAVEIID		0x0040
+#define WIRESHARK_FADF_HAVEVARTYPE	0x0080
+#define WIRESHARK_FADF_BSTR			0x0100
+#define WIRESHARK_FADF_UNKNOWN		0x0200
+#define WIRESHARK_FADF_DISPATCH		0x0400
+#define WIRESHARK_FADF_VARIANT		0x0800
 
 
 typedef enum {
-    ETHEREAL_VT_EMPTY           = 0,
-    ETHEREAL_VT_NULL            = 1,
-    ETHEREAL_VT_I2              = 2,
-    ETHEREAL_VT_I4              = 3,
-    ETHEREAL_VT_R4              = 4,
-    ETHEREAL_VT_R8              = 5,
-    ETHEREAL_VT_CY              = 6,
-    ETHEREAL_VT_DATE            = 7,
-    ETHEREAL_VT_BSTR            = 8,
-    ETHEREAL_VT_DISPATCH        = 9,
-    ETHEREAL_VT_ERROR           = 10,
-    ETHEREAL_VT_BOOL            = 11,
-    ETHEREAL_VT_VARIANT         = 12,
-    ETHEREAL_VT_UNKNOWN         = 13,
-    ETHEREAL_VT_DECIMAL         = 14,
-    ETHEREAL_VT_I1              = 16,
-    ETHEREAL_VT_UI1             = 17,
-    ETHEREAL_VT_UI2             = 18,
-    ETHEREAL_VT_UI4             = 19,
-    ETHEREAL_VT_I8              = 20,
-    ETHEREAL_VT_UI8             = 21,
-    ETHEREAL_VT_INT             = 22,
-    ETHEREAL_VT_UINT            = 23,
-    ETHEREAL_VT_VOID            = 24,
-    ETHEREAL_VT_HRESULT         = 25,
-    ETHEREAL_VT_PTR             = 26,
-    ETHEREAL_VT_SAFEARRAY       = 27,
-    ETHEREAL_VT_CARRAY          = 28,
-    ETHEREAL_VT_USERDEFINED     = 29,
-    ETHEREAL_VT_LPSTR           = 30,
-    ETHEREAL_VT_LPWSTR          = 31,
-    ETHEREAL_VT_RECORD          = 36,
-    ETHEREAL_VT_FILETIME        = 64,
-    ETHEREAL_VT_BLOB            = 65,
-    ETHEREAL_VT_STREAM          = 66,
-    ETHEREAL_VT_STORAGE         = 67,
-    ETHEREAL_VT_STREAMED_OBJECT = 68,
-    ETHEREAL_VT_STORED_OBJECT   = 69,
-    ETHEREAL_VT_BLOB_OBJECT     = 70,
-    ETHEREAL_VT_CF              = 71,
-    ETHEREAL_VT_CLSID           = 72,
+    WIRESHARK_VT_EMPTY           = 0,
+    WIRESHARK_VT_NULL            = 1,
+    WIRESHARK_VT_I2              = 2,
+    WIRESHARK_VT_I4              = 3,
+    WIRESHARK_VT_R4              = 4,
+    WIRESHARK_VT_R8              = 5,
+    WIRESHARK_VT_CY              = 6,
+    WIRESHARK_VT_DATE            = 7,
+    WIRESHARK_VT_BSTR            = 8,
+    WIRESHARK_VT_DISPATCH        = 9,
+    WIRESHARK_VT_ERROR           = 10,
+    WIRESHARK_VT_BOOL            = 11,
+    WIRESHARK_VT_VARIANT         = 12,
+    WIRESHARK_VT_UNKNOWN         = 13,
+    WIRESHARK_VT_DECIMAL         = 14,
+    WIRESHARK_VT_I1              = 16,
+    WIRESHARK_VT_UI1             = 17,
+    WIRESHARK_VT_UI2             = 18,
+    WIRESHARK_VT_UI4             = 19,
+    WIRESHARK_VT_I8              = 20,
+    WIRESHARK_VT_UI8             = 21,
+    WIRESHARK_VT_INT             = 22,
+    WIRESHARK_VT_UINT            = 23,
+    WIRESHARK_VT_VOID            = 24,
+    WIRESHARK_VT_HRESULT         = 25,
+    WIRESHARK_VT_PTR             = 26,
+    WIRESHARK_VT_SAFEARRAY       = 27,
+    WIRESHARK_VT_CARRAY          = 28,
+    WIRESHARK_VT_USERDEFINED     = 29,
+    WIRESHARK_VT_LPSTR           = 30,
+    WIRESHARK_VT_LPWSTR          = 31,
+    WIRESHARK_VT_RECORD          = 36,
+    WIRESHARK_VT_FILETIME        = 64,
+    WIRESHARK_VT_BLOB            = 65,
+    WIRESHARK_VT_STREAM          = 66,
+    WIRESHARK_VT_STORAGE         = 67,
+    WIRESHARK_VT_STREAMED_OBJECT = 68,
+    WIRESHARK_VT_STORED_OBJECT   = 69,
+    WIRESHARK_VT_BLOB_OBJECT     = 70,
+    WIRESHARK_VT_CF              = 71,
+    WIRESHARK_VT_CLSID           = 72,
 
-    ETHEREAL_VT_BSTR_BLOB       = 0x0fff,
+    WIRESHARK_VT_BSTR_BLOB       = 0x0fff,
 
-    ETHEREAL_VT_VECTOR          = 0x1000,
-    ETHEREAL_VT_ARRAY           = 0x2000,
-    ETHEREAL_VT_BYREF           = 0x4000,
-    ETHEREAL_VT_RESERVED        = 0x8000,
+    WIRESHARK_VT_VECTOR          = 0x1000,
+    WIRESHARK_VT_ARRAY           = 0x2000,
+    WIRESHARK_VT_BYREF           = 0x4000,
+    WIRESHARK_VT_RESERVED        = 0x8000,
 
-    ETHEREAL_VT_ILLEGAL         = 0xffff,
-    ETHEREAL_VT_ILLEGALMASKED   = 0x0fff,
-    ETHEREAL_VT_TYPEMASK        = 0x0fff
+    WIRESHARK_VT_ILLEGAL         = 0xffff,
+    WIRESHARK_VT_ILLEGALMASKED   = 0x0fff,
+    WIRESHARK_VT_TYPEMASK        = 0x0fff
 } dcom_vartype_t;
 
 const value_string dcom_variant_type_vals[] = {
-	{ ETHEREAL_VT_EMPTY,	"VT_EMPTY"},
-	{ ETHEREAL_VT_NULL,		"VT_NULL"},
-	{ ETHEREAL_VT_I2,		"VT_I2"},
-	{ ETHEREAL_VT_I4,		"VT_I4"},
-	{ ETHEREAL_VT_R4,		"VT_R4"},
-	{ ETHEREAL_VT_R8,		"VT_R8"},
-	{ ETHEREAL_VT_CY,		"VT_CY"},
-	{ ETHEREAL_VT_DATE,		"VT_DATE"},
-	{ ETHEREAL_VT_BSTR,		"VT_BSTR"},
-	{ ETHEREAL_VT_DISPATCH, "VT_DISPATCH"},
-	{ ETHEREAL_VT_ERROR,	"VT_ERROR"},
-	{ ETHEREAL_VT_BOOL,		"VT_BOOL"},
-	{ ETHEREAL_VT_I1,		"VT_I1"},
-	{ ETHEREAL_VT_UI1,		"VT_UI1"},
-	{ ETHEREAL_VT_UI2,		"VT_UI2"},
-	{ ETHEREAL_VT_UI4,		"VT_UI4"},
-	{ ETHEREAL_VT_I8,		"VT_I8"},
-	{ ETHEREAL_VT_UI8,		"VT_UI8"},
-    { ETHEREAL_VT_ARRAY,    "VT_ARRAY"},
-    { ETHEREAL_VT_UNKNOWN,  "VT_UNKNOWN"},
-    { ETHEREAL_VT_USERDEFINED, "VT_USERDEFINED"},
+	{ WIRESHARK_VT_EMPTY,	"VT_EMPTY"},
+	{ WIRESHARK_VT_NULL,		"VT_NULL"},
+	{ WIRESHARK_VT_I2,		"VT_I2"},
+	{ WIRESHARK_VT_I4,		"VT_I4"},
+	{ WIRESHARK_VT_R4,		"VT_R4"},
+	{ WIRESHARK_VT_R8,		"VT_R8"},
+	{ WIRESHARK_VT_CY,		"VT_CY"},
+	{ WIRESHARK_VT_DATE,		"VT_DATE"},
+	{ WIRESHARK_VT_BSTR,		"VT_BSTR"},
+	{ WIRESHARK_VT_DISPATCH, "VT_DISPATCH"},
+	{ WIRESHARK_VT_ERROR,	"VT_ERROR"},
+	{ WIRESHARK_VT_BOOL,		"VT_BOOL"},
+	{ WIRESHARK_VT_I1,		"VT_I1"},
+	{ WIRESHARK_VT_UI1,		"VT_UI1"},
+	{ WIRESHARK_VT_UI2,		"VT_UI2"},
+	{ WIRESHARK_VT_UI4,		"VT_UI4"},
+	{ WIRESHARK_VT_I8,		"VT_I8"},
+	{ WIRESHARK_VT_UI8,		"VT_UI8"},
+    { WIRESHARK_VT_ARRAY,    "VT_ARRAY"},
+    { WIRESHARK_VT_UNKNOWN,  "VT_UNKNOWN"},
+    { WIRESHARK_VT_USERDEFINED, "VT_USERDEFINED"},
 
 	/* XXX: this could be done better */
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_I2,    "VT_ARRAY|VT_I2"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_I4,    "VT_ARRAY|VT_I4"},
-	{ ETHEREAL_VT_ARRAY | ETHEREAL_VT_R4,	 "VT_ARRAY|VT_R4"},
-	{ ETHEREAL_VT_ARRAY | ETHEREAL_VT_R8,	 "VT_ARRAY|VT_R8"},
-	{ ETHEREAL_VT_ARRAY | ETHEREAL_VT_DATE,	 "VT_ARRAY|VT_DATE"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_BSTR,  "VT_ARRAY|VT_BSTR"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_ERROR, "VT_ARRAY|VT_ERROR"},
-	{ ETHEREAL_VT_ARRAY | ETHEREAL_VT_BOOL,	 "VT_ARRAY|VT_BOOL"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_I1,    "VT_ARRAY|VT_I1"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI1,   "VT_ARRAY|VT_UI1"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI2,   "VT_ARRAY|VT_UI2"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI4,   "VT_ARRAY|VT_UI4"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_I8,    "VT_ARRAY|VT_I8"},
-    { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI8,   "VT_ARRAY|VT_UI8"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,    "VT_ARRAY|VT_I2"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I4,    "VT_ARRAY|VT_I4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R4,	 "VT_ARRAY|VT_R4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R8,	 "VT_ARRAY|VT_R8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_DATE,	 "VT_ARRAY|VT_DATE"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_BSTR,  "VT_ARRAY|VT_BSTR"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_ERROR, "VT_ARRAY|VT_ERROR"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BOOL,	 "VT_ARRAY|VT_BOOL"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I1,    "VT_ARRAY|VT_I1"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI1,   "VT_ARRAY|VT_UI1"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI2,   "VT_ARRAY|VT_UI2"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI4,   "VT_ARRAY|VT_UI4"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I8,    "VT_ARRAY|VT_I8"},
+    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI8,   "VT_ARRAY|VT_UI8"},
 
-    { ETHEREAL_VT_BYREF | ETHEREAL_VT_I2,    "VT_BYREF|VT_I2"},
-    { ETHEREAL_VT_BYREF | ETHEREAL_VT_BSTR,  "VT_BYREF|VT_BSTR"},
-    { ETHEREAL_VT_BYREF | ETHEREAL_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
+    { WIRESHARK_VT_BYREF | WIRESHARK_VT_I2,    "VT_BYREF|VT_I2"},
+    { WIRESHARK_VT_BYREF | WIRESHARK_VT_BSTR,  "VT_BYREF|VT_BSTR"},
+    { WIRESHARK_VT_BYREF | WIRESHARK_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
 	{ 0,          NULL }
 /* XXX: append more types here */
 };
@@ -994,29 +994,29 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	u32Tmp = u32ArraySize;
 	while(u32ArraySize--) {
 		switch(u32VarType) {
-			case(ETHEREAL_VT_ERROR):
+			case(WIRESHARK_VT_ERROR):
 				offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
 									&u32Data);
 				break;
-			case(ETHEREAL_VT_I1):
+			case(WIRESHARK_VT_I1):
 				offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i1, &u8Data);
 				break;
-			case(ETHEREAL_VT_I2):
+			case(WIRESHARK_VT_I2):
 				offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i2, &u16Data);
 				break;
-			case(ETHEREAL_VT_I4):
+			case(WIRESHARK_VT_I4):
 				offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i4, &u32Data);
 				break;
-			case(ETHEREAL_VT_I8):
+			case(WIRESHARK_VT_I8):
 				offset = dissect_dcom_I8(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i8, NULL);
                 /* take care of the 8 byte alignment */
                 u32VariableOffset = offset;
 				break;
-			case(ETHEREAL_VT_BSTR):
+			case(WIRESHARK_VT_BSTR):
 				offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 				if (u32Pointer) {
 					u32VariableOffset = dissect_dcom_BSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
@@ -1115,84 +1115,84 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_variant_type32, &u32VarType);
 
-	if (u32VarType & ETHEREAL_VT_BYREF) {
-		u32VarType &=~ETHEREAL_VT_BYREF;
+	if (u32VarType & WIRESHARK_VT_BYREF) {
+		u32VarType &=~WIRESHARK_VT_BYREF;
 		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 	}
 
 	switch (u32VarType) {
-		case(ETHEREAL_VT_EMPTY):
+		case(WIRESHARK_VT_EMPTY):
 			break;
-		case(ETHEREAL_VT_BOOL):
+		case(WIRESHARK_VT_BOOL):
 			offset = dissect_dcom_VARIANT_BOOL(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_bool, &u16Data);
 			break;
-		case(ETHEREAL_VT_I1):
+		case(WIRESHARK_VT_I1):
 			offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_i1, &u8Data);
 			break;
-		case(ETHEREAL_VT_UI1):
+		case(WIRESHARK_VT_UI1):
 			offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_ui1, &u8Data);
 			break;
-		case(ETHEREAL_VT_I2):
+		case(WIRESHARK_VT_I2):
 			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_i2, &u16Data);
 			break;
-		case(ETHEREAL_VT_UI2):
+		case(WIRESHARK_VT_UI2):
 			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_ui2, &u16Data);
 			break;
-		case(ETHEREAL_VT_I4):
+		case(WIRESHARK_VT_I4):
 			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_i4, &u32Data);
 			break;
-		case(ETHEREAL_VT_UI4):
+		case(WIRESHARK_VT_UI4):
 			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_ui4, &u32Data);
 			break;
-		case(ETHEREAL_VT_R4):
+		case(WIRESHARK_VT_R4):
 			offset = dissect_dcom_FLOAT(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_r4, &f32Data);
 			break;
-		case(ETHEREAL_VT_R8):
+		case(WIRESHARK_VT_R8):
 			offset = dissect_dcom_DOUBLE(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_r8, &f64Data);
 			break;
-		case(ETHEREAL_VT_DATE):
+		case(WIRESHARK_VT_DATE):
 			offset = dissect_dcom_DATE(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_date, &f64Data);
 			break;
-		case(ETHEREAL_VT_BSTR):
+		case(WIRESHARK_VT_BSTR):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 			if (u32Pointer) {
 				offset = dissect_dcom_BSTR(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_bstr, cData, sizeof(cData) );
 			}
 			break;
-		case(ETHEREAL_VT_DISPATCH):
+		case(WIRESHARK_VT_DISPATCH):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 			if (u32Pointer) {
 				offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_vt_dispatch);
 			}
 			break;
-		case(ETHEREAL_VT_ARRAY):
+		case(WIRESHARK_VT_ARRAY):
 			offset = dissect_dcom_SAFEARRAY(tvb, offset, pinfo, sub_tree, drep,
 								0);
 			break;
-		case(ETHEREAL_VT_ERROR):
+		case(WIRESHARK_VT_ERROR):
 			offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								0);
 			break;
-		case(ETHEREAL_VT_VARIANT):
+		case(WIRESHARK_VT_VARIANT):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 			if (u32Pointer) {
 			    offset = dissect_dcom_VARIANT(tvb, offset, pinfo, sub_tree, drep,
 								    hf_dcom_vt_byref /* must be BYREF */);
             }
 			break;
-		case(ETHEREAL_VT_UNKNOWN):
+		case(WIRESHARK_VT_UNKNOWN):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 			break;
 		default:
@@ -1875,27 +1875,27 @@ proto_register_dcom (void)
 		{ "LowBound", "dcom.sa.low_bound", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
         { &hf_dcom_sa_features_auto,
-        { "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_AUTO, "", HFILL }},
+        { "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_AUTO, "", HFILL }},
         { &hf_dcom_sa_features_static,
-        { "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_STATIC, "", HFILL }},
+        { "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_STATIC, "", HFILL }},
         { &hf_dcom_sa_features_embedded,
-        { "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_EMBEDDED, "", HFILL }},
+        { "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_EMBEDDED, "", HFILL }},
         { &hf_dcom_sa_features_fixedsize,
-        { "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_FIXEDSIZE, "", HFILL }},
+        { "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_FIXEDSIZE, "", HFILL }},
         { &hf_dcom_sa_features_record,
-        { "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_RECORD, "", HFILL }},
+        { "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_RECORD, "", HFILL }},
         { &hf_dcom_sa_features_have_iid,
-        { "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_HAVEIID, "", HFILL }},
+        { "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEIID, "", HFILL }},
         { &hf_dcom_sa_features_have_vartype,
-        { "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_HAVEVARTYPE, "", HFILL }},
+        { "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEVARTYPE, "", HFILL }},
         { &hf_dcom_sa_features_bstr,
-        { "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_BSTR, "", HFILL }},
+        { "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_BSTR, "", HFILL }},
         { &hf_dcom_sa_features_unknown,
-        { "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_UNKNOWN, "", HFILL }},
+        { "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_UNKNOWN, "", HFILL }},
         { &hf_dcom_sa_features_dispatch,
-        { "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_DISPATCH, "", HFILL }},
+        { "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_DISPATCH, "", HFILL }},
         { &hf_dcom_sa_features_variant,
-        { "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&flags_set_truth), ETHEREAL_FADF_VARIANT, "", HFILL }}
+        { "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_VARIANT, "", HFILL }}
 	};
 
 	static gint *ett_dcom[] = {

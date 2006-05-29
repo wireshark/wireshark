@@ -2,7 +2,7 @@
  *
  * $Id$
  *
- * Ethereal Protocol Analyzer Library
+ * Wireshark Protocol Analyzer Library
  */
 
 #ifdef HAVE_CONFIG_H

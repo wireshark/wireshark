@@ -11,8 +11,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -260,14 +260,14 @@
  * To quote from the ever helpful development list
  *
  * " When a capture file is initially loaded, all "visited" flags
- * are 0. Ethereal then makes the first pass through file,
+ * are 0. Wireshark then makes the first pass through file,
  * sequentially dissecting each packet. After the packet is
  * dissected the first time, "visited" is 1. (See the end of
  * dissect_packet() in epan/packet.c; that's the code that
  * sets "visited" to 1).
 
  * By the time a user clicks on a packet, "visited" will already
- * be 1 because Ethereal will have already done its first pass
+ * be 1 because Wireshark will have already done its first pass
  * through the packets.
 
  * Reload acts just like a normal Close/Open, except that it

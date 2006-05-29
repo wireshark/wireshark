@@ -11,8 +11,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -5445,7 +5445,7 @@ srvsvc_dissect_DISK_INFO_0(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -6233,7 +6233,7 @@ srvsvc_dissect_netrpathcanonicalize_reply(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -6377,7 +6377,7 @@ srvsvc_dissect_netrnamecanonicalize_reply(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/* this call is to make ethereal eat the array header for the conformant run */
+		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
 
 		return offset;
@@ -7027,7 +7027,7 @@ proto_register_dcerpc_srvsvc(void)
 	      BASE_HEX, NULL, 0x0, "Permissions", HFILL}},
 	  { &hf_srvsvc_dfs_root_flags,
 	    { "DFS Root Flags", "srvsvc.dfs_root_flags", FT_UINT32,
-	      BASE_HEX, NULL, 0x0, "DFS Root Flags. Contact ethereal developers if you know what the bits are", HFILL}},
+	      BASE_HEX, NULL, 0x0, "DFS Root Flags. Contact wireshark developers if you know what the bits are", HFILL}},
 	  { &hf_srvsvc_policy,
 	    { "Policy", "srvsvc.policy", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Policy", HFILL}},

@@ -10,8 +10,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -141,7 +141,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return 0;	/* length not enough for a message header */
 	}
 
-	/*-------------Setting the Protocol and Info Columns in the Ethereal Display----------*/
+	/*-------------Setting the Protocol and Info Columns in the Wireshark Display----------*/
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDP");
 	if (check_col(pinfo->cinfo, COL_INFO)) 

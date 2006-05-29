@@ -7,8 +7,8 @@
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998-2001 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

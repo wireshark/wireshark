@@ -23,7 +23,7 @@ BEGIN
             VALUE "FileDescription", "Dumpcap\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "Dumpcap @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@ethereal.com>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "Dumpcap.exe\0"
             VALUE "ProductName", "Dumpcap\0"
             VALUE "ProductVersion", "@VERSION@\0"

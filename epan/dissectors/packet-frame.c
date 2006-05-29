@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -271,7 +271,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       }
     }
 
-    /* Portable Exception Handling to trap Ethereal specific exceptions like BoundsError exceptions */
+    /* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
 	TRY {
 #ifdef _MSC_VER
     /* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */

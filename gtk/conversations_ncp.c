@@ -3,8 +3,8 @@
  *
  * $Id: conversations_wlan.c 15501 2005-08-21 19:24:11Z guy $
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

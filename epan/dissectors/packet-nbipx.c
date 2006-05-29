@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -543,7 +543,7 @@ proto_reg_handoff_nbipx(void)
  * SMB - and, I infer, related stuff, such as name resolution - runs
  * directly over IPX.  (In Windows 2000, they also run SMB directly over
  * TCP, on port 445, and that also appears to be called "direct hosting".
- * Ethereal handles SMB-over-TCP.)
+ * Wireshark handles SMB-over-TCP.)
  *
  * The document at
  *

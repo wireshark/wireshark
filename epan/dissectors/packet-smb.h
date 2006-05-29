@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998, 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 ETH_VAR_IMPORT gboolean sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT const value_string smb_cmd_vals[];
 ETH_VAR_IMPORT const value_string trans2_cmd_vals[];

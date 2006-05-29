@@ -37,8 +37,8 @@
  *    -  It is the 1st segment of an unreassembled Short Message (if the
  *       "always try subdissection of 1st fragment" preference is enabled)
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -438,7 +438,7 @@ dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	parse_gsm_sms_ud_message(subtree, tvb, pinfo, tree);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_gsm_sms_ud(void)
 {

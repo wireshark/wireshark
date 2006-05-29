@@ -4,7 +4,7 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
  * Copyright 2002,2003 Alfred Koebler
  *
@@ -27,7 +27,7 @@
  *
  * What's the problem ?
  * Think about one packet traveling across the firewall.
- * With ethereal you will see 4 lines in the Top Pane.
+ * With wireshark you will see 4 lines in the Top Pane.
  * To analyze a problem it is helpful to see the additional information
  * in the protocol tree of the Middle Pane.
  *

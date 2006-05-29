@@ -4,8 +4,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
@@ -1095,7 +1095,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	}
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_wtls(void)
 {
@@ -1599,7 +1599,7 @@ proto_register_wtls(void)
 
 /* Register the protocol name and description */
 	proto_wtls = proto_register_protocol(
-		"Wireless Transport Layer Security",   	/* protocol name for use by ethereal */
+		"Wireless Transport Layer Security",   	/* protocol name for use by wireshark */
 		"WTLS",                          /* short version of name */
 		"wtls"                    	/* Abbreviated protocol name, should Match IANA
 						    < URL:http://www.iana.org/assignments/port-numbers/ >

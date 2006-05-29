@@ -3,8 +3,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  *
  * This file created by Irfan Khan <ikhan@qualcomm.com>
  * Copyright (c) 2001  by QUALCOMM, Incorporated.
@@ -56,7 +56,7 @@
  *      - July 1995     Christos A. Polyzols
  *                      Spotted bug in tcp option checking
  *      - Sep 2001      Irfan Khan
- *                      Rewrite to make the code work for ethereal.
+ *                      Rewrite to make the code work for wireshark.
  */
 
 #ifdef HAVE_CONFIG_H

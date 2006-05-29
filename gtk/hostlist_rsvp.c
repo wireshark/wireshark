@@ -1,8 +1,8 @@
 /* hostlist_rsvp.c
  * hostlist_rsvp.c August 2005, Manu Pathak <mapathak@cisco.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

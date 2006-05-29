@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -1759,7 +1759,7 @@ decrypt_tvb_using_nt_password(packet_info *pinfo, tvbuff_t *tvb, int offset, int
 	   over SMB" page 257.  Note that this code does not properly support
 	   Unicode. */
 
-	/* Convert the password provided in the Ethereal GUI to Unicode 
+	/* Convert the password provided in the Wireshark GUI to Unicode 
 	   (UCS-2).  Since the input is always ASCII, we can just fake
 	   it and pad every other byte with a NUL.  If we ever support
 	   UTF-8 in the GUI, we would have to perform a real UTF-8 to
@@ -5223,22 +5223,22 @@ proto_register_dcerpc_samr(void)
 
 	{ &hf_samr_unknown_string,
 		{ "Unknown string", "samr.unknown_string", FT_STRING, BASE_NONE,
-		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_samr_unknown_hyper,
 		{ "Unknown hyper", "samr.unknown.hyper", FT_UINT64, BASE_HEX,
-		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown hyper. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_samr_unknown_long,
 		{ "Unknown long", "samr.unknown.long", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_samr_unknown_short,
 		{ "Unknown short", "samr.unknown.short", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown short. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_samr_unknown_char,
 		{ "Unknown char", "samr.unknown.char", FT_UINT8, BASE_HEX,
-		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown char. If you know what this is, contact wireshark developers.", HFILL }},
 
  	{ &hf_samr_revision,
  		{ "Revision", "samr.revision", FT_UINT64, BASE_HEX,
@@ -5334,7 +5334,7 @@ proto_register_dcerpc_samr(void)
 		NULL, 0, "Minimum Password Age before it can be changed", HFILL }},
 	{ &hf_samr_unknown_time,
 		{ "Unknown time", "samr.unknown_time", FT_ABSOLUTE_TIME, BASE_NONE,
-		NULL, 0, "Unknown NT TIME, contact ethereal developers if you know what this is", HFILL }},
+		NULL, 0, "Unknown NT TIME, contact wireshark developers if you know what this is", HFILL }},
 	{ &hf_samr_logon_time,
 		{ "Last Logon Time", "samr.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time for last time this user logged on", HFILL }},

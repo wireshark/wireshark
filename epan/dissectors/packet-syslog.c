@@ -196,7 +196,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return;
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void proto_register_syslog(void)
 {
 

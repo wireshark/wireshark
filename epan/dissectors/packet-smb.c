@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -15348,7 +15348,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   request in sip->cmd is not compatible with the current cmd.
 					   This is to prevent matching errors such as if there were two
 					   SMBs of different cmds but with identical MID and PID values and
-					   if ethereal lost the first reply and the second request.
+					   if wireshark lost the first reply and the second request.
 					*/
 					g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 					sip=NULL; /* XXX should free it as well */

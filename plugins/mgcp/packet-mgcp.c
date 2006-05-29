@@ -14,8 +14,8 @@
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  * Copyright (c) 2004 by Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

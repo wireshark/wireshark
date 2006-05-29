@@ -11,8 +11,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Service Location Protocol is RFC 2165
@@ -323,7 +323,7 @@ static const value_string srvloc_errs_v2[] = {
  * what character set the terminal can handle (for tty-based code)
  * or the GUI can handle (for GUI code)?
  *
- * XXX - the Ethereal core really should be what does all the
+ * XXX - the Wireshark core really should be what does all the
  * character set handling for strings, and it should be stuck with
  * the task of figuring out how to properly handle them.
  */
@@ -1316,7 +1316,7 @@ dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_srvloc_pdu);
 }
 
-/* Register protocol with Ethereal. */
+/* Register protocol with Wireshark. */
 
 void
 proto_register_srvloc(void)

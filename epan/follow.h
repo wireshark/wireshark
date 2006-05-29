@@ -4,8 +4,8 @@
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
 
 #define MAX_IPADDR_LEN	16
 
-/* With MSVC and a libethereal.dll, we need a special declaration. */
+/* With MSVC and a libwireshark.dll, we need a special declaration. */
 ETH_VAR_IMPORT gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_stream_chunk {

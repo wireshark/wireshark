@@ -14,8 +14,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-m2pa.c
@@ -2384,7 +2384,7 @@ static void init_sccp(void) {
 	reassembled_table_init(&sccp_xudt_msg_reassembled_table);
 }
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 void
 proto_register_sccp(void)
 {

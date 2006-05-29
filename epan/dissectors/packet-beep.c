@@ -9,7 +9,7 @@
  * Original BXXP dissector developed with funding from InvisibleWorlds
  * (www.invisibleworlds.com) via Collab.Net.
  *
- * Ethereal - Network traffic analyzer
+ * Wireshark - Network traffic analyzer
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  *
