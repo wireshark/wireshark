@@ -7,7 +7,7 @@
 %{
 
 	/* dtd_parse.l
-	* an XML dissector for ethereal 
+	* an XML dissector for Wireshark 
 	* lexical analyzer for DTDs
 	*
 	* Copyright 2004, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
@@ -96,8 +96,8 @@ comment_stop "-->"
 
 start_xmlpi "<?"
 
-location_xmlpi "ethereal:location"
-protocol_xmlpi "ethereal:protocol"
+location_xmlpi "wireshark:location"
+protocol_xmlpi "wireshark:protocol"
 
 get_attr_quote =[:blank:]*["]
 avoid_editor_bug ["]

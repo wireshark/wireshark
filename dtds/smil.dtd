@@ -1,4 +1,4 @@
-<? ethereal:protocol
+<? wireshark:protocol
 	proto_name="smil"
 	media="application/smil"
 	description="Synchronized Multimedia Integration Language"

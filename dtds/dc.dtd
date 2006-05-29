@@ -1,4 +1,4 @@
-<? ethereal:protocol proto_name="dc" description="Dublin Core Metadata (DC)" ?>
+<? wireshark:protocol proto_name="dc" description="Dublin Core Metadata (DC)" ?>
 
 <!--
     elements definitions for the Dublin Core Metadata DC schema

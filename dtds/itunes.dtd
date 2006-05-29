@@ -1,4 +1,4 @@
-<? ethereal:protocol proto_name="itunes" hierarchy="yes" description="iTunes podCast rss elements" ?>
+<? wireshark:protocol proto_name="itunes" hierarchy="yes" description="iTunes podCast rss elements" ?>
 
 <!DOCTYPE itunes [
     

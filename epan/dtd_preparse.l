@@ -9,7 +9,7 @@
 	/*
 	 * dtd_preparser.l
 	 *
-	 * an XML dissector for ethereal 
+	 * an XML dissector for wireshark 
 	 *
 	 * DTD Preparser -  import a dtd file into a GString
 	 *					including files, removing comments
@@ -149,7 +149,7 @@ static const gchar* location(void) {
     
 	if (loc) g_free(loc);
     
-	loc = g_strdup_printf("<? ethereal:location %s:%u ?>", filename, linenum);
+	loc = g_strdup_printf("<? wireshark:location %s:%u ?>", filename, linenum);
 	
 	return loc;
 }

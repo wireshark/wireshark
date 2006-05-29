@@ -1,4 +1,4 @@
-<? ethereal:protocol
+<? wireshark:protocol
    proto_name="reginfo"
    description="Reginfo XML doc (RFC 3680)"
    hierarchy="yes" ?>
