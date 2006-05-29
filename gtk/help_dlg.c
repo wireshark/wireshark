@@ -194,7 +194,7 @@ void help_dialog(void)
 
 gboolean topic_available(topic_action_e action) {
 
-#ifdef ETHEREAL_EUG_DIR
+#ifdef WIRESHARK_EUG_DIR
     if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
         /* page currently not existing in user's guide */
         return FALSE;
@@ -379,7 +379,7 @@ topic_action(topic_action_e action)
         browser_open_data_file("text2pcap.html");
         break;
 
-#ifdef ETHEREAL_EUG_DIR
+#ifdef WIRESHARK_EUG_DIR
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
         ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "index.html");

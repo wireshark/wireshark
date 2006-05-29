@@ -3,7 +3,7 @@
 # Some more informations about the settings in this file, can be found 
 # in the file README.win32.
 
-# The current Ethereal version
+# The current Wireshark version
 # VERSION_EXTRA can be used for custom builds, e.g. "-SVN-12345"
 VERSION_MAJOR=1
 VERSION_MINOR=1
@@ -43,15 +43,15 @@ WINPCAP_VERSION=3.1
 # (currently unused)
 #
 # If you don't have the User's Guide, comment this line out, so that 
-# ETHEREAL_EUG_DIR isn't defined.
+# WIRESHARK_EUG_DIR isn't defined.
 #
-#ETHEREAL_EUG_DIR=docbook/eug_html_chunked
+#WIRESHARK_EUG_DIR=docbook/eug_html_chunked
 
 # 
 # Base directory, where your libraries reside, which needs to be 
 # compiling the sources. This is only inside this file.
 #
-ETHEREAL_LIBS=C:\ethereal-win32-libs
+WIRESHARK_LIBS=C:\ethereal-win32-libs
 
 #
 # Current versions of GTK+ 1.3 require GLib 2.0.  Earlier versions of
@@ -59,7 +59,7 @@ ETHEREAL_LIBS=C:\ethereal-win32-libs
 # support them.  Upgrade to the current version.
 #
 GLIB_VERSION=2.0
-GLIB_DIR=$(ETHEREAL_LIBS)\glib
+GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
 # This presumes that GTK+ 1.3 packages put header files and libraries
@@ -75,14 +75,14 @@ GLIB_DIR=$(ETHEREAL_LIBS)\glib
 # the pathname of the directory in which the "include" and "lib" directories 
 # reside.
 #
-GTK1_DIR=$(ETHEREAL_LIBS)\gtk+
-GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
+GTK1_DIR=$(WIRESHARK_LIBS)\gtk+
+GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 
 #
 # If you have gnutls set this to the pathname where the lib and include files
 # are stored.
 # This enable ssl decryption
-#GNUTLS_DIR=$(ETHEREAL_LIBS)\gnutls-win32-msvc\gnutls
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-win32-msvc\gnutls
 
 # Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
 # but without MICRO version number) 
@@ -109,7 +109,7 @@ PANGO_INST_VERSION=1.8
 # Please note: GTK 2.8 (and later?) includes GTK-Wimp
 # (in this case these GTK-Wimp related settings will have no effect)
 #
-GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
+GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 
 #
@@ -119,19 +119,19 @@ GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 # If you don't have Zlib, comment this line out, so that Zlib isn't
 # defined.
 #
-ZLIB_DIR=$(ETHEREAL_LIBS)\zlib123-dll
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
 
 #
 # Set PCAP_DIR to the pathname of the directory in which the WinPcap
 # developer's pack resides
 #
-PCAP_DIR=$(ETHEREAL_LIBS)\WPdpack
+PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 
 #
 # Set NET_SNMP_DIR to the pathname of the directory in which the
 # Net-SNMP include files and library resides.
 #
-NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.2.2
+NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.2.2
 
 #
 # If you have GNU ADNS, set this to the pathname of the directory in
@@ -140,7 +140,7 @@ NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.2.2
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
 #
-ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-05
+ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05
 
 #
 # If you have the PCRE (Perl Compatible Regular Expressions) library,
@@ -150,7 +150,7 @@ ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-05
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
+PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 
 #
 # If you have the Nettle encryption library, set this to the pathname
@@ -159,7 +159,7 @@ PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
 # If you don't have Nettle, comment this line out, so that NETTLE_DIR
 # isn't defined.
 #
-# NETTLE_DIR=$(ETHEREAL_LIBS)\nettle-1.10
+# NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
 
 #
 # If you have the LUA library, set this to the pathname
@@ -168,19 +168,19 @@ PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-LUA_DIR=$(ETHEREAL_LIBS)\lua5.1
+LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 
 #
 # Set ICONV_DIR to the pathname of the directory in which the
 # ICONV include files and library resides.
 #
-ICONV_DIR=$(ETHEREAL_LIBS)\libiconv-1.9.1.bin.woe32
+ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 
 #
 # Set GETTEXT_DIR to the pathname of the directory in which the
 # GETTEXT include files and library resides.
 #
-GETTEXT_DIR=$(ETHEREAL_LIBS)\gettext-runtime-0.13.1
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
 
 # Compiler flags
 # /W3  warning level 3 (0 less - 4 most, 1 default)

@@ -391,7 +391,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
 #if (GLIB_MAJOR_VERSION >= 2)
-#ifdef ETHEREAL_EUG_DIR
+#ifdef WIRESHARK_EUG_DIR
     ITEM_FACTORY_ENTRY("/Help/User's Guide", NULL, topic_menu_cb, HELP_CONTENT, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
