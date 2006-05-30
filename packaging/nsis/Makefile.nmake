@@ -92,7 +92,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/v5ua/v5ua.dll
 
-NSI=ethereal.nsi \
+NSI=wireshark.nsi \
 	GetWindowsVersion.nsh \
 	servicelib.nsh \
 	AdditionalTasksPage.ini \
@@ -153,7 +153,7 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 !IFDEF HHC_DIR
 	/DHHC_DIR=$(HHC_DIR) \
 !ENDIF
-	ethereal.nsi
+	wireshark.nsi
 
 clean:
 	rm -f wireshark-setup-$(VERSION).exe

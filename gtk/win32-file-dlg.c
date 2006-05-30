@@ -159,7 +159,7 @@ win32_open_file (HWND h_wnd) {
 #endif
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_OPEN;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -213,7 +213,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_SAVE;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -304,7 +304,7 @@ win32_merge_file (HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_MERGE;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -505,7 +505,7 @@ win32_export_raw_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_RAW;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -567,7 +567,7 @@ win32_export_color_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -608,7 +608,7 @@ win32_import_color_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;

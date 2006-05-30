@@ -1053,7 +1053,7 @@ $Id$
 	based systems, instructions how to install it can be found in <xref 
 	linkend="ChToolsNSIS"/>. 
 	NSIS is script based, you will find the Wireshark installer
-	generation script at: <filename>packaging/nsis/ethereal.nsi</filename>.
+	generation script at: <filename>packaging/nsis/wireshark.nsi</filename>.
 	</para>
 	<para>
 	You will probably have to modify the <filename>config.nmake</filename> 

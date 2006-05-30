@@ -2,7 +2,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	ethereal.nsi	\
+	wireshark.nsi	\
 	../../COPYING	\
 	GetWindowsVersion.nsh \
 	servicelib.nsh \
