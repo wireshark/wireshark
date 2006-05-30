@@ -221,9 +221,9 @@ CLEANFILES =	\
 	edg_chm			\
 	edg_html		\
 	edg_html_chunked	\
-	eug_chm			\
-	eug_html		\
-	eug_html_chunked	\
+	wsug_chm		\
+	wsug_html		\
+	wsug_html_chunked	\
 	htmlhelp.*		\
 	release_notes_chm	\
 	release-notes.html	\
@@ -231,7 +231,7 @@ CLEANFILES =	\
 	svn_version.xml		\
 
 
-all: eug.validated edg.validated release_notes.validated eug edg release_notes
+all: wsug.validated edg.validated release_notes.validated wsug edg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -250,10 +250,10 @@ svn_version.xml: FORCE
 	echo '">'   >> svn_version.xml
 
 
-eug: eug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
-eug.validated: $(WSUG_SOURCE)
+wsug.validated: $(WSUG_SOURCE)
 	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
@@ -261,22 +261,22 @@ eug.validated: $(WSUG_SOURCE)
 # create html single page file
 user-guide.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
-	mkdir -p eug_html/graphics/toolbar
-	cp graphics/*.* eug_html/graphics
-	cp graphics/toolbar/* eug_html/graphics/toolbar
-	cp ws.css eug_html
-	$(XSLTPROC) --stringparam base.dir eug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
-	-chmod -R og+rX eug_html
+	mkdir -p wsug_html/graphics/toolbar
+	cp graphics/*.* wsug_html/graphics
+	cp graphics/toolbar/* wsug_html/graphics/toolbar
+	cp ws.css wsug_html
+	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsug_html/$@
+	-chmod -R og+rX wsug_html
 	
 # create html chunked page files
-eug_html_chunked: $(WSUG_SOURCE)
+wsug_html_chunked: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
-	mkdir -p eug_html_chunked/graphics/toolbar
-	cp graphics/*.* eug_html_chunked/graphics
-	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
-	cp ws.css eug_html_chunked
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
-	-chmod -R og+rX eug_html_chunked
+	mkdir -p wsug_html_chunked/graphics/toolbar
+	cp graphics/*.* wsug_html_chunked/graphics
+	cp graphics/toolbar/* wsug_html_chunked/graphics/toolbar
+	cp ws.css wsug_html_chunked
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -298,10 +298,10 @@ endif
 user-guide.chm: $(WSUG_SOURCE)
 ifdef HHC
 	@ echo --- WSUG - MICROSOFT HTML HELP ---
-	mkdir -p eug_chm/graphics/toolbar
-	-cp graphics/*.* eug_chm/graphics/
-	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	mkdir -p wsug_chm/graphics/toolbar
+	-cp graphics/*.* wsug_chm/graphics/
+	-cp graphics/toolbar/* wsug_chm/graphics/toolbar/
+	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
