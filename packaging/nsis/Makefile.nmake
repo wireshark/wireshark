@@ -13,8 +13,8 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 !IFDEF GTK1_ONLY
 # define installer name and undefine GTK2_DIR to get a separate 
-# installer for ethereal GTK1 version
-DEST=ethereal-gtk1
+# installer for Wireshark GTK1 version
+DEST=wireshark-gtk1
 !IFDEF GTK2_DIR
 !UNDEF GTK2_DIR
 !ENDIF
@@ -23,8 +23,8 @@ DEST=ethereal-gtk1
 
 !IFDEF GTK2_ONLY
 # define installer name and undefine GTK1_DIR to get a separate 
-# installer for ethereal GTK2 version
-DEST=ethereal-gtk2
+# installer for Wireshark GTK2 version
+DEST=wireshark-gtk2
 !IFDEF GTK1_DIR
 !UNDEF GTK1_DIR
 !ENDIF
@@ -32,7 +32,7 @@ DEST=ethereal-gtk2
 
 !IFNDEF DEST
 # define installer name for combined GTK1 and GTK2 installer package
-DEST=ethereal
+DEST=wireshark
 !ENDIF
 
 EXE=../../tethereal.exe ../../editcap.exe \
@@ -156,9 +156,9 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 	ethereal.nsi
 
 clean:
-	rm -f ethereal-setup-$(VERSION).exe
-	rm -f ethereal-gtk1-setup-$(VERSION).exe
-	rm -f ethereal-gtk2-setup-$(VERSION).exe
+	rm -f wireshark-setup-$(VERSION).exe
+	rm -f wireshark-gtk1-setup-$(VERSION).exe
+	rm -f wireshark-gtk2-setup-$(VERSION).exe
 	rm -f NEWS.txt
 
 distclean: clean

@@ -2,7 +2,7 @@
 
 #include "image/win32-file-dlg.rc"
 
-ETHEREAL_ICON		ICON			"ethereal.ico"
+WIRESHARK_ICON		ICON			"wireshark.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @RC_VERSION@,0

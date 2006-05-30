@@ -1,5 +1,5 @@
 ;
-; ethereal.nsi
+; wireshark.nsi
 ;
 ; $Id$
 
@@ -14,8 +14,8 @@ SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
-InstType "Ethereal (GTK2 user interface)"
-InstType "Ethereal (legacy GTK1 user interface)"
+InstType "Wireshark (GTK2 user interface)"
+InstType "Wireshark (legacy GTK1 user interface)"
 !endif
 
 InstType "un.Default (keep Personal Settings and WinPcap)"
@@ -25,14 +25,14 @@ InstType "un.All (remove all)"
 !define SHCNE_ASSOCCHANGED 0x08000000
 !define SHCNF_IDLIST 0
 
-; Used to add associations between file extensions and Ethereal
-!define ETHEREAL_ASSOC "ethereal-file"
+; Used to add associations between file extensions and Wireshark
+!define WIRESHARK_ASSOC "wireshark-file"
 
 ; ============================================================================
 ; Header configuration
 ; ============================================================================
 ; The name of the installer
-!define PROGRAM_NAME "Ethereal"
+!define PROGRAM_NAME "Wireshark"
 
 Name "${PROGRAM_NAME} ${VERSION}"
 
@@ -40,13 +40,13 @@ Name "${PROGRAM_NAME} ${VERSION}"
 OutFile "${DEST}-setup-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
-Icon "..\..\image\ethereal.ico"
-UninstallIcon "..\..\image\ethereal.ico"
+Icon "..\..\image\wireshark.ico"
+UninstallIcon "..\..\image\wireshark.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
-!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Ethereal installation will be uninstalled. Click 'Next' to continue."
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be uninstalled. Click 'Next' to continue."
 ; Uninstall stuff (this text isn't used with the MODERN_UI!)
-;UninstallText "This will uninstall Ethereal.\r\nBefore starting the uninstallation, make sure Wireshark is not running.\r\nClick 'Next' to continue."
+;UninstallText "This will uninstall Wireshark.\r\nBefore starting the uninstallation, make sure Wireshark is not running.\r\nClick 'Next' to continue."
 
 XPStyle on
 
@@ -65,13 +65,13 @@ XPStyle on
 !include "MUI.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "..\..\image\ethereal.ico"
-!define MUI_UNICON "..\..\image\ethereal.ico"
+!define MUI_ICON "..\..\image\wireshark.ico"
+!define MUI_UNICON "..\..\image\wireshark.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
-!define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Wireshark is not running.\r\n\r\nClick 'Next' to continue."
+!define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Wireshark.\r\n\r\nBefore starting the installation, make sure Wireshark is not running.\r\n\r\nClick 'Next' to continue."
 ;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
 ;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
 
@@ -82,7 +82,7 @@ XPStyle on
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_RUN "$INSTDIR\ethereal.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\wireshark.exe"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 
 
@@ -190,13 +190,13 @@ ComponentText "The following components are available for installation."
 ; Directory selection page configuration
 ; ============================================================================
 ; The text to prompt the user to enter a directory
-DirText "Choose a directory in which to install Ethereal."
+DirText "Choose a directory in which to install Wireshark."
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\Ethereal\
+InstallDir $PROGRAMFILES\Wireshark\
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
-InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal "InstallDir"
+InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Wireshark "InstallDir"
 
 
 ; ============================================================================
@@ -228,7 +228,7 @@ UpdateIcons.error1_${UPDATEICONS_UNIQUE}:
 	MessageBox MB_OK|MB_ICONSTOP  "Can't find 'shell32.dll' library. Impossible to update icons" 
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 UpdateIcons.error2_${UPDATEICONS_UNIQUE}: 	
-	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Ethereal capture file icons" 
+	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons" 
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 UpdateIcons.quit_${UPDATEICONS_UNIQUE}:	
 	!undef UPDATEICONS_UNIQUE
@@ -239,7 +239,7 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 !macroend
 
 Function Associate
-	; $R0 should contain the prefix to associate to Ethereal
+	; $R0 should contain the prefix to associate to Wireshark
 	Push $R1
 	
 	ReadRegStr $R1 HKCR $R0 ""
@@ -247,7 +247,7 @@ Function Associate
 	Goto Associate.end
 Associate.doRegister:
 	;The extension is not associated to any program, we can do the link
-	WriteRegStr HKCR $R0 "" ${ETHEREAL_ASSOC}
+	WriteRegStr HKCR $R0 "" ${WIRESHARK_ASSOC}
 Associate.end:
 	pop $R1
 FunctionEnd
@@ -257,10 +257,10 @@ Function un.unlink
 	Push $R1
 	
 	ReadRegStr $R1 HKCR $R0 ""
-	StrCmp $R1 ${ETHEREAL_ASSOC} un.unlink.doUnlink
+	StrCmp $R1 ${WIRESHARK_ASSOC} un.unlink.doUnlink
 	Goto un.unlink.end
 un.unlink.doUnlink:
-	; The extension is associated with Ethereal so, we must destroy this!
+	; The extension is associated with Wireshark so, we must destroy this!
 	DeleteRegKey HKCR $R0	
 un.unlink.end:	
 	pop $R1
@@ -287,7 +287,7 @@ FunctionEnd
 ; ============================================================================
 
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
-;Var ETHEREAL_UNINSTALL ;declare variable for holding the value of a registry key
+;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
 Section "-Required"
 ;-------------------------------------------
@@ -453,36 +453,36 @@ File "..\..\help\display_filters.txt"
 File "..\..\help\faq.txt"
 
 ; Write the uninstall keys for Windows
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayVersion" "${VERSION}"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal ${VERSION}"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString" '"$INSTDIR\uninstall.exe"'
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "Publisher" "The Wireshark developer community, http://www.ethereal.com"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "HelpLink" "mailto:ethereal-users@ethereal.com"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "URLInfoAbout" "http://www.ethereal.com"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "URLUpdateInfo" "http://www.ethereal.com/distribution/win32/"
-WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "NoModify" 1
-WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "NoRepair" 1
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "DisplayVersion" "${VERSION}"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "DisplayName" "Wireshark ${VERSION}"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString" '"$INSTDIR\uninstall.exe"'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "Publisher" "The Wireshark developer community, http://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "HelpLink" "mailto:wireshark-users@wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "URLInfoAbout" "http://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "URLUpdateInfo" "http://www.wireshark.org/distribution/win32/"
+WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "NoModify" 1
+WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "NoRepair" 1
 WriteUninstaller "uninstall.exe"
 
 ; Write an entry for ShellExecute
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "" '$INSTDIR\ethereal.exe'
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "Path" '$INSTDIR'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe" "" '$INSTDIR\wireshark.exe'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe" "Path" '$INSTDIR'
 
 ; Create start menu entries (depending on additional tasks page)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State"
 StrCmp $0 "0" SecRequired_skip_StartMenu
 SetOutPath $PROFILE
-CreateDirectory "$SMPROGRAMS\Ethereal"
+CreateDirectory "$SMPROGRAMS\Wireshark"
 ; To qoute "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch11d.asp":
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
-Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
-;WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" "InternetShortcut" "URL" "http://www.ethereal.com/"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
-;CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
-;CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
+Delete "$SMPROGRAMS\Wireshark\Wireshark Web Site.lnk"
+;WriteINIStr "$SMPROGRAMS\Wireshark\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
+CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\ethereal.html"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
+CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" \
           "$INSTDIR"
-;CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall Ethereal.lnk" "$INSTDIR\uninstall.exe"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Uninstall Wireshark.lnk" "$INSTDIR\uninstall.exe"
 SecRequired_skip_StartMenu:
 
 ; is command line option "/desktopicon" set?
@@ -495,7 +495,7 @@ StrCmp $R1 "yes" SecRequired_install_DesktopIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
 StrCmp $0 "0" SecRequired_skip_DesktopIcon
 SecRequired_install_DesktopIcon:
-CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
+CreateShortCut "$DESKTOP\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
 SecRequired_skip_DesktopIcon:
 
 ; is command line option "/quicklaunchicon" set?
@@ -508,15 +508,15 @@ StrCmp $R1 "yes" SecRequired_install_QuickLaunchIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_QuickLaunchIcon
 SecRequired_install_QuickLaunchIcon:
-CreateShortCut "$QUICKLAUNCH\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
+CreateShortCut "$QUICKLAUNCH\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
 SecRequired_skip_QuickLaunchIcon:
 
 ; Create File Extensions (depending on additional tasks page)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
 StrCmp $0 "0" SecRequired_skip_FileExtensions
-WriteRegStr HKCR ${ETHEREAL_ASSOC} "" "Ethereal file"
-WriteRegStr HKCR "${ETHEREAL_ASSOC}\Shell\open\command" "" '"$INSTDIR\ethereal.exe" "%1"'
-WriteRegStr HKCR "${ETHEREAL_ASSOC}\DefaultIcon" "" '"$INSTDIR\ethereal.exe",0'
+WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark file"
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\wireshark.exe" "%1"'
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\wireshark.exe",0'
 push $R0
 	StrCpy $R0 ".5vw"
   	Call Associate
@@ -594,10 +594,10 @@ SecRequired_done_WinpcapService:
 SectionEnd ; "Required"
 
 
-SectionGroup "!Ethereal" SecEtherealGroup
+SectionGroup "!Wireshark" SecWiresharkGroup
 
 !ifdef GTK1_DIR
-Section "Ethereal GTK1" SecEtherealGTK1
+Section "Wireshark GTK1" SecWiresharkGTK1
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 2 RO
@@ -610,13 +610,13 @@ SectionEnd
 !endif
 
 !ifdef GTK2_DIR
-Section "Ethereal GTK2" SecEtherealGTK2
+Section "Wireshark GTK2" SecWiresharkGTK2
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
-File /oname=ethereal.exe "..\..\ethereal-gtk2.exe"
+File /oname=wireshark.exe "..\..\ethereal-gtk2.exe"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
@@ -658,7 +658,7 @@ SectionEnd
 !endif
 !endif
 
-SectionGroupEnd	; "Ethereal"
+SectionGroupEnd	; "Wireshark"
 
 
 Section "Tethereal" SecTethereal
@@ -813,15 +813,15 @@ IfErrors 0 NoTetherealErrorMsg
 	Abort "Please note: tethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoTetherealErrorMsg:
 
-Delete "$INSTDIR\ethereal.exe"
-IfErrors 0 NoEtherealErrorMsg
-	MessageBox MB_OK "Please note: ethereal.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if ethereal.exe removed
-	Abort "Please note: ethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoEtherealErrorMsg:
+Delete "$INSTDIR\wireshark.exe"
+IfErrors 0 NoWiresharkErrorMsg
+	MessageBox MB_OK "Please note: wireshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if wireshark.exe removed
+	Abort "Please note: wireshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+NoWiresharkErrorMsg:
 
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Ethereal"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Wireshark"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe"
 
 push $R0
 	StrCpy $R0 ".5vw"
@@ -864,9 +864,9 @@ push $R0
   	Call un.unlink
 pop $R0
 
-DeleteRegKey HKCR ${ETHEREAL_ASSOC} 
-DeleteRegKey HKCR "${ETHEREAL_ASSOC}\Shell\open\command"
-DeleteRegKey HKCR "${ETHEREAL_ASSOC}\DefaultIcon"
+DeleteRegKey HKCR ${WIRESHARK_ASSOC} 
+DeleteRegKey HKCR "${WIRESHARK_ASSOC}\Shell\open\command"
+DeleteRegKey HKCR "${WIRESHARK_ASSOC}\DefaultIcon"
 !insertmacro UpdateIcons
 
 ; regardless if we currently installed GTK1 or 2, try to uninstall GTK2 files too
@@ -899,9 +899,9 @@ Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
-Delete "$SMPROGRAMS\Ethereal\*.*"
-Delete "$DESKTOP\Ethereal.lnk"
-Delete "$QUICKLAUNCH\Ethereal.lnk"
+Delete "$SMPROGRAMS\Wireshark\*.*"
+Delete "$DESKTOP\Wireshark.lnk"
+Delete "$QUICKLAUNCH\Wireshark.lnk"
 
 RMDir "$INSTDIR\etc\gtk-2.0"
 RMDir "$INSTDIR\etc\pango"
@@ -925,7 +925,7 @@ RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
 RMDir "$INSTDIR\share\themes\Default"
 RMDir "$INSTDIR\share\themes"
 RMDir "$INSTDIR\share"
-RMDir "$SMPROGRAMS\Ethereal"
+RMDir "$SMPROGRAMS\Wireshark"
 RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
@@ -960,8 +960,8 @@ Section /o "Un.Personal Settings" un.SecPersonalSettings
 ;-------------------------------------------
 SectionIn 2
 SetShellVarContext current
-Delete "$APPDATA\Ethereal\*.*"
-RMDir "$APPDATA\Ethereal"
+Delete "$APPDATA\Wireshark\*.*"
+RMDir "$APPDATA\Wireshark"
 SectionEnd
 
 ;VAR un.WINPCAP_UNINSTALL
@@ -993,18 +993,18 @@ SectionEnd
 ; ============================================================================
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !ifdef GTK1_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK1} "${PROGRAM_NAME} using the classical GTK1 user interface."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK1} "${PROGRAM_NAME} using the classical GTK1 user interface."
 !endif  
 !ifdef GTK2_DIR  
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
 !ifdef GTK_WIMP_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
 !endif  
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Ethereal and Tethereal."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and Tethereal."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
@@ -1021,8 +1021,8 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN 
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all Ethereal components."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous Ethereal versions)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all Wireshark components."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous Wireshark versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
@@ -1038,7 +1038,7 @@ SectionEnd
 
 Function .onSelChange
 	Push $0
-	SectionGetFlags ${SecEtherealGTK1} $0
+	SectionGetFlags ${SecWiresharkGTK1} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 1 onSelChange.disableGTK2Sections
 	;enable GTK2Sections
@@ -1053,11 +1053,11 @@ FunctionEnd
 
 !else
 !ifdef GTK1_DIR | GTK2_DIR
-; Disable FileExtension if Ethereal isn't selected
+; Disable FileExtension if Wireshark isn't selected
 Function .onSelChange
 	Push $0
 !ifdef GTK1_DIR
-	SectionGetFlags ${SecEtherealGTK1} $0
+	SectionGetFlags ${SecWiresharkGTK1} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
 	SectionGetFlags ${SecFileExtensions} $0
@@ -1065,7 +1065,7 @@ Function .onSelChange
 	IntCmp $0 16 onSelChange.unreadonly
 	Goto onSelChange.end
 !else
-	SectionGetFlags ${SecEtherealGTK2} $0
+	SectionGetFlags ${SecWiresharkGTK2} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
 	SectionGetFlags ${SecFileExtensions} $0
@@ -1099,23 +1099,23 @@ Var WINPCAP_VERSION ;declare variable for holding the value of a registry key
 
 Function myShowCallback
 
-; Uinstall old Ethereal first
+; Uinstall old Wireshark first
 ; XXX - doesn't work, but kept here for further experiments
-;ReadRegStr $ETHEREAL_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString"
-;IfErrors lbl_ethereal_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Ethereal version first (recommended)?" 
+;ReadRegStr $WIRESHARK_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
+;IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Wireshark version first (recommended)?" 
 ; Hide the installer while uninstalling
 ;GetDlgItem $0 $HWNDPARENT 1
 ;FindWindow $0 "#32770" "" $HWNDPARENT
 ;MessageBox MB_OK "Window $0" 
 ;ShowWindow $0 ${SW_HIDE}
 ;HideWindow
-;ExecWait '$ETHEREAL_UNINSTALL' $0
+;ExecWait '$WIRESHARK_UNINSTALL' $0
 ;DetailPrint "WinPcap uninstaller returned $0"
 ;GetDlgItem $0 $HWNDPARENT 1
 ;ShowWindow $0 ${SW_SHOW}
 ;MessageBox MB_OK "Uninstalled" 
-;lbl_ethereal_notinstalled:
+;lbl_wireshark_notinstalled:
 
 
 	; Get the Windows version
@@ -1193,29 +1193,29 @@ lbl_npf_disable:
 lbl_npf_done:
 
 
-	; if Ethereal was previously installed, unselect previously not installed icons etc.
+	; if Wireshark was previously installed, unselect previously not installed icons etc.
 	; detect if Wireshark is already installed -> 
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString"
-	IfErrors lbl_ethereal_notinstalled ;if RegKey is unavailable, Wireshark is not installed
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
+	IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, Wireshark is not installed
 
 	; only select Start Menu Group, if previously installed
 	; (we use the "all users" start menu, so select it first)
 	SetShellVarContext all
-	IfFileExists "$SMPROGRAMS\Ethereal\Ethereal.lnk" lbl_have_startmenu
+	IfFileExists "$SMPROGRAMS\Wireshark\Wireshark.lnk" lbl_have_startmenu
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
 lbl_have_startmenu:
 
 	; only select Desktop Icon, if previously installed
-	IfFileExists "$DESKTOP\Ethereal.lnk" lbl_have_desktopicon
+	IfFileExists "$DESKTOP\Wireshark.lnk" lbl_have_desktopicon
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "0"
 lbl_have_desktopicon:
 
 	; only select Quick Launch Icon, if previously installed
-	IfFileExists "$QUICKLAUNCH\Ethereal.lnk" lbl_have_quicklaunchicon
+	IfFileExists "$QUICKLAUNCH\Wireshark.lnk" lbl_have_quicklaunchicon
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" "0"
 lbl_have_quicklaunchicon:
 
-lbl_ethereal_notinstalled:
+lbl_wireshark_notinstalled:
 
 
 FunctionEnd
