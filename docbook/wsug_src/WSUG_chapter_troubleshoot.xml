@@ -2,9 +2,9 @@
 <!-- $Id$ -->
 
 <chapter id="Chap04">
-  <title>Troubleshooting with <application>Ethereal</application></title>
+  <title>Troubleshooting with <application>Wireshark</application></title>
   <section>
-    <title>An approach to troubleshooting with Ethereal</title>
+    <title>An approach to troubleshooting with Wireshark</title>
     <para>
       Wireshark is a very useful tool for network troubleshooting, since it 
       contains a number of features that allow you to quickly focus on 
@@ -53,7 +53,7 @@
 	    See <xref linkend="Ch04ROUSWI"/> for more details.
 	  </para>
 	  <para>
-	    Because Ethereal can read many capture file formats, you can 
+	    Because Wireshark can read many capture file formats, you can 
 	    capture using any conventient tool. One useful approach is 
 	    to use <command>tcpdump</command> to capture on remote 
 	    systems and then copy the capture file to your system for 
@@ -64,8 +64,8 @@
 	<listitem>
 	  <para>
 	    Once you have captured packets that you think relate to 
-	    the problem, load them into Ethereal and look for your 
-	    problem. Using Ethereal's filtering and colorization 
+	    the problem, load them into Wireshark and look for your 
+	    problem. Using Wireshark's filtering and colorization 
 	    capabilities, you can quickly narrow down the capture to the 
 	    area of interest.
 	  </para>
@@ -119,7 +119,7 @@
     <title>Examples of troubleshooting</title>
     <para>
       Troubleshooting often requires a reasonable knowledge of the 
-      protocols in question. However, as Ethereal will often give you some 
+      protocols in question. However, as Wireshark will often give you some 
 	  good hints, you might get an idea of what is going wrong simply by 
 	  looking in the packets being exchanged.
     </para>

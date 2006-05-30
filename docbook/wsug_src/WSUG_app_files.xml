@@ -4,15 +4,15 @@
 <appendix id="AppFiles">
   <title>Configuration (and other) Files and Folders</title>
     <para>
-      Ethereal uses a number of files and folders while it is running. Some 
+      Wireshark uses a number of files and folders while it is running. Some 
 	  of these reside in the personal configuration folder and are used to 
-	  maintain information between runs of Ethereal, while some of them are 
+	  maintain information between runs of Wireshark, while some of them are 
 	  maintained in system areas.
     </para>
 	<tip><title>Tip</title>
-	<para>A list of the folders Ethereal actually uses can be found under the 
+	<para>A list of the folders Wireshark actually uses can be found under the 
 	<command>Folders</command> tab in the dialog box coming up, when you select 
-	<command>About Ethereal</command> from the <command>Help</command> menu.
+	<command>About Wireshark</command> from the <command>Help</command> menu.
 	</para>
 	</tip>
     <para>
@@ -39,43 +39,43 @@
 		<entry><command>preferences</command></entry>
 		<entry>Settings from the Preferences dialog box.</entry>
 		<entry>/etc/ethereal.conf, $HOME/.ethereal/preferences</entry>
-		<entry>%ETHEREAL%\ethereal.conf, %APPDATA%\Ethereal\preferences</entry>
+		<entry>%ETHEREAL%\ethereal.conf, %APPDATA%\Wireshark\preferences</entry>
 	      </row>
 	      <row>
 		<entry><command>recent</command></entry>
 		<entry>Recent GUI settings (e.g. recent files lists).</entry>
 		<entry>$HOME/.ethereal/recent</entry>
-		<entry>%APPDATA%\Ethereal\recent</entry>
+		<entry>%APPDATA%\Wireshark\recent</entry>
 	      </row>
 	      <row>
 		<entry><command>cfilters</command></entry>
 		<entry>Capture filters.</entry>
 		<entry>$HOME/.ethereal/cfilters</entry>
-		<entry>%ETHEREAL%\cfilters, %APPDATA%\Ethereal\cfilters</entry>
+		<entry>%ETHEREAL%\cfilters, %APPDATA%\Wireshark\cfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>dfilters</command></entry>
 		<entry>Display filters.</entry>
 		<entry>$HOME/.ethereal/dfilters</entry>
-		<entry>%ETHEREAL%\dfilters, %APPDATA%\Ethereal\dfilters</entry>
+		<entry>%ETHEREAL%\dfilters, %APPDATA%\Wireshark\dfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>colorfilters</command></entry>
 		<entry>Coloring rules.</entry>
 		<entry>$HOME/.ethereal/colorfilters</entry>
-		<entry>%ETHEREAL%\colorfilters, %APPDATA%\Ethereal\colorfilters</entry>
+		<entry>%ETHEREAL%\colorfilters, %APPDATA%\Wireshark\colorfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>disabled_protos</command></entry>
 		<entry>Disabled protocols.</entry>
 		<entry>$HOME/.ethereal/disabled_protos</entry>
-		<entry>%ETHEREAL%\disabled_protos, %APPDATA%\Ethereal\disabled_protos</entry>
+		<entry>%ETHEREAL%\disabled_protos, %APPDATA%\Wireshark\disabled_protos</entry>
 	      </row>
 	      <row>
 		<entry><command>ethers</command></entry>
 		<entry>Ethernet name resolution.</entry>
 		<entry>/etc/ethers, $HOME/.ethereal/ethers</entry>
-		<entry>%ETHEREAL%\ethers, %APPDATA%\Ethereal\ethers</entry>
+		<entry>%ETHEREAL%\ethers, %APPDATA%\Wireshark\ethers</entry>
 	      </row>
 	      <row>
 		<entry><command>manuf</command></entry>
@@ -103,7 +103,7 @@
 	      $HOME/.ethereal/plugins
 		</entry>
 		<entry>%ETHEREAL%\plugins\&lt;version&gt;, 
-		%APPDATA%\Ethereal\plugins</entry>
+		%APPDATA%\Wireshark\plugins</entry>
 	      </row>
 	      <row>
 		<entry><command>temp</command></entry>
@@ -120,12 +120,12 @@
 	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename> 
 	(for further details, have a look at <xref linkend="ChWindowsProfiles"/>), 
 	%ETHEREAL% points to the Wireshark program folder, typically 
-	<filename>C:\Program Files\Ethereal</filename>
+	<filename>C:\Program Files\Wireshark</filename>
 	</para>
 	</note>
 	<note><title>Unix/Linux folders</title>
 	<para>
-	The <filename>/etc</filename> folder is the global Ethereal configuration 
+	The <filename>/etc</filename> folder is the global Wireshark configuration 
 	folder. The folder actually used on your system 
 	may vary, maybe something like: <filename>/usr/local/etc</filename>.
 	</para>
@@ -136,7 +136,7 @@
 	  <term><command>preferences/ethereal.conf</command></term>
 	  <listitem>
 	    <para>
-	      This file contains your Ethereal preferences, 
+	      This file contains your Wireshark preferences, 
 	      including defaults for capturing and displaying packets.  
 	      It is a simple text file containing statements of the form:
 	      <programlisting>
@@ -239,7 +239,7 @@ udp
 	      addresses to names, it consults the files listed in 
 		  <xref linkend="AppFilesTabFolders"/>.
 	      If an address is not found in /etc/ethers, 
-	      Ethereal looks in $HOME/.ethereal/ethers
+	      Wireshark looks in $HOME/.ethereal/ethers
 	    </para>
 	    <para>
 	      Each line in these files consists of one hardware address and 
@@ -260,7 +260,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <term><command>manuf</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
 		  to translate the first three bytes of an Ethernet address into a 
 		  manufacturers name.  This file has the same format as the ethers 
 		  file, except addresses are three bytes long.
@@ -281,7 +281,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <term><command>hosts</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
 		  to translate IPv4 and IPv6 addresses into names.
 	    </para>
 	    <para>
@@ -304,7 +304,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <term><command>ipxnets</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
 		  to translate IPX network numbers into names.
 	    </para>
 	    <para>
@@ -326,7 +326,7 @@ c0-a8-1c-00      CEO
 	  <term><command>plugins</command> folder</term>
 	  <listitem>
 	    <para>
-	      Ethereal searches for plugins in the directories listed in
+	      Wireshark searches for plugins in the directories listed in
 		  <xref linkend="AppFilesTabFolders"/>. 
 	      They are searched in the order listed.
 	    </para>
@@ -337,7 +337,7 @@ c0-a8-1c-00      CEO
 	  <listitem>
 	    <para>
 	      If you start a new capture and don't specify a filename for it, 
-		  Ethereal uses this directory to place that file in, see
+		  Wireshark uses this directory to place that file in, see
 		  <xref linkend="ChCapCaptureFiles"/>.
 	    </para>
 	  </listitem>
@@ -352,7 +352,7 @@ c0-a8-1c-00      CEO
 	</para>
 	<para>
 	As already mentioned, you can find the currently used folders in the 
-	<command>About Ethereal</command> dialog.
+	<command>About Wireshark</command> dialog.
 	</para>
 	
 	<section id="ChWindowsProfiles"><title>Windows profiles</title>
@@ -381,7 +381,7 @@ c0-a8-1c-00      CEO
 	<para>
 	The default in Windows 95/98/ME is: all users work with the same profile,
 	which is located at: 
-	<filename>C:\windows\Application Data\Ethereal</filename>
+	<filename>C:\windows\Application Data\Wireshark</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
@@ -391,7 +391,7 @@ c0-a8-1c-00      CEO
 	<para>
 	In Windows 98 and ME you can enable separate user profiles. In that case,
 	something like:
-	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Ethereal</filename>
+	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
 	is used.
 	</para>
 	  </listitem>
@@ -400,7 +400,7 @@ c0-a8-1c-00      CEO
 	  <term><command>NT 4</command></term>
 	  <listitem>
 	<para>
-	<filename>C:\WINNT\Profiles\&lt;username&gt;\Application Data\Ethereal</filename>
+	<filename>C:\WINNT\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
@@ -443,7 +443,7 @@ c0-a8-1c-00      CEO
 	<section id="ChWindowsTempFolder">
 	<title>Windows temporary folder</title>
 	<para>
-	Ethereal uses the folder which is set by the TMPDIR or TEMP environment 
+	Wireshark uses the folder which is set by the TMPDIR or TEMP environment 
 	variable. This variable will be set by the windows installer.
 	</para>
 	<para>

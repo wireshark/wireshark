@@ -2,17 +2,17 @@
 <!-- $Id$ -->
 
 <chapter id="ChapterCustomize">
-  <title>Customizing Ethereal</title>
+  <title>Customizing Wireshark</title>
   
   <section id="ChCustIntroduction"><title>Introduction</title>
     <para>
-	Ethereal's default behaviour will usually suit your needs pretty well.
-	However, as you become more familiar with Ethereal, it can be customized 
+	Wireshark's default behaviour will usually suit your needs pretty well.
+	However, as you become more familiar with Wireshark, it can be customized 
 	in various ways to suit your needs even better. In this chapter we explore:
 	<itemizedlist>
 	<listitem>
 	  <para>
-	    How to start Ethereal with command line parameters
+	    How to start Wireshark with command line parameters
 	  </para>
 	</listitem>
 	<listitem>
@@ -34,21 +34,21 @@
 	</para>
   </section>
 	
-  <section id="ChCustCommandLine"><title>Start Ethereal from the command line</title>
+  <section id="ChCustCommandLine"><title>Start Wireshark from the command line</title>
     <para>
-      You can start <application>Ethereal</application> from the command 
+      You can start <application>Wireshark</application> from the command 
       line, but it can also be started from most Window managers 
       as well. In this section we will look at starting it from the command 
       line.
     </para>
     <para>
-      <application>Ethereal</application> supports a large number of 
+      <application>Wireshark</application> supports a large number of 
       command line parameters. To see what they are, simply enter the 
       command <command> ethereal -h</command> and the help information 
       shown in <xref linkend="ChCustEx1"/> (or something similar) should be 
 	  printed.
 	<example id="ChCustEx1">
-	  <title>Help information available from Ethereal</title>
+	  <title>Help information available from Wireshark</title>
 	  <programlisting>
 This is ethereal 0.10.13
  (C) 1998-2005 Gerald Combs &lt;gerald@wireshark.org>
@@ -75,7 +75,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
     <para>
       The first thing to notice is that issuing the command 
       <command>ethereal</command> by itself will bring up 
-      <application>Ethereal</application>.
+      <application>Wireshark</application>.
       However, you can include as many of the command line parameters as 
       you like. Their meanings are as follows ( in alphabetical order ):
 	  XXX - is the alphabetical order a good choice? Maybe better task based?
@@ -96,7 +96,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
 			<listitem><para>
 			Stop writing to a capture file after it reaches a size of value 
 			kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). If 
-			this option is used together with the -b option, Ethereal will 
+			this option is used together with the -b option, Wireshark will 
 			stop writing to the current capture file and switch to the next 
 			one if filesize is reached.
 			</para></listitem>
@@ -114,21 +114,21 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	<varlistentry><term><command>-b &lt;capture ring buffer option></command></term>
 	  <listitem>
 	    <para>
-		If a maximum capture file size was specified, cause Ethereal to run 
+		If a maximum capture file size was specified, cause Wireshark to run 
 		in "ring buffer" mode, with the specified number of files. In "ring 
-		buffer" mode, Ethereal will write to several capture files. Their 
+		buffer" mode, Wireshark will write to several capture files. Their 
 		name is based on the number of the file and on the creation date and 
 		time. 
 	    </para>
 	    <para>
-		When the first capture file fills up, Ethereal will switch to writing 
+		When the first capture file fills up, Wireshark will switch to writing 
 		to the next file, until it fills up the last file, at which point 
 		it'll discard the data in the first file (unless 0 is specified, in 
 		which case, the number of files is unlimited) and start writing to 
 		that file and so on.
 	    </para>
 	    <para>
-		If the optional duration is specified, Ethereal will switch also to 
+		If the optional duration is specified, Wireshark will switch also to 
 		the next file when the specified number of seconds has elapsed even 
 		if the current file is not completely fills up.
 	    </para>
@@ -178,7 +178,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	<varlistentry><term><command>-D</command></term>
 	  <listitem>
 	    <para>
-Print a list of the interfaces on which Ethereal can capture, and
+Print a list of the interfaces on which Wireshark can capture, and
 exit.  For each network interface, a number and an
 interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
@@ -191,7 +191,7 @@ the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 	    </para>
 	    <para>
-Note that "can capture" means that Ethereal was able to open
+Note that "can capture" means that Wireshark was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
 example, as root), then, if Wireshark is run with the <command>-D</command> flag and
@@ -218,7 +218,7 @@ is not run from such an account, it will not list any interfaces.
 	<varlistentry><term><command>-h</command></term>
 	  <listitem>
 	    <para>
-	      The <command>-h</command> option requests Ethereal to print 
+	      The <command>-h</command> option requests Wireshark to print 
 	      its version and usage instructions (as shown above) and exit.
 	    </para>
 	  </listitem>
@@ -237,11 +237,11 @@ Network interface names should match one of the names listed in
 although not all versions of UNIX support the <command>-a</command> flag to <command>ifconfig</command>.
 	    </para>
 	    <para>
-If no interface is specified, Ethereal searches the list of
+If no interface is specified, Wireshark searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces; if there are no interfaces,
-Ethereal reports an error and doesn't start the capture.
+Wireshark reports an error and doesn't start the capture.
 	    </para>
 	    <para>
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
@@ -253,7 +253,7 @@ standard libpcap format.
 	<varlistentry><term><command>-k</command></term>
 	  <listitem>
 	    <para>
-	      The <command>-k</command> option specifies that Ethereal 
+	      The <command>-k</command> option specifies that Wireshark 
 	      should start capturing packets immediately.  This option 
 	      requires the use of the <command>-i</command> parameter to 
 	      specify the interface that packet capture will occur from.
@@ -357,7 +357,7 @@ standard libpcap format.
 	<varlistentry><term><command>-Q</command></term>
 	  <listitem>
 	    <para>
-	      This option forces Ethereal to exit when capturing is 
+	      This option forces Wireshark to exit when capturing is 
 	      complete. It can be used with the <command>-c</command> option. 
 	      It must be used in conjunction with the 
 	      <command>-i</command> and <command>-w</command> options. 
@@ -369,7 +369,7 @@ standard libpcap format.
 	    <para>
 	      This option provides the name of a capture file for Wireshark 
 	      to read and display. This capture file can be in one of the 
-	      formats Ethereal understands.
+	      formats Wireshark understands.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -388,7 +388,7 @@ standard libpcap format.
 	  <listitem>
 	    <para>
 	      This option specifies the snapshot length to use when 
-	      capturing packets. Ethereal will only capture 
+	      capturing packets. Wireshark will only capture 
 	      <command>&lt;snaplen></command> bytes of data for each packet.
 	    </para>
 	  </listitem>
@@ -396,7 +396,7 @@ standard libpcap format.
 	<varlistentry><term><command>-S</command></term>
 	  <listitem>
 	    <para>
-	      This option specifies that Ethereal will display packets as 
+	      This option specifies that Wireshark will display packets as 
 	      it captures them. This is done by capturing in one process 
 	      and displaying them in a separate process. This is the same
 		  as "Update list of packets in real time" in the Capture Options
@@ -443,7 +443,7 @@ standard libpcap format.
 	  <listitem>
 	    <para>
 	      The <command>-v</command> option requests 
-	      Ethereal to print out its version information and exit.
+	      Wireshark to print out its version information and exit.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -472,14 +472,14 @@ standard libpcap format.
         be:
         </para>
         <para>
-        <command>lua_script</command>:lua_script_filename Tell Ethereal to load the given script in addition to the default Lua scripts. 
+        <command>lua_script</command>:lua_script_filename Tell Wireshark to load the given script in addition to the default Lua scripts. 
         </para>
 	  </listitem>
 	</varlistentry>    
 	<varlistentry><term><command>-z &lt;statistics-string></command></term>
 	  <listitem>
 	    <para>
-		Get Ethereal to collect various types of statistics and display the 
+		Get Wireshark to collect various types of statistics and display the 
 		result in a window that updates in semi-real time.
 		XXX - add more details here!
 		</para>
@@ -492,26 +492,26 @@ standard libpcap format.
   <section id="ChCustColorizationSection"><title>Packet colorization</title>
     <para>
       A very useful mechanism available in Wireshark is packet colorization.  
-      You can set-up Ethereal so that it will colorize packets according to a 
+      You can set-up Wireshark so that it will colorize packets according to a 
       filter. This allows you to emphasize the packets you are usually 
 	  interested in.
     </para>
     <tip>
       <title>Tip!</title>
       <para>
-	  You will find a lot of Coloring Rule examples at the <command>Ethereal 
+	  You will find a lot of Coloring Rule examples at the <command>Wireshark 
 	  Wiki Coloring Rules page</command> at <ulink 
-	  url="&EtherealWikiColoringRulesPage;">&EtherealWikiColoringRulesPage;</ulink>.
+	  url="&WiresharkWikiColoringRulesPage;">&WiresharkWikiColoringRulesPage;</ulink>.
       </para>
     </tip>
     <para>
       To colorize packets, select the Coloring Rules... menu item from 
-      the View menu, Ethereal will pop up the "Coloring Rules" 
+      the View menu, Wireshark will pop up the "Coloring Rules" 
       dialog box as shown in <xref linkend="ChCustColoringRulesDialog"/>.
     </para>
     <figure id="ChCustColoringRulesDialog">
       <title>The "Coloring Rules" dialog box</title>
-      <graphic entityref="EtherealColoringRulesDialog" format="PNG"/>
+      <graphic entityref="WiresharkColoringRulesDialog" format="PNG"/>
     </figure>
     <para>
       Once the Coloring Rules dialog box is up, there are a number 
@@ -535,7 +535,7 @@ standard libpcap format.
     </para>
     <figure id="ChCustEditColorDialog">
       <title>The "Edit Color Filter" dialog box</title>
-      <graphic entityref="EtherealEditColorDialog" format="PNG"/>
+      <graphic entityref="WiresharkEditColorDialog" format="PNG"/>
     </figure>
     <para>
       In the Edit Color dialog box, simply enter a name for the color filter,
@@ -548,13 +548,13 @@ standard libpcap format.
 	color for packets that match the filter expression.  Click on 
 	<command>Foreground color...</command> or 
 	<command>Background color...</command> to achieve this and 
-	Ethereal will pop up the Choose foreground/background color for 
+	Wireshark will pop up the Choose foreground/background color for 
 	protocol dialog box as shown in 
 	<xref linkend="ChCustChooseColorDialog"/>.
     </para>
     <figure id="ChCustChooseColorDialog">
       <title>The "Choose color" dialog box</title>
-      <graphic entityref="EtherealChooseColorDialog" format="PNG"/>
+      <graphic entityref="WiresharkChooseColorDialog" format="PNG"/>
     </figure>
     <para>
       Select the color you desire for the selected packets and click on OK. 
@@ -573,8 +573,8 @@ standard libpcap format.
 	however, feel free to choose your own.
     </para>
     <figure id="ChCustColorFilterMany">
-      <title>Using color filters with Ethereal</title>
-      <graphic entityref="EtherealThreePane1" format="PNG"/>
+      <title>Using color filters with Wireshark</title>
+      <graphic entityref="WiresharkThreePane1" format="PNG"/>
     </figure>
   </section>
    
@@ -585,24 +585,24 @@ standard libpcap format.
 	</para>
 	<para>
 		Each protocol has its own dissector, so dissecting a complete packet will 
-		typically involve several dissectors. As Ethereal tries to find the 
+		typically involve several dissectors. As Wireshark tries to find the 
 		right dissector for each packet (using static "routes" and heuristics 
 		"guessing"), it might choose the wrong dissector in your specific 
-		case. For example, Ethereal won't know if you use a common protocol 
+		case. For example, Wireshark won't know if you use a common protocol 
 		on an uncommon TCP port, e.g. using HTTP on TCP port 800 instead of 
 		the standard port 80.
 	</para>
 	<para>
 		There are two ways to control the relations between protocol 
 		dissectors: disable a protocol dissector completely or temporarily 
-		divert the way Ethereal calls the dissectors.
+		divert the way Wireshark calls the dissectors.
 	</para>
 	<section id="ChAdvEnabledProtocols"><title>The "Enabled Protocols" dialog 
 	box</title>
 	<para>
 		The Enabled Protocols dialog box lets you enable or
 		disable specific protocols, all protocols are enabled by default. 
-		When a protocol is disabled, Ethereal stops processing a packet
+		When a protocol is disabled, Wireshark stops processing a packet
 		whenever that protocol is encountered.	
 	</para>
 	<note><title>Note!</title>
@@ -619,7 +619,7 @@ standard libpcap format.
 	</note>
     <figure id="ChAdvEnabledProtocolsFig">
       <title>The "Enabled Protocols" dialog box</title>
-      <graphic entityref="EtherealEnabledProtocols" format="PNG"/>
+      <graphic entityref="WiresharkEnabledProtocols" format="PNG"/>
     </figure>
 	<para>
 		To disable or enable a protocol, simply click on it using the
@@ -686,13 +686,13 @@ standard libpcap format.
     <para>
     <figure id="ChAdvDecodeAsFig">
       <title>The "Decode As" dialog box</title>
-      <graphic scale="100" entityref="EtherealDecodeAs" format="PNG"/>
+      <graphic scale="100" entityref="WiresharkDecodeAs" format="PNG"/>
     </figure>
 	The content of this dialog box depends on the selected packet when it 
 	was opened.
 	<warning><title>Warning!</title>
 		<para>
-		The user specified decodes can not be saved. If you quit Ethereal, 
+		The user specified decodes can not be saved. If you quit Wireshark, 
 		these settings will be lost.
 		</para>
 	</warning>
@@ -748,7 +748,7 @@ standard libpcap format.
 	This dialog box shows the currently active user specified decodes.
     <figure id="ChAdvDecodeAsShowFig">
       <title>The "Decode As: Show" dialog box</title>
-      <graphic entityref="EtherealDecodeAsShow" format="PNG"/>
+      <graphic entityref="WiresharkDecodeAsShow" format="PNG"/>
     </figure>
       <orderedlist>
 	<listitem>
@@ -769,7 +769,7 @@ standard libpcap format.
   <section id="ChCustPreferencesSection"><title>Preferences</title>
     <para>
       There are a number of preferences you can set. Simply 
-      select the Preferences... menu item from the Edit menu, and Ethereal 
+      select the Preferences... menu item from the Edit menu, and Wireshark 
       will pop up the Preferences dialog box as shown in 
       <xref linkend="ChCustGUIPrefPage"/>, with the "User Interface" page as 
 	  default. On the left side is a tree where you can select the page to be 
@@ -778,8 +778,8 @@ standard libpcap format.
 	  <para>
 	  Preference settings are added frequently. For a recent explanation of 
 	  the preference pages and their settings have a look at the 
-	  <command>Ethereal Wiki Preferences page</command> at <ulink 
-	  url="&EtherealWikiPreferencesPage;">&EtherealWikiPreferencesPage;</ulink>.
+	  <command>Wireshark Wiki Preferences page</command> at <ulink 
+	  url="&WiresharkWikiPreferencesPage;">&WiresharkWikiPreferencesPage;</ulink>.
       </para>
       </note>
 	  <warning>
@@ -818,7 +818,7 @@ standard libpcap format.
     </para>
     <figure id="ChCustGUIPrefPage">
       <title>The preferences dialog box</title>
-      <graphic entityref="EtherealGUIPreferences" format="PNG"/>
+      <graphic entityref="WiresharkGUIPreferences" format="PNG"/>
     </figure>
   </section>
   

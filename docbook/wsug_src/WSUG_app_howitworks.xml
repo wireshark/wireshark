@@ -2,11 +2,11 @@
 <!-- $Id$ -->
 
 <appendix id="AppHowItWorks">
-  <title>How Ethereal Works</title>
+  <title>How Wireshark Works</title>
   <para>
-  When using such a complex program like Ethereal, it's sometimes useful to 
+  When using such a complex program like Wireshark, it's sometimes useful to 
   understand the mechanisms and concepts behind the surface. This is an 
-  approach to shed some light on the inner workings of Ethereal.
+  approach to shed some light on the inner workings of Wireshark.
   </para>
 
   <section><title>Program start</title>
@@ -53,16 +53,16 @@
   <section><title>Protocol dissectors</title>
   <para>
   Each protocol has it's own protocol dissector. A dissector is called from 
-  Ethereal, if the packet data seems to be of that corresponding protocol. The 
-  dissector  will then process the packet data and call back Ethereal if it 
+  Wireshark, if the packet data seems to be of that corresponding protocol. The 
+  dissector  will then process the packet data and call back Wireshark if it 
   couldn't dissect all the data in that packet to do any further dissections.
   </para>
   <para>
-  So Ethereal will dissect a packet from the lowest to the highest protocol 
+  So Wireshark will dissect a packet from the lowest to the highest protocol 
   layers.
   </para>
   <para>
-  But how does Ethereal know, which dissector to choose?
+  But how does Wireshark know, which dissector to choose?
   </para>
   <para>
   At program start, the dissector registers itself at the appropriate place(s). 
@@ -78,7 +78,7 @@
   <command>heuristic</command> if no such well known way exists, the dissector 
   can register itself for the heuristic mechanism. If a lower layer dissector 
   has to handle some packet data where no well known way exists, it can 
-  handover the packet to Ethereal's heuristic mechanism. This will ask all 
+  handover the packet to Wireshark's heuristic mechanism. This will ask all 
   registered upper layer dissectors, if they "like" that data. Each of these 
   dissectors will typically look into the first few bytes of the packet, if it 
   contains some characteristic data of that protocol. So the dissector can 
@@ -87,17 +87,17 @@
   </itemizedlist>
   </para>
   <para>
-  Let's look at an example: We'll assume, Ethereal loads a TCP/IP/Ethernet 
-  packet. Ethereal will call the Ethernet dissector, which will dissect the 
+  Let's look at an example: We'll assume, Wireshark loads a TCP/IP/Ethernet 
+  packet. Wireshark will call the Ethernet dissector, which will dissect the 
   Ethernet related data (usually the first 6+6+2 bytes). Then this dissector 
-  calls back into Ethereal and will pass the rest of the data back to 
-  Ethereal. Ethereal in turn will call the next related dissector, in our case 
+  calls back into Wireshark and will pass the rest of the data back to 
+  Wireshark. Wireshark in turn will call the next related dissector, in our case 
   the IP dissector (because of the value 0x800 in the Ethernet type field). 
   This game will continue, until no more data has to be dissected, or the data 
-  is just unknown to Ethereal.
+  is just unknown to Wireshark.
   </para>
   <para>
-  You can control the way how Ethereal calls it's dissectors, see <xref 
+  You can control the way how Wireshark calls it's dissectors, see <xref 
   linkend="ChAdvProtocolDissectionSection"/> for details.
   </para>
   </section>

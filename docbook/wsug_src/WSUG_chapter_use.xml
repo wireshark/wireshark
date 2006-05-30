@@ -5,7 +5,7 @@
   <title>User Interface</title>
   <section id="ChUseIntroductionSection"><title>Introduction</title>
     <para>
-      By now you have installed <application>Ethereal</application> and 
+      By now you have installed <application>Wireshark</application> and 
       are most likely keen to get started capturing your first packets.  In 
       the next chapters we will explore:
       <itemizedlist>
@@ -16,17 +16,17 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    How to capture packets in <application>Ethereal</application>
+	    How to capture packets in <application>Wireshark</application>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    How to view packets in <application>Ethereal</application>
+	    How to view packets in <application>Wireshark</application>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    How to filter packets in <application>Ethereal</application>
+	    How to filter packets in <application>Wireshark</application>
 	  </para>
 	</listitem>
 	<listitem>
@@ -38,19 +38,19 @@
     </para>
   </section>
   
-  <section id="ChUseStartSection"><title>Start Ethereal</title>
+  <section id="ChUseStartSection"><title>Start Wireshark</title>
     <para>
-	You can start Ethereal from your shell or window manager.
+	You can start Wireshark from your shell or window manager.
 	<tip><title>Tip!</title>
 	<para>
-	When starting Ethereal it's possible to specify optional settings using 
+	When starting Wireshark it's possible to specify optional settings using 
 	the	command line. See <xref linkend="ChCustCommandLine"/> for details.
 	</para>
 	</tip>
 	<note><title>Note!</title>
 	<para>
-	In the following chapters, a lot of screenshots from Ethereal will be shown. 
-	As Ethereal runs on many different platforms and there are different 
+	In the following chapters, a lot of screenshots from Wireshark will be shown. 
+	As Wireshark runs on many different platforms and there are different 
 	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your 
 	screen might look different from the provided screenshots. But as there 
 	are no real differences in functionality, these screenshots should still 
@@ -62,16 +62,16 @@
   
   <section id="ChUseMainWindowSection"><title>The Main window</title>
 	<para>
-      Lets look at Ethereal's user interface. <xref linkend="ChUseFig01"/> shows 
-	Ethereal as you would usually see it after some packets captured or loaded 
+      Lets look at Wireshark's user interface. <xref linkend="ChUseFig01"/> shows 
+	Wireshark as you would usually see it after some packets captured or loaded 
 	(how to do this will be described later).
 	<figure id="ChUseFig01">
 	  <title>The Main window</title>
-	  <graphic scale="100" entityref="EtherealThreePane1" format="PNG"/>
+	  <graphic scale="100" entityref="WiresharkThreePane1" format="PNG"/>
 	</figure>
     </para>
     <para>
-      Ethereal's main window consist of parts that are commonly known from many 
+      Wireshark's main window consist of parts that are commonly known from many 
 	  other GUI programs.
       <orderedlist>
 	<listitem>
@@ -133,7 +133,7 @@
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
       The Wireshark menu sits on top of the Wireshark window. 
-      An example is shown in <xref linkend="ChUseEtherealMenu"/>.
+      An example is shown in <xref linkend="ChUseWiresharkMenu"/>.
     </para>
 	<note><title>Note!</title>
 	<para>
@@ -143,8 +143,8 @@
 	</para>
 	</note>
     <para>
-	<figure id="ChUseEtherealMenu"><title>The Menu</title>
-	  <graphic entityref="EtherealMenuOnly" format="PNG"/>
+	<figure id="ChUseWiresharkMenu"><title>The Menu</title>
+	  <graphic entityref="WiresharkMenuOnly" format="PNG"/>
 	</figure>
     </para>
     <para>
@@ -155,7 +155,7 @@
 	    <para>
 	      This menu contains items to open and merge capture files, 
 		  save / print / export capture files in whole or in part, 
-		  and to quit from Ethereal. See <xref linkend="ChUseFileMenuSection"/>.
+		  and to quit from Wireshark. See <xref linkend="ChUseFileMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -241,9 +241,9 @@
       The Wireshark file menu contains the fields shown in 
       <xref linkend="ChUseTabFile"/>.
     </para>
-    <figure id="ChUseEtherealFileMenu">
+    <figure id="ChUseWiresharkFileMenu">
       <title>The "File" Menu</title>
-      <graphic entityref="EtherealFileMenu" format="PNG"/>
+      <graphic entityref="WiresharkFileMenu" format="PNG"/>
     </figure>
     <table id="ChUseTabFile" frame="none"><title>File menu items</title>
       <tgroup cols="3">
@@ -304,7 +304,7 @@
 		<entry><para>
 		    This menu item saves the current capture. If you 
 		    have not set a default capture file name (perhaps with 
-		    the -w &lt;capfile&gt; option), Ethereal pops up the 
+		    the -w &lt;capfile&gt; option), Wireshark pops up the 
 		    Save Capture File As dialog box (which is discussed 
 		    further in <xref linkend="ChIOSaveAs"/>).
 		  </para><note>
@@ -425,7 +425,7 @@
 		<entry><para>
 		    This menu item allows you to export the currently selected bytes 
 			in the packet bytes pane to a binary file. It pops up the 
-			Ethereal Export dialog box (which is discussed further in 
+			Wireshark Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportSelectedDialog"/>)
 		  </para></entry>
 	      </row>
@@ -453,8 +453,8 @@
 		<entry><command>Quit</command></entry>
 		<entry>Ctrl+Q</entry>
 		<entry><para>
-		    This menu item allows you to quit from Ethereal.  
-			Ethereal will ask to save your capture file if you haven't saved 
+		    This menu item allows you to quit from Wireshark.  
+			Wireshark will ask to save your capture file if you haven't saved 
 			it before (this can be disabled by a preference setting). 
 		  </para></entry>
 	      </row>
@@ -468,9 +468,9 @@
       The Wireshark Edit menu contains the fields shown in 
       <xref linkend="ChUseTabEdit"/>.
     </para>
-    <figure id="ChUseEtherealEditMenu">
+    <figure id="ChUseWiresharkEditMenu">
       <title>The "Edit" Menu</title>
-      <graphic entityref="EtherealEditMenu" format="PNG"/>
+      <graphic entityref="WiresharkEditMenu" format="PNG"/>
     </figure>
     <table id="ChUseTabEdit" frame="none">
       <title>Edit menu items</title>
@@ -571,7 +571,7 @@
 		<entry><para>
 		    This menu item brings up a dialog box that allows 
 		    you to set preferences for many parameters that control 
-		    Ethereal.  You can also save your preferences so Ethereal 
+		    Wireshark.  You can also save your preferences so Wireshark 
 		    will use them the next time you start it. More detail 
 		    is provided in <xref linkend="ChCustPreferencesSection"/>.
 		  </para></entry>
@@ -586,9 +586,9 @@
       The Wireshark View menu contains the fields shown in 
       <xref linkend="ChUseTabView"/>.
     </para>
-    <figure id="ChUseEtherealViewMenu">
+    <figure id="ChUseWiresharkViewMenu">
       <title>The "View" Menu</title>
-      <graphic entityref="EtherealViewMenu" format="PNG"/>
+      <graphic entityref="WiresharkViewMenu" format="PNG"/>
     </figure>
     <table id="ChUseTabView" frame="none">
       <title>View menu items</title>
@@ -665,7 +665,7 @@
 		<entry><command>Time Display Format > Date and Time of Day:  1970-01-01 01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display the 
+	      Selecting this tells Wireshark to display the 
 	      time stamps in date and time of day format, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  <note><title>Note!</title>
@@ -681,7 +681,7 @@
 		<entry><command>Time Display Format > Time of Day:  01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time 
+	      Selecting this tells Wireshark to display time 
 	      stamps in time of day format, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>. 
 		  </para></entry>
@@ -690,7 +690,7 @@
 		<entry><command>Time Display Format > Seconds Since Beginning of Capture:  123.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time 
+	      Selecting this tells Wireshark to display time 
 	      stamps in seconds since beginning of capture format, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
@@ -699,7 +699,7 @@
 		<entry><command>Time Display Format > Seconds Since Previous Packet:  1.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time stamps in 
+	      Selecting this tells Wireshark to display time stamps in 
 	      seconds since previous packet format, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
@@ -713,7 +713,7 @@
 		<entry><command>Time Display Format > Automatic (File Format Precision)</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time stamps with the 
+	      Selecting this tells Wireshark to display time stamps with the 
 		  precision given by the capture file format used, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  <note><title>Note!</title>
@@ -727,7 +727,7 @@
 		<entry><command>Time Display Format > Seconds:  0</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time stamps with a precision of one second, see 
+	      Selecting this tells Wireshark to display time stamps with a precision of one second, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -735,7 +735,7 @@
 		<entry><command>Time Display Format > ...seconds:  0....</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see 
+	      Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -752,7 +752,7 @@
 		<entry></entry>
 		<entry><para>
 		This item allows you to control whether or not 
-		Ethereal translates MAC addresses into names, see
+		Wireshark translates MAC addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
 	      </row>
@@ -761,7 +761,7 @@
 		<entry></entry>
 		<entry><para>
 		This item allows you to control whether or not 
-		Ethereal translates network addresses into names, see
+		Wireshark translates network addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
 	      </row>
@@ -770,7 +770,7 @@
 		<entry></entry>
 		<entry><para>
 		This item allows you to control whether or not 
-		Ethereal translates transport addresses into names, see
+		Wireshark translates transport addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
 	      </row>
@@ -778,7 +778,7 @@
 		<entry><command>Colorize Packet List</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control wether or not Ethereal should colorize 
+		This item allows you to control wether or not Wireshark should colorize 
 		the packet list.</para>
 		<note><title>Note!</title><para>
 		Enabling colorization will slow down the display 
@@ -789,10 +789,10 @@
 		<entry><command>Auto Scroll in Live Capture</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to specify that Ethereal 
+		This item allows you to specify that Wireshark 
 		should scroll the packet list pane as new packets come 
 		in, so you are always looking at the last packet.  If you 
-		do not specify this, Ethereal simply adds new packets onto 
+		do not specify this, Wireshark simply adds new packets onto 
 		the end of the list, but does not scroll the packet list 
 		pane.
 		  </para></entry>
@@ -852,7 +852,7 @@
 		<entry><command>Expand All</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Ethereal keeps a list of all the protocol subtrees 
+		    Wireshark keeps a list of all the protocol subtrees 
 		    that are expanded, and uses it to ensure that the 
 		    correct subtrees are expanded when you display a packet. 
 		    This menu item expands all subtrees in all packets in 
@@ -915,9 +915,9 @@
       The Wireshark Go menu contains the fields shown in 
       <xref linkend="ChUseTabGo"/>.
     </para>
-    <figure id="ChUseEtherealGoMenu">
+    <figure id="ChUseWiresharkGoMenu">
       <title>The "Go" Menu</title>
-      <graphic entityref="EtherealGoMenu" format="PNG"/>
+      <graphic entityref="WiresharkGoMenu" format="PNG"/>
     </figure>
     <table id="ChUseTabGo" frame="none">
       <title>Go menu items</title>
@@ -995,9 +995,9 @@
       The Wireshark Capture menu contains the fields shown in 
       <xref linkend="ChUseTabCap"/>.
     </para>
-    <figure id="ChUseEtherealCaptureMenu">
+    <figure id="ChUseWiresharkCaptureMenu">
       <title>The "Capture" Menu</title>
-      <graphic entityref="EtherealCaptureMenu" format="PNG"/>
+      <graphic entityref="WiresharkCaptureMenu" format="PNG"/>
     </figure>
     <table id="ChUseTabCap" frame="none">
       <title>Capture menu items</title>
@@ -1017,7 +1017,7 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up a dialog box that shows what's going on 
-			at the network interfaces Ethereal knows of, see
+			at the network interfaces Wireshark knows of, see
 			<xref linkend="ChCapInterfaceSection"/>) .
 		  </para></entry>
 	      </row>
@@ -1076,9 +1076,9 @@
       The Wireshark Analyze menu contains the fields shown in 
       <xref linkend="ChUseAnalyze"/>.
     </para>
-    <figure id="ChUseEtherealAnalyzeMenu">
+    <figure id="ChUseWiresharkAnalyzeMenu">
       <title>The "Analyze" Menu</title>
-      <graphic entityref="EtherealAnalyzeMenu" format="PNG"/>
+      <graphic entityref="WiresharkAnalyzeMenu" format="PNG"/>
     </figure>
     <table id="ChUseAnalyze" frame="none"><title>Analyze menu items</title>
       <tgroup cols="3">
@@ -1140,7 +1140,7 @@
 		<entry><command>Decode As...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force Ethereal to 
+		    This menu item allows the user to force Wireshark to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAs"/>
 		  </para></entry>
@@ -1149,7 +1149,7 @@
 		<entry><command>User Specified Decodes...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force Ethereal to 
+		    This menu item allows the user to force Wireshark to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAsShow"/>
 		  </para></entry>
@@ -1179,9 +1179,9 @@
       The Wireshark Statistics menu contains the fields shown in 
       <xref linkend="ChUseStatistics"/>.
     </para>
-    <figure id="ChUseEtherealStatisticsMenu">
+    <figure id="ChUseWiresharkStatisticsMenu">
       <title>The "Statistics" Menu</title>
-      <graphic entityref="EtherealStatisticsMenu" format="PNG"/>
+      <graphic entityref="WiresharkStatisticsMenu" format="PNG"/>
     </figure>
     <para>
 	All menu items will bring up a new window showing specific statistical 
@@ -1366,9 +1366,9 @@
       The Wireshark Help menu contains the fields shown in 
       <xref linkend="ChUseHelp"/>.
     </para>
-    <figure id="ChUseEtherealHelpMenu">
+    <figure id="ChUseWiresharkHelpMenu">
       <title>The "Help" Menu</title>
-      <graphic entityref="EtherealHelpMenu" format="PNG"/>
+      <graphic entityref="WiresharkHelpMenu" format="PNG"/>
     </figure>
     <table id="ChUseHelp" frame="none">
       <title>Help menu items</title>
@@ -1407,12 +1407,12 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Ethereal Online > ...</command></entry>
+		<entry><command>Wireshark Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item starts a Web browser showing the chosen 
 			webpage from: 
-			<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
+			<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1421,11 +1421,11 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>About Ethereal</command></entry>
+		<entry><command>About Wireshark</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up an information window that 
-		    provides some information on Ethereal, such as the plugins, the 
+		    provides some information on Wireshark, such as the plugins, the 
 			used folders, ...
 		  </para></entry>
 	      </row>
@@ -1434,7 +1434,7 @@
     </table>
 	<note><title>Note!</title>
 	<para>
-	Calling a Web browser might be unsupported in your version of Ethereal.
+	Calling a Web browser might be unsupported in your version of Wireshark.
 	If this is the case, the corresponding menu items will be hidden.
 	</para>
 	</note>
@@ -1458,9 +1458,9 @@
 	As in the menu, only the items useful in the current program state will 
 	be available. The others will be greyed out (e.g. you cannot save a capture
 	file if you haven't loaded one).
-    <figure id="ChUseEtherealMainToolbar">
+    <figure id="ChUseWiresharkMainToolbar">
       <title>The "Main" toolbar</title>
-      <graphic entityref="EtherealMainToolbar" format="PNG"/>
+      <graphic entityref="WiresharkMainToolbar" format="PNG"/>
     </figure>
     </para>
     <table id="ChUseMainToolbar" frame="none">
@@ -1479,7 +1479,7 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureInterfaces" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureInterfaces" format="PNG"/></entry>
 		<entry><command>Interfaces...</command></entry>
 		<entry>Capture/Interfaces...</entry>
 		<entry><para>
@@ -1490,7 +1490,7 @@
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureOptions" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureOptions" format="PNG"/></entry>
 		<entry><command>Options...</command></entry>
 		<entry>Capture/Options...</entry>
 		<entry><para>
@@ -1502,7 +1502,7 @@
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureStart" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureStart" format="PNG"/></entry>
 		<entry><command>Start</command></entry>
 		<entry>Capture/Start</entry>
 		<entry><para>
@@ -1512,7 +1512,7 @@
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureStop" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureStop" format="PNG"/></entry>
 		<entry><command>Stop</command></entry>
 		<entry>Capture/Stop</entry>
 		<entry><para>
@@ -1522,7 +1522,7 @@
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureRestart" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureRestart" format="PNG"/></entry>
 		<entry><command>Restart</command></entry>
 		<entry>Capture/Restart</entry>
 		<entry><para>
@@ -1537,7 +1537,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarOpen" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarOpen" format="PNG"/></entry>
 		<entry><command>Open...</command></entry>
 		<entry>File/Open...</entry>
 		<entry><para>
@@ -1547,7 +1547,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarSaveAs" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarSaveAs" format="PNG"/></entry>
 		<entry><command>Save As...</command></entry>
 		<entry>File/Save As...</entry>
 		<entry><para>
@@ -1558,13 +1558,13 @@
 			<note><title>Note!</title>
 			<para>
 			If you currently have a temporary capture file, the Save icon 
-			<inlinegraphic entityref="EtherealToolbarSave" format="PNG"/> will be 
+			<inlinegraphic entityref="WiresharkToolbarSave" format="PNG"/> will be 
 			shown instead.
 		  </para></note>
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarClose" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarClose" format="PNG"/></entry>
 		<entry><command>Close</command></entry>
 		<entry>File/Close</entry>
 		<entry><para>
@@ -1573,7 +1573,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarReload" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarReload" format="PNG"/></entry>
 		<entry><command>Reload</command></entry>
 		<entry>View/Reload</entry>
 		<entry><para>
@@ -1581,7 +1581,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarPrint" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarPrint" format="PNG"/></entry>
 		<entry><command>Print...</command></entry>
 		<entry>File/Print...</entry>
 		<entry><para>
@@ -1597,7 +1597,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarFind" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarFind" format="PNG"/></entry>
 		<entry><command>Find Packet...</command></entry>
 		<entry>Edit/Find Packet...</entry>
 		<entry><para>
@@ -1607,7 +1607,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarGoBack" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarGoBack" format="PNG"/></entry>
 		<entry><command>Go Back</command></entry>
 		<entry>Go/Go Back</entry>
 		<entry><para>
@@ -1615,7 +1615,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarGoForward" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarGoForward" format="PNG"/></entry>
 		<entry><command>Go Forward</command></entry>
 		<entry>Go/Go Forward</entry>
 		<entry><para>
@@ -1623,7 +1623,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarGoTo" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarGoTo" format="PNG"/></entry>
 		<entry><command>Go to Packet...</command></entry>
 		<entry>Go/Go to Packet...</entry>
 		<entry><para>
@@ -1632,7 +1632,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarGoFirst" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarGoFirst" format="PNG"/></entry>
 		<entry><command>Go To First Packet</command></entry>
 		<entry>Go/First Packet</entry>
 		<entry><para>
@@ -1640,7 +1640,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarGoLast" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarGoLast" format="PNG"/></entry>
 		<entry><command>Go To Last Packet</command></entry>
 		<entry>Go/Last Packet</entry>
 		<entry><para>
@@ -1653,7 +1653,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarColorize" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarColorize" format="PNG"/></entry>
 		<entry><command>Colorize</command></entry>
 		<entry>View/Colorize</entry>
 		<entry><para>
@@ -1661,7 +1661,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarAutoScroll" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarAutoScroll" format="PNG"/></entry>
 		<entry><command>Auto Scroll in Live Capture</command></entry>
 		<entry>View/Auto Scroll in Live Capture</entry>
 		<entry><para>
@@ -1674,7 +1674,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarZoomIn" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarZoomIn" format="PNG"/></entry>
 		<entry><command>Zoom In</command></entry>
 		<entry>View/Zoom In</entry>
 		<entry><para>
@@ -1682,7 +1682,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarZoomOut" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarZoomOut" format="PNG"/></entry>
 		<entry><command>Zoom Out</command></entry>
 		<entry>View/Zoom Out</entry>
 		<entry><para>
@@ -1690,7 +1690,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarZoom100" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarZoom100" format="PNG"/></entry>
 		<entry><command>Normal Size</command></entry>
 		<entry>View/Normal Size</entry>
 		<entry><para>
@@ -1698,7 +1698,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarResizeColumns" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarResizeColumns" format="PNG"/></entry>
 		<entry><command>Resize Columns</command></entry>
 		<entry>View/Resize Columns</entry>
 		<entry><para>
@@ -1711,7 +1711,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCaptureFilters" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarCaptureFilters" format="PNG"/></entry>
 		<entry><command>Capture Filters...</command></entry>
 		<entry>Capture/Capture Filters...</entry>
 		<entry><para>
@@ -1723,7 +1723,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarDisplayFilters" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarDisplayFilters" format="PNG"/></entry>
 		<entry><command>Display Filters...</command></entry>
 		<entry>Analyze/Display Filters...</entry>
 		<entry><para>
@@ -1735,7 +1735,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarColoringRules" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarColoringRules" format="PNG"/></entry>
 		<entry><command>Coloring Rules...</command></entry>
 		<entry>View/Coloring Rules...</entry>
 		<entry><para>
@@ -1748,13 +1748,13 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarPreferences" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarPreferences" format="PNG"/></entry>
 		<entry><command>Preferences...</command></entry>
 		<entry>Edit/Preferences</entry>
 		<entry><para>
 		    This item brings up a dialog box that allows 
 		    you to set preferences for many parameters that control 
-		    Ethereal.  You can also save your preferences so Ethereal 
+		    Wireshark.  You can also save your preferences so Wireshark 
 		    will use them the next time you start it. More detail 
 		    is provided in <xref linkend="ChCustPreferencesSection"/>
 		  </para></entry>
@@ -1765,7 +1765,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarHelp" format="PNG"/></entry>
+		<entry><graphic entityref="WiresharkToolbarHelp" format="PNG"/></entry>
 		<entry><command>Help</command></entry>
 		<entry>Help/Contents</entry>
 		<entry><para>
@@ -1781,9 +1781,9 @@
     <para>
       The filter toolbar lets you quickly edit and apply display filters. More information on 
 	    display filters is available in <xref linkend="ChWorkDisplayFilterSection"/>. 
-    <figure id="ChUseEtherealFilterToolbar">
+    <figure id="ChUseWiresharkFilterToolbar">
       <title>The "Filter" toolbar</title>
-      <graphic entityref="EtherealFilterToolbar" format="PNG"/>
+      <graphic entityref="WiresharkFilterToolbar" format="PNG"/>
     </figure>
       <itemizedlist>
 	<listitem>
@@ -1848,16 +1848,16 @@
     <para>
       The packet list pane displays all the packets in the current capture 
 	  file.
-    <figure id="ChUseEtherealListPane">
+    <figure id="ChUseWiresharkListPane">
       <title>The "Packet List" pane</title>
-      <graphic entityref="EtherealListPane" format="PNG"/>
+      <graphic entityref="WiresharkListPane" format="PNG"/>
     </figure>
 	Each line in the packet list corresponds to one packet in the capture 
 	file. If you select a line in this pane, more details will be displayed in 
 	the "Packet Details" and "Packet Bytes" panes.
     </para>
     <para>
-	While dissecting a packet, Ethereal will place information from the 
+	While dissecting a packet, Wireshark will place information from the 
 	protocol dissectors into the columns. As higher level protocols might
 	overwrite information from lower levels, you will typically see the 
 	information from the highest possible level only. 
@@ -1921,9 +1921,9 @@
     <para>
       The packet details pane shows the current packet (selected in the "Packet List" 
 	  pane) in a more detailed form.
-    <figure id="ChUseEtherealDetailsPane">
+    <figure id="ChUseWiresharkDetailsPane">
       <title>The "Packet Details" pane</title>
-      <graphic entityref="EtherealDetailsPane" format="PNG"/>
+      <graphic entityref="WiresharkDetailsPane" format="PNG"/>
     </figure>
     </para>
     <para>
@@ -1942,9 +1942,9 @@
 	<listitem>
     <para>
 	<command>Generated fields</command>
-	Ethereal itself will generate additional protocol fields which are 
+	Wireshark itself will generate additional protocol fields which are 
 	surrounded by brackets. The information in these fields is derived from the 
-	known context to other packets in the capture file. For example, Ethereal 
+	known context to other packets in the capture file. For example, Wireshark 
 	is doing a sequence/acknowledge analysis of each TCP stream, 
 	which is displayed in the [SEQ/ACK analysis] fields of the TCP protocol.
     </para>	
@@ -1952,9 +1952,9 @@
 	<listitem>
     <para>	
 	<command>Links</command>
-	If Ethereal detected a relationship to another packet in the capture file, 
+	If Wireshark detected a relationship to another packet in the capture file, 
 	it will generate a link to that packet. Links are underlined and displayed 
-	in blue. If double-clicked, Ethereal jumps to the corresponding packet. 
+	in blue. If double-clicked, Wireshark jumps to the corresponding packet. 
     </para>	
 	</listitem>
 	</itemizedlist>
@@ -1964,9 +1964,9 @@
     <para>
       The packet bytes pane shows the data of the current packet (selected in the "Packet List" 
 	  pane) in a hexdump style.
-    <figure id="ChUseEtherealBytesPane">
+    <figure id="ChUseWiresharkBytesPane">
       <title>The "Packet Bytes" pane</title>
-      <graphic entityref="EtherealBytesPane" format="PNG"/>
+      <graphic entityref="WiresharkBytesPane" format="PNG"/>
     </figure>
     </para>
     <para>
@@ -1981,13 +1981,13 @@
     </para>
     <para>
 	Depending on the packet data, sometimes more than one page is available,
-	e.g. when Ethereal has reassembled some packets into a single chunk of 
+	e.g. when Wireshark has reassembled some packets into a single chunk of 
 	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are 
 	some additional tabs shown at the bottom of the pane to let you select 
 	the page you want to see.
-    <figure id="ChUseEtherealBytesPaneTabs">
+    <figure id="ChUseWiresharkBytesPaneTabs">
       <title>The "Packet Bytes" pane with tabs</title>
-      <graphic entityref="EtherealBytesPaneTabs" format="PNG"/>
+      <graphic entityref="WiresharkBytesPaneTabs" format="PNG"/>
     </figure>
     </para>
 	<note><title>Note!</title>
@@ -2011,17 +2011,17 @@
 	right side will show the current number of packets.
     </para>
     <para>
-    <figure id="ChUseEtherealStatusbarEmpty">
+    <figure id="ChUseWiresharkStatusbarEmpty">
       <title>The initial Statusbar</title>
-      <graphic entityref="EtherealStatusbarEmpty" format="PNG"/>
+      <graphic entityref="WiresharkStatusbarEmpty" format="PNG"/>
     </figure>
 	This statusbar is shown while no capture file is loaded, e.g. when 
 	Wireshark is started.
 	</para>
 	<para>
-		<figure id="ChUseEtherealStatusbarLoaded">
+		<figure id="ChUseWiresharkStatusbarLoaded">
 		  <title>The Statusbar with a loaded capture file</title>
-		  <graphic entityref="EtherealStatusbarLoaded" format="PNG"/>
+		  <graphic entityref="WiresharkStatusbarLoaded" format="PNG"/>
 		</figure>
 		The left side shows information about the capture file, its 
 		name, its size and the elapsed time while it was being captured.
@@ -2043,9 +2043,9 @@
 	    </itemizedlist>
 	</para>
 	<para>
-    <figure id="ChUseEtherealStatusbarSelected">
+    <figure id="ChUseWiresharkStatusbarSelected">
       <title>The Statusbar with a selected protocol field</title>
-      <graphic entityref="EtherealStatusbarSelected" format="PNG"/>
+      <graphic entityref="WiresharkStatusbarSelected" format="PNG"/>
     </figure>
 		This is displayed if you have selected a protocol field from the 
 		"Packet Details" pane. 

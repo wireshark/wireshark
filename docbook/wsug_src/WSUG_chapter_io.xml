@@ -34,18 +34,18 @@
 
   <section id="ChIOOpenSection"><title>Open capture files</title>
     <para>
-      Ethereal can read in previously saved capture files. 
+      Wireshark can read in previously saved capture files. 
 	  To read them, simply select the menu or toolbar item: "File/
-	  <inlinegraphic entityref="EtherealToolbarOpen" format="PNG"/>
+	  <inlinegraphic entityref="WiresharkToolbarOpen" format="PNG"/>
 	  <command>Open</command>".  
-      Ethereal will then pop up the File 
+      Wireshark will then pop up the File 
       Open dialog box, which is discussed in more detail in 
       <xref linkend="ChIOOpen"/>. 
     </para>
 	<note><title>Note!</title>
     <para>
 	You can also use <command>drag-and-drop </command> to open a file, by 
-	simply dropping the desired file from your file manager onto Ethereal's 
+	simply dropping the desired file from your file manager onto Wireshark's 
 	main window. However, drag-and-drop is not available/won't work in all 
 	desktop environments.
     </para>
@@ -57,33 +57,33 @@
     </para>
     <para>
 	  In addition to its native file format (libpcap format, also used by 
-	  tcpdump/WinDump and other libpcap/WinPcap-based programs), Ethereal can 
+	  tcpdump/WinDump and other libpcap/WinPcap-based programs), Wireshark can 
 	  read capture files from a large number of other packet capture programs 
 	  as well. See <xref linkend="ChIOInputFormatsSection"/> for the list of 
-	  capture formats Ethereal understands.
+	  capture formats Wireshark understands.
     </para>
 	
     <section id="ChIOOpen"><title>The "Open Capture File" dialog box</title>
       <para>
 	The "Open Capture File" dialog box allows you to search for a 
 	capture file containing previously captured packets for display in 
-	Ethereal.  <xref linkend="ChIOOpenFileDialog"/> shows an example 
+	Wireshark.  <xref linkend="ChIOOpenFileDialog"/> shows an example 
 	  of the Wireshark Open File Dialog box.
       </para>
 	    <note>
 	      <title>Note</title>
 	      <para>
-		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  Wireshark uses the open dialog box from the version of the GTK+ 
 		  toolkit that it's using. This dialog was completely redesigned in 
 		  GTK version 2.4. Depending on the installed GTK version, 
 		  your dialog box might look different. However, as the 
 		  functionality remains almost the same, much of this description 
-		  will work with your version of Ethereal.
+		  will work with your version of Wireshark.
 	      </para>
 	    </note>
       <figure id="ChIOOpenFileDialog">
 	<title>The "Open Capture File" Dialog box</title>
-	<graphic entityref="EtherealOpen" format="PNG"/>
+	<graphic entityref="WiresharkOpen" format="PNG"/>
       </figure>
       <para>
 	With this dialog box, you can perform the following actions:
@@ -117,7 +117,7 @@
 	    <para>
 	      Specify a display filter with the Filter button and filter 
 	      field. This filter will be used when opening the new file.
-		  Clicking on the Filter button causes Ethereal to pop up 
+		  Clicking on the Filter button causes Wireshark to pop up 
 	      the Filters dialog box (which is discussed further in 
 	      <xref linkend="ChWorkDisplayFilterSection"/>).
 	    </para>
@@ -133,13 +133,13 @@
 	  <listitem>
 	    <para>
 	      Click the Open button to accept your selected file and open it. 
-		  If Ethereal doesn't recognize the capture format, it will grey out 
+		  If Wireshark doesn't recognize the capture format, it will grey out 
 		  this button.
 	    </para>
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Click the Cancel button to go back to Ethereal and not load a capture 
+	      Click the Cancel button to go back to Wireshark and not load a capture 
 	      file.
 	    </para>
 	  </listitem>
@@ -155,7 +155,7 @@
     <title>Input File Formats</title>
     <para>
 	The following file formats from other capture tools can be opened by 
-	<application>Ethereal</application>:
+	<application>Wireshark</application>:
 	<itemizedlist>
 	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format</para></listitem>
 	      <listitem><para>Sun snoop and atmsnoop</para></listitem>
@@ -202,7 +202,7 @@
   <section id="ChIOSaveSection"><title>Saving captured packets</title>
     <para>
       You can save captured packets simply by using the Save As... menu 
-      item from the File menu under Ethereal. You can choose which 
+      item from the File menu under Wireshark. You can choose which 
       packets to save and which file format to be used.
     </para>
     <section id="ChIOSaveAs">
@@ -216,17 +216,17 @@
 	    <note>
 	      <title>Note</title>
 	      <para>
-		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  Wireshark uses the open dialog box from the version of the GTK+ 
 		  toolkit that it's using. This dialog was completely redesigned in 
 		  the GTK version 2.4. Depending on the installed GTK version, 
 		  your dialog box might look different. However, as the 
 		  functionality remains almost the same, much of this description 
-		  will work with your version of Ethereal.
+		  will work with your version of Wireshark.
 	      </para>
 	    </note>
       <figure id="ChIOSaveCaptureFileAs">
 	<title>The "Save Capture File As" dialog box</title>
-	<graphic entityref="EtherealSaveAs" format="PNG"/>
+	<graphic entityref="WiresharkSaveAs" format="PNG"/>
       </figure>
       <para>
 	With this dialog box, you can perform the following actions:
@@ -279,14 +279,14 @@
 	  <listitem>
 	    <para>
 	      Click on the Save button to accept your selected file and save to 
-		  it. If Ethereal has a problem saving the captured packets to 
+		  it. If Wireshark has a problem saving the captured packets to 
 	      the file you specified, it will display an error dialog box. 
 	      After clicking OK on this error dialog box, you can try again. 
 	    </para>
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Click on the Cancel button to go back to Ethereal and not save the 
+	      Click on the Cancel button to go back to Wireshark and not save the 
 	      captured packets.
 	    </para>
 	  </listitem>
@@ -296,7 +296,7 @@
   <section id="ChIOOutputFormatsSection">
     <title>Output File Formats</title>
     <para>
-	The following file formats can be saved by <application>Ethereal</application>,
+	The following file formats can be saved by <application>Wireshark</application>,
 	so other capture tools can read the capture data from:
 	<itemizedlist>
 	      <listitem><para>libpcap (tcpdump)</para></listitem>
@@ -313,7 +313,7 @@
 	<note><title></title>
 	<para>
 	Other protocol analyzers may require that the file has a certain suffix 
-	in order to read the files you generate with Ethereal, e.g.:
+	in order to read the files you generate with Wireshark, e.g.:
 	</para>
 	<para>
 	".DMP" for Tcpdump/libpcap
@@ -329,7 +329,7 @@
 	<para>
 	Sometimes you need to merge several capture files into one. For example 
 	this can be useful, if you have captured simultaneously from multiple 
-	interfaces at once (e.g. using multiple instances of Ethereal).
+	interfaces at once (e.g. using multiple instances of Wireshark).
 	</para>
 	<para>
 	Merging capture files can be done in three ways:
@@ -341,7 +341,7 @@
 		</para></listitem>
 		<listitem><para>
 	  	Use <command>drag-and-drop</command> to drop multiple files on the 
-		main window. Ethereal will try to merge the packets in chronological 
+		main window. Wireshark will try to merge the packets in chronological 
 		order from the dropped files into a newly created temporary file. If 
 		you drop only a single file, it will simply replace a (maybe) existing
 		one.
@@ -364,7 +364,7 @@
 	</note>
 	<figure id="ChIOMergeDialog">
       <title>The "Merge with Capture File" dialog box</title>
-      <graphic entityref="EtherealMergeDialog" format="PNG"/>
+      <graphic entityref="WiresharkMergeDialog" format="PNG"/>
     </figure>
 	<variablelist>
 	<varlistentry>
@@ -410,10 +410,10 @@
 	  set. 
     </para>
     <para>
-	  As it can become tedious to work with a file set by hand, Ethereal 
+	  As it can become tedious to work with a file set by hand, Wireshark 
 	  provides some features to handle these file sets in a convenient way.
     </para>
-    <sidebar><title>How does Ethereal detect the files of a file set?</title>
+    <sidebar><title>How does Wireshark detect the files of a file set?</title>
     <para>
 	  A filename in a file set uses the format Prefix_Number_DateTimeSuffix 
 	  which might look like this: "test_00001_20060420183910.pcap".
@@ -421,13 +421,13 @@
 	  (e.g. ".pcap") and a varying middle part.
     </para>
     <para>
-	  To find the files of a file set, Ethereal scans the directory where the 
+	  To find the files of a file set, Wireshark scans the directory where the 
 	  currently loaded file resides and scans for files matching the same filename 
 	  pattern (prefix and suffix) than the currently loaded file. 
     </para>
     <para>
 	  This simple mechanism usually works well, but has it's drawbacks. If several 
-	  file sets were captured with the same prefix and suffix, Ethereal will detect 
+	  file sets were captured with the same prefix and suffix, Wireshark will detect 
 	  them as a single file set. If files were renamed or spreaded over several 
 	  directories the mechanism will fail to find all files of a set.
     </para>
@@ -439,7 +439,7 @@
 	<itemizedlist>
 		<listitem><para>
 		The <command>List Files</command> dialog box will list the files 
-		Ethereal has recognized as being part of the current file set.
+		Wireshark has recognized as being part of the current file set.
 		</para></listitem>
 		<listitem><para>
 		<command>Next File</command> closes the current and opens the next 
@@ -454,7 +454,7 @@
 	<title>The "List Files" dialog box</title>
     <figure>
       <title>The "List Files" dialog box</title>
-      <graphic entityref="EtherealFileSetDialog" format="PNG"/>
+      <graphic entityref="WiresharkFileSetDialog" format="PNG"/>
     </figure>
 	  <para>
 	  Each line contains information about a file of the file set:
@@ -488,8 +488,8 @@
   </section>
   <section id="ChIOExportSection"><title>Exporting data</title>
     <para>
-      Ethereal provides several ways and formats to export packet data. This 
-	  section describes general ways to export data from Ethereal.
+      Wireshark provides several ways and formats to export packet data. This 
+	  section describes general ways to export data from Wireshark.
     </para>
 	<note><title>Note!</title>
 	<para>
@@ -508,7 +508,7 @@
 		used to print packets.
     <figure>
       <title>The "Export as Plain Text File" dialog box</title>
-      <graphic entityref="EtherealExportPlainDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportPlainDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem><para>
@@ -540,7 +540,7 @@
 	</tip>
     <figure>
       <title>The "Export as PostScript File" dialog box</title>
-      <graphic entityref="EtherealExportPSDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportPSDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem><para>
@@ -566,7 +566,7 @@
 		im-/export data.
     <!--<figure>
       <title>The "Export as Comma Seperated Values File" dialog box</title>
-      <graphic entityref="EtherealExportCSVDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportCSVDialog" format="PNG"/>
     </figure>-->
 	<itemizedlist>
 		<listitem><para>
@@ -587,7 +587,7 @@
 		only the packet summary.
     <figure>
       <title>The "Export as PSML File" dialog box</title>
-      <graphic entityref="EtherealExportPSMLDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportPSMLDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem><para>
@@ -612,14 +612,14 @@
 		PDML specification</ulink>.
 		<note><title></title>
 		<para>
-		The PDML specification is not officially released and Ethereal's 
+		The PDML specification is not officially released and Wireshark's 
 		implementation of it is still in an early beta state, so please expect 
-		changes in future Ethereal versions.
+		changes in future Wireshark versions.
 		</para>
 		</note>
     <figure>
       <title>The "Export as PDML File" dialog box</title>
-      <graphic entityref="EtherealExportPDMLDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportPDMLDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem><para>
@@ -642,7 +642,7 @@
 		binary file.
     <figure>
       <title>The "Export Selected Packet Bytes" dialog box</title>
-      <graphic entityref="EtherealExportSelectedDialog" format="PNG"/>
+      <graphic entityref="WiresharkExportSelectedDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem><para>
@@ -664,13 +664,13 @@
   <section id="ChIOPrintSection"><title>Printing packets</title>
     <para>
 	    To print packets, select the "Print..." menu item from the File menu. 
-		When you do this, Ethereal pops up the Print dialog box as shown in 
+		When you do this, Wireshark pops up the Print dialog box as shown in 
 	    <xref linkend="ChIOPrintDialogBox"/>.
     </para>
 	<section><title>The "Print" dialog box</title>
     <figure id="ChIOPrintDialogBox">
       <title>The "Print" dialog box</title>
-      <graphic entityref="EtherealPrint" format="PNG"/>
+      <graphic entityref="WiresharkPrint" format="PNG"/>
     </figure>
     <para>
       The following fields are available in the Print dialog box:
@@ -764,7 +764,7 @@ lpr -Pmypostscript
 	output function.
     <figure id="ChIOPacketRangeFrame">
       <title>The "Packet Range" frame</title>
-      <graphic entityref="EtherealPacketRangeFrame" format="PNG"/>
+      <graphic entityref="WiresharkPacketRangeFrame" format="PNG"/>
     </figure>
 	</para>
 	<para>
@@ -818,7 +818,7 @@ lpr -Pmypostscript
 	the output function.
     <figure id="ChIOPacketFormatFrame">
       <title>The "Packet Format" frame</title>
-      <graphic entityref="EtherealPacketFormatFrame" format="PNG"/>
+      <graphic entityref="WiresharkPacketFormatFrame" format="PNG"/>
     </figure>
 	<itemizedlist>
 		<listitem>

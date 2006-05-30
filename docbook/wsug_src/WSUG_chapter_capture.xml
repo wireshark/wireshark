@@ -7,7 +7,7 @@
   <section id="ChCapIntroduction">
 	<title>Introduction</title>
 	<para>
-	Capturing live network data is one of the major features of Ethereal.
+	Capturing live network data is one of the major features of Wireshark.
 	</para>
 	<para>
 	The Wireshark capture engine provides the following features:
@@ -40,7 +40,7 @@
 	<itemizedlist>
 	<listitem><para>
 	Simultaneous capturing from multiple network interfaces (however, you 
-	can start multiple instances of Ethereal and merge capture files later).
+	can start multiple instances of Wireshark and merge capture files later).
 	</para></listitem>
 	<listitem><para>
 	Stop capturing (or doing some other action), depending on the captured 
@@ -52,7 +52,7 @@
 
   <section id="ChCapPrerequisitesSection"><title>Prerequisites</title>
     <para>
-	Setting up Ethereal to capture packets for the first time can be tricky. 
+	Setting up Wireshark to capture packets for the first time can be tricky. 
 	</para>
 	<tip><title>Tip!</title><para>
 	A comprehensive guide "How To setup a Capture" is available at:
@@ -95,12 +95,12 @@
   <section id="ChCapCapturingSection"><title>Start Capturing</title>
     <para>
       One of the following methods can be used to start capturing packets with 
-	  Ethereal:
+	  Wireshark:
       <itemizedlist>
 	<listitem>
 	  <para>
 	    You can get an overview of the available local interfaces using the 
-		"<inlinegraphic entityref="EtherealToolbarCaptureInterfaces" format="PNG"/>
+		"<inlinegraphic entityref="WiresharkToolbarCaptureInterfaces" format="PNG"/>
 		Capture Interfaces" dialog box, see 
 		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can start a 
 		capture from this dialog box, using (one of) the "Capture" button(s).
@@ -109,7 +109,7 @@
 	<listitem>
 	  <para>
 	    You can start capturing using the 
-		"<inlinegraphic entityref="EtherealToolbarCaptureOptions" format="PNG"/>
+		"<inlinegraphic entityref="WiresharkToolbarCaptureOptions" format="PNG"/>
 		Capture Options" dialog box, see 
 		<xref linkend="ChCapCaptureOptionsDialog"/>.
 	  </para>
@@ -118,7 +118,7 @@
 	  <para>
 	    If you have selected the right capture options before, you can 
 		immediately start a capture using the 
-		"<inlinegraphic entityref="EtherealToolbarCaptureStart" format="PNG"/>
+		"<inlinegraphic entityref="WiresharkToolbarCaptureStart" format="PNG"/>
 		Capture Start" menu / toolbar item. The capture
 		process will start immediately.
 	  </para>
@@ -126,11 +126,11 @@
 	<listitem>
 	  <para>
 	    If you already know the name of the capture interface, you can start 
-		Ethereal from the command line and use the following:
+		Wireshark from the command line and use the following:
 	    <programlisting>
 ethereal -i eth0 -k
 	    </programlisting>
-		This will start Ethereal capturing on interface eth0, more details 
+		This will start Wireshark capturing on interface eth0, more details 
 		can be found at: <xref linkend="ChCustCommandLine"/>.
 	  </para>
 	</listitem>
@@ -141,7 +141,7 @@ ethereal -i eth0 -k
   <section id="ChCapInterfaceSection">
 	<title>The "Capture Interfaces" dialog box</title>
 	<para>
-	When you select "Interfaces..." from the Capture menu, Ethereal pops 
+	When you select "Interfaces..." from the Capture menu, Wireshark pops 
 	up the "Capture Interfaces" dialog box as shown in 
 	<xref linkend="ChCapCaptureInterfacesDialog"/>.
 	<warning><title>Warning!</title>
@@ -153,15 +153,15 @@ ethereal -i eth0 -k
 	</warning>
 	<note><title>Note!</title>
 	<para>
-	This dialog box will only show the local interfaces Ethereal knows 
-	of. As Ethereal might not be able to detect all local interfaces, and it 
+	This dialog box will only show the local interfaces Wireshark knows 
+	of. As Wireshark might not be able to detect all local interfaces, and it 
 	cannot detect the remote interfaces available, there could be more capture 
 	interfaces available than listed.
 	</para>
 	</note>
 	<figure id="ChCapCaptureInterfacesDialog">
 	<title>The "Capture Interfaces" dialog box</title>
-	<graphic entityref="EtherealCaptureInterfacesDialog" format="PNG"/>
+	<graphic entityref="WiresharkCaptureInterfacesDialog" format="PNG"/>
 	</figure>
 	<variablelist>
 	  <varlistentry><term><command>Description</command></term>
@@ -174,7 +174,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>IP</command></term>
 	    <listitem>
 	      <para>
-		  The first IP address Ethereal could resolve from this interface. 
+		  The first IP address Wireshark could resolve from this interface. 
 		  If no address could be resolved (e.g. no DHCP server available), 
 		  "unknown" will be displayed. If more than one IP address could be 
 		  resolved, only the first is shown (unpredictable which one in that 
@@ -237,13 +237,13 @@ ethereal -i eth0 -k
       <title>The "Capture Options" dialog box</title>
       <para>
 	When you select Start... from the Capture menu (or use the corresponding 
-	item in the "Main" toolbar), Ethereal pops 
+	item in the "Main" toolbar), Wireshark pops 
 	up the "Capture Options" dialog box as shown in 
 	<xref linkend="ChCapCaptureOptionsDialog"/>.
       </para>
       <figure id="ChCapCaptureOptionsDialog">
 	<title>The "Capture Options" dialog box</title>
-	<graphic entityref="EtherealCaptureOptionsDialog" format="JPG"/>
+	<graphic entityref="WiresharkCaptureOptionsDialog" format="JPG"/>
       </figure>
 	<tip><title>Tip!</title>
 	<para>
@@ -261,7 +261,7 @@ ethereal -i eth0 -k
 	      <para>
 		This field specifies the interface you want to capture on. 
 		You can only capture on one interface, and you can only 
-		capture on interfaces that Ethereal has found on the 
+		capture on interfaces that Wireshark has found on the 
 		system. It is a drop-down list, so simply click on the 
 		button on the right hand side and select the interface you 
 		want. It defaults to the first non-loopback interface that 
@@ -313,9 +313,9 @@ ethereal -i eth0 -k
 	    </term>
 	    <listitem>
 	      <para>
-		This checkbox allows you to specify that Ethereal 
+		This checkbox allows you to specify that Wireshark 
 		should put the interface in promiscuous mode when capturing. 
-		If you do not specify this, Ethereal will only capture the 
+		If you do not specify this, Wireshark will only capture the 
 		packets going to or from your computer (not 
 		all packets on your LAN segment).
 	      </para>
@@ -331,7 +331,7 @@ ethereal -i eth0 -k
 		<title>Note</title>
 		<para>
 		Even in promiscuous mode you still won't necessarily see all packets 
-		on your LAN segment, see <ulink url="&EtherealFAQPromiscPage;"/> for 
+		on your LAN segment, see <ulink url="&WiresharkFAQPromiscPage;"/> for 
 		some more explanations.
 		</para>
 	      </note>
@@ -381,7 +381,7 @@ ethereal -i eth0 -k
 		  no filter.
 	      </para>
 	      <para>
-		You can also click on the button labelled Capture Filter, and Ethereal 
+		You can also click on the button labelled Capture Filter, and Wireshark 
 		will bring up the Capture Filters dialog box and allow you to create 
 		and/or select a filter.  Please see 
 		<xref linkend="ChWorkDefineFilterSection"/>
@@ -414,7 +414,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Use multiple files</command></term>
 	    <listitem>
 	      <para>
-			Instead of using a single file, Ethereal will automatically switch 
+			Instead of using a single file, Wireshark will automatically switch 
 			to a new one, if a specific trigger condition is reached.
 	      </para>
 	    </listitem>
@@ -491,11 +491,11 @@ ethereal -i eth0 -k
 	    </term>
 	    <listitem>
 	      <para>
-		This option allows you to specify that Ethereal 
+		This option allows you to specify that Wireshark 
 		should update the packet list pane in real time. If you 
-		do not specify this, Ethereal does not display any 
+		do not specify this, Wireshark does not display any 
 		packets until you stop the capture. When you check this,
-		Ethereal captures in a separate process 
+		Wireshark captures in a separate process 
 		and feeds the captures to the display process.
 	      </para>
 	    </listitem>
@@ -506,10 +506,10 @@ ethereal -i eth0 -k
 	    </term>
 	    <listitem>
 	      <para>
-		This option allows you to specify that Ethereal 
+		This option allows you to specify that Wireshark 
 		should scroll the packet list pane as new packets come 
 		in, so you are always looking at the last packet.  If you 
-		do not specify this, Ethereal simply adds new packets onto 
+		do not specify this, Wireshark simply adds new packets onto 
 		the end of the list, but does not scroll the packet list 
 		pane. This option is greyed out if 
 		"Update list of packets in real time" is disabled.
@@ -536,7 +536,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		This option allows you to control whether or not 
-		Ethereal translates MAC addresses into names, see 
+		Wireshark translates MAC addresses into names, see 
 		<xref linkend="ChAdvNameResolutionSection"/>.
 	      </para>
 	    </listitem>
@@ -546,7 +546,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		This option allows you to control whether or not 
-		Ethereal translates network addresses into names, see
+		Wireshark translates network addresses into names, see
 		<xref linkend="ChAdvNameResolutionSection"/>.
 	      </para>  
 	    </listitem>
@@ -556,7 +556,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		This option allows you to control whether or not 
-		Ethereal translates transport addresses into protocols, see
+		Wireshark translates transport addresses into protocols, see
 		<xref linkend="ChAdvNameResolutionSection"/>.
 	      </para>
 	    </listitem>
@@ -570,7 +570,7 @@ ethereal -i eth0 -k
 	capture, or <command>Cancel</command> to cancel the capture.
       </para>
       <para>
-	If you start a capture, Ethereal allows you to stop capturing when 
+	If you start a capture, Wireshark allows you to stop capturing when 
 	you have enough packets captured, for details see
 		<xref linkend="ChCapRunningSection"/>.
       </para>
@@ -602,7 +602,7 @@ ethereal -i eth0 -k
 	<note><title>Note!</title>
 	<para>
 	Using Multiple files may cut context related information.
-	Ethereal keeps context information of the loaded packet data, so it can 
+	Wireshark keeps context information of the loaded packet data, so it can 
 	report context related problems (like a stream error) and keeps information
 	about context related protocols (e.g. where data is exchanged at the 
 	establishing phase and only referred to in later packets). 
@@ -753,7 +753,7 @@ ethereal -i eth0 -k
 
   <section id="ChCapCaptureFilterSection"><title>Filtering while capturing</title>
     <para>
-      Ethereal uses the libpcap filter language for capture filters. 
+      Wireshark uses the libpcap filter language for capture filters. 
       This is explained in the tcpdump man page, which can be hard to 
 	  understand, so it's explained here to some extent.
     </para>
@@ -761,7 +761,7 @@ ethereal -i eth0 -k
       <title>Tip!</title>
       <para>
 	  You will find a lot of Capture Filter examples at <ulink 
-	  url="&EtherealWikiCaptureFiltersPage;">&EtherealWikiCaptureFiltersPage;</ulink>.
+	  url="&WiresharkWikiCaptureFiltersPage;">&WiresharkWikiCaptureFiltersPage;</ulink>.
       </para>
     </tip>
     <para>
@@ -945,7 +945,7 @@ tcp port 23 and not host 10.0.0.5
 	While a capture is running, the following dialog box is shown:
       <figure id="ChCapCaptureInfoDialog">
 	<title>The "Capture Info" dialog box</title>
-	<graphic entityref="EtherealCaptureInfoDialog" format="JPG"/>
+	<graphic entityref="WiresharkCaptureInfoDialog" format="JPG"/>
       </figure>
 	This dialog box will inform you about the number of captured packets and 
 	the time since the capture was started. The selection which protocols
@@ -963,7 +963,7 @@ tcp port 23 and not host 10.0.0.5
       <orderedlist>
 	<listitem>
 	  <para>Using the 
-	  "<inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>
+	  "<inlinegraphic entityref="WiresharkToolbarStop" format="PNG"/>
 	  Stop" button from the <command>Capture Info dialog box
 	  </command>.
 	  </para>
@@ -976,13 +976,13 @@ tcp port 23 and not host 10.0.0.5
 	</listitem>
 	<listitem>
 	  <para>Using the <command>menu item</command>
-	  "Capture/<inlinegraphic entityref="EtherealToolbarCaptureStop" format="PNG"/>
+	  "Capture/<inlinegraphic entityref="WiresharkToolbarCaptureStop" format="PNG"/>
 	  Stop". 
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>Using the <command>toolbar item</command>
-	  "<inlinegraphic entityref="EtherealToolbarCaptureStop" format="PNG"/>
+	  "<inlinegraphic entityref="WiresharkToolbarCaptureStop" format="PNG"/>
 	  Stop". 
 	  </para>
 	</listitem>
@@ -1013,13 +1013,13 @@ tcp port 23 and not host 10.0.0.5
       <orderedlist>
 	<listitem>
 	  <para>Using the <command>menu item</command>
-	  "Capture/<inlinegraphic entityref="EtherealToolbarCaptureRestart" format="PNG"/>
+	  "Capture/<inlinegraphic entityref="WiresharkToolbarCaptureRestart" format="PNG"/>
 	  Restart". 
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>Using the <command>toolbar item</command> 
-	  "<inlinegraphic entityref="EtherealToolbarCaptureRestart" format="PNG"/>
+	  "<inlinegraphic entityref="WiresharkToolbarCaptureRestart" format="PNG"/>
 	  Restart". 
 	  </para>
 	</listitem>

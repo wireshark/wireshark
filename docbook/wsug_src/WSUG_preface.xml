@@ -7,11 +7,11 @@
   <para>
     Wireshark is one of those programs that many network managers would love 
     to be able to use, but they are often prevented from getting what they 
-    would like from Ethereal because of the lack of documentation.
+    would like from Wireshark because of the lack of documentation.
   </para>
   <para>
     This document is part of an effort by the Wireshark team to improve the 
-	usability of Ethereal.
+	usability of Wireshark.
   </para>
   <para>
     We hope that you find it useful, and look forward to your comments.
@@ -21,34 +21,34 @@
   <section id="PreAudience">
   <title>Who should read this document?</title>
   <para>
-  The intended audience of this book is anyone using Ethereal.
+  The intended audience of this book is anyone using Wireshark.
   </para>
   <para>
   This book will explain all the basics and also some of the advanced features 
-  that Ethereal provides. As Ethereal has become a very complex program since 
-  the early days, not every feature of Ethereal might be explained in this 
+  that Wireshark provides. As Wireshark has become a very complex program since 
+  the early days, not every feature of Wireshark might be explained in this 
   book. 
   </para>
   <para>
   This book is not intended to explain network sniffing in general and it will
   not provide details about specific network protocols. A lot of useful 
   information regarding these topics can be found at the Wireshark Wiki at
-  <ulink url="&EtherealWikiPage;">&EtherealWikiPage;</ulink>
+  <ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>
   </para>
   <para>
-  By reading this book, you will learn how to install Ethereal, how to use the 
+  By reading this book, you will learn how to install Wireshark, how to use the 
   basic elements of the graphical user interface (like the menu) and what's 
   behind some of the advanced features that are maybe not that obvious at first 
   sight. It will 
   hopefully guide you around some common problems that frequently appears for 
-  new (and sometimes even advanced) users of Ethereal.
+  new (and sometimes even advanced) users of Wireshark.
   </para>
   </section>
 
   <section id="PreAck">
   <title>Acknowledgements</title>
   <para>
-    The authors would like to thank the whole Ethereal team for their 
+    The authors would like to thank the whole Wireshark team for their 
 	assistance. In particular, the authors would like to thank:
     <itemizedlist>
       <listitem>
@@ -148,7 +148,7 @@
     </note>
     <tip><title>This is a tip!</title>
 	<para>
-	Tips will be helpful for your everyday work using Ethereal.
+	Tips will be helpful for your everyday work using Wireshark.
 	</para>
     </tip>
   </section>
@@ -157,7 +157,7 @@
     <title>Where to get the latest copy of this document?</title>
     <para>
       The latest copy of this documentation can always be found at: 
-      <ulink url="&EtherealUsersGuidePage;"/>.
+      <ulink url="&WiresharkUsersGuidePage;"/>.
     </para>
   </section>
 
@@ -165,7 +165,7 @@
     <title>Providing feedback about this document</title>
     <para>
       Should you have any feedback about this document, please send them 
-      to the authors through <ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
+      to the authors through <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
     </para>
   </section>
 </preface>

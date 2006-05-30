@@ -6,7 +6,7 @@
   <section id="ChStatIntroduction">
   <title>Introduction</title>
     <para>
-    Ethereal provides a wide range of network statistics. 
+    Wireshark provides a wide range of network statistics. 
     </para>
     <para>
 	These statistics range
@@ -70,7 +70,7 @@
 	General statistics about the current capture file.
     </para>
 	<figure><title>The "Summary" window</title>
-	  <graphic entityref="EtherealStatsSummary" format="PNG"/>
+	  <graphic entityref="WiresharkStatsSummary" format="PNG"/>
 	</figure>
 	<itemizedlist>
 	<listitem>
@@ -106,7 +106,7 @@
     <para>
 	The protocol hierarchy of the captured packets.
 	<figure><title>The "Protocol Hierarchy" window</title>
-	  <graphic entityref="EtherealStatsHierarchy" format="PNG"/>
+	  <graphic entityref="WiresharkStatsHierarchy" format="PNG"/>
 	</figure>
 	This is a tree of all the protocols in the capture. You can collapse or 
 	expand subtrees, by clicking on the plus / minus icons. By default, all
@@ -189,7 +189,7 @@
 	<section id="ChStatEndpointDefinition"><title>What is an Endpoint?</title>
     <para>
 	A network endpoint is the logical endpoint of separate protocol traffic of 
-	a specific protocol layer. The endpoint statistics of Ethereal will take 
+	a specific protocol layer. The endpoint statistics of Wireshark will take 
 	the following endpoints into account:
     </para>
 	<itemizedlist>
@@ -256,7 +256,7 @@
 	This window shows statistics about the endpoints captured. 
 	</para>
 	<figure><title>The "Endpoints" window</title>
-	  <graphic entityref="EtherealStatsEndpoints" format="PNG"/>
+	  <graphic entityref="WiresharkStatsEndpoints" format="PNG"/>
 	</figure>
 	<para>
 	For each supported protocol, a tab is shown in this window.
@@ -318,7 +318,7 @@
 	endpoint ones, see <xref linkend="ChStatEndpointsWindow"/> for a 
 	description how it works.
 	<figure><title>The "Conversations" window</title>
-	  <graphic entityref="EtherealStatsConversations" format="PNG"/>
+	  <graphic entityref="WiresharkStatsConversations" format="PNG"/>
 	</figure>
     </para>
 	</section>
@@ -345,7 +345,7 @@
     </para>
 	
 	<figure><title>The "IO Graphs" window</title>
-	  <graphic entityref="EtherealStatsIOGraphs" format="PNG"/>
+	  <graphic entityref="WiresharkStatsIOGraphs" format="PNG"/>
 	</figure>
 	
 	<para>
@@ -473,13 +473,13 @@
 	First of all, you have to select the DCE-RPC interface:
     </para>
 	<figure><title>The "Compute DCE-RPC statistics" window</title>
-	  <graphic entityref="EtherealStatsSrtDcerpcFilter" format="PNG"/>
+	  <graphic entityref="WiresharkStatsSrtDcerpcFilter" format="PNG"/>
 	</figure>
     <para>
 	You can optionally set a display filter, to reduce the amount of packets.
     </para>
 	<figure><title>The "DCE-RPC Statistic for ..." window</title>
-	  <graphic entityref="EtherealStatsSrtDcerpc" format="PNG"/>
+	  <graphic entityref="WiresharkStatsSrtDcerpc" format="PNG"/>
 	</figure>
 	<para>
 	Each row corresponds to a method of the interface selected (so the EPM 

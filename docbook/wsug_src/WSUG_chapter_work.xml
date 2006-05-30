@@ -22,14 +22,14 @@
 	in the TCP header selected, which shows up in the byte view as the 
 	selected bytes.
 	<figure id="ChWorkSelPack1">
-	  <title>Ethereal with a TCP packet selected for viewing</title>
-	  <graphic entityref="EtherealPacketSelected1" format="PNG"/>
+	  <title>Wireshark with a TCP packet selected for viewing</title>
+	  <graphic entityref="WiresharkPacketSelected1" format="PNG"/>
 	</figure>
     </para>
     <para>
       You can also select and view packets the same way, while Wireshark is 
 	  capturing, if you selected "Update list of packets in real time" in the 
-	  Ethereal Capture Preferences dialog box.
+	  Wireshark Capture Preferences dialog box.
     </para>
     <para>
       In addition, you can view individual packets in a separate window as 
@@ -39,7 +39,7 @@
 	allows you to easily compare two or even more packets.
 	<figure id="ChWorkPacketSepView">
 	  <title>Viewing a packet in a separate window</title>
-	  <graphic entityref="EtherealPacketSepView" format="PNG"/>
+	  <graphic entityref="WiresharkPacketSepView" format="PNG"/>
 	</figure>
     </para>
     <para>
@@ -120,7 +120,7 @@
 		<entry>View</entry>
 		<entry>
 	    <para>
-	      Ethereal keeps a list of all the protocol subtrees that are 
+	      Wireshark keeps a list of all the protocol subtrees that are 
 	      expanded, and uses it to ensure that the correct subtrees 
 	      are expanded when you display a packet. This menu item 
 	      collapses the tree view of all packets in the capture list.  
@@ -277,7 +277,7 @@
     <para>
       <figure id="ChWorkPacketListPanePopUpMenu">
 	<title>Pop-up menu of "Packet List" pane</title>
-	<graphic entityref="EtherealPacketPanePopupMenu" format="PNG"/>
+	<graphic entityref="WiresharkPacketPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
 	<varlistentry><term><command>Mark Packet (toggle)</command></term>
@@ -352,7 +352,7 @@
     <para>
       <figure id="ChWorkPacketDetailsPanePopUpMenu">
 	<title>Pop-up menu of "Packet Details" pane</title>
-	<graphic entityref="EtherealDetailsPanePopupMenu" format="PNG"/>
+	<graphic entityref="WiresharkDetailsPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
 	<varlistentry><term><command>Expand Subtrees</command></term>
@@ -373,7 +373,7 @@
 	<varlistentry><term><command>Collapse All</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal keeps a list of all the protocol subtrees that are 
+	      Wireshark keeps a list of all the protocol subtrees that are 
 	      expanded, and uses it to ensure that the correct subtrees 
 	      are expanded when you display a packet. This menu item 
 	      collapses the tree view of all packets in the capture list.  
@@ -462,7 +462,7 @@
     <para>
       <figure id="ChWorkPacketBytesPanePopUpMenu">
 	<title>Pop-up menu of "Packet Bytes" pane</title>
-	<graphic entityref="EtherealBytesPanePopupMenu" format="PNG"/>
+	<graphic entityref="WiresharkBytesPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
 	<varlistentry><term><command>Copy</command></term>
@@ -486,7 +486,7 @@
   
   <section id="ChWorkDisplayFilterSection"><title>Filtering packets while viewing</title>
     <para>
-      Ethereal has two filtering languages: One used when capturing 
+      Wireshark has two filtering languages: One used when capturing 
       packets, and one used when displaying packets.  In this section we 
       explore that second type of filter: Display filters.  The first one 
       has already been dealt with in <xref linkend="ChCapCaptureFilterSection"/>.
@@ -518,7 +518,7 @@
       </para>
     </note>
     <figure id="ChWorkTCPFilter"><title>Filtering on the TCP protocol</title>
-      <graphic entityref="EtherealFilterTCP" format="JPG"/>
+      <graphic entityref="WiresharkFilterTCP" format="JPG"/>
     </figure>
     <para>
 	As you might have noticed, only packets of the TCP protocol are displayed 
@@ -534,7 +534,7 @@
       </para>
     </note>
     <para>
-      You can filter on any protocol that Ethereal understands.  
+      You can filter on any protocol that Wireshark understands.  
       You can also filter on any field that a dissector adds to the tree 
       view, but only if the dissector has added an abbreviation for the 
       field. A list of such fields is available in the Wireshark in the 
@@ -559,7 +559,7 @@
     <section id="ChWorkBuildDisplayFilterSection">
       <title>Building display filter expressions</title>
       <para>
-	Ethereal provides a simple but powerful display filter language that you 
+	Wireshark provides a simple but powerful display filter language that you 
 	can build quite complex filter expressions with.  You can compare 
 	values in packets as well as combine expressions into more 
 	specific expressions.  The following sections provide more 
@@ -568,9 +568,9 @@
     <tip>
       <title>Tip!</title>
       <para>
-	  You will find a lot of Display Filter examples at the <command>Ethereal 
+	  You will find a lot of Display Filter examples at the <command>Wireshark 
 	  Wiki Display Filter page</command> at <ulink 
-	  url="&EtherealWikiDisplayFiltersPage;">&EtherealWikiDisplayFiltersPage;</ulink>.
+	  url="&WiresharkWikiDisplayFiltersPage;">&WiresharkWikiDisplayFiltersPage;</ulink>.
       </para>
     </tip>
       <section>
@@ -806,7 +806,7 @@ ip.len le 0x436
 		<entry></entry>
 		<entry><para>
 		    <command>Substring Operator</command></para><para>
-		    Ethereal allows you to select subsequences of a 
+		    Wireshark allows you to select subsequences of a 
 		    sequence in rather elaborate ways.  After a label you 
 		    can place a pair of brackets [] containing a comma 
 		    separated list of range specifiers. </para><para>
@@ -836,7 +836,7 @@ eth.src[1-2] == 00:83
 		    to n:1.</para><para>
 		    <programlisting>eth.src[0:3,1-2,:4,4:,2] == 
 00:00:83:00:83:00:00:83:00:20:20:83</programlisting></para><para>
-		    Ethereal allows you to string together single ranges 
+		    Wireshark allows you to string together single ranges 
 		    in a comma separated list to form compound ranges as 
 		    shown above.
 		  </para></entry>
@@ -886,9 +886,9 @@ eth.src[1-2] == 00:83
   <section id="ChWorkFilterAddExpressionSection">
   <title>The "Filter Expression" dialog box</title>
     <para>
-      When you are accustomed to Ethereal's filtering system and know what 
+      When you are accustomed to Wireshark's filtering system and know what 
       labels you wish to use in your filters it can be very quick to 
-      simply type a filter string.  However if you are new to Ethereal or 
+      simply type a filter string.  However if you are new to Wireshark or 
       are working with a slightly unfamiliar protocol it can be very 
       confusing to try to figure out what to type.  The Filter Expression 
       dialog box helps with this.
@@ -896,12 +896,12 @@ eth.src[1-2] == 00:83
     <tip><title>Tip!</title>
 	<para>
       The "Filter Expression" dialog box is an excellent way to learn how to 
-	  write Ethereal display filter strings.
+	  write Wireshark display filter strings.
 	</para>
     </tip>
     <figure id="ChWorkFilterAddExpression1">
       <title>The "Filter Expression" dialog box</title>
-      <graphic entityref="EtherealFilterAddExpression" format="PNG"/>
+      <graphic entityref="WiresharkFilterAddExpression" format="PNG"/>
     </figure>
     <para>
       When you first bring up the Filter Expression dialog box you are shown a 
@@ -988,7 +988,7 @@ eth.src[1-2] == 00:83
 
   <section id="ChWorkDefineFilterSection"><title>Defining and saving filters</title>
     <para>
-      You can define filters with Ethereal and give them labels for 
+      You can define filters with Wireshark and give them labels for 
       later use.  This can save time in remembering and retyping some of 
       the more complex filters you use.
     </para>
@@ -996,7 +996,7 @@ eth.src[1-2] == 00:83
       To define a new filter or edit an existing one, select the 
       <command>Capture Filters...</command> menu item from the Capture menu 
 	  or the <command>Display Filters...</command> menu item from the Analyze 
-	  menu. Ethereal will then pop up the Filters dialog as shown in 
+	  menu. Wireshark will then pop up the Filters dialog as shown in 
 	  <xref linkend="FiltersDialog"/>.
     </para>
 	<note>
@@ -1011,12 +1011,12 @@ eth.src[1-2] == 00:83
 	<para>
 	You must use <command>Save</command> to save your filters permanently. 
 	<command>Ok</command> or <command>Apply</command> will not save the filters,
-	so they will be lost when you close Ethereal.
+	so they will be lost when you close Wireshark.
 	</para>
 	</warning>
     <figure id="FiltersDialog">
       <title>The "Capture Filters" and "Display Filters" dialog boxes</title>
-      <graphic entityref="EtherealFilters" format="PNG"/>
+      <graphic entityref="WiresharkFilters" format="PNG"/>
     </figure>
     <para>
       <variablelist>
@@ -1119,13 +1119,13 @@ eth.src[1-2] == 00:83
       You can easily find packets once you have captured some packets or 
       have read in a previously saved capture file. Simply select the 
       <command>Find Packet...</command> menu item from the 
-      <command>Edit</command> menu.  Ethereal will pop up the dialog box 
+      <command>Edit</command> menu.  Wireshark will pop up the dialog box 
       shown in <xref linkend="ChWorkFindPacketDialog"/>.
     </para>
 	<section><title>The "Find Packet" dialog box</title>
     <figure id="ChWorkFindPacketDialog">
       <title>The "Find Packet" dialog box</title>
-      <graphic entityref="EtherealFindPacket" format="PNG"/>
+      <graphic entityref="WiresharkFindPacket" format="PNG"/>
     </figure>
     <para>
 	You might first select the kind of thing to search for:
@@ -1222,11 +1222,11 @@ eth.src[1-2] == 00:83
   <section><title>The "Go to Packet" dialog box</title>
     <figure id="ChWorkGoToPacketDialog">
       <title>The "Go To Packet" dialog box</title>
-      <graphic entityref="EtherealGoToPacket" format="PNG"/>
+      <graphic entityref="WiresharkGoToPacket" format="PNG"/>
     </figure>
     <para>
 	This dialog box will let you enter a packet number. When you press 
-	<command>OK</command>, Ethereal will jump to that packet.
+	<command>OK</command>, Wireshark will jump to that packet.
 	</para>
   </section>
   <section><title>The "Go to Corresponding Packet" command</title>
@@ -1313,7 +1313,7 @@ eth.src[1-2] == 00:83
 	</para>
 	<para>
 	The timestamp presentation format and the precision in the packet list can 
-	be chosen using the View menu, see <xref linkend="ChUseEtherealViewMenu"/>. 
+	be chosen using the View menu, see <xref linkend="ChUseWiresharkViewMenu"/>. 
 	</para>
 	<para>
 	The available presentation formats are:
@@ -1402,8 +1402,8 @@ eth.src[1-2] == 00:83
 	</itemizedlist>
     <para>
     <figure id="ChWorkTimeReference">
-      <title>Ethereal showing a time referenced packet</title>
-      <graphic entityref="EtherealTimeReference" format="PNG"/>
+      <title>Wireshark showing a time referenced packet</title>
+      <graphic entityref="WiresharkTimeReference" format="PNG"/>
     </figure>
 	</para>
 	<para>

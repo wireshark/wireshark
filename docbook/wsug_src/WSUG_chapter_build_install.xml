@@ -2,12 +2,12 @@
 <!-- $Id$ -->
 
 <chapter id="ChapterBuildInstall">
-  <title>Building and Installing Ethereal</title>
+  <title>Building and Installing Wireshark</title>
   <section id="ChBuildInstallIntro">
     <title>Introduction</title>
     <para>
       As with all things, there must be a beginning, and so it is with 
-      Ethereal. To use Ethereal, you must:
+      Wireshark. To use Wireshark, you must:
       <itemizedlist>
 	<listitem>
 	  <para>
@@ -16,21 +16,21 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Obtain the source and build Ethereal for your operating system.
+	    Obtain the source and build Wireshark for your operating system.
 	  </para>
 	</listitem>
       </itemizedlist>
     </para>
     <para>
-      Currently, only two or three Linux distributions ship Ethereal, and 
+      Currently, only two or three Linux distributions ship Wireshark, and 
       they are commonly shipping an out-of-date version.  No other versions 
-      of UNIX ship Ethereal so far, and Microsoft does not ship it with any 
+      of UNIX ship Wireshark so far, and Microsoft does not ship it with any 
       version of Windows.  For that reason, you will need to know where to 
-      get the latest version of Ethereal and how to install it.
+      get the latest version of Wireshark and how to install it.
     </para>
     <para>
       This chapter shows you how to obtain source and binary packages, 
-      and how to build Ethereal from source, should you choose to do so.
+      and how to build Wireshark from source, should you choose to do so.
     </para>
     <para>
       The following are the general steps you would use:
@@ -63,7 +63,7 @@
     <title>Obtaining the source and binary distributions</title>
     <para>
       You can obtain both source and binary distributions from the Wireshark 
-      web site: <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>. 
+      web site: <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>. 
       Simply select the download link, and then select either the source 
       package or binary package of your choice from the mirror site closest 
       to you.
@@ -71,9 +71,9 @@
     <note>
       <title>Download all required files!</title>
       <para>
-	In general, unless you have already downloaded Ethereal 
+	In general, unless you have already downloaded Wireshark 
 	before, you will most likely need to download several source 
-	packages if you are building Ethereal from source.  This is 
+	packages if you are building Wireshark from source.  This is 
 	covered in more detail below. <!-- Make a ref -->
       </para>
     </note>
@@ -85,7 +85,7 @@
       <title>Note!</title>
       <para>
 	While you will find a number of binary packages available on the 
-	Ethereal web site, you might not find one for your platform, and 
+	Wireshark web site, you might not find one for your platform, and 
 	they often tend to be several versions behind the current released 
 	version, as they are contributed by people who have the platforms 
 	they are built for.
@@ -98,9 +98,9 @@
   </section>
   
   <section id="ChBuildInstallBeforeBuild">
-    <title>Before you build <application>Ethereal</application> under UNIX</title>
+    <title>Before you build <application>Wireshark</application> under UNIX</title>
     <para>
-      Before you build Ethereal from sources, or install a binary package, 
+      Before you build Wireshark from sources, or install a binary package, 
       you must ensure that you have the following other packages installed:
       <itemizedlist>
 	<listitem>
@@ -112,7 +112,7 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    libpcap, the packet capture software that Ethereal uses.
+	    libpcap, the packet capture software that Wireshark uses.
 	  </para>
 	  <para>
 	    You can obtain libpcap from 
@@ -260,7 +260,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
       </para>
     </note>
     <para> 
-      Under Debian you can install Ethereal using apt-get.  apt-get will
+      Under Debian you can install Wireshark using apt-get.  apt-get will
       handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
 	how to do this.
 	<example id="Ch02Ex5">
@@ -273,9 +273,9 @@ apt-get install ethereal
   </section>
   
   <section id="ChBuildInstallUnixBuild">
-    <title>Building Ethereal from source under UNIX</title>
+    <title>Building Wireshark from source under UNIX</title>
     <para>
-      Use the following general steps if you are building Ethereal from 
+      Use the following general steps if you are building Wireshark from 
       source under a UNIX operating system:
       <orderedlist>
 	<listitem>
@@ -285,22 +285,22 @@ apt-get install ethereal
 	    version of UNIX uses GNU <command>tar</command>, you can use the 
 	    following command:
 	    <programlisting>
-tar zxvf ethereal-&EtherealCurrentVersion;-tar.gz
+tar zxvf ethereal-&WiresharkCurrentVersion;-tar.gz
 	    </programlisting>
 	  </para>
 	  <para>
 	    For other versions of UNIX, You will want to use the following 
 	    commands:
 	    <programlisting>
-gzip -d ethereal-&EtherealCurrentVersion;-tar.gz
-tar xvf ethereal-&EtherealCurrentVersion;-tar
+gzip -d ethereal-&WiresharkCurrentVersion;-tar.gz
+tar xvf ethereal-&WiresharkCurrentVersion;-tar
 	    </programlisting>
 	    <note>
 	      <title>Note!</title>
 	      <para>
 		The pipeline 
 		<command>
-		  gzip -dc ethereal-&EtherealCurrentVersion;-tar.gz | tar xvf -
+		  gzip -dc ethereal-&WiresharkCurrentVersion;-tar.gz | tar xvf -
 		</command> will work here as well.
 	      </para>
 	    </note>
@@ -353,7 +353,7 @@ make install
       </orderedlist>
     </para>
     <para>
-      Once you have installed Ethereal with <command>make install</command> 
+      Once you have installed Wireshark with <command>make install</command> 
       above, you should be able to run it by entering 
       <command>ethereal</command>.
     </para>
@@ -387,7 +387,7 @@ rpm -ivh ethereal-0.10.5-0.2.2.i386.rpm
   <section> 
     <title>Installing from deb's under Debian</title>
     <para> 
-      Use the following command to install Ethereal under Debian:
+      Use the following command to install Wireshark under Debian:
       <programlisting>
 apt-get install ethereal
       </programlisting>
@@ -437,10 +437,10 @@ apt-get install ethereal
     <title>Building from source under Windows</title>
     <para>
 	  It is recommended to use the binary installer for Windows, 
-	  until you want to start developing Ethereal on the Windows platform.
+	  until you want to start developing Wireshark on the Windows platform.
     </para>
     <para>
-	  For further information how to build Ethereal for Windows from the 
+	  For further information how to build Wireshark for Windows from the 
 	  sources, have a look at the Development Wiki:
 	  <ulink url="http://wiki.ethereal.com/Development">http://wiki.ethereal.com/Development</ulink>
 	  for the latest available development documentation.
@@ -448,30 +448,30 @@ apt-get install ethereal
   </section>
   
   <section id="ChBuildInstallWinInstall">
-    <title>Installing Ethereal under Windows</title>
+    <title>Installing Wireshark under Windows</title>
     <para>
-      In this section we explore installing Ethereal under Windows from the 
+      In this section we explore installing Wireshark under Windows from the 
       binary packages.  
 	</para>
-  <section id="ChBuildInstallEthereal">
-    <title>Install Ethereal</title>
+  <section id="ChBuildInstallWireshark">
+    <title>Install Wireshark</title>
 	<para>
-		You may acquire a binary installer of Ethereal named something like: 
+		You may acquire a binary installer of Wireshark named something like: 
 		<filename>ethereal-setup-x.y.z.exe</filename>.
 	</para>
 	<para>
 	    Simply download the Wireshark installer from:
-	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink> 
+	    <ulink url="&WiresharkBinariesPage;">&WiresharkBinariesPage;</ulink> 
 		and execute it.
 	</para>
 	<note><title>Note!</title>
 	<para>
-	<command>Since Ethereal Version 0.10.12, the WinPcap installer has become 
+	<command>Since Wireshark Version 0.10.12, the WinPcap installer has become 
 	part of the main Wireshark installer, so you don't need to download and 
 	install two separate packages any longer!</command>
     </para>
 	</note>
-  <section id="ChBuildInstallEtherealCommandLine">
+  <section id="ChBuildInstallWiresharkCommandLine">
     <title>Command line options</title>
     <para>
 	You can simply start the Wireshark installer without any command line 
@@ -539,7 +539,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	</tip>
     <para>
 	The Components
-	(both Ethereal GTK1 and 2 cannot be installed at the same time):
+	(both Wireshark GTK1 and 2 cannot be installed at the same time):
 	<itemizedlist>
 	<listitem><para>
 	<command>Etheral GTK1</command> - Wireshark is a GUI network protocol 
@@ -602,15 +602,15 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	<command>Start Menu Shortcuts</command> - add some start menu shortcuts.
 	</para></listitem>
 	<listitem><para>
-	<command>Desktop Icon</command> - add an Ethereal icon to the desktop.
+	<command>Desktop Icon</command> - add an Wireshark icon to the desktop.
 	</para></listitem>
 	<listitem><para>
-	<command>Quick Launch Icon</command> - add an Ethereal icon to the 
+	<command>Quick Launch Icon</command> - add an Wireshark icon to the 
 	Explorer quick launch toolbar.
 	</para></listitem>
 	<listitem><para>
-	<command>Associate file extensions to Ethereal</command> - Associate 
-	standard network trace files to Ethereal.
+	<command>Associate file extensions to Wireshark</command> - Associate 
+	standard network trace files to Wireshark.
 	</para></listitem>
 	</itemizedlist>
     </para>
@@ -638,7 +638,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	More WinPcap info:
 	<itemizedlist>
 	<listitem><para>
-	Ethereal related:
+	Wireshark related:
 	<ulink url="http://wiki.ethereal.com/WinPcap">http://wiki.ethereal.com/WinPcap</ulink>
 	</para></listitem>
 	<listitem><para>
@@ -682,16 +682,16 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	</section>
   </section>
   
-  <section id="ChBuildInstallWinEtherealUpdate">
-    <title>Update Ethereal</title>
+  <section id="ChBuildInstallWinWiresharkUpdate">
+    <title>Update Wireshark</title>
 	<para>
-	From time to time you may want to update your installed Ethereal to a more
+	From time to time you may want to update your installed Wireshark to a more
 	recent version. If you join Wireshark's announce mailing list, you will be 
-	informed about new Ethereal versions, see <xref 
+	informed about new Wireshark versions, see <xref 
 	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
     </para>
     <para>
-	New versions of Ethereal usually become available every 4-8 weeks.
+	New versions of Wireshark usually become available every 4-8 weeks.
 	Updating Wireshark is done the same way as installing it, you simply 
 	download and start the installer exe. A reboot is usually not required and
 	all your personal settings remain unchanged.
@@ -716,10 +716,10 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
   </section>
   
   <section id="ChBuildInstallWinUninstall">
-    <title>Uninstall Ethereal</title>
+    <title>Uninstall Wireshark</title>
     <para>
-	You can uninstall Ethereal the usual way, using the "Add or Remove 
-	Programs" option inside the Control Panel. Select the "Ethereal" entry to 
+	You can uninstall Wireshark the usual way, using the "Add or Remove 
+	Programs" option inside the Control Panel. Select the "Wireshark" entry to 
 	start the uninstallation procedure.
     </para>
     <para>
@@ -728,7 +728,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	settings, WinPcap and alike.
     </para>
     <para>
-	WinPcap won't be uninstalled by default, as other programs than Ethereal 
+	WinPcap won't be uninstalled by default, as other programs than Wireshark 
 	may use it as well.
     </para>
   </section>
@@ -736,12 +736,12 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
   <section id="ChBuildInstallWinPcapUninstall">
     <title>Uninstall WinPcap</title>
     <para>
-	You can uninstall WinPcap independantly of Ethereal, using the "WinPcap" 
+	You can uninstall WinPcap independantly of Wireshark, using the "WinPcap" 
 	entry in the "Add or Remove Programs" of the Control Panel.
     </para>
 	<note><title>Note!</title>
     <para>
-	After uninstallation of WinPcap you can't capture anything with Ethereal.
+	After uninstallation of WinPcap you can't capture anything with Wireshark.
     </para>
 	</note>
     <para>

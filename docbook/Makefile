@@ -105,9 +105,7 @@ WSUG_GRAPHICS =	\
 	graphics/ethereal-gui-preferences.png		\
 	graphics/ethereal-help-menu.png			\
 	graphics/ethereal-list-pane.png			\
-	graphics/ethereal-logo.png			\
 	graphics/ethereal-main-toolbar.png		\
-	graphics/ethereal-main.png			\
 	graphics/ethereal-menu.png			\
 	graphics/ethereal-merge.png			\
 	graphics/ethereal-nameresolution-preferences.png	\
@@ -166,7 +164,9 @@ WSUG_GRAPHICS =	\
 	graphics/toolbar/stock_top_24.png		\
 	graphics/toolbar/stock_zoom_1_24.png		\
 	graphics/toolbar/stock_zoom_in_24.png		\
-	graphics/toolbar/stock_zoom_out_24.png
+	graphics/toolbar/stock_zoom_out_24.png		\
+	graphics/wireshark-logo.png			\
+	graphics/wireshark-main.png
 
 EDG_FILES =	\
 	edg_src/EDG_chapter_build_intro.xml	\
@@ -188,7 +188,7 @@ EDG_GRAPHICS =	\
 	edg_graphics/ethereal-capture_internals.png	\
 	edg_graphics/ethereal-function-blocks.dia	\
 	edg_graphics/ethereal-function-blocks.png	\
-	edg_graphics/ethereal-logo.png			\
+	edg_graphics/wireshark-logo.png			\
 	edg_graphics/note.png				\
 	edg_graphics/tip.png				\
 	edg_graphics/warning.png

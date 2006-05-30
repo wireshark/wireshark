@@ -5,7 +5,7 @@
   <title>Introduction</title>
   <!-- Introduction -->
   <section id="ChIntroWhatIs">
-    <title>What is <application>Ethereal?</application></title>
+    <title>What is <application>Wireshark?</application></title>
     <para>
 	Wireshark is a network packet analyzer. A network packet 
 	analyzer will try to capture network packets and tries to display
@@ -19,16 +19,16 @@
     </para>
     <para>
 	In the past, such tools were either very expensive, proprietary, or both.
-	However, with the advent of Ethereal, all that has changed.
+	However, with the advent of Wireshark, all that has changed.
     </para>
     <para>
-	<application>Ethereal</application> is perhaps one of the best open 
+	<application>Wireshark</application> is perhaps one of the best open 
 	source packet analyzers available today.
 	</para>
 	
   <section id="ChIntroPurposes"><title>Some intended purposes</title>
 	<para>
-	Here are some examples people use Ethereal for:
+	Here are some examples people use Wireshark for:
       <itemizedlist>
 	<listitem><para>
 	  network administrators use it to <command>troubleshoot network
@@ -46,14 +46,14 @@
 	  internals
 	</para></listitem>
       </itemizedlist>
-	  Beside these examples, Ethereal can be helpful in many other situations 
+	  Beside these examples, Wireshark can be helpful in many other situations 
 	  too.
 	</para>
   </section>
 
   <section id="ChIntroFeatures"><title>Features</title>
 	<para>
-	The following are some of the many features Ethereal provides:
+	The following are some of the many features Wireshark provides:
       <itemizedlist>
 	<listitem>
 	  <para>Available for <command>UNIX</command> and <command>Windows</command>.</para>
@@ -98,15 +98,15 @@
       However, to really appreciate its power, you have to start using it.
     </para>
     <para>
-      <xref linkend="ChIntroFig1"/> shows <application>Ethereal</application> 
+      <xref linkend="ChIntroFig1"/> shows <application>Wireshark</application> 
 	having captured some packets and waiting for you to examine 
 	them.
 	<figure id="ChIntroFig1">
 	  <title>
-	    <application>Ethereal</application> captures packets and allows 
+	    <application>Wireshark</application> captures packets and allows 
 	    you to examine their content.
 	  </title>
-	  <graphic entityref="EtherealMain1" format="PNG"/>
+	  <graphic entityref="WiresharkMain1" format="PNG"/>
 	</figure>
     </para>
 	</section>
@@ -114,24 +114,24 @@
 	<section>
 	<title>Live capture from many different network media</title>
 	<para>
-	  Despite its name, Ethereal can capture traffic from 
+	  Despite its name, Wireshark can capture traffic from 
 	  network media other than Ethernet. Which media types are 
 	  supported, depends on many things like the operating system you are 
 	  using. An overview of the supported media types can be found at: 
-	  <ulink url="&EtherealMediaPage;"/>.
+	  <ulink url="&WiresharkMediaPage;"/>.
 	</para>
 	</section>
 	
     <section><title>Import files from many other capture programs</title>
 	<para>
-	    Ethereal can open packets captured from a large number of 
+	    Wireshark can open packets captured from a large number of 
 		other capture programs. For a list of input formats see 
 		<xref linkend="ChIOInputFormatsSection"/>.
 	</para>
     </section>
     <section><title>Export files for many other capture programs</title>
 	<para>
-	    Ethereal can save packets captured in a large number of formats of
+	    Wireshark can save packets captured in a large number of formats of
 		other capture programs. For a list of output formats see 
 		<xref linkend="ChIOOutputFormatsSection"/>.
 	</para>
@@ -150,27 +150,27 @@
     <para>
       Wireshark is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
-	  You can freely use Ethereal on any number of computers you like, without 
+	  You can freely use Wireshark on any number of computers you like, without 
 	  worrying about license keys or fees or such. In addition, all source 
 	  code is freely available under the GPL. Because of that, it is very easy 
-	  for people to add new protocols to Ethereal, either as plugins, or built 
+	  for people to add new protocols to Wireshark, either as plugins, or built 
 	  into the source, and they often do!
     </para>
 	</section>
 	
     <section id="ChIntroNoFeatures"><title>What Wireshark is not</title>
 	<para>
-	Here are some things Ethereal does not provide:
+	Here are some things Wireshark does not provide:
       <itemizedlist>
 	<listitem><para>
-	  Ethereal isn't an intrusion detection system.  It will not warn you when 
+	  Wireshark isn't an intrusion detection system.  It will not warn you when 
 	  someone does strange things on your network that he/she isn't allowed to 
-	  do. However, if strange things happen, Ethereal might help you figure 
+	  do. However, if strange things happen, Wireshark might help you figure 
 	  out what is really going on.
 	</para></listitem>
 	<listitem><para>
-	  Ethereal will not manipulate things on the network, it will only 
-	  "measure" things from it. Ethereal doesn't send packets on the network 
+	  Wireshark will not manipulate things on the network, it will only 
+	  "measure" things from it. Wireshark doesn't send packets on the network 
 	  or do other active things (except for name resolutions, but even 
 	  that can be disabled).
 	</para></listitem>
@@ -180,16 +180,16 @@
   </section>
   
   <section id="ChIntroPlatforms">
-    <title>Platforms Ethereal runs on</title>
+    <title>Platforms Wireshark runs on</title>
     <para>
-      Ethereal currently runs on most UNIX platforms and various Windows 
+      Wireshark currently runs on most UNIX platforms and various Windows 
       platforms. It requires GTK+, GLib, libpcap and some other libraries in 
 	  order to run.
     </para>
     <para>
       If a binary package is not available for your platform, you should 
       download the source and try to build it. Please report your experiences
-	  to <ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
+	  to <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
     </para>
     <para>
       Binary packages are available for at least the following platforms:
@@ -254,25 +254,25 @@
 	<listitem><para>Windows Vista (aka Longhorn)</para></listitem>
 	</itemizedlist>
 	Please provide your experiences about these fresh versions to: 
-	<ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
+	<ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
     </para>
 	</section>
 	
   </section>
   
   <section id="ChIntroDownload">
-    <title>Where to get Ethereal?</title>
+    <title>Where to get Wireshark?</title>
     <para>
       You can get the latest copy of the program from the Wireshark website: 
-      <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.  The 
+      <ulink url="&WiresharkDownloadPage;">&WiresharkDownloadPage;</ulink>.  The 
       website allows you to choose from among several mirrors for 
       downloading.
     </para>
     <para>
-	A new Ethereal version will typically become available every 4-8 weeks.
+	A new Wireshark version will typically become available every 4-8 weeks.
     </para>
     <para>
-	If you want to be notified about new Ethereal releases, you should 
+	If you want to be notified about new Wireshark releases, you should 
 	subscribe to the ethereal-announce mailing list. You will find more 
 	details in <xref linkend="ChIntroMailingLists"/>.
     </para>
@@ -285,7 +285,7 @@
       <emphasis>
 	&quot;A rose by any other name would smell as sweet.&quot;
       </emphasis>  
-      And so it is with Ethereal, as there appears to be two different 
+      And so it is with Wireshark, as there appears to be two different 
       ways that people pronounce the name. 
     </para>
     <para>
@@ -299,16 +299,16 @@
   </section>
   
   <section id="ChIntroHistory">
-    <title>A brief history of Ethereal</title>
+    <title>A brief history of Wireshark</title>
     <para>
       In late 1997, Gerald Combs needed a tool for tracking down 
       networking problems and wanted to learn more about networking, so 
-      he started writing Ethereal as a way to solve both problems.
+      he started writing Wireshark as a way to solve both problems.
     </para>
     <para>
-      Ethereal was initially released, after several pauses in development, 
+      Wireshark was initially released, after several pauses in development, 
       in July 1998 as version 0.2.0.  Within days, patches, bug reports, 
-      and words of encouragement started arriving, so Ethereal was on its 
+      and words of encouragement started arriving, so Wireshark was on its 
       way to success.
     </para>
     <para>
@@ -318,7 +318,7 @@
     <para>
       In October, 1998, Guy Harris of Network Appliance was looking for 
 	  something better than tcpview, so he started applying patches and 
-	  contributing dissectors to Ethereal.
+	  contributing dissectors to Wireshark.
     </para>
     <para>
       In late 1998, Richard Sharpe, who was giving TCP/IP courses, saw its 
@@ -328,35 +328,35 @@
       dissectors and contributing patches.
     </para>
     <para>
-      The list of people who have contributed to Ethereal has become very long 
+      The list of people who have contributed to Wireshark has become very long 
 	  since then, and almost all of them started with a protocol that they 
-	  needed that Ethereal did not already handle. So they copied an existing 
+	  needed that Wireshark did not already handle. So they copied an existing 
 	  dissector and contributed the code back to the team.
     </para>
   </section>
   
   <section id="ChIntroMaintenance">
     <title>
-      Development and maintenance of <application>Ethereal</application>
+      Development and maintenance of <application>Wireshark</application>
     </title>
     <para>
-      Ethereal was initially developed by Gerald Combs. Ongoing development 
+      Wireshark was initially developed by Gerald Combs. Ongoing development 
       and maintenance of Wireshark is handled by the Wireshark team, a loose 
       group of individuals who fix bugs and provide new functionality.  
     </para>
     <para>
       There have also been a large number of people who have contributed 
-      protocol dissectors to Ethereal, and it is expected that this will 
+      protocol dissectors to Wireshark, and it is expected that this will 
       continue.  You can find a list of the people who have contributed 
-      code to Ethereal by checking the about dialog box of Ethereal, or at 
-	  the <ulink url="&EtherealAuthorsPage;">authors</ulink> page on the 
-      Ethereal web site.
+      code to Wireshark by checking the about dialog box of Wireshark, or at 
+	  the <ulink url="&WiresharkAuthorsPage;">authors</ulink> page on the 
+      Wireshark web site.
     </para>
     <para>
       Wireshark is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
 	  All source code is freely available under the GPL.  You are welcome to 
-      modify Ethereal to suit your own needs, and it would be appreciated 
+      modify Wireshark to suit your own needs, and it would be appreciated 
       if you contribute your improvements back to the Wireshark team.
     </para>
     <para>
@@ -367,12 +367,12 @@
 	  <para>
 	    Other people who find your contributions useful will appreciate 
 	    them, and you will know that you have helped people in the 
-	    same way that the developers of Ethereal have helped people.
+	    same way that the developers of Wireshark have helped people.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The developers of Ethereal might improve your changes even more,
+	    The developers of Wireshark might improve your changes even more,
 		as there's always room for improvements. Or they may implement some 
 		advanced things on top of your code, which can be useful for yourself
 		too.
@@ -380,11 +380,11 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The maintainers and developers of Ethereal will maintain your 
+	    The maintainers and developers of Wireshark will maintain your 
 	    code as well, fixing it when API changes or other changes are 
 	    made, and generally keeping it in tune with what is happening 
-	    with Ethereal. So if Wireshark is updated (which is done often),
-		you can get a new Ethereal version from the website and your changes 
+	    with Wireshark. So if Wireshark is updated (which is done often),
+		you can get a new Wireshark version from the website and your changes 
 		will already be included without any effort for you.
 	  </para>
 	</listitem>
@@ -393,14 +393,14 @@
     <para>
       The Wireshark source code and binary kits for some platforms are all 
       available on the download page of the Wireshark website: 
-      <ulink url="&EtherealDownloadPage;">&EtherealDownloadPage;</ulink>.
+      <ulink url="&WiresharkDownloadPage;">&WiresharkDownloadPage;</ulink>.
     </para>
   </section>
   
   <section id="ChIntroHelp">
     <title>Reporting problems and getting help</title>
 	<para>
-      If you have problems, or need help with Ethereal, there are several 
+      If you have problems, or need help with Wireshark, there are several 
       places that may be of interest to you (well, beside this guide of 
 	  course).
 	</para>
@@ -408,15 +408,15 @@
 	<section id="ChIntroHomepage"><title>Website</title>
     <para>
 	You will find lot's of useful information on the Wireshark homepage at
-	<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
+	<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
 	</para>
 	</section>
 
 	<section id="ChIntroWiki"><title>Wiki</title>
     <para>
 	The Wireshark Wiki at <ulink 
-	url="&EtherealWikiPage;">&EtherealWikiPage;</ulink> provides a wide range 
-	of information related to Ethereal and packet capturing in general.
+	url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink> provides a wide range 
+	of information related to Wireshark and packet capturing in general.
 	You will find a lot of information not part of this user's guide. For 
 	example, there is an explanation how to capture on a switched network, 
 	an ongoing effort to build a protocol reference and a lot more. 
@@ -440,12 +440,12 @@
 	subscribed to the mailing lists). 
     </para>
     </note>
-	You will find the FAQ inside Ethereal by clicking the menu item 
+	You will find the FAQ inside Wireshark by clicking the menu item 
 	Help/Contents and selecting the FAQ page in the upcoming dialog. 
     </para>
     <para>
 	An online version is available at the ethereal website:
-	<ulink url="&EtherealFAQPage;">&EtherealFAQPage;</ulink>. You might 
+	<ulink url="&WiresharkFAQPage;">&WiresharkFAQPage;</ulink>. You might 
 	prefer this online version, as it's typically more up to date and the HTML 
 	format is easier to use.
     </para>
@@ -453,7 +453,7 @@
 	
 	<section id="ChIntroMailingLists"><title>Mailing Lists</title>
     <para>
-      There are several mailing lists of specific Ethereal topics available:
+      There are several mailing lists of specific Wireshark topics available:
       <variablelist>
 	<varlistentry><term><command>ethereal-announce</command></term>
 	  <listitem>
@@ -466,8 +466,8 @@
 	<varlistentry><term><command>ethereal-users</command></term>
 	  <listitem>
 	    <para>
-	      This list is for users of Ethereal.  People post 
-	      questions about building and using Ethereal, others (hopefully) 
+	      This list is for users of Wireshark.  People post 
+	      questions about building and using Wireshark, others (hopefully) 
 		  provide answers. 
 	    </para>
 	  </listitem>
@@ -482,7 +482,7 @@
 	</varlistentry>
       </variablelist>
       You can subscribe to each of these lists from the Wireshark web site: 
-      <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.  Simply 
+      <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.  Simply 
       select the <command>mailing lists</command> link on the left hand 
       side of the site. The lists are archived at the Wireshark web site 
       as well.
@@ -500,23 +500,23 @@
 	<note><title>Note!</title>
 	<para>
 	Before reporting any problems, please make sure you have installed the 
-	latest version of Ethereal.
+	latest version of Wireshark.
 	</para>
 	</note>
     <para>
-      When reporting problems with Ethereal, it is helpful if you supply the 
+      When reporting problems with Wireshark, it is helpful if you supply the 
       following information:
       <orderedlist>
 	<listitem>
 	  <para>
-	    The version number of Ethereal and the dependent libraries linked with 
+	    The version number of Wireshark and the dependent libraries linked with 
 		it, eg GTK+, etc. You can obtain this with the command 
 	    <command>ethereal -v</command>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Information about the platform you run Ethereal on.
+	    Information about the platform you run Wireshark on.
 	  </para>
 	</listitem>
 	<listitem>
@@ -554,7 +554,7 @@
   
 	<section><title>Reporting Crashes on UNIX/Linux platforms</title>
     <para>
-      When reporting crashes with Ethereal, it is helpful if you supply the 
+      When reporting crashes with Wireshark, it is helpful if you supply the 
       traceback information (besides the information mentioned in "Reporting 
 	  Problems").
     </para>
@@ -595,7 +595,7 @@ $
 	  </para>
 	  <para>
 	    You should mail the traceback to the 
-		<ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>
+		<ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>
 	    mailing list.
 	  </para>
   </section>

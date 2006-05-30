@@ -1,13 +1,13 @@
 <!-- WSUG Chapter Advanced -->
 
-<!-- $Id:$ -->
+<!-- $Id$ -->
 
 <chapter id="ChapterAdvanced">
   <title>Advanced Topics</title>
   
   <section id="ChAdvIntroduction"><title>Introduction</title>
   <para>
-  In this chapter some of the advanced features of Ethereal will be described.
+  In this chapter some of the advanced features of Wireshark will be described.
   </para>
   </section>
   
@@ -20,14 +20,14 @@
 	  are trying to make sense of a data stream.
 	  Maybe you just need a display filter to show only the packets of that 
 	  TCP stream.
-	  If so, Ethereal's ability to follow a TCP stream will be useful to you. 
+	  If so, Wireshark's ability to follow a TCP stream will be useful to you. 
     </para>
     <para>
       Simply select a TCP packet in the packet list of the stream/connection 
 	  you are interested in and then select the Follow TCP Stream menu item 
 	  from the Wireshark Tools menu (or use the context menu in the packet 
 	  list).
-	  Ethereal will set an appropriate display filter and pop up a dialog
+	  Wireshark will set an appropriate display filter and pop up a dialog
 	  box with all the data from the TCP stream laid out in order, 
 	  as shown in <xref linkend="ChAdvFollowStream"/>.
     </para>
@@ -41,7 +41,7 @@
 	<section><title>The "Follow TCP Stream" dialog box </title>
     <figure id="ChAdvFollowStream">
       <title>The "Follow TCP Stream" dialog box</title>
-      <graphic entityref="EtherealFollowStream" format="PNG"/>
+      <graphic entityref="WiresharkFollowStream" format="PNG"/>
     </figure>
     <para>
 	The stream content is displayed in the same sequence as it appeared on 
@@ -141,7 +141,7 @@
 	<para>
 	Time stamps, their precisions and all that can be quite 
 	confusing, this section will provide you with information what's going 
-	on while Ethereal processes time stamps.
+	on while Wireshark processes time stamps.
 	</para>
     <para>
 	While packets are captured, each packet is time stamped as it comes in.
@@ -150,32 +150,32 @@
 	</para>
 	<para>
 	So where do these time stamps come from?
-	While capturing, Ethereal gets the time stamps from the libpcap (WinPcap) 
+	While capturing, Wireshark gets the time stamps from the libpcap (WinPcap) 
 	library, which in turn get's them from the operating system kernel.
-	If the capture data is loaded from a capture file, Ethereal obviously gets 
+	If the capture data is loaded from a capture file, Wireshark obviously gets 
 	the data from that file.
 	</para>
-  <section><title>Ethereal internals</title>
+  <section><title>Wireshark internals</title>
 	<para>
-	The internal format that Ethereal uses to keep a packet time stamp consists 
+	The internal format that Wireshark uses to keep a packet time stamp consists 
 	of the date (in days since 1.1.1970) and the time of day (in nanoseconds 
-	since midnight). You can adjust the way Ethereal displays the time stamp data 
+	since midnight). You can adjust the way Wireshark displays the time stamp data 
 	in the packet list, see the "Time Display Format" item in the 
 	<xref linkend="ChUseViewMenuSection"/> for details.
 	</para>
 	<para>
-	While reading or writing capture files, Ethereal converts the time stamp 
+	While reading or writing capture files, Wireshark converts the time stamp 
 	data between the capture file format and the internal format as required.
 	</para>
 	<para>
-	While capturing, Ethereal uses the libpcap (WinPcap) capture library which 
+	While capturing, Wireshark uses the libpcap (WinPcap) capture library which 
 	supports microsecond resolution. Unless you are working with specialized 
 	capturing hardware, this resolution should be adequate.
 	</para>
   </section>
   <section><title>Capture file formats</title>
 	<para>
-	Every capture file format that Ethereal knows support time stamps. 
+	Every capture file format that Wireshark knows support time stamps. 
 	The time stamp precision 
 	supported by a specific capture file format differs widely and varies 
 	from one second "0" to one nanosecond "0.123456789". 
@@ -195,14 +195,14 @@
 	  the capability to store the actual precision will lead to loss of information.
 	  Example: If you load a capture file with nanosecond resolution and 
 	  store the capture data to a libpcap file (with microsecond resolution)
-	  Ethereal obviously must reduce the precision from nanosecond to microsecond.
+	  Wireshark obviously must reduce the precision from nanosecond to microsecond.
       </para>
     </note>
   </section>
   <section><title>Accuracy</title>
 	<para>
 	It's often asked: "Which time stamp accuracy is provided by Wireshark?". 
-	Well, Ethereal doesn't create any time stamps itself but simply get's them
+	Well, Wireshark doesn't create any time stamps itself but simply get's them
 	from "somewhere else" and displays them. So accuracy will depend on the 
 	capture system (operating system, performance, ...) that you use. 
 	Because of this, the above question is difficult to answer in a 
@@ -353,18 +353,18 @@
 	You can use the Network Time Protocol (NTP) to automatically adjust your 
 	computer to the correct time, by synchronizing it to internet NTP clock 
 	servers. NTP clients are available for all operating systems that 
-	Ethereal supports (and for a lot more), for examples see:
+	Wireshark supports (and for a lot more), for examples see:
 	<ulink url="&NTPSite;">&NTPSite;</ulink>.
 	</para>
 	</tip>
 	</para>
   </section>
-  <section><title>Ethereal and Time Zones</title>
+  <section><title>Wireshark and Time Zones</title>
 	<para>
-	So what's the relationship between Ethereal and time zones anyway? 
+	So what's the relationship between Wireshark and time zones anyway? 
 	</para>
 	<para>
-	Ethereal's native capture file format (libpcap format), and some
+	Wireshark's native capture file format (libpcap format), and some
 	other capture file formats, such as the Windows Sniffer,
 	EtherPeek, AiroPeek, and Sun snoop formats, save the arrival
 	time of packets as UTC values.  
@@ -378,7 +378,7 @@
 	"Windows 9x based" systems (Windows 95, Windows 98, Windows Me)
 	represent time internally as local time. 
 	When capturing, WinPcap has to convert the time to UTC before 
-	supplying it to Ethereal. 
+	supplying it to Wireshark. 
 	If the system's time zone is not set correctly, that conversion will 
 	not be done correctly.
 	</para>
@@ -388,13 +388,13 @@
 	formats, save the arrival time of packets as local time values.
 	</para>
 	<para>
-	Internally to Ethereal, time stamps are represented in UTC; this
+	Internally to Wireshark, time stamps are represented in UTC; this
 	means that, when reading capture files that save the arrival
-	time of packets as local time values, Ethereal must convert
+	time of packets as local time values, Wireshark must convert
 	those local time values to UTC values.
 	</para>
 	<para>
-	Ethereal in turn will display the time stamps always in local
+	Wireshark in turn will display the time stamps always in local
 	time.  The displaying computer will convert them from UTC to
 	local time and displays this (local) time.  For capture files
 	saving the arrival time of packets as UTC values, this means
@@ -462,17 +462,17 @@
 	<para>
 	An example:
 	Let's assume that someone in Los Angeles captured a packet with
-	Ethereal at exactly 2 o'clock local time and sents you this
+	Wireshark at exactly 2 o'clock local time and sents you this
 	capture file.  The capture file's time stamp will be represented
 	in UTC as 10 o'clock.  You are located in Berlin and will see 11
-	o'clock on your Ethereal display.
+	o'clock on your Wireshark display.
 	</para>
 	<para>
 	Now you have a phone call, video conference or internet meeting with that 
 	one to talk about that capture file. 
 	As you are both looking at the displayed time on your local computers, 
 	the one in Los Angeles still sees 2 o'clock but you in Berlin will see 
-	11 o'clock. The time displays are different as both Ethereal displays 
+	11 o'clock. The time displays are different as both Wireshark displays 
 	will show the (different) local times at the same point in time.
 	</para>
 	<para>
@@ -505,26 +505,26 @@
     </para>
 	<tip><title>Tip!</title>
     <para>
-	Ethereal calls this mechanism reassembling, although a specific protocol  
+	Wireshark calls this mechanism reassembling, although a specific protocol  
 	specification might use a different term for this (e.g. desegmentation, 
 	defragmentation, ...).
 	</para>
 	</tip>
     </section>
-    <section><title>How Ethereal handles it</title>
+    <section><title>How Wireshark handles it</title>
     <para>
-	For some of the network protocols Ethereal knows of, a mechanism is 
+	For some of the network protocols Wireshark knows of, a mechanism is 
 	implemented to find, decode and display these chunks of data. 
-	Ethereal will try to find the corresponding packets of this chunk, 
+	Wireshark will try to find the corresponding packets of this chunk, 
 	and will show the combined data as additional pages in the 
 	"Packet Bytes" pane
 	(for information about this pane, see <xref 
 	linkend="ChUsePacketBytesPaneSection"/>).
     </para>
     <para>
-    <figure id="ChAdvEtherealBytesPaneTabs">
+    <figure id="ChAdvWiresharkBytesPaneTabs">
       <title>The "Packet Bytes" pane with a reassembled tab</title>
-      <graphic entityref="EtherealBytesPaneTabs" format="PNG"/>
+      <graphic entityref="WiresharkBytesPaneTabs" format="PNG"/>
     </figure>
     </para>
 	
@@ -542,7 +542,7 @@
     <para>
 	An example:
 		In a <command>HTTP</command> GET response, the requested data (e.g. a 
-		HTML page) is returned. Ethereal will show the hex dump of the data in 
+		HTML page) is returned. Wireshark will show the hex dump of the data in 
 		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
     </para>
     <para>
@@ -585,8 +585,8 @@
 	a human readable format. There are two possible ways to do this 
 	conversations, depending on the resolution to be done: calling 
 	system/network services (like the gethostname function) and/or evaluate 
-	from Ethereal specific configuration files. 
-	For details about the configuration files Ethereal uses for name 
+	from Wireshark specific configuration files. 
+	For details about the configuration files Wireshark uses for name 
 	resolution and alike, see <xref linkend="AppFiles"/>.
 	</para>
     <para>
@@ -596,7 +596,7 @@
 	
 	<section><title>Name Resolution drawbacks</title>
     <para>
-	Name resolution can be invaluable while working with Ethereal and may 
+	Name resolution can be invaluable while working with Wireshark and may 
 	save you even hours of work. Unfortunately, it also has it's drawbacks.
     </para>
       <itemizedlist>
@@ -623,7 +623,7 @@
     <para>
 	<command>DNS may add additional packets to your capture file.</command>
 	You may see packets to/from your machine in your capture file, which are
-	caused by name resolution network services of the machine Ethereal 
+	caused by name resolution network services of the machine Wireshark 
 	captures from. 
 	XXX - are there any other such packets than DNS ones?
     </para>
@@ -634,9 +634,9 @@
 	This is required for acceptable performance.
 	However, if the name resolution information
 	should change while Wireshark is running, 
-	Ethereal won't notice a change to the name resolution information once 
+	Wireshark won't notice a change to the name resolution information once 
 	it's get cached. If this information changes while Wireshark is running, 
-	e.g. a new DHCP lease takes effect, Ethereal won't notice it.
+	e.g. a new DHCP lease takes effect, Wireshark won't notice it.
 	XXX - is this true for all or only for DNS info?
     </para>
 	</listitem>
@@ -659,16 +659,16 @@
 	something more "human readable".
 	</para>
     <para><command>ARP name resolution (system service)</command>
-	Ethereal will ask the operating system to convert an ethernet address 
+	Wireshark will ask the operating system to convert an ethernet address 
 	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
     </para>
     <para><command>Ethernet codes (ethers file)</command>
-	If the ARP name resolution failed, Ethereal tries to convert the ethernet 
+	If the ARP name resolution failed, Wireshark tries to convert the ethernet 
 	address to a known device name, which has been assigned by the user using 
 	an ethers file (e.g. 00:09:5b:01:02:03 -> homerouter).
     </para>
     <para><command>Ethernet manufacturer codes (manuf file)</command>
-	If both ARP and ethers didn't returned a result, Ethereal tries to convert 
+	If both ARP and ethers didn't returned a result, Wireshark tries to convert 
 	the first 3 bytes of an ethernet address to an abbreviated manufacturer name, 
 	which has been assigned by the IEC 
 	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
@@ -681,10 +681,10 @@
 	something more "human readable".
 	</para>
     <para><command>DNS/ADNS name resolution (system/library service)</command>
-	Ethereal will ask the operating system (or the ADNS library), 
+	Wireshark will ask the operating system (or the ADNS library), 
 	to convert an IP address to the hostname associated with it 
 	(e.g. 65.208.228.223 -> www.ethereal.com). The DNS service is using 
-	synchronous calls to the DNS server. So Ethereal will stop responding 
+	synchronous calls to the DNS server. So Wireshark will stop responding 
 	until a response to a DNS request is returned. If possible, you might 
 	consider using the ADNS library (which won't wait for a network response).
     </para>
@@ -692,7 +692,7 @@
 	  <title>Warning!</title>
 	  <para>
 		Enabling network name resolution when your name server is 
-		unavailable may significantly slow down Ethereal while it waits 
+		unavailable may significantly slow down Wireshark while it waits 
 		for all of the name server requests to time out. Use ADNS in that 
 		case.
 	  </para>
@@ -715,14 +715,14 @@
 	a while (several seconds).
 	The ADNS service will work a bit differently.
 	It will also ask the DNS server, but it won't wait for the answer. 
-	It will	just return to Ethereal in a very short amount of time. 
+	It will	just return to Wireshark in a very short amount of time. 
 	The actual (and the following) address fields won't show the resolved 
 	name until the ADNS call returned. As mentioned above, the values get 
 	cached, so you can use View/Reload to "update" these fields to show the 
 	resolved values.
 	</para>
     <para><command>hosts name resolution (hosts file)</command>
-	If DNS name resolution failed, Ethereal will try to convert an IP address 
+	If DNS name resolution failed, Wireshark will try to convert an IP address 
 	to the hostname associated with it, using an hosts file provided by the 
 	user (e.g. 65.208.228.223 -> www.ethereal.com).
     </para>
@@ -740,7 +740,7 @@
 	something more "human readable".
 	</para>
     <para><command>TCP/UDP port conversion (system service)</command>
-	Ethereal will ask the operating system to convert a TCP or UDP port to 
+	Wireshark will ask the operating system to convert a TCP or UDP port to 
 	its well known name (e.g. 80 -> http).
     </para>
     <para>
@@ -811,9 +811,9 @@
 	<ulink url="http://en.wikipedia.org/wiki/Checksum"/>.
 	</para>
 	</sidebar>
-  <section><title>Ethereal checksum validation</title>
+  <section><title>Wireshark checksum validation</title>
 	<para>
-	Ethereal will validate the checksums of several potocols, e.g.: IP, TCP, ...
+	Wireshark will validate the checksums of several potocols, e.g.: IP, TCP, ...
 	</para>
 	<para>
 	It will do the same calculation as a "normal receiver" would do, 
@@ -822,7 +822,7 @@
 	</para>
 	<para>
 	Checksum validation can be switched off for various protocols in the 
-	Ethereal protocol preferences, e.g. to (very slightly) increase 
+	Wireshark protocol preferences, e.g. to (very slightly) increase 
 	performance.
 	</para>
 	<para>
@@ -842,7 +842,7 @@
 	For example: The Ethernet transmitting hardware calculates the 
 	Ethernet CRC32 checksum and the receiving hardware validates this 
 	checksum. 
-	If the received checksum is wrong Ethereal won't even see the packet, 
+	If the received checksum is wrong Wireshark won't even see the packet, 
 	as the Ethernet hardware internally throws away the packet.
 	</para>
 	<para>
@@ -859,9 +859,9 @@
 	<note><title>Note!</title>
 	<para>
 	Checksum offloading often causes confusion as the network packets to be 
-	transmitted are handed over to Ethereal before the checksums are actually 
+	transmitted are handed over to Wireshark before the checksums are actually 
 	calculated.
-	Ethereal gets these "empty" checksums and displays them as 
+	Wireshark gets these "empty" checksums and displays them as 
 	invalid, even though the packets will contain valid checksums when they 
 	leave the network hardware later.
 	</para>
