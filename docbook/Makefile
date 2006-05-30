@@ -12,15 +12,15 @@ FOP_OPTS=-Xmx256m
 # (comment this out, if you don't want pdf or don't have fop installed)
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP=fop-0.20.5/fop.bat
+#FOP=fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
-#FOP="/usr/share/fop-0.20.5/fop.sh"
+FOP="~/devel/fop-0.20.5/fop.sh"
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
 #FOP=fop
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
-HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # elinks (text version of release notes)
@@ -41,23 +41,23 @@ XMLLINT="xmllint"
 	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
 EUG_FILES =	\
-	eug_src/EUG_app_files.xml \
-	eug_src/EUG_app_howitworks.xml \
-	eug_src/EUG_app_messages.xml \
-	eug_src/EUG_app_protocols.xml \
-	eug_src/EUG_app_tools.xml \
-	eug_src/EUG_chapter_advanced.xml \
-	eug_src/EUG_chapter_build_install.xml \
-	eug_src/EUG_chapter_capture.xml \
-	eug_src/EUG_chapter_customize.xml \
-	eug_src/EUG_chapter_introduction.xml \
-	eug_src/EUG_chapter_io.xml \
-	eug_src/EUG_chapter_statistics.xml \
-	eug_src/EUG_chapter_troubleshoot.xml \
-	eug_src/EUG_chapter_use.xml \
-	eug_src/EUG_chapter_work.xml \
-	eug_src/EUG_meta_info.xml \
-	eug_src/EUG_preface.xml
+	wsug_src/EUG_app_files.xml \
+	wsug_src/EUG_app_howitworks.xml \
+	wsug_src/EUG_app_messages.xml \
+	wsug_src/EUG_app_protocols.xml \
+	wsug_src/EUG_app_tools.xml \
+	wsug_src/EUG_chapter_advanced.xml \
+	wsug_src/EUG_chapter_build_install.xml \
+	wsug_src/EUG_chapter_capture.xml \
+	wsug_src/EUG_chapter_customize.xml \
+	wsug_src/EUG_chapter_introduction.xml \
+	wsug_src/EUG_chapter_io.xml \
+	wsug_src/EUG_chapter_statistics.xml \
+	wsug_src/EUG_chapter_troubleshoot.xml \
+	wsug_src/EUG_chapter_use.xml \
+	wsug_src/EUG_chapter_work.xml \
+	wsug_src/EUG_meta_info.xml \
+	wsug_src/EUG_preface.xml
 
 EUG_GRAPHICS =	\
 	graphics/ethereal-3pane.png			\
@@ -264,8 +264,8 @@ user-guide.html: $(EUG_SOURCE)
 	mkdir -p eug_html/graphics/toolbar
 	cp graphics/*.* eug_html/graphics
 	cp graphics/toolbar/* eug_html/graphics/toolbar
-	cp eth.css eug_html
-	$(XSLTPROC) --stringparam base.dir eug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
+	cp ws.css eug_html
+	$(XSLTPROC) --stringparam base.dir eug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
 	-chmod -R og+rX eug_html
 	
 # create html chunked page files
@@ -274,8 +274,8 @@ eug_html_chunked: $(EUG_SOURCE)
 	mkdir -p eug_html_chunked/graphics/toolbar
 	cp graphics/*.* eug_html_chunked/graphics
 	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
-	cp eth.css eug_html_chunked
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	cp ws.css eug_html_chunked
+	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX eug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
@@ -301,7 +301,7 @@ ifdef HHC
 	mkdir -p eug_chm/graphics/toolbar
 	-cp graphics/*.* eug_chm/graphics/
 	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
@@ -322,8 +322,8 @@ developer-guide.html: $(EDG_SOURCE)
 	@ echo --- EDG - HTML SINGLE PAGE ---
 	mkdir -p edg_html/edg_graphics
 	cp edg_graphics/* edg_html/edg_graphics
-	cp eth.css edg_html
-	$(XSLTPROC) --stringparam base.dir edg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
+	cp ws.css edg_html
+	$(XSLTPROC) --stringparam base.dir edg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
 	-chmod -R og+rX edg_html
 	
 # create html chunked page files
@@ -332,8 +332,8 @@ edg_html_chunked: $(EDG_SOURCE)
 	mkdir -p edg_html_chunked
 	mkdir -p edg_html_chunked/edg_graphics
 	cp edg_graphics/* edg_html_chunked/edg_graphics
-	cp eth.css edg_html_chunked
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	cp ws.css edg_html_chunked
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX edg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
@@ -358,7 +358,7 @@ ifdef HHC
 	@ echo --- EDG - MICROSOFT HTML HELP ---
 	mkdir -p edg_chm/edg_graphics
 	cp edg_graphics/* edg_chm/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
