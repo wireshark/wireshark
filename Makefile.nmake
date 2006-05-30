@@ -459,134 +459,134 @@ REQUIRED_TOOLS=\
 verify_tools:
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
-# Download and install all the required libraries into ETHEREAL_LIBS.
+# Download and install all the required libraries into WIRESHARK_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
 setup: verify_tools
 !IF "$(GTK2_INST_VERSION)" == "2.8"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-2.8.4-20051212.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-dev-2.8.4-20051212.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-2.6.6.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-dev-2.6.6.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.4/glib-2.4.7.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.4/glib-dev-2.4.7.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib glib-2.2.3-20040116.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib glib-dev-2.2.3-20040116.zip
 !ENDIF
 !IFDEF GTK1_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-1.3.0-20030717.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-dev-1.3.0-20030115.zip
 !ENDIF
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gettext-runtime-0.13.1 gettext-runtime-0.13.1.zip
 !IFDEF NET_SNMP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. net-snmp-5.2.2.zip
 !ENDIF
 !IFDEF PCAP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. WpdPack_3_1.zip
 !ENDIF
 !IFDEF ADNS_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. adns-1.0-win32-05.zip
 !ENDIF
 !IFDEF PCRE_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		pcre-6.4 pcre-6.4-bin.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		pcre-6.4 pcre-6.4-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		zlib123-dll zlib123-dll.zip
 !ENDIF
 !IFDEF LUA_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. lua5_1_vc6.zip
 !ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/gtk+-2.8.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/gtk+-dev-2.8.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/cairo-1.0.2.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/cairo-dev-1.0.2.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/atk-1.10.3.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/atk-dev-1.10.3.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/libpng-1.2.8-bin.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/gtk+-2.6.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/gtk+-dev-2.6.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/atk-1.9.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/atk-dev-1.9.0.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/gtk+-2.4.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/gtk+-dev-2.4.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/atk-1.6.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/atk-dev-1.6.0.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/gtk+-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/gtk+-dev-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/atk-1.4.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.10"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/pango-1.10.1.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/pango-dev-1.10.1.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/pango-1.8.2.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/pango-dev-1.8.2.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/pango-1.4.1.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/pango-dev-1.4.1.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/pango-1.2.5-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/pango-dev-1.2.5-20040124.zip
 !ENDIF
 !ENDIF
 !IFDEF GTK_WIMP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk-wimp gtk-wimp/gtk-wimp-0.7.0-bin.zip
 !ENDIF
 	@echo.
@@ -595,13 +595,13 @@ setup: verify_tools
 # Cleanup files installed by the setup target. It will not remove the 
 # downloaded zip files.
 clean_setup:
-    rm -r -f $(ETHEREAL_LIBS)/glib
-    rm -r -f $(ETHEREAL_LIBS)/gtk+
-    rm -r -f $(ETHEREAL_LIBS)/libiconv-1.9.1.bin.woe32
-    rm -r -f $(ETHEREAL_LIBS)/gettext-runtime-0.13.1
-    rm -r -f $(ETHEREAL_LIBS)/zlib123-dll
-    rm -r -f $(ETHEREAL_LIBS)/gtk2
-    rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
+    rm -r -f $(WIRESHARK_LIBS)/glib
+    rm -r -f $(WIRESHARK_LIBS)/gtk+
+    rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
+    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.13.1
+    rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
+    rm -r -f $(WIRESHARK_LIBS)/gtk2
+    rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
 
 ################################################################################
 # Prepare the source tree for running (t)ethereal directly from there.
