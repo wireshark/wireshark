@@ -55,7 +55,7 @@ DOCUMENT SECTION
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
   <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
-  <!ENTITY DocumentTitleAbbreviation "EUG">
+  <!ENTITY DocumentTitleAbbreviation "WSUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
@@ -250,23 +250,23 @@ FILE SECTION
 
 
 <!-- These are the actual files that make up the document -->
-  <!ENTITY BookMetaInformation SYSTEM "wsug_src/EUG_meta_info.xml">
-  <!ENTITY Preface SYSTEM  "wsug_src/EUG_preface.xml">
-  <!ENTITY ChapterIntroduction SYSTEM "wsug_src/EUG_chapter_introduction.xml">
-  <!ENTITY ChapterBuildInstall SYSTEM "wsug_src/EUG_chapter_build_install.xml">
-  <!ENTITY ChapterUse SYSTEM "wsug_src/EUG_chapter_use.xml">
-  <!ENTITY ChapterCapture SYSTEM "wsug_src/EUG_chapter_capture.xml">
-  <!ENTITY ChapterIo SYSTEM "wsug_src/EUG_chapter_io.xml">
-  <!ENTITY ChapterWork SYSTEM "wsug_src/EUG_chapter_work.xml">
-  <!ENTITY ChapterAdvanced SYSTEM "wsug_src/EUG_chapter_advanced.xml">
-  <!ENTITY ChapterStatistics SYSTEM "wsug_src/EUG_chapter_statistics.xml">
-  <!ENTITY ChapterCustomize SYSTEM "wsug_src/EUG_chapter_customize.xml">
-  <!ENTITY ChapterTroubleshoot SYSTEM "wsug_src/EUG_chapter_troubleshoot.xml">
-  <!ENTITY AppMessages SYSTEM "wsug_src/EUG_app_messages.xml">
-  <!ENTITY AppFiles SYSTEM "wsug_src/EUG_app_files.xml">
-  <!ENTITY AppProtocols SYSTEM   "wsug_src/EUG_app_protocols.xml">
-  <!ENTITY AppHowItWorks SYSTEM "wsug_src/EUG_app_howitworks.xml">
-  <!ENTITY AppTools SYSTEM "wsug_src/EUG_app_tools.xml">
+  <!ENTITY BookMetaInformation SYSTEM "wsug_src/WSUG_meta_info.xml">
+  <!ENTITY Preface SYSTEM  "wsug_src/WSUG_preface.xml">
+  <!ENTITY ChapterIntroduction SYSTEM "wsug_src/WSUG_chapter_introduction.xml">
+  <!ENTITY ChapterBuildInstall SYSTEM "wsug_src/WSUG_chapter_build_install.xml">
+  <!ENTITY ChapterUse SYSTEM "wsug_src/WSUG_chapter_use.xml">
+  <!ENTITY ChapterCapture SYSTEM "wsug_src/WSUG_chapter_capture.xml">
+  <!ENTITY ChapterIo SYSTEM "wsug_src/WSUG_chapter_io.xml">
+  <!ENTITY ChapterWork SYSTEM "wsug_src/WSUG_chapter_work.xml">
+  <!ENTITY ChapterAdvanced SYSTEM "wsug_src/WSUG_chapter_advanced.xml">
+  <!ENTITY ChapterStatistics SYSTEM "wsug_src/WSUG_chapter_statistics.xml">
+  <!ENTITY ChapterCustomize SYSTEM "wsug_src/WSUG_chapter_customize.xml">
+  <!ENTITY ChapterTroubleshoot SYSTEM "wsug_src/WSUG_chapter_troubleshoot.xml">
+  <!ENTITY AppMessages SYSTEM "wsug_src/WSUG_app_messages.xml">
+  <!ENTITY AppFiles SYSTEM "wsug_src/WSUG_app_files.xml">
+  <!ENTITY AppProtocols SYSTEM   "wsug_src/WSUG_app_protocols.xml">
+  <!ENTITY AppHowItWorks SYSTEM "wsug_src/WSUG_app_howitworks.xml">
+  <!ENTITY AppTools SYSTEM "wsug_src/WSUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
 ]>

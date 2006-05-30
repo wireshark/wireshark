@@ -1,4 +1,4 @@
-<!-- EUG Chapter Capture -->
+<!-- WSUG Chapter Capture -->
 <!-- $Id$ -->
 
 <chapter id="ChapterCapture">
@@ -1029,5 +1029,5 @@ tcp port 23 and not host 10.0.0.5
     </section>
 
 </chapter>
-<!-- End of EUG Chapter Capture -->
+<!-- End of WSUG Chapter Capture -->
 

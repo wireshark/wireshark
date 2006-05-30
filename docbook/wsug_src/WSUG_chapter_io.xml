@@ -1,4 +1,4 @@
-<!-- EUG Chapter IO -->
+<!-- WSUG Chapter IO -->
 <!-- $Id$ -->
 
 <chapter id="ChapterIO">
@@ -871,5 +871,5 @@ lpr -Pmypostscript
   </section>
   
 </chapter>
-<!-- End of EUG Chapter IO -->
+<!-- End of WSUG Chapter IO -->
 

@@ -40,26 +40,26 @@ XMLLINT="xmllint"
 .fo.pdf:
 	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
-EUG_FILES =	\
-	wsug_src/EUG_app_files.xml \
-	wsug_src/EUG_app_howitworks.xml \
-	wsug_src/EUG_app_messages.xml \
-	wsug_src/EUG_app_protocols.xml \
-	wsug_src/EUG_app_tools.xml \
-	wsug_src/EUG_chapter_advanced.xml \
-	wsug_src/EUG_chapter_build_install.xml \
-	wsug_src/EUG_chapter_capture.xml \
-	wsug_src/EUG_chapter_customize.xml \
-	wsug_src/EUG_chapter_introduction.xml \
-	wsug_src/EUG_chapter_io.xml \
-	wsug_src/EUG_chapter_statistics.xml \
-	wsug_src/EUG_chapter_troubleshoot.xml \
-	wsug_src/EUG_chapter_use.xml \
-	wsug_src/EUG_chapter_work.xml \
-	wsug_src/EUG_meta_info.xml \
-	wsug_src/EUG_preface.xml
+WSUG_FILES =	\
+	wsug_src/WSUG_app_files.xml \
+	wsug_src/WSUG_app_howitworks.xml \
+	wsug_src/WSUG_app_messages.xml \
+	wsug_src/WSUG_app_protocols.xml \
+	wsug_src/WSUG_app_tools.xml \
+	wsug_src/WSUG_chapter_advanced.xml \
+	wsug_src/WSUG_chapter_build_install.xml \
+	wsug_src/WSUG_chapter_capture.xml \
+	wsug_src/WSUG_chapter_customize.xml \
+	wsug_src/WSUG_chapter_introduction.xml \
+	wsug_src/WSUG_chapter_io.xml \
+	wsug_src/WSUG_chapter_statistics.xml \
+	wsug_src/WSUG_chapter_troubleshoot.xml \
+	wsug_src/WSUG_chapter_use.xml \
+	wsug_src/WSUG_chapter_work.xml \
+	wsug_src/WSUG_meta_info.xml \
+	wsug_src/WSUG_preface.xml
 
-EUG_GRAPHICS =	\
+WSUG_GRAPHICS =	\
 	graphics/ethereal-3pane.png			\
 	graphics/ethereal-analyze-menu.png		\
 	graphics/ethereal-bytes-pane-popup-menu.png	\
@@ -194,11 +194,11 @@ EDG_GRAPHICS =	\
 	edg_graphics/warning.png
 
 # user-guide.xml must be first in the list (to match $<)
-EUG_SOURCE =	\
+WSUG_SOURCE =	\
 	user-guide.xml		\
 	svn_version.xml		\
-	$(EUG_FILES)		\
-	$(EUG_GRAPHICS)
+	$(WSUG_FILES)		\
+	$(WSUG_GRAPHICS)
 
 # developer-guide.xml must be first in the list (to match $<)
 EDG_SOURCE =	\
@@ -253,14 +253,14 @@ svn_version.xml: FORCE
 eug: eug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
-eug.validated: $(EUG_SOURCE)
-	@ echo --- EUG - VALIDATING XML ---
+eug.validated: $(WSUG_SOURCE)
+	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
 
 # create html single page file
-user-guide.html: $(EUG_SOURCE)
-	@ echo --- EUG - HTML SINGLE PAGE ---
+user-guide.html: $(WSUG_SOURCE)
+	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p eug_html/graphics/toolbar
 	cp graphics/*.* eug_html/graphics
 	cp graphics/toolbar/* eug_html/graphics/toolbar
@@ -269,8 +269,8 @@ user-guide.html: $(EUG_SOURCE)
 	-chmod -R og+rX eug_html
 	
 # create html chunked page files
-eug_html_chunked: $(EUG_SOURCE)
-	@ echo --- EUG - HTML CHUNKED ---
+eug_html_chunked: $(WSUG_SOURCE)
+	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p eug_html_chunked/graphics/toolbar
 	cp graphics/*.* eug_html_chunked/graphics
 	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
@@ -280,24 +280,24 @@ eug_html_chunked: $(EUG_SOURCE)
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-user-guide-us.fo: $(EUG_SOURCE)
+user-guide-us.fo: $(WSUG_SOURCE)
 ifdef FOP
-	@ echo --- EUG - PDF US PAPER ---
+	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(EUG_SOURCE)
+user-guide-a4.fo: $(WSUG_SOURCE)
 ifdef FOP
-	@ echo --- EUG - PDF A4 PAPER ---
+	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
-user-guide.chm: $(EUG_SOURCE)
+user-guide.chm: $(WSUG_SOURCE)
 ifdef HHC
-	@ echo --- EUG - MICROSOFT HTML HELP ---
+	@ echo --- WSUG - MICROSOFT HTML HELP ---
 	mkdir -p eug_chm/graphics/toolbar
 	-cp graphics/*.* eug_chm/graphics/
 	-cp graphics/toolbar/* eug_chm/graphics/toolbar/

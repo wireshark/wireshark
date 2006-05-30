@@ -1,4 +1,4 @@
-<!-- EUG Chapter BuildInstall -->
+<!-- WSUG Chapter BuildInstall -->
 <!-- $Id$ -->
 
 <chapter id="ChapterBuildInstall">
@@ -751,4 +751,4 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
   </section>
   
 </chapter>
-<!-- End of EUG Chapter 2 -->
+<!-- End of WSUG Chapter 2 -->

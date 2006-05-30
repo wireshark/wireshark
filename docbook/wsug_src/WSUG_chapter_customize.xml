@@ -1,4 +1,4 @@
-<!-- EUG Chapter Customizing -->
+<!-- WSUG Chapter Customizing -->
 <!-- $Id$ -->
 
 <chapter id="ChapterCustomize">
@@ -823,5 +823,5 @@ standard libpcap format.
   </section>
   
 </chapter>
-<!-- End of EUG Chapter Customizing -->
+<!-- End of WSUG Chapter Customizing -->
 

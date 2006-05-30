@@ -1166,4 +1166,4 @@ static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo , epan_disse
   </section>
 
 </chapter>
-<!-- End of EUG Chapter Dissection -->
+<!-- End of EDG Chapter Dissection -->
