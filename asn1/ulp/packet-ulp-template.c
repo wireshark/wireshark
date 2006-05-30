@@ -42,6 +42,8 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include <epan/emem.h>
+#include "packet-tcp.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"
@@ -60,6 +62,10 @@ guint gbl_ulp_port = 7275;
 static int proto_ulp = -1;
 
 
+#define ULP_HEADER_SIZE 2
+
+gboolean ulp_desegment = FALSE;
+
 #include "packet-ulp-hf.c"
 
 /* Initialize the subtree pointers */
@@ -69,14 +75,29 @@ static gint ett_ulp = -1;
 /* Include constants */
 #include "packet-ulp-val.h"
 
+
 #include "packet-ulp-fn.c"
 
+
+static guint
+get_ulp_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/* PDU length = Message length */
+	return tvb_get_ntohs(tvb,offset);
+}
+
+static void
+dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
+	    get_ulp_pdu_len, dissect_ULP_PDU_PDU);
+}
 /*--- proto_reg_handoff_ulp ---------------------------------------*/
 void
 proto_reg_handoff_ulp(void)
 {
 
-	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
 
 	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
 

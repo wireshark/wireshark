@@ -50,6 +50,8 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include <epan/emem.h>
+#include "packet-tcp.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"
@@ -67,6 +69,10 @@ guint gbl_ulp_port = 7275;
 /* Initialize the protocol and registered fields */
 static int proto_ulp = -1;
 
+
+#define ULP_HEADER_SIZE 2
+
+gboolean ulp_desegment = FALSE;
 
 
 /*--- Included file: packet-ulp-hf.c ---*/
@@ -247,7 +253,7 @@ static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 64 "packet-ulp-template.c"
+#line 70 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -314,7 +320,7 @@ static gint ett_ulp_PosTechnology = -1;
 static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 68 "packet-ulp-template.c"
+#line 74 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -327,7 +333,8 @@ static gint ett_ulp_PosProtocol = -1;
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 71 "packet-ulp-template.c"
+#line 77 "packet-ulp-template.c"
+
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -2666,14 +2673,28 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 73 "packet-ulp-template.c"
+#line 80 "packet-ulp-template.c"
 
+
+static guint
+get_ulp_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/* PDU length = Message length */
+	return tvb_get_ntohs(tvb,offset);
+}
+
+static void
+dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
+	    get_ulp_pdu_len, dissect_ULP_PDU_PDU);
+}
 /*--- proto_reg_handoff_ulp ---------------------------------------*/
 void
 proto_reg_handoff_ulp(void)
 {
 
-	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
 
 	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
 
@@ -3392,7 +3413,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 98 "packet-ulp-template.c"
+#line 119 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3461,7 +3482,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 104 "packet-ulp-template.c"
+#line 125 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;
