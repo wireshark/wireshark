@@ -49,8 +49,8 @@ EXTRA_OBJECTS = \
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
-!IFDEF ENABLE_LIBETHEREAL
-	epan\libethereal.lib \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
@@ -226,7 +226,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_FINDALLDEVS@/$(PCAP_FINDALLDEVS_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_DATALINK_NAME_TO_VAL@/$(PCAP_DATALINK_NAME_TO_VAL_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
-	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
+	    -e "s/@HAVE_LIBWIRESHARKDLL@/$(LIBWIRESHARK_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
 	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
