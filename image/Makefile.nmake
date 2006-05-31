@@ -7,11 +7,11 @@ include ..\config.nmake
 ALL_RC=wireshark.rc libwireshark.rc tshark.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
-wireshark.exe.manifest: ethereal.exe.manifest.in ..\config.nmake
+wireshark.exe.manifest: wireshark.exe.manifest.in ..\config.nmake
 	sed -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
 		-e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
 		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
-		< ethereal.exe.manifest.in > $@
+		< wireshark.exe.manifest.in > $@
 
 wireshark.rc   : win32-file-dlg.rc wireshark.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
