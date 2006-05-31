@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../idl2eth butc.idl butc.cnf template.c template.h 
-	../idl2eth butc
+$(DISSECTOR_FILES): ../idl2wrs butc.idl butc.cnf template.c template.h 
+	../idl2wrs butc
 
 clean:
 	rm -f ETH_* $(DISSECTOR_FILES)

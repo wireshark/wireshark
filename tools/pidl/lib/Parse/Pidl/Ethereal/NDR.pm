@@ -3,7 +3,7 @@
 # Copyright tridge@samba.org 2000-2003
 # Copyright tpot@samba.org 2001,2005
 # Copyright jelmer@samba.org 2004-2005
-# Portions based on idl2eth.c by Ronnie Sahlberg
+# Portions based on idl2wrs.c by Ronnie Sahlberg
 # released under the GNU GPL
 
 =pod

@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-LIBETHEREAL_SRC = 		\
+LIBWIRESHARK_SRC = 		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
 	adler32.c		\
@@ -90,7 +90,7 @@ LIBETHEREAL_SRC = 		\
 	xdlc.c			\
 	xmlstub.c
 
-LIBETHEREAL_INCLUDES = 		\
+LIBWIRESHARK_INCLUDES = 	\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\

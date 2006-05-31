@@ -29,18 +29,18 @@ SUBDIRS = ftypes dfilter dissectors
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-lib_LTLIBRARIES = libethereal.la
-libethereal_la_LDFLAGS = -version-info 0:1:0
+lib_LTLIBRARIES = libwireshark.la
+libwireshark_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
 INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
-libethereal_la_SOURCES = \
-	$(LIBETHEREAL_SRC)	\
-	$(LIBETHEREAL_INCLUDES)
+libwireshark_la_SOURCES = \
+	$(LIBWIRESHARK_SRC)	\
+	$(LIBWIRESHARK_INCLUDES)
 
-EXTRA_libethereal_la_SOURCES =	\
+EXTRA_libwireshark_la_SOURCES =	\
 	g_ascii_strtoull.c	\
 	g_ascii_strtoull.h	\
 	inet_aton.c		\
@@ -54,7 +54,7 @@ EXTRA_DIST = \
 	dtd_parse.l \
 	dtd_preparse.l \
 	enterprise-numbers  \
-	libethereal.def	\
+	libwireshark.def	\
 	Makefile.common	\
 	Makefile.nmake	\
 	make-sminmpec.pl \
@@ -64,8 +64,8 @@ EXTRA_DIST = \
 	doxygen.cfg.in
 
 CLEANFILES = \
-	libethereal.a		\
-	libethereal.la		\
+	libwireshark.a		\
+	libwireshark.la		\
 	*~
 
 DISTCLEANFILES = \

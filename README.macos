@@ -9,7 +9,7 @@ build or install GTK+, and will only be able to build Tethereal.  The
 X11 and X11 SDK that come with Mac OS X 10.3[.x] are sufficient to build
 and run Ethereal.
 
-The changes to enable libwiretap and libethereal being built as shared
+The changes to enable libwiretap and libwireshark being built as shared
 libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
 GTK+ 1.x release tarballs were built with an older version of libtool
 that didn't support shared libraries on Mac OS X, so you can't build and

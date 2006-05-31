@@ -1,5 +1,5 @@
 /* this idl is from the LGPL irelease of dce/dfs from the open group.
-   it has been significantly modified to pass through idl2eth
+   it has been significantly modified to pass through idl2wrs
    original copyright follows:
  */
 /*

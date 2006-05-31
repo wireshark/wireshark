@@ -21,9 +21,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-# We produce an archive library. In the future, when libethereal is a
-# shared library, this will be linked into libethereal. While libethereal
-# is an archive library, any executable linking against libethereal will
+# We produce an archive library. In the future, when libwireshark is a
+# shared library, this will be linked into libwireshark. While libwireshark
+# is an archive library, any executable linking against libwireshark will
 # also need to link against libftypes.
 
 CLEANFILES = \

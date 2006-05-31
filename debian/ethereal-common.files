@@ -1,8 +1,8 @@
 /usr/bin/editcap
 /usr/bin/mergecap
 /usr/bin/text2pcap
-/usr/lib/ethereal/libethereal.so.0
-/usr/lib/ethereal/libethereal.so.0.0.1
+/usr/lib/ethereal/libwireshark.so.0
+/usr/lib/ethereal/libwireshark.so.0.0.1
 /usr/lib/ethereal/libwiretap.so.0
 /usr/lib/ethereal/libwiretap.so.0.0.1
 /usr/lib/ethereal/plugins/*
@@ -10,8 +10,8 @@
 /usr/bin/editcap
 /usr/bin/mergecap
 /usr/bin/text2pcap
-/usr/lib/ethereal/libethereal.so.0
-/usr/lib/ethereal/libethereal.so.0.0.1
+/usr/lib/ethereal/libwireshark.so.0
+/usr/lib/ethereal/libwireshark.so.0.0.1
 /usr/lib/ethereal/libwiretap.so.0
 /usr/lib/ethereal/libwiretap.so.0.0.1
 /usr/lib/ethereal/plugins/*

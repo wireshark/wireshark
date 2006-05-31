@@ -18,10 +18,10 @@ ethereal.rc   : win32-file-dlg.rc ethereal.rc.in wireshark.exe.manifest ..\confi
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< ethereal.rc.in > $@
 
-libethereal.rc: libethereal.rc.in ..\config.nmake
+libwireshark.rc: libwireshark.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
-		< libethereal.rc.in > $@
+		< libwireshark.rc.in > $@
 
 tethereal.rc  : tethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

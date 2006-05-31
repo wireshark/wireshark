@@ -31,16 +31,16 @@ static void (*report_read_failure_func)(const char *, int);
 
 /*
  * XXX - this takes the plugin directory as an argument, because
- * libethereal now has its own configure script and "config.h" file,
+ * libwireshark now has its own configure script and "config.h" file,
  * which is what code in the "epan" directory includes, but we need
  * to define PLUGIN_DIR in the top-level directory, as it's used by,
  * for example, the Makefile for the Gryphon plugin, so it knows
  * where to install the plugin.
  *
  * Eventually, we should probably have an "epan-configure" script
- * (or "libethereal-configure", or whatever), along the lines of what
+ * (or "libwireshark-configure", or whatever), along the lines of what
  * GTK+ and GLib have, that can print, among other things, the directory
- * into which plugins should be installed.  That way, only libethereal
+ * into which plugins should be installed.  That way, only libwireshark
  * need know what directory that is; programs using it won't, *and*
  * Makefiles for plugins can just use "epan-configure" to figure out
  * where to install the plugins.
