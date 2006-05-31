@@ -2099,7 +2099,7 @@ main(int argc, char *argv[])
 #endif
 
   /* We won't come till here, if we had a "console only" command line parameter. */
-  splash_win = splash_new("Loading Ethereal ...");
+  splash_win = splash_new("Loading Wireshark ...");
 
   splash_update(splash_win, "Init dissectors ...");
 

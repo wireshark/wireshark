@@ -373,7 +373,7 @@ dlg_window_new(const gchar *title)
 }
 
 
-/* Create a file selection dialog box window that belongs to Ethereal's
+/* Create a file selection dialog box window that belongs to Wireshark's
    main window. */
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
 GtkWidget *
