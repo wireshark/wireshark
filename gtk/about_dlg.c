@@ -41,7 +41,7 @@
 #include "text_page.h"
 #endif
 
-#include "../image/eicon3d64.xpm"
+#include "../image/wssplash.xpm"
 #include "gtkglobals.h"
 #include "version_info.h"
 #include "main.h"
@@ -67,7 +67,7 @@ about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
   gchar       *message;
 #endif
 
-  icon = xpm_to_widget_from_parent(parent, eicon3d64_xpm);
+  icon = xpm_to_widget_from_parent(parent, wssplash_xpm);
   gtk_container_add(GTK_CONTAINER(main_vb), icon);
 
   msg_label = gtk_label_new(title);
