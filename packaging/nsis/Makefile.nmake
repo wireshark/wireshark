@@ -37,16 +37,16 @@ DEST=wireshark
 
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK1_DIR
-	../../ethereal.exe \
+	../../wireshark.exe \
 !ENDIF
 !IFDEF GTK2_DIR
-	../../ethereal-gtk2.exe \
+	../../wireshark-gtk2.exe \
 !ENDIF
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_3_1.exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
-DOC=../../doc/ethereal.html		\
+DOC=../../doc/wireshark.html		\
 	../../doc/tshark.html	\
-	../../doc/ethereal-filter.html	\
+	../../doc/wireshark-filter.html	\
 	../../doc/editcap.html 		\
 	../../doc/text2pcap.html 	\
 	../../doc/mergecap.html 	\

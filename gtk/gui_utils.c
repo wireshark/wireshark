@@ -100,7 +100,7 @@ static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
    or class name specified by the WM_CLASS property and base the
    choice of icon for the window on one of those; WM_CLASS for
    Wireshark's windows has a resource name of "ethereal" and a class
-   name of "Ethereal".  However, the way that's done is window-manager-
+   name of "Wireshark".  However, the way that's done is window-manager-
    specific, and there's no way to determine what size a particular
    window manager would want, so there's no way to automate this as
    part of the installation of Wireshark.

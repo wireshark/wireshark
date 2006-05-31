@@ -3,7 +3,7 @@
 # $Id$
 #
 # Make-faq - Creates a plain text version of the Wireshark FAQ
-#	from http://www.ethereal.com/faq.html
+#	from http://www.wireshark.org/faq.html
 
 rm -f FAQ
 cat >FAQ <<EOF
@@ -11,7 +11,7 @@ cat >FAQ <<EOF
    The Wireshark FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
-         date. Please go to http://www.ethereal.com/faq.html for the up
+         date. Please go to http://www.wireshark.org/faq.html for the up
          to date version. The version of this snapshot can be found at
          the end of this document.
 
@@ -19,7 +19,7 @@ cat >FAQ <<EOF
 
 EOF
 
-lynx -dump -nolist "http://www.ethereal.com/faq.html" | sed -e '1,/^Index/d' >>FAQ
+lynx -dump -nolist "http://www.wireshark.org/faq.html" | sed -e '1,/^Index/d' >>FAQ
 
 echo
 echo "Now verfiy everything is OK and copy FAQ to help/faq.txt"

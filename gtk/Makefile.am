@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for the GTK interface routines for Ethereal
+# Automake file for the GTK interface routines for Wireshark
 #
 # $Id$
 #
@@ -33,9 +33,9 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
-ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
-	@echo Making ethereal-tap-register.c
-	@$(top_srcdir)/make-tapreg-dotc ethereal-tap-register.c $(srcdir) $(ETHEREAL_TAP_SRC)
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
+	@echo Making wireshark-tap-register.c
+	@$(top_srcdir)/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC)
 
 noinst_HEADERS = \
 	about_dlg.h	\
@@ -108,16 +108,16 @@ noinst_HEADERS = \
 
 if USE_GTK2
 libui_a_SOURCES = \
-	$(ETHEREAL_GTK_SRC) \
+	$(WIRESHARK_GTK_SRC) \
 	$(noinst_HEADERS) \
-	$(ETHEREAL_TAP_SRC)
+	$(WIRESHARK_TAP_SRC)
 else
 libui_a_SOURCES = \
 	ethclist.c	\
 	ethclist.h	\
-	$(ETHEREAL_GTK_SRC) \
+	$(WIRESHARK_GTK_SRC) \
 	$(noinst_HEADERS) \
-	$(ETHEREAL_TAP_SRC)
+	$(WIRESHARK_TAP_SRC)
 endif
 
 libui_a_DEPENDENCIES = 

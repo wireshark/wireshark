@@ -5,7 +5,7 @@ $Id$
 randpkt is a small utility creates a libpcap trace file full of random packets.
 You can control the number of packets, the maximum size of each packet,
 and the type of each packet. It is not build by default, but you
-can create it in the top-level Ethereal directory by typing:
+can create it in the top-level Wireshark directory by typing:
 
 make randpkt
 

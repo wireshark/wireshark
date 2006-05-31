@@ -51,7 +51,7 @@ dnl Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 
 #
-# AC_ETHEREAL_ADD_DASH_L
+# AC_WIRESHARK_ADD_DASH_L
 #
 # Add to the variable specified as the first argument a "-L" flag for the
 # directory specified as the second argument, and, on Solaris, add a
@@ -60,7 +60,7 @@ dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 # XXX - IRIX, and other OSes, may require some flag equivalent to
 # "-R" here.
 #
-AC_DEFUN([AC_ETHEREAL_ADD_DASH_L],
+AC_DEFUN([AC_WIRESHARK_ADD_DASH_L],
 [$1="$$1 -L$2"
 case "$host_os" in
   solaris*)
@@ -71,23 +71,23 @@ esac
 
 
 #
-# AC_ETHEREAL_STRUCT_SA_LEN
+# AC_WIRESHARK_STRUCT_SA_LEN
 #
 dnl AC_STRUCT_ST_BLKSIZE extracted from the file in question,
 dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
-dnl AC_ETHEREAL_STRUCT_SA_LEN, which checks if "struct sockaddr"
+dnl AC_WIRESHARK_STRUCT_SA_LEN, which checks if "struct sockaddr"
 dnl has the 4.4BSD "sa_len" member, and defines HAVE_SA_LEN; that's
 dnl what's in this file.
 dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14. 
 
 dnl ### Checks for structure members
 
-AC_DEFUN([AC_ETHEREAL_STRUCT_SA_LEN],
-[AC_CACHE_CHECK([for sa_len in struct sockaddr], ac_cv_ethereal_struct_sa_len,
+AC_DEFUN([AC_WIRESHARK_STRUCT_SA_LEN],
+[AC_CACHE_CHECK([for sa_len in struct sockaddr], ac_cv_wireshark_struct_sa_len,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <sys/socket.h>], [struct sockaddr s; s.sa_len;],
-ac_cv_ethereal_struct_sa_len=yes, ac_cv_ethereal_struct_sa_len=no)])
-if test $ac_cv_ethereal_struct_sa_len = yes; then
+ac_cv_wireshark_struct_sa_len=yes, ac_cv_wireshark_struct_sa_len=no)])
+if test $ac_cv_wireshark_struct_sa_len = yes; then
   AC_DEFINE(HAVE_SA_LEN, 1, [Define if sa_len field exists in struct sockaddr])
 fi
 ])
@@ -96,7 +96,7 @@ fi
 dnl
 dnl Check whether a given format can be used to print 64-bit integers
 dnl
-AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
+AC_DEFUN([AC_WIRESHARK_CHECK_64BIT_FORMAT],
 [
   AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
   AC_RUN_IFELSE(
@@ -137,11 +137,11 @@ AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
 ])
 
 #
-# AC_ETHEREAL_IPV6_STACK
+# AC_WIRESHARK_IPV6_STACK
 #
 # By Jun-ichiro "itojun" Hagino, <itojun@iijlab.net>
 #
-AC_DEFUN([AC_ETHEREAL_IPV6_STACK],
+AC_DEFUN([AC_WIRESHARK_IPV6_STACK],
 [
 	v6type=unknown
 	v6lib=none
@@ -243,7 +243,7 @@ yes
 ])
 
 #
-# AC_ETHEREAL_GETHOSTBY_LIB_CHECK
+# AC_WIRESHARK_GETHOSTBY_LIB_CHECK
 #
 # Checks whether we need "-lnsl" to get "gethostby*()", which we use
 # in "resolv.c".
@@ -252,7 +252,7 @@ yes
 # GNU Autoconf 2.13; the comment came from there.
 # Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
 #
-AC_DEFUN([AC_ETHEREAL_GETHOSTBY_LIB_CHECK],
+AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
 [
     # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
     # to get the SysV transport functions.
@@ -266,7 +266,7 @@ AC_DEFUN([AC_ETHEREAL_GETHOSTBY_LIB_CHECK],
 ])
 
 #
-# AC_ETHEREAL_SOCKET_LIB_CHECK
+# AC_WIRESHARK_SOCKET_LIB_CHECK
 #
 # Checks whether we need "-lsocket" to get "socket()", which is used
 # by libpcap on some platforms - and, in effect, "gethostby*()" on
@@ -279,7 +279,7 @@ AC_DEFUN([AC_ETHEREAL_GETHOSTBY_LIB_CHECK],
 #
 # We use "connect" because that's what AC_PATH_XTRA did.
 #
-AC_DEFUN([AC_ETHEREAL_SOCKET_LIB_CHECK],
+AC_DEFUN([AC_WIRESHARK_SOCKET_LIB_CHECK],
 [
     # lieder@skyler.mavd.honeywell.com says without -lsocket,
     # socket/setsockopt and other routines are undefined under SCO ODT
@@ -295,9 +295,9 @@ AC_DEFUN([AC_ETHEREAL_SOCKET_LIB_CHECK],
 ])
 
 #
-# AC_ETHEREAL_PCAP_CHECK
+# AC_WIRESHARK_PCAP_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_PCAP_CHECK],
+AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 [
 	if test -z "$pcap_dir"
 	then
@@ -355,7 +355,7 @@ AC_DEFUN([AC_ETHEREAL_PCAP_CHECK],
 	  #
 	  CFLAGS="$CFLAGS -I$pcap_dir/include"
 	  CPPFLAGS="$CPPFLAGS -I$pcap_dir/include"
-	  AC_ETHEREAL_ADD_DASH_L(LDFLAGS, $pcap_dir/lib)
+	  AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $pcap_dir/lib)
 	fi
 
 	# Pcap header check
@@ -375,7 +375,7 @@ and did you also install that package?]]))
 	    PCAP_LIBS=-lpcap
 	    AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
 	  ], [
-	    ac_ethereal_extras_found=no
+	    ac_wireshark_extras_found=no
 	    ac_save_LIBS="$LIBS"
 	    for extras in "-lcfg -lodm" "-lpfring"
 	    do
@@ -392,7 +392,7 @@ and did you also install that package?]]))
 	pcap_open_live(NULL, 0, 0, 0, NULL);
 		    ],
 		    [
-			ac_ethereal_extras_found=yes
+			ac_wireshark_extras_found=yes
 			AC_MSG_RESULT([yes])
 			PCAP_LIBS="-lpcap $extras"
 			AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
@@ -400,12 +400,12 @@ and did you also install that package?]]))
 		    [
 			AC_MSG_RESULT([no])
 		    ])
-		if test x$ac_ethereal_extras_found = xyes
+		if test x$ac_wireshark_extras_found = xyes
 		then
 		    break
 		fi
 	    done
-	    if test x$ac_ethereal_extras_found = xno
+	    if test x$ac_wireshark_extras_found = xno
 	    then
 		AC_MSG_ERROR([Can't link with library libpcap.])
 	    fi
@@ -493,9 +493,9 @@ and did you also install that package?]]))
 ])
 
 #
-# AC_ETHEREAL_ZLIB_CHECK
+# AC_WIRESHARK_ZLIB_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
+AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 [
 	if test "x$zlib_dir" != "x"
 	then
@@ -511,12 +511,12 @@ AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
 	  # as the compiler and/or linker will search that other
 	  # directory before it searches the specified directory.
 	  #
-	  ethereal_save_CFLAGS="$CFLAGS"
+	  wireshark_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$zlib_dir/include"
-	  ethereal_save_CPPFLAGS="$CPPFLAGS"
+	  wireshark_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
-	  ethereal_save_LIBS="$LIBS"
-	  AC_ETHEREAL_ADD_DASH_L(LIBS, $zlib_dir/lib)
+	  wireshark_save_LIBS="$LIBS"
+	  AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
 	fi
 
 	#
@@ -589,8 +589,8 @@ AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
 				# LIBS.
 				#
 				LIBS=""
-				AC_ETHEREAL_ADD_DASH_L(LIBS, $zlib_dir/lib)
-				LIBS="$LIBS -lz $ethereal_save_LIBS"
+				AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
+				LIBS="$LIBS -lz $wireshark_save_LIBS"
 			else
 				LIBS="-lz $LIBS"
 			fi
@@ -605,9 +605,9 @@ AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
 				# zlib there, or didn't find a zlib that
 				# contains gzgets there.
 				#
-			        CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
-				LIBS="$ethereal_save_LIBS"
+			        CFLAGS="$wireshark_save_CFLAGS"
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				LIBS="$wireshark_save_LIBS"
 			fi
 			want_zlib=no
 		])
@@ -647,9 +647,9 @@ AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
 ])
 
 #
-# AC_ETHEREAL_LIBPCRE_CHECK
+# AC_WIRESHARK_LIBPCRE_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
+AC_DEFUN([AC_WIRESHARK_LIBPCRE_CHECK],
 [
 	if test "x$pcre_dir" != "x"
 	then
@@ -665,13 +665,13 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 	  # as the compiler and/or linker will search that other
 	  # directory before it searches the specified directory.
 	  #
-	  ethereal_save_CFLAGS="$CFLAGS"
+	  wireshark_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$pcre_dir/include"
-	  ethereal_save_CPPFLAGS="$CPPFLAGS"
+	  wireshark_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$pcre_dir/include"
-	  ethereal_save_LIBS="$LIBS"
+	  wireshark_save_LIBS="$LIBS"
 	  LIBS="$LIBS -lpcre"
-	  ethereal_save_LDFLAGS="$LDFLAGS"
+	  wireshark_save_LDFLAGS="$LDFLAGS"
 	  LDFLAGS="$LDFLAGS -L$pcre_dir/lib"
 	fi
 
@@ -726,7 +726,7 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 				# the beginning of CFLAGS, CPPFLAGS,
 				# LDFLAGS, and LIBS.
 				#
-				PCRE_LIBS="-L$pcre_dir/lib -lpcre $ethereal_save_LIBS"
+				PCRE_LIBS="-L$pcre_dir/lib -lpcre $wireshark_save_LIBS"
 			else
 				PCRE_LIBS="-lpcre"
 			fi
@@ -740,10 +740,10 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 				# "--with-pcre=" directory, as we didn't
 				# actually find pcre there.
 				#
-				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
-				LDFLAGS="$ethereal_save_LDFLAGS"
-				LIBS="$ethereal_save_LIBS"
+				CFLAGS="$wireshark_save_CFLAGS"
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				LDFLAGS="$wireshark_save_LDFLAGS"
+				LIBS="$wireshark_save_LIBS"
 				PCRE_LIBS=""
 			fi
 			want_pcre=no
@@ -753,9 +753,9 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 ])
 
 #
-# AC_ETHEREAL_LIBLUA_CHECK
+# AC_WIRESHARK_LIBLUA_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
+AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 
 	if test "x$lua_dir" != "x"
 	then
@@ -771,23 +771,23 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 		# as the compiler and/or linker will search that other
 		# directory before it searches the specified directory.
 		#
-		ethereal_save_CFLAGS="$CFLAGS"
+		wireshark_save_CFLAGS="$CFLAGS"
 		CFLAGS="$CFLAGS -I$lua_dir/include"
-		ethereal_save_CPPFLAGS="$CPPFLAGS"
+		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CPPFLAGS="$CPPFLAGS -I$lua_dir/include"
-		ethereal_save_LIBS="$LIBS"
+		wireshark_save_LIBS="$LIBS"
 		LIBS="$LIBS -L$lua_dir/lib -llua"
-		ethereal_save_LDFLAGS="$LDFLAGS"
+		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
 	else 
 		#
 		# The user specified no directory in which liblua resides,
 		# so just add "-llua -lliblua" to the used libs.
 		#
-		ethereal_save_CFLAGS="$CFLAGS"
-		ethereal_save_CPPFLAGS="$CPPFLAGS"
-		ethereal_save_LDFLAGS="$LDFLAGS"
-		ethereal_save_LIBS="$LIBS"
+		wireshark_save_CFLAGS="$CFLAGS"
+		wireshark_save_CPPFLAGS="$CPPFLAGS"
+		wireshark_save_LDFLAGS="$LDFLAGS"
+		wireshark_save_LIBS="$LIBS"
 		LIBS="$LIBS -llua"
 	fi
 
@@ -868,7 +868,7 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 				# do we have 5.1?
 				#
 				
-				LIBS="$ethereal_save_LIBS $LUA_LIBS"
+				LIBS="$wireshark_save_LIBS $LUA_LIBS"
 
 				AC_CHECK_LIB(lua, luaL_register,
 				[
@@ -888,10 +888,10 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 				        # "--with-lua=" directory, as we didn't
 				        # actually find lua there.
 				        #
-				        CFLAGS="$ethereal_save_CFLAGS"
-				        CPPFLAGS="$ethereal_save_CPPFLAGS"
-				        LDFLAGS="$ethereal_save_LDFLAGS"
-				        LIBS="$ethereal_save_LIBS"
+				        CFLAGS="$wireshark_save_CFLAGS"
+				        CPPFLAGS="$wireshark_save_CPPFLAGS"
+				        LDFLAGS="$wireshark_save_LDFLAGS"
+				        LIBS="$wireshark_save_LIBS"
 				        LUA_LIBS=""
 				    fi
 				    # User requested --with-lua but it isn't available
@@ -909,10 +909,10 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 			# "--with-lua=" directory, as we didn't
 			# actually find lua there.
 			#
-			CFLAGS="$ethereal_save_CFLAGS"
-			CPPFLAGS="$ethereal_save_CPPFLAGS"
-			LDFLAGS="$ethereal_save_LDFLAGS"
-			LIBS="$ethereal_save_LIBS"
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
 			LUA_LIBS=""
 			# User requested --with-lua but it isn't available
 			if test "x$want_lua" = "xyes"
@@ -922,10 +922,10 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 			want_lua=no
 		])
 
-	CFLAGS="$ethereal_save_CFLAGS"
-	CPPFLAGS="$ethereal_save_CPPFLAGS"
-	LDFLAGS="$ethereal_save_LDFLAGS"
-	LIBS="$ethereal_save_LIBS"
+	CFLAGS="$wireshark_save_CFLAGS"
+	CPPFLAGS="$wireshark_save_CPPFLAGS"
+	LDFLAGS="$wireshark_save_LDFLAGS"
+	LIBS="$wireshark_save_LIBS"
 	AC_SUBST(LUA_LIBS)
 	AC_SUBST(LUA_INCLUDES)
 
@@ -933,9 +933,9 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 ])
 
 #
-# AC_ETHEREAL_NETSNMP_CHECK
+# AC_WIRESHARK_NETSNMP_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
+AC_DEFUN([AC_WIRESHARK_NETSNMP_CHECK],
 [
 	dnl get the net-snmp-config binary
 	if test "x$netsnmpconfig" = "x" ; then
@@ -970,8 +970,8 @@ AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
 		# searching for the Net-SNMP headers, we look in whatever
 		# directory that output specifies.
 		#
-		ethereal_save_CFLAGS="$CFLAGS"
-		ethereal_save_CPPFLAGS="$CPPFLAGS"
+		wireshark_save_CFLAGS="$CFLAGS"
+		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
 		CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
 
@@ -984,8 +984,8 @@ AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
 				else
 					AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
 				fi
-				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
+				CFLAGS="$wireshark_save_CFLAGS"
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
 				SNMP_LIBS=
 			else
 				AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for Net-SNMP])
@@ -1001,17 +1001,17 @@ AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
 				# of '$NETSNMPCONFIG --cflags", as we
 				# didn't actually find Net-SNMP there.
 				#
-				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
+				CFLAGS="$wireshark_save_CFLAGS"
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
 			fi
 		fi
 	fi	
 ])
 
 #
-# AC_ETHEREAL_UCDSNMP_CHECK
+# AC_WIRESHARK_UCDSNMP_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
+AC_DEFUN([AC_WIRESHARK_UCDSNMP_CHECK],
 [
 	if test "x$ucdsnmp_dir" != "x"
 	then
@@ -1029,7 +1029,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		#
 		CFLAGS="$CFLAGS -I$ucdsnmp_dir/include"
 		CPPFLAGS="$CPPFLAGS -I$ucdsnmp_dir/include"
-		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, $ucdsnmp_dir/lib)
+		AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $ucdsnmp_dir/lib)
 	fi
 
 	#
@@ -1059,7 +1059,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# needed after the library *and* to cache all that
 		# information.
 		#
-		ethereal_save_LIBS="$LIBS"
+		wireshark_save_LIBS="$LIBS"
 		found_sprint_realloc_objid=no
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
@@ -1116,7 +1116,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 				fi
 			    ])
 		done
-		LIBS="$ethereal_save_LIBS"
+		LIBS="$wireshark_save_LIBS"
 
 		#
 		# If we didn't find "sprint_realloc_objid()", fail.
@@ -1146,13 +1146,13 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 ])
 
 #
-# AC_ETHEREAL_RPM_CHECK
+# AC_WIRESHARK_RPM_CHECK
 # Looks for the rpm program, and checks to see if we can redefine "_topdir".
 #
-AC_DEFUN([AC_ETHEREAL_RPM_CHECK],
+AC_DEFUN([AC_WIRESHARK_RPM_CHECK],
 [
-	AC_CHECK_PROG(ac_cv_ethereal_have_rpm, rpm, "yes", "no")
-	if test "x$ac_cv_ethereal_have_rpm" = "xyes"; then
+	AC_CHECK_PROG(ac_cv_wireshark_have_rpm, rpm, "yes", "no")
+	if test "x$ac_cv_wireshark_have_rpm" = "xyes"; then
 		rpm --define '_topdir /tmp' > /dev/null 2>&1
 		AC_MSG_CHECKING(to see if we can redefine _topdir)
 		if test $? -eq 0 ; then
@@ -1166,10 +1166,10 @@ AC_DEFUN([AC_ETHEREAL_RPM_CHECK],
 ])
 
 #
-# AC_ETHEREAL_GNU_SED_CHECK
+# AC_WIRESHARK_GNU_SED_CHECK
 # Checks if GNU sed is the first sed in PATH.
 #
-AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
+AC_DEFUN([AC_WIRESHARK_GNU_SED_CHECK],
 [
 	AC_MSG_CHECKING(for GNU sed as first sed in PATH)
 	if  ( sh -c "sed --version" </dev/null 2> /dev/null | grep "GNU sed" 2>&1 > /dev/null ) ;  then
@@ -1182,9 +1182,9 @@ AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
 ])
 
 #
-# AC_ETHEREAL_ADNS_CHECK
+# AC_WIRESHARK_ADNS_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_ADNS_CHECK],
+AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
 [
 	want_adns=defaultyes
 
@@ -1192,7 +1192,7 @@ AC_DEFUN([AC_ETHEREAL_ADNS_CHECK],
 		want_adns=yes
 		withval=/usr/local
 		if test -d "$withval"; then
-			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
 		fi
 	fi
 
@@ -1211,12 +1211,12 @@ AC_DEFUN([AC_ETHEREAL_ADNS_CHECK],
 
 
 #
-# AC_ETHEREAL_KRB5_CHECK
+# AC_WIRESHARK_KRB5_CHECK
 #
-AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
+AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 [
-	ethereal_save_CFLAGS="$CFLAGS"
-	ethereal_save_CPPFLAGS="$CPPFLAGS"
+	wireshark_save_CFLAGS="$CFLAGS"
+	wireshark_save_CPPFLAGS="$CPPFLAGS"
 	if test "x$krb5_dir" != "x"
 	then
 	  #
@@ -1332,7 +1332,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		# the Kerberos library.
 		#
 		AC_MSG_RESULT($ac_krb5_version)
-		ethereal_save_LIBS="$LIBS"
+		wireshark_save_LIBS="$LIBS"
 		found_krb5_kt_resolve=no
 		for extras in "" "-lresolv"
 		do
@@ -1391,8 +1391,8 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			# from before we added the flags for Kerberos.
 			#
 			AC_MSG_RESULT(Usable $ac_krb5_version not found - disabling dissection for some kerberos data in packet decoding)
-			CFLAGS="$ethereal_save_CFLAGS"
-			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
 			KRB5_LIBS=""
 			want_krb5=no
 		    fi
@@ -1424,7 +1424,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			AC_MSG_RESULT(no)
 		      ])
 		fi
-		LIBS="$ethereal_save_LIBS"
+		LIBS="$wireshark_save_LIBS"
 	    else
 		#
 		# It's not Heimdal or MIT.
@@ -1443,8 +1443,8 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    # from before we added the flags for Kerberos.
 		    #
 		    AC_MSG_RESULT(Kerberos not found - disabling dissection for some kerberos data in packet decoding)
-		    CFLAGS="$ethereal_save_CFLAGS"
-		    CPPFLAGS="$ethereal_save_CPPFLAGS"
+		    CFLAGS="$wireshark_save_CFLAGS"
+		    CPPFLAGS="$wireshark_save_CPPFLAGS"
 		    KRB5_LIBS=""
 		    want_krb5=no
 		fi
@@ -1458,8 +1458,8 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    # Restore the versions of CFLAGS and CPPFLAGS
 	    # from before we added the flags for Kerberos.
 	    #
-	    CFLAGS="$ethereal_save_CFLAGS"
-	    CPPFLAGS="$ethereal_save_CPPFLAGS"
+	    CFLAGS="$wireshark_save_CFLAGS"
+	    CPPFLAGS="$wireshark_save_CPPFLAGS"
 	    KRB5_LIBS=""
 	    want_krb5=no
 	fi

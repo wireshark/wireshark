@@ -180,7 +180,7 @@ win32_open_file (HWND h_wnd) {
 	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = open_file_hook_proc;
-    ofn.lpTemplateName = _T("ETHEREAL_OPENFILENAME_TEMPLATE");
+    ofn.lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
 
     /* XXX - Get our filter */
 
@@ -233,7 +233,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = save_as_file_hook_proc;
-    ofn.lpTemplateName = _T("ETHEREAL_SAVEFILENAME_TEMPLATE");
+    ofn.lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
     if (GetSaveFileName(&ofn)) {
 	g_sf_hwnd = NULL;
@@ -324,7 +324,7 @@ win32_merge_file (HWND h_wnd) {
 	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = merge_file_hook_proc;
-    ofn.lpTemplateName = _T("ETHEREAL_MERGEFILENAME_TEMPLATE");
+    ofn.lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
 
     if (GetOpenFileName(&ofn)) {
 	filetype = cfile.cd_t;
@@ -426,7 +426,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = export_file_hook_proc;
-    ofn.lpTemplateName = _T("ETHEREAL_EXPORTFILENAME_TEMPLATE");
+    ofn.lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
 
     /* Fill in our print (and export) args */
 
@@ -526,7 +526,7 @@ win32_export_raw_file(HWND h_wnd) {
     ofn.lpstrDefExt = NULL;
     ofn.lCustData = cfile.finfo_selected->length;
     ofn.lpfnHook = export_raw_file_hook_proc;
-    ofn.lpTemplateName = _T("ETHEREAL_EXPORTRAWFILENAME_TEMPLATE");
+    ofn.lpTemplateName = _T("WIRESHARK_EXPORTRAWFILENAME_TEMPLATE");
 
     /*
      * XXX - The GTK+ code uses get_byte_view_data_and_length().  We just
@@ -884,7 +884,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 
 }
 
-// XXX - Copied from "filter-util.c" in the ethereal-win32 branch
+// XXX - Copied from "filter-util.c" in the wireshark-win32 branch
 /* XXX - The only reason for the "filter_text" parameter is to be able to feed
  * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
  */

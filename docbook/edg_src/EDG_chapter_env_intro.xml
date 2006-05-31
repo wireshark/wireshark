@@ -353,7 +353,7 @@
     <para>
       There are several mailing lists of specific Ethereal topics available:
       <variablelist>
-	<varlistentry><term><command>ethereal-announce</command></term>
+	<varlistentry><term><command>wireshark-announce</command></term>
 	  <listitem>
 	    <para>
 	      This mailing list will inform you about new program 
@@ -361,7 +361,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-users</command></term>
+	<varlistentry><term><command>wireshark-users</command></term>
 	  <listitem>
 	    <para>
 	      This list is for users of Ethereal. People post 
@@ -370,7 +370,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-dev</command></term>
+	<varlistentry><term><command>wireshark-dev</command></term>
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. People post questions about 
@@ -379,7 +379,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-bugs</command></term>
+	<varlistentry><term><command>wireshark-bugs</command></term>
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. Everytime a change to the bug 
@@ -390,7 +390,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-cvs</command></term>
+	<varlistentry><term><command>wireshark-commits</command></term>
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. Everytime a change to the SVN 
@@ -422,7 +422,7 @@
 	The Etereal community started collecting bug reports in a Bugzilla database at
 	<ulink url="&EtherealBugsSite;">&EtherealBugsSite;</ulink>.
 	This database is filled with manually filed bug reports, usually after some 
-	discussion on ethereal-dev, and bug reports from the QA build tooling.
+	discussion on wireshark-dev, and bug reports from the QA build tooling.
 	</para>
 	</section>
 		

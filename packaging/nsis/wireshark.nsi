@@ -330,8 +330,8 @@ File "..\..\AUTHORS-SHORT-FORMAT"
 File "..\..\COPYING"
 File "NEWS.txt"
 File "..\..\manuf"
-File "..\..\doc\ethereal.html"
-File "..\..\doc\ethereal-filter.html"
+File "..\..\doc\wireshark.html"
+File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 
@@ -478,8 +478,8 @@ CreateDirectory "$SMPROGRAMS\Wireshark"
 Delete "$SMPROGRAMS\Wireshark\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\Wireshark\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
 CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
-;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\ethereal.html"
-;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
 CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" \
           "$INSTDIR"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Uninstall Wireshark.lnk" "$INSTDIR\uninstall.exe"
@@ -603,7 +603,7 @@ Section "Wireshark GTK1" SecWiresharkGTK1
 SectionIn 2 RO
 !endif
 SetOutPath $INSTDIR
-File "..\..\ethereal.exe"
+File "..\..\wireshark.exe"
 File "${GTK1_DIR}\lib\libgtk-0.dll"
 File "${GTK1_DIR}\lib\libgdk-0.dll"
 SectionEnd
@@ -616,7 +616,7 @@ Section "Wireshark GTK2" SecWiresharkGTK2
 SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
-File /oname=wireshark.exe "..\..\ethereal-gtk2.exe"
+File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"

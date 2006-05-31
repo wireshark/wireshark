@@ -9,7 +9,7 @@ What is it ?
 As you have probably guessed from the name, "idl2wrs" takes a
 user specified IDL file and attempts to build a dissector that
 can decode the IDL traffic over GIOP. The resulting file is
-"C" code, that should compile okay as an ethereal dissector.
+"C" code, that should compile okay as an wireshark dissector.
 
 idl2wrs basically parses the data struct given to it by
 the omniidl compiler, and using the GIOP API available in packet-giop.[ch],
@@ -18,8 +18,8 @@ generates  get_CDR_xxx calls to decode the CORBA traffic on the wire.
 It consists of 4 main files.
 
 README.idl2wrs     - This document
-ethereal_be.py     - The main compiler backend
-ethereal_gen.py    - A helper class, that generates the C code.
+wireshark_be.py     - The main compiler backend
+wireshark_gen.py    - A helper class, that generates the C code.
 idl2wrs            - A simple shell script wrapper that the end user should
                      use to generate the dissector from the IDL file(s).
 
@@ -37,13 +37,13 @@ a CORBA class when teaching students how CORBA traffic looks like
 "on the wire".
 
 It is also COOL to work on a great Open Source project such as
-the case with "Ethereal" (http://www.ethereal.com)
+the case with "Wireshark" (http://www.wireshark.org)
 
 
 How to use idl2wrs
 ==================
 
-To use the idl2wrs to generate ethereal dissectors, you
+To use the idl2wrs to generate wireshark dissectors, you
 need the following.
 
 
@@ -53,9 +53,9 @@ need the following.
 2. omniidl from the the omniORB package must be available.
    http://omniorb.sourceforge.net/
 
-3  Of course you need ethereal installed to compile the
+3  Of course you need wireshark installed to compile the
    code an tweak it if required. idl2wrs is part of the 
-   standard Ethereal distribution
+   standard Wireshark distribution
 
 
 Procedure
@@ -81,23 +81,23 @@ steps 3 or 4 instead.
 
 3.  To write the C code to stdout.  
 
-    Usage: omniidl  -p ./ -b ethereal_be <your file.idl>
+    Usage: omniidl  -p ./ -b wireshark_be <your file.idl>
 
-    eg: omniidl  -p ./ -b ethereal_be echo.idl
+    eg: omniidl  -p ./ -b wireshark_be echo.idl
 
 
 4. To write to a file, just redirect the output.
 
-    omniidl  -p ./ -b ethereal_be echo.idl > packet-test-idl.c
+    omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c
 
    You may wish to comment out the register_giop_user_module() code
    and that will leave you with heuristic dissection.
 
 
-5. Copy the resulting C code to your ethereal src directory, edit the 2 make files
+5. Copy the resulting C code to your wireshark src directory, edit the 2 make files
    to include the packet-test-idl.c
  
-   cp packet-test-idl.c /dir/where/ethereal/lives/
+   cp packet-test-idl.c /dir/where/wireshark/lives/
    edit Makefile.am
    edit Makefile.nmake
 
@@ -130,8 +130,8 @@ See TODO list inside packet-giop.c
 Notes
 =====
 
-1. The "-p ./" option passed to omniidl indicates that the ethereal_be.py
-   and ethereal_gen.py are residing in the current directory. This may need
+1. The "-p ./" option passed to omniidl indicates that the wireshark_be.py
+   and wireshark_gen.py are residing in the current directory. This may need
    tweaking if you place these files somewhere else.
 
 2. If it complains about being unable to find some modules (eg tempfile.py), 

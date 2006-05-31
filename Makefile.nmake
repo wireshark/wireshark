@@ -1,4 +1,4 @@
-## Makefile for building ethereal.exe with Microsoft C and nmake
+## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
@@ -28,7 +28,7 @@ PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
 
 include Makefile.common
 
-ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
+wireshark_OBJECTS = $(wireshark_SOURCES:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 
@@ -46,7 +46,7 @@ EXTRA_OBJECTS = \
 	mkstemp.obj	\
 	strptime.obj
 
-ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
 !IFDEF HHC_DIR
@@ -56,7 +56,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
-	epan\ethereal.lib \
+	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
@@ -73,7 +73,7 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
-	epan\ethereal.lib \
+	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
@@ -105,7 +105,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
-	epan\ethereal.lib \
+	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
@@ -118,10 +118,10 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 
-EXECUTABLES=ethereal.exe ethereal-gtk2.exe tshark.exe \
+EXECUTABLES=wireshark.exe wireshark-gtk2.exe tshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
-RESOURCES=image\ethereal.res image\libwireshark.res image\tshark.res \
+RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
@@ -151,22 +151,22 @@ $(RESOURCES): image
 wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 
 !IFNDEF GTK1_DIR
-ethereal.exe	: 
+wireshark.exe	: 
 !ELSE
-ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(command_line_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) image\ethereal.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK1_LIBS) gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
 !IFNDEF GTK2_DIR
-ethereal-gtk2.exe	: 
+wireshark-gtk2.exe	: 
 !ELSE
-ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(command_line_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) image\ethereal.res
+		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
@@ -287,7 +287,7 @@ gtk2_distclean:
 	if exist gtk2.tmp rmdir gtk2.tmp
 
 clean: gtk2_distclean
-	rm -f $(ethereal_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
+	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
@@ -604,12 +604,12 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
 
 ################################################################################
-# Prepare the source tree for running (t)ethereal directly from there.
+# Prepare the source tree for running (t)wireshark directly from there.
 ################################################################################
 
-# "install-deps" will copy all dlls needed to run (t)ethereal
-# to the source tree, so you can run (t)ethereal directly from there.
-# Note that the gtk2 version of ethereal is called ethereal-gtk2.exe
+# "install-deps" will copy all dlls needed to run (t)wireshark
+# to the source tree, so you can run (t)wireshark directly from there.
+# Note that the gtk2 version of wireshark is called wireshark-gtk2.exe
 
 install-deps: clean-deps install-gtk1-deps install-gtk2-deps
 	cd plugins

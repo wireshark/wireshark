@@ -201,7 +201,7 @@
 	  <entry>-</entry>
 	  <entry><ulink url="http://nsis.sourceforge.net">NSIS</ulink></entry>
 	  <entry>Only needed if you want to build your own 
-	  ethereal-setup.exe.</entry>
+	  wireshark-setup.exe.</entry>
 	</row>
 	</tbody>
 	</tgroup>
@@ -347,7 +347,7 @@
 	<section>
 	<title>Nullsoft Scriptable Install System (NSIS)</title>
 	<para>
-	If you want to build your own ethereal-setup.exe, you'll need NSIS. 
+	If you want to build your own wireshark-setup.exe, you'll need NSIS. 
 	You can download the NSIS setup from 
 	<ulink url="http://nsis.sourceforge.net"/> and simply install it.
 	</para>

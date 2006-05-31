@@ -51,11 +51,11 @@ use the pcap library to capture traffic from the first available network
 interface and displays a summary line on stdout for each received packet. 
 
 B<TShark> is able to detect, read and write the same capture files that 
-are supported by B<Ethereal>.
+are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension, the file 
 format and an optional gzip compression will be automatically detected.
-The I<capture file format> section of I<ethereal(1)> or
-I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
+The I<capture file format> section of I<wireshark(1)> or
+I<http://www.wireshark.org/docs/man-pages/wireshark.1.html>
 provides a detailed description.
 
 Compressed file support uses (and therefore requires) the zlib library. 
@@ -71,7 +71,7 @@ packets' time stamps.
 When writing a decoded form of packets, B<TShark> writes, by
 default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
-pane in B<Ethereal>), although if it's writing packets as it captures
+pane in B<Wireshark>), although if it's writing packets as it captures
 them, rather than writting packets from a saved capture file, it won't
 show the "frame number" field.  If the B<-V> option is specified, it
 writes instead a view of the details of the packet, showing all the
@@ -132,7 +132,7 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have 
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
 kilobytes (where a kilobyte is 1024 bytes). If this option 
-is used together with the -b option, Ethereal will stop writing to the 
+is used together with the -b option, Wireshark will stop writing to the 
 current capture file and switch to the next one if filesize is reached.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
@@ -414,7 +414,7 @@ after printing the summary or details.
 Specify an option to be passed to a B<TShark> module. The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
-B<lua_script>:I<lua_script_filename> tells B<Ethereal> to load the given script in addition to the
+B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
 
 
@@ -715,11 +715,11 @@ See the manual page of I<tcpdump(8)>.
 =head1 READ FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<TShark> see the I<ethereal-filter(4)> manual page.
+in B<TShark> see the I<wireshark-filter(4)> manual page.
 
 =head1 FILES
 
-These files contains various B<Ethereal> configuration values.
+These files contains various B<Wireshark> configuration values.
 
 =over 4
 
@@ -745,17 +745,17 @@ starts a comment that runs to the end of the line:
   # TRUE or FALSE (case-insensitive).
   capture.prom_mode: TRUE
 
-The global preferences file is looked for in the F<ethereal> directory
+The global preferences file is looked for in the F<wireshark> directory
 under the F<share> subdirectory of the main installation directory (for
-example, F</usr/local/share/ethereal/preferences>) on UNIX-compatible
+example, F</usr/local/share/wireshark/preferences>) on UNIX-compatible
 systems, and in the main installation directory (for example,
-F<C:\Program Files\Ethereal\preferences>) on Windows systems.
+F<C:\Program Files\Wireshark\preferences>) on Windows systems.
 
 The personal preferences file is looked for in
-F<$HOME/.ethereal/preferences> on
-UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
+F<$HOME/.wireshark/preferences> on
+UNIX-compatible systems and F<%APPDATA%\Wireshark\preferences> (or, if
 %APPDATA% isn't defined, F<%USERPROFILE%\Application
-Data\Ethereal\preferences>) on Windows systems.
+Data\Wireshark\preferences>) on Windows systems.
 
 =item Disabled (Enabled) Protocols
 
@@ -801,7 +801,7 @@ lines of an F<ethers> file:
 
 The global F<ethers> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems.
+example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
@@ -848,7 +848,7 @@ For example, these four lines are valid lines of an F<ipxnets> file:
 
 The global F<ipxnets> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems.
+example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ipxnets> file is looked for in the same directory as the
 personal preferences file.
@@ -857,18 +857,18 @@ personal preferences file.
 
 =head1 SEE ALSO
 
-I<ethereal-filter(4)> I<ethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<wireshark-filter(4)> I<wireshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 
-B<TShark> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://www.ethereal.com>.
+B<TShark> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at B<http://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-http://www.ethereal.com/docs/man-pages
+http://www.wireshark.org/docs/man-pages
 
 =head1 AUTHORS
 
-B<TShark> uses the same packet dissection code that B<Ethereal> does,
-as well as using many other modules from B<Ethereal>; see the list of
-authors in the B<Ethereal> man page for a list of authors of that code.
+B<TShark> uses the same packet dissection code that B<Wireshark> does,
+as well as using many other modules from B<Wireshark>; see the list of
+authors in the B<Wireshark> man page for a list of authors of that code.

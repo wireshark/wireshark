@@ -29,7 +29,7 @@ GENERATED_HEADER_FILES =
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES = \
-	ethereal-tap-register.c
+	wireshark-tap-register.c
 
 # All the generated files we want in the distribution.
 GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
@@ -38,7 +38,7 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 # ethclist.obj is not in here because it is currently gtk+-1.2-only
 # code, while the DLL for GTK+ on Windows is gtk+-1.3 or gtk+-2.x.
 #
-ETHEREAL_GTK_SRC = \
+WIRESHARK_GTK_SRC = \
 	about_dlg.c	\
 	capture_dlg.c	\
 	capture_file_dlg.c	\
@@ -57,7 +57,7 @@ ETHEREAL_GTK_SRC = \
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
 	drag_and_drop.c 	\
-	ethereal-tap-register.c	\
+	wireshark-tap-register.c	\
 	expert_comp_table.c    \
 	file_dlg.c	\
 	fileset_dlg.c	\
@@ -108,7 +108,7 @@ ETHEREAL_GTK_SRC = \
 	webbrowser.c
 
 
-ETHEREAL_TAP_SRC = \
+WIRESHARK_TAP_SRC = \
 	afp_stat.c	\
 	ansi_a_stat.c	\
 	ansi_map_stat.c	\

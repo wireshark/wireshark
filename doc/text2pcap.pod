@@ -77,7 +77,7 @@ B<Text2pcap> also allows the user to read in dumps of
 application-level data, by inserting dummy L2, L3 and L4 headers
 before each packet. The user can elect to insert Ethernet headers,
 Ethernet and IP, or Ethernet, IP and UDP/TCP headers before each
-packet. This allows Ethereal or any other full-packet decoder to
+packet. This allows Wireshark or any other full-packet decoder to
 handle these dumps.
 
 =head1 OPTIONS
@@ -118,7 +118,7 @@ for the Ethernet header in hex. Use this option if your dump has Layer
 encapsulation. Example: I<-e 0x806> to specify an ARP packet. 
 
 For IP packets, instead of generating a fake Ethernet header you can
-also use I<-l 12> to indicate a raw IP packet to Ethereal. Note that
+also use I<-l 12> to indicate a raw IP packet to Wireshark. Note that
 I<-l 12> does not work for any non-IP Layer 3 packet (e.g. ARP),
 whereas generating a dummy Ethernet header with I<-e> works for any
 sort of L3 packet.
@@ -195,12 +195,12 @@ a second.
 
 =head1 SEE ALSO
 
-I<od(1)>, I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>, I<strptime(3)>.
+I<od(1)>, I<tcpdump(8)>, I<pcap(3)>, I<wireshark(1)>, I<editcap(1)>, I<strptime(3)>.
 
 =head1 NOTES
 
-B<Text2pcap> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://www.ethereal.com>.
+B<Text2pcap> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at B<http://www.wireshark.org>.
 
 =head1 AUTHORS
 

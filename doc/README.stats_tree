@@ -4,9 +4,9 @@ tapping with stats_tree
 Let's suppose that you want to write a tap only to keep counters, and you
 don't want to get involved with GUI programming or maybe you'd like to make
 it a plugin. A stats_tree might be the way to go. The stats_tree module takes
-care of the representation (GUI for ethereal and text for tshark) of the
+care of the representation (GUI for wireshark and text for tshark) of the
 tap data. So there's very little code to write to make a tap listener usable
-from both ethereal and tshark.
+from both wireshark and tshark.
 
 First, you should add the TAP to the dissector in question as described in
 README.tapping .
@@ -31,7 +31,7 @@ Other than that the stats_tree should be registered.
 
 If you want to make it a plugin, stats_tree_register() should be called by
 plugin_register_tap_listener() read README.plugin for other information
-regarding ethereal plugins.
+regarding wireshark plugins.
 
 If you want it as part of the dissector stats_tree_register() can be called
 either by proto_register_xxx() or if you prefer by proto_reg_handoff_xxx().

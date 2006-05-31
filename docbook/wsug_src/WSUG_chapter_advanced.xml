@@ -683,7 +683,7 @@
     <para><command>DNS/ADNS name resolution (system/library service)</command>
 	Wireshark will ask the operating system (or the ADNS library), 
 	to convert an IP address to the hostname associated with it 
-	(e.g. 65.208.228.223 -> www.ethereal.com). The DNS service is using 
+	(e.g. 65.208.228.223 -> www.wireshark.org). The DNS service is using 
 	synchronous calls to the DNS server. So Wireshark will stop responding 
 	until a response to a DNS request is returned. If possible, you might 
 	consider using the ADNS library (which won't wait for a network response).
@@ -724,7 +724,7 @@
     <para><command>hosts name resolution (hosts file)</command>
 	If DNS name resolution failed, Wireshark will try to convert an IP address 
 	to the hostname associated with it, using an hosts file provided by the 
-	user (e.g. 65.208.228.223 -> www.ethereal.com).
+	user (e.g. 65.208.228.223 -> www.wireshark.org).
     </para>
 	</section>
 	

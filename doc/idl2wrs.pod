@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-idl2wrs - CORBA IDL to Ethereal Plugin Generator
+idl2wrs - CORBA IDL to Wireshark Plugin Generator
 
 =head1 SYNOPSYS
 
@@ -10,9 +10,9 @@ B<idl2wrs> filename
 =head1 DESCRIPTION
 
 B<idl2wrs> is a program that takes a user specified B<CORBA IDL> 
-file and generates B<"C"> source code for an B<Ethereal> "plugin".
+file and generates B<"C"> source code for an B<Wireshark> "plugin".
 
-This resulting file can be compiled as an B<Ethereal> plugin, and
+This resulting file can be compiled as an B<Wireshark> plugin, and
 used to monitor B<GIOP/IIOP> traffic that is using this IDL.
 
 B<idl2wrs> is actually a shell script wrapper for two B<Python> programs.
@@ -21,9 +21,9 @@ These programs are:
 
 =over 4
 
-B<ethereal_be.py>  - Contains the main IDL Visitor Class
+B<wireshark_be.py>  - Contains the main IDL Visitor Class
 
-B<ethereal_gen.py> - Contains the Source Code Generator Class 
+B<wireshark_gen.py> - Contains the Source Code Generator Class 
 
 =back
 
@@ -55,12 +55,12 @@ Currently there are no options. B<idl2wrs> can be invoked as follows.
 
 =head1 ENVIRONMENT
 
-B<idl2wrs> will look for B<ethereal_be.py> and B<ethereal_gen.py> in
+B<idl2wrs> will look for B<wireshark_be.py> and B<wireshark_gen.py> in
 B<$PYTHONPATH/site-packages/> and if not found, will try the current
 directory B<./>
 
 The B<-p> option passed to omniidl (inside B<idl2wrs>) indicates where
-B<ethereal_be.py> and B<ethereal_gen.py> will be searched.  This may
+B<wireshark_be.py> and B<wireshark_gen.py> will be searched.  This may
 need tweaking if you place these files somewhere else.
 
 If it complains about being unable to find some modules (eg tempfile.py), 
@@ -71,14 +71,14 @@ eg:  PYTHONPATH=/usr/lib/python1.5/
 
 =head1 SEE ALSO
 
-I<ethereal(1)>
+I<wireshark(1)>
 
 
 =head1 NOTES
 
-B<idl2wrs> (including B<ethereal_be.py> and B<ethereal_gen.py>) are part of 
-the B<Ethereal> distribution.  The latest version of B<Ethereal> can 
-be found at B<http://www.ethereal.com>.
+B<idl2wrs> (including B<wireshark_be.py> and B<wireshark_gen.py>) are part of 
+the B<Wireshark> distribution.  The latest version of B<Wireshark> can 
+be found at B<http://www.wireshark.org>.
 
 B<idl2wrs> uses B<omniidl>, and IDL parser, and can be found at
 B<http://omniorb.sourceforge.net/>

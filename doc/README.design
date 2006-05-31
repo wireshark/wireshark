@@ -1,21 +1,21 @@
 $Id$
 
 Unfortunately, the closest thing to a design document is the
-"README.developer" document in the "doc" directory of the Ethereal
+"README.developer" document in the "doc" directory of the Wireshark
 source tree; however, although that's useful for people adding new
-protocol dissectors to Ethereal, it doesn't describe the operations of
-the "core" of Ethereal.
+protocol dissectors to Wireshark, it doesn't describe the operations of
+the "core" of Wireshark.
 
 We have no document describing that; however, a quick summary of the
 part of the code you'd probably be working with is:
 
-	for every capture file that Ethereal has open, there's a
-	"capture_file" structure - Ethereal currently supports only one
+	for every capture file that Wireshark has open, there's a
+	"capture_file" structure - Wireshark currently supports only one
 	open capture file at a time, and that structure is named
 	"cfile" (see the "file.h" header file);
 
 	that structure has a member "plist", which points to a
-	"frame_data" structure - every link-layer frame that Ethereal
+	"frame_data" structure - every link-layer frame that Wireshark
 	has read in has a "frame_data" structure (see the
 	"epan/packet.h" header file), the "plist" member of "cfile"
 	points to the first frame, and each frame has a "next" member

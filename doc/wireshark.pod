@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-ethereal - Interactively dump and analyze network traffic
+wireshark - Interactively dump and analyze network traffic
 
 =head1 SYNOPSYS
 
-B<ethereal>
+B<wireshark>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
 S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
@@ -38,13 +38,13 @@ S<[ E<lt>infileE<gt> ]>
 
 =head1 DESCRIPTION
 
-B<Ethereal> is a GUI network protocol analyzer.  It lets you
+B<Wireshark> is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
-previously saved capture file.  B<Ethereal>'s native capture file format
+previously saved capture file.  B<Wireshark>'s native capture file format
 is B<libpcap> format, which is also the format used by B<tcpdump> and
 various other tools.
 
-B<Ethereal> can read / import the following file formats:
+B<Wireshark> can read / import the following file formats:
 
 =over 4
 
@@ -131,25 +131,25 @@ Catapult DCT2000 .out files
 
 =back 4
 
-There is no need to tell B<Ethereal> what type of
+There is no need to tell B<Wireshark> what type of
 file you are reading; it will determine the file type by itself. 
-B<Ethereal> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Ethereal> recognizes this directly from
+B<Wireshark> is also capable of reading any of these file formats if they
+are compressed using gzip.  B<Wireshark> recognizes this directly from
 the file; the '.gz' extension is not required for this purpose.
 
-Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
+Like other protocol analyzers, B<Wireshark>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
 packet is.  A packet details display is shown, allowing you to drill
 down to exact protocol or field that you interested in.  Finally, a hex
 dump shows you exactly what the packet looks like when it goes over the
 wire.
 
-In addition, B<Ethereal> has some features that make it unique.  It can
+In addition, B<Wireshark> has some features that make it unique.  It can
 assemble all the packets in a TCP conversation and show you the ASCII
 (or EBCDIC, or hex) data in that conversation.  Display filters in
-B<Ethereal> are very powerful; more fields are filterable in B<Ethereal>
+B<Wireshark> are very powerful; more fields are filterable in B<Wireshark>
 than in other protocol analyzers, and the syntax you can use to create
-your filters is richer.  As B<Ethereal> progresses, expect more and more
+your filters is richer.  As B<Wireshark> progresses, expect more and more
 protocol fields to be allowed in display filters.
 
 Packet capturing is performed with the pcap library.  The capture filter
@@ -157,7 +157,7 @@ syntax follows the rules of the pcap library.  This syntax is different
 from the display filter syntax.
 
 Compressed file support uses (and therefore requires) the zlib library. 
-If the zlib library is not present, B<Ethereal> will compile, but will
+If the zlib library is not present, B<Wireshark> will compile, but will
 be unable to read compressed files.
 
 The pathname of a capture file to be read can be specified with the
@@ -167,12 +167,12 @@ B<-r> option or can be specified as a command-line argument.
 
 =over 4
 
-Most users will want to start B<Ethereal> without options and configure
+Most users will want to start B<Wireshark> without options and configure
 it from the menus instead. Those users may just skip this section.
 
 =item -a  E<lt>capture autostop conditionE<gt>
 
-Specify a criterion that specifies when B<Ethereal> is to stop writing
+Specify a criterion that specifies when B<Wireshark> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
@@ -180,16 +180,16 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have 
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
 kilobytes (where a kilobyte is 1024 bytes). If this option 
-is used together with the -b option, Ethereal will stop writing to the 
+is used together with the -b option, Wireshark will stop writing to the 
 current capture file and switch to the next one if filesize is reached.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
-Cause B<Ethereal> to run in "multiple files" mode.  In "multiple files" mode, 
-B<Ethereal> will write to several capture files. When the first capture file 
-fills up, B<Ethereal> will switch writing to the next file and so on.
+Cause B<Wireshark> to run in "multiple files" mode.  In "multiple files" mode, 
+B<Wireshark> will write to several capture files. When the first capture file 
+fills up, B<Wireshark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> flag, the number of 
 the file and on the creation date and time, 
@@ -197,7 +197,7 @@ e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer". 
 This will fill up new files until the number of files specified, 
-at which point B<Ethereal> will discard the data in the first file and start 
+at which point B<Wireshark> will discard the data in the first file and start 
 writing to that file and so on. If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or 
 until the disk if full).
@@ -227,7 +227,7 @@ data.
 
 =item -D
 
-Print a list of the interfaces on which B<Ethereal> can capture, and
+Print a list of the interfaces on which B<Wireshark> can capture, and
 exit.  For each network interface, a number and an
 interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
@@ -238,10 +238,10 @@ This can be useful on systems that don't have a command to list them
 the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 
-Note that "can capture" means that B<Ethereal> was able to open
+Note that "can capture" means that B<Wireshark> was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
-example, as root), then, if B<Ethereal> is run with the B<-D> flag and
+example, as root), then, if B<Wireshark> is run with the B<-D> flag and
 is not run from such an account, it will not list any interfaces.
 
 =item -f  E<lt>capture filterE<gt>
@@ -262,32 +262,32 @@ Set the name of the network interface or pipe to use for live packet
 capture. 
 
 Network interface names should match one of the names listed in
-"B<ethereal -D>" (described above); a number, as reported by
-"B<ethereal -D>", can also be used.  If you're using UNIX, "B<netstat
+"B<wireshark -D>" (described above); a number, as reported by
+"B<wireshark -D>", can also be used.  If you're using UNIX, "B<netstat
 -i>" or "B<ifconfig -a>" might also work to list interface names,
 although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
 
-If no interface is specified, B<Ethereal> searches the list of
+If no interface is specified, B<Wireshark> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces. If there are no interfaces at all,
-B<Ethereal> reports an error and doesn't start the capture.
+B<Wireshark> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
-Note: the Win32 version of B<Ethereal> doesn't support capturing from
+Note: the Win32 version of B<Wireshark> doesn't support capturing from
 pipes or stdin!
 
 =item -k
 
 Start the capture session immediately.  If the B<-i> flag was
 specified, the capture uses the specified interface.  Otherwise,
-B<Ethereal> searches the list of interfaces, choosing the first
+B<Wireshark> searches the list of interfaces, choosing the first
 non-loopback interface if there are any non-loopback interfaces, and
 choosing the first loopback interface if there are no non-loopback
-interfaces; if there are no interfaces, B<Ethereal> reports an error and
+interfaces; if there are no interfaces, B<Wireshark> reports an error and
 doesn't start the capture.
 
 =item -l
@@ -302,7 +302,7 @@ List the data link types supported by the interface and exit.
 
 =item -m  E<lt>fontE<gt>
 
-Set the name of the font used by B<Ethereal> for most text.  B<Ethereal>
+Set the name of the font used by B<Wireshark> for most text.  B<Wireshark>
 will construct the name of the bold font used for the data in the byte
 view pane that corresponds to the field selected in the packet details
 pane from the name of the main text font.
@@ -337,7 +337,7 @@ read from a preference/recent file. The argument to the flag is a string of
 the form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference/recent value (which is the same name that would appear in the 
 preference/recent file), and I<value> is the value to which it should be set. 
-Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used 
+Since B<Wireshark> 0.10.12, the recent settings replaces the formerly used 
 -B, -P and -T flags to manipulate the GUI dimensions.
 
 =item -p
@@ -345,13 +345,13 @@ Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used
 I<Don't> put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
 B<-p> cannot be used to ensure that the only traffic that is captured is
-traffic sent to or from the machine on which B<Ethereal> is running,
+traffic sent to or from the machine on which B<Wireshark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
 =item -Q
 
-Cause B<Ethereal> to exit after the end of capture session (useful in
+Cause B<Wireshark> to exit after the end of capture session (useful in
 batch mode with B<-c> option for instance); this option requires the
 B<-i> and B<-w> parameters.
 
@@ -411,16 +411,16 @@ are the values that can be used.
 
 =item -X E<lt>eXtension optionsE<gt>
 
-Specify an option to be passed to an B<Ethereal> module. The eXtension option
+Specify an option to be passed to an B<Wireshark> module. The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
-B<lua_script>:I<lua_script_filename> tells B<Ethereal> to load the given script in addition to the
+B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
 
 
 =item -z  E<lt>statisticsE<gt>
 
-Get B<Ethereal> to collect various types of statistics and display the result
+Get B<Wireshark> to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 Currently implemented statistics are:
 
@@ -700,7 +700,7 @@ next / previous file in that set.
 =item File:Export
 
 Export captured data into an external format. Note: the data cannot be 
-imported back into Ethereal, so be sure to keep the capture file.
+imported back into Wireshark, so be sure to keep the capture file.
 
 =item File:Print
 
@@ -861,7 +861,7 @@ consists of a name, a filter expression and a coloration. A packet is
 colored according to the first filter that it matches. Color filter
 expressions use exactly the same syntax as display filter expressions.
 
-When Ethereal starts, the color filters are loaded from:
+When Wireshark starts, the color filters are loaded from:
 
 =over
 
@@ -926,7 +926,7 @@ Beware: keeping this box open results in high system load!
 Initiate a live packet capture (see L<Capture Options|/item_capture_options> 
 dialog below). If no filename is specified, a temporary file will be created 
 to hold the capture. The location of the file can be chosen by setting your 
-TMPDIR environment variable before starting B<Ethereal>. Otherwise, the 
+TMPDIR environment variable before starting B<Wireshark>. Otherwise, the 
 default TMPDIR location is system-dependent, but is likely either F</var/tmp> 
 or F</tmp>.
 
@@ -990,13 +990,13 @@ The entire list can be enabled, disabled, or inverted using the buttons
 below the list.
 
 When a protocol is disabled, dissection in a particular packet stops
-when that protocol is reached, and Ethereal moves on to the next packet.
+when that protocol is reached, and Wireshark moves on to the next packet.
 Any higher-layer protocols that would otherwise have been processed will
 not be displayed.  For example, disabling TCP will prevent the dissection
 and display of TCP, HTTP, SMTP, Telnet, and any other protocol exclusively
 dependent on TCP.
 
-The list of protocols can be saved, so that Ethereal will start up with
+The list of protocols can be saved, so that Wireshark will start up with
 the protocols in that list disabled.
 
 =item Analyze:Decode As
@@ -1006,7 +1006,7 @@ which dissectors are used to decode this packet.  The dialog has one
 panel each for the link layer, network layer and transport layer
 protocol/port numbers, and will allow each of these to be changed
 independently.  For example, if the selected packet is a TCP packet to
-port 12345, using this dialog you can instruct Ethereal to decode all
+port 12345, using this dialog you can instruct Wireshark to decode all
 packets to or from that TCP port as HTTP packets.
 
 =item Analyze:User Specified Decodes
@@ -1112,7 +1112,7 @@ second intervals.
 interval will be in the drawing area.  The default is 5 pixels per tick. 
 
 "Y-scale:" controls the max value for the y-axis.  Default value is
-"auto" which means that B<Ethereal> will try to adjust the maxvalue
+"auto" which means that B<Wireshark> will try to adjust the maxvalue
 automatically.
 
 "advanced..." If Unit:advanced...  is selected the window will display
@@ -1220,7 +1220,7 @@ ascending or descending order by any column.
 
 By first selecting a conversation by clicking on it and then using the 
 right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
+mouse button) wireshark will display a popup menu offering several different 
 filter operations to apply to the capture.
 
 These statistics windows can also be invoked from the Wireshark command
@@ -1234,7 +1234,7 @@ interface and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>,
 B<Maximum SRT> and B<Average SRT> for all procedures for that
 program/version.  These windows opened will update in semi-real time to
 reflect changes when doing live captures or when reading new capture
-files into B<Ethereal>.
+files into B<Wireshark>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs 
@@ -1248,7 +1248,7 @@ and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
 B<Maximum SRT> and B<Average SRT> for all FC types.
 These windows opened will update in semi-real time to
 reflect changes when doing live captures or when reading new capture
-files into B<Ethereal>.
+files into B<Wireshark>.
 The Service Response Time is calculated as the time delta between the
 First packet of the exchange and the Last packet of the exchange.
 
@@ -1262,7 +1262,7 @@ string is specified all request/response pairs will be used.
 Open a window to display statistics for an arbitrary ONC-RPC program interface
 and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+doing live captures or when reading new capture files into B<Wireshark>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such ONC-RPC request/response pairs 
@@ -1271,7 +1271,7 @@ string is specified all request/response pairs will be used.
 
 By first selecting a conversation by clicking on it and then using the 
 right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
+mouse button) wireshark will display a popup menu offering several different 
 filter operations to apply to the capture.
 
 =item Statistics:Service Response Time:SMB
@@ -1294,7 +1294,7 @@ on those calls matching that filter.
 
 By first selecting a conversation by clicking on it and then using the 
 right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
+mouse button) wireshark will display a popup menu offering several different 
 filter operations to apply to the capture.
 
 =item Statistics:Service Response Time:MGCP
@@ -1303,7 +1303,7 @@ Collect requests/response SRT (Service Response Time) data for MGCP.
 Data collected is B<number of calls> for each known MGCP Type, 
 B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maximum in Packet>. 
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
@@ -1317,7 +1317,7 @@ B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maxi
 You will also get the number of B<Open Requests> (Unresponded Requests), 
 B<Discarded Responses> (Responses without matching request) and Duplicate Messages.
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
@@ -1330,7 +1330,7 @@ list of H.225 messages and H.225 message reasons, which occur in the current
 capture file. The number of occurences of each message or reason will be displayed 
 in the second column.
 This window opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
 the counter. The statistics will only be calculated 
@@ -1343,7 +1343,7 @@ SIP Method and of each SIP Status-Code. Additionally you also get the number of
 resent SIP Messages (only for SIP over UDP).  
 
 This window opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
 the counter. The statistics will only be calculated 
@@ -1366,13 +1366,13 @@ List of supported protocols and display filter protocol fields.
 
 Display locally installed HTML versions of these manual pages in a web browser.
 
-=item Help:Ethereal Online
+=item Help:Wireshark Online
 
-Various links to online resources to be open in a web browser, like http://www.ethereal.com.
+Various links to online resources to be open in a web browser, like http://www.wireshark.org.
 
-=item Help:About Ethereal
+=item Help:About Wireshark
 
-See various information about Ethereal (see L<About|/item_about> dialog below), like the 
+See various information about Wireshark (see L<About|/item_about> dialog below), like the 
 version, the folders used, the available plugins, ...
 
 =back
@@ -1424,7 +1424,7 @@ source and destination addresses, protocol, and description are
 displayed for each packet; the I<Columns> page in the dialog box popped
 up by I<Edit:Preferences> lets you change this (although, unfortunately,
 you currently have to save the preferences, and exit and restart
-Ethereal, for those changes to take effect).
+Wireshark, for those changes to take effect).
 
 If you click on the heading for a column, the display will be sorted by
 that column; clicking on the heading again will reverse the sort order
@@ -1467,7 +1467,7 @@ The statusbar can be hidden by I<View:Statusbar>.
 =item Preferences
 
 The I<Preferences> dialog lets you control various personal preferences
-for the behavior of B<Ethereal>.
+for the behavior of B<Wireshark>.
 
 =over 6
 
@@ -1513,19 +1513,19 @@ item can be set to use either inverse video, or bold characters.
 =item Save Window Position
 
 If this item is selected, the position of the main Wireshark window will
-be saved when Ethereal exits, and used when Wireshark is started again.
+be saved when Wireshark exits, and used when Wireshark is started again.
 
 =item Save Window Size
 
 If this item is selected, the size of the main Wireshark window will
-be saved when Ethereal exits, and used when Wireshark is started again.
+be saved when Wireshark exits, and used when Wireshark is started again.
 
 =item File Open Dialog Behavior
 
-This item allows the user to select how Ethereal handles the listing
+This item allows the user to select how Wireshark handles the listing
 of the "File Open" Dialog when opening trace files.  "Remember Last
-Directory" causes Ethereal to automatically position the dialog in the
-directory of the most recently opened file, even between launches of Ethereal.
+Directory" causes Wireshark to automatically position the dialog in the
+directory of the most recently opened file, even between launches of Wireshark.
 "Always Open in Directory" allows the user to define a persistent directory
 that the dialog will always default to.
 
@@ -1602,7 +1602,7 @@ The I<Filter:> text entry lets you set a capture filter expression to be
 used when capturing.
 
 If any of the environment variables SSH_CONNECTION, SSH_CLIENT,
-REMOTEHOST, DISPLAY, or CLIENTNAME are set, Ethereal will create a
+REMOTEHOST, DISPLAY, or CLIENTNAME are set, Wireshark will create a
 default capture filter that excludes traffic from the hosts and ports
 defined in those variables.
 
@@ -1630,8 +1630,8 @@ system for a particular save file.
 
 =item Protocol Preferences
 
-There are also pages for various protocols that Ethereal dissects,
-controlling the way Ethereal handles those protocols.
+There are also pages for various protocols that Wireshark dissects,
+controlling the way Wireshark handles those protocols.
 
 =back
 
@@ -1808,7 +1808,7 @@ does not close the dialog.
 
 Saves the current list of color filters in your personal color filters
 file. Unless you do this they will not be used the next time you start
-Ethereal.
+Wireshark.
 
 =item CLOSE
 
@@ -1870,22 +1870,22 @@ The I<Stop capture after ... files> field lets you specify the number
 of capture files used, until the capture is stopped.
 
 The I<Stop capture after ... packet(s)> check box and field let
-you specify that Ethereal should stop capturing after having captured
-some number of packets; if the check box is not checked, Ethereal will
+you specify that Wireshark should stop capturing after having captured
+some number of packets; if the check box is not checked, Wireshark will
 not stop capturing at some fixed number of captured packets.
 
 The I<Stop capture after ... megabyte(s)> check box and field lets 
-you specify that Ethereal should stop capturing after the file to which 
+you specify that Wireshark should stop capturing after the file to which 
 captured packets are being saved grows as large as or larger than some 
-specified number of megabytes. If the check box is not checked, Ethereal 
+specified number of megabytes. If the check box is not checked, Wireshark 
 will not stop capturing at some capture file size (although the operating 
 system on which Wireshark is running, or the available disk space, may still 
 limit the maximum size of a capture file). This option is disabled, if 
 "multiple files" mode is used, 
 
 The I<Stop capture after ...  second(s)> check box and field let you
-specify that Ethereal should stop capturing after it has been capturing
-for some number of seconds; if the check box is not checked, Ethereal
+specify that Wireshark should stop capturing after it has been capturing
+for some number of seconds; if the check box is not checked, Wireshark
 will not stop capturing after some fixed time has elapsed.
 
 The I<Update list of packets in real time> check box lets you specify
@@ -1901,11 +1901,11 @@ should be translated to names.
 
 =item About
 
-The I<About> dialog lets you view various information about Ethereal.
+The I<About> dialog lets you view various information about Wireshark.
 
-=item About:Ethereal
+=item About:Wireshark
 
-The I<Ethereal> page lets you view general information about Ethereal, 
+The I<Wireshark> page lets you view general information about Wireshark, 
 like the installed version, licensing information and such.
 
 =item About:Authors
@@ -1914,7 +1914,7 @@ The I<Authors> page shows the author and all contributors.
 
 =item About:Folders
 
-The I<Folders> page lets you view the directory names where Ethereal is
+The I<Folders> page lets you view the directory names where Wireshark is
 searching it's various configuration and other files.
 
 =item About:Plugins
@@ -1926,24 +1926,24 @@ The I<Plugins List> shows the name and version of each dissector plugin
 module found on your system.
 
 On Unix-compatible systems, the plugins are looked for in the following
-directories: the F<lib/ethereal/plugins/$VERSION> directory under the
+directories: the F<lib/wireshark/plugins/$VERSION> directory under the
 main installation directory (for example,
-F</usr/local/lib/ethereal/plugins/$VERSION>), and then
-F<$HOME/.ethereal/plugins>.
+F</usr/local/lib/wireshark/plugins/$VERSION>), and then
+F<$HOME/.wireshark/plugins>.
 
 On Windows systems, the plugins are looked for in the following
 directories: F<plugins\$VERSION> directory under the main installation
-directory (for example, F<C:\Program Files\Ethereal\plugins\$VERSION>),
-and then F<%APPDATA%\Ethereal\plugins\$VERSION> (or, if %APPDATA% isn't
-defined, F<%USERPROFILE%\Application Data\Ethereal\plugins\$VERSION>).
+directory (for example, F<C:\Program Files\Wireshark\plugins\$VERSION>),
+and then F<%APPDATA%\Wireshark\plugins\$VERSION> (or, if %APPDATA% isn't
+defined, F<%USERPROFILE%\Application Data\Wireshark\plugins\$VERSION>).
 
 $VERSION is the version number of the plugin interface, which
-is typically the version number of Ethereal.  Note that a dissector
+is typically the version number of Wireshark.  Note that a dissector
 plugin module may support more than one protocol; there is not
 necessarily a one-to-one correspondence between dissector plugin modules
 and protocols.  Protocols supported by a dissector plugin module are
 enabled and disabled using the I<Edit:Protocols> dialog box, just as
-protocols built into Ethereal are.
+protocols built into Wireshark are.
 
 =back
 
@@ -1954,11 +1954,11 @@ See the manual page of I<tcpdump(8)>.
 =head1 DISPLAY FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<Ethereal> see the I<ethereal-filter(4)> manual page.
+in B<Wireshark> see the I<wireshark-filter(4)> manual page.
 
 =head1 FILES
 
-These files contains various B<Ethereal> configuration settings.
+These files contains various B<Wireshark> configuration settings.
 
 =over 4
 
@@ -1984,16 +1984,16 @@ starts a comment that runs to the end of the line:
   # TRUE or FALSE (case-insensitive).
   gui.scrollbar_on_right: TRUE
 
-The global preferences file is looked for in the F<ethereal> directory
+The global preferences file is looked for in the F<wireshark> directory
 under the F<share> subdirectory of the main installation directory (for
-example, F</usr/local/share/ethereal/preferences>) on UNIX-compatible
+example, F</usr/local/share/wireshark/preferences>) on UNIX-compatible
 systems, and in the main installation directory (for example,
-F<C:\Program Files\Ethereal\preferences>) on Windows systems.
+F<C:\Program Files\Wireshark\preferences>) on Windows systems.
 
-The personal preferences file is looked for in F<$HOME/.ethereal/preferences> on
-UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
+The personal preferences file is looked for in F<$HOME/.wireshark/preferences> on
+UNIX-compatible systems and F<%APPDATA%\Wireshark\preferences> (or, if
 %APPDATA% isn't defined, F<%USERPROFILE%\Application
-Data\Ethereal\preferences>) on Windows systems.
+Data\Wireshark\preferences>) on Windows systems.
 
 Note: Whenever the preferences are saved by using the I<Save> button
 in the I<Edit:Preferences> dialog box, your personal preferences file
@@ -2003,7 +2003,7 @@ unknown/obsolete settings that were in the file.
 =item Recent
 
 The F<recent> file contains personal settings (mostly GUI related) such
-as the current B<Ethereal> window size. The file is saved at program exit and 
+as the current B<Wireshark> window size. The file is saved at program exit and 
 read in at program start automatically. Note: The command line flag B<-o> 
 may be used to override settings from this file.
 
@@ -2067,7 +2067,7 @@ lines of an F<ethers> file:
 
 The global F<ethers> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems.
+example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ethers> file is looked for in the same directory as the personal 
 preferences file.
@@ -2114,7 +2114,7 @@ For example, these four lines are valid lines of an F<ipxnets> file:
 
 The global F<ipxnets> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems.
+example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ipxnets> file is looked for in the same directory as the
 personal preferences file.
@@ -2199,12 +2199,12 @@ See above in the description of the About:Plugins page.
 
 =head1 SEE ALSO
 
-I<ethereal-filter(4)> I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<wireshark-filter(4)> I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 
-The latest version of B<Ethereal> can be found at
-B<http://www.ethereal.com>.
+The latest version of B<Wireshark> can be found at
+B<http://www.wireshark.org>.
 
 =head1 AUTHORS
 

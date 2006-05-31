@@ -1,10 +1,10 @@
 =head1 NAME
 
-ethereal-filter - Ethereal filter syntax and reference
+wireshark-filter - Wireshark filter syntax and reference
 
 =head1 SYNOPSYS
 
-B<ethereal> [other options]
+B<wireshark> [other options]
 S<[ B<-R> "filter expression" ]>
 
 B<tshark> [other options]
@@ -12,7 +12,7 @@ S<[ B<-R> "filter expression" ]>
 
 =head1 DESCRIPTION
 
-B<Ethereal> and B<TShark> share a powerful filter engine that helps remove
+B<Wireshark> and B<TShark> share a powerful filter engine that helps remove
 the noise from a packet trace and lets you see only the packets that interest
 you.  If a packet meets the requirements expressed in your filter, then it
 is displayed in the list of packets.  Display filters let you compare the
@@ -20,7 +20,7 @@ fields within a protocol against a specific value, compare fields against
 fields, and check the existence of specified fields or protocols.
 
 Filters are also used by other features such as statistics generation and
-packet list colorization (the latter is only available to B<Ethereal>). This
+packet list colorization (the latter is only available to B<Wireshark>). This
 manual page describes their syntax and provides a comprehensive reference of
 filter fields.
 
@@ -36,7 +36,7 @@ that contain a Token-Ring RIF field, use "tr.rif".
 Think of a protocol or field in a filter as implicitly having the "exists"
 operator.
 
-Note: all protocol and field names that are available in B<Ethereal> and
+Note: all protocol and field names that are available in B<Wireshark> and
 B<TShark> filters are listed in the comprehensive B<FILTER PROTOCOL 
 REFERENCE> (see below).
 
@@ -66,7 +66,7 @@ characters, expressed as a string (quoted or unquoted), or bytes,
 expressed as a byte array.  For example, to search for a given HTTP
 URL in a capture, the following filter can be used:
 
-    http contains "http://www.ethereal.com"
+    http contains "http://www.wireshark.org"
 
 The "contains" operator cannot be used on atomic fields,
 such as numbers or IP addresses.
@@ -85,13 +85,13 @@ a case-insensitive pattern match. More information on PCRE can be found in the
 pcrepattern(3) man page (Perl Regular Expressions are explained in
 B<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
 
-Note: the "matches" operator is only available if B<Ethereal> or B<TShark>
+Note: the "matches" operator is only available if B<Wireshark> or B<TShark>
 have been compiled with the PCRE library. This can be checked by running:
 
-    ethereal -v
+    wireshark -v
     tshark -v
 
-or selecting the "About Ethereal" item from the "Help" menu in B<Ethereal>.
+or selecting the "About Wireshark" item from the "Help" menu in B<Wireshark>.
 
 =head2 Functions
 
@@ -221,11 +221,11 @@ Another example is:
 
 You can use the slice operator on a protocol name, too.
 The "frame" protocol can be useful, encompassing all the data captured
-by B<Ethereal> or B<TShark>.
+by B<Wireshark> or B<TShark>.
 
     token[0:5] ne 0.0.0.1.1
     llc[0] eq aa
-    frame[100-199] contains "ethereal"
+    frame[100-199] contains "wireshark"
 
 The following syntax governs slices:
 
@@ -309,7 +309,7 @@ all valid display filter expressions:
 
     tcp.port == 80 and ip.src == 192.168.2.1
     not llc
-    http and frame[100-199] contains "ethereal"
+    http and frame[100-199] contains "wireshark"
     (ipx.src.net == 0xbad && ipx.src.node == 0.0.0.0.0.1) || ip
 
 Remember that whenever a protocol or field name occurs in an expression, the
@@ -378,9 +378,9 @@ field is also given.
 
 =head1 NOTES
 
-The B<ethereal-filters> manpage is part of the B<Ethereal> distribution.
-The latest version of B<Ethereal> can be found at
-B<http://www.ethereal.com>.
+The B<wireshark-filters> manpage is part of the B<Wireshark> distribution.
+The latest version of B<Wireshark> can be found at
+B<http://www.wireshark.org>.
 
 Regular expressions in the "matches" operator are provided with B<libpcre>,
 the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
@@ -393,9 +393,9 @@ in B<http://www.winpcap.org/docs/man/html/group__language.html>.
 
 =head1 SEE ALSO
 
-I<ethereal(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<wireshark(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 AUTHORS
 
-See the list of authors in the B<Ethereal> man page for a list of authors of
+See the list of authors in the B<Wireshark> man page for a list of authors of
 that code.

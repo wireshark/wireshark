@@ -6,7 +6,7 @@ These are the instructions for installing Ethereal
 from the installation executable that is provided on
 the Wireshark website at:
 
-http://www.ethereal.com/distribution/win32
+http://www.wireshark.org/download/win32
 
 and any of its mirrors.
 
@@ -96,7 +96,7 @@ Developer's Guide
 You can find a comprehensive guide how to develop Ethereal in the 
 Developer's Guide, which you can find (and much more info) at: 
 
-http://wiki.ethereal.com/Development
+http://wiki.wireshark.org/Development
 
 The guide contains detailed information how to setup the development 
 environment and it's usage.
@@ -153,7 +153,7 @@ This will first check the availability of all required tools and then uses
 the tool wget to download each package file (together around 30MB!) from the 
 server location at:
 
-	http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/
+	http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/
 
 and unpack it in the $WIRESHARK_LIBS directory. 
 
@@ -174,7 +174,7 @@ packages contain header files and stub libraries to link against.
 
 PRECOMPILED VERSIONS OF ALL OF THESE PACKAGES ARE AVAILABLE AT:
 
-	http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/
+	http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/
 
 
 The GLIB, GTK+, iconv, gettext packages for win32 can be found at the home 
@@ -207,7 +207,7 @@ The optional zlib package for win32 is available at its homepage:
 
 
 By default, the build process looks for these packages in
-C:\ethereal-win32-libs.  You can place them in a different directory, but
+C:\wireshark-win32-libs.  You can place them in a different directory, but
 you must update the WIRESHARK_LIBS variable in config.nmake accordingly.
 
 The following lists the packages needed to compile Ethereal and the default
@@ -215,28 +215,28 @@ locations where to unpack them, when the above method isn't used.
 
     Package                               Default Location
     -------                               ----------------
-    glib-2.4.7.zip                        C:\ethereal-win32-libs\glib
-    glib-dev-2.4.7.zip                    C:\ethereal-win32-libs\glib
-    gtk+-1.3.0-20030717.zip               C:\ethereal-win32-libs\gtk+
-    gtk+-dev-1.3.0-20030115.zip           C:\ethereal-win32-libs\gtk+
-    libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\libiconv-1.9.1.bin.woe32
-    gettext-runtime-0.13.1.zip            C:\ethereal-win32-libs\gettext-runtime-0.13.1
-    net-snmp-5.2.1.2.zip                  C:\ethereal-win32-libs
-    wpdpack_3_0.zip                       C:\ethereal-win32-libs
+    glib-2.4.7.zip                        C:\wireshark-win32-libs\glib
+    glib-dev-2.4.7.zip                    C:\wireshark-win32-libs\glib
+    gtk+-1.3.0-20030717.zip               C:\wireshark-win32-libs\gtk+
+    gtk+-dev-1.3.0-20030115.zip           C:\wireshark-win32-libs\gtk+
+    libiconv-1.9.1.bin.woe32.zip          C:\wireshark-win32-libs\libiconv-1.9.1.bin.woe32
+    gettext-runtime-0.13.1.zip            C:\wireshark-win32-libs\gettext-runtime-0.13.1
+    net-snmp-5.2.1.2.zip                  C:\wireshark-win32-libs
+    wpdpack_3_0.zip                       C:\wireshark-win32-libs
 
 and optional:
 
-    adns-1.0-win32-04.zip                 C:\ethereal-win32-libs
-    pcre-4.4.zip                          C:\ethereal-win32-libs
-    zlib123-dll.zip                       C:\ethereal-win32-libs\zlib123-dll
+    adns-1.0-win32-04.zip                 C:\wireshark-win32-libs
+    pcre-4.4.zip                          C:\wireshark-win32-libs
+    zlib123-dll.zip                       C:\wireshark-win32-libs\zlib123-dll
 
 (to use the default locations, the directories in question should be
 created, and each zip file should be unpacked into the corresponding
-directory).  If you only want to change the C:\ethereal-win32-libs
+directory).  If you only want to change the C:\wireshark-win32-libs
 part, you just change the setting of WIRESHARK_LIBS in config.nmake; if
 you want to change subdirectories, you'll have to change the individual
 item for a package.  (Note that some zip files create the subdirectory -
-those zip files just have C:\ethereal-win32-libs in the list above - so
+those zip files just have C:\wireshark-win32-libs in the list above - so
 if you don't want the package to be in that subdirectory, you'd have to
 rename the directory.)
 
@@ -254,7 +254,7 @@ GTK+2 will look better in various ways, especially for WIN32 users.
 
 You can get the required libraries from:
 
-http://www.ethereal.com/distribution/win32/development/gtk2
+http://www.wireshark.org/distribution/win32/development/gtk2
 
 or (like the GTK+1 libraries from the GTK+ for Win32 project):
 
@@ -264,16 +264,16 @@ If you want to try a build with GTK+2.x these Extra libraries are needed
 
     Package                               Default Location
     -------                               ----------------
-    gtk+-2.4.14.zip                       C:\ethereal-win32-libs\gtk2
-    gtk+-dev-2.4.14.zip	                  C:\ethereal-win32-libs\gtk2
-    pango-1.4.1.zip                       C:\ethereal-win32-libs\gtk2	
-    pango-dev-1.4.1.zip                   C:\ethereal-win32-libs\gtk2
-    atk-1.6.0.zip                         C:\ethereal-win32-libs\gtk2	
-    atk-dev-1.6.0.zip                     C:\ethereal-win32-libs\gtk2
+    gtk+-2.4.14.zip                       C:\wireshark-win32-libs\gtk2
+    gtk+-dev-2.4.14.zip	                  C:\wireshark-win32-libs\gtk2
+    pango-1.4.1.zip                       C:\wireshark-win32-libs\gtk2	
+    pango-dev-1.4.1.zip                   C:\wireshark-win32-libs\gtk2
+    atk-1.6.0.zip                         C:\wireshark-win32-libs\gtk2	
+    atk-dev-1.6.0.zip                     C:\wireshark-win32-libs\gtk2
 
 and optional:
 
-    gtk-wimp-0.7.0-bin.zip                C:\ethereal-win32-libs\gtk-wimp
+    gtk-wimp-0.7.0-bin.zip                C:\wireshark-win32-libs\gtk-wimp
 
 Be sure to set GTK2_DIR in config.nmake correct, to be able to compile.
 
@@ -381,7 +381,7 @@ make-reg-dotc.py, packet*.c     register.c              Python
 
 make-tapreg-dotc, tap-*.c       tshark-tap-register.c
                                                         Bash + grep + sed
-make-tapreg-dotc, tap files	gtk/ethereal-tap-register.c
+make-tapreg-dotc, tap files	gtk/wireshark-tap-register.c
     in the gtk subdirectory                             Bash + grep + sed
 
 The Makefile.nmake supplied with the Wireshark distribution will, if
@@ -434,7 +434,7 @@ and for a much smaller installer (using the lzma compression).
 In the ethereal directory, type "nmake -f makefile.nmake packaging" to build the installer. 
 Please be patient while the compression is done, it will take some time even on fast machines.
 
-You will hopefully now see something like ethereal-setup-0.10.12.exe in the dir packaging/nsis.
+You will hopefully now see something like wireshark-setup-0.10.12.exe in the dir packaging/nsis.
 
 
 Installing GTK-Wimp
@@ -542,7 +542,7 @@ To get it running, execute the following steps:
      $ make check
      $ make install
 
-5. Patch Makefile.am in <ethereal-src>/gtk/Makefile.am by
+5. Patch Makefile.am in <wireshark-src>/gtk/Makefile.am by
    removing "ethclist.c" from the dependencies.
 
    This patch is required since the private GTK+ clist widget
@@ -567,7 +567,7 @@ To get it running, execute the following steps:
 
 8. Run wireshark (add /opt/gnome/bin to $PATH if this is not yet done)
 
-     $ <ethereal-src>/ethereal
+     $ <wireshark-src>/ethereal
 
     And voila! Behold the mighty sniffer in all its glory!
 

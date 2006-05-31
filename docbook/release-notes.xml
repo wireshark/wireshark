@@ -101,8 +101,8 @@ Ethereal Info
   <section id="GettingEthereal"><title>Getting Ethereal</title>
     <section><title>Microsoft Windows</title>
       <para>
-	Download ethereal-setup-&EtherealCurrentVersion;.exe from the
-	<ulink url="http://www.ethereal.com/distribution/win32/">Windows
+	Download wireshark-setup-&EtherealCurrentVersion;.exe from the
+	<ulink url="http://www.wireshark.org/distribution/win32/">Windows
 	download area</ulink> on the main web site.  Double-click the
 	installer executable.
       </para>
@@ -111,7 +111,7 @@ Ethereal Info
     <section><title>Sun Solaris</title>
       <para>
 	Download the appropriate package from the
-	<ulink url="http://www.ethereal.com/distribution/solaris/">Solaris
+	<ulink url="http://www.wireshark.org/distribution/solaris/">Solaris
 	download area</ulink> on the main web site.  Uncompress the package
 	using bzip2, and install it using pkgadd.
       </para>
@@ -119,8 +119,8 @@ Ethereal Info
 
     <section><title>Source Code</title>
       <para>
-	Download ethereal-&EtherealCurrentVersion;.tar.gz from the
-	<ulink url="http://www.ethereal.com/distribution/">main
+	Download wireshark-&EtherealCurrentVersion;.tar.gz from the
+	<ulink url="http://www.wireshark.org/distribution/">main
 	download area</ulink> on the web site.  Extract the package
 	using tar and gzip.  Run "configure ; make ; make install".
       </para>
@@ -131,7 +131,7 @@ Ethereal Info
 	Most Linux and Unix vendors supply their own Ethereal packages.
 	You can install or upgrade Ethereal using the package management
 	system specific to that platform.  A list of third-party packages
-        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Wireshark web site.
+        can be found on the <ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
     </section>
 
@@ -159,7 +159,7 @@ Ethereal Info
       On Windows systems the packet list scroll bar can sometimes disappear
       or become unusable.  Until the problem is fixed you can work around it
       by resizing the packet list or the main window.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
       #220</ulink>)
     </para>
 
@@ -170,25 +170,25 @@ Ethereal Info
 
     <para>
       Trying to save flow data may crash Ethereal.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396">Bug
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
       #396</ulink>)
     </para>
 
     <para>
       It may not be possible to re-order coloring rules under Windows.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699">Bug
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
       #699</ulink>)
     </para>
 
     <para>
       Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=757">Bug
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757">Bug
       #757</ulink>)
     </para>
 
     <para>
       Ethereal may crash while viewing TCP streams.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug
       #852</ulink>)
     </para>
 
@@ -196,9 +196,9 @@ Ethereal Info
 
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
-    Community support is available on the ethereal-users mailing list.
+    Community support is available on the wireshark-users mailing list.
     Subscription information and archives for all of Ethereal's mailing
-    lists can be found on <ulink url="http://www.ethereal.com/lists/">the
+    lists can be found on <ulink url="http://www.wireshark.org/lists/">the
     web site</ulink>. There is also an <ulink url="irc://irc.freenode.net/ethereal">IRC channel dedicated to Ethereal</ulink>.
     </para>
     <para>
@@ -210,7 +210,7 @@ Ethereal Info
   <section id="FAQ"><title>Frequently Asked Questions</title>
     <para>
     A complete FAQ is available on the
-    <ulink url="http://www.ethereal.com/faq.html">Ethereal web site</ulink>.
+    <ulink url="http://www.wireshark.org/faq.html">Ethereal web site</ulink>.
     </para>
   </section>
 

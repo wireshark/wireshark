@@ -60,13 +60,13 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tshark_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
+bin_PROGRAMS = @wireshark_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tshark_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
 bin_SCRIPTS = @idl2wrs_bin@
-man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tshark_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
-man4_MANS = @etherealfilter_man@
+man1_MANS = @wireshark_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tshark_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
+man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
-EXTRA_PROGRAMS = ethereal tshark capinfos editcap mergecap dftest \
+EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap
 EXTRA_SCRIPTS = idl2wrs
 
@@ -77,8 +77,8 @@ idl2wrs: tools/idl2wrs.sh Makefile
 #
 # Ethereal configuration files are put in $(pkgdatadir).
 #
-pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tshark.html \
-	ethereal-filter.html capinfos.html editcap.html \
+pkgdata_DATA = AUTHORS-SHORT manuf wireshark.html tshark.html \
+	wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
 	cfilters colorfilters dfilters
 
@@ -265,27 +265,27 @@ plugin_ldadd =
 endif		# HAVE_PLUGINS
 
 # Optional objects that I know how to build. These will be
-# linked into the ethereal executable.
+# linked into the wireshark executable.
 # They will also be linked into the tshark executable; if this
 # list ever grows to include something that can't be linked with
 # tshark, or if tshark needs something that wireshark doesn't,
 # we should probably split this into stuff needed both
 # by wireshark and tshark and stuff needed only by one or the
 # other.
-ethereal_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
+wireshark_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
 
 # Additional libs that I know how to build. These will be
-# linked into the ethereal executable.
-ethereal_additional_libs = \
+# linked into the wireshark executable.
+wireshark_additional_libs = \
 	gtk/libui.a		\
 	wiretap/libwiretap.la	\
 	epan/libwireshark.la
 
 # This is the automake dependency variable for the executable
-ethereal_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
+wireshark_DEPENDENCIES = \
+	$(wireshark_optional_objects)	\
+	$(wireshark_additional_libs)	\
 	$(plugin_libs)
 
 # This automake variable adds to the link-line for the executable.
@@ -297,14 +297,14 @@ ethereal_DEPENDENCIES = \
 # applications are X applications).
 
 if ENABLE_STATIC
-ethereal_LDFLAGS = -Wl,-static -all-static
+wireshark_LDFLAGS = -Wl,-static -all-static
 else
-ethereal_LDFLAGS = -export-dynamic
+wireshark_LDFLAGS = -export-dynamic
 endif
 
-ethereal_LDADD = \
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
+wireshark_LDADD = \
+	$(wireshark_optional_objects)	\
+	$(wireshark_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -319,13 +319,13 @@ tshark_additional_libs =		\
 
 # This is the automake dependency variable for the executable
 tshark_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
+	$(wireshark_optional_objects)	\
 	$(tshark_additional_libs)	\
 	$(plugin_libs)
 
 # This automake variable adds to the link-line for the executable
 tshark_LDADD = \
-	$(ethereal_optional_objects)	\
+	$(wireshark_optional_objects)	\
 	$(tshark_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
@@ -436,13 +436,13 @@ dftest_additional_libs =		\
 	epan/libwireshark.la
 
 dftest_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
+	$(wireshark_optional_objects)	\
 	$(dftest_additional_libs)	\
 	$(plugin_libs)
 
 # This automake variable adds to the link-line for the executable
 dftest_LDADD = \
-	$(ethereal_optional_objects)	\
+	$(wireshark_optional_objects)	\
 	$(dftest_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
@@ -552,8 +552,8 @@ EXTRA_DIST = \
 	doc/capinfos.pod		\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
-	doc/ethereal-filter.pod.template \
-	doc/ethereal.pod	\
+	doc/wireshark-filter.pod.template \
+	doc/wireshark.pod	\
 	doc/idl2wrs.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
@@ -565,9 +565,9 @@ EXTRA_DIST = \
 	dumpcap.c	\
 	editcap.c		\
 	epan/libwireshark.def	\
-	ethereal_be.py		\
-	ethereal_gen.py		\
-	ethereal.desktop	\
+	wireshark_be.py		\
+	wireshark_gen.py		\
+	wireshark.desktop	\
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
 	image/README.image	\
@@ -696,22 +696,22 @@ endif
 DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk help
 
 if HAVE_PLUGINS
-SUBDIRS = tools wiretap doc epan plugins packaging help @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
 else
-SUBDIRS = tools wiretap doc epan packaging help @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap doc epan packaging help @wireshark_SUBDIRS@
 endif
 
-ethereal.1: doc/ethereal.pod AUTHORS-SHORT-FORMAT
+wireshark.1: doc/wireshark.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
-	$(MAKE) ../ethereal.1 )
+	$(MAKE) ../wireshark.1 )
 
 tshark.1: doc/tshark.pod
 	(cd doc ; \
 	$(MAKE) ../tshark.1 )
 
-ethereal-filter.4: tshark doc/ethereal-filter.pod.template
+wireshark-filter.4: tshark doc/wireshark-filter.pod.template
 	(cd doc ; \
-	$(MAKE) ../ethereal-filter.4 )
+	$(MAKE) ../wireshark-filter.4 )
 
 capinfos.1: doc/capinfos.pod
 	(cd doc ; \
@@ -737,17 +737,17 @@ dumpcap.1: doc/dumpcap.pod
 	(cd doc ; \
 	$(MAKE) ../dumpcap.1 )
 
-ethereal.html: doc/ethereal.pod AUTHORS-SHORT-FORMAT
+wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
-	$(MAKE) ../ethereal.html )
+	$(MAKE) ../wireshark.html )
 
 tshark.html: doc/tshark.pod
 	(cd doc ; \
 	$(MAKE) ../tshark.html )
 
-ethereal-filter.html: tshark doc/ethereal-filter.pod.template
+wireshark-filter.html: tshark doc/wireshark-filter.pod.template
 	(cd doc ; \
-	$(MAKE) ../ethereal-filter.html )
+	$(MAKE) ../wireshark-filter.html )
 
 capinfos.html: doc/capinfos.pod
 	(cd doc ; \
@@ -805,10 +805,10 @@ rpm-package: dist
 		mkdir -p BUILD RPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
-		ln -s ../../../ethereal.desktop ; \
+		ln -s ../../../wireshark.desktop ; \
 		ln -s ../../../image/elogo3d64x64.png ethereal.png ; \
 		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/ethereal.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
@@ -819,10 +819,10 @@ srpm-package: dist
 		mkdir -p BUILD SRPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
-		ln -s ../../../ethereal.desktop ; \
-		ln -s ../../../image/elogo3d64x64.png ethereal.png ; \
+		ln -s ../../../wireshark.desktop ; \
+		ln -s ../../../image/elogo3d64x64.png wireshark.png ; \
 		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/ethereal.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/SRPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \

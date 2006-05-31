@@ -273,7 +273,7 @@
     </para>
     <para>
 	If you want to be notified about new Wireshark releases, you should 
-	subscribe to the ethereal-announce mailing list. You will find more 
+	subscribe to the wireshark-announce mailing list. You will find more 
 	details in <xref linkend="ChIntroMailingLists"/>.
     </para>
   </section>
@@ -455,7 +455,7 @@
     <para>
       There are several mailing lists of specific Wireshark topics available:
       <variablelist>
-	<varlistentry><term><command>ethereal-announce</command></term>
+	<varlistentry><term><command>wireshark-announce</command></term>
 	  <listitem>
 	    <para>
 	      This mailing list will inform you about new program 
@@ -463,7 +463,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-users</command></term>
+	<varlistentry><term><command>wireshark-users</command></term>
 	  <listitem>
 	    <para>
 	      This list is for users of Wireshark.  People post 
@@ -472,7 +472,7 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>ethereal-dev</command></term>
+	<varlistentry><term><command>wireshark-dev</command></term>
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. If you want to start 

@@ -1,7 +1,7 @@
 $Id$
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
-a Ethereal protocol dissector and the use some of the important functions and
+a Wireshark protocol dissector and the use some of the important functions and
 variables.
 
 1. Setting up your protocol dissector code.
@@ -14,12 +14,12 @@ add to the protocol tree, and work with registered header fields.
 
 1.1.1 Portability.
 
-Ethereal runs on many platforms, and can be compiled with a number of
+Wireshark runs on many platforms, and can be compiled with a number of
 different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
 Don't use C++-style comments (comments beginning with "//" and running
-to the end of the line); Ethereal's dissectors are written in C, and
+to the end of the line); Wireshark's dissectors are written in C, and
 thus run through C rather than C++ compilers, and not all C compilers
 support C++-style comments (GCC does, but IBM's C compiler for AIX, for
 example, doesn't do so by default).
@@ -154,14 +154,14 @@ you might be able to get away with not including the appropriate header
 file on your platform but that might not work on other platforms. 
 Instead, use "g_ntohs()", "g_ntohl()", "g_htons()", and "g_htonl()";
 those are declared by <glib.h>, and you'll need to include that anyway,
-as Ethereal header files that all dissectors must include use stuff from
+as Wireshark header files that all dissectors must include use stuff from
 <glib.h>.
 
 Don't fetch a little-endian value using "tvb_get_ntohs() or
 "tvb_get_ntohl()" and then using "g_ntohs()", "g_htons()", "g_ntohl()",
 or "g_htonl()" on the resulting value - the g_ routines in question
 convert between network byte order (big-endian) and *host* byte order,
-not *little-endian* byte order; not all machines on which Ethereal runs
+not *little-endian* byte order; not all machines on which Wireshark runs
 are little-endian, even though PC's are.  Fetch those values using
 "tvb_get_letohs()" and "tvb_get_letohl()".
 
@@ -280,7 +280,7 @@ snprintf() is not available on all platforms, so it's a good idea to use the
 g_snprintf() function declared by <glib.h> instead.
 
 tmpnam() -> mkstemp()
-tmpnam is insecure and should not be used any more. Ethereal brings its
+tmpnam is insecure and should not be used any more. Wireshark brings its
 own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
@@ -295,7 +295,7 @@ cause a trap, which will, at best, result in the OS slowly performing an
 unaligned access for you, and will, on at least some platforms, cause
 the program to be terminated.
 
-Ethereal supports both platforms with GLib 1.2[.x]/GTK+ 1.2[.x] and GLib
+Wireshark supports both platforms with GLib 1.2[.x]/GTK+ 1.2[.x] and GLib
 2.x/GTK+ 1.3[.x] and 2.x.  If at all possible, either use only
 mechanisms that are present in GLib 1.2[.x] and GTK+ 1.2[.x], use #if's
 to conditionally use older or newer mechanisms depending on the platform
@@ -406,7 +406,7 @@ the chunk of memory is derived from a size field in the packet, make
 sure all the data is present in the packet before allocating the buffer.
 Doing so means that
 
-	1) Ethereal won't leak that chunk of memory if an attempt to
+	1) Wireshark won't leak that chunk of memory if an attempt to
 	   fetch data not present in the packet throws an exception
 
 and
@@ -426,7 +426,7 @@ from the buffer, and the string has a specified size, you can use
 string is present before allocating a buffer for the string, and will also 
 put a trailing '\0' at the end of the buffer.  The resulting string will be 
 a sequence of single-byte characters; the only Unicode characters that
-will be handled correctly are those in the ASCII range.  (Ethereal's
+will be handled correctly are those in the ASCII range.  (Wireshark's
 ability to handle non-ASCII strings is limited; it needs to be
 improved.)
 
@@ -447,7 +447,7 @@ buffer are fetched ("the protocol ensures" isn't good enough, as
 protocol specifications can't ensure only packets that conform to the
 specification will be transmitted or that only packets for the protocol
 in question will be interpreted as packets for that protocol by
-Ethereal).  If there's no maximum length of string data to be fetched,
+Wireshark).  If there's no maximum length of string data to be fetched,
 routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
 large enough to hold the string.  (Note that some variants of this call 
 require you to free the string once you're finished with it.)
@@ -496,8 +496,8 @@ much better to use the g_snprintf() function declared by <glib.h> instead.
 
 You should test your dissector against incorrectly-formed packets.  This 
 can be done using the randpkt and editcap utilities that come with the
-Ethereal distribution.  Testing using randpkt can be done by generating
-output at the same layer as your protocol, and forcing Ethereal/TShark
+Wireshark distribution.  Testing using randpkt can be done by generating
+output at the same layer as your protocol, and forcing Wireshark/TShark
 to decode it as your protocol, e.g. if your protocol sits on top of UDP:
 
     randpkt -c 50000 -t dns randpkt.pcap
@@ -511,7 +511,7 @@ Testing using editcap can be done using preexisting capture files and the
 
 1.1.4 Name convention.
 
-Ethereal uses the underscore_convention rather than the InterCapConvention for
+Wireshark uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
 intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
@@ -533,7 +533,7 @@ existing file.
 
 1.2 Skeleton code.
 
-Ethereal requires certain things when setting up a protocol dissector. 
+Wireshark requires certain things when setting up a protocol dissector. 
 Below is skeleton code for a dissector that you can copy to a file and
 fill in.  Your dissector should follow the naming convention of packet-
 followed by the abbreviated name for the protocol.  It is recommended
@@ -692,14 +692,14 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		In this mode, Wireshark is only interested in the way protocols
 		interact, protocol conversations are created, packets are reassembled
 		and handed over to higher-level protocol dissectors.
-		In this mode Ethereal does not build a so-called "protocol tree".
+		In this mode Wireshark does not build a so-called "protocol tree".
 
 	(b) Detailed dissection
 
 		In this mode, Wireshark is also interested in all details of a given
 		protocol, so a "protocol tree" is created.
 
-   Ethereal distinguishes between the 2 modes with the proto_tree pointer:
+   Wireshark distinguishes between the 2 modes with the proto_tree pointer:
 	(a) <=> tree == NULL
 	(b) <=> tree != NULL
 
@@ -751,7 +751,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
@@ -1227,7 +1227,7 @@ registration of protocols and fields at run-time, loadable modules of
 protocol dissectors (perhaps even user-supplied) is feasible.
 
 To do this, each protocol should have a register routine, which will be
-called when Ethereal starts.  The code to call the register routines is
+called when Wireshark starts.  The code to call the register routines is
 generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
@@ -1463,7 +1463,7 @@ field would be set to NULL.
 FT_BOOLEANS have a default map of 0 = "False", 1 (or anything else) = "True".
 Sometimes it is useful to change the labels for boolean values (e.g.,
 to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
-true_false_string is used. (This struct is new as of Ethereal 0.7.6).
+true_false_string is used. (This struct is new as of Wireshark 0.7.6).
 
 	typedef struct true_false_string {
 		char	*true_string;
@@ -1546,7 +1546,7 @@ Also be sure to use the handy array_length() macro found in packet.h
 to have the compiler compute the array length for you at compile time.
 
 If you don't have any fields to register, do *NOT* create a zero-length
-"hf" array; not all compilers used to compile Ethereal support them. 
+"hf" array; not all compilers used to compile Wireshark support them. 
 Just omit the "hf" array, and the "proto_register_field_array()" call,
 entirely.
 
@@ -1918,7 +1918,7 @@ The final implication of this is that display filters work the way you'd
 naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
 Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
-before Ethereal 0.7.6.
+before Wireshark 0.7.6.
 
 proto_tree_add_item_hidden()
 ----------------------------
@@ -2146,9 +2146,9 @@ proto_tree_add_text()
 proto_tree_add_text() is used to add a label to the GUI tree.  It will
 contain no value, so it is not searchable in the display filter process. 
 This function was needed in the transition from the old-style proto_tree
-to this new-style proto_tree so that Ethereal would still decode all
+to this new-style proto_tree so that Wireshark would still decode all
 protocols w/o being able to filter on all protocols and fields. 
-Otherwise we would have had to cripple Ethereal's functionality while we
+Otherwise we would have had to cripple Wireshark's functionality while we
 converted all the old-style proto_tree calls to the new-style proto_tree
 calls.
 
@@ -2306,7 +2306,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 1.9 Editing Makefile.common to add your dissector.
 
-To arrange that your dissector will be built as part of Ethereal, you
+To arrange that your dissector will be built as part of Wireshark, you
 must add the name of the source file for your dissector to the
 'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan/dissectors'
 directory.  (Note that this is for modern versions of UNIX, so there
@@ -2321,31 +2321,31 @@ compile).
 
 1.10 Using the SVN source code tree.
 
-  See <http://www.ethereal.com/development.html#source>
+  See <http://www.wireshark.org/development.html#source>
 
 1.11 Submitting code for your new dissector.
 
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector.  These are
-    described at <http://wiki.ethereal.com/FuzzTesting>.
+    described at <http://wiki.wireshark.org/FuzzTesting>.
 
-  - Subscribe to <mailto:ethereal-dev@ethereal.com> by sending an email to
-    <mailto:ethereal-dev-request@ethereal.com?body="help"> or visiting 
-    <http://www.ethereal.com/lists/>.
+  - Subscribe to <mailto:wireshark-dev@wireshark.org> by sending an email to
+    <mailto:wireshark-dev-request@wireshark.org?body="help"> or visiting 
+    <http://www.wireshark.org/lists/>.
   
   - 'svn add' all the files of your new dissector.
   
   - 'svn diff' the workspace and save the result to a file.
   
   - Send the diff file along with a note requesting it's inclusion to
-    <mailto:ethereal-dev@ethereal.com>. You can also use this procedure for
-    providing patches to your dissector or any other part of ethereal.
+    <mailto:wireshark-dev@wireshark.org>. You can also use this procedure for
+    providing patches to your dissector or any other part of wireshark.
 
   - If possible, add sample capture files to the sample captures page at
-    <http://wiki.ethereal.com/SampleCaptures>.  These files are used by
+    <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
     the automated build system for fuzz testing.
 
-  - If you find that you are contributing a lot to ethereal on an ongoing
+  - If you find that you are contributing a lot to wireshark on an ongoing
     basis you can request to become a committer which will allow you to
     commit files to subversion directly.
 
@@ -2355,7 +2355,7 @@ compile).
 
 2.2 Following "conversations".
 
-In ethereal a conversation is defined as a series of data packet between two
+In wireshark a conversation is defined as a series of data packet between two
 address:port combinations.  A conversation is not sensitive to the direction of
 the packet.  The same conversation will be returned for a packet bound from
 ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
@@ -2811,8 +2811,8 @@ conversation already exists or not and if it exists we also check whether the
 registered dissector_handle for that conversation is "our" dissector or not.
 If not we create a new conversation ontop of the previous one and set this new 
 conversation to use our protocol.
-Since ethereal keeps track of the frame number where a conversation started
-ethereal will still be able to keep the packets apart eventhough they do use
+Since wireshark keeps track of the frame number where a conversation started
+wireshark will still be able to keep the packets apart eventhough they do use
 the same socketpair.
 		(See packet-tftp.c and packet-snmp.c for examples of this)
 
@@ -3064,9 +3064,9 @@ how many bytes it will need to read in order to determine the size of a PDU.
 For this mode it is reccommended that your dissector be the newer dissector 
 type which returns "int" rather than the older type which returned "void".
 
-This reassembly mode relies on Ethereal's mechanism for processing multiple PDUs
+This reassembly mode relies on Wireshark's mechanism for processing multiple PDUs
 per frame. When a dissector processes a PDU from a tvbuff the PDU may not be
-aligned to a frame of the underlying protocol. Ethereal allows dissectors to
+aligned to a frame of the underlying protocol. Wireshark allows dissectors to
 process PDUs in an idempotent way--dissectors only need to consider one PDU at a 
 time. If your dissector discovers that it can not process a complete PDU from 
 the current tvbuff the dissector should halt processing and request additional 

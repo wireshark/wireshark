@@ -60,6 +60,6 @@ EXCLUDE_PATTERNS       =
 # can add a path in front of the file if the result should not be 
 # written to the html output directory.
 
-CHM_FILE               = ethereal-gtk.chm
+CHM_FILE               = wireshark-gtk.chm
 
 @INCLUDE = doxygen_global.cfg

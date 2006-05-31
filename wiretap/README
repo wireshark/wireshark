@@ -5,7 +5,7 @@ libpcap, the current standard Unix library for packet capturing. Libpcap
 is great in that it is very platform independent and has a wonderful
 BPF optimizing engine. But it has some shortcomings as well. These
 shortcomings came to a head during the development of Ethereal
-(http://www.ethereal.com/), a packet analyzer. As such, I began developing
+(http://www.wireshark.org/), a packet analyzer. As such, I began developing
 wiretap so that:
 
 1. The library can easily be amended with new packet filtering objects.

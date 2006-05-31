@@ -1,10 +1,10 @@
 #
-# Ethereal/TShark Regression Testing
+# Wireshark/TShark Regression Testing
 #
 # $Id$
 #
 # This is a sample Makefile for regression testing of the
-# Ethereal engine. These tests use that uses 'tshark -V' to analyze all
+# Wireshark engine. These tests use that uses 'tshark -V' to analyze all
 # the frames of a capture file.
 #
 # You should probably rename this file as 'Makefile' in a separate directory
@@ -33,7 +33,7 @@
 # 'make accept'		Accept current tests; make them the reference test results
 # 'make clean'		Cleans any tests (but not references!)
 
-TSHARK=/home/gram/prj/ethereal/debug/linux-ix86/tshark
+TSHARK=/home/gram/prj/wireshark/debug/linux-ix86/tshark
 
 CAPTURE_DIR=/home/gram/prj/sniff
 

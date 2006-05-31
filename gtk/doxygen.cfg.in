@@ -1,7 +1,7 @@
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = Ethereal-GTK
+PROJECT_NAME           = Wireshark-GTK
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -60,6 +60,6 @@ EXCLUDE_PATTERNS       =
 # can add a path in front of the file if the result should not be 
 # written to the html output directory.
 
-CHM_FILE               = ethereal-gtk.chm
+CHM_FILE               = wireshark-gtk.chm
 
 @INCLUDE = ../doxygen_global.cfg

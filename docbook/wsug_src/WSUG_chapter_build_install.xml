@@ -285,22 +285,22 @@ apt-get install ethereal
 	    version of UNIX uses GNU <command>tar</command>, you can use the 
 	    following command:
 	    <programlisting>
-tar zxvf ethereal-&WiresharkCurrentVersion;-tar.gz
+tar zxvf wireshark-&WiresharkCurrentVersion;-tar.gz
 	    </programlisting>
 	  </para>
 	  <para>
 	    For other versions of UNIX, You will want to use the following 
 	    commands:
 	    <programlisting>
-gzip -d ethereal-&WiresharkCurrentVersion;-tar.gz
-tar xvf ethereal-&WiresharkCurrentVersion;-tar
+gzip -d wireshark-&WiresharkCurrentVersion;-tar.gz
+tar xvf wireshark-&WiresharkCurrentVersion;-tar
 	    </programlisting>
 	    <note>
 	      <title>Note!</title>
 	      <para>
 		The pipeline 
 		<command>
-		  gzip -dc ethereal-&WiresharkCurrentVersion;-tar.gz | tar xvf -
+		  gzip -dc wireshark-&WiresharkCurrentVersion;-tar.gz | tar xvf -
 		</command> will work here as well.
 	      </para>
 	    </note>
@@ -375,7 +375,7 @@ make install
       Use the following command to install the Wireshark RPM that you have 
       downloaded from the Wireshark web site:
       <programlisting>
-rpm -ivh ethereal-0.10.5-0.2.2.i386.rpm
+rpm -ivh wireshark-0.10.5-0.2.2.i386.rpm
       </programlisting>
       If the above step fails because of missing dependencies, install the 
       dependencies first, and then retry the step above.  See 
@@ -426,7 +426,7 @@ apt-get install ethereal
     </para>
     <para>
       If you cannot determine what the problems are, send mail to the 
-      <command>ethereal-dev</command> mailing list explaining your problem, 
+      <command>wireshark-dev</command> mailing list explaining your problem, 
       and including the output from <filename>config.log</filename> and 
       anything else you think is relevant, like a trace of the 
       <command>make</command> stage.
@@ -442,7 +442,7 @@ apt-get install ethereal
     <para>
 	  For further information how to build Wireshark for Windows from the 
 	  sources, have a look at the Development Wiki:
-	  <ulink url="http://wiki.ethereal.com/Development">http://wiki.ethereal.com/Development</ulink>
+	  <ulink url="http://wiki.wireshark.org/Development">http://wiki.wireshark.org/Development</ulink>
 	  for the latest available development documentation.
     </para>
   </section>
@@ -457,7 +457,7 @@ apt-get install ethereal
     <title>Install Wireshark</title>
 	<para>
 		You may acquire a binary installer of Wireshark named something like: 
-		<filename>ethereal-setup-x.y.z.exe</filename>.
+		<filename>wireshark-setup-x.y.z.exe</filename>.
 	</para>
 	<para>
 	    Simply download the Wireshark installer from:
@@ -522,7 +522,7 @@ apt-get install ethereal
 	</itemizedlist>
 	<para> Example:
     <programlisting>
-ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
 	</programlisting>
 	</para>
   </section>
@@ -569,7 +569,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	<listitem><para>
 	<command>Mate - Meta Analysis and Tracing Engine</command> - user 
 	configurable extension(s) of the display filter engine, see 
-	<ulink url="http://wiki.ethereal.com/Mate">http://wiki.ethereal.com/Mate</ulink>
+	<ulink url="http://wiki.wireshark.org/Mate">http://wiki.wireshark.org/Mate</ulink>
 	for details.
 	</para></listitem>
 	<listitem><para>
@@ -639,7 +639,7 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	<itemizedlist>
 	<listitem><para>
 	Wireshark related:
-	<ulink url="http://wiki.ethereal.com/WinPcap">http://wiki.ethereal.com/WinPcap</ulink>
+	<ulink url="http://wiki.wireshark.org/WinPcap">http://wiki.wireshark.org/WinPcap</ulink>
 	</para></listitem>
 	<listitem><para>
 	General WinPcap info: 
@@ -663,9 +663,9 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
 	</para></listitem>
 	<listitem><para>
-    The ethereal.com mirror:
-	<ulink url="http://winpcap.mirror.ethereal.com">
-	http://winpcap.mirror.ethereal.com</ulink>
+    The wireshark.org mirror:
+	<ulink url="http://winpcap.mirror.wireshark.org">
+	http://winpcap.mirror.wireshark.org</ulink>
 	</para></listitem>
 	<listitem><para>
     The Wiretapped.net mirror:

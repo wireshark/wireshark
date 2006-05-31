@@ -1,4 +1,4 @@
-## Makefile for building ethereal.exe with Microsoft C and nmake
+## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
@@ -18,8 +18,8 @@ CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) $(GNUTLS_CFLAGS) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-!IFDEF ETHEREAL_EUG_DIR
-EUG_CFLAGS=-DETHEREAL_EUG_DIR
+!IFDEF WIRESHARK_EUG_DIR
+EUG_CFLAGS=-DWIRESHARK_EUG_DIR
 !ENDIF
 
 .c.obj::
@@ -29,28 +29,28 @@ include Makefile.common
 
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
-ETHEREAL_WIN32_GTK_SRC = \
-	$(ETHEREAL_GTK_SRC) \
+WIRESHARK_WIN32_GTK_SRC = \
+	$(WIRESHARK_GTK_SRC) \
 	print_mswin.c \
 	win32-file-dlg.c
 
 
-ETHEREAL_TAP_OBJECTS = $(ETHEREAL_TAP_SRC:.c=.obj)
+WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
 
 
-ETHEREAL_WIN32_GTK_OBJECTS = $(ETHEREAL_WIN32_GTK_SRC:.c=.obj)
+WIRESHARK_WIN32_GTK_OBJECTS = $(WIRESHARK_WIN32_GTK_SRC:.c=.obj)
 	
 
-libui.lib	: ..\config.h $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
-	link /lib /out:libui.lib $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
+libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
+	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
 
-ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc Makefile.common
-	@echo Making ethereal-tap-register.c
-	@$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.common
+	@echo Making wireshark-tap-register.c
+	@$(SH) ../make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
 
 
 clean:
-	rm -f $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*
 	if exist html rmdir html
 
 distclean: clean

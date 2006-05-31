@@ -384,7 +384,7 @@ usesgetlasterror, vararg, vi_progid, wire_marshal.
 =head1 SEE ALSO
 
 L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>,
-L<http://wiki.ethereal.com/DCE/RPC>, 
+L<http://wiki.wireshark.org/DCE/RPC>, 
 L<http://www.samba.org/>,
 L<yapp(1)>
 

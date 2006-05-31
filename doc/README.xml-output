@@ -4,7 +4,7 @@ $Id$
 Copyright (c) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 
-Ethereal has the ability to export its protocol dissection in an
+Wireshark has the ability to export its protocol dissection in an
 XML format, tshark has similar functionality by using the "-Tpdml" 
 option. 
 
@@ -17,7 +17,7 @@ http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
 A related XML format, the Packet Summary Markup Language (PSML), is
 also defined by the Analyzer group to provide packet summary information.
 The PSML format is not documented in a publicly-available HTML document,
-but its format is simple. Ethereal can export this format too. Some day it 
+but its format is simple. Wireshark can export this format too. Some day it 
 may be added to tshark so that "-Tpsml" would produce PSML.
 
 One wonders if the "-T" option should read "-Txml" instead of "-Tpdml"
@@ -31,7 +31,7 @@ The PDML that wireshark produces is known not to be loadable into Analyzer.
 It causes Analyzer to crash. As such, the PDML that wireshark produces
 is be labled with a version number of "0", which means that the PDML does
 not fully follow the PDML spec. Furthemore, a creator attribute in the
-"<pdml>" tag gives the version number of [t]ethereal that produced the PDML.
+"<pdml>" tag gives the version number of wireshark/tshark that produced the PDML.
 In that way, as the PDML produced by wireshark matures, but still does not
 meet the PDML spec, scripts can make intelligent decisions about how to
 best parse the PDML, based on the "creator" attribute.
@@ -43,17 +43,17 @@ A protocol might contain one or more fields, denoted by the "<field>" tag.
 
 A pseudo-protocol named "geninfo" is produced, as is required by the PDML
 spec, and exported as the first protocol after the opening "<packet>" tag.
-Its information comes from ethereal's "frame" protocol, which servers
+Its information comes from wireshark's "frame" protocol, which servers
 the similar purpose of storing packet meta-data. Both "geninfo" and
 "frame" protocols are provided in the PDML output.
 
 The "<pdml>" tag
 ================
 Example:
-	<pdml version="0" creator="ethereal/0.9.17">
+	<pdml version="0" creator="wireshark/0.9.17">
 
-The creator is "ethereal" (i.e., the "ethereal" engine. It will always say
-"ethereal", not "tshark") version 0.9.17.
+The creator is "wireshark" (i.e., the "wireshark" engine. It will always say
+"wireshark", not "tshark") version 0.9.17.
 
 
 The "<proto>" tag
@@ -135,7 +135,7 @@ In PDML, the "Data" protocol would become another field under HTTP:
 
 
 
-tools/EtherealXML.py
+tools/WiresharkXML.py
 ====================
 This is a python module which provides some infrastructor for
 Python developers who wish to parse PDML. It is designed to read
@@ -146,20 +146,20 @@ The python user should import the module, define a callback function
 which accepts one argument, and call the parse_fh function:
 
 ------------------------------------------------------------
-import EtherealXML
+import WiresharkXML
 
 def my_callback(packet):
 	# do something
 
 fh = open(xml_filename)
-EtherealXML.parse_fh(fh, my_callback)
+WiresharkXML.parse_fh(fh, my_callback)
 
 # Now that the script has the packet data, do someting.
 ------------------------------------------------------------
 
 The object that is passed to the callback function is an
-EtherealXML.Packet object, which corresponds to a single packet.
-EtherealXML Provides 3 classes, each of which corresponds to a PDML tag:
+WiresharkXML.Packet object, which corresponds to a single packet.
+WiresharkXML Provides 3 classes, each of which corresponds to a PDML tag:
 
 	Packet	 - "<packet>" tag
 	Protocol - "<proto>" tag
@@ -196,7 +196,7 @@ the PDML output of tshark, pass a read filter with "-R" to tshark to
 try to reduce as much as possible the number of packets coming out of tshark.
 The less your script has to process, the faster it will be.
 
-'tools/msnchat' is a sample Python program that uses EtherealXML to parse PDML.
+'tools/msnchat' is a sample Python program that uses WiresharkXML to parse PDML.
 Given one or more capture files, it runs tshark on each of them, providing
 a read filter to reduce tshark's output. It finds MSN Chat conversations
 in the capture file and produces nice HTML showing the conversations. It has

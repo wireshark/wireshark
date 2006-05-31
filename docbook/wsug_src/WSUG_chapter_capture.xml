@@ -56,7 +56,7 @@
 	</para>
 	<tip><title>Tip!</title><para>
 	A comprehensive guide "How To setup a Capture" is available at:
-	<ulink url="http://wiki.ethereal.com/CaptureSetup">http://wiki.ethereal.com/CaptureSetup</ulink>.
+	<ulink url="http://wiki.wireshark.org/CaptureSetup">http://wiki.wireshark.org/CaptureSetup</ulink>.
 	</para></tip>
 	<para>
 	Here are some common pitfalls:

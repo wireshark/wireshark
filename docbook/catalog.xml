@@ -46,10 +46,10 @@ Please note that if you shift any files in the directory structure you MUST adju
 	<!--
     <system
         systemId="EtherealMain1"
-        uri="./graphics/ethereal-main.jpg" />
+        uri="./graphics/wireshark-main.jpg" />
     <system
         systemId="EtherealThreePane1"
-        uri="./graphics/ethereal-main.jpg" />
+        uri="./graphics/wireshark-main.jpg" />
     <uri 
         name="chunk.xsl"
         uri="docbook-xsl-1.62.1/html/chunk.xsl" />

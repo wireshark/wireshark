@@ -2,7 +2,7 @@ Wireshark is a GUI network protocol analyzer.
 
 It lets you interactively browse packet data from a live network or from a previously saved capture file.
 
-See: http://www.ethereal.com for new versions, documentation, ...
+See: http://www.wireshark.org for new versions, documentation, ...
 
 Ethereal's native capture file format is libpcap format, which is also the format used by tcpdump and various other tools. So Ethereal can read capture files from:
 

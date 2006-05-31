@@ -26,31 +26,31 @@
 
 include ../config.nmake
 
-doc: ethereal.html tshark.html ethereal-filter.html capinfos.html \
+doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
 	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html
 
-man: ethereal.1 tshark.1 ethereal-filter.4 capinfos.1 editcap.1 \
+man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 editcap.1 \
 	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1
 
-ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT-FORMAT
-	copy /B ethereal.pod + ..\AUTHORS-SHORT-FORMAT ethereal-tmp.pod
+wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
+	copy /B wireshark.pod + ..\AUTHORS-SHORT-FORMAT wireshark-tmp.pod
 
 ../AUTHORS-SHORT-FORMAT:
 	cd ..
 	$(MAKE) -f makefile.nmake AUTHORS-SHORT-FORMAT
 	cd doc
 
-ethereal.1: ethereal.pod ../config.h
+wireshark.1: wireshark.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	ethereal-tmp.pod > ethereal.1
+	wireshark-tmp.pod > wireshark.1
 
-ethereal.html: ethereal-tmp.pod ../config.h
+wireshark.html: wireshark-tmp.pod ../config.h
 	$(POD2HTML)                    \
 	--title="The Wireshark Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	ethereal-tmp.pod > ethereal.html
+	wireshark-tmp.pod > wireshark.html
 
 ../tshark.exe:
 	cd ..
@@ -69,22 +69,22 @@ tshark.html: tshark.pod ../config.h
 	--noindex                                 \
 	tshark.pod > tshark.html
 
-ethereal-filter.4: ethereal-filter.pod ../config.h
+wireshark-filter.4: wireshark-filter.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	ethereal-filter.pod > ethereal.4
+	wireshark-filter.pod > wireshark.4
 
-ethereal-filter.html: ethereal-filter.pod ../config.h
+wireshark-filter.html: wireshark-filter.pod ../config.h
 	$(POD2HTML)                    \
-	--title="ethereal-filter - The Wireshark Network Analyzer $(VERSION)" \
+	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	ethereal-filter.pod > ethereal-filter.html
+	wireshark-filter.pod > wireshark-filter.html
 
-ethereal-filter.pod: ethereal-filter.pod.template  ../tshark.exe
+wireshark-filter.pod: wireshark-filter.pod.template  ../tshark.exe
 	cd ..
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-deps
-	tshark.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
+	tshark.exe -G | $(PERL) doc\dfilter2pod.pl doc\wireshark-filter.pod.template > doc\wireshark-filter.pod
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd doc
 
@@ -162,9 +162,9 @@ dumpcap.html: dumpcap.pod ../config.h
 	dumpcap.pod > dumpcap.html
 
 clean:
-	rm -f ethereal.html ethereal.1 ethereal-tmp.pod
+	rm -f wireshark.html wireshark.1 wireshark-tmp.pod
 	rm -f tshark.html tshark.1
-	rm -f ethereal-filter.html ethereal-filter.4 ethereal-filter.pod
+	rm -f wireshark-filter.html wireshark-filter.4 wireshark-filter.pod
 	rm -f capinfos.html capinfos.1
 	rm -f editcap.html editcap.1
 	rm -f idl2wrs.html idl2wrs.1

@@ -18,7 +18,7 @@
 #  GIOP/IIOP get_CDR_XXX API.
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
-#  Wireshark is available at http://www.ethereal.com/
+#  Wireshark is available at http://www.wireshark.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://omniorb.sourceforge.net/

@@ -2,7 +2,7 @@
    The Wireshark FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
-         date. Please go to http://www.ethereal.com/faq.html for the up
+         date. Please go to http://www.wireshark.org/faq.html for the up
          to date version. The version of this snapshot can be found at
          the end of this document.
 
@@ -237,9 +237,9 @@
 
    Q 1.1: Where can I get help?
 
-   A: Community support is available on the ethereal-users mailing list.
+   A: Community support is available on the wireshark-users mailing list.
    Subscription information and archives for all of Ethereal's mailing lists
-   can be found at http://www.ethereal.com/lists. An IRC channel dedicated to
+   can be found at http://www.wireshark.org/lists. An IRC channel dedicated to
    Ethereal can be found at irc://irc.freenode.net/ethereal.
 
    Commercial support, training, and development services are available from
@@ -1080,7 +1080,7 @@ cies
    it means "we don't know whether it can capture on them"; we expect that it
    will be able to capture on many of them, but we haven't tried it ourselves -
    if you try one of those types and it works, please send an update to
-   ethereal-web[AT]ethereal.com).
+   wireshark-web[AT]wireshark.org).
 
    It can also read a variety of capture file formats, including:
      * AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet
@@ -1177,12 +1177,12 @@ cies
    nonwithstanding; newer versions make it a bit clearer by giving that RPM a
    name starting with wireshark-base.
 
-   In those older versions, there's a separate ethereal-gnome RPM that includes
+   In those older versions, there's a separate wireshark-gnome RPM that includes
    GUI components such as Ethereal itself, the fact that Ethereal doesn't use
    GNOME nonwithstanding; newer versions make it a bit clearer by giving that
    RPM a name starting with wireshark-gtk+.
 
-   Find the ethereal-gnome or ethereal-gtk+ RPM, and install that also.
+   Find the wireshark-gnome or wireshark-gtk+ RPM, and install that also.
 
 4. Building Ethereal
 
@@ -1729,7 +1729,7 @@ cies
    that release, as, if there's a bug of that sort, it might've been fixed in a
    release after the one you're running. If the hang occurs in the most recent
    release of Ethereal, the bug should be reported to the Wireshark developers'
-   mailing list at ethereal-dev@ethereal.com.
+   mailing list at wireshark-dev@wireshark.org.
 
    On UNIX-flavored OSes, please try to force Ethereal to dump core, by sending
    it a SIGABRT signal (usually signal 6) with the kill command, and then get a
@@ -1839,7 +1839,7 @@ cies
    mirror of the WinDump Web site for information on using WinDump.
 
    You would run WinDump with the -D flag; if it lists the interface, please
-   report this to ethereal-dev@ethereal.com giving full details of the problem,
+   report this to wireshark-dev@wireshark.org giving full details of the problem,
    including
      * the operating system you're using, and the version of that operating
        system;
@@ -1862,7 +1862,7 @@ cies
    local mirror of the WinDump Web site for information on using WinDump.
 
    If you can capture on the interface with WinDump, send mail to
-   ethereal-users@ethereal.com giving full details of the problem, including
+   wireshark-users@wireshark.org giving full details of the problem, including
      * the operating system you're using, and the version of that operating
        system;
      * the type of network device you're using;
@@ -1879,7 +1879,7 @@ cies
    there. If not, then see the WinPcap support page (or the local mirror of
    that page) - check the "Submitting bugs" section.
 
-   You may also want to ask the ethereal-users@ethereal.com and the
+   You may also want to ask the wireshark-users@wireshark.org and the
    winpcap-users@winpcap.org mailing lists to see if anybody happens to know
    about the problem and know a workaround or fix for the problem. (Note that
    you will have to subscribe to that list in order to be allowed to mail to
@@ -2044,7 +2044,7 @@ cies
 
    If the attempt to capture on it succeeds, the interface is somehow not being
    reported by the mechanism Ethereal uses to get a list of interfaces; please
-   report this to ethereal-dev@ethereal.com giving full details of the problem,
+   report this to wireshark-dev@wireshark.org giving full details of the problem,
    including
      * the operating system you're using, and the version of that operating
        system (for Linux, give both the version number of the kernel and the
@@ -2057,7 +2057,7 @@ cies
    that device with tcpdump.
 
    If you can capture on the interface with tcpdump, send mail to
-   ethereal-users@ethereal.com giving full details of the problem, including
+   wireshark-users@wireshark.org giving full details of the problem, including
      * the operating system you're using, and the version of that operating
        system (for Linux, give both the version number of the kernel and the
        name and version number of the distribution you're using);
@@ -2074,7 +2074,7 @@ cies
    produces the OS (in the case of a Linux distribution, report the problem to
    whoever produces the distribution).
 
-   You may also want to ask the ethereal-users@ethereal.com and the
+   You may also want to ask the wireshark-users@wireshark.org and the
    tcpdump-workers@tcpdump.org mailing lists to see if anybody happens to know
    about the problem and know a workaround or fix for the problem. In your
    mail, please give full details of the problem, as described above, and also
@@ -2187,7 +2187,7 @@ cies
    boring. Where can I find more interesting captures?
 
    A: We have a collection of strange and exotic sample capture files at
-   http://wiki.ethereal.com/SampleCaptures
+   http://wiki.wireshark.org/SampleCaptures
 
    Q 11.3: Why doesn't Ethereal correctly identify RTP packets? It shows them
    only as UDP.
@@ -2278,8 +2278,8 @@ cies
    detect various viruses, worms, and the like.
 
    Please send support questions about Ethereal to the
-   ethereal-users[AT]ethereal.com mailing list.
+   wireshark-users[AT]wireshark.org mailing list.
    For corrections/additions/suggestions for this web page (and not Ethereal
-   support questions), please send email to ethereal-web[AT]ethereal.com.
+   support questions), please send email to wireshark-web[AT]wireshark.org.
    Last modified: Thu, February 23 2006.
    "Ethereal" and the "e" logo are registered trademarks of Ethereal, Inc.
