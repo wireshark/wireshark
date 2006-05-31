@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 
 <bookinfo>
-  <title><inlinegraphic entityref="EtherealLogo" valign="middle" format="PNG"/> &DocumentTitle;</title>
+  <title><inlinegraphic entityref="WiresharkLogo" valign="middle" format="PNG"/> &DocumentTitle;</title>
   <subtitle>&DocumentSubTitle;</subtitle>
   <authorgroup>
     <author>
@@ -29,7 +29,7 @@
     <holder>&DocumentCopyrightHolder3;</holder>
   </copyright>
 
-  <graphic scale="100" entityref="EtherealLogo" format="PNG"/>
+  <graphic scale="100" entityref="WiresharkLogo" format="PNG"/>
   
   <legalnotice>
     &DocumentLegalNotice;

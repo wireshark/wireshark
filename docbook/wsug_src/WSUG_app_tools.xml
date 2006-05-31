@@ -1,4 +1,4 @@
-<!-- EUG Appendix Tools -->
+<!-- WSUG Appendix Tools -->
 
 <!-- $Id$ -->
 
@@ -16,12 +16,12 @@
   
   <section id="AppToolstcpdump">
     <title><command>tcpdump</command>: Capturing with tcpdump for viewing 
-	with Ethereal</title>
+	with Wireshark</title>
     <para>
       There are occasions when you want to capture packets using 
       <command>tcpdump</command> rather than <command>ethereal</command>, 
       especially when you want to do a remote capture and do not want the 
-      network load associated with running Ethereal remotely (not to 
+      network load associated with running Wireshark remotely (not to 
       mention all the X traffic polluting your capture).
     </para>
     <para>
@@ -49,15 +49,15 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
 	</note>
   </section>
   
-  <section id="AppToolstethereal">
-    <title><command>tethereal</command>: Terminal-based Ethereal</title>
+  <section id="AppToolstshark">
+    <title><command>tshark</command>: Terminal-based Wireshark</title>
     <para>
-      <application>Tethereal</application> is a terminal oriented version 
+      <application>TShark</application> is a terminal oriented version 
       of ethereal designed for capturing and displaying packets when an 
 	  interactive user interface isn't necessary or available. It supports 
 	  the same options as <command>ethereal</command>. For more 
-      information on <command>tethereal</command>, see the manual pages 
-      (<command>man tethereal</command>).
+      information on <command>tshark</command>, see the manual pages 
+      (<command>man tshark</command>).
     </para>
   </section>
 
@@ -118,7 +118,7 @@ Usage: editcap [-r] [-h] [-v] [-T &lt;encap type>] [-E &lt;probability>]
         -E &lt;probability> specifies the probability (between 0 and 1)
             that a particular byte will will have an error.
         -F &lt;capture type> specifies the capture file type to write:
-            libpcap - libpcap (tcpdump, Ethereal, etc.)
+            libpcap - libpcap (tcpdump, Wireshark, etc.)
             rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
             suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
             modlibpcap - modified libpcap (tcpdump)
@@ -257,7 +257,7 @@ Usage: editcap [-r] [-h] [-v] [-T &lt;encap type>] [-E &lt;probability>]
 	    </para>
 	    <para>
 	      It is mainly for converting funny captures to something 
-	      that Ethereal can deal with.
+	      that Wireshark can deal with.
 	    </para>
 	    <para>
 		  The default frame 
@@ -463,7 +463,7 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
              bacnet-ms-tp - BACnet MS/TP
              default is the same as the first input file
         -F &lt;capture type&gt; capture file type to write:
-             libpcap - libpcap (tcpdump, Ethereal, etc.)
+             libpcap - libpcap (tcpdump, Wireshark, etc.)
              rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
              suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
              modlibpcap - modified libpcap (tcpdump)
@@ -608,7 +608,7 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
       Text2pcap also allows the user to read in dumps of application-level
       data, by inserting dummy L2, L3 and L4 headers before each packet.
       The user can elect to insert Ethernet headers, Ethernet and IP, or
-      Ethernet, IP and UDP headers before each packet. This allows Ethereal
+      Ethernet, IP and UDP headers before each packet. This allows Wireshark
       or any other full-packet decoder to handle these dumps.
     </para>
     <example id="AppToolstext2pcapEx">
@@ -723,7 +723,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	  </para>
 	  <para>
 	    For IP packets, instead of generating a fake Ethernet header you
-	    can also use -l 12 to indicate a raw IP packet to Ethereal. Note
+	    can also use -l 12 to indicate a raw IP packet to Wireshark. Note
 	    that -l 12 does not work for any non-IP Layer 3 packet (e.g.
 	    ARP), whereas generating a dummy Ethernet header with -e works
 	    for any sort of L3 packet.
@@ -746,12 +746,12 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
     </variablelist>
   </section>
   
-  <section id="AppToolsidl2eth" >
-    <title><command>idl2eth</command>: 
+  <section id="AppToolsidl2wrs" >
+    <title><command>idl2wrs</command>: 
       Creating dissectors from Corba IDL files
     </title>
     <para>
-      In an ideal world idl2eth would be mentioned in the users guide 
+      In an ideal world idl2wrs would be mentioned in the users guide 
       in passing and documented in the developers guide.  As the 
       developers guide 
       has not yet been completed it will be documented here.
@@ -760,20 +760,20 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
       <title>What is it?</title>
       <para>
 	As you have probably guessed from the name, 
-	<command>idl2eth</command> takes a
+	<command>idl2wrs</command> takes a
 	user specified IDL file and attempts to build a dissector that
 	can decode the IDL traffic over GIOP. The resulting file is
 	"C" code, that should compile okay as an ethereal dissector.
       </para>
       <para>
-	<command>idl2eth</command> basically parses the data struct given to 
+	<command>idl2wrs</command> basically parses the data struct given to 
 	it by the omniidl compiler, and using the GIOP API available in 
 	packet-giop.[ch], generates  get_CDR_xxx calls to decode the 
 	CORBA traffic on the wire.
       </para>
       <para>It consists of 4 main files.</para>
       <variablelist>
-	<varlistentry><term><filename>README.idl2eth</filename></term>
+	<varlistentry><term><filename>README.idl2wrs</filename></term>
 	  <listitem>
 	    <para>This document</para>
 	  </listitem>
@@ -788,7 +788,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	    <para>A helper class, that generates the C code.</para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><filename>idl2eth</filename></term>
+	<varlistentry><term><filename>idl2wrs</filename></term>
 	  <listitem>
 	    <para> A simple shell script wrapper that the end user should
 	      use to generate the dissector from the IDL file(s).</para>
@@ -812,18 +812,18 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
       </para>
       <para>
 	It is also COOL to work on a great Open Source project such as
-	the case with "Ethereal" (
-	<ulink url="http://www.ethereal.com">http://www.ethereal.com</ulink>
+	the case with "Wireshark" (
+	<ulink url="http://www.wireshark.org">http://www.wireshark.org</ulink>
 	)
       </para>
     </section>
-    <section><title>How to use idl2eth</title>
+    <section><title>How to use idl2wrs</title>
       <para>
-	To use the idl2eth to generate ethereal dissectors, you
+	To use the idl2wrs to generate ethereal dissectors, you
 	need the following:
       </para>
       <orderedlist>
-	<title>Prerequisites to using idl2eth</title>
+	<title>Prerequisites to using idl2wrs</title>
 	<listitem>
 	  <para>
 	    Python must be installed.  See 
@@ -839,13 +839,13 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>
 	    Of course you need ethereal installed to compile the
-	    code and tweak it if required. idl2eth is part of the 
-	    standard Ethereal distribution
+	    code and tweak it if required. idl2wrs is part of the 
+	    standard Wireshark distribution
 	  </para>
 	</listitem>
       </orderedlist>
       <para>
-	To use idl2eth to generate an ethereal dissector from an idl file 
+	To use idl2wrs to generate an ethereal dissector from an idl file 
 	use the following procedure:
       </para>
       <orderedlist>
@@ -856,14 +856,14 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>
 	    To write the C code to stdout.
-	    <programlisting>idl2eth  &lt;your file.idl&gt;</programlisting>
-	    eg: <programlisting>idl2eth echo.idl</programlisting>
+	    <programlisting>idl2wrs  &lt;your file.idl&gt;</programlisting>
+	    eg: <programlisting>idl2wrs echo.idl</programlisting>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    To write to a file, just redirect the output.
-	    <programlisting>idl2eth echo.idl > packet-test-idl.c</programlisting>
+	    <programlisting>idl2wrs echo.idl > packet-test-idl.c</programlisting>
 	    You may wish to comment out the register_giop_user_module() code 
 	    and that will leave you with heuristic dissection.
 	  </para>
@@ -962,6 +962,6 @@ edit Makefile.nmake
     </section>
   </section>
 </appendix>
-<!-- End of EUG Appendix Tools -->
+<!-- End of WSUG Appendix Tools -->
 
 
