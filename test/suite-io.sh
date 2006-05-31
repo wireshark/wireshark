@@ -38,7 +38,7 @@ io_step_input_file() {
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
-		$TETHEREAL -D
+		$TSHARK -D
 		return
 	fi
 
@@ -58,7 +58,7 @@ io_step_input_file() {
 		cat ./testout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
-		$TETHEREAL -D
+		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
@@ -69,7 +69,7 @@ io_step_output_piping() {
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
-		$TETHEREAL -D
+		$TSHARK -D
 		return
 	fi
 
@@ -88,7 +88,7 @@ io_step_output_piping() {
 		echo
 		cat ./testout.txt
 		cat ./testout2.txt
-		$TETHEREAL -D
+		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
@@ -98,7 +98,7 @@ io_step_input_piping() {
 	cat -B dhcp.pcap | $DUT -r - -w ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		$TETHEREAL -D
+		$TSHARK -D
 		echo
 		cat ./testout.txt
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -120,7 +120,7 @@ io_step_input_piping() {
 		echo
 		cat ./testout.txt
 		cat ./testout2.txt
-		$TETHEREAL -D
+		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
@@ -131,8 +131,8 @@ ethereal_io_suite() {
 	test_step_add "Input file" io_step_input_file
 }
 
-tethereal_io_suite() {
-	DUT=$TETHEREAL
+tshark_io_suite() {
+	DUT=$TSHARK
 	test_step_add "Input file" io_step_input_file
 	test_step_add "Output piping" io_step_output_piping
 	#test_step_add "Piping" io_step_input_piping
@@ -155,7 +155,7 @@ io_cleanup_step() {
 io_suite() {
 	test_step_set_pre io_cleanup_step
 	test_step_set_post io_cleanup_step
-	test_suite_add "Tethereal file I/O" tethereal_io_suite
+	test_suite_add "TShark file I/O" tshark_io_suite
 	#test_suite_add "Ethereal file I/O" ethereal_io_suite
 	#test_suite_add "Dumpcap file I/O" dumpcap_io_suite
 }

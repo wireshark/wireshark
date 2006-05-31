@@ -60,13 +60,13 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
+bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tshark_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
 bin_SCRIPTS = @idl2wrs_bin@
-man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
+man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tshark_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
-EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
+EXTRA_PROGRAMS = ethereal tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap
 EXTRA_SCRIPTS = idl2wrs
 
@@ -77,7 +77,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 #
 # Ethereal configuration files are put in $(pkgdatadir).
 #
-pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
+pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tshark.html \
 	ethereal-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
 	cfilters colorfilters dfilters
@@ -266,11 +266,11 @@ endif		# HAVE_PLUGINS
 
 # Optional objects that I know how to build. These will be
 # linked into the ethereal executable.
-# They will also be linked into the tethereal executable; if this
+# They will also be linked into the tshark executable; if this
 # list ever grows to include something that can't be linked with
-# tethereal, or if tethereal needs something that wireshark doesn't,
+# tshark, or if tshark needs something that wireshark doesn't,
 # we should probably split this into stuff needed both
-# by wireshark and tethereal and stuff needed only by one or the
+# by wireshark and tshark and stuff needed only by one or the
 # other.
 ethereal_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
@@ -312,21 +312,21 @@ ethereal_LDADD = \
 	@LIBGNUTLS_LIBS@
 
 # Additional libs that I know how to build. These will be
-# linked into the tethereal executable.
-tethereal_additional_libs =		\
+# linked into the tshark executable.
+tshark_additional_libs =		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la
 
 # This is the automake dependency variable for the executable
-tethereal_DEPENDENCIES = \
+tshark_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
+	$(tshark_additional_libs)	\
 	$(plugin_libs)
 
 # This automake variable adds to the link-line for the executable
-tethereal_LDADD = \
+tshark_LDADD = \
 	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
+	$(tshark_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -335,9 +335,9 @@ tethereal_LDADD = \
 	@LIBGNUTLS_LIBS@
 
 if ENABLE_STATIC
-tethereal_LDFLAGS = -Wl,-static -all-static
+tshark_LDFLAGS = -Wl,-static -all-static
 else
-tethereal_LDFLAGS = -export-dynamic
+tshark_LDFLAGS = -export-dynamic
 endif
 
 # Optional objects that I know how to build, and that are needed by
@@ -398,9 +398,9 @@ SUFFIXES = .sh
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
 #
-# Build "tethereal-tap-register.c", which contains a function
+# Build "tshark-tap-register.c", which contains a function
 # "register_all_tap_listeners()"
-# that calls the register routines for all tethereal tap listeners.
+# that calls the register routines for all tshark tap listeners.
 #
 # We do this by grepping through sources.
 #
@@ -411,9 +411,9 @@ SUFFIXES = .sh
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) $(srcdir)/make-tapreg-dotc
-	@echo Making tethereal-tap-register.c
-	@$(srcdir)/make-tapreg-dotc tethereal-tap-register.c $(srcdir) $(TETHEREAL_TAP_SRC)
+tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/make-tapreg-dotc
+	@echo Making tshark-tap-register.c
+	@$(srcdir)/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
@@ -557,7 +557,7 @@ EXTRA_DIST = \
 	doc/idl2wrs.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
-	doc/tethereal.pod	\
+	doc/tshark.pod	\
 	doc/text2pcap.pod	\
 	doc/dumpcap.pod	\
 	docbook/Makefile.auto.am	\
@@ -608,7 +608,7 @@ EXTRA_DIST = \
 	image/stock_dialog_question_48.xpm	\
 	image/stock_dialog_info_48.xpm	\
 	image/stock_dialog_stop_48.xpm	\
-	image/tethereal.rc.in	\
+	image/tshark.rc.in	\
 	image/text2pcap.rc.in	\
 	image/toolbar/autoscroll_24.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
@@ -688,7 +688,7 @@ EXTRA_DIST = \
 if SETUID_INSTALL
 install-exec-hook:
 	-chmod +s $(DESTDIR)$(bindir)/dumpcap
-	-chmod +s $(DESTDIR)$(bindir)/tethereal
+	-chmod +s $(DESTDIR)$(bindir)/tshark
 else
 install-exec-hook:
 endif
@@ -705,11 +705,11 @@ ethereal.1: doc/ethereal.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
 
-tethereal.1: doc/tethereal.pod
+tshark.1: doc/tshark.pod
 	(cd doc ; \
-	$(MAKE) ../tethereal.1 )
+	$(MAKE) ../tshark.1 )
 
-ethereal-filter.4: tethereal doc/ethereal-filter.pod.template
+ethereal-filter.4: tshark doc/ethereal-filter.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal-filter.4 )
 
@@ -741,11 +741,11 @@ ethereal.html: doc/ethereal.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../ethereal.html )
 
-tethereal.html: doc/tethereal.pod
+tshark.html: doc/tshark.pod
 	(cd doc ; \
-	$(MAKE) ../tethereal.html )
+	$(MAKE) ../tshark.html )
 
-ethereal-filter.html: tethereal doc/ethereal-filter.pod.template
+ethereal-filter.html: tshark doc/ethereal-filter.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal-filter.html )
 

@@ -28,7 +28,7 @@ ETH_BIN_PATH=../Debug_GTK2
 
 # Tweak the following to your liking.
 ETHEREAL=$ETH_BIN_PATH/ethereal
-TETHEREAL=$ETH_BIN_PATH/tethereal
+TSHARK=$ETH_BIN_PATH/tshark
 CAPINFOS=$ETH_BIN_PATH/capinfos
 DUMPCAP=$ETH_BIN_PATH/dumpcap
 

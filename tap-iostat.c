@@ -479,18 +479,18 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			p=filter+namelen+1;
 			parenp=strchr(p, ')');
 			if(!parenp){
-				fprintf(stderr, "twireshark: Closing parenthesis missing from calculated expression.\n");
+				fprintf(stderr, "tshark: Closing parenthesis missing from calculated expression.\n");
 				exit(10);
 			}
 			/* bail out if there was no field specified */
 			if(parenp==p){
-				fprintf(stderr, "twireshark: You didn't specify a field name for %s(*).\n",
+				fprintf(stderr, "tshark: You didn't specify a field name for %s(*).\n",
 				    calc_type_table[j].func_name);
 				exit(10);
 			}
 			field=malloc(parenp-p+1);
 			if(!field){
-				fprintf(stderr, "twireshark: Out of memory.\n");
+				fprintf(stderr, "tshark: Out of memory.\n");
 				exit(10);
 			}
 			memcpy(field, p, parenp-p);
@@ -499,7 +499,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 
 			hfi=proto_registrar_get_byname(field);
 			if(!hfi){
-				fprintf(stderr, "twireshark: There is no field named '%s'.\n",
+				fprintf(stderr, "tshark: There is no field named '%s'.\n",
 				    field);
 				free(field);
 				exit(10);
@@ -533,7 +533,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				break;
 			default:
 				fprintf(stderr,
-				    "twireshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
+				    "tshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
@@ -547,7 +547,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			 */
 			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
 				fprintf(stderr,
-				    "twireshark: %s is a 64-bit integer, so %s(*) calculations are not supported on it.",
+				    "tshark: %s is a 64-bit integer, so %s(*) calculations are not supported on it.",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
@@ -560,7 +560,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			 */
 			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
 				fprintf(stderr,
-				    "twireshark: %s doesn't have integral values, so %s(*) calculations are not supported on it.\n",
+				    "tshark: %s doesn't have integral values, so %s(*) calculations are not supported on it.\n",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
@@ -581,7 +581,7 @@ CALC_TYPE_AVG	5
 	if(error_string){
 		g_free(io->items);
 		g_free(io);
-		fprintf(stderr, "twireshark: Couldn't register io,stat tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register io,stat tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -604,7 +604,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "twireshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -612,7 +612,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 	/* make interval be number of ms */
 	interval=(gint32)(interval_float*1000.0+0.9);	
 	if(interval<1){
-		fprintf(stderr, "twireshark: \"-z\" interval must be >=0.001 seconds.\n");
+		fprintf(stderr, "tshark: \"-z\" interval must be >=0.001 seconds.\n");
 		exit(10);
 	}
 	

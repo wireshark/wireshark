@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply SRT statistics to twireshark.
- * It is only used by twireshark and not wireshark
+/* This module provides rpc call/reply SRT statistics to tshark.
+ * It is only used by tshark and not wireshark
  */
 
 #ifdef HAVE_CONFIG_H
@@ -227,7 +227,7 @@ rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 
 	error_string=register_tap_listener("rpc", NULL, NULL, NULL, rpcprogs_packet, rpcprogs_draw);
 	if(error_string){
-		fprintf(stderr,"twireshark: Couldn't register rpc,programs tap: %s\n",
+		fprintf(stderr,"tshark: Couldn't register rpc,programs tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

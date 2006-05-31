@@ -244,7 +244,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
 
     /*
      * If the argument is a number, treat it as an index into the list
-     * of adapters, as printed by "twireshark -D".
+     * of adapters, as printed by "tshark -D".
      *
      * This should be OK on UNIX systems, as interfaces shouldn't have
      * names that begin with digits.  It can be useful on Windows, where

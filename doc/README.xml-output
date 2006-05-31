@@ -5,7 +5,7 @@ Copyright (c) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 
 Ethereal has the ability to export its protocol dissection in an
-XML format, tethereal has similar functionality by using the "-Tpdml" 
+XML format, tshark has similar functionality by using the "-Tpdml" 
 option. 
 
 The XML that wireshark produces follows the Packet Details Markup
@@ -18,10 +18,10 @@ A related XML format, the Packet Summary Markup Language (PSML), is
 also defined by the Analyzer group to provide packet summary information.
 The PSML format is not documented in a publicly-available HTML document,
 but its format is simple. Ethereal can export this format too. Some day it 
-may be added to tethereal so that "-Tpsml" would produce PSML.
+may be added to tshark so that "-Tpsml" would produce PSML.
 
 One wonders if the "-T" option should read "-Txml" instead of "-Tpdml"
-(and in the future, "-Tpsml"), but if tethereal was required to produce
+(and in the future, "-Tpsml"), but if tshark was required to produce
 another XML-based format of its protocol dissection, then "-Txml" would
 be ambiguous.
 
@@ -53,7 +53,7 @@ Example:
 	<pdml version="0" creator="ethereal/0.9.17">
 
 The creator is "ethereal" (i.e., the "ethereal" engine. It will always say
-"ethereal", not "tethereal") version 0.9.17.
+"ethereal", not "tshark") version 0.9.17.
 
 
 The "<proto>" tag
@@ -192,13 +192,13 @@ a protocol or a field:
 General Notes
 =============
 Generally, parsing XML is slow. If you're writing a script to parse
-the PDML output of tethereal, pass a read filter with "-R" to tethereal to
-try to reduce as much as possible the number of packets coming out of tethereal.
+the PDML output of tshark, pass a read filter with "-R" to tshark to
+try to reduce as much as possible the number of packets coming out of tshark.
 The less your script has to process, the faster it will be.
 
 'tools/msnchat' is a sample Python program that uses EtherealXML to parse PDML.
-Given one or more capture files, it runs tethereal on each of them, providing
-a read filter to reduce tethereal's output. It finds MSN Chat conversations
+Given one or more capture files, it runs tshark on each of them, providing
+a read filter to reduce tshark's output. It finds MSN Chat conversations
 in the capture file and produces nice HTML showing the conversations. It has
 only been tested with capture files containing non-simultaneous chat sessions,
 but was written to more-or-less handle any number of simultanous chat

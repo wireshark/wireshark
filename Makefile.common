@@ -39,12 +39,12 @@ GENERATED_HEADER_FILES = \
 # C source files generated from source files.
 GENERATED_C_FILES = \
 	$(BUILT_C_FILES)	\
-	tethereal-tap-register.c
+	tshark-tap-register.c
 
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
-# sources common for ethereal and tethereal
+# sources common for ethereal and tshark
 ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_errs.c	\
@@ -92,8 +92,8 @@ ETHEREAL_COMMON_INCLUDES =	\
 	util.h	\
 	version_info.h
 
-# sources for Tethereal taps
-TETHEREAL_TAP_SRC =	\
+# sources for TShark taps
+TSHARK_TAP_SRC =	\
 	tap-afpstat.c	\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c	\
@@ -181,15 +181,15 @@ ethereal_INCLUDES =	\
 	tap_dfilter_dlg.h	\
 	ui_util.h
 
-# tethereal specifics
-tethereal_SOURCES =	\
+# tshark specifics
+tshark_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
-	$(TETHEREAL_TAP_SRC)	\
+	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
 	capture_loop.c		\
 	tempfile.c		\
-	tethereal-tap-register.c	\
-	tethereal.c
+	tshark-tap-register.c	\
+	tshark.c
 
 # text2pcap specifics
 text2pcap_SOURCES = \

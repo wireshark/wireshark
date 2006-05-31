@@ -33,7 +33,7 @@ README.win32 for those instructions.
     GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
     1.2[.x].
 
-2. If you wish to build Tethereal, the line-mode version of Ethereal,
+2. If you wish to build TShark, the line-mode version of Ethereal,
     make sure you have GLIB installed.  See note #1 above for instructions
     on checking if you have GLIB installed. You can download GLIB from
     the same site as GTK.
@@ -83,8 +83,8 @@ README.win32 for those instructions.
     --disable-gtk2
         Build Glib/Gtk+ 1.2[.x]-based ethereal.
 
-    --disable-tethereal
-        By default the line-mode packet analyzer, Tethereal, is built.
+    --disable-tshark
+        By default the line-mode packet analyzer, TShark, is built.
         Use this switch to avoid building it.
 
     --disable-editcap
@@ -128,7 +128,7 @@ README.win32 for those instructions.
         By default, if 'configure' finds zlib (a.k.a, libz), the
         wiretap library will be built so that it can read compressed
         capture files. If you have zlib but do not wish to build
-        it into the wiretap library, used by Wireshark, Tethereal, and
+        it into the wiretap library, used by Wireshark, TShark, and
         the capture-file utilities that come in this package, use
         this switch.
 
@@ -144,7 +144,7 @@ README.win32 for those instructions.
 
     --enable-setuid-install
         Use this switch to install the packet analyzers as setuid.
-        Installating Ethereal and Tethereal as setuid 'root' is
+        Installating Ethereal and TShark as setuid 'root' is
         dangerous. Repeat: IT'S DANGEROUS. Don't do it.
 
     --with-ssl=DIR
@@ -195,7 +195,7 @@ README.win32 for those instructions.
 
 6. Run 'make'.  Hopefully, you won't run into any problems.
 
-7. Run './ethereal' or './tethereal', and make sure things are working.
+7. Run './ethereal' or './tshark', and make sure things are working.
     You must have root privileges in order to capture live data.
 
 8. Run 'make install'.  If you wish to install the man page, run

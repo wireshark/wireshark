@@ -99,7 +99,7 @@ as a shared library.
 
 5 - HP-UX patches to fix packet capture problems
 
-Note that packet-capture programs such as Ethereal/Tethereal or tcpdump
+Note that packet-capture programs such as Ethereal/TShark or tcpdump
 may, on HP-UX, not be able to see packets sent from the machine on which
 they're running.  Make sure you have a recent "LAN Cummulative/DLPI" patch
 installed.

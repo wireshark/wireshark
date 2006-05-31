@@ -78,14 +78,14 @@ smbsids_init(const char *optarg _U_, void* userdata _U_)
 		fprintf(stderr,"Either enable Edit/Preferences/Protocols/SMB/Snoop SID name mappings  in wireshark\n");
 		fprintf(stderr,"or override the preference file by specifying\n");
 		fprintf(stderr,"  -o \"smb.sid_name_snooping=TRUE\"\n");
-		fprintf(stderr,"on the twireshark command line.\n");
+		fprintf(stderr,"on the tshark command line.\n");
 		exit(1);
 	}
 
 
 	error_string=register_tap_listener("smb", NULL, NULL, NULL, smbsids_packet, smbsids_draw);
 	if(error_string){
-		fprintf(stderr, "twireshark: Couldn't register smb,sids tap:%s\n",
+		fprintf(stderr, "tshark: Couldn't register smb,sids tap:%s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

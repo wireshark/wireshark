@@ -23,7 +23,7 @@
  */
 
 /* This module provides rpc call/reply SRT statistics to Wireshark.
- * It is only used by Wireshark and not TWireshark
+ * It is only used by Wireshark and not TShark
  *
  * It serves as an example on how to use the tap api.
  */

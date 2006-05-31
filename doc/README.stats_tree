@@ -4,9 +4,9 @@ tapping with stats_tree
 Let's suppose that you want to write a tap only to keep counters, and you
 don't want to get involved with GUI programming or maybe you'd like to make
 it a plugin. A stats_tree might be the way to go. The stats_tree module takes
-care of the representation (GUI for ethereal and text for tethereal) of the
+care of the representation (GUI for ethereal and text for tshark) of the
 tap data. So there's very little code to write to make a tap listener usable
-from both ethereal and tethereal.
+from both ethereal and tshark.
 
 First, you should add the TAP to the dissector in question as described in
 README.tapping .

@@ -6,11 +6,11 @@ In order to use the tapping system, very little knowledge of ethereal
 internals are required.
 
 As examples on how to use the tap system see the implementation of 
-tap-rpcstat.c     	(tethereal version)
+tap-rpcstat.c     	(tshark version)
 gtk/gtk-rpcstat.c	(gtk-ethereal version)
 
 If all you need is to keep some counters, there's the stats_tree API,
-which offers a simple way to make a GUI and tethereal tap-listener; see
+which offers a simple way to make a GUI and tshark tap-listener; see
 README.stats_tree.  However, keep reading, as you'll need much of what's
 in this document.
 

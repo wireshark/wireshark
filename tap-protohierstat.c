@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides ProtocolHierarchyStatistics for twireshark */
+/* This module provides ProtocolHierarchyStatistics for tshark */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -193,7 +193,7 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 			filter="frame"; 
 		}
 	} else {
-		fprintf(stderr, "twireshark: invalid \"-z io,phs[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z io,phs[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -212,7 +212,7 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "twireshark: Couldn't register io,phs tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register io,phs tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

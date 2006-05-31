@@ -41,7 +41,7 @@
 
 3. Installing Ethereal:
 
-   3.1 I installed an Ethereal RPM; why did it install Tethereal but not
+   3.1 I installed an Ethereal RPM; why did it install TShark but not
    Ethereal?
 
 4. Building Ethereal:
@@ -70,7 +70,7 @@
    5.1 Why does Ethereal crash with a Bus Error when I try to run it on Solaris
    8?
 
-   5.2 When I run Tethereal with the "-x" option, why does it crash with an
+   5.2 When I run TShark with the "-x" option, why does it crash with an
    error 
 
      "** ERROR **: file print.c: line 691 (print_line): should not be reached.
@@ -1169,7 +1169,7 @@ cies
 
 3. Installing Ethereal
 
-   Q 3.1: I installed an Ethereal RPM; why did it install Tethereal but not
+   Q 3.1: I installed an Ethereal RPM; why did it install TShark but not
    Ethereal?
 
    A: Older versions of the Red Hat RPMs for Wireshark put only the non-GUI
@@ -1270,7 +1270,7 @@ cies
    Similar problems may exist with older versions of GTK+ for earlier versions
    of Solaris.
 
-   Q 5.2: When I run Tethereal with the "-x" option, why does it crash with an
+   Q 5.2: When I run TShark with the "-x" option, why does it crash with an
    error
 
      "** ERROR **: file print.c: line 691 (print_line): should not be reached.
@@ -1440,7 +1440,7 @@ cies
    supply to the host all network packets they see. Ethereal will try to put
    the interface on which it's capturing into promiscuous mode unless the
    "Capture packets in promiscuous mode" option is turned off in the "Capture
-   Options" dialog box, and Tethereal will try to put the interface on which
+   Options" dialog box, and TShark will try to put the interface on which
    it's capturing into promiscuous mode unless the -p option was specified.
    However, some network interfaces don't support promiscuous mode, and some
    OSes might not allow interfaces to be put into promiscuous mode.
@@ -1537,7 +1537,7 @@ cies
 
    Q 7.6: How do I put an interface into promiscuous mode?
 
-   A: By not disabling promiscuous mode when running Ethereal or Tethereal.
+   A: By not disabling promiscuous mode when running Ethereal or TShark.
 
    Note, however, that:
      * the form of promiscuous mode that libpcap (the library that programs
@@ -1768,7 +1768,7 @@ cies
 
    A: If you are running Ethereal on Windows NT 4.0, Windows 2000, Windows XP,
    or Windows Server 2003, and this is the first time you have run a
-   WinPcap-based program (such as Ethereal, or Tethereal, or WinDump, or
+   WinPcap-based program (such as Ethereal, or TShark, or WinDump, or
    Analyzer, or...) since the machine was rebooted, you need to run that
    program from an account with administrator privileges; once you have run
    such a program, you will not need administrator privileges to run any such
@@ -2137,7 +2137,7 @@ cies
    passively capture packets.
 
    This means that you should disable name resolution when capturing in monitor
-   mode; otherwise, when Ethereal (or Tethereal, or tcpdump) tries to display
+   mode; otherwise, when Ethereal (or TShark, or tcpdump) tries to display
    IP addresses as host names, it will probably block for a long time trying to
    resolve the name because it will not be able to communicate with any DNS or
    NIS servers.
@@ -2179,7 +2179,7 @@ cies
    possible" option, clicking "Save" if you want to save that setting in your
    preference file, and clicking "OK".
 
-   It can also be set on the Wireshark or Tethereal command line with a -o
+   It can also be set on the Wireshark or TShark command line with a -o
    tcp.check_checksum:false command-line flag, or manually set in your
    preferences file by adding a tcp.check_checksum:false line.
 

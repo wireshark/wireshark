@@ -2,15 +2,15 @@
 #
 # $Id$
 
-# Fuzz-testing script for Tethereal
+# Fuzz-testing script for TShark
 #
 # This script uses Editcap to add random errors ("fuzz") to a set of
-# capture files specified on the command line.  It runs Tethereal on
+# capture files specified on the command line.  It runs TShark on
 # each fuzzed file and checks for errors.  The files are processed
 # repeatedly until an error is found.
 
 # Tweak the following to your liking.  Editcap must support "-E".
-TETHEREAL=./tethereal
+TSHARK=./tshark
 EDITCAP=./editcap
 CAPINFOS=./capinfos
 
@@ -41,15 +41,15 @@ ulimit -c unlimited
 
 ### usually you won't have to change anything below this line ###
 
-# Tethereal arguments (you won't have to change these)
+# TShark arguments (you won't have to change these)
 # n Disable network object name resolution
 # V Print a view of the details of the packet rather than a one-line summary of the packet
-# x Cause Tethereal to print a hex and ASCII dump of the packet data after printing the summary or details
+# x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
 # r Read packet data from the following infile
-TETHEREAL_ARGS="-nVxr"
+TSHARK_ARGS="-nVxr"
 
 NOTFOUND=0
-for i in "$TETHEREAL" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
+for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
 	if [ ! -x $i ]; then
 		echo "Couldn't find $i"
 		NOTFOUND=1
@@ -75,7 +75,7 @@ FIN
     exit 1
 fi
 
-echo "Running $TETHEREAL with args: $TETHEREAL_ARGS"
+echo "Running $TSHARK with args: $TSHARK_ARGS"
 echo ""
 
 # Not yet - properly handle empty filenames
@@ -108,7 +108,7 @@ while [ 1 ] ; do
 	    fi
 	fi
 
-	"$TETHEREAL" $TETHEREAL_ARGS $TMP_DIR/$TMP_FILE \
+	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
 		> /dev/null 2> $TMP_DIR/$ERR_FILE
 	RETVAL=$?
 	grep -i "dissector bug" $TMP_DIR/$ERR_FILE \

@@ -208,13 +208,13 @@ class CaptureFile:
     """Parses a single a capture file and keeps track of
     all chat sessions in the file."""
 
-    def __init__(self, capture_filename, tethereal):
-        """Run tethereal on the capture file and parse
+    def __init__(self, capture_filename, tshark):
+        """Run tshark on the capture file and parse
         the data."""
         self.conversations = []
         self.conversations_map = {}
 
-        pipe = os.popen(tethereal + " -Tpdml -n -R "
+        pipe = os.popen(tshark + " -Tpdml -n -R "
             "'msnms contains \"X-MMS-IM-Format\"' "
             "-r " + capture_filename, "r")
 
@@ -253,14 +253,14 @@ class CaptureFile:
             conv.CreateHTML(default_user)
 
 
-def run_filename(filename, default_user, tethereal):
+def run_filename(filename, default_user, tshark):
     """Process one capture file."""
 
-    capture = CaptureFile(filename, tethereal)
+    capture = CaptureFile(filename, tshark)
     capture.CreateHTML(default_user)
 
 
-def run(filenames, default_user, tethereal):
+def run(filenames, default_user, tshark):
     # HTML Header
     print >> out_fh, """
 <HTML><TITLE>MSN Conversation</TITLE>
@@ -268,7 +268,7 @@ def run(filenames, default_user, tethereal):
 <BODY>
 """
     for filename in filenames:
-        run_filename(filename, default_user, tethereal)
+        run_filename(filename, default_user, tshark)
 
     # HTML Footer
     print >> out_fh, """
@@ -281,13 +281,13 @@ def run(filenames, default_user, tethereal):
 def usage():
     print >> sys.stderr, "msnchat [OPTIONS] CAPTURE_FILE [...]"
     print >> sys.stderr, "  -o FILE       name of output file"
-    print >> sys.stderr, "  -t TETHEREAL  location of tethereal binary"
+    print >> sys.stderr, "  -t TSHARK  location of tshark binary"
     print >> sys.stderr, "  -u USER       name for unknown user"
     sys.exit(1)
 
 def main():
     default_user = "Unknown"
-    tethereal = "tethereal"
+    tshark = "tshark"
 
     optstring = "ho:t:u:"
     longopts = ["help"]
@@ -313,12 +313,12 @@ def main():
             default_user = arg
 
         elif opt == "-t":
-            tethereal = arg
+            tshark = arg
 
         else:
             sys.exit("Unhandled command-line option: " + opt)
 
-    run(args, default_user, tethereal)
+    run(args, default_user, tshark)
 
 if __name__ == '__main__':
     main()

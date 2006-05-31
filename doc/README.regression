@@ -33,7 +33,7 @@
 # 'make accept'		Accept current tests; make them the reference test results
 # 'make clean'		Cleans any tests (but not references!)
 
-TETHEREAL=/home/gram/prj/ethereal/debug/linux-ix86/tethereal
+TSHARK=/home/gram/prj/ethereal/debug/linux-ix86/tshark
 
 CAPTURE_DIR=/home/gram/prj/sniff
 
@@ -59,8 +59,8 @@ all:	$(TESTS)
 clean:
 	rm -f $(TESTS)
 
-%.tether : $(CAPTURE_DIR)/% $(TETHEREAL)
-	$(TETHEREAL) -V -n -r $< > $@
+%.tether : $(CAPTURE_DIR)/% $(TSHARK)
+	$(TSHARK) -V -n -r $< > $@
 
 accept: $(REFERENCES)
 

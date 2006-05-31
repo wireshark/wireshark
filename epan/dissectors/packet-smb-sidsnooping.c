@@ -404,7 +404,7 @@ sid_snooping_init(void)
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr, "twireshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -415,7 +415,7 @@ sid_snooping_init(void)
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr, "twireshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

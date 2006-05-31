@@ -38,7 +38,7 @@ capture_step_10packets() {
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
-		$TETHEREAL -D
+		$TSHARK -D
 		return
 	fi
 
@@ -58,7 +58,7 @@ capture_step_10packets() {
 		cat ./testout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
-		$TETHEREAL -D
+		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
@@ -69,7 +69,7 @@ capture_step_10packets_stdout() {
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
-		$TETHEREAL -D
+		$TSHARK -D
 		return
 	fi
 
@@ -88,7 +88,7 @@ capture_step_10packets_stdout() {
 		echo
 		cat ./testout.txt
 		cat ./testout2.txt
-		$TETHEREAL -D
+		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
@@ -101,7 +101,7 @@ capture_step_2multi_10packets() {
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
-		$TETHEREAL -D
+		$TSHARK -D
 		return
 	fi
 
@@ -169,8 +169,8 @@ capture_step_snapshot() {
 		return
 	fi
 
-	# use tethereal to filter out all packets, which are larger than 68 bytes
-	$TETHEREAL -r ./testout.pcap -w ./testout2.pcap -R 'frame.cap_len>68' > ./testout.txt 2>&1
+	# use tshark to filter out all packets, which are larger than 68 bytes
+	$TSHARK -r ./testout.pcap -w ./testout2.pcap -R 'frame.cap_len>68' > ./testout.txt 2>&1
 
 	# ok, we got a capture file, does it contain exactly 0 packets?
 	$CAPINFOS ./testout2.pcap > ./testout.txt
@@ -196,8 +196,8 @@ ethereal_capture_suite() {
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
 
-tethereal_capture_suite() {
-	DUT=$TETHEREAL
+tshark_capture_suite() {
+	DUT=$TSHARK
 	test_step_add "Capture 10 packets" capture_step_10packets
 	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
@@ -225,7 +225,7 @@ capture_suite() {
 	test_step_set_pre capture_cleanup_step
 	test_step_set_post capture_cleanup_step
 	test_remark_add "Capture - need some traffic on interface: \"$TRAFFIC_CAPTURE_IFACE\""
-	test_suite_add "Tethereal capture" tethereal_capture_suite
+	test_suite_add "TShark capture" tshark_capture_suite
 	test_suite_add "Ethereal capture" ethereal_capture_suite
 	test_suite_add "Dumpcap capture" dumpcap_capture_suite
 }

@@ -497,17 +497,17 @@ much better to use the g_snprintf() function declared by <glib.h> instead.
 You should test your dissector against incorrectly-formed packets.  This 
 can be done using the randpkt and editcap utilities that come with the
 Ethereal distribution.  Testing using randpkt can be done by generating
-output at the same layer as your protocol, and forcing Ethereal/Tethereal
+output at the same layer as your protocol, and forcing Ethereal/TShark
 to decode it as your protocol, e.g. if your protocol sits on top of UDP:
 
     randpkt -c 50000 -t dns randpkt.pcap
-    tethereal -nVr randpkt.pcap -d udp.port==53,<myproto>
+    tshark -nVr randpkt.pcap -d udp.port==53,<myproto>
     
 Testing using editcap can be done using preexisting capture files and the
 "-E" flag, which introduces errors in a capture file.  E.g.:
 
     editcap -E 0.03 infile.pcap outfile.pcap
-    tethereal -nVr outfile.pcap
+    tshark -nVr outfile.pcap
 
 1.1.4 Name convention.
 

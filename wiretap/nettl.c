@@ -661,7 +661,7 @@ static void nettl_close(wtap *wth)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise.  nettl files are WTAP_ENCAP_UNKNOWN
-   when they are first opened, so we allow that for tethereal read/write.
+   when they are first opened, so we allow that for tshark read/write.
  */
 
 int nettl_dump_can_write_encap(int encap)

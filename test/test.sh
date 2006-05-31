@@ -39,7 +39,7 @@ source suite-capture.sh
 test_step_prerequisites() {
 
 	NOTFOUND=0
-	for i in "$ETHEREAL" "$TETHEREAL" "$CAPINFOS" "$DUMPCAP" ; do
+	for i in "$ETHEREAL" "$TSHARK" "$CAPINFOS" "$DUMPCAP" ; do
 		if [ ! -x $i ]; then
 			echo "Couldn't find $i"
 			NOTFOUND=1
@@ -71,8 +71,8 @@ test_suite() {
 test_set_output VERBOSE
 
 
-#test_suite_run "Tethereal command line options" clopt_suite
-#test_suite_run "Tethereal capture" capture_suite
+#test_suite_run "TShark command line options" clopt_suite
+#test_suite_run "TShark capture" capture_suite
 
 
 # all

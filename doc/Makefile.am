@@ -39,17 +39,17 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	--noindex						\
 	ethereal-tmp.pod > ../ethereal.html
 
-../tethereal.1: tethereal.pod ../config.h
+../tshark.1: tshark.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	$(srcdir)/tethereal.pod > ../tethereal.1
+	$(srcdir)/tshark.pod > ../tshark.1
 
-../tethereal.html: tethereal.pod ../config.h
+../tshark.html: tshark.pod ../config.h
 	$(POD2HTML)							\
-	--title="tethereal - The Wireshark Network Analyzer $(VERSION)"	\
+	--title="tshark - The Wireshark Network Analyzer $(VERSION)"	\
 	--noindex							\
-	$(srcdir)/tethereal.pod > ../tethereal.html
+	$(srcdir)/tshark.pod > ../tshark.html
 
 ../ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)					\
@@ -64,8 +64,8 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	--noindex								\
 	ethereal-filter.pod > ../ethereal-filter.html
 
-ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
-	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
+ethereal-filter.pod: ethereal-filter.pod.template  ../tshark
+	../tshark -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
 
 ../capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)					\
@@ -152,8 +152,8 @@ CLEANFILES =		\
 	../editcap.html	\
 	../mergecap.1	\
 	../mergecap.html	\
-	../tethereal.1	\
-	../tethereal.html	\
+	../tshark.1	\
+	../tshark.html	\
 	../text2pcap.1	\
 	../text2pcap.html	\
 	../dumpcap.1	\

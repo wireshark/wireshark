@@ -23,10 +23,10 @@ libwireshark.rc: libwireshark.rc.in ..\config.nmake
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< libwireshark.rc.in > $@
 
-tethereal.rc  : tethereal.rc.in ..\config.nmake
+tshark.rc  : tshark.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
-		< tethereal.rc.in > $@
+		< tshark.rc.in > $@
 
 capinfos.rc    : capinfos.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
