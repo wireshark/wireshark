@@ -499,7 +499,7 @@ ELUA_FUNCTION elua_retap_packets(lua_State* L) {
 	if ( ops->retap_packets ) {
 		ops->retap_packets();
 	} else {
-		ELUA_ERROR(elua_retap_packets, "does not work on tWireshark");
+		ELUA_ERROR(elua_retap_packets, "does not work on TShark");
 	}
 	
 	return 0;

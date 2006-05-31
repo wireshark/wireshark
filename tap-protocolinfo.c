@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides Protocol Column Info tap for twireshark */
+/* This module provides Protocol Column Info tap for tshark */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -67,7 +67,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 * and, if so, we report that error and exit.
 	 */
 	if (pinfo->cinfo == NULL) {
-		fprintf(stderr, "twireshark: the proto,colinfo tap doesn't work if the columns aren't being printed.\n");
+		fprintf(stderr, "tshark: the proto,colinfo tap doesn't work if the columns aren't being printed.\n");
 		exit(1);
 	}
 	gp=proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
@@ -103,13 +103,13 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 		}
 	}
 	if(!field){
-		fprintf(stderr, "twireshark: invalid \"-z proto,colinfo,<filter>,<field>\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z proto,colinfo,<filter>,<field>\" argument\n");
 		exit(1);
 	}
 
 	hfi=proto_registrar_get_byname(field);
 	if(!hfi){
-		fprintf(stderr, "twireshark: Field \"%s\" doesn't exist.\n", field);
+		fprintf(stderr, "tshark: Field \"%s\" doesn't exist.\n", field);
 		exit(1);
 	}
 
@@ -126,7 +126,7 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 	error_string=register_tap_listener("frame", rs, rs->filter, NULL, protocolinfo_packet, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. complain and clean up */
-		fprintf(stderr, "twireshark: Couldn't register proto,colinfo tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register proto,colinfo tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		if(rs->filter){

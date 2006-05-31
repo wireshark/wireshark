@@ -5,7 +5,7 @@ not work on earlier versions of Mac OS).
 
 In order to build Ethereal, you must have X11 and the X11 developer
 headers and libraries installed; otherwise, you will not be able to
-build or install GTK+, and will only be able to build Tethereal.  The
+build or install GTK+, and will only be able to build TShark.  The
 X11 and X11 SDK that come with Mac OS X 10.3[.x] are sufficient to build
 and run Ethereal.
 

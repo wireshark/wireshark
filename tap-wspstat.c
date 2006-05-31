@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides WSP  statistics to twireshark.
- * It is only used by twireshark and not wireshark
+/* This module provides WSP  statistics to tshark.
+ * It is only used by tshark and not wireshark
  *
  */
 
@@ -168,10 +168,10 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 }
 
 
-/* This callback is used when twireshark wants us to draw/update our
- * data to the output device. Since this is twireshark only output is
+/* This callback is used when tshark wants us to draw/update our
+ * data to the output device. Since this is tshark only output is
  * stdout.
- * Twireshark will only call this callback once, which is when twireshark has
+ * TShark will only call this callback once, which is when tshark has
  * finished reading all packets and exists.
  * If used with wireshark this may be called any time, perhaps once every 3 
  * seconds or so.
@@ -209,7 +209,7 @@ wspstat_draw(void *psp)
 /* When called, this function will create a new instance of wspstat.
  * program and version are whick onc-rpc program/version we want to
  * collect statistics for.
- * This function is called from twireshark when it parses the -z wsp, arguments
+ * This function is called from tshark when it parses the -z wsp, arguments
  * and it creates a new instance to store statistics in and registers this
  * new instance for the wsp tap.
  */
@@ -272,7 +272,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 		g_free(sp);
 		g_hash_table_foreach( sp->hash, (GHFunc) wsp_free_hash_table, NULL ) ;
 		g_hash_table_destroy( sp->hash );
-		fprintf(stderr, "twireshark: Couldn't register wsp,stat tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register wsp,stat tap: %s\n",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

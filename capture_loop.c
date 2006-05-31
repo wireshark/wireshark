@@ -458,7 +458,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
 
 
-/* XXX - opening Winsock on twireshark? */
+/* XXX - opening Winsock on tshark? */
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -628,7 +628,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
   }
 
-/* XXX - will this work for twireshark? */
+/* XXX - will this work for tshark? */
 #ifdef MUST_DO_SELECT
   if (!ld->from_cap_pipe) {
 #ifdef HAVE_PCAP_GET_SELECTABLE_FD
@@ -753,7 +753,7 @@ gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_f
 
   if (ld->pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
-    /* XXX - use cf_open_error_message from twireshark instead? */
+    /* XXX - use cf_open_error_message from tshark instead? */
     switch (err) {
 
     case WTAP_ERR_CANT_OPEN:

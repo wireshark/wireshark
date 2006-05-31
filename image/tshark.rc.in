@@ -20,12 +20,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "The Wireshark developer community\0"
-            VALUE "FileDescription", "Tethereal\0"
+            VALUE "FileDescription", "TShark\0"
             VALUE "FileVersion", "@VERSION@\0"
-            VALUE "InternalName", "Tethereal @VERSION@\0"
+            VALUE "InternalName", "TShark @VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
-            VALUE "OriginalFilename", "Tethereal.exe\0"
-            VALUE "ProductName", "Tethereal\0"
+            VALUE "OriginalFilename", "TShark.exe\0"
+            VALUE "ProductName", "TShark\0"
             VALUE "ProductVersion", "@VERSION@\0"
         END
     END

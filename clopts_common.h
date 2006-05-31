@@ -1,5 +1,5 @@
 /* clopts_common.h
- * Handle command-line arguments common to Wireshark and Twireshark
+ * Handle command-line arguments common to Wireshark and TShark
  *
  * $Id$
  *

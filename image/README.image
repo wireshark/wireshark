@@ -47,7 +47,7 @@ icon-excl.xpm			informational dialogs
 ethereal.rc.in			MSVC++ resource templates
 editcap.rc.in
 mergecap.rc.in
-tethereal.rc.in
+tshark.rc.in
 text2pcap.rc.in
 
 stock_dialog_error_48.xpm		GTK2 default icons for simple_dialog, from:

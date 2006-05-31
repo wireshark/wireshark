@@ -510,7 +510,7 @@ extern int stats_tree_manip_node(manip_node_mode mode, stats_tree* st, const gui
 extern guint8* stats_tree_get_abbr(const guint8* optarg) {
 	guint i;
 
-	/* XXX: this fails when twireshark is given any options
+	/* XXX: this fails when tshark is given any options
 	   after the -z */
 	g_assert(optarg != NULL);
 	

@@ -24,7 +24,7 @@
 	  Ethereal, GTK 2.x based
 	  </para></listitem>
 	  <listitem><para>
-	  Tethereal, console based
+	  TShark, console based
 	  </para></listitem>
 	</itemizedlist>
 	There are other Ethereal frontends existing, not developped nor

@@ -554,11 +554,11 @@ ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\P
 	(native Win32 look and feel, recommended).
 	</para></listitem>
 	<listitem><para>
-	<command>Tethereal</command> - Tethereal is a command-line based network 
+	<command>TShark</command> - TShark is a command-line based network 
 	protocol analyzer.
 	</para></listitem>
 	</itemizedlist>
-	The dissection extensions for Wireshark and Tethereal:
+	The dissection extensions for Wireshark and TShark:
 	<itemizedlist>
 	<listitem><para>
 	<command>Dissector Plugins</command> - Plugins with some extended dissections.

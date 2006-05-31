@@ -7,12 +7,12 @@ ethereal-filter - Ethereal filter syntax and reference
 B<ethereal> [other options]
 S<[ B<-R> "filter expression" ]>
 
-B<tethereal> [other options]
+B<tshark> [other options]
 S<[ B<-R> "filter expression" ]>
 
 =head1 DESCRIPTION
 
-B<Ethereal> and B<Tethereal> share a powerful filter engine that helps remove
+B<Ethereal> and B<TShark> share a powerful filter engine that helps remove
 the noise from a packet trace and lets you see only the packets that interest
 you.  If a packet meets the requirements expressed in your filter, then it
 is displayed in the list of packets.  Display filters let you compare the
@@ -37,7 +37,7 @@ Think of a protocol or field in a filter as implicitly having the "exists"
 operator.
 
 Note: all protocol and field names that are available in B<Ethereal> and
-B<Tethereal> filters are listed in the comprehensive B<FILTER PROTOCOL 
+B<TShark> filters are listed in the comprehensive B<FILTER PROTOCOL 
 REFERENCE> (see below).
 
 =head2 Comparison operators
@@ -85,11 +85,11 @@ a case-insensitive pattern match. More information on PCRE can be found in the
 pcrepattern(3) man page (Perl Regular Expressions are explained in
 B<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
 
-Note: the "matches" operator is only available if B<Ethereal> or B<Tethereal>
+Note: the "matches" operator is only available if B<Ethereal> or B<TShark>
 have been compiled with the PCRE library. This can be checked by running:
 
     ethereal -v
-    tethereal -v
+    tshark -v
 
 or selecting the "About Ethereal" item from the "Help" menu in B<Ethereal>.
 
@@ -221,7 +221,7 @@ Another example is:
 
 You can use the slice operator on a protocol name, too.
 The "frame" protocol can be useful, encompassing all the data captured
-by B<Ethereal> or B<Tethereal>.
+by B<Ethereal> or B<TShark>.
 
     token[0:5] ne 0.0.0.1.1
     llc[0] eq aa
@@ -393,7 +393,7 @@ in B<http://www.winpcap.org/docs/man/html/group__language.html>.
 
 =head1 SEE ALSO
 
-I<ethereal(1)>, I<tethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<ethereal(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 AUTHORS
 

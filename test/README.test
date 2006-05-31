@@ -7,7 +7,7 @@ What is it?
 This is basically a collection of bash scripts to test the command line options of:
 
  - Ethereal
- - Tethereal
+ - TShark
  - Dumpcap 
 
 Motivation

@@ -64,7 +64,7 @@ As a rule of thumb: if you want to see most of the packets and only filter a sma
 
 d) If you still get packet drops, it might be an idea to use a tool dedicated to packet capturing and only use Ethereal for displaying and analyzing the packets.
 
-Have a look at tethereal, the command line variant of ethereal, which is included in this package.
+Have a look at tshark, the command line variant of ethereal, which is included in this package.
 XXX: add a list of possibly useful standalone capture programs.
 
 

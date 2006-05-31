@@ -49,15 +49,15 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
 	</note>
   </section>
   
-  <section id="AppToolstethereal">
-    <title><command>tethereal</command>: Terminal-based Wireshark</title>
+  <section id="AppToolstshark">
+    <title><command>tshark</command>: Terminal-based Wireshark</title>
     <para>
-      <application>Tethereal</application> is a terminal oriented version 
+      <application>TShark</application> is a terminal oriented version 
       of ethereal designed for capturing and displaying packets when an 
 	  interactive user interface isn't necessary or available. It supports 
 	  the same options as <command>ethereal</command>. For more 
-      information on <command>tethereal</command>, see the manual pages 
-      (<command>man tethereal</command>).
+      information on <command>tshark</command>, see the manual pages 
+      (<command>man tshark</command>).
     </para>
   </section>
 

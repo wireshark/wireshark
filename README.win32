@@ -1,6 +1,6 @@
 $Id$
 
-Installing Ethereal, Tethereal, and Editcap on Win32
+Installing Ethereal, TShark, and Editcap on Win32
 ====================================================
 These are the instructions for installing Ethereal
 from the installation executable that is provided on
@@ -13,7 +13,7 @@ and any of its mirrors.
 The installation package allows you to install:
 
 	o Ethereal - the GUI version
-	o Tethereal - the console, line-mode version
+	o TShark - the console, line-mode version
 	o Editcap - a console, line-mode utility to convert
 	  capture files from one format to another.
 	  (The same functions are available in Wireshark)
@@ -24,7 +24,7 @@ The installation package allows you to install:
 
 Additionally, the installation package contains a "plugins"
 option, which installs some additional dissector plugins
-for use with Ethereal and Tethereal.
+for use with Ethereal and TShark.
 
 All binaries in Wireshark package are now built with debugging
 information embedded. If you are experiencing a crash when running
@@ -364,7 +364,7 @@ Source                          Output                  Tool
 config.h.win32                  config.h                sed
 epan/config.h.win32             epan/config.h           sed
 image/ethereal.rc.in            image/ethereal.rc       sed
-image/tethereal.rc.in           image/tethereal.rc      sed
+image/tshark.rc.in              image/tshark.rc         sed
 image/editcap.rc.in             image/editcap.rc        sed
 image/mergecap.rc.in            image/mergecap.rc       sed
 image/text2pcap.rc.in           image/text2pcap.rc      sed
@@ -379,7 +379,7 @@ make-reg-dotc, packet*.c        register.c              Bash + grep + sed
 or
 make-reg-dotc.py, packet*.c     register.c              Python
 
-make-tapreg-dotc, tap-*.c       tethereal-tap-register.c
+make-tapreg-dotc, tap-*.c       tshark-tap-register.c
                                                         Bash + grep + sed
 make-tapreg-dotc, tap files	gtk/ethereal-tap-register.c
     in the gtk subdirectory                             Bash + grep + sed

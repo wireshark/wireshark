@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-tethereal - Dump and analyze network traffic
+tshark - Dump and analyze network traffic
 
 =head1 SYNOPSYS
 
-B<tethereal>
+B<tshark>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
 S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
@@ -39,18 +39,18 @@ S<[ B<-z> E<lt>statisticsE<gt> ]>
 
 =head1 DESCRIPTION
 
-B<Tethereal> is a network protocol analyzer.  It lets you capture packet
+B<TShark> is a network protocol analyzer.  It lets you capture packet
 data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
-standard output or writing the packets to a file.  B<Tethereal>'s native
+standard output or writing the packets to a file.  B<TShark>'s native
 capture file format is B<libpcap> format, which is also the format used
 by B<tcpdump> and various other tools.  
 
-Without any options set, B<Tethereal> will work much like B<tcpdump>. It will 
+Without any options set, B<TShark> will work much like B<tcpdump>. It will 
 use the pcap library to capture traffic from the first available network 
 interface and displays a summary line on stdout for each received packet. 
 
-B<Tethereal> is able to detect, read and write the same capture files that 
+B<TShark> is able to detect, read and write the same capture files that 
 are supported by B<Ethereal>.
 The input file doesn't need a specific filename extension, the file 
 format and an optional gzip compression will be automatically detected.
@@ -59,16 +59,16 @@ I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
 provides a detailed description.
 
 Compressed file support uses (and therefore requires) the zlib library. 
-If the zlib library is not present, B<Tethereal> will compile, but will
+If the zlib library is not present, B<TShark> will compile, but will
 be unable to read compressed files.
 
-If the B<-w> option is not specified, B<Tethereal> writes to the standard
+If the B<-w> option is not specified, B<TShark> writes to the standard
 output the text of a decoded form of the packets it captures or reads. 
-If the B<-w> option is specified, B<Tethereal> writes to the file
+If the B<-w> option is specified, B<TShark> writes to the file
 specified by that option the raw data of the packets, along with the
 packets' time stamps.
 
-When writing a decoded form of packets, B<Tethereal> writes, by
+When writing a decoded form of packets, B<TShark> writes, by
 default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
 pane in B<Ethereal>), although if it's writing packets as it captures
@@ -78,19 +78,19 @@ writes instead a view of the details of the packet, showing all the
 fields of all protocols in the packet.
 
 If you want to write the decoded form of packets to a file, run
-B<Tethereal> without the B<-w> option, and redirect its standard output to
+B<TShark> without the B<-w> option, and redirect its standard output to
 the file (do I<not> use the B<-w> option).
 
-When writing packets to a file, B<Tethereal>, by default, writes the
+When writing packets to a file, B<TShark>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> option can be used to specify the format in which
 to write the file. This list of available file formats is displayed by 
 the B<-h> flag.
 
-Read filters in B<Tethereal>, which allow you to select which packets
+Read filters in B<TShark>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
-are filterable in B<Tethereal> than in other protocol analyzers, and the
-syntax you can use to create your filters is richer.  As B<Tethereal>
+are filterable in B<TShark> than in other protocol analyzers, and the
+syntax you can use to create your filters is richer.  As B<TShark>
 progresses, expect more and more protocol fields to be allowed in read
 filters.
 
@@ -100,7 +100,7 @@ from the read filter syntax.  A read filter can also be specified when
 capturing, and only packets that pass the read filter will be displayed
 or saved to the output file; note, however, that capture filters are much
 more efficient than read filters, and it may be more difficult for
-B<Tethereal> to keep up with a busy network if a read filter is
+B<TShark> to keep up with a busy network if a read filter is
 specified for a live capture.
 
 A capture or read filter can either be specified with the B<-f> or B<-R>
@@ -111,7 +111,7 @@ after the option arguments, in which case all the arguments after the
 filter arguments are treated as a filter expression.  Capture filters
 are supported only when doing a live capture; read filters are supported
 when doing a live capture and when reading a capture file, but require
-Tethereal to do more work when filtering, so you might be more likely to
+TShark to do more work when filtering, so you might be more likely to
 lose packets under heavy load if you're using a read filter.  If the
 filter is specified with command-line arguments after the option
 arguments, it's a capture filter if a capture is being done (i.e., if no
@@ -124,7 +124,7 @@ read (i.e., if a B<-r> option was specified).
 
 =item -a  E<lt>capture autostop conditionE<gt>
 
-Specify a criterion that specifies when B<Tethereal> is to stop writing
+Specify a criterion that specifies when B<TShark> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
@@ -139,9 +139,9 @@ B<files>:I<value> Stop writing to capture files after I<value> number of files w
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
-Cause B<Tethereal> to run in "multiple files" mode.  In "multiple files" mode, 
-B<Tethereal> will write to several capture files. When the first capture file 
-fills up, B<Tethereal> will switch writing to the next file and so on.
+Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode, 
+B<TShark> will write to several capture files. When the first capture file 
+fills up, B<TShark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> option, the number of 
 the file and on the creation date and time, 
@@ -149,7 +149,7 @@ e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer". 
 This will fill up new files until the number of files specified, 
-at which point B<Tethereal> will discard the data in the first file and start 
+at which point B<TShark> will discard the data in the first file and start 
 writing to that file and so on. If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or 
 until the disk if full).
@@ -188,7 +188,7 @@ TCP port 8888 as HTTP.
 
 =item -D
 
-Print a list of the interfaces on which B<Tethereal> can capture, and
+Print a list of the interfaces on which B<TShark> can capture, and
 exit.  For each network interface, a number and an
 interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
@@ -199,11 +199,11 @@ This can be useful on systems that don't have a command to list them
 the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 
-Note that "can capture" means that B<Tethereal> was able to open
-that device to do a live capture. Depending on your system you may need to run tethereal from an account 
+Note that "can capture" means that B<TShark> was able to open
+that device to do a live capture. Depending on your system you may need to run tshark from an account 
 with special privileges (for example, as root) to be able to capture 
 network traffic.
-If B<Tethereal -D> is not run from such an account, it will not list 
+If B<TShark -D> is not run from such an account, it will not list 
 any interfaces.
 
 =item -f  E<lt>capture filterE<gt>
@@ -226,22 +226,22 @@ Set the name of the network interface or pipe to use for live packet
 capture. 
 
 Network interface names should match one of the names listed in
-"B<tethereal -D>" (described above); a number, as reported by
-"B<tethereal -D>", can also be used.  If you're using UNIX, "B<netstat
+"B<tshark -D>" (described above); a number, as reported by
+"B<tshark -D>", can also be used.  If you're using UNIX, "B<netstat
 -i>" or "B<ifconfig -a>" might also work to list interface names,
 although not all versions of UNIX support the B<-a> option to B<ifconfig>.
 
-If no interface is specified, B<Tethereal> searches the list of
+If no interface is specified, B<TShark> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces. If there are no interfaces at all,
-B<Tethereal> reports an error and doesn't start the capture.
+B<TShark> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
-Note: the Win32 version of B<Tethereal> doesn't support capturing from
+Note: the Win32 version of B<TShark> doesn't support capturing from
 pipes or stdin!
 
 =item -l
@@ -256,9 +256,9 @@ dissected, it should work just as well as true line-buffering.  We do
 this as a workaround for a deficiency in the Microsoft Visual C++ C
 library.)
 
-This may be useful when piping the output of B<Tethereal> to another
+This may be useful when piping the output of B<TShark> to another
 program, as it means that the program to which the output is piped will
-see the dissected data for a packet as soon as B<Tethereal> sees the
+see the dissected data for a packet as soon as B<TShark> sees the
 packet and generates that output, rather than seeing it only when the
 standard output buffer containing that data fills up.
 
@@ -303,7 +303,7 @@ file), and I<value> is the value to which it should be set.
 I<Don't> put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
 B<-p> cannot be used to ensure that the only traffic that is captured is
-traffic sent to or from the machine on which B<Tethereal> is running,
+traffic sent to or from the machine on which B<TShark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
@@ -391,7 +391,7 @@ Print the version and exit.
 
 =item -V
 
-Cause B<Tethereal> to print a view of the packet details rather
+Cause B<TShark> to print a view of the packet details rather
 than a one-line summary of the packet.
 
 =item -w  E<lt>outfileE<gt>|-
@@ -405,13 +405,13 @@ option for this.
 
 =item -x
 
-Cause B<Tethereal> to print a hex and ASCII dump of the packet data
+Cause B<TShark> to print a hex and ASCII dump of the packet data
 after printing the summary or details.
 
 
 =item -X E<lt>eXtension optionsE<gt>
 
-Specify an option to be passed to a B<Tethereal> module. The eXtension option
+Specify an option to be passed to a B<TShark> module. The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<Ethereal> to load the given script in addition to the
@@ -425,7 +425,7 @@ reported by B<-L> are the values that can be used.
 
 =item -z  E<lt>statisticsE<gt>
 
-Get B<Tethereal> to collect various types of statistics and display the result
+Get B<TShark> to collect various types of statistics and display the result
 after finishing reading the capture file.  Use the B<-q> flag if you're
 reading a capture file and only want the statistics printed, not any
 per-packet information.
@@ -569,9 +569,9 @@ I<filter> is a filter string that controls for which packets the field value
 will be presented in the info column. I<field> will only be presented in the
 Info column for the packets which match I<filter>.
 
-NOTE: In order for B<Tethereal> to be able to extract the I<field> value
+NOTE: In order for B<TShark> to be able to extract the I<field> value
 from the packet, I<field> MUST be part of the I<filter> string.  If not,
-B<Tethereal> will not be able to extract its value.
+B<TShark> will not be able to extract its value.
 
 For a simple example to add the "nfs.fh.hash" field to the Info column
 for all packets containing the "nfs.fh.hash" field, use
@@ -630,16 +630,16 @@ SMB packets echanged by the host at IP address 1.2.3.4 .
 
 B<-z> smb,sids
 
-When this feature is used B<Tethereal> will print a report with all the
+When this feature is used B<TShark> will print a report with all the
 discovered SID and account name mappings.  Only those SIDs where the
 account name is known will be presented in the table.
 
 For this feature to work you will need to either to enable
 "Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
 preferences or you can override the preferences by specifying
-B<-o "smb.sid_name_snooping:TRUE"> on the B<Tethereal> command line.
+B<-o "smb.sid_name_snooping:TRUE"> on the B<TShark> command line.
 
-The current methods used by B<Tethereal> to find the SID->name mapping
+The current methods used by B<TShark> to find the SID->name mapping
 is relatively restricted but is hoped to be expanded in the future.
 
 B<-z> mgcp,rtd[I<,filter>]
@@ -715,7 +715,7 @@ See the manual page of I<tcpdump(8)>.
 =head1 READ FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<Tethereal> see the I<ethereal-filter(4)> manual page.
+in B<TShark> see the I<ethereal-filter(4)> manual page.
 
 =head1 FILES
 
@@ -861,7 +861,7 @@ I<ethereal-filter(4)> I<ethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 
-B<Tethereal> is part of the B<Ethereal> distribution.  The latest version
+B<TShark> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
 HTML versions of the Wireshark project man pages are available at:
@@ -869,6 +869,6 @@ http://www.ethereal.com/docs/man-pages
 
 =head1 AUTHORS
 
-B<Tethereal> uses the same packet dissection code that B<Ethereal> does,
+B<TShark> uses the same packet dissection code that B<Ethereal> does,
 as well as using many other modules from B<Ethereal>; see the list of
 authors in the B<Ethereal> man page for a list of authors of that code.

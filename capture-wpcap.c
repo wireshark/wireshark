@@ -1,6 +1,6 @@
 /* capture-wpcap.c
  * WinPcap-specific interfaces for capturing.  We load WinPcap at run
- * time, so that we only need one Wireshark binary and one Twireshark binary
+ * time, so that we only need one Wireshark binary and one TShark binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
  * $Id$

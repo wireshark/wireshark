@@ -1,5 +1,5 @@
 """
-Baseclass for reading PDML produced from Tethereal.
+Baseclass for reading PDML produced from TShark.
 
 Copyright (c) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 

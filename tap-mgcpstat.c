@@ -217,7 +217,7 @@ mgcpstat_init(const char *optarg, void* userdata _U_)
 		g_free(ms->filter);
 		g_free(ms);
 
-		fprintf(stderr, "twireshark: Couldn't register mgcp,rtd tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register mgcp,rtd tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

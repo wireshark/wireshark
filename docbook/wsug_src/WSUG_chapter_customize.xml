@@ -467,7 +467,7 @@ standard libpcap format.
 	<varlistentry><term><command>-X &lt;eXtension option></command></term>
 	  <listitem>
 	    <para>
-        Specify an option to be passed to a Tethereal module. The eXtension
+        Specify an option to be passed to a TShark module. The eXtension
         option is in the form extension_key:value, where extension_key can
         be:
         </para>

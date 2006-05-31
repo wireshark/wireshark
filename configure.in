@@ -337,7 +337,7 @@ if test "$HAVE_GNU_SED" = no ; then
 	esac
 fi
 
-# Enable/disable tethereal
+# Enable/disable tshark
 
 AC_ARG_ENABLE(ethereal,
 [  --enable-ethereal       build GTK+-based ethereal.  [default=yes]],enable_ethereal=$enableval,enable_ethereal=yes)
@@ -524,21 +524,21 @@ rdps_bin="rdps\$(EXEEXT)"
 AC_SUBST(rdps_bin)
 
 
-# Enable/disable tethereal
+# Enable/disable tshark
 
-AC_ARG_ENABLE(tethereal,
-[  --enable-tethereal      build tethereal.  [default=yes]],tethereal=$enableval,enable_tethereal=yes)
+AC_ARG_ENABLE(tshark,
+[  --enable-tshark      build tshark.  [default=yes]],tshark=$enableval,enable_tshark=yes)
 
-if test "x$enable_tethereal" = "xyes" ; then
-	tethereal_bin="tethereal\$(EXEEXT)"
-	tethereal_man="tethereal.1"
+if test "x$enable_tshark" = "xyes" ; then
+	tshark_bin="tshark\$(EXEEXT)"
+	tshark_man="tshark.1"
 	etherealfilter_man="ethereal-filter.4"
 else
-	tethereal_bin=""
-	tethereal_man=""
+	tshark_bin=""
+	tshark_man=""
 fi
-AC_SUBST(tethereal_bin)
-AC_SUBST(tethereal_man)
+AC_SUBST(tshark_bin)
+AC_SUBST(tshark_man)
 AC_SUBST(etherealfilter_man)
 
 
@@ -1402,7 +1402,7 @@ fi
 echo ""
 echo "The Ethereal package has been configured with the following options."
 echo "                    Build ethereal : $enable_ethereal"
-echo "                   Build tethereal : $enable_tethereal"
+echo "                   Build tshark : $enable_tshark"
 echo "                    Build capinfos : $enable_capinfos"
 echo "                     Build editcap : $enable_editcap"
 echo "                     Build dumpcap : $enable_dumpcap"

@@ -24,7 +24,7 @@
 
 /* This module provides rpc call/reply SRT statistics to Wireshark,
  * and displays them graphically.
- * It is only used by Wireshark and not twireshark
+ * It is only used by Wireshark and not tshark
  *
  * It serves as an example on how to use the tap api.
  */

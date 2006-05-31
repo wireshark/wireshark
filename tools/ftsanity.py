@@ -42,9 +42,9 @@ class Field:
 
     
 
-def gather_data(tethereal):
-    """Calls tethereal and gathers data."""
-    cmd = "%s -G fields3" % (tethereal,)
+def gather_data(tshark):
+    """Calls tshark and gathers data."""
+    cmd = "%s -G fields3" % (tshark,)
     (status, output) = commands.getstatusoutput(cmd)
 
     if status != 0:
@@ -69,10 +69,10 @@ def check_fields(fields):
                         (field.abbrev, field.bitmask, field.ftype)
                 errors += 1
 
-def run(tethereal):
+def run(tshark):
     """Run the tests."""
     global errors
-    protos, fields = gather_data(tethereal)
+    protos, fields = gather_data(tshark)
 
     check_fields(fields)
 
@@ -83,13 +83,13 @@ def run(tethereal):
 
 def main():
     """Parse the command-line."""
-    usage = "%prog tethereal"
+    usage = "%prog tshark"
     parser = OptionParser(usage=usage)
 
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
-        parser.error("Need location of tethereal.")
+        parser.error("Need location of tshark.")
 
     run(args[0])
 

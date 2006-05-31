@@ -198,7 +198,7 @@ See the manual page of I<tcpdump(8)>.
 
 =head1 SEE ALSO
 
-I<ethereal(1)>, I<tethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<ethereal(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 

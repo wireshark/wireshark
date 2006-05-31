@@ -34,7 +34,7 @@ import getopt
 REMOVE_TEMP_FILES = 1
 VERBOSE = 0
 TEXT2PCAP = os.path.join(".", "text2pcap")
-TETHEREAL = os.path.join(".", "tethereal")
+TSHARK = os.path.join(".", "tshark")
 
 # Some DLT values. Add more from <net/bpf.h> if you need to.
 
@@ -191,26 +191,26 @@ class Test:
 	def DFilterCount(self, packet, dfilter, num_lines_expected):
 		"""Run a dfilter on a packet file and expect
 		a certain number of output lines. If num_lines_expected
-		is None, then the tethereal command is expected to fail
+		is None, then the tshark command is expected to fail
 		with a non-zero return value."""
 
 		packet_file = packet.Filename()
 
-		cmd = (TETHEREAL, "-n -r", packet_file, "-R '", dfilter, "'")
+		cmd = (TSHARK, "-n -r", packet_file, "-R '", dfilter, "'")
 
-		tethereal_failed = 0
+		tshark_failed = 0
 
 		try:
 			(output, retval) = run_cmd(cmd)
 		except RunCommandError:
-			tethereal_failed = 1
+			tshark_failed = 1
 
 #		print "GOT", len(output), "lines:", output, retval
 
 		if retval:
-			tethereal_failed = 1
+			tshark_failed = 1
 
-		if tethereal_failed:
+		if tshark_failed:
 			if num_lines_expected == None:
 				if VERBOSE:
 					print "\nGot:", output
@@ -1325,8 +1325,8 @@ all_tests = [
 
 def usage():
 	print "usage: %s [OPTS] [TEST ...]" % (sys.argv[0],)
-	print "\t-p PATH : path to find both tethereal and text2pcap (DEFAULT: . )"
-	print "\t-t FILE : location of tethereal binary"
+	print "\t-p PATH : path to find both tshark and text2pcap (DEFAULT: . )"
+	print "\t-t FILE : location of tshark binary"
 	print "\t-x FILE : location of text2pcap binary"
 	print "\t-k      : keep temporary files"
 	print "\t-v      : verbose"
@@ -1339,7 +1339,7 @@ def usage():
 
 def main():
 
-	global TETHEREAL
+	global TSHARK
 	global TEXT2PCAP
 	global VERBOSE
 	global REMOVE_TEMP_FILES
@@ -1355,14 +1355,14 @@ def main():
 
 	for opt, arg in opts:
 		if opt == "-t":
-			TETHEREAL = arg
+			TSHARK = arg
 		elif opt == "-x":
 			TEXT2PCAP = arg
 		elif opt == "-v":
 			VERBOSE = 1
 		elif opt == "-p":
 			TEXT2PCAP = os.path.join(arg, "text2pcap")
-			TETHEREAL = os.path.join(arg, "tethereal")
+			TSHARK = os.path.join(arg, "tshark")
 		elif opt == "-k":
 			REMOVE_TEMP_FILES = 0
 		else:
@@ -1370,8 +1370,8 @@ def main():
 			usage()
 
 	# Sanity test
-	if not os.path.exists(TETHEREAL):
-		sys.exit("tethereal program '%s' does not exist." % (TETHEREAL,))
+	if not os.path.exists(TSHARK):
+		sys.exit("tshark program '%s' does not exist." % (TSHARK,))
 
 	if not os.path.exists(TEXT2PCAP):
 		sys.exit("text2pcap program '%s' does not exist." % (TEXT2PCAP,))

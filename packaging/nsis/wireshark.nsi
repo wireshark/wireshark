@@ -661,14 +661,14 @@ SectionEnd
 SectionGroupEnd	; "Wireshark"
 
 
-Section "Tethereal" SecTethereal
+Section "TShark" SecTShark
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 2
 !endif
 SetOutPath $INSTDIR
-File "..\..\tethereal.exe"
-File "..\..\doc\tethereal.html"
+File "..\..\tshark.exe"
+File "..\..\doc\tshark.html"
 SectionEnd
 
 SectionGroup "Plugins / Extensions" SecPluginsGroup
@@ -807,11 +807,11 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-Delete "$INSTDIR\tethereal.exe"
-IfErrors 0 NoTetherealErrorMsg
-	MessageBox MB_OK "Please note: tethereal.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tethereal.exe removed
-	Abort "Please note: tethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoTetherealErrorMsg:
+Delete "$INSTDIR\tshark.exe"
+IfErrors 0 NoTSharkErrorMsg
+	MessageBox MB_OK "Please note: tshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tshark.exe removed
+	Abort "Please note: tshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+NoTSharkErrorMsg:
 
 Delete "$INSTDIR\wireshark.exe"
 IfErrors 0 NoWiresharkErrorMsg
@@ -1003,8 +1003,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
 !endif  
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and Tethereal."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."

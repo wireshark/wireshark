@@ -2478,7 +2478,7 @@ main(int argc, char *argv[])
        * Input file name not specified with "-r", and a command-line argument
        * was specified; treat it as the input file name.
        *
-       * Yes, this is different from twireshark, where non-flag command-line
+       * Yes, this is different from tshark, where non-flag command-line
        * arguments are a filter, but this works better on GUI desktops
        * where a command can be specified to be run to open a particular
        * file - yes, you could have "-r" as the last part of the command,

@@ -1,27 +1,27 @@
 #
-# Ethereal/Tethereal Regression Testing
+# Ethereal/TShark Regression Testing
 #
 # $Id$
 #
 # This is a sample Makefile for regression testing of the
-# Ethereal engine. These tests use that uses 'tethereal -V' to analyze all
+# Ethereal engine. These tests use that uses 'tshark -V' to analyze all
 # the frames of a capture file.
 #
 # You should probably rename this file as 'Makefile' in a separate directory
 # set aside for the sole purpose of regression testing. Two text files will
 # be created for each capture file you test, so expect to have lots of files.
 #
-# Set TETHEREAL, CAPTURE_DIR, and CAPTURE_FILES to values appropriate for
+# Set TSHARK, CAPTURE_DIR, and CAPTURE_FILES to values appropriate for
 # your system. Run 'make' to create the initial datasets. Type 'make accept'
 # to accept those files as the reference set.
 #
-# After you make changes to Tethereal, run 'make regress'. This will re-run
+# After you make changes to TShark, run 'make regress'. This will re-run
 # the tests and compare them against the accepted reference set of data.
 # The comparison, which is just an invocation of 'diff -u' for the output
 # of each trace file, will be put into a file called 'regress'. Examine
 # this file for any changes that you did or did not expect. 
 #
-# If you have introduced a change to Tethereal that shows up in the tests, but
+# If you have introduced a change to TShark that shows up in the tests, but
 # it is a valid change, run 'make accept' to accept those new data as your
 # reference set. 
 #
@@ -33,7 +33,7 @@
 # 'make accept'		Accept current tests; make them the reference test results
 # 'make clean'		Cleans any tests (but not references!)
 
-TETHEREAL=/home/gram/prj/ethereal/debug/linux-ix86/tethereal
+TSHARK=/home/gram/prj/ethereal/debug/linux-ix86/tshark
 
 CAPTURE_DIR=/home/gram/prj/sniff
 
@@ -59,8 +59,8 @@ all:	$(TESTS)
 clean:
 	rm -f $(TESTS)
 
-%.tether : $(CAPTURE_DIR)/% $(TETHEREAL)
-	$(TETHEREAL) -V -n -r $< > $@
+%.tether : $(CAPTURE_DIR)/% $(TSHARK)
+	$(TSHARK) -V -n -r $< > $@
 
 accept: $(REFERENCES)
 

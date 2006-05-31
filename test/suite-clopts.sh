@@ -30,7 +30,7 @@ EXIT_ERROR=2
 
 
 # generic: check against a specific exit status with a single char option
-# $1 command: tethereal
+# $1 command: tshark
 # $2 option: a
 # $3 expected exit status: 0
 test_single_char_options()
@@ -49,7 +49,7 @@ test_single_char_options()
 
 # check exit status when reading an existing file
 clopts_step_existing_file() {
-	$TETHEREAL -r $CAPFILE > ./testout.txt 2>&1
+	$TSHARK -r $CAPFILE > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -62,7 +62,7 @@ clopts_step_existing_file() {
 
 # check exit status when reading a none existing file
 clopts_step_nonexisting_file() {
-	$TETHEREAL -r ThisFileDontExist.pcap  > ./testout.txt 2>&1
+	$TSHARK -r ThisFileDontExist.pcap  > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_ERROR ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -74,10 +74,10 @@ clopts_step_nonexisting_file() {
 
 
 # check exit status of all single char option being invalid
-clopts_suite_tethereal_invalid_chars() {
+clopts_suite_tshark_invalid_chars() {
 	for index in A B C E F H I J K M N O P Q R T U W X Y Z a b c d e f g i j k m o r s t u w y z
 	do
-	  test_step_add "Invalid Tethereal parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TETHEREAL $index $EXIT_COMMAND_LINE"
+	  test_step_add "Invalid TShark parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TSHARK $index $EXIT_COMMAND_LINE"
 	done
 }
 
@@ -86,7 +86,7 @@ clopts_suite_tethereal_invalid_chars() {
 clopts_suite_valid_chars() {
 	for index in D G L h v
 	do
-	  test_step_add "Valid Tethereal parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TETHEREAL $index $EXIT_OK"
+	  test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
 	done
 }
 
@@ -95,7 +95,7 @@ clopts_suite_valid_chars() {
 
 # check exit status and grep output string of an invalid capture filter
 clopts_step_invalid_capfilter() {
-	$TETHEREAL -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
+	$TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -112,7 +112,7 @@ clopts_step_invalid_capfilter() {
 
 # check exit status and grep output string of an invalid interface
 clopts_step_invalid_interface() {
-	$TETHEREAL -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
+	$TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -130,7 +130,7 @@ clopts_step_invalid_interface() {
 # check exit status and grep output string of an invalid interface index
 # (valid interface indexes start with 1)
 clopts_step_invalid_interface_index() {
-	$TETHEREAL -i 0 -w './testout.pcap' > ./testout.txt 2>&1
+	$TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -148,7 +148,7 @@ clopts_step_invalid_interface_index() {
 # check exit status and grep output string of an invalid capture filter
 # XXX - how to efficiently test the *invalid* flags?
 clopts_step_valid_name_resolving() {
-	$TETHEREAL -N mntC -a duration:1 > ./testout.txt 2>&1
+	$TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -171,8 +171,8 @@ clopts_post_step() {
 clopt_suite() {
 	test_step_set_post clopts_post_step
 	test_suite_add "Basic tests" clopts_suite_basic
-	test_suite_add "Invalid Tethereal single char options" clopts_suite_tethereal_invalid_chars
-	test_suite_add "Valid Tethereal single char options" clopts_suite_valid_chars
+	test_suite_add "Invalid TShark single char options" clopts_suite_tshark_invalid_chars
+	test_suite_add "Valid TShark single char options" clopts_suite_valid_chars
 	test_step_add  "Invalid capture filter -f" clopts_step_invalid_capfilter
 	test_step_add  "Invalid capture interface -i" clopts_step_invalid_interface
 	test_step_add  "Invalid capture interface index 0" clopts_step_invalid_interface_index

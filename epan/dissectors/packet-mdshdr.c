@@ -343,7 +343,7 @@ proto_reg_handoff_mdshdr(void)
     if (!mdshdr_prefs_initialized) {
         /*
          * This is the first time this has been called (i.e.,
-         * Wireshark/Tethereal is starting up), so create a handle for
+         * Wireshark/TShark is starting up), so create a handle for
          * the MDS Header dissector, register the dissector for
          * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
          * Channel handles.

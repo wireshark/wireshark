@@ -62,7 +62,7 @@ clean: unpatch-stamp
 
 	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	-$(MAKE) distclean
-	rm -f rdps ethereal.1 tethereal.1 idl2deb.1 ethereal-filter.4 asn2deb.1
+	rm -f rdps ethereal.1 tshark.1 idl2deb.1 ethereal-filter.4 asn2deb.1
 	rm -f conftest conftest.c
 	rm -f config.guess config.sub config.log
 

@@ -671,7 +671,7 @@ iousers_init(const char *optarg, void* userdata _U_)
 		tap_type_name="SCTP";
 		packet_func=iousers_sctp_packet;
 	} else {
-		fprintf(stderr, "twireshark: invalid \"-z conv,<type>[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z conv,<type>[,<filter>]\" argument\n");
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"fc\"\n");
@@ -701,7 +701,7 @@ iousers_init(const char *optarg, void* userdata _U_)
 			g_free(iu->items);
 		}
 		g_free(iu);
-		fprintf(stderr, "twireshark: Couldn't register conversations tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register conversations tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

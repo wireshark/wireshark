@@ -29,7 +29,7 @@ PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
 include Makefile.common
 
 ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
-tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
+tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
@@ -65,7 +65,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 #	$(PCAP_DIR)\lib\wpcap.lib
 
-tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
@@ -118,10 +118,10 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 
-EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe \
+EXECUTABLES=ethereal.exe ethereal-gtk2.exe tshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
-RESOURCES=image\ethereal.res image\libwireshark.res image\tethereal.res \
+RESOURCES=image\ethereal.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
@@ -170,10 +170,10 @@ ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(command_line_OBJ
 <<
 !ENDIF
 
-tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(command_line_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) $(command_line_OBJECTS) epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(command_line_OBJECTS) image\tethereal.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) $(command_line_OBJECTS) image\tshark.res
 <<
 
 capinfos.exe	: config.h capinfos.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
@@ -261,7 +261,7 @@ AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
     $(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 #
-# Build "tethereal-tap-register.c", which contains a function 
+# Build "tshark-tap-register.c", which contains a function 
 # "register_all_tap_listeners()"
 # that calls the register routines for all tehtereal tap listeners.
 #
@@ -275,9 +275,9 @@ AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) make-tapreg-dotc
-	@echo Making tethereal-tap-register.c
-	@$(SH) make-tapreg-dotc tethereal-tap-register.c . $(TETHEREAL_TAP_SRC)
+tshark-tap-register.c: $(TSHARK_TAP_SRC) make-tapreg-dotc
+	@echo Making tshark-tap-register.c
+	@$(SH) make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
 
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
@@ -287,7 +287,7 @@ gtk2_distclean:
 	if exist gtk2.tmp rmdir gtk2.tmp
 
 clean: gtk2_distclean
-	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
+	rm -f $(ethereal_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \

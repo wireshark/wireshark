@@ -26,10 +26,10 @@
 
 include ../config.nmake
 
-doc: ethereal.html tethereal.html ethereal-filter.html capinfos.html \
+doc: ethereal.html tshark.html ethereal-filter.html capinfos.html \
 	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html
 
-man: ethereal.1 tethereal.1 ethereal-filter.4 capinfos.1 editcap.1 \
+man: ethereal.1 tshark.1 ethereal-filter.4 capinfos.1 editcap.1 \
 	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1
 
 ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT-FORMAT
@@ -52,22 +52,22 @@ ethereal.html: ethereal-tmp.pod ../config.h
 	--noindex                                 \
 	ethereal-tmp.pod > ethereal.html
 
-../tethereal.exe:
+../tshark.exe:
 	cd ..
-	$(MAKE) -f makefile.nmake tethereal.exe
+	$(MAKE) -f makefile.nmake tshark.exe
 	cd doc
 
-tethereal.1: tethereal.pod ../config.h
+tshark.1: tshark.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	tethereal.pod > tethereal.1
+	tshark.pod > tshark.1
 
-tethereal.html: tethereal.pod ../config.h
+tshark.html: tshark.pod ../config.h
 	$(POD2HTML)                    \
-	--title="tethereal - The Wireshark Network Analyzer $(VERSION)" \
+	--title="tshark - The Wireshark Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	tethereal.pod > tethereal.html
+	tshark.pod > tshark.html
 
 ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)                     \
@@ -81,10 +81,10 @@ ethereal-filter.html: ethereal-filter.pod ../config.h
 	--noindex                                 \
 	ethereal-filter.pod > ethereal-filter.html
 
-ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
+ethereal-filter.pod: ethereal-filter.pod.template  ../tshark.exe
 	cd ..
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-deps
-	tethereal.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
+	tshark.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd doc
 
@@ -163,7 +163,7 @@ dumpcap.html: dumpcap.pod ../config.h
 
 clean:
 	rm -f ethereal.html ethereal.1 ethereal-tmp.pod
-	rm -f tethereal.html tethereal.1
+	rm -f tshark.html tshark.1
 	rm -f ethereal-filter.html ethereal-filter.4 ethereal-filter.pod
 	rm -f capinfos.html capinfos.1
 	rm -f editcap.html editcap.1

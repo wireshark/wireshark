@@ -479,7 +479,7 @@ get_progfile_dir(void)
  * stored.
  *
  * XXX - if we ever make libwireshark a real library, used by multiple
- * applications (more than just Twireshark and versions of Wireshark with
+ * applications (more than just TShark and versions of Wireshark with
  * various UIs), should the configuration files belong to the library
  * (and be shared by all those applications) or to the applications?
  *
