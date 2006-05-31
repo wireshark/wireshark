@@ -110,7 +110,7 @@
 	<filename>C:\ethereal-win32-libs</filename>.
 	You can change this to any other location by editing the file
 	<filename>config.nmake</filename> and changing the line containing 
-	the ETHEREAL_LIBS setting to your favourite place (use an absolute path 
+	the WIRESHARK_LIBS setting to your favourite place (use an absolute path 
 	here).
 	</para>
 	<para>
@@ -125,7 +125,7 @@
 	</para>
 	<para>
 	Then it will download the zipped libraries into the directory specified by 
-	ETHEREAL_LIBS and install (unzip) all required library files there.
+	WIRESHARK_LIBS and install (unzip) all required library files there.
 	</para>
 	<para>
 	If you have problems downloading the library files, see the wget proxy 
@@ -139,7 +139,7 @@
 	some new functionality, your libraries get outdated.
 	</para>
 	<para>
-	You could simply remove everything in the ETHEREAL_LIBS dir and call the 
+	You could simply remove everything in the WIRESHARK_LIBS dir and call the 
 	setup target again, but that would require to download every file again 
 	(currently about 33MB), which isn't necessary.
 	</para>
@@ -157,7 +157,7 @@
 	<listitem>
 	<para>	
 	Remove all files previously unzipped from the downloaded files in your 
-	ETHEREAL_LIBS library path (all the subdirs, e.g. 
+	WIRESHARK_LIBS library path (all the subdirs, e.g. 
 	<filename>c:\ethereal_libs\gtk+</filename>), 
 	except for the zip files located at the toplevel, which are the files 
 	downloaded the last time(s). You could do this, be entering at the command line:
@@ -169,7 +169,7 @@
 	<listitem>
 	<para>
 	Start the setup target described above. As wget will download only the 
-	missing files, existing zip files in the ETHEREAL_LIBS dir won't be 
+	missing files, existing zip files in the WIRESHARK_LIBS dir won't be 
 	downloaded again. Remaining (outdated) zip files shouldn't do any harm.
 	</para>
 	</listitem>

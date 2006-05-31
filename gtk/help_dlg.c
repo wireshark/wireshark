@@ -345,7 +345,7 @@ topic_action(topic_action_e action)
         browser_open_data_file("text2pcap.html");
         break;
 
-#ifdef ETHEREAL_EUG_DIR
+#ifdef WIRESHARK_EUG_DIR
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
         browser_open_data_file("eug_html_chunked/index.html");

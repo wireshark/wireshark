@@ -17,13 +17,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "The Wireshark developer community, http://www.ethereal.com/\0"
-            VALUE "FileDescription", "Ethereal dissector library\0"
+            VALUE "CompanyName", "The Wireshark developer community, http://www.wireshark.org/\0"
+            VALUE "FileDescription", "Wireshark dissector library\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "libethereal @VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "libethereal.dll\0"
-            VALUE "ProductName", "Ethereal\0"
+            VALUE "ProductName", "Wireshark\0"
             VALUE "ProductVersion", "@VERSION@\0"
         END
     END

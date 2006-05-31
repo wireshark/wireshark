@@ -142,7 +142,7 @@ See section below for instructions.
 Automated library download
 --------------------------
 Before using the automated download, be sure to edit the config.nmake file 
-to suit your needs. Especially have a look at the ETHEREAL_LIBS setting.
+to suit your needs. Especially have a look at the WIRESHARK_LIBS setting.
 However, the defaults should be working well for a first start.
 
 If you've installed Microsoft Visual C++ (MSVC), you can run:
@@ -155,7 +155,7 @@ server location at:
 
 	http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/
 
-and unpack it in the $ETHEREAL_LIBS directory. 
+and unpack it in the $WIRESHARK_LIBS directory. 
 
 If you have problems downloading the files, you might be connected to the 
 internet through a proxy/firewall. In this case see the wget documentation 
@@ -208,7 +208,7 @@ The optional zlib package for win32 is available at its homepage:
 
 By default, the build process looks for these packages in
 C:\ethereal-win32-libs.  You can place them in a different directory, but
-you must update the ETHEREAL_LIBS variable in config.nmake accordingly.
+you must update the WIRESHARK_LIBS variable in config.nmake accordingly.
 
 The following lists the packages needed to compile Ethereal and the default
 locations where to unpack them, when the above method isn't used.
@@ -233,7 +233,7 @@ and optional:
 (to use the default locations, the directories in question should be
 created, and each zip file should be unpacked into the corresponding
 directory).  If you only want to change the C:\ethereal-win32-libs
-part, you just change the setting of ETHEREAL_LIBS in config.nmake; if
+part, you just change the setting of WIRESHARK_LIBS in config.nmake; if
 you want to change subdirectories, you'll have to change the individual
 item for a package.  (Note that some zip files create the subdirectory -
 those zip files just have C:\ethereal-win32-libs in the list above - so

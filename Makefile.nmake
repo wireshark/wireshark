@@ -591,13 +591,13 @@ setup: verify_tools
 # Cleanup files installed by the setup target. It will not remove the 
 # downloaded zip files.
 clean_setup:
-    rm -r -f $(ETHEREAL_LIBS)/glib
-    rm -r -f $(ETHEREAL_LIBS)/gtk+
-    rm -r -f $(ETHEREAL_LIBS)/libiconv-1.9.1.bin.woe32
-    rm -r -f $(ETHEREAL_LIBS)/gettext-runtime-0.13.1
-    rm -r -f $(ETHEREAL_LIBS)/zlib123-dll
-    rm -r -f $(ETHEREAL_LIBS)/gtk2
-    rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
+    rm -r -f $(WIRESHARK_LIBS)/glib
+    rm -r -f $(WIRESHARK_LIBS)/gtk+
+    rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
+    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.13.1
+    rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
+    rm -r -f $(WIRESHARK_LIBS)/gtk2
+    rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
 
 ################################################################################
 # Prepare the source tree for running (t)ethereal directly from there.
