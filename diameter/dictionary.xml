@@ -56,6 +56,7 @@
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
+		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
@@ -1009,7 +1010,10 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
+			<grouped>
+			
+			</grouped>
+			
 		</avp>
 		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -1161,7 +1165,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Content-Length" code="827" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
-			<type type-name="Unsigned32"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Content-Disposition" code="828" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
@@ -1233,6 +1237,9 @@
 		</avp>
 		<avp name="GGSN-Address" code="847" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Served-Party-IP-Address" code="848" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Authorised-QoS" code="849" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
@@ -1365,6 +1372,47 @@
 			<enum name="Append" code="0"/>
 			<enum name="Overwrite" code="1"/>
 		</avp>
+		<avp name="Trigger-Type" code="870" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<type type-name="Enumerated"/>
+			<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
+			<enum name="CHANGE_IN_QOS" code="2"/>
+			<enum name="CHANGE_IN_LOCATION" code="3"/>
+			<enum name="CHANGE_IN_RAT" code="4"/>
+			<enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
+			<enum name="CHANGEINQOS_RELIABILITY_CLASS" code="11"/>
+			<enum name="CHANGEINQOS_DELAY_CLASS" code="12"/>
+			<enum name="CHANGEINQOS_PEAK_THROUGHPUT" code="13"/>
+			<enum name="CHANGEINQOS_PRECEDENCE_CLASS" code="14"/>
+			<enum name="CHANGEINQOS_MEAN_THROUGHPUT" code="15"/>
+			<enum name="CHANGEINQOS_MAXIMUM_BIT_RATE_FOR_UPLINK" code="16"/>
+			<enum name="CHANGEINQOS_MAXIMUM_BIT_RATE_FOR_DOWNLINK" code="17"/>
+			<enum name="CHANGEINQOS_RESIDUAL_BER" code="18"/>
+			<enum name="CHANGEINQOS_SDU_ERROR_RATIO" code="19"/>
+			<enum name="CHANGEINQOS_TRANSFER_DELAY" code="20"/>
+			<enum name="CHANGEINQOS_TRAFFIC_HANDLING_PRIORITY" code="21"/>
+			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
+			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
+			<enum name="CHANGEINLOCATION_MCC" code="30"/>
+			<enum name="CHANGEINLOCATION_MNC" code="31"/>
+			<enum name="CHANGEINLOCATION_RAC" code="32"/>
+			<enum name="CHANGEINLOCATION_LAC" code="33"/>
+			<enum name="CHANGEINLOCATION_CellId" code="34"/>
+		</avp>
+		<avp name="Quota-Holding-Time" code="871" mandatory="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="PS-Append-Free-Format-Data" code="872" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<type type-name="Enumerated"/>
+			<enum name="THRESHOLD" code="0"/>
+			<enum name="QHT" code="1"/>
+			<enum name="FINAL" code="2"/>
+			<enum name="QUOTA_EXHAUSTED" code="3"/>
+			<enum name="VALIDITY_TIME" code="4"/>
+			<enum name="OTHER_QUOTA_TYPE" code="5"/>
+			<enum name="RATING_CONDITION_CHANGE" code="6"/>
+			<enum name="FORCED_REAUTHORISATION" code="7"/>
+			<enum name="POOL_EXHAUSTED" code="8"/>
+		</avp>
 		<avp name="Service-Information" code="873" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
 			<grouped>
 				<gavp name="PS-Information"/>
@@ -1401,12 +1449,53 @@
 				<gavp name="Cause-Code"/>
 			</grouped>
 		</avp>
+
+		<avp name="PoC-Information" code="879" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<grouped>
+				<gavp name="PoC-Server-Role"/>
+				<gavp name="PoC-Session-Type"/>
+				<gavp name="Number-Of-Participants"/>
+				<gavp name="Participants-Involved"/>
+				<gavp name="Talk-Burst-Exchange"/>
+				<gavp name="PoC-Controlling-Address"/>
+				<gavp name="PoC-Group-Name"/>
+			</grouped>
+		</avp>
+
 		<avp name="Media-Initiator-Flag" code="882" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
 			<type type-name="Enumerated"/>
 			<enum name="called party" code="0"/>
 			<enum name="calling party" code="1"/>
 			<enum name="unknown" code="2"/>
 		</avp>
+
+		<avp name="PoC-Server-Role" code="883" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<type type-name="Enumerated"/>
+			<enum name="Participating PoC Server" code="0"/>
+			<enum name="Controlling PoC Server" code="1"/>
+		</avp>
+
+		<avp name="PoC-Server-Role" code="884" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<type type-name="Enumerated"/>
+			<enum name="1 to 1 PoC session" code="0"/>
+			<enum name="chat PoC group session" code="1"/>
+			<enum name="pre-arranged PoC group session" code="2"/>
+			<enum name="ad-hoc PoC group session" code="3"/>
+		</avp>
+
+		<avp name="Number-Of-Participants" code="885" mandatory="must">
+			<type type-name="Integer32"/>
+		</avp>
+
+		<avp name="Message-Body" code="889" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
+			<grouped>
+				<gavp name="Content-Type"/>
+				<gavp name="Content-Length"/>
+				<gavp name="Content-Disposition"/>
+				<gavp name="Originator"/>
+			</grouped>
+		</avp>
+
 
 	</base>
 	<application id="0" name="Diameter Common Messages" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
