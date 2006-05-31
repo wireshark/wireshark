@@ -363,7 +363,7 @@ Source                          Output                  Tool
 ------                          ------                  ----
 config.h.win32                  config.h                sed
 epan/config.h.win32             epan/config.h           sed
-image/ethereal.rc.in            image/ethereal.rc       sed
+image/wireshark.rc.in           image/wireshark.rc      sed
 image/tshark.rc.in              image/tshark.rc         sed
 image/editcap.rc.in             image/editcap.rc        sed
 image/mergecap.rc.in            image/mergecap.rc       sed

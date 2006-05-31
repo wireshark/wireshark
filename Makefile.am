@@ -587,7 +587,7 @@ EXTRA_DIST = \
 	image/elogo3d48x48.png	\
 	image/ethereal.exe.manifest.in \
 	image/ethereal.ico	\
-	image/ethereal.rc.in	\
+	image/wireshark.rc.in	\
 	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \
 	image/hi16-app-ethereal.png	\
