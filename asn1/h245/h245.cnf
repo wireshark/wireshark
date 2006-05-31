@@ -19,10 +19,13 @@ Application  DataApplicationCapability/application
 Nlpid  Application/nlpid  DataMode/application/nlpid
 Al3 H223LogicalChannelParameters/adaptationLayerType/al3  H223ModeParameters/adaptationLayerType/al3  
 ArqType  H223AL1MParameters/arqType  H223AL3MParameters/arqType
-SeparateStream  FECData/rfc2733/mode/separateStream  FECMode/rfc2733Mode/mode/separateStream
 Restriction  FlowControlCommand/restriction  FlowControlIndication/restriction
 Scope  FlowControlCommand/scope  FlowControlIndication/scope  JitterIndication/scope
 EncryptedAlphanumeric  UserInputIndication/extendedAlphanumeric/encryptedAlphanumeric  UserInputIndication/encryptedAlphanumeric
+
+DepSeparateStream  DepFECData/rfc2733/mode/separateStream  DepFECMode/rfc2733Mode/mode/separateStream
+
+Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY MultiplexEntryDescriptor
@@ -501,10 +504,10 @@ EncryptedAlphanumeric  UserInputIndication/extendedAlphanumeric/encryptedAlphanu
 	h245_lc_dissector = amr_handle;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_HDR GenericMessage/subMessageIdentifer
+#.FN_HDR GenericMessage/subMessageIdentifier
   guint32 subMessageIdentifer;
 
-#.FN_PARS GenericMessage/subMessageIdentifer
+#.FN_PARS GenericMessage/subMessageIdentifier
   VAL_PTR = &subMessageIdentifer
 #.END
 #----------------------------------------------------------------------------------------
@@ -763,7 +766,7 @@ AudioMode/g7231 Mode_g7231
 DataMode/application DataModeApplication
 DataMode/application/t38fax T38faxApp 
 
-FECData/rfc2733 RFC2733Data
+DepFECData/rfc2733 RFC2733Data
 
 IS13818AudioMode/audioLayer IS13818AudioLayer
 IS13818AudioMode/audioSampling IS13818AudioSampling
@@ -802,12 +805,12 @@ MaintenanceLoopReject/type Mlrej_type
 MiscellaneousCommand/type Mc_type
 MiscellaneousIndication/type Mi_type
 V76LogicalChannelParameters/mode V76LCP_mode
-FECData/rfc2733/mode FECdata_mode
-FECMode/rfc2733Mode/mode FEC_mode
+DepFECData/rfc2733/mode FECdata_mode
+DepFECMode/rfc2733Mode/mode FEC_mode
 IS11172AudioMode/multichannelType IS11172_multichannelType
 MultiplexElement/repeatCount/finite ME_finiteRepeatCount
 MultiplexElement/repeatCount ME_repeatCount
-FECCapability/rfc2733 FECC_rfc2733
+DepFECCapability/rfc2733 FECC_rfc2733
 RequestModeAck/response Req_mode_ack_response
 UserInputIndication/signalUpdate/rtp Si_rtp
 UnicastAddress/iPAddress/tsapIdentifier TsapIdentifier
@@ -953,8 +956,8 @@ MultiplexEntrySendRelease/multiplexTableEntryNumber multiplexTableEntryNumbers
 CapabilityIdentifier/standard standardOid
 MiscellaneousIndication/type/videoNotDecodedMBs/temporalReference temporalReference_0_255
 CloseLogicalChannel/source cLC_source
-FECCapability/rfc2733/separateStream separateStreamBool
-FECCapability/rfc2733/separateStream/samePort samePortBool
+DepFECCapability/rfc2733/separateStream separateStreamBool
+DepFECCapability/rfc2733/separateStream/samePort samePortBool
 VCCapability/aal1/srtsClockRecovery srtsClockRecovery_bool
 VCCapability/aal1ViaGateway/srtsClockRecovery srtsClockRecoveryflag
 DataMode/application/t84 t84DataProtocolCapability
@@ -1014,9 +1017,10 @@ H223AL1MParameters/headerFEC aL1HeaderFEC
 H223AL1MParameters/crcLength crcLength2
 H223AL3MParameters/crcLength crlength2
 SendTerminalCapabilitySet/specificRequest/multiplexCapability multiplexCapabilityBool
-FECCapability/rfc2733/redundancyEncoding redundancyEncodingBool
-FECData/rfc2733/mode/redundancyEncoding redundancyEncodingFlag
-FECMode/rfc2733Mode/mode/redundancyEncoding redundancyEncodingFlag
+DepFECCapability/rfc2733/redundancyEncoding redundancyEncodingBool
+DepFECData/rfc2733/mode/redundancyEncoding redundancyEncodingFlag
+DepFECMode/rfc2733Mode/mode/redundancyEncoding redundancyEncodingFlag
+ParameterValue/genericParameter genericParameters
 
 H261VideoCapability/qcifMPI qcifMPI_1_4
 CustomPictureClockFrequency/qcifMPI qcifMPI_1_2048
@@ -1034,8 +1038,11 @@ FunctionNotSupported/cause fns_cause
 Restriction/maximumBitRate res_maximumBitRate
 RedundancyEncodingDTMode/primary prmary_dtmode
 RedundancyEncoding/rtpRedundancyEncoding/primary primary
-FECMode/rfc2733Mode/mode fec_mode
-FECData/rfc2733/mode fec_data_mode
+DepFECData/rfc2733  dep_rfc2733
+DepFECMode/rfc2733Mode/mode fec_mode
+DepFECData/rfc2733/mode fec_data_mode
+FECData/rfc2733/pktMode/rfc2733sameport mode_rfc2733sameport
+FECData/rfc2733/pktMode/rfc2733diffport mode_rfc2733diffport
 V76LogicalChannelParameters/mode v76_mode
 OpenLogicalChannelAck/reverseLogicalChannelParameters/multiplexParameters olc_ack_multiplexParameters
 OpenLogicalChannel/forwardLogicalChannelNumber olc_fw_lcn
@@ -1046,7 +1053,7 @@ IS11172AudioMode/multichannelType is11172multichannelType
 IS13818AudioMode/multichannelType is13818MultichannelType
 CloseLogicalChannel/reason clc_reason
 MultiplexElement/repeatCount me_repeatCount
-FECCapability/rfc2733 fecc_rfc2733
+DepFECCapability/rfc2733 fecc_rfc2733
 RequestModeAck/response req_mode_ack_response
 UserInputIndication/signalUpdate/rtp si_rtp
 VCCapability/availableBitRates/type avb_type
