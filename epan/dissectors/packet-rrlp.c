@@ -455,7 +455,7 @@ static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 23 "rrlp.cnf"
+#line 21 "rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -3815,9 +3815,7 @@ dissect_rrlp_PDU(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tre
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_clear(actx->pinfo->cinfo, COL_INFO);
+		col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 
     offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);

@@ -11,9 +11,7 @@ PDU
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
-		col_clear(%(ACTX)s->pinfo->cinfo, COL_INFO);
+		col_append_str(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 
   %(DEFAULT_BODY)s
 #.END

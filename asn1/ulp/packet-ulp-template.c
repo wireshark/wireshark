@@ -64,7 +64,7 @@ static int proto_ulp = -1;
 
 #define ULP_HEADER_SIZE 2
 
-gboolean ulp_desegment = FALSE;
+gboolean ulp_desegment = TRUE;
 
 #include "packet-ulp-hf.c"
 
@@ -133,10 +133,16 @@ void proto_register_ulp(void) {
   proto_register_field_array(proto_ulp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-
-  /* Register a configuration option for port */
   ulp_module = prefs_register_protocol(proto_ulp,proto_reg_handoff_ulp);
-  prefs_register_uint_preference(ulp_module, "tcp.port",
+
+  prefs_register_bool_preference(ulp_module, "desegment_ulp_messages",
+		"Reassemble ULP messages spanning multiple TCP segments",
+		"Whether the ULP dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		&ulp_desegment);
+
+	/* Register a configuration option for port */
+	prefs_register_uint_preference(ulp_module, "tcp.port",
 								   "ULP TCP Port",
 								   "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
 								   10,
