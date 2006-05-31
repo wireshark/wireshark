@@ -585,8 +585,8 @@ EXTRA_DIST = \
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\
 	image/elogo3d48x48.png	\
-	image/ethereal.exe.manifest.in \
-	image/ethereal.ico	\
+	image/wireshark.exe.manifest.in \
+	image/wireshark.ico	\
 	image/wireshark.rc.in	\
 	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \

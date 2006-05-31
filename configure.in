@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(ethereal, 1.1.0)
+AM_INIT_AUTOMAKE(wireshark, 1.1.0)
 
 AM_DISABLE_STATIC
 
@@ -339,15 +339,15 @@ fi
 
 # Enable/disable tshark
 
-AC_ARG_ENABLE(ethereal,
-[  --enable-ethereal       build GTK+-based ethereal.  [default=yes]],enable_ethereal=$enableval,enable_ethereal=yes)
+AC_ARG_ENABLE(wireshark,
+[  --enable-wireshark       build GTK+-based wireshark.  [default=yes]],enable_wireshark=$enableval,enable_wireshark=yes)
 
 AC_ARG_ENABLE(gtk2,
-[  --disable-gtk2          build Glib1/Gtk1+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=yes)
+[  --disable-gtk2          build Glib1/Gtk1+-based wireshark.  [default=no]],enable_gtk2=$enableval,enable_gtk2=yes)
 AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 
 AC_ARG_ENABLE(threads,
-[  --enable-threads        use threads in ethereal.  [default=no]],enable_threads=$enableval,enable_threads=no)
+[  --enable-threads        use threads in wireshark.  [default=no]],enable_threads=$enableval,enable_threads=no)
 AM_CONDITIONAL(USE_THREADS, test x$enable_threads = xyes)
 
 AC_ARG_ENABLE(profile-build,
@@ -367,7 +367,7 @@ else
 fi
 
 # Create DATAFILE_DIR #define for config.h
-datafiledir=$datadir/ethereal
+datafiledir=$datadir/wireshark
 datafiledir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
@@ -379,10 +379,10 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GTK+.
 #
-if test "x$enable_gtk2" = "xyes" -a "x$enable_ethereal" = "xyes" ; then
+if test "x$enable_gtk2" = "xyes" -a "x$enable_wireshark" = "xyes" ; then
 	GTK_OK=two
 	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
-elif test "x$enable_gtk2" != "xyes" -a "x$enable_ethereal" = "xyes" ; then
+elif test "x$enable_gtk2" != "xyes" -a "x$enable_wireshark" = "xyes" ; then
 	GTK_OK=one
 	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
 else
@@ -400,7 +400,7 @@ fi
 # programs to be built with GLib.
 #
 if test "$GTK_OK" = "no" ; then
-	enable_ethereal="no"
+	enable_wireshark="no"
 	wireshark_bin=""
 	wireshark_man=""
 	# Honor GLIB_CFLAGS
@@ -410,8 +410,8 @@ if test "$GTK_OK" = "no" ; then
 		AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
 	fi
 else
-	wireshark_bin="ethereal\$(EXEEXT)"
-	wireshark_man="ethereal.1"
+	wireshark_bin="wireshark\$(EXEEXT)"
+	wireshark_man="wireshark.1"
         wireshark_SUBDIRS="gtk"
 	# Honor GLIB_CFLAGS
 	if test "$GTK_OK" = "two" ; then
@@ -817,9 +817,9 @@ fi
 
 dnl Check if wireshark should be installed setuid
 AC_ARG_ENABLE(setuid-install,
-[  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
+[  --enable-setuid-install install wireshark as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
 
-AC_MSG_CHECKING(whether to install ethereal setuid)
+AC_MSG_CHECKING(whether to install wireshark setuid)
 if test "x$enable_setuid_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
@@ -1227,7 +1227,7 @@ dnl
 dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
-plugindir="$libdir/ethereal/plugins/$VERSION"
+plugindir="$libdir/wireshark/plugins/$VERSION"
 AC_ARG_WITH(plugins,
 [  --with-plugins[[=DIR]]    support plugins (installed in DIR, if supplied).],
 [
@@ -1401,21 +1401,21 @@ fi
 
 echo ""
 echo "The Ethereal package has been configured with the following options."
-echo "                    Build ethereal : $enable_ethereal"
-echo "                   Build tshark : $enable_tshark"
-echo "                    Build capinfos : $enable_capinfos"
-echo "                     Build editcap : $enable_editcap"
-echo "                     Build dumpcap : $enable_dumpcap"
-echo "                    Build mergecap : $enable_mergecap"
-echo "                   Build text2pcap : $enable_text2pcap"
-echo "                     Build idl2wrs : $enable_idl2wrs"
-echo "                     Build randpkt : $enable_randpkt"
-echo "                      Build dftest : $enable_dftest"
+echo "                    Build wireshark : $enable_wireshark"
+echo "                       Build tshark : $enable_tshark"
+echo "                     Build capinfos : $enable_capinfos"
+echo "                      Build editcap : $enable_editcap"
+echo "                      Build dumpcap : $enable_dumpcap"
+echo "                     Build mergecap : $enable_mergecap"
+echo "                    Build text2pcap : $enable_text2pcap"
+echo "                      Build idl2wrs : $enable_idl2wrs"
+echo "                      Build randpkt : $enable_randpkt"
+echo "                       Build dftest : $enable_dftest"
 echo ""
-echo "                    Install setuid : $setuid_message"
-echo "                       Use plugins : $have_plugins"
-echo "                  Build lua plugin : $lua_message"
-echo "               Use GTK+ v2 library : $enable_gtk2"
+echo "                     Install setuid : $setuid_message"
+echo "                        Use plugins : $have_plugins"
+echo "                   Build lua plugin : $lua_message"
+echo "                Use GTK+ v2 library : $enable_gtk2"
 if test "x$enable_gtk2" = "xyes" ; then
 echo "                       Use threads : $enable_threads"
 echo "            Build profile binaries : $enable_profile_build"

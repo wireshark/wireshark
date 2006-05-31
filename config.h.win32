@@ -227,7 +227,7 @@
 #define _WINDOWS                1*/
 
 /* Name of package */
-#define PACKAGE "ethereal"
+#define PACKAGE "wireshark"
 
 /* Version number of package */
 #define VERSION "@VERSION@"
