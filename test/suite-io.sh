@@ -127,7 +127,7 @@ io_step_input_piping() {
 
 ethereal_io_suite() {
 	# Q: quit after cap, k: start capture immediately
-	DUT="$ETHEREAL"
+	DUT="$WIRESHARK"
 	test_step_add "Input file" io_step_input_file
 }
 

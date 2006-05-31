@@ -32,7 +32,7 @@ MAX_VMEM=500000
 ERR_PROB=0.02
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
-ETHEREAL_ABORT_ON_DISSECTOR_BUG="True"
+WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 # set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
 # (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)

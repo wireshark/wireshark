@@ -34,7 +34,7 @@
 	<para>
 	Subversion is used to keep track of the changes made to the Wireshark 
 	source code. The Wireshark source code is stored inside Ethereal project's 
-	Subversion repository located at a server at the ethereal.com domain.
+	Subversion repository located at a server at the wireshark.org domain.
 	</para>
 	<para>
 	To qoute the Subversion book about "What is Subversion?": 
@@ -119,7 +119,7 @@
 	found at: 
 	</para>
 	<para>
-	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk/"/>.
+	<ulink url="http://anonsvn.wireshark.org/ethereal/trunk/"/>.
 	</para>
 	<para>
 	A <command>comprehensive view</command> of all source versions 
@@ -127,7 +127,7 @@
 	is available at:
 	</para>
 	<para>
-	<ulink url="http://anonsvn.ethereal.com/viewcvs/viewcvs.py/"/>. 
+	<ulink url="http://anonsvn.wireshark.org/viewcvs/viewcvs.py/"/>. 
 	</para>
 	<para>
 	Of special interest might be the subdirectories:
@@ -183,7 +183,7 @@
 	You can use a Subversion client to download the source code from 
 	Ethereal's anonymous Subversion repository. The URL for the repository 
 	trunk is:
-	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk/"/>.
+	<ulink url="http://anonsvn.wireshark.org/ethereal/trunk/"/>.
 	</para>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> how to install a Subversion client.
@@ -194,7 +194,7 @@
 	</para>
 	<para>
 	<prompt>$</prompt> 
-	<userinput>svn checkout http://anonsvn.ethereal.com/ethereal/trunk ethereal</userinput>
+	<userinput>svn checkout http://anonsvn.wireshark.org/ethereal/trunk ethereal</userinput>
 	</para>
 	<para>
 	The checkout has to be only done once. This will copy all the sources of 
@@ -215,7 +215,7 @@
 	<para>
 	 The entire source tree of the Subversion repository is available via a 
 	 web interface at:
-	 <ulink url="http://anonsvn.ethereal.com/viewcvs/viewcvs.py/"/>. 
+	 <ulink url="http://anonsvn.wireshark.org/viewcvs/viewcvs.py/"/>. 
 	 You can view 
 	 each revision of a particular file, as well as diffs between different 
 	 revisions. You can also download individual files or entire directories.
@@ -235,7 +235,7 @@
 	The buildbot server will automatically start to generate a snapshot of 
 	Ethereal's sourcetree after a source code change committed. 
 	These snapshots can be found at: <ulink
-	url="http://www.ethereal.com/distribution/buildbot-builds/source/"/>.
+	url="http://www.wireshark.org/distribution/buildbot-builds/source/"/>.
 	</para>
 	<para>
 	If anonymous Subversion access isn't possible, e.g. if the connection to 
@@ -258,7 +258,7 @@
 	</para>
 	<para>
 	The officially released source files can be found at: <ulink
-	url="http://www.ethereal.com/download.html"/>.
+	url="http://www.wireshark.org/download.html"/>.
 	You should use these sources if you want to build Ethereal on your
 	platform for productive use.
 	</para>
@@ -542,8 +542,8 @@ make
 	Here is a small example of a patch file (XXX - generate a better example):
 	<programlisting>
 <![CDATA[
-diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/packet-dcerpc.c
---- ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c	2004-08-12 15:42:26.000000000 -0700
+diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/packet-dcerpc.c
+--- ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c	2004-08-12 15:42:26.000000000 -0700
 +++ ./epan/dissectors/packet-dcerpc.c	2004-08-19 18:48:32.000000000 -0700
 @@ -282,6 +282,7 @@
  /* we need to keep track of what transport were used, ie what handle we came
@@ -625,7 +625,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	do a diff, you should
 	have two source trees on your computer, one with your working copy
 	(containing your changes), and one with the "official" source tree
-	(hopefully the latest SVN files) from www.ethereal.com.
+	(hopefully the latest SVN files) from www.wireshark.org.
 	</para>
 	<para>
 	If you have only changed a single file, you could type something like
@@ -781,7 +781,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	  and the fuzz test randomly change bytes in this file, so unconditional 
 	  code paths in your dissector are passed. There are tools available to 
 	  automatically do this on any number of input files, see: 
-	  <ulink url="http://wiki.ethereal.com/FuzzTesting"/> for details.
+	  <ulink url="http://wiki.wireshark.org/FuzzTesting"/> for details.
 	  </para>
 	  </listitem>
 	</itemizedlist>
@@ -796,7 +796,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	</para>
 	<para>
 	You should send an email to <ulink
-	url="mailto:ethereal-dev[AT]ethereal.com"/> containing: 
+	url="mailto:wireshark-dev[AT]wireshark.org"/> containing: 
 	<itemizedlist>
 	  <listitem><para>
 	  subject: [PATCH] and a short description of your changes
@@ -1077,7 +1077,7 @@ $Id$
 	</tip>
 	<para>
 	If everything went well, you will now find something like:
-	<filename>ethereal-setup-&EtherealCurrentVersion;.exe</filename> in
+	<filename>wireshark-setup-&EtherealCurrentVersion;.exe</filename> in
 	the <filename>packaging/nsis</filename> directory.
 	</para>
 	</section>

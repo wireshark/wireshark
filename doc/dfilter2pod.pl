@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 #
-# Reads the display filter keyword dump produced by 'ethereal -G' and
+# Reads the display filter keyword dump produced by 'wireshark -G' and
 # formats it for a pod document. The pod document is then used to
 # make a manpage
 #
-# STDIN is the ethereal glossary
+# STDIN is the wireshark glossary
 # arg1 is the pod template file. The =insert_dfilter_table token
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output

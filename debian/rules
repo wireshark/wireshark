@@ -62,7 +62,7 @@ clean: unpatch-stamp
 
 	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	-$(MAKE) distclean
-	rm -f rdps ethereal.1 tshark.1 idl2deb.1 ethereal-filter.4 asn2deb.1
+	rm -f rdps ethereal.1 tshark.1 idl2deb.1 wireshark-filter.4 asn2deb.1
 	rm -f conftest conftest.c
 	rm -f config.guess config.sub config.log
 
@@ -88,7 +88,7 @@ binary-arch: build
 	$(MAKE) install DESTDIR=`pwd`/debian/tmp
 	mkdir -p `pwd`/debian/tmp/usr/share/applications/
 	cp ethereal.desktop `pwd`/debian/tmp/usr/share/applications/
-	cp debian/ethereal-root.desktop `pwd`/debian/tmp/usr/share/applications/
+	cp debian/wireshark-root.desktop `pwd`/debian/tmp/usr/share/applications/
 	mkdir -p `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-ethereal.png `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/eicon3d32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
@@ -98,7 +98,7 @@ binary-arch: build
 	cp `pwd`/ethereal_be.py `pwd`/ethereal_gen.py \
 			`pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
 	mkdir -p `pwd`/debian/tmp/usr/include/ethereal/
-	for F in `cat debian/ethereal-dev.header-files`; do \
+	for F in `cat debian/wireshark-dev.header-files`; do \
 		cp --parents $$F `pwd`/debian/tmp/usr/include/ethereal; \
 	done
 	# .a is no longer built; why was is used ?

@@ -6,7 +6,7 @@ Writing a "plugin" dissector is not very different from writing a standard one.
 In fact all of the functions described in the README.developer can be 
 used in the plugins exactly as the are used in standard dissectors.
 
-(Note, however, that not all OSes on which Ethereal runs can support
+(Note, however, that not all OSes on which Wireshark runs can support
 plugins.)
 
 Once you have written a packet-xxx.c to create your plugin 
@@ -277,7 +277,7 @@ AC_OUTPUT(
   packaging/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile
-  packaging/rpm/ethereal.spec
+  packaging/rpm/wireshark.spec
   packaging/svr4/Makefile
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
@@ -296,13 +296,13 @@ Plugins make some aspects of development easier and some harder.
 
 The good news is that if you are working on a single plugin 
 then you will find recompiling the plugin MUCH faster than 
-recompiling a dissector and then linking it back into ethereal.
+recompiling a dissector and then linking it back into wireshark.
 
 The bad news is that wireshark will not use the plugin unless the 
 plugin is installed in one of the places it expects to look.
 
 One way to deal with this problem is to set up a working root for 
-ethereal, say in $HOME/build/root and build ethereal to install
+wireshark, say in $HOME/build/root and build wireshark to install
 there
 
 ./configure --prefix=${HOME}/build/root;make install

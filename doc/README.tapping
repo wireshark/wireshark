@@ -2,12 +2,12 @@ $Id$
 
 The TAP system in wireshark is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.
-In order to use the tapping system, very little knowledge of ethereal
+In order to use the tapping system, very little knowledge of wireshark
 internals are required.
 
 As examples on how to use the tap system see the implementation of 
 tap-rpcstat.c     	(tshark version)
-gtk/gtk-rpcstat.c	(gtk-ethereal version)
+gtk/gtk-rpcstat.c	(gtk-wireshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -100,13 +100,13 @@ matched the filter to your listener.
 The syntax for the filter string is identical to normal display filters.
 
 NOTE: Specifying filter strings will have a significant performance impact
-on your application and ethereal. If possible it is MUCH better to take
+on your application and wireshark. If possible it is MUCH better to take
 unfiltered data and just filter it yourself in the packet-callback than
 to specify a filter string.
 ONLY use a filter string if no other option exist.
 
 void (*reset)(void *tapdata)
-This callback is called whenever ethereal wants to inform your
+This callback is called whenever wireshark wants to inform your
 listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
@@ -125,10 +125,10 @@ or GUI updates down in (*draw) instead.
 
  
 void (*draw)(void *tapdata)
-This callback is used when ethereal wants your application to redraw its
+This callback is used when wireshark wants your application to redraw its
 output. It will usually not be called unless your application has received
 new data through the (*packet) callback.
-On some ports of ethereal (gtk2) (*draw) will be called asynchronously 
+On some ports of wireshark (gtk2) (*draw) will be called asynchronously 
 from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.
@@ -140,14 +140,14 @@ So, create three callbacks:
 2, packet  to update these state variables.
 3, draw    to take these state variables and draw them on the screen.
 
-then just make ethereal call register_tap_listener() when you want to tap
+then just make wireshark call register_tap_listener() when you want to tap
 and call remove_tap_listener() when you are finished.
 
 
 WHEN DO TAP LISTENERS GET CALLED?
 ===================================
-Tap listeners are only called when ethereal reads a new capture for
-the first time or whenever ethereal needs to rescan/redissect
+Tap listeners are only called when wireshark reads a new capture for
+the first time or whenever wireshark needs to rescan/redissect
 the capture.
 Redissection occurs when you apply a new display filter or if you
 change and Save/Apply a preference setting that might affect how
@@ -158,7 +158,7 @@ to receive tap data during the dissection of the frame will be called in
 sequence.
 The order of which the tap listeners will be called is not defined.
 Not until all tap listeners for the frame has been called and returned
-will ethereal continue to dissect the next packet.
+will wireshark continue to dissect the next packet.
 This is why it is important to make the *_packet() callbacks execute as
 quickly as possible, else we create an extra delay until the next packet
 is dissected.
@@ -204,7 +204,7 @@ Well, try this :
 	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
 
 	Let struct contain an email address?
-	Then you have something simple that will make ethereal send an email
+	Then you have something simple that will make wireshark send an email
 	out automagically for each and every time it dissects 
 	a packet containing TCP traffic to port 57.
 	Please put in some rate limitation if you do this.

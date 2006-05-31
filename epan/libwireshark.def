@@ -1,4 +1,4 @@
-; libethereal.def
+; libwireshark.def
 ; $Id$
 
 EXPORTS
@@ -34,6 +34,7 @@ asn1_subid_decode
 asn1_tag_decode
 asn1_uint32_decode
 asn1_uint32_value_decode
+asn_ctx_init
 BandRejectReason_vals           DATA
 build_follow_filter
 bytes_to_str_punct
@@ -598,6 +599,9 @@ rtp_add_address
 rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
+scsi_mmc_vals					DATA
+scsi_sbc2_vals					DATA
+scsi_ssc2_vals					DATA
 set_actual_length
 show_fragment_seq_tree
 show_fragment_tree
@@ -707,6 +711,7 @@ tvb_strncaseeql
 tvb_strneql
 tvb_strnlen
 tvb_strsize
+tvb_uncompress
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 utf_8to16

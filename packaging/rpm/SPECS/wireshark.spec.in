@@ -9,12 +9,12 @@ Version:	%ver
 Release:	%rel
 License:	GPL
 Group:		Networking/Utilities
-Source:		http://ethereal.com/distribution/all-versions/%{name}-%{version}.tar.gz
+Source:		http://wireshark.org/download/all-versions/%{name}-%{version}.tar.gz
 Source1:	%{name}.desktop
 Source2:	%{name}.png
-URL:		http://www.ethereal.com/
-BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
-Packager:	Gerald Combs <gerald[AT]ethereal.com>
+URL:		http://www.wireshark.org/
+BuildRoot:	/tmp/wireshark-%{PACKAGE_VERSION}-root
+Packager:	Gerald Combs <gerald[AT]wireshark.org>
 Requires:	gtk2
 Requires:	libpcap openssl
 

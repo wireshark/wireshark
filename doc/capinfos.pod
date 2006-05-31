@@ -30,11 +30,11 @@ corresponding to the statistic.  If no flags are specified, B<Capinfos>
 will report all statistics available.
 
 B<Capinfos> is able to detect and read the same capture files that are 
-supported by B<Ethereal>.
+supported by B<Wireshark>.
 The input files don't need a specific filename extension, the file 
 format and an optional gzip compression will be automatically detected.
-The I<capture file format> section of I<ethereal(1)> or
-I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
+The I<capture file format> section of I<wireshark(1)> or
+I<http://www.wireshark.org/docs/man-pages/wireshark.1.html>
 provides a detailed description.
 
 =head1 OPTIONS
@@ -106,15 +106,15 @@ Prints the help listing and exits.
 
 =head1 SEE ALSO
 
-I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<mergecap(1)>, I<editcap(1)>, I<tshark(1)>
+I<tcpdump(8)>, I<pcap(3)>, I<wireshark(1)>, I<mergecap(1)>, I<editcap(1)>, I<tshark(1)>
 
 =head1 NOTES
 
-B<Capinfos> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://www.ethereal.com>.
+B<Capinfos> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at B<http://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-http://www.ethereal.com/docs/man-pages
+http://www.wireshark.org/docs/man-pages
 
 =head1 AUTHORS
 
@@ -125,4 +125,4 @@ http://www.ethereal.com/docs/man-pages
 
   Contributors
   ------------
-  Gerald Combs         <gerald[AT]ethereal.com>
+  Gerald Combs         <gerald[AT]wireshark.org>

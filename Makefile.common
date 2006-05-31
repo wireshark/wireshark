@@ -45,7 +45,7 @@ GENERATED_C_FILES = \
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for ethereal and tshark
-ETHEREAL_COMMON_SRC =	\
+WIRESHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_errs.c	\
 	capture-pcap-util.c	\
@@ -65,7 +65,7 @@ ETHEREAL_COMMON_SRC =	\
 	version_info.c
 
 # corresponding headers
-ETHEREAL_COMMON_INCLUDES =	\
+WIRESHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture_errs.h	\
 	capture-pcap-util.h	\
@@ -118,7 +118,7 @@ TSHARK_TAP_SRC =	\
 	tap-wspstat.c
 
 # helpers already available on some platforms (and on others not)
-EXTRA_ethereal_SOURCES =	\
+EXTRA_wireshark_SOURCES =	\
 	getopt.c	\
 	mkstemp.c	\
 	snprintf.c	\
@@ -128,7 +128,7 @@ EXTRA_ethereal_SOURCES =	\
 	strptime.c
 
 # corresponding headers
-EXTRA_ethereal_INCLUDES =	\
+EXTRA_wireshark_INCLUDES =	\
 	getopt.h	\
 	mkstemp.h	\
 	snprintf.h	\
@@ -137,8 +137,8 @@ EXTRA_ethereal_INCLUDES =	\
 	strptime.h
 
 # ethereal specifics
-ethereal_SOURCES =	\
-	$(ETHEREAL_COMMON_SRC)	\
+wireshark_SOURCES =	\
+	$(WIRESHARK_COMMON_SRC)	\
 	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
@@ -156,7 +156,7 @@ ethereal_SOURCES =	\
 	tempfile.c
 
 # corresponding headers
-ethereal_INCLUDES =	\
+wireshark_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	capture_info.h	\
@@ -183,7 +183,7 @@ ethereal_INCLUDES =	\
 
 # tshark specifics
 tshark_SOURCES =	\
-	$(ETHEREAL_COMMON_SRC)	\
+	$(WIRESHARK_COMMON_SRC)	\
 	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
 	capture_loop.c		\
@@ -234,6 +234,6 @@ dumpcap_SOURCES =	\
 
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(ETHEREAL_COMMON_INCLUDES) \
-	$(ethereal_INCLUDES) \
-	$(EXTRA_ethereal_INCLUDES)
+	$(WIRESHARK_COMMON_INCLUDES) \
+	$(wireshark_INCLUDES) \
+	$(EXTRA_wireshark_INCLUDES)

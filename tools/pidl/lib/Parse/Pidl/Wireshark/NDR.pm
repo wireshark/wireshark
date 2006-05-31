@@ -180,7 +180,7 @@ sub Bitmap($$$)
 
 	pidl_code "";
 
-	pidl_code "if(parent_tree) {";
+	pidl_code "if (parent_tree) {";
 	indent;
 	pidl_code "item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, $e->{ALIGN}, TRUE);";
 	pidl_code "tree = proto_item_add_subtree(item,ett_$ifname\_$name);";
@@ -224,7 +224,7 @@ sub Bitmap($$$)
 		pidl_code "";
 	}
 
-	pidl_code "if(flags){";
+	pidl_code "if (flags) {";
 	pidl_code "\tproto_item_append_text(item, \"Unknown bitmap value 0x%x\", flags);";
 	pidl_code "}\n";
 	pidl_code "return offset;";
@@ -489,7 +489,7 @@ sub Struct($$$)
 
 	pidl_code "old_offset = offset;";
 	pidl_code "";
-	pidl_code "if(parent_tree){";
+	pidl_code "if (parent_tree) {";
 	indent;
 	pidl_code "item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);";
 	pidl_code "tree = proto_item_add_subtree(item, ett_$ifname\_$name);";
@@ -553,7 +553,7 @@ sub Union($$$)
 	pidl_code "";
 
 	pidl_code "old_offset = offset;";
-	pidl_code "if(parent_tree){";
+	pidl_code "if (parent_tree) {";
 	indent;
 	pidl_code "item = proto_tree_add_text(parent_tree, tvb, offset, -1, \"$name\");";
 	pidl_code "tree = proto_item_add_subtree(item, ett_$ifname\_$name);";
@@ -810,7 +810,7 @@ sub Parse($$$$)
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be 
-	found at http://wiki.ethereal.com/Pidl
+	found at http://wiki.wireshark.org/Pidl
 */
 
 ";

@@ -39,7 +39,7 @@ source suite-capture.sh
 test_step_prerequisites() {
 
 	NOTFOUND=0
-	for i in "$ETHEREAL" "$TSHARK" "$CAPINFOS" "$DUMPCAP" ; do
+	for i in "$WIRESHARK" "$TSHARK" "$CAPINFOS" "$DUMPCAP" ; do
 		if [ ! -x $i ]; then
 			echo "Couldn't find $i"
 			NOTFOUND=1

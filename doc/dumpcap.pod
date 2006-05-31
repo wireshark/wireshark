@@ -26,7 +26,7 @@ S<[ B<-y> E<lt>capture link typeE<gt> ]>
 B<Dumpcap> is a network traffic dump tool.  It lets you capture packet
 data from a live network and write the packets to a file.  B<Dumpcap>'s 
 native capture file format is B<libpcap> format, which is also the format 
-used by B<Ethereal>, B<tcpdump> and various other tools.  
+used by B<Wireshark>, B<tcpdump> and various other tools.  
 
 Without any options set it will 
 use the pcap library to capture traffic from the first available network 
@@ -198,18 +198,18 @@ See the manual page of I<tcpdump(8)>.
 
 =head1 SEE ALSO
 
-I<ethereal(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+I<wireshark(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 
-B<Dumpcap> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://www.ethereal.com>.
+B<Dumpcap> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at B<http://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-http://www.ethereal.com/docs/man-pages
+http://www.wireshark.org/docs/man-pages
 
 =head1 AUTHORS
 
-B<Dumpcap> is derived from the B<Ethereal> capturing engine code; 
+B<Dumpcap> is derived from the B<Wireshark> capturing engine code; 
 see the list of
-authors in the B<Ethereal> man page for a list of authors of that code.
+authors in the B<Wireshark> man page for a list of authors of that code.

@@ -187,7 +187,7 @@ capture_step_snapshot() {
 
 ethereal_capture_suite() {
 	# Q: quit after cap, k: start capture immediately
-	DUT="$ETHEREAL -Q -k"
+	DUT="$WIRESHARK -Q -k"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Ethereal and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout

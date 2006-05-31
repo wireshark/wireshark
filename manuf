@@ -9,7 +9,7 @@
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
 # Wireshark - Network traffic analyzer
-# By Gerald Combs <gerald [AT] ethereal.com>
+# By Gerald Combs <gerald [AT] wireshark.org>
 # Copyright 1998 Gerald Combs
 #
 # This program is free software; you can redistribute it and/or
@@ -9234,7 +9234,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 # $Id$
 #
 # Wireshark - Network traffic analyzer
-# By Gerald Combs <gerald [AT] ethereal.com>
+# By Gerald Combs <gerald [AT] wireshark.org>
 # Copyright 1998 Gerald Combs
 #
 # This program is free software; you can redistribute it and/or

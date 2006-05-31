@@ -13,12 +13,12 @@ Benefits of using binary trees are that they are incredibly fast for
 accessing data and they scale very well with good characteristics even to
 very large number of objects.
 
-Ethereal provides its own version of red black binary trees designed in 
+Wireshark provides its own version of red black binary trees designed in 
 particular to be easy to use and to eliminate most of the memory management
 often associated with such trees.
 
 The trees supported by wireshark are currently all created using SEasonal 
-storage which means that when you load a new trace into ethereal, the SEasonal
+storage which means that when you load a new trace into wireshark, the SEasonal
 memory management will automatically release every single byte of data
 associated with the tree.
 
@@ -34,8 +34,8 @@ void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
 
 2.1 se_tree_create(int type, char *name);
 se_tree_create() is used to initialize a tree that will be automatically 
-cleared and reset everytime ethereal is resetting all SEasonal storage,
-that is every time you load a new capture file into ethereal or when
+cleared and reset everytime wireshark is resetting all SEasonal storage,
+that is every time you load a new capture file into wireshark or when
 you rescan the entire capture file from scratch.
 
 Name is just a literal text string and serves no other purpose than making
@@ -58,7 +58,7 @@ void proto_register_...(void) {
 }
 
 That is how easy it is to create a binary tree. You only need to create it once
-when ethereal starts and the tree will remain there until you exit ethereal.
+when wireshark starts and the tree will remain there until you exit wireshark.
 Everytime a new capture is loaded, all nodes allocated to the tree is 
 automatically and the tree is reset without you having to do anything at all.
 
@@ -89,7 +89,7 @@ This is very neat and makes real difficult to have memory leaks in your code.
 NOTE: When you insert items in the tree, it is very likely that you only
 want to add any data to the tree during the very first time you process
 a particular packet.
-Ethereal may reprocess the same packet multiple times afterwards by the user
+Wireshark may reprocess the same packet multiple times afterwards by the user
 clicking on the packet or for other reasons. 
 You probably DO want to protect the insert call within an if statement such
 as
@@ -175,7 +175,7 @@ until an array element where length==0 is found indicating the end of the
 array.
 
 NOTE: you MUST terminate the se_tree_key_t array by {0, NULL}
-If you forget to do this ethereal will immediately crash.
+If you forget to do this wireshark will immediately crash.
 
 NOTE: length indicates the number of guint32 values in the vector, not number 
 of bytes.

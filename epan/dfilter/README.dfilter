@@ -21,7 +21,7 @@ display filter engine.
 Example: add an 'in' display filter operation
 =============================================
 
-This example has been discussed on ethereal-dev in April 2004. It illustrates
+This example has been discussed on wireshark-dev in April 2004. It illustrates
 how a more complex operation can be added to the display filter language.
 
 Question:

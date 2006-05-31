@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 #
-# Reads the display filter keyword dump produced by 'ethereal -G' and
+# Reads the display filter keyword dump produced by 'wireshark -G' and
 # formats it as an SGML bulleted list of protocols.
 #
-# STDIN is the ethereal glossary
+# STDIN is the wireshark glossary
 # arg1 is the pod template file. The =insert_dfilter_table token
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
@@ -53,7 +53,7 @@ close(TEMPLATE) || die "Can't close $template: $!\n";
 
 sub create_dfilter_table {
 
-        print "<itemizedlist id=\"EtherealListOfProtos\">\n";
+        print "<itemizedlist id=\"WiresharkListOfProtos\">\n";
 
 	# Print each protocol
 	for $proto_name (sort keys %proto_abbrev) {

@@ -40,11 +40,11 @@ If the B<-r> flag is specified, the whole packet selection is reversed;
 in that case I<only> the selected packets will be written to the capture file.
 
 B<Editcap> is able to detect, read and write the same capture files that 
-are supported by B<Ethereal>.
+are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension, the file 
 format and an optional gzip compression will be automatically detected.
-The I<capture file format> section of I<ethereal(1)> or
-I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
+The I<capture file format> section of I<wireshark(1)> or
+I<http://www.wireshark.org/docs/man-pages/wireshark.1.html>
 provides a detailed description.
 
 B<Editcap> can write the file in several output formats. The B<-F>
@@ -199,15 +199,15 @@ To introduce 5% random errors in a capture file use:
 
 =head1 SEE ALSO
 
-I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<mergecap(1)>
+I<tcpdump(8)>, I<pcap(3)>, I<wireshark(1)>, I<mergecap(1)>
 
 =head1 NOTES
 
-B<Editcap> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://www.ethereal.com>.
+B<Editcap> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at B<http://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-http://www.ethereal.com/docs/man-pages
+http://www.wireshark.org/docs/man-pages
 
 =head1 AUTHORS
 

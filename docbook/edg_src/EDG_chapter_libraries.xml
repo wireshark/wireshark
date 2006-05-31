@@ -31,7 +31,7 @@
 	<para>
 	Win32: All required libraries for the MSVC
 	generation are available at: 
-	<ulink	url="http://www.ethereal.com/distribution/win32/development/"/>,
+	<ulink	url="http://www.wireshark.org/distribution/win32/development/"/>,
 	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
 	libraries.
 	</para>
@@ -107,7 +107,7 @@
 	</note>
 	<para>
 	By default the libraries will be downloaded and installed into 
-	<filename>C:\ethereal-win32-libs</filename>.
+	<filename>C:\wireshark-win32-libs</filename>.
 	You can change this to any other location by editing the file
 	<filename>config.nmake</filename> and changing the line containing 
 	the WIRESHARK_LIBS setting to your favourite place (use an absolute path 
@@ -247,7 +247,7 @@
 	Then libsnmp is compiled with the "libsnmp - Win32 Release" project 
 	using MSVC++ 6.0. A file called "README.ethereal" has been placed in the 
 	net-snmp zip archive at <ulink 
-	url="http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/"/>
+	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
 	describing the changes in more detail.
 	</para>
 	</section>

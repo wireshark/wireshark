@@ -46,15 +46,15 @@ DOCUMENT SECTION
 Ethereal Info
 -->
   <!ENTITY EtherealCurrentVersion "0.10.14">
-  <!ENTITY EtherealWebSite "http://www.ethereal.com">
+  <!ENTITY EtherealWebSite "http://www.wireshark.org">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
-  <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
+  <!ENTITY EtherealDevMailList "wireshark-dev[AT]wireshark.org">
   <!ENTITY EtherealDevsGuidePage "&EtherealWebSite;/docs">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs">
-  <!ENTITY EtherealWikiSite "http://wiki.ethereal.com">
-  <!ENTITY EtherealBugsSite "http://bugs.ethereal.com">
+  <!ENTITY EtherealWikiSite "http://wiki.wireshark.org">
+  <!ENTITY EtherealBugsSite "http://bugs.wireshark.org">
 
 <!--
 Gnu info

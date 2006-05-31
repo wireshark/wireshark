@@ -27,7 +27,7 @@ This can be achieved by two methods:
 -open an already existing capture file
 -capture something from your own network
 
-It might be easier to start with an example capture file from "http://www.ethereal.com/sample" before capturing your own data.
+It might be easier to start with an example capture file from "http://www.wireshark.org/sample" before capturing your own data.
 
 You can open a capture file through the menu "File->Open..." (or the toolbar).
 
@@ -83,6 +83,6 @@ Conclusion
 ----------
 There are a lot more features than described here. Just have a look at the menus to see them all. :-)
 
-For more information about Ethereal, see: "http://www.ethereal.com". You can get a user's guide and other useful information there.
+For more information about Ethereal, see: "http://www.wireshark.org". You can get a user's guide and other useful information there.
 
 We hope this helped you with the first steps of using Ethereal and that you will enjoy using this program.

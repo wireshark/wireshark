@@ -304,8 +304,8 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
-!ifdef ENABLE_LIBETHEREAL
-File "..\..\epan\libethereal.dll"
+!ifdef ENABLE_LIBWIRESHARK
+File "..\..\epan\libwireshark.dll"
 !endif
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
@@ -330,8 +330,8 @@ File "..\..\AUTHORS-SHORT-FORMAT"
 File "..\..\COPYING"
 File "NEWS.txt"
 File "..\..\manuf"
-File "..\..\doc\ethereal.html"
-File "..\..\doc\ethereal-filter.html"
+File "..\..\doc\wireshark.html"
+File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 
@@ -478,8 +478,8 @@ CreateDirectory "$SMPROGRAMS\Wireshark"
 Delete "$SMPROGRAMS\Wireshark\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\Wireshark\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
 CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
-;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\ethereal.html"
-;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
 CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" \
           "$INSTDIR"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Uninstall Wireshark.lnk" "$INSTDIR\uninstall.exe"
@@ -603,7 +603,7 @@ Section "Wireshark GTK1" SecWiresharkGTK1
 SectionIn 2 RO
 !endif
 SetOutPath $INSTDIR
-File "..\..\ethereal.exe"
+File "..\..\wireshark.exe"
 File "${GTK1_DIR}\lib\libgtk-0.dll"
 File "${GTK1_DIR}\lib\libgdk-0.dll"
 SectionEnd
@@ -616,7 +616,7 @@ Section "Wireshark GTK2" SecWiresharkGTK2
 SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
-File /oname=wireshark.exe "..\..\ethereal-gtk2.exe"
+File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
@@ -661,14 +661,14 @@ SectionEnd
 SectionGroupEnd	; "Wireshark"
 
 
-Section "Tethereal" SecTethereal
+Section "TShark" SecTShark
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 2
 !endif
 SetOutPath $INSTDIR
-File "..\..\tethereal.exe"
-File "..\..\doc\tethereal.html"
+File "..\..\tshark.exe"
+File "..\..\doc\tshark.html"
 SectionEnd
 
 SectionGroup "Plugins / Extensions" SecPluginsGroup
@@ -787,6 +787,16 @@ SectionEnd
 
 SectionGroupEnd	; "Tools"
 
+!ifdef HHC_DIR
+Section "User's Guide" SecUsersGuide
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR
+File "..\..\docbook\user-guide.chm"
+SectionEnd
+!endif
 
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
@@ -797,11 +807,11 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-Delete "$INSTDIR\tethereal.exe"
-IfErrors 0 NoTetherealErrorMsg
-	MessageBox MB_OK "Please note: tethereal.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tethereal.exe removed
-	Abort "Please note: tethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoTetherealErrorMsg:
+Delete "$INSTDIR\tshark.exe"
+IfErrors 0 NoTSharkErrorMsg
+	MessageBox MB_OK "Please note: tshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tshark.exe removed
+	Abort "Please note: tshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+NoTSharkErrorMsg:
 
 Delete "$INSTDIR\wireshark.exe"
 IfErrors 0 NoWiresharkErrorMsg
@@ -886,6 +896,7 @@ Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\pcrepattern.3.txt"
+Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Wireshark\*.*"
@@ -992,8 +1003,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
 !endif  
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and Tethereal."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
@@ -1006,6 +1017,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "The user's guide as the online help system."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN 

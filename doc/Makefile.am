@@ -24,20 +24,20 @@
 # We include dependencies on ../config.h in order to
 # capture when $(VERSION) changes.
 
-ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
-	cat $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT > ethereal-tmp.pod
+wireshark-tmp.pod: $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
+	cat $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT > wireshark-tmp.pod
 
-../ethereal.1: ethereal-tmp.pod ../config.h
+../wireshark.1: wireshark-tmp.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	ethereal-tmp.pod | sed 's/ETHEREAL-TMP/ETHEREAL/' > ../ethereal.1
+	wireshark-tmp.pod | sed 's/WIRESHARK-TMP/WIRESHARK/' > ../wireshark.1
 
-../ethereal.html: ethereal-tmp.pod ../config.h
+../wireshark.html: wireshark-tmp.pod ../config.h
 	$(POD2HTML)						\
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
 	--noindex						\
-	ethereal-tmp.pod > ../ethereal.html
+	wireshark-tmp.pod > ../wireshark.html
 
 ../tshark.1: tshark.pod ../config.h
 	$(POD2MAN)					\
@@ -51,21 +51,21 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	--noindex							\
 	$(srcdir)/tshark.pod > ../tshark.html
 
-../ethereal-filter.4: ethereal-filter.pod ../config.h
+../wireshark-filter.4: wireshark-filter.pod ../config.h
 	$(POD2MAN)					\
 	--section=4					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	ethereal-filter.pod > ../ethereal-filter.4
+	wireshark-filter.pod > ../wireshark-filter.4
 
-../ethereal-filter.html: ethereal-filter.pod ../config.h
+../wireshark-filter.html: wireshark-filter.pod ../config.h
 	$(POD2HTML)								\
-	--title="ethereal-filter - The Wireshark Network Analyzer $(VERSION)"	\
+	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)"	\
 	--noindex								\
-	ethereal-filter.pod > ../ethereal-filter.html
+	wireshark-filter.pod > ../wireshark-filter.html
 
-ethereal-filter.pod: ethereal-filter.pod.template  ../tshark
-	../tshark -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
+wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
+	../tshark -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/wireshark-filter.pod.template > wireshark-filter.pod
 
 ../capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)					\
@@ -140,12 +140,12 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tshark
 	$(srcdir)/dumpcap.pod > ../dumpcap.html
 
 CLEANFILES =		\
-	ethereal-filter.pod \
-	ethereal-tmp.pod \
-	../ethereal-filter.4 \
-	../ethereal-filter.html \
-	../ethereal.1	\
-	../ethereal.html	\
+	wireshark-filter.pod \
+	wireshark-tmp.pod \
+	../wireshark-filter.4 \
+	../wireshark-filter.html \
+	../wireshark.1	\
+	../wireshark.html	\
 	../capinfos.1	\
 	../capinfos.html	\
 	../editcap.1	\
