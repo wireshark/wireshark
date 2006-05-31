@@ -292,6 +292,7 @@ typedef struct _sctp_graph_t {
 	guint32   max_x;
 	guint32   min_y;
 	guint32   max_y;
+	gboolean  uoff;
 } sctp_graph_t;
 
 
