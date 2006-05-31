@@ -577,7 +577,6 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/eexcl3d64.xpm	\
 	image/eicon3d16.xpm	\
 	image/eicon3d32.xpm	\
 	image/eicon3d48.xpm	\
@@ -594,8 +593,6 @@ EXTRA_DIST = \
 	image/hi16-app-ethereal.png	\
 	image/hi32-app-ethereal.png	\
 	image/hi48-app-ethereal.png	\
-	image/icon-ethereal.xpm	\
-	image/icon-excl.xpm	\
 	image/libwireshark.rc.in	\
 	image/lo16-app-ethereal.png	\
 	image/lo32-app-ethereal.png	\

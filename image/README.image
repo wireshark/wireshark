@@ -13,9 +13,6 @@ clist_descend.xpm		indicators
 dn_arrow.xpm			Up and down arrows (originally intended for
 up_arrow.xpm			filter dialogs - not currently used)
 
-eexcl3d64.xpm			3D Exclamation point icon (originally intended 
-				for warning and error dialogs - not currently used)
-
 eicon3d16.xpm			3D Ethereal logo in various sizes with
 eicon3d32.xpm			transparent background, high color
 eicon3d48.xpm
@@ -41,10 +38,7 @@ lo16-app-ethereal.png
 lo32-app-ethereal.png
 lo48-app-ethereal.png
 
-icon-ethereal.xpm		Old icons used in warning, error, and
-icon-excl.xpm			informational dialogs
-
-ethereal.rc.in			MSVC++ resource templates
+wireshark.rc.in			MSVC++ resource templates
 editcap.rc.in
 mergecap.rc.in
 tshark.rc.in
