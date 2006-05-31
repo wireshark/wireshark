@@ -256,7 +256,7 @@ static const value_string transport_use_values[] = {
   { TRANSPORT_USE_DATA_ONLY,          "Data only"         },
   { TRANSPORT_USE_DATA_PLUS_CONTROL,  "Data plus control" },
   { 0,                                NULL                } };
-  
+
 #define SCTP_PORT_LENGTH          2
 #define SCTP_TRANSPORT_USE_LENGTH 2
 #define SCTP_PORT_OFFSET          PARAMETER_VALUE_OFFSET
@@ -603,18 +603,18 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
 static const value_string message_type_values[] = {
   { REGISTRATION_MESSAGE_TYPE,               "ASAP Registration" },
   { DEREGISTRATION_MESSAGE_TYPE,             "ASAP Deregistration" },
-  { REGISTRATION_RESPONSE_MESSAGE_TYPE,      "ASAP Registration response" },
-  { DEREGISTRATION_RESPONSE_MESSAGE_TYPE,    "ASAP Deregistration response" },
-  { HANDLE_RESOLUTION_MESSAGE_TYPE,          "ASAP Name resolution" },
-  { HANDLE_RESOLUTION_RESPONSE_MESSAGE_TYPE, "ASAP Name resolution response" },
-  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,        "ASAP Endpoint keep alive" },
-  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,    "ASAP Endpoint keep alive acknowledgement" },
-  { ENDPOINT_UNREACHABLE_MESSAGE_TYPE,       "ASAP Endpoint unreachable" },
-  { SERVER_ANNOUNCE_MESSAGE_TYPE,            "ASAP Server announce" },
+  { REGISTRATION_RESPONSE_MESSAGE_TYPE,      "ASAP Registration Response" },
+  { DEREGISTRATION_RESPONSE_MESSAGE_TYPE,    "ASAP Deregistration Response" },
+  { HANDLE_RESOLUTION_MESSAGE_TYPE,          "ASAP Handle Resolution" },
+  { HANDLE_RESOLUTION_RESPONSE_MESSAGE_TYPE, "ASAP Handle Resolution Response" },
+  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,        "ASAP Endpoint Keep Alive" },
+  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,    "ASAP Endpoint Keep Alive Acknowledgement" },
+  { ENDPOINT_UNREACHABLE_MESSAGE_TYPE,       "ASAP Endpoint Unreachable" },
+  { SERVER_ANNOUNCE_MESSAGE_TYPE,            "ASAP Server Announce" },
   { COOKIE_MESSAGE_TYPE,                     "ASAP Cookie" },
-  { COOKIE_ECHO_MESSAGE_TYPE,                "ASAP Cookie echo" },
-  { BUSINESS_CARD_MESSAGE_TYPE,              "ASAP Business card" },
-  { ERROR_MESSAGE_TYPE,                      "ASAP Peer error" },
+  { COOKIE_ECHO_MESSAGE_TYPE,                "ASAP Cookie Echo" },
+  { BUSINESS_CARD_MESSAGE_TYPE,              "ASAP Business Card" },
+  { ERROR_MESSAGE_TYPE,                      "ASAP Error" },
   { 0,                                       NULL } };
 
 #define SERVER_IDENTIFIER_OFFSET MESSAGE_VALUE_OFFSET
@@ -640,13 +640,13 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   proto_item *flags_item;
   proto_tree *flags_tree;
   guint8 type;
-  
+
   /* pinfo is NULL only if dissect_enrp_message is called from dissect_error cause */
-  
+
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ASAP type"));
-    
+
   if (asap_tree) {
     proto_tree_add_item(asap_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
     flags_item = proto_tree_add_item(asap_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -727,7 +727,7 @@ proto_register_asap(void)
     { &hf_cookie,                 { "Cookie",                      "asap.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
     { &hf_pe_identifier,          { "PE identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
     { &hf_pe_checksum,            { "PE checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_pe_checksum_reserved,   { "Reserved",                    "asap.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },  
+    { &hf_pe_checksum_reserved,   { "Reserved",                    "asap.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
     { &hf_server_identifier,      { "Server identifier",           "asap.server_identifier",                        FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
     { &hf_home_enrp_server_bit,   { "H bit",                       "asap.h_bit",                                    FT_BOOLEAN, 8,         TFS(&home_enrp_server_bit_value), HOME_ENRP_SERVER_BIT_MASK, "", HFILL } },
     { &hf_reject_bit,             { "R bit",                       "asap.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),           REJECT_BIT_MASK,           "", HFILL } },

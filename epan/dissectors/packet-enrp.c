@@ -1,5 +1,5 @@
 /* packet-enrp.c
- * Routines for Endpoint Name Resolution Protocol (ENRP)
+ * Routines for Endpoint Handlespace Redundancy Protocol (ENRP)
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-09.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-12.txt
@@ -265,7 +265,7 @@ static const value_string transport_use_values[] = {
   { TRANSPORT_USE_DATA_ONLY,          "Data only"         },
   { TRANSPORT_USE_DATA_PLUS_CONTROL,  "Data plus control" },
   { 0,                                NULL                } };
-  
+
 #define SCTP_PORT_LENGTH          2
 #define SCTP_TRANSPORT_USE_LENGTH 2
 #define SCTP_PORT_OFFSET          PARAMETER_VALUE_OFFSET
@@ -597,7 +597,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
 
 #define SENDER_SERVERS_ID_LENGTH   4
 #define RECEIVER_SERVERS_ID_LENGTH 4
- 
+
 #define SENDER_SERVERS_ID_OFFSET   MESSAGE_VALUE_OFFSET
 #define RECEIVER_SERVERS_ID_OFFSET (SENDER_SERVERS_ID_OFFSET + SENDER_SERVERS_ID_LENGTH)
 #define MESSAGE_PARAMETERS_OFFSET  (RECEIVER_SERVERS_ID_OFFSET + RECEIVER_SERVERS_ID_LENGTH)
@@ -613,7 +613,7 @@ static void
 dissect_enrp_presence_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   proto_tree_add_item(flags_tree,   hf_reply_required_bit,  message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -655,7 +655,7 @@ static void
 dissect_enrp_handle_table_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   proto_tree_add_item(flags_tree,   hf_more_to_send_bit,    message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(flags_tree,   hf_reject_bit,          message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
@@ -678,9 +678,9 @@ static const value_string update_action_values[] = {
 
 static void
 dissect_enrp_handle_update_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   tvbuff_t *parameters_tvb;
-  
+
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_update_action,       message_tvb, UPDATE_ACTION_OFFSET,       UPDATE_ACTION_LENGTH,       NETWORK_BYTE_ORDER);
@@ -691,7 +691,7 @@ dissect_enrp_handle_update_message(tvbuff_t *message_tvb, proto_tree *message_tr
 
 static void
 dissect_enrp_list_request_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   /* FIXME: ensure that the length is 12 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -701,7 +701,7 @@ static void
 dissect_enrp_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   proto_tree_add_item(flags_tree,   hf_reject_bit,          message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -714,7 +714,7 @@ dissect_enrp_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tr
 
 static void
 dissect_enrp_init_takeover_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -723,7 +723,7 @@ dissect_enrp_init_takeover_message(tvbuff_t *message_tvb, proto_tree *message_tr
 
 static void
 dissect_enrp_init_takeover_ack_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -732,7 +732,7 @@ dissect_enrp_init_takeover_ack_message(tvbuff_t *message_tvb, proto_tree *messag
 
 static void
 dissect_enrp_init_takeover_server_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
@@ -743,7 +743,7 @@ static void
 dissect_enrp_error_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {
   tvbuff_t *parameters_tvb;
-  
+
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
   parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
@@ -752,7 +752,7 @@ dissect_enrp_error_message(tvbuff_t *message_tvb, proto_tree *message_tree, prot
 
 static void
 dissect_unknown_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{  
+{
   proto_tree_add_item(message_tree, hf_message_value, message_tvb, MESSAGE_VALUE_OFFSET, tvb_length(message_tvb) - MESSAGE_HEADER_LENGTH, NETWORK_BYTE_ORDER);
 }
 
@@ -768,16 +768,16 @@ dissect_unknown_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_t
 #define ENRP_ERROR_MESSAGE_TYPE                 0x0a
 
 static const value_string message_type_values[] = {
-  { ENRP_PRESENCE_MESSAGE_TYPE,              "ENRP presence" },
-  { ENRP_HANDLE_TABLE_REQUEST_MESSAGE_TYPE,  "ENRP handle table request" },
-  { ENRP_HANDLE_TABLE_RESPONSE_MESSAGE_TYPE, "ENRP handle table response" },
-  { ENRP_HANDLE_UPDATE_MESSAGE_TYPE,         "ENRP handle update" },
-  { ENRP_LIST_REQUEST_MESSAGE_TYPE,          "ENRP list request" },
-  { ENRP_LIST_RESPONSE_MESSAGE_TYPE,         "ENRP list response" },
-  { ENRP_INIT_TAKEOVER_MESSAGE_TYPE,         "ENRP init takeover" },
-  { ENRP_INIT_TAKEOVER_ACK_MESSAGE_TYPE,     "ENRP init takeover ack" },
-  { ENRP_TAKEOVER_SERVER_MESSAGE_TYPE,       "ENRP takeover server" },
-  { ENRP_ERROR_MESSAGE_TYPE,                 "ENRP error" },
+  { ENRP_PRESENCE_MESSAGE_TYPE,              "ENRP Presence" },
+  { ENRP_HANDLE_TABLE_REQUEST_MESSAGE_TYPE,  "ENRP Handle Table Request" },
+  { ENRP_HANDLE_TABLE_RESPONSE_MESSAGE_TYPE, "ENRP Handle Table Response" },
+  { ENRP_HANDLE_UPDATE_MESSAGE_TYPE,         "ENRP Handle Update" },
+  { ENRP_LIST_REQUEST_MESSAGE_TYPE,          "ENRP List Request" },
+  { ENRP_LIST_RESPONSE_MESSAGE_TYPE,         "ENRP List Response" },
+  { ENRP_INIT_TAKEOVER_MESSAGE_TYPE,         "ENRP Init Takeover" },
+  { ENRP_INIT_TAKEOVER_ACK_MESSAGE_TYPE,     "ENRP Init Takeover Ack" },
+  { ENRP_TAKEOVER_SERVER_MESSAGE_TYPE,       "ENRP Takeover Server" },
+  { ENRP_ERROR_MESSAGE_TYPE,                 "ENRP Error" },
   { 0,                                       NULL } };
 
 static void
@@ -786,12 +786,12 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   proto_item *flags_item;
   proto_tree *flags_tree;
   guint8 type;
-  
+
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_enrp_message is called from dissect_error cause */
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ENRP type"));
-    
+
   if (enrp_tree) {
     proto_tree_add_item(enrp_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
     flags_item = proto_tree_add_item(enrp_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -896,7 +896,7 @@ proto_register_enrp(void)
     { &hf_cookie,                 { "Cookie",                      "enrp.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_identifier,          { "PE identifier",               "enrp.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_checksum,            { "PE checksum",                 "enrp.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_checksum_reserved,   { "Reserved",                    "enrp.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },  
+    { &hf_pe_checksum_reserved,   { "Reserved",                    "enrp.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_sender_servers_id,      { "Sender server's ID",          "enrp.sender_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_receiver_servers_id,    { "Receiver server's ID",        "enrp.receiver_servers_id",                      FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_target_servers_id,      { "Target server's ID",          "enrp.target_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
@@ -917,7 +917,7 @@ proto_register_enrp(void)
   };
 
   /* Register the protocol name and description */
-  proto_enrp = proto_register_protocol("Endpoint Name Resolution Protocol", "ENRP",  "enrp");
+  proto_enrp = proto_register_protocol("Endpoint Handlespace Redundancy Protocol", "ENRP",  "enrp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_enrp, hf, array_length(hf));
