@@ -679,7 +679,7 @@ finished_fwd:
 			goto finished_checking_retransmission_type;
 		}
 
-		/* If there were >=1 duplicate ACKs in the reverse direction
+		/* If there were >=2 duplicate ACKs in the reverse direction
 		 * (there might be duplicate acks missing from the trace)
 		 * and if this sequence number matches those ACKs
 		 * and if the packet occurs within 20ms of the last
@@ -688,7 +688,7 @@ finished_fwd:
 		 */
 		t=(pinfo->fd->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
 		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->rev->lastacktime.nsecs;
-		if( tcpd->rev->dupacknum>=1
+		if( tcpd->rev->dupacknum>=2
 		&&  tcpd->rev->lastack==seq
 		&&  t<20000000 ){
 			if(!tcpd->ta){
