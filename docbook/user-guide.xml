@@ -60,11 +60,11 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
   <!ENTITY DocumentCopyrightHolder3 "Ed Warnicke ">
-  <!ENTITY DocumentCopyrightYear "2004-2005">
+  <!ENTITY DocumentCopyrightYear "2004-2006">
 
   <!ENTITY DocumentEdition "Third ">
-  <!ENTITY DocumentVersion "V2.0.2">
-  <!ENTITY DocumentPubDate "2005">
+  <!ENTITY DocumentVersion "V3.0.2">
+  <!ENTITY DocumentPubDate "2006">
 
   <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
   %SvnVersionFile;
@@ -73,7 +73,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.10.14">
+  <!ENTITY WiresharkCurrentVersion "0.99.0">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
@@ -98,12 +98,13 @@ Wireshark Info
 Winpcap Info
 -->
   <!ENTITY WinPcapWebsite "http://www.winpcap.org">
-  <!ENTITY WinPcapDownloadWebsite "http://www.winpcap.org/install/default.htm">
+  <!ENTITY WinPcapDownloadWebsite "&WinPcapWebsite;/install/default.htm">
 
 <!--
 Tcpdump Info
 -->
-  <!ENTITY TcpdumpManpage "http://www.tcpdump.org/tcpdump_man.html">
+  <!ENTITY TcpdumpWebsite "http://www.tcpdump.org">
+  <!ENTITY TcpdumpManpage "&TcpdumpWebsite;/tcpdump_man.html">
 
 <!--
 Gnu info
@@ -116,9 +117,10 @@ Timezone info
   <!ENTITY TimezoneGMTSite "http://wwp.greenwichmeantime.com/">
   <!ENTITY TimezoneWorldClockSite "http://www.timeanddate.com/worldclock/">
   <!ENTITY NTPSite "http://www.ntp.org/">
-  <!ENTITY WikipediaTimezone "http://en.wikipedia.org/wiki/Time_zone">
-  <!ENTITY WikipediaDaylightSaving "http://en.wikipedia.org/wiki/Daylight_saving">
-  <!ENTITY WikipediaUTC "http://en.wikipedia.org/wiki/Coordinated_Universal_Time">
+  <!ENTITY WikipediaWebsite "http://en.wikipedia.org">
+  <!ENTITY WikipediaTimezone "&WikipediaWebsite;/wiki/Time_zone">
+  <!ENTITY WikipediaDaylightSaving "&WikipediaWebsite;/wiki/Daylight_saving">
+  <!ENTITY WikipediaUTC "&WikipediaWebsite;/wiki/Coordinated_Universal_Time">
 
 <!--
 FILE SECTION

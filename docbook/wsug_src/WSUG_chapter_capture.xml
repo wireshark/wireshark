@@ -56,7 +56,7 @@
 	</para>
 	<tip><title>Tip!</title><para>
 	A comprehensive guide "How To setup a Capture" is available at:
-	<ulink url="http://wiki.wireshark.org/CaptureSetup">http://wiki.wireshark.org/CaptureSetup</ulink>.
+	<ulink url="&WiresharkWikiPage;/CaptureSetup">&WiresharkWikiPage;/CaptureSetup</ulink>.
 	</para></tip>
 	<para>
 	Here are some common pitfalls:
@@ -128,7 +128,7 @@
 	    If you already know the name of the capture interface, you can start 
 		Wireshark from the command line and use the following:
 	    <programlisting>
-ethereal -i eth0 -k
+wireshark -i eth0 -k
 	    </programlisting>
 		This will start Wireshark capturing on interface eth0, more details 
 		can be found at: <xref linkend="ChCustCommandLine"/>.

@@ -44,22 +44,22 @@
     <para>
       <application>Wireshark</application> supports a large number of 
       command line parameters. To see what they are, simply enter the 
-      command <command> ethereal -h</command> and the help information 
+      command <command>wireshark -h</command> and the help information 
       shown in <xref linkend="ChCustEx1"/> (or something similar) should be 
 	  printed.
 	<example id="ChCustEx1">
 	  <title>Help information available from Wireshark</title>
 	  <programlisting>
-This is ethereal 0.10.13
- (C) 1998-2005 Gerald Combs &lt;gerald@wireshark.org>
+Version 0.99.0
+Copyright 1998-2006 Gerald Combs &lt;gerald@wireshark.org> and contributors.
 
 Compiled with GTK+ 2.6.9, with GLib 2.6.6, with WinPcap (version unknown),
-with libz 1.2.3, with libpcre 6.3, with Net-SNMP 5.2.1.2, with ADNS.
+with libz 1.2.3, with libpcre 6.4, with Net-SNMP 5.2.2, with ADNS, with Lua 5.1.
 
-Running with WinPcap version 3.1 (packet.dll version 3, 1, 0, 27), based on libp
-cap version 0.9[.x] on Windows XP Service Pack 2, build 2600.
+Running with WinPcap version 3.1 (packet.dll version 3, 1, 0, 27), based on 
+libpcap version 0.9[.x] on Windows XP Service Pack 2, build 2600.
 
-ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
+wireshark [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
         [ -b &lt;capture ring buffer option> ] ...
         [ -B &lt;capture buffer size> ]
         [ -c &lt;capture packet count> ] [ -f &lt;capture filter> ]
@@ -74,7 +74,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
     </para>
     <para>
       The first thing to notice is that issuing the command 
-      <command>ethereal</command> by itself will bring up 
+      <command>wireshark</command> by itself will bring up 
       <application>Wireshark</application>.
       However, you can include as many of the command line parameters as 
       you like. Their meanings are as follows ( in alphabetical order ):
@@ -231,8 +231,8 @@ capture.
 	    </para>
 	    <para>
 Network interface names should match one of the names listed in
-<command>ethereal -D</command> (described above); a number, as reported by
-<command>ethereal -D</command>, can also be used.  If you're using UNIX, <command>netstat
+<command>wireshark -D</command> (described above); a number, as reported by
+<command>wireshark -D</command>, can also be used.  If you're using UNIX, <command>netstat
 -i</command> or <command>ifconfig -a</command> might also work to list interface names,
 although not all versions of UNIX support the <command>-a</command> flag to <command>ifconfig</command>.
 	    </para>
@@ -323,7 +323,7 @@ standard libpcap format.
 	    <para>An example of setting a single preference would be: </para>
 	    <para>
 	      <command>
-		ethereal -o mgcp.display_dissect_tree:TRUE
+		wireshark -o mgcp.display_dissect_tree:TRUE
 	      </command>
 	    </para>
 	    <para> 
@@ -331,7 +331,7 @@ standard libpcap format.
 	    </para>
 	    <para>
 	      <command>
-		ethereal -o mgcp.display_dissect_tree:TRUE -o mgcp.udp.callagent_port:2627
+		wireshark -o mgcp.display_dissect_tree:TRUE -o mgcp.udp.callagent_port:2627
 	      </command>
 	    </para>
 		<tip><title>Tip!</title>

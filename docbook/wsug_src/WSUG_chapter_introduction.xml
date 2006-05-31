@@ -278,37 +278,17 @@
     </para>
   </section>
   
-  <section id="ChIntroPronounce">
-    <title>A rose by any other name</title>
-    <para>
-      William Shakespeare wrote: 
-      <emphasis>
-	&quot;A rose by any other name would smell as sweet.&quot;
-      </emphasis>  
-      And so it is with Wireshark, as there appears to be two different 
-      ways that people pronounce the name. 
-    </para>
-    <para>
-      Some people pronounce it ether-real, while others pronounce it 
-      e-the-real, as in ghostly, insubstantial, etc.
-    </para>
-    <para>
-      You are welcome to call it what you like, as long as you find it 
-      useful. The FAQ gives the official pronunciation as "e-the-real".
-    </para>
-  </section>
-  
   <section id="ChIntroHistory">
     <title>A brief history of Wireshark</title>
     <para>
       In late 1997, Gerald Combs needed a tool for tracking down 
       networking problems and wanted to learn more about networking, so 
-      he started writing Wireshark as a way to solve both problems.
+      he started writing Ethereal as a way to solve both problems.
     </para>
     <para>
-      Wireshark was initially released, after several pauses in development, 
+      Ethereal was initially released, after several pauses in development, 
       in July 1998 as version 0.2.0.  Within days, patches, bug reports, 
-      and words of encouragement started arriving, so Wireshark was on its 
+      and words of encouragement started arriving, so Ethereal was on its 
       way to success.
     </para>
     <para>
@@ -318,7 +298,7 @@
     <para>
       In October, 1998, Guy Harris of Network Appliance was looking for 
 	  something better than tcpview, so he started applying patches and 
-	  contributing dissectors to Wireshark.
+	  contributing dissectors to Ethereal.
     </para>
     <para>
       In late 1998, Richard Sharpe, who was giving TCP/IP courses, saw its 
@@ -328,10 +308,13 @@
       dissectors and contributing patches.
     </para>
     <para>
-      The list of people who have contributed to Wireshark has become very long 
+      The list of people who have contributed to Ethereal has become very long 
 	  since then, and almost all of them started with a protocol that they 
-	  needed that Wireshark did not already handle. So they copied an existing 
+	  needed that Ethereal did not already handle. So they copied an existing 
 	  dissector and contributed the code back to the team.
+    </para>
+    <para>
+	In 2006 the project moved house and re-emerged as Wireshark.
     </para>
   </section>
   
@@ -444,7 +427,7 @@
 	Help/Contents and selecting the FAQ page in the upcoming dialog. 
     </para>
     <para>
-	An online version is available at the ethereal website:
+	An online version is available at the Wireshark website:
 	<ulink url="&WiresharkFAQPage;">&WiresharkFAQPage;</ulink>. You might 
 	prefer this online version, as it's typically more up to date and the HTML 
 	format is easier to use.
@@ -511,7 +494,7 @@
 	  <para>
 	    The version number of Wireshark and the dependent libraries linked with 
 		it, eg GTK+, etc. You can obtain this with the command 
-	    <command>ethereal -v</command>.
+	    <command>wireshark -v</command>.
 	  </para>
 	</listitem>
 	<listitem>
@@ -562,7 +545,7 @@
 	    You can obtain this traceback information with the following commands:
 	    <programlisting>
 <![CDATA[
-$ gdb `whereis ethereal | cut -f2 -d: | cut -d' ' -f2` core >& bt.txt
+$ gdb `whereis wireshark | cut -f2 -d: | cut -d' ' -f2` core >& bt.txt
 backtrace
 ^D
 $

@@ -116,7 +116,7 @@
 	  </para>
 	  <para>
 	    You can obtain libpcap from 
-	    <ulink url="http://www.tcpdump.org">www.tcpdump.org</ulink>
+	    <ulink url="&TcpdumpWebsite;">www.tcpdump.org</ulink>
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -179,7 +179,7 @@ make install
       shown in <xref linkend="Ch2Ex2"/>  will assist in building it. Also, 
 	if your operating system does not support <command>tcpdump</command>, 
 	you might also want to download it from the 
-	<ulink url="http://www.tcpdump.org">tcpdump</ulink> web site and 
+	<ulink url="&TcpdumpWebsite;">tcpdump</ulink> web site and 
 	install it.
 	<example id="Ch2Ex2">
 	  <title>Building and installing libpcap</title>
@@ -266,7 +266,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
 	<example id="Ch02Ex5">
 	  <title>Installing debs under Debian</title>
 	  <programlisting>
-apt-get install ethereal
+apt-get install wireshark-dev
 	  </programlisting>
 	</example>
     </para>
@@ -355,7 +355,7 @@ make install
     <para>
       Once you have installed Wireshark with <command>make install</command> 
       above, you should be able to run it by entering 
-      <command>ethereal</command>.
+      <command>wireshark</command>.
     </para>
   </section>
   
@@ -375,7 +375,7 @@ make install
       Use the following command to install the Wireshark RPM that you have 
       downloaded from the Wireshark web site:
       <programlisting>
-rpm -ivh wireshark-0.10.5-0.2.2.i386.rpm
+rpm -ivh wireshark-&WiresharkCurrentVersion;.i386.rpm
       </programlisting>
       If the above step fails because of missing dependencies, install the 
       dependencies first, and then retry the step above.  See 
@@ -389,7 +389,7 @@ rpm -ivh wireshark-0.10.5-0.2.2.i386.rpm
     <para> 
       Use the following command to install Wireshark under Debian:
       <programlisting>
-apt-get install ethereal
+apt-get install wireshark
       </programlisting>
       apt-get should take care of all of the dependency issues for you.
     </para>
@@ -442,7 +442,7 @@ apt-get install ethereal
     <para>
 	  For further information how to build Wireshark for Windows from the 
 	  sources, have a look at the Development Wiki:
-	  <ulink url="http://wiki.wireshark.org/Development">http://wiki.wireshark.org/Development</ulink>
+	  <ulink url="&WiresharkWikiPage;/Development">&WiresharkWikiPage;/Development</ulink>
 	  for the latest available development documentation.
     </para>
   </section>
@@ -466,9 +466,9 @@ apt-get install ethereal
 	</para>
 	<note><title>Note!</title>
 	<para>
-	<command>Since Wireshark Version 0.10.12, the WinPcap installer has become 
+	<command>The WinPcap installer has become 
 	part of the main Wireshark installer, so you don't need to download and 
-	install two separate packages any longer!</command>
+	install two separate packages</command>
     </para>
 	</note>
   <section id="ChBuildInstallWiresharkCommandLine">
@@ -497,8 +497,7 @@ apt-get install ethereal
 		<command>/desktopicon</command> installation of the desktop icon, 
 		<command>=yes</command> - force installation, <command>=no</command> - 
 		don't install, otherwise use defaults / user settings.
-		This option is available since 0.10.13 an can be useful for a silent 
-		installer. 
+		This option can be useful for a silent installer. 
 		</para>
 	</listitem>
 	<listitem>
@@ -506,8 +505,6 @@ apt-get install ethereal
 		<command>/quicklaunchicon</command> installation of the quick launch icon, 
 		<command>=yes</command> - force installation, <command>=no</command> - 
 		don't install, otherwise use defaults / user settings.
-		This option is available since 0.10.13 an can be useful for a silent 
-		installer. 
 		</para>
 	</listitem>
 	<listitem>
@@ -522,7 +519,8 @@ apt-get install ethereal
 	</itemizedlist>
 	<para> Example:
     <programlisting>
-wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes 
+  /quicklaunchicon=no /D=C:\Program Files\Foo
 	</programlisting>
 	</para>
   </section>
@@ -542,11 +540,11 @@ wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\
 	(both Wireshark GTK1 and 2 cannot be installed at the same time):
 	<itemizedlist>
 	<listitem><para>
-	<command>Etheral GTK1</command> - Wireshark is a GUI network protocol 
+	<command>Wireshark GTK1</command> - Wireshark is a GUI network protocol 
 	analyzer.
 	</para></listitem>
 	<listitem><para>
-	<command>Etheral GTK2</command> - Wireshark is a GUI network protocol 
+	<command>Wireshark GTK2</command> - Wireshark is a GUI network protocol 
 	analyzer (using the modern GTK2 GUI toolkit, recommended).
 	</para></listitem>
 	<listitem><para>
@@ -569,7 +567,7 @@ wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\
 	<listitem><para>
 	<command>Mate - Meta Analysis and Tracing Engine</command> - user 
 	configurable extension(s) of the display filter engine, see 
-	<ulink url="http://wiki.wireshark.org/Mate">http://wiki.wireshark.org/Mate</ulink>
+	<ulink url="&WiresharkWikiPage;/Mate">&WiresharkWikiPage;/Mate</ulink>
 	for details.
 	</para></listitem>
 	<listitem><para>
@@ -621,7 +619,7 @@ wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\
     <note><title>Note!</title>
 	<para>
 	<command>As mentioned above, the Wireshark installer 
-	(since version 0.10.12) takes care of the installation of WinPcap, 
+	takes care of the installation of WinPcap, 
 	so usually you don't have to worry about WinPcap at all!</command> 
     </para>
 	</note>
@@ -639,7 +637,7 @@ wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\
 	<itemizedlist>
 	<listitem><para>
 	Wireshark related:
-	<ulink url="http://wiki.wireshark.org/WinPcap">http://wiki.wireshark.org/WinPcap</ulink>
+	<ulink url="&WiresharkWikiPage;/WinPcap">&WiresharkWikiPage;/WinPcap</ulink>
 	</para></listitem>
 	<listitem><para>
 	General WinPcap info: 
@@ -663,9 +661,9 @@ wireshark-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\
 	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
 	</para></listitem>
 	<listitem><para>
-    The wireshark.org mirror:
-	<ulink url="http://winpcap.mirror.wireshark.org">
-	http://winpcap.mirror.wireshark.org</ulink>
+    The ethereal.com mirror:
+	<ulink url="http://winpcap.mirror.ethereal.com">
+	http://winpcap.mirror.ethereal.com</ulink>
 	</para></listitem>
 	<listitem><para>
     The Wiretapped.net mirror:
