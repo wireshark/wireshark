@@ -68,7 +68,11 @@ man_MANS =
 
 EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap
-EXTRA_SCRIPTS = tools/idl2wrs
+EXTRA_SCRIPTS = idl2wrs
+
+idl2wrs: tools/idl2wrs.sh Makefile
+	$(do_subst) < $(srcdir)/tools/idl2wrs.sh > idl2wrs
+	chmod +x idl2wrs
 
 #
 # Ethereal configuration files are put in $(pkgdatadir).
