@@ -5,8 +5,8 @@
  * that don't have it (e.g., GLib 1.2[.x]).
  */
 
-#ifndef __ETHEREAL_G_ASCII_STRTOULL_H__
-#define __ETHEREAL_G_ASCII_STRTOULL_H__
+#ifndef __WIRESHARK_G_ASCII_STRTOULL_H__
+#define __WIRESHARK_G_ASCII_STRTOULL_H__
 
 extern guint64 g_ascii_strtoull (const gchar *nptr,
 				 gchar      **endptr,

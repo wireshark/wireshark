@@ -327,7 +327,7 @@ proto_reg_handoff_mate(void)
 		
 		if (current_mate_config_filename) {
 			report_failure("Mate cannot reconfigure itself.\n"
-						   "for changes to be applied you have to restart ethereal\n");
+						   "for changes to be applied you have to restart wireshark\n");
 			return;
 		} 
 		

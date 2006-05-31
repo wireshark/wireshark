@@ -33,7 +33,7 @@
  */
 
 typedef enum {
-    /* pages online at www.ethereal.com */
+    /* pages online at www.wireshark.org */
     ONLINEPAGE_HOME,
     ONLINEPAGE_WIKI,
     ONLINEPAGE_USERGUIDE,
@@ -42,9 +42,9 @@ typedef enum {
     ONLINEPAGE_SAMPLE_FILES,
 
     /* local manual pages */
-    LOCALPAGE_MAN_ETHEREAL = 100,
-    LOCALPAGE_MAN_ETHEREAL_FILTER,
-    LOCALPAGE_MAN_TETHEREAL,
+    LOCALPAGE_MAN_WIRESHARK = 100,
+    LOCALPAGE_MAN_WIRESHARK_FILTER,
+    LOCALPAGE_MAN_TWIRESHARK,
     LOCALPAGE_MAN_DUMPCAP,
     LOCALPAGE_MAN_MERGECAP,
     LOCALPAGE_MAN_EDITCAP,

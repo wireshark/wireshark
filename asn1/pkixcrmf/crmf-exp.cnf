@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\crmf-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn
+
+#.MODULE
+CRMF  crmf
+#.END
+
 #.IMPORT_TAG
 CertReqMessages          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertReqMsg               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

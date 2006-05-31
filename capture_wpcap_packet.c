@@ -1,7 +1,7 @@
 /* capture_wpcap_packet.c
  * WinPcap-specific interfaces for low-level information (packet.dll).  
  * We load WinPcap at run
- * time, so that we only need one Ethereal binary and one Tethereal binary
+ * time, so that we only need one Wireshark binary and one Twireshark binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
  * $Id$

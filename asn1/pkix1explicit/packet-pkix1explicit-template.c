@@ -1,4 +1,4 @@
-#define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2eth */
+#define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2wrs */
 
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection

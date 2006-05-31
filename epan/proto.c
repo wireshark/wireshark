@@ -2840,7 +2840,7 @@ get_hfi_and_length(int hfindex, tvbuff_t *tvb, gint start, gint *length,
 			 * above) or goes past the end of the tvbuff,
 			 * cut it short at the end of the tvbuff.
 			 * That way, if this field is selected in
-			 * Ethereal, we don't highlight stuff past
+			 * Wireshark, we don't highlight stuff past
 			 * the end of the data.
 			 */
 			/* XXX - what to do, if we don't have a tvb? */

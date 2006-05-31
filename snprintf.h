@@ -2,8 +2,8 @@
  * $Id$
  */
 
-#ifndef __ETHEREAL_SNPRINTF_H__
-#define __ETHEREAL_SNPRINTF_H__
+#ifndef __WIRESHARK_SNPRINTF_H__
+#define __WIRESHARK_SNPRINTF_H__
 
 #if defined(HAVE_STDARG_H)
 # include <stdarg.h>

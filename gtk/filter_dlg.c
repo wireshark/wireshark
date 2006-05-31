@@ -562,7 +562,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
-        add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
+        add_expression_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
         SIGNAL_CONNECT(add_expression_bt, "clicked", filter_add_expr_bt_cb, main_w);
         gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);

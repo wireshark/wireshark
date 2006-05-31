@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\pkix1implicit-exp.cnf
+# ../../tools/asn2wrs.py -e -b -p pkix1implicit -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn
+
+#.MODULE
+PKIX1Implicit93  pkix1implicit
+#.END
+
 #.IMPORT_TAG
 AuthorityInfoAccessSyntax BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 UserNotice               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

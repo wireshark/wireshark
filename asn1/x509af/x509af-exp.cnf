@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\x509af-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn
+
+#.MODULE
+AuthenticationFramework  x509af
+#.END
+
 #.IMPORT_TAG
 Certificate              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Version                  BER_CLASS_UNI BER_UNI_TAG_INTEGER

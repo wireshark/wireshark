@@ -152,7 +152,7 @@ add_message_data(tvbuff_t * tvb, gint offset, guint16 data_len,
 		for (ptr = data; ptr != end; ptr++) {
 			/*
 			 * There must be a better way to tell
-			 * Ethereal not to stop on null bytes
+			 * Wireshark not to stop on null bytes
 			 * as the length is known
 			 */
 			gchar *bptr = (gchar *) ptr;

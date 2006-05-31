@@ -1,7 +1,7 @@
 /*
  * lua_proto.c
  *
- * Ethereal's interface to the Lua Programming Language
+ * wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *

@@ -1,5 +1,5 @@
 -- Extracted from RFC2630
--- and massaged/modified so it passws through our ASN2ETH compiler
+-- and massaged/modified so it passws through our asn2wrs compiler
 
 CryptographicMessageSyntax { iso(1) member-body(2) us(840) rsadsi(113549)
       pkcs(1) pkcs-9(9) smime(16) modules(0) cms(1) } DEFINITIONS IMPLICIT TAGS ::=

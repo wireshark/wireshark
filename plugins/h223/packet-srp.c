@@ -38,11 +38,11 @@
 
 #include "packet-srp.h"
 
-/* Ethereal ID of the protocols */
+/* Wireshark ID of the protocols */
 static int proto_srp = -1;
 static int proto_ccsrl = -1;
 
-/* The following hf_* variables are used to hold the ethereal IDs of
+/* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_srp()
  */

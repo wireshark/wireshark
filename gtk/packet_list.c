@@ -504,7 +504,7 @@ packet_list_new(e_prefs *prefs)
      * meaning they'll only appear if the content doesn't fit into the window.
      *
      * As this doesn't seem to work in some cases for the vertical scrollbar
-     * (see http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220),
+     * (see http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220),
      * we show that scrollbar always. */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(pkt_scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);

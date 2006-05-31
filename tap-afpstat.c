@@ -157,7 +157,7 @@ afpstat_init(const char *optarg, void* userdata _U_)
 		g_free(ss->filter);
 		g_free(ss);
 
-		fprintf(stderr, "tethereal: Couldn't register afp,rtt tap: %s\n",
+		fprintf(stderr, "twireshark: Couldn't register afp,rtt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

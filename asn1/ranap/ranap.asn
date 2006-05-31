@@ -6003,7 +6003,7 @@ ProcedureCode		::= INTEGER{
 	id-MBMSRABRelease					( 42 )
 	} (0..255)
 
--- Ethereal adapt.
+-- Wireshark adapt.
 ProcedureCodeSuccessfulOutcome		::= INTEGER (0..255)
 ProcedureCodeUnsuccessfulOutcome	::= INTEGER (0..255)
 ProcedureCodeOutcome				::= INTEGER (0..255)

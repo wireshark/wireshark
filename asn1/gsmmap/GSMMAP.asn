@@ -342,7 +342,7 @@ ADD-Info ::= SEQUENCE {
 ...}
 
 
--- Ethereal adaptation 
+-- Wireshark adaptation 
 PrivateExtensionList ::= SEQUENCE OF PrivateExtension
 
 PrivateExtension ::=  SEQUENCE {
@@ -365,7 +365,7 @@ SLR-Arg-PCS-Extensions ::= SEQUENCE {
 Teleservice ::= OCTET STRING ( SIZE( 1 .. 5 ) )
 Bearerservice ::= OCTET STRING ( SIZE( 1 .. 5 ) )
 Msc-Number  ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
--- End Ethereal adaptation 
+-- End Wireshark adaptation 
 
 
 --cancelLocation OPERATION
@@ -652,7 +652,7 @@ ProtocolId ::=         ENUMERATED {
 
 Sgsn-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
 Vlr-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
--- End Ethereal adaptation --
+-- End Wireshark adaptation --
 --sendEndSignal OPERATION
 --   ARGUMENT
 --Bss-APDU ::=  SEQUENCE { ... defined elsewhere
@@ -1515,7 +1515,7 @@ MG-CSI ::= SEQUENCE {
 
 
 
--- Ethereal adaptation --
+-- Wireshark adaptation --
 Category ::= OCTET STRING (SIZE (1))
 -- The internal structure is defined in ITU-T Rec Q.763.
 

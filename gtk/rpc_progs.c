@@ -23,7 +23,7 @@
  */
 
 /* This module provides rpc call/reply SRT statistics to Wireshark.
- * It is only used by Wireshark and not Tethereal
+ * It is only used by Wireshark and not TWireshark
  *
  * It serves as an example on how to use the tap api.
  */
@@ -384,7 +384,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 
 	error_string=register_tap_listener("rpc", win, NULL, rpcprogs_reset, rpcprogs_packet, rpcprogs_draw);
 	if(error_string){
-		fprintf(stderr, "ethereal: Couldn't register rpc,programs tap: %s\n",
+		fprintf(stderr, "wireshark: Couldn't register rpc,programs tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

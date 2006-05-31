@@ -63,7 +63,7 @@
  *
  * Stefan Metzmacher <metze@samba.org>
  *
- * 15-NOV-2005 - Changed to use the asn2eth compiler
+ * 15-NOV-2005 - Changed to use the asn2wrs compiler
  * Anders Broman <anders.broman@ericsson.com>
  */
 

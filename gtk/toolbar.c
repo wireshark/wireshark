@@ -514,15 +514,15 @@ toolbar_new(void)
 
 #ifdef HAVE_LIBPCAP
     toolbar_item(if_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
     toolbar_item(capture_options_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
     toolbar_item(new_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
     toolbar_item(stop_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
     toolbar_item(clear_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
@@ -555,10 +555,10 @@ toolbar_new(void)
     toolbar_append_separator(main_tb);
 
     toolbar_toggle_button(colorize_button, window, main_tb, 
-        "Colorize"/*ETHEREAL_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+        "Colorize"/*WIRESHARK_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
 #ifdef HAVE_LIBPCAP
     toolbar_toggle_button(autoscroll_button, window, main_tb, 
-        "Auto Scroll" /*ETHEREAL_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+        "Auto Scroll" /*WIRESHARK_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
 #endif
     toolbar_append_separator(main_tb);
 
@@ -569,20 +569,20 @@ toolbar_new(void)
     toolbar_item(zoom_100_button, window, main_tb, 
         GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
     toolbar_item(resize_columns_button, window, main_tb, 
-        ETHEREAL_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
+        WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP
     toolbar_item(capture_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
+        WIRESHARK_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
     toolbar_item(display_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
+        WIRESHARK_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
     toolbar_item(color_display_button, window, main_tb, 
         GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, window, main_tb, 
-        ETHEREAL_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
+        WIRESHARK_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
     toolbar_append_separator(main_tb);
 
     toolbar_item(help_button, window, main_tb, 

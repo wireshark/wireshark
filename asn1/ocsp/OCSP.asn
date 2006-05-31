@@ -1,7 +1,7 @@
 -- Online Certificate Status Protocol
 -- RFC 2560
 -- This definition was taken from RFC2560 and modified to pass through
--- ASN2ETH.
+-- asn2wrs.
 -- The original copyright from RFC2650 follows below
 -- 
 -- Full Copyright Statement

@@ -29,7 +29,7 @@
 
 /**************************************************************************
  * This plugin will dissect BER encoded ASN.1 messages in UDP packets or in
- * a TCP stream. It relies on ethereal to do defragmentation and re-assembly
+ * a TCP stream. It relies on wireshark to do defragmentation and re-assembly
  * to construct complete messages.
  *
  * To produce packet display with good annotations it needs to know about
@@ -47,7 +47,7 @@
  *  - cd /tmp
  *  - snacc -u /usr/include/snacc/asn1/asn-useful.asn1 -T tbl.tt /usr/include/snacc/asn1/tbl.asn1
  *  - od -Ax -tx1 tbl.tt | text2pcap -T 801,801 - tbl.tt.pcap
- *  - ethereal tbl.tt.pcap
+ *  - wireshark tbl.tt.pcap
  *      GUI: Edit->Preferences->Protocols->ASN1
  *             type table file: /tmp/tbl.tt
  *             PDU name: TBL
@@ -165,7 +165,7 @@ static gboolean asn1_full = FALSE; /* show full names */
 static guint type_recursion_level = 1; /* eliminate 1 level of references */
 static char *asn1_logfile = NULL;
 
-#define ASN1LOGFILE "ethereal.log"
+#define ASN1LOGFILE "wireshark.log"
 
 /* PDU counter, for correlation between GUI display and log file in debug mode */
 static int pcount = 0;
@@ -316,8 +316,8 @@ static const char *tbl_types_asn1[] = {
 
 		       /* 19 */ "INVALID entry",
 };
-/* conversion from snacc type to appropriate ethereal type */
-static guint tbl_types_ethereal[] = {
+/* conversion from snacc type to appropriate wireshark type */
+static guint tbl_types_wireshark[] = {
 		       /*  0 */	FT_BOOLEAN,	/* TBL_BOOLEAN */
 		       /*  1 */	FT_UINT32,	/* TBL_INTEGER */
 		       /*  2 */	FT_UINT32,	/* TBL_BITSTRING */
@@ -342,7 +342,7 @@ static guint tbl_types_ethereal[] = {
 		       /* 19 */ FT_NONE,	/* TBL_INVALID */
 };
 
-static const char *tbl_types_ethereal_txt[] = {
+static const char *tbl_types_wireshark_txt[] = {
 		       /*  0 */	"FT_BOOLEAN",	/* TBL_BOOLEAN */
 		       /*  1 */	"FT_UINT32",	/* TBL_INTEGER */
 		       /*  2 */	"FT_UINT32",	/* TBL_BITSTRING */
@@ -380,9 +380,9 @@ struct _PDUinfo {
 	gint typenum;
 	gint basetype;		/* parent type */
 	gint mytype;		/* original type number, typenum may have gone through a reference */
-	gint value_id;		/* ethereal field id for the value in this PDU */
-	gint type_id;		/* ethereal field id for the type of this PDU */
-	hf_register_info value_hf; /* ethereal field info for this value */
+	gint value_id;		/* wireshark field id for the value in this PDU */
+	gint type_id;		/* wireshark field id for the type of this PDU */
+	hf_register_info value_hf; /* wireshark field info for this value */
 };
 
 
@@ -1027,7 +1027,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected: just text */
 					proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset, textfmt_d, boffset,
@@ -1044,7 +1044,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected, just text */
 					proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1066,7 +1066,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      ename = getPDUenum(&props, boffset, cls, tag, value);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1083,7 +1083,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1104,7 +1104,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_BOOLEAN) )
+				   (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1121,7 +1121,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_BOOLEAN) )
+				   (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1153,7 +1153,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      ename = showoctets(octets, len, (tag == ASN1_OTS) ? 4 : 0 );
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_STRINGZ) )
+				   (tbl_types_wireshark[props.type] != FT_STRINGZ) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1170,7 +1170,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_STRINGZ) )
+				   (tbl_types_wireshark[props.type] != FT_STRINGZ) )
 				        /* unknown or unexpected, just text */
 			      		proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1194,7 +1194,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      ename = showbitnames(bits, (con*8)-unused, &props, offset);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected, just text */
 					proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1214,7 +1214,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_UINT32) )
+				   (tbl_types_wireshark[props.type] != FT_UINT32) )
 				        /* unknown or unexpected, just text */
 					proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1307,7 +1307,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      ename = showoid(oid, con);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_BYTES) )
+				   (tbl_types_wireshark[props.type] != FT_BYTES) )
 				      /* unknown or unexpected, just text */
 				      proto_tree_add_text(pt, tvb, boffset, offset - boffset, textfmt_s,
 							  boffset, clsstr, constr, tagstr, tname, name,
@@ -1322,7 +1322,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
-				   (tbl_types_ethereal[props.type] != FT_BYTES) )
+				   (tbl_types_wireshark[props.type] != FT_BYTES) )
 				        /* unknown or unexpected, just text */
 					proto_tree_add_text(pt, tvb, boffset,
 							offset - boffset,
@@ -1389,7 +1389,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				asn1_close(&asn1, &offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1406,7 +1406,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				} else {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1430,7 +1430,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				ename = getPDUenum(&props, boffset, cls, tag, value);
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							   boffset, offset - boffset,
@@ -1447,7 +1447,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				} else {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							   boffset, offset - boffset,
@@ -1471,7 +1471,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				ename = showbitnames(bits, (con*8)-unused, &props, offset);
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1492,7 +1492,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				} else {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_UINT32) )
+					     (tbl_types_wireshark[props.type] != FT_UINT32) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb, boffset, offset - boffset,
 							    "(%s)%s: %s:%s", tname, name,
@@ -1516,7 +1516,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				asn1_close(&asn1, &offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_BOOLEAN) )
+					     (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1535,7 +1535,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				} else {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_BOOLEAN) )
+					     (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1576,7 +1576,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				ename = showoctets(octets, len, 2); /* convert octets to printable */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_STRINGZ) )
+					     (tbl_types_wireshark[props.type] != FT_STRINGZ) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb,
 							    boffset, offset - boffset,
@@ -1593,7 +1593,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				} else {
 					if ( (props.value_id == -1) ||
-					     (tbl_types_ethereal[props.type] != FT_STRINGZ) )
+					     (tbl_types_wireshark[props.type] != FT_STRINGZ) )
 						/* unknown or unexpected, just text */
 						proto_tree_add_text(pt, tvb, boffset, offset - boffset,
 							    "(%s)%s: %s", tname, name, ename);
@@ -2941,7 +2941,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 		/* names do not have a fullname */
 		if (asn1_verbose) g_message("%*s*collection T %s", n*2, empty, p->name);
 			/* read the enumeration [save min-max somewhere ?] */
-		p->value_hf.hfinfo.type = tbl_types_ethereal[p->type]; /* XXX change field type... */
+		p->value_hf.hfinfo.type = tbl_types_wireshark[p->type]; /* XXX change field type... */
 
 		proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
@@ -2951,7 +2951,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			g_message("regtype1: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 				  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
 				  p->name, p->fullname,
-				  tbl_types_ethereal_txt[p->type], p->value_id);
+				  tbl_types_wireshark_txt[p->type], p->value_id);
 		p1 = p;
 		nvals = 0;
 		while((q = g_node_next_sibling(q))) {
@@ -2984,7 +2984,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 
 	case TBL_CHOICE:
 		if (p->value_id == -1) { /* not yet registered ..... */
-			p->value_hf.hfinfo.type = tbl_types_ethereal[p->type];
+			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
@@ -2993,14 +2993,14 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 				g_message("regtype2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
 					  p->name, p->fullname,
-					  tbl_types_ethereal_txt[p->type], p->value_id);
+					  tbl_types_wireshark_txt[p->type], p->value_id);
 		}
 		tbl_type(n, pdu, q, fullindex);
 		break;
 
 	default:
 		if (p->value_id == -1) { /* not yet registered ..... */
-			p->value_hf.hfinfo.type = tbl_types_ethereal[p->type];
+			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
@@ -3009,7 +3009,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 				g_message("regtype3: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
 					  p->name, p->fullname,
-					  tbl_types_ethereal_txt[p->type], p->value_id);
+					  tbl_types_wireshark_txt[p->type], p->value_id);
 		}
 		tbl_type(n, pdu, g_node_next_sibling(q), fullindex);
 	}
@@ -3082,7 +3082,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->value_hf.p_id = &(p->value_id);
 			p->value_hf.hfinfo.name = p->fullname;
 			p->value_hf.hfinfo.abbrev = p->fullname;
-			p->value_hf.hfinfo.type = tbl_types_ethereal[p->type];
+			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
 			p->value_hf.hfinfo.display = BASE_DEC;
 			p->value_hf.hfinfo.blurb = p->fullname;
 			/* all the other fields are already 0 ! */
@@ -3097,7 +3097,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 					g_message("register: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 						  p->mytype, p->typenum, p->basetype, p->flags,
 						  p->typename, p->name, p->fullname,
-						  tbl_types_ethereal_txt[p->type], p->value_id);
+						  tbl_types_wireshark_txt[p->type], p->value_id);
 			}
 
 			q = g_node_first_child(list);
@@ -3254,7 +3254,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				g_message("regist-2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
 					  p->name, p->fullname,
-					  tbl_types_ethereal_txt[p->type], p->value_id);
+					  tbl_types_wireshark_txt[p->type], p->value_id);
 			}
 		list = g_node_next_sibling(list);
 	}
@@ -3384,7 +3384,7 @@ build_pdu_tree(const char *pduname)
 	info->value_hf.p_id = &(info->value_id);
 	info->value_hf.hfinfo.name = info->fullname;
 	info->value_hf.hfinfo.abbrev = info->fullname;
-	info->value_hf.hfinfo.type = tbl_types_ethereal[info->type];
+	info->value_hf.hfinfo.type = tbl_types_wireshark[info->type];
 	info->value_hf.hfinfo.display = BASE_DEC;
 	info->value_hf.hfinfo.blurb = info->fullname;
 
@@ -3432,7 +3432,7 @@ build_pdu_tree(const char *pduname)
 			info->value_hf.p_id = &(info->value_id);
 			info->value_hf.hfinfo.name = info->fullname;
 			info->value_hf.hfinfo.abbrev = info->fullname;
-			info->value_hf.hfinfo.type = tbl_types_ethereal[info->type];
+			info->value_hf.hfinfo.type = tbl_types_wireshark[info->type];
 			info->value_hf.hfinfo.display = BASE_DEC;
 			info->value_hf.hfinfo.blurb = info->fullname;
 
@@ -3513,7 +3513,7 @@ build_pdu_tree(const char *pduname)
 
 
 #ifdef DISSECTOR_WITH_GUI
-/* This cannot work in tethereal.... don't include for now */
+/* This cannot work in twireshark.... don't include for now */
 #if GTK_MAJOR_VERSION >= 2
 #define SHOWPDU	/* this needs GTK2 */
 #endif

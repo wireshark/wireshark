@@ -2,7 +2,7 @@
 --packetcable as well as new users once the protocol is standardized.
 --
 --This asn1 file is based on draft-ietf-cat-kerberos-pk-init-20.txt
---but has been modified to acocmodate the ethereal asn2eth compiler
+--but has been modified to acocmodate the Wireshark asn2wrs compiler
 --and our environment
 --
 --new structures are uncommented and added on demand as they are required
@@ -25,7 +25,7 @@ KerberosV5-PK-INIT-SPEC {
            iso(1) identified-organization(3) dod(6) internet(1)
            security(5) kerberosV5(2) modules(4) pkinit(0) } 
 --           security(5) kerberosV5(2) modules(4) pkinit(TBD) }
---           TBD makes the asn2eth compiler upset
+--           TBD makes the asn2wrs compiler upset
 DEFINITIONS EXPLICIT TAGS ::= 
 BEGIN
 

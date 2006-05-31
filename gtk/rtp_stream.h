@@ -114,7 +114,7 @@ typedef struct _rtpstream_tapinfo {
 * Registers the rtp_streams tap listener (if not already done).
 * From that point on, the RTP streams list will be updated with every redissection.
 * This function is also the entry point for the initialization routine of the tap system.
-* So whenever rtp_stream.c is added to the list of ETHEREAL_TAP_SRCs, the tap will be registered on startup.
+* So whenever rtp_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the rtp_streams and rtp_analysis functions that need it.
 */
 void register_tap_listener_rtp_stream(void);

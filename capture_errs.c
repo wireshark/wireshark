@@ -47,7 +47,7 @@ cant_load_winpcap_err(const char *app_name)
 "\n"
 "or the mirror at\n"
 "\n"
-"        http://winpcap.mirror.ethereal.com/\n"
+"        http://winpcap.mirror.wireshark.org/\n"
 "\n"
 "or the mirror at\n"
 "\n"

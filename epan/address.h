@@ -26,7 +26,7 @@
 #ifndef __ADDRESS_H__
 #define __ADDRESS_H__
 
-/* Types of addresses Ethereal knows about. */
+/* Types of addresses Wireshark knows about. */
 /* If a new address type is added here, a string representation procedure should */
 /* also be included in address_to_str_buf defined in to_str.c, for presentation purposes */
 
@@ -105,7 +105,7 @@ typedef struct _address {
 	(to)->data = COPY_ADDRESS_data; \
 	}
 
-/* Types of port numbers Ethereal knows about. */
+/* Types of port numbers Wireshark knows about. */
 typedef enum {
   PT_NONE,		/* no port number */
   PT_SCTP,		/* SCTP */
@@ -121,7 +121,7 @@ typedef enum {
   PT_TIPC		/* TIPC PORT */
 } port_type;
 
-/* Types of circuit IDs Ethereal knows about. */
+/* Types of circuit IDs Wireshark knows about. */
 typedef enum {
   CT_NONE,		/* no circuit type */
   CT_DLCI,		/* Frame Relay DLCI */

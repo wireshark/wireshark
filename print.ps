@@ -3,7 +3,7 @@
 % Code between start/end remarks is put into ps.c
 % Anything else is thrown away, and is for testing only.
 %
-% ---- ethereal preamble start ---- %
+% ---- wireshark preamble start ---- %
 %!
 %!PS-Adobe-2.0
 %
@@ -11,8 +11,8 @@
 % By Gerald Combs <gerald@wireshark.org>
 % Copyright 1998 Gerald Combs
 %
-%%Creator: Ethereal
-%%Title: ethereal.ps
+%%Creator: Wireshark
+%%Title: wireshark.ps
 %%DocumentFonts: Helvetica Courier
 %%EndComments
 %!
@@ -170,13 +170,13 @@ pop pop		% junk
 % Reset the vertical position
 /vpos tmargin def
 
-% ---- ethereal preamble end ---- %
+% ---- wireshark preamble end ---- %
 
 % Set the font to 8 point
 /Courier findfont 8 scalefont setfont
 
 % the page title
-/eth_pagetitle (Ethereal) def
+/eth_pagetitle (Wireshark) def
 
 % Display our output lines.
 
@@ -244,7 +244,7 @@ formfeed
 0 (00a0  00 00 00 03 20 36 41 20 52 69 6e 67 00 00 00 00   .... 6A Ring.... ) putline
 0 (00b0  00 00 00 00 00 00                                 ......           ) putline
 
-% ---- ethereal finale start ---- %
+% ---- wireshark finale start ---- %
 
 % If this is not the first page, then print the page number
 thispagenum 1 gt				% is thispagenum > 1 ?
@@ -254,4 +254,4 @@ thispagenum 1 gt				% is thispagenum > 1 ?
 if
 
 showpage
-% ---- ethereal finale end ---- %
+% ---- wireshark finale end ---- %

@@ -1803,7 +1803,7 @@ static void graph_segment_list_get (struct graph *g)
 	ts.last=NULL;
 	error_string=register_tap_listener("tcp", &ts, "tcp", NULL, tapall_tcpip_packet, NULL);
 	if(error_string){
-		fprintf(stderr, "ethereal: Couldn't register tcp_graph tap: %s\n",
+		fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -1864,7 +1864,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 
 	error_string=register_tap_listener("tcp", &th, NULL, NULL, tap_tcpip_packet, NULL);
 	if(error_string){
-		fprintf(stderr, "ethereal: Couldn't register tcp_graph tap: %s\n",
+		fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

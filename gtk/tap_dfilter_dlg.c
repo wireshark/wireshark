@@ -198,7 +198,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter button */
-	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt=BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &(current_dlg->args));
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(filter_bt);
@@ -222,11 +222,11 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	gtk_widget_show(filter_box);
 
 	/* button box */
-    bbox = dlg_button_row_new(ETHEREAL_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+    bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
+    start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
     SIGNAL_CONNECT(start_button, "clicked",
                               tap_dfilter_dlg_start_button_clicked, current_dlg);
 

@@ -1456,7 +1456,7 @@ id-at-pseudonym OBJECT IDENTIFIER ::= {id-at 65}
 -- We add these in to give the low-level ASN.1 syntaxes
 -- PrintableString and ObjectIdentifier are the most useful
 -- Note the "Syntax" will be removed during the "make" - it is 
--- present to stop asn2eth complaining about reserved words
+-- present to stop asn2wrs complaining about reserved words
 --
 
 ObjectIdentifier ::= OBJECT IDENTIFIER

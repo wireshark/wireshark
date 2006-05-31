@@ -1,5 +1,5 @@
 /* stats_tree.h
- * A counter tree API for ethereal dissectors
+ * A counter tree API for Wireshark dissectors
  * 2005, Luis E. G. Ontanon
  *
  * $Id$

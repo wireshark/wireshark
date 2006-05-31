@@ -68,7 +68,7 @@
 
 /*#define DEBUG_DUMPCAP*/
 
-gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Ethereal capture child */
+gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
@@ -96,7 +96,7 @@ print_usage(gboolean print_ver) {
     fprintf(output,
         "Dumpcap " VERSION "%s\n"
         "Capture network packets and dump them into a libpcap file.\n"
-        "See http://www.ethereal.com for more information.\n",
+        "See http://www.wireshark.org for more information.\n",
         svnversion);
   } else {
     output = stderr;
@@ -147,7 +147,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
         "%s\n"
         "%s\n"
         "%s\n"
-        "See http://www.ethereal.com for more information.\n",
+        "See http://www.wireshark.org for more information.\n",
         svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
 }
 
@@ -343,7 +343,7 @@ main(int argc, char *argv[])
             exit_main(status);
         }
         break;
-      /*** hidden option: Ethereal child mode (using binary output messages) ***/
+      /*** hidden option: Wireshark child mode (using binary output messages) ***/
       case 'Z':
           capture_child = TRUE;
 #ifdef _WIN32

@@ -6,7 +6,7 @@
 --Corrections made July 2, 1994
 --
 --
--- Modified to pass ASN2ETH
+-- Modified to pass asn2wrs
 
 MMS { iso standard 9506 part(2) mms-general-module-version(2) }
 
@@ -1391,7 +1391,7 @@ Data ::= CHOICE
 	integer			[5] IMPLICIT INTEGER,
 	unsigned		[6] IMPLICIT INTEGER,
 	floating-point		[7] IMPLICIT FloatingPoint,
--- XXX asn2eth and packet-ber can not handle REAL yet
+-- XXX asn2wrs and packet-ber can not handle REAL yet
 --	real		 	[8] IMPLICIT REAL,
 	octet-string		[9] IMPLICIT OCTET STRING,
 	visible-string		[10] IMPLICIT VisibleString,

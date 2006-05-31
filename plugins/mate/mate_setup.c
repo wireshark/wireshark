@@ -919,7 +919,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 		analyze_config();
 	} else {
 		report_failure("MATE failed to configue!\n"
-					   "It is recommended that you fix your config and restart ethereal.\n"
+					   "It is recommended that you fix your config and restart wireshark.\n"
 					   "The reported error is:\n%s\n",matecfg->config_error->str);
 		
 		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */

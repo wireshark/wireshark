@@ -249,7 +249,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
 
-  color_props = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
+  color_props = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_props, 50, 20);
 #endif
@@ -275,14 +275,14 @@ colorize_dialog_new (char *filter)
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
-  color_export = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EXPORT);
+  color_export = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EXPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_export, 50, 20);
 #endif
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to a file"), NULL);
 
-  color_import = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_IMPORT);
+  color_import = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_import, 50, 20);
@@ -1252,7 +1252,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
+    add_expression_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
     SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, *colorize_filter_text);
     gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
     gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);

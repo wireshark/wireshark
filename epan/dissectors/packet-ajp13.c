@@ -57,7 +57,7 @@
  * state" that records context-sensitive stuff like "was there a
  * content-length in the previous request". During this first pass
  * through the data, the "tree" parameter might be null, or not. For
- * the regular gui-based ethereal, it's null, which means we don't
+ * the regular gui-based Wireshark, it's null, which means we don't
  * actually display the dissected data in the gui quite yet. For the
  * text based interface, we might do the parsing and display both in
  * this first pass.
@@ -100,7 +100,7 @@
  * (0.9.4+) versions of wireshark provide the "tcp_dissect_pdus()"
  * function that takes care of much of the work. See the comments in
  * packet-tcp.c, the example code in packet-dns.c, or check the
- * ethereal-dev archives for details.
+ * wireshark-dev archives for details.
  *
  * 3) Wireshark isn't guaranteed to see all the data. I'm a little
  * unclear on all the possible failure modes, but it comes down to: a)

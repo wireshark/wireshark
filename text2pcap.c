@@ -994,7 +994,7 @@ usage (void)
 #endif
             "\n"
             "Generate a capture file from an ASCII hexdump of packets.\n"
-            "See http://www.ethereal.com for more information.\n"
+            "See http://www.wireshark.org for more information.\n"
             "\n"
             "Usage: text2pcap [options] <input-filename> <output-filename>\n"
             "\n"

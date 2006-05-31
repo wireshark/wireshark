@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\ftam-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn
+
+#.MODULE
+ISO8571-FTAM  ftam
+#.END
+
 #.IMPORT_TAG
 Concurrency-Access       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Date-and-Time-Attribute  BER_CLASS_ANY/*choice*/ -1/*choice*/

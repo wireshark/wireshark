@@ -218,7 +218,7 @@ typedef struct _voip_rtp_tapinfo {
 * Registers the voip_calls tap listeners (if not already done).
 * From that point on, the calls list will be updated with every redissection.
 * This function is also the entry point for the initialization routine of the tap system.
-* So whenever voip_calls.c is added to the list of ETHEREAL_TAP_SRCs, the tap will be registered on startup.
+* So whenever voip_calls.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the voip_calls functions that need it.
 */
 void sip_calls_init_tap(void);

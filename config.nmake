@@ -109,7 +109,7 @@ PANGO_INST_VERSION=1.8
 # Please note: GTK 2.8 (and later?) includes GTK-Wimp
 # (in this case these GTK-Wimp related settings will have no effect)
 #
-GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
+GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 
 #

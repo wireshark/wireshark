@@ -1,6 +1,6 @@
 -- ACSE definition from 
 --   http://www.itu.int/ITU-T/asn1/database/itu-t/x/x227bis/1998/ACSE-1.html
--- and modified to pass through ASN2ETH
+-- and modified to pass through asn2wrs
 --
 --
 -- Module ACSE-1 (X.227bis:09/1998)
@@ -18,9 +18,9 @@ IMPORTS
 --  ITU-T Rec. X.501 | ISO/IEC 9594-2.
 
 
--- Workaround for bug in ASN2ETH in the .cnf file
+-- Workaround for bug in asn2wrs in the .cnf file
 -- to handle the lack of support for tagged assignments.
--- remove that workaround once asn2eth learns how to handle
+-- remove that workaround once asn2wrs learns how to handle
 -- tagged assignments.
 EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
      {
@@ -45,30 +45,30 @@ aCSE-id OBJECT IDENTIFIER ::=
 --  may be used to identify the Association Control ASE.
 --  top level CHOICE
 ACSE-apdu ::= CHOICE {
---ASN2ETH bug
+--asn2wrs bug
 --  aarq  AARQ-apdu,
   aarq  [APPLICATION 0] IMPLICIT AARQ-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  aare  AARE-apdu,
   aare  [APPLICATION 1] IMPLICIT AARE-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  rlrq  RLRQ-apdu,
   rlrq  [APPLICATION 2] IMPLICIT RLRQ-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  rlre  RLRE-apdu,
   rlre  [APPLICATION 3] IMPLICIT RLRE-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  abrt  ABRT-apdu,
   abrt  [APPLICATION 4] IMPLICIT ABRT-apdu,
   ...,
   --  Extensions for higher level association FU
---ASN2ETH bug
+--asn2wrs bug
 --  adt   A-DT-apdu,
   adt   [APPLICATION 5] IMPLICIT A-DT-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  acrq  ACRQ-apdu,
   acrq  [APPLICATION 6] IMPLICIT ACRQ-apdu,
---ASN2ETH bug
+--asn2wrs bug
 --  acrp  ACRP-apdu
   acrp  [APPLICATION 7] IMPLICIT ACRP-apdu
 }
@@ -301,14 +301,14 @@ Context-list ::=
   SEQUENCE OF
     SEQUENCE {pci                Presentation-context-identifier,
               abstract-syntax    Abstract-syntax-name,
--- bug in ASN2ETH
+-- bug in asn2wrs
 --              transfer-syntaxes  SEQUENCE OF Transfer-syntax-name}
               transfer-syntaxes  SEQUENCE OF TransferSyntaxName}
 
 Default-Context-List ::=
   SEQUENCE OF
     SEQUENCE {abstract-syntax-name  [0] IMPLICIT Abstract-syntax-name OPTIONAL,
--- bug in ASN2ETH
+-- bug in asn2wrs
 --              transfer-syntax-name  [1] IMPLICIT Transfer-syntax-name
               transfer-syntax-name  [1] IMPLICIT TransferSyntaxName
     }
@@ -328,11 +328,11 @@ P-context-result-list ::=
 
 Result ::= INTEGER {acceptance(0), user-rejection(1), provider-rejection(2)}
 
---bug in ASN2ETH
+--bug in asn2wrs
 --Concrete-syntax-name ::= Transfer-syntax-name
 Concrete-syntax-name ::= TransferSyntaxName
 
---bug in ASN2ETH
+--bug in asn2wrs
 --Transfer-syntax-name ::= OBJECT IDENTIFIER
 TransferSyntaxName ::= OBJECT IDENTIFIER
 
@@ -374,7 +374,7 @@ User-Data ::= CHOICE {
 
 --  see ITU-T Rec. X.226 | ISO/IEC 8823-1.
 PDV-list ::= SEQUENCE {
---bug in ASN2ETH
+--bug in asn2wrs
 --  transfer-syntax-name             Transfer-syntax-name OPTIONAL,
   transfer-syntax-name             TransferSyntaxName OPTIONAL,
   presentation-context-identifier  Presentation-context-identifier,

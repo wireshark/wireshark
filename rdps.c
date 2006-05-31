@@ -76,19 +76,19 @@ int main(int argc, char **argv)
 	while (fgets(buf, BUFFER_SIZE - 1, input)) {
 
 		if (state == null) {
-			if (strcmp(buf, "% ---- ethereal preamble start ---- %\n") == 0) {
+			if (strcmp(buf, "% ---- wireshark preamble start ---- %\n") == 0) {
 				state = preamble;
 				start_code(output, "preamble");
 				continue;
 			}
-			else if (strcmp(buf, "% ---- ethereal finale start ---- %\n") == 0) {
+			else if (strcmp(buf, "% ---- wireshark finale start ---- %\n") == 0) {
 				state = finale;
 				start_code(output, "finale");
 				continue;
 			}
 		}
 		else if (state == preamble) {
-			if (strcmp(buf, "% ---- ethereal preamble end ---- %\n") == 0) {
+			if (strcmp(buf, "% ---- wireshark preamble end ---- %\n") == 0) {
 				state = null;
 				end_code(output);
 				continue;
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 			}
 		}
 		else if (state == hex) {
-			if (strcmp(buf, "% ---- ethereal hex end ---- %\n") == 0) {
+			if (strcmp(buf, "% ---- wireshark hex end ---- %\n") == 0) {
 				state = null;
 				end_code(output);
 				continue;
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 			}
 		}
 		else if (state == finale) {
-			if (strcmp(buf, "% ---- ethereal finale end ---- %\n") == 0) {
+			if (strcmp(buf, "% ---- wireshark finale end ---- %\n") == 0) {
 				state = null;
 				end_code(output);
 				continue;

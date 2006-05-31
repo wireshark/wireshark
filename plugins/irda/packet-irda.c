@@ -1948,7 +1948,7 @@ static void init_irda(void)
 
 
 /*
- * Register the protocol with Ethereal
+ * Register the protocol with Wireshark
  * This format is required because a script is used to build the C function
  *  that calls all the protocol registrations.
  */
