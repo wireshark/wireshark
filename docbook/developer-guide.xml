@@ -68,7 +68,7 @@ FILE SECTION
 
 <!-- These refer to graphics files and figures contained in the document -->
 
-  <!ENTITY EtherealLogo SYSTEM "./edg_graphics/ethereal-logo.png" NDATA PNG>
+  <!ENTITY EtherealLogo SYSTEM "./edg_graphics/wireshark-logo.png" NDATA PNG>
   <!ENTITY EtherealFunctionBlocks SYSTEM "./edg_graphics/ethereal-function-blocks.png" NDATA PNG>
 
 <!-- These are the actual files that make up the document -->

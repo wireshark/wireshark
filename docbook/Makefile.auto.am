@@ -15,10 +15,10 @@ DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.65.1"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
-# as eug_chm will stop with an error, make sure it's the last in this dependency list
-all: eug edg 
+# as wsug_chm will stop with an error, make sure it's the last in this dependency list
+all: wsug edg 
 
-eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
+wsug: wsug_validate wsug_pdf_a4 wsug_html wsug_html_chunked wsug_chm 
 
 clean:
 	rm -f *.html
@@ -28,9 +28,9 @@ clean:
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
-	rm -rf eug_html
-	rm -rf eug_html_chunked
-	rm -rf eug_chm
+	rm -rf wsug_html
+	rm -rf wsug_html_chunked
+	rm -rf wsug_chm
 	rm -rf edg_html
 	rm -rf edg_html_chunked
 	rm -rf edg_chm
@@ -42,33 +42,33 @@ images:
 	cp $(DOCBOOKXSL)/images/warning.png ./graphics
 
 # validate the content
-eug_validate:
+wsug_validate:
 	@ echo --- VALIDATING XML ---
 	$(XMLLINT) --valid --noout user-guide.xml
 
 # create html single page file
-eug_html:
+wsug_html:
 	@ echo --- HTML SINGLE PAGE ---
-	mkdir -p eug_html
-	mkdir -p eug_html/graphics
-	mkdir -p eug_html/graphics/toolbar
-	cp ./graphics/*.* eug_html/graphics
-	cp ./graphics/toolbar/*.* eug_html/graphics/toolbar
-	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > eug_html/user-guide.html
+	mkdir -p wsug_html
+	mkdir -p wsug_html/graphics
+	mkdir -p wsug_html/graphics/toolbar
+	cp ./graphics/*.* wsug_html/graphics
+	cp ./graphics/toolbar/*.* wsug_html/graphics/toolbar
+	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > wsug_html/user-guide.html
 	
 # create html chunked page files
-eug_html_chunked: images
+wsug_html_chunked: images
 	@ echo --- HTML CHUNKED ---
-	mkdir -p eug_html_chunked
-	mkdir -p eug_html_chunked/graphics
-	mkdir -p eug_html_chunked/graphics/toolbar
-	cp ./graphics/*.* eug_html_chunked/graphics
-	cp ./graphics/toolbar/*.* eug_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl user-guide.xml
+	mkdir -p wsug_html_chunked
+	mkdir -p wsug_html_chunked/graphics
+	mkdir -p wsug_html_chunked/graphics/toolbar
+	cp ./graphics/*.* wsug_html_chunked/graphics
+	cp ./graphics/toolbar/*.* wsug_html_chunked/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl user-guide.xml
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-eug_pdf_us: images
+wsug_pdf_us: images
 if HAVE_FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl user-guide.xml > user-guide.fo
@@ -77,7 +77,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-eug_pdf_a4: images
+wsug_pdf_a4: images
 if HAVE_FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > user-guide.fo
@@ -85,15 +85,15 @@ if HAVE_FOP
 endif
 
 # create MS html help file (through html chunked pages)
-eug_chm: images
+wsug_chm: images
 if HAVE_HHC
 	@ echo --- MICROSOFT HTML HELP ---
-	mkdir -p eug_chm
-	mkdir -p eug_chm/graphics
-	mkdir -p eug_chm/graphics/toolbar
-	cp ./graphics/*.* eug_chm/graphics
-	cp ./graphics/toolbar/*.* eug_chm/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl user-guide.xml
+	mkdir -p wsug_chm
+	mkdir -p wsug_chm/graphics
+	mkdir -p wsug_chm/graphics/toolbar
+	cp ./graphics/*.* wsug_chm/graphics
+	cp ./graphics/toolbar/*.* wsug_chm/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl user-guide.xml
 	-$(HHC) htmlhelp.hhp
 	mv htmlhelp.chm user-guide.chm
 	rm -r htmlhelp.hhp

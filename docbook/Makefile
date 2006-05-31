@@ -12,15 +12,15 @@ FOP_OPTS=-Xmx256m
 # (comment this out, if you don't want pdf or don't have fop installed)
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP=fop-0.20.5/fop.bat
+#FOP=fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
-#FOP="/usr/share/fop-0.20.5/fop.sh"
+FOP="~/devel/fop-0.20.5/fop.sh"
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
 #FOP=fop
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
-HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # elinks (text version of release notes)
@@ -40,26 +40,26 @@ XMLLINT="xmllint"
 .fo.pdf:
 	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
-EUG_FILES =	\
-	eug_src/EUG_app_files.xml \
-	eug_src/EUG_app_howitworks.xml \
-	eug_src/EUG_app_messages.xml \
-	eug_src/EUG_app_protocols.xml \
-	eug_src/EUG_app_tools.xml \
-	eug_src/EUG_chapter_advanced.xml \
-	eug_src/EUG_chapter_build_install.xml \
-	eug_src/EUG_chapter_capture.xml \
-	eug_src/EUG_chapter_customize.xml \
-	eug_src/EUG_chapter_introduction.xml \
-	eug_src/EUG_chapter_io.xml \
-	eug_src/EUG_chapter_statistics.xml \
-	eug_src/EUG_chapter_troubleshoot.xml \
-	eug_src/EUG_chapter_use.xml \
-	eug_src/EUG_chapter_work.xml \
-	eug_src/EUG_meta_info.xml \
-	eug_src/EUG_preface.xml
+WSUG_FILES =	\
+	wsug_src/WSUG_app_files.xml \
+	wsug_src/WSUG_app_howitworks.xml \
+	wsug_src/WSUG_app_messages.xml \
+	wsug_src/WSUG_app_protocols.xml \
+	wsug_src/WSUG_app_tools.xml \
+	wsug_src/WSUG_chapter_advanced.xml \
+	wsug_src/WSUG_chapter_build_install.xml \
+	wsug_src/WSUG_chapter_capture.xml \
+	wsug_src/WSUG_chapter_customize.xml \
+	wsug_src/WSUG_chapter_introduction.xml \
+	wsug_src/WSUG_chapter_io.xml \
+	wsug_src/WSUG_chapter_statistics.xml \
+	wsug_src/WSUG_chapter_troubleshoot.xml \
+	wsug_src/WSUG_chapter_use.xml \
+	wsug_src/WSUG_chapter_work.xml \
+	wsug_src/WSUG_meta_info.xml \
+	wsug_src/WSUG_preface.xml
 
-EUG_GRAPHICS =	\
+WSUG_GRAPHICS =	\
 	graphics/ethereal-3pane.png			\
 	graphics/ethereal-analyze-menu.png		\
 	graphics/ethereal-bytes-pane-popup-menu.png	\
@@ -104,9 +104,7 @@ EUG_GRAPHICS =	\
 	graphics/ethereal-gui-preferences.png		\
 	graphics/ethereal-help-menu.png			\
 	graphics/ethereal-list-pane.png			\
-	graphics/ethereal-logo.png			\
 	graphics/ethereal-main-toolbar.png		\
-	graphics/ethereal-main.png			\
 	graphics/ethereal-menu.png			\
 	graphics/ethereal-merge.png			\
 	graphics/ethereal-nameresolution-preferences.png	\
@@ -165,7 +163,9 @@ EUG_GRAPHICS =	\
 	graphics/toolbar/stock_top_24.png		\
 	graphics/toolbar/stock_zoom_1_24.png		\
 	graphics/toolbar/stock_zoom_in_24.png		\
-	graphics/toolbar/stock_zoom_out_24.png
+	graphics/toolbar/stock_zoom_out_24.png		\
+	graphics/wireshark-logo.png			\
+	graphics/wireshark-main.png
 
 EDG_FILES =	\
 	edg_src/EDG_chapter_build_intro.xml	\
@@ -187,17 +187,17 @@ EDG_GRAPHICS =	\
 	edg_graphics/ethereal-capture_internals.png	\
 	edg_graphics/ethereal-function-blocks.dia	\
 	edg_graphics/ethereal-function-blocks.png	\
-	edg_graphics/ethereal-logo.png			\
+	edg_graphics/wireshark-logo.png			\
 	edg_graphics/note.png				\
 	edg_graphics/tip.png				\
 	edg_graphics/warning.png
 
 # user-guide.xml must be first in the list (to match $<)
-EUG_SOURCE =	\
+WSUG_SOURCE =	\
 	user-guide.xml		\
 	svn_version.xml		\
-	$(EUG_FILES)		\
-	$(EUG_GRAPHICS)
+	$(WSUG_FILES)		\
+	$(WSUG_GRAPHICS)
 
 # developer-guide.xml must be first in the list (to match $<)
 EDG_SOURCE =	\
@@ -220,9 +220,9 @@ CLEANFILES =	\
 	edg_chm			\
 	edg_html		\
 	edg_html_chunked	\
-	eug_chm			\
-	eug_html		\
-	eug_html_chunked	\
+	wsug_chm		\
+	wsug_html		\
+	wsug_html_chunked	\
 	htmlhelp.*		\
 	release_notes_chm	\
 	release-notes.html	\
@@ -230,7 +230,7 @@ CLEANFILES =	\
 	svn_version.xml		\
 
 
-all: eug.validated edg.validated release_notes.validated eug edg release_notes
+all: wsug.validated edg.validated release_notes.validated wsug edg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -249,17 +249,17 @@ svn_version.xml: FORCE
 	echo '">'   >> svn_version.xml
 
 
-eug: eug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
-eug.validated: $(EUG_SOURCE)
-	@ echo --- EUG - VALIDATING XML ---
+wsug.validated: $(WSUG_SOURCE)
+	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
 
 # create html single page file
-user-guide.html: $(EUG_SOURCE)
-	@ echo --- EUG - HTML SINGLE PAGE ---
+user-guide.html: $(WSUG_SOURCE)
+	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p eug_html/graphics/toolbar
 	cp graphics/*.* eug_html/graphics
 	cp graphics/toolbar/* eug_html/graphics/toolbar
@@ -267,8 +267,8 @@ user-guide.html: $(EUG_SOURCE)
 	-chmod -R og+rX eug_html
 	
 # create html chunked page files
-eug_html_chunked: $(EUG_SOURCE)
-	@ echo --- EUG - HTML CHUNKED ---
+eug_html_chunked: $(WSUG_SOURCE)
+	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p eug_html_chunked/graphics/toolbar
 	cp graphics/*.* eug_html_chunked/graphics
 	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
@@ -277,24 +277,24 @@ eug_html_chunked: $(EUG_SOURCE)
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-user-guide-us.fo: $(EUG_SOURCE)
+user-guide-us.fo: $(WSUG_SOURCE)
 ifdef FOP
-	@ echo --- EUG - PDF US PAPER ---
+	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(EUG_SOURCE)
+user-guide-a4.fo: $(WSUG_SOURCE)
 ifdef FOP
-	@ echo --- EUG - PDF A4 PAPER ---
+	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
-user-guide.chm: $(EUG_SOURCE)
+user-guide.chm: $(WSUG_SOURCE)
 ifdef HHC
-	@ echo --- EUG - MICROSOFT HTML HELP ---
+	@ echo --- WSUG - MICROSOFT HTML HELP ---
 	mkdir -p eug_chm/graphics/toolbar
 	-cp graphics/*.* eug_chm/graphics/
 	-cp graphics/toolbar/* eug_chm/graphics/toolbar/

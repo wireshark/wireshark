@@ -53,9 +53,9 @@ DOCUMENT SECTION
 -Use this section to encode all document information
 -->
 
-  <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
-  <!ENTITY DocumentTitleAbbreviation "EUG">
+  <!ENTITY DocumentTitle "<application>Wireshark</application> User's Guide">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &WiresharkCurrentVersion;">
+  <!ENTITY DocumentTitleAbbreviation "WSUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
@@ -71,27 +71,27 @@ DOCUMENT SECTION
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
 <!--
-Ethereal Info
+Wireshark Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.14">
-  <!ENTITY EtherealWebSite "http://www.ethereal.com">
-  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
-  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
-  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#releases">
-  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
-  <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
-  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
-  <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
-  <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
-  <!ENTITY EtherealWikiPage "http://wiki.ethereal.com">
-  <!ENTITY EtherealWikiCaptureFiltersPage "&EtherealWikiPage;/CaptureFilters">
-  <!ENTITY EtherealWikiDisplayFiltersPage "&EtherealWikiPage;/DisplayFilters">
-  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
-  <!ENTITY EtherealWikiColoringRulesPage "&EtherealWikiPage;/ColoringRules">
-  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
+  <!ENTITY WiresharkCurrentVersion "0.10.14">
+  <!ENTITY WiresharkWebSite "http://www.wireshark.org">
+  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
+  <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
+  <!ENTITY WiresharkBinariesPage "&WiresharkWebSite;/download.html#releases">
+  <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/introduction.html#authors">
+  <!ENTITY WiresharkProtocolsPage "&WiresharkWebSite;/docs/dfref/">
+  <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
+  <!ENTITY WiresharkFAQPromiscPage "&WiresharkWebSite;/faq#promiscsniff">
+  <!ENTITY WiresharkMediaPage "&WiresharkWebSite;/media.html">
+  <!ENTITY WiresharkWikiPage "http://wiki.wireshark.org">
+  <!ENTITY WiresharkWikiCaptureFiltersPage "&WiresharkWikiPage;/CaptureFilters">
+  <!ENTITY WiresharkWikiDisplayFiltersPage "&WiresharkWikiPage;/DisplayFilters">
+  <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
+  <!ENTITY WiresharkWikiColoringRulesPage "&WiresharkWikiPage;/ColoringRules">
+  <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
 
-  <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
-  <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
+  <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
+  <!ENTITY WiresharkUsersMailList "wireshark-users[AT]wireshark.org">
 
   
 <!--
@@ -249,23 +249,23 @@ FILE SECTION
 
 
 <!-- These are the actual files that make up the document -->
-  <!ENTITY BookMetaInformation SYSTEM "eug_src/EUG_meta_info.xml">
-  <!ENTITY Preface SYSTEM  "eug_src/EUG_preface.xml">
-  <!ENTITY ChapterIntroduction SYSTEM "eug_src/EUG_chapter_introduction.xml">
-  <!ENTITY ChapterBuildInstall SYSTEM "eug_src/EUG_chapter_build_install.xml">
-  <!ENTITY ChapterUse SYSTEM "eug_src/EUG_chapter_use.xml">
-  <!ENTITY ChapterCapture SYSTEM "eug_src/EUG_chapter_capture.xml">
-  <!ENTITY ChapterIo SYSTEM "eug_src/EUG_chapter_io.xml">
-  <!ENTITY ChapterWork SYSTEM "eug_src/EUG_chapter_work.xml">
-  <!ENTITY ChapterAdvanced SYSTEM "eug_src/EUG_chapter_advanced.xml">
-  <!ENTITY ChapterStatistics SYSTEM "eug_src/EUG_chapter_statistics.xml">
-  <!ENTITY ChapterCustomize SYSTEM "eug_src/EUG_chapter_customize.xml">
-  <!ENTITY ChapterTroubleshoot SYSTEM "eug_src/EUG_chapter_troubleshoot.xml">
-  <!ENTITY AppMessages SYSTEM "eug_src/EUG_app_messages.xml">
-  <!ENTITY AppFiles SYSTEM "eug_src/EUG_app_files.xml">
-  <!ENTITY AppProtocols SYSTEM   "eug_src/EUG_app_protocols.xml">
-  <!ENTITY AppHowItWorks SYSTEM "eug_src/EUG_app_howitworks.xml">
-  <!ENTITY AppTools SYSTEM "eug_src/EUG_app_tools.xml">
+  <!ENTITY BookMetaInformation SYSTEM "wsug_src/WSUG_meta_info.xml">
+  <!ENTITY Preface SYSTEM  "wsug_src/WSUG_preface.xml">
+  <!ENTITY ChapterIntroduction SYSTEM "wsug_src/WSUG_chapter_introduction.xml">
+  <!ENTITY ChapterBuildInstall SYSTEM "wsug_src/WSUG_chapter_build_install.xml">
+  <!ENTITY ChapterUse SYSTEM "wsug_src/WSUG_chapter_use.xml">
+  <!ENTITY ChapterCapture SYSTEM "wsug_src/WSUG_chapter_capture.xml">
+  <!ENTITY ChapterIo SYSTEM "wsug_src/WSUG_chapter_io.xml">
+  <!ENTITY ChapterWork SYSTEM "wsug_src/WSUG_chapter_work.xml">
+  <!ENTITY ChapterAdvanced SYSTEM "wsug_src/WSUG_chapter_advanced.xml">
+  <!ENTITY ChapterStatistics SYSTEM "wsug_src/WSUG_chapter_statistics.xml">
+  <!ENTITY ChapterCustomize SYSTEM "wsug_src/WSUG_chapter_customize.xml">
+  <!ENTITY ChapterTroubleshoot SYSTEM "wsug_src/WSUG_chapter_troubleshoot.xml">
+  <!ENTITY AppMessages SYSTEM "wsug_src/WSUG_app_messages.xml">
+  <!ENTITY AppFiles SYSTEM "wsug_src/WSUG_app_files.xml">
+  <!ENTITY AppProtocols SYSTEM   "wsug_src/WSUG_app_protocols.xml">
+  <!ENTITY AppHowItWorks SYSTEM "wsug_src/WSUG_app_howitworks.xml">
+  <!ENTITY AppTools SYSTEM "wsug_src/WSUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
 ]>

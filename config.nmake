@@ -234,7 +234,7 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 
 # Choose modern style user interface for the installer.
 # When using this, make sure you have a supported NSIS
-# version installed. See "packaging\nsis\ethereal.nsi" for details.
+# version installed. See "packaging\nsis\wireshark.nsi" for details.
 #
 # If you don't want the modern UI (or don't have a recent NSIS version),
 # comment this line out, so that MAKENSIS_MODERN_UI isn't defined.
