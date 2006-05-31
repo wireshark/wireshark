@@ -1,0 +1,13 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\ranap-exp.cnf
+# ../../tools/asn2wrs.py -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn
+
+#.MODULE
+RANAP-PDU-Descriptions  ranap
+#.END
+
+#.TYPE_ATTR
+TargetID                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ranap_TargetID_vals)  BITMASK = 0
+#.END
+

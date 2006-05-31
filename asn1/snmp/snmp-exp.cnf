@@ -1,0 +1,15 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\snmp-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn
+
+#.MODULE
+RFC1157-SNMP  snmp
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
