@@ -121,7 +121,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
 
-  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Summary");
+  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Summary");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 12);

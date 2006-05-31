@@ -1,5 +1,5 @@
 
-   The Ethereal FAQ
+   The Wireshark FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
          date. Please go to http://www.ethereal.com/faq.html for the up
@@ -247,11 +247,11 @@
 
    Q 1.2: How much does Ethereal cost?
 
-   A: Ethereal is "free software"; you can download it without paying any
+   A: Wireshark is "free software"; you can download it without paying any
    license fee. The version of Ethereal you download isn't a "demo" version,
    with limitations not present in a "full" version; it is the full version.
 
-   The license under which Ethereal is issued is the GNU General Public
+   The license under which Wireshark is issued is the GNU General Public
    License. See the GNU GPL FAQ for some more information.
 
    Q 1.3: Can I use Ethereal commercially?
@@ -265,12 +265,12 @@
 
    Q 1.4: Can I use Ethereal as part of my commercial product?
 
-   A: As noted, Ethereal is licensed under the GNU General Public License. The
+   A: As noted, Wireshark is licensed under the GNU General Public License. The
    GPL imposes conditions on your use of GPL'ed code in your own products; you
    cannot, for example, make a "derived work" from Ethereal, by making
    modifications to it, and then sell the resulting derived work and not allow
    recipients to give away the resulting work. You must also make the changes
-   you've made to the Ethereal source available to all recipients of your
+   you've made to the Wireshark source available to all recipients of your
    modified version; those changes must also be licensed under the terms of the
    GPL. See the GPL FAQ for more details; in particular, note the answer to the
    question about modifying a GPLed program and selling it commercially, and
@@ -1172,15 +1172,15 @@ cies
    Q 3.1: I installed an Ethereal RPM; why did it install Tethereal but not
    Ethereal?
 
-   A: Older versions of the Red Hat RPMs for Ethereal put only the non-GUI
-   components into the ethereal RPM, the fact that Ethereal is a GUI program
+   A: Older versions of the Red Hat RPMs for Wireshark put only the non-GUI
+   components into the ethereal RPM, the fact that Wireshark is a GUI program
    nonwithstanding; newer versions make it a bit clearer by giving that RPM a
-   name starting with ethereal-base.
+   name starting with wireshark-base.
 
    In those older versions, there's a separate ethereal-gnome RPM that includes
    GUI components such as Ethereal itself, the fact that Ethereal doesn't use
    GNOME nonwithstanding; newer versions make it a bit clearer by giving that
-   RPM a name starting with ethereal-gtk+.
+   RPM a name starting with wireshark-gtk+.
 
    Find the ethereal-gnome or ethereal-gtk+ RPM, and install that also.
 
@@ -1275,7 +1275,7 @@ cies
 
      "** ERROR **: file print.c: line 691 (print_line): should not be reached.
 
-   A: This is a bug in Ethereal 0.10.0a, which is fixed in 0.10.1 and later
+   A: This is a bug in Wireshark 0.10.0a, which is fixed in 0.10.1 and later
    releases. To work around the bug, don't use "-x" unless you're also using
    "-V"; note that "-V" produces a full dissection of each packet, so you might
    not want to use it.
@@ -1293,7 +1293,7 @@ cies
    A: Ethereal can only be linked with version 4.2.2 or later of UCD SNMP. Your
    version of Ethereal was dynamically linked with such a version of UCD SNMP;
    however, you have an older version of UCD SNMP installed, which means that
-   when Ethereal is run, it tries to link to the older version, and fails. You
+   when Wireshark is run, it tries to link to the older version, and fails. You
    will have to replace that version of UCD SNMP with version 4.2.2 or a later
    version.
 
@@ -1322,7 +1322,7 @@ cies
 
    when I try to run Ethereal on Windows?
 
-   A: Ethereal is built using the GTK+ toolkit, which supports most
+   A: Wireshark is built using the GTK+ toolkit, which supports most
    UNIX-flavored OSes, and also supports Windows.
 
    Windows versions of Ethereal before 0.9.14 were built with an older version
@@ -1354,7 +1354,7 @@ cies
      Gtk-CRITICAL **: file gtkwindow.c: line 3107 (gtk_window_resize):
      assertion `height > 0' failed.
 
-   A: This is a bug in Ethereal 0.10.5 and 0.10.5a, which is fixed in Ethereal
+   A: This is a bug in Wireshark 0.10.5 and 0.10.5a, which is fixed in Wireshark
    0.10.6 and later releases.
 
    Q 6.2: I have an XXX network card on my machine; if I try to capture on it,
@@ -1409,7 +1409,7 @@ cies
    single port so that you can plug your analyzer into that single port to
    sniff all traffic. You would have to check the documentation for the switch
    to see if this is possible and, if so, to see how to do this. See the switch
-   reference page on the Ethereal Wiki for information on some switches. (Note
+   reference page on the Wireshark Wiki for information on some switches. (Note
    that it's a Wiki, so you can update or fix that information, or add
    additional information on those switches or information on new switches,
    yourself.)
@@ -1457,7 +1457,7 @@ cies
 
    In the case of token ring interfaces, the drivers for some of them, on
    Windows, may require you to enable promiscuous mode in order to capture in
-   promiscuous mode. See the Ethereal Wiki item on Token Ring capturing for
+   promiscuous mode. See the Wireshark Wiki item on Token Ring capturing for
    details.
 
    In the case of wireless LAN interfaces, it appears that, when those
@@ -1532,7 +1532,7 @@ cies
    of Ethereal and a shared libpcap library with DAG support, in order to do so
    with Ethereal. You should ask Endace whether that could be used to capture
    traffic on, for example, your T1/E1 link.
-   See the SS7 capture setup page on the Ethereal Wiki for current information
+   See the SS7 capture setup page on the Wireshark Wiki for current information
    on capturing SS7 traffic on TDM links.
 
    Q 7.6: How do I put an interface into promiscuous mode?
@@ -1561,8 +1561,8 @@ cies
    A: Capture filters currently use a different syntax than display filters.
    Here's the corresponding section from the ethereal(1) man page:
 
-   "Display filters in Ethereal are very powerful; more fields are filterable
-   in Ethereal than in other protocol analyzers, and the syntax you can use to
+   "Display filters in Wireshark are very powerful; more fields are filterable
+   in Wireshark than in other protocol analyzers, and the syntax you can use to
    create your filters is richer. As Ethereal progresses, expect more and more
    protocol fields to be allowed in display filters.
 
@@ -1593,7 +1593,7 @@ cies
    this bug.
 
    If you are running Ethereal on a UNIX-flavored platform, run "ethereal -v",
-   or select "About Ethereal..." from the "Help" menu in Ethereal, to see what
+   or select "About Ethereal..." from the "Help" menu in Wireshark, to see what
    version of libpcap it's using. If it's not 0.6 or later, you will need
    either to upgrade your OS to get a later version of libpcap, or will need to
    build and install a later version of libpcap from the tcpdump.org Web site
@@ -1681,11 +1681,11 @@ cies
    In order to see the raw Ethernet packets, rather than "de-VLANized" packets,
    you would have to capture not on the virtual interface for the VLAN, but on
    the interface corresponding to the physical network device, if possible. See
-   the Ethereal Wiki item on VLAN capturing for details.
+   the Wireshark Wiki item on VLAN capturing for details.
 
    Q 7.12: Why does Ethereal hang after I stop a capture?
 
-   A: The most likely reason for this is that Ethereal is trying to look up an
+   A: The most likely reason for this is that Wireshark is trying to look up an
    IP address in the capture to convert it to a name (so that, for example, it
    can display the name in the source address or destination address columns),
    and that lookup process is taking a very long time.
@@ -1728,13 +1728,13 @@ cies
    running the most recent release of Ethereal, you should first upgrade to
    that release, as, if there's a bug of that sort, it might've been fixed in a
    release after the one you're running. If the hang occurs in the most recent
-   release of Ethereal, the bug should be reported to the Ethereal developers'
+   release of Ethereal, the bug should be reported to the Wireshark developers'
    mailing list at ethereal-dev@ethereal.com.
 
    On UNIX-flavored OSes, please try to force Ethereal to dump core, by sending
    it a SIGABRT signal (usually signal 6) with the kill command, and then get a
    stack trace if you have a debugger installed. A stack trace can be obtained
-   by using your debugger (gdb in this example), the Ethereal binary, and the
+   by using your debugger (gdb in this example), the Wireshark binary, and the
    resulting core file. Here's an example of how to use the gdb command
    backtrace to do so.
         $ gdb ethereal core
@@ -1819,7 +1819,7 @@ cies
        4.0 or Windows Vista Beta 1, you should be able to capture on the
        "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it
        the "NdisWanAdapter"; if you're using a 3.1 beta release, you should
-       un-install it and install the final 3.1 release.) See the Ethereal Wiki
+       un-install it and install the final 3.1 release.) See the Wireshark Wiki
        item on PPP capturing for details.
     4. WinPcap prior to 3.0 does not support multiprocessor machines (note that
        machines with a single multi-threaded processor, such as Intel's new
@@ -1909,7 +1909,7 @@ cies
    or Windows Vista Beta 1, you should be able to capture on the
    "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
    "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
-   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   it and install the final 3.1 release.) See the Wireshark Wiki item on PPP
    capturing for details.
 
    Q 8.4: I'm running Ethereal on Windows NT 4.0/Windows 2000/Windows
@@ -1930,7 +1930,7 @@ cies
    or Windows Vista Beta 1, you should be able to capture on the
    "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
    "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
-   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   it and install the final 3.1 release.) See the Wireshark Wiki item on PPP
    capturing for details.
 
    Q 8.5: I'm running Ethereal on Windows 95/98/Me, on a machine with more than
@@ -1941,7 +1941,7 @@ cies
    A: Unfortunately, Windows 95/98/Me gives the same name to multiple instances
    of the type of same network adapter. Therefore, WinPcap cannot distinguish
    between them, so a WinPcap-based application can capture only on the first
-   such interface; Ethereal is a libpcap/WinPcap-based application.
+   such interface; Wireshark is a libpcap/WinPcap-based application.
 
    Q 8.6: I'm running Ethereal on Windows; why am I not seeing any traffic
    being sent by the machine running Ethereal?
@@ -2018,14 +2018,14 @@ cies
    account sufficient privileges to capture packets. Only those interfaces that
    Ethereal can open for capturing show up in that list; if you don't have
    sufficient privileges to capture on any interfaces, no interfaces will show
-   up in the list. See the Ethereal Wiki item on capture privileges for details
+   up in the list. See the Wireshark Wiki item on capture privileges for details
    on how to give a particular account or account group capture privileges on
    platforms where that can be done.
 
    If you are running Ethereal from an account with sufficient privileges, then
    note that Ethereal relies on the libpcap library, and on the facilities that
    come with the OS on which it's running in order to do captures. On some
-   OSes, those facilities aren't present by default; see the Ethereal Wiki item
+   OSes, those facilities aren't present by default; see the Wireshark Wiki item
    on adding capture support for details.
 
    And, even if you're running with an account that has sufficient privileges
@@ -2142,7 +2142,7 @@ cies
    resolve the name because it will not be able to communicate with any DNS or
    NIS servers.
 
-   See the Ethereal Wiki item on 802.11 capturing for details.
+   See the Wireshark Wiki item on 802.11 capturing for details.
 
    Q 10.2: How do I capture on an 802.11 device in monitor mode?
 
@@ -2156,7 +2156,7 @@ cies
    Q 11.1: Why am I seeing lots of packets with incorrect TCP checksums?
 
    A: If the packets that have incorrect TCP checksums are all being sent by
-   the machine on which Ethereal is running, this is probably because the
+   the machine on which Wireshark is running, this is probably because the
    network interface on which you're capturing does TCP checksum offloading.
    That means that the TCP checksum is added to the packet by the network
    interface, not by the OS's TCP/IP stack; when capturing on an interface,
@@ -2179,7 +2179,7 @@ cies
    possible" option, clicking "Save" if you want to save that setting in your
    preference file, and clicking "OK".
 
-   It can also be set on the Ethereal or Tethereal command line with a -o
+   It can also be set on the Wireshark or Tethereal command line with a -o
    tcp.check_checksum:false command-line flag, or manually set in your
    preferences file by adding a tcp.check_checksum:false line.
 
@@ -2212,7 +2212,7 @@ cies
    subsequent RTP traffic will be identified. Currently, that's the only place
    we do that; there may be other places.
 
-   However, there will always be places where Ethereal is simply incapable of
+   However, there will always be places where Wireshark is simply incapable of
    deducing that a given UDP flow is RTP; a mechanism would be needed to allow
    the user to specify that a given conversation should be treated as RTP. As
    of Ethereal 0.8.16, such a mechanism exists; if you select a UDP or TCP
@@ -2267,7 +2267,7 @@ cies
    Q 12.3: How do I filter a capture to see traffic for virus XXX?
 
    A: For some viruses/worms there might be a capture filter to recognize the
-   virus traffic. Check the CaptureFilters page on the Ethereal Wiki to see if
+   virus traffic. Check the CaptureFilters page on the Wireshark Wiki to see if
    anybody's added such a filter.
 
    Note that Ethereal was not designed to be an intrusion detection system; you

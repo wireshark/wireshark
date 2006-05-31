@@ -218,7 +218,7 @@ colorize_dialog_new (char *filter)
   /* Resizing of the dialog window is now reasonably done.
    * Default size is set so that it should fit into every usual screen resolution.
    * All other widgets are always packed depending on the current window size. */
-  color_win = dlg_window_new ("Ethereal: Coloring Rules");
+  color_win = dlg_window_new ("Wireshark: Coloring Rules");
   OBJECT_SET_DATA(color_win, "color_win", color_win);
   gtk_window_set_default_size(GTK_WINDOW(color_win), DEF_WIDTH, DEF_HEIGHT * 2/3);
   dlg_vbox = gtk_vbox_new (FALSE, 0);
@@ -1189,7 +1189,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     tooltips = gtk_tooltips_new ();
 
     /* dialog window */
-    edit_dialog = dlg_window_new ("Ethereal: Edit Color Filter");
+    edit_dialog = dlg_window_new ("Wireshark: Edit Color Filter");
     gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);  
     OBJECT_SET_DATA(edit_dialog, "edit_dialog", edit_dialog);
     colorf->edit_dialog = edit_dialog;
@@ -1499,11 +1499,11 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   if (is_bg) {
     color = &colorf->bg_color;
-    title = g_strdup_printf("Ethereal: Choose background color for \"%s\"",
+    title = g_strdup_printf("Wireshark: Choose background color for \"%s\"",
         colorf->filter_name);
   } else {
     color = &colorf->fg_color;
-    title = g_strdup_printf("Ethereal: Choose foreground color for \"%s\"", 
+    title = g_strdup_printf("Wireshark: Choose foreground color for \"%s\"", 
         colorf->filter_name);
   }
   color_sel_win = gtk_color_selection_dialog_new(title);

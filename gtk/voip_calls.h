@@ -1,5 +1,5 @@
 /* voip_calls.h
- * VoIP calls summary addition for ethereal
+ * VoIP calls summary addition for Wireshark
  *
  * $Id$
  *
@@ -45,19 +45,19 @@
 /* defines voip call state */
 typedef enum _voip_call_state {
         VOIP_CALL_SETUP,
-		VOIP_RINGING,
+        VOIP_RINGING,
         VOIP_IN_CALL,
         VOIP_CANCELLED,
         VOIP_COMPLETED,
         VOIP_REJECTED,
-		VOIP_UNKNOWN
+        VOIP_UNKNOWN
 } voip_call_state;
 
 extern const char *voip_call_state_name[7];
 
 typedef enum _voip_call_active_state {
-		VOIP_ACTIVE,
-		VOIP_INACTIVE
+        VOIP_ACTIVE,
+        VOIP_INACTIVE
 } voip_call_active_state;
 
 typedef enum _voip_protocol {

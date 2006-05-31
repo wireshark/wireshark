@@ -815,7 +815,7 @@ else
 fi
 
 
-dnl Check if ethereal should be installed setuid
+dnl Check if wireshark should be installed setuid
 AC_ARG_ENABLE(setuid-install,
 [  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
 

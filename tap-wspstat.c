@@ -173,7 +173,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
  * stdout.
  * Tethereal will only call this callback once, which is when tethereal has
  * finished reading all packets and exists.
- * If used with ethereal this may be called any time, perhaps once every 3 
+ * If used with wireshark this may be called any time, perhaps once every 3 
  * seconds or so.
  * This function may even be called in parallell with (*reset) or (*draw)
  * so make sure there are no races. The data in the rpcstat_t can thus change

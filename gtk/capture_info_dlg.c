@@ -144,7 +144,7 @@ const gchar     *iface)
    * available, we should still use that.
    */
   descr = get_interface_descriptive_name(iface);
-  title_iface = g_strdup_printf("Ethereal: Capture from %s", descr);
+  title_iface = g_strdup_printf("Wireshark: Capture from %s", descr);
   g_free(descr);
   cap_w_title = create_user_window_title(title_iface);
   g_free(title_iface);

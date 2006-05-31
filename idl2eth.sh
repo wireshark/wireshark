@@ -17,8 +17,8 @@
 #  The output language generated is "C". It will generate code to use the 
 #  GIOP/IIOP get_CDR_XXX API.
 #
-#  Please see packet-giop.h in Ethereal distro for API description.
-#  Ethereal is available at http://www.ethereal.com/
+#  Please see packet-giop.h in Wireshark distro for API description.
+#  Wireshark is available at http://www.ethereal.com/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://omniorb.sourceforge.net/
@@ -49,7 +49,7 @@ if [ $# -lt 1 ]; then
 fi
 
 #
-# Run ethereal backend, looking for ethereal_be.py and ethereal_gen.py
+# Run wireshark backend, looking for ethereal_be.py and ethereal_gen.py
 # in pythons's "site-packages" directory. If cannot find that, then
 # try looking in current directory. If still cannot, then exit with
 # error.

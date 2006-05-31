@@ -1,5 +1,5 @@
 /* voip_calls_dlg.h
- * VoIP conversations addition for ethereal
+ * VoIP conversations addition for Wireshark
  *
  * $Id$
  *

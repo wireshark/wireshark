@@ -1,5 +1,5 @@
 /* mgcp_stat.c
- * mgcp-statistics for ethereal
+ * mgcp-statistics for Wireshark
  * Copyright 2003 Lars Roland
  *
  * $Id$

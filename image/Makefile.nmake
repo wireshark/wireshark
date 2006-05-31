@@ -13,7 +13,7 @@ ethereal.exe.manifest: ethereal.exe.manifest.in ..\config.nmake
 		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
 		< ethereal.exe.manifest.in > $@
 
-ethereal.rc   : win32-file-dlg.rc ethereal.rc.in ethereal.exe.manifest ..\config.nmake
+ethereal.rc   : win32-file-dlg.rc ethereal.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< ethereal.rc.in > $@

@@ -123,7 +123,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
   static construct_args_t args = {
-  	"Ethereal: Search Filter",
+  	"Wireshark: Search Filter",
   	FALSE,
   	TRUE,
     FALSE
@@ -135,7 +135,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  find_frame_w = dlg_window_new("Ethereal: Find Packet");
+  find_frame_w = dlg_window_new("Wireshark: Find Packet");
 
   tooltips = gtk_tooltips_new ();
 

@@ -7,8 +7,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py $(PROTOCOL_NAME).asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf 
-	python ../../tools/asn2eth.py -X -b -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(PROTOCOL_NAME).asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(PROTOCOL_NAME).asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf 
+	python ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(PROTOCOL_NAME).asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

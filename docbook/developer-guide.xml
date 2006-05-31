@@ -28,7 +28,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
@@ -112,7 +112,7 @@ tasks.</command>
 Part II. Ethereal Development
 </para>
 <para>
-The second part describes how the Ethereal sources are structured and how 
+The second part describes how the Wireshark sources are structured and how 
 to change the sources (e.g. adding a new dissector).
 </para>
 </partintro>
@@ -138,7 +138,7 @@ to generate Ethereal, and how to do some typical development tasks.
 <command>Part II. Ethereal Development</command>
 </para>
 <para>
-<command>The second part describes how the Ethereal sources are structured and how 
+<command>The second part describes how the Wireshark sources are structured and how 
 to change the sources (e.g. adding a new dissector).</command>
 </para>
 </partintro>

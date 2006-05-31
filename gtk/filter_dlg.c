@@ -103,7 +103,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 	/* No Apply button, and "OK" just sets our text widget, it doesn't
 	   activate it (i.e., it doesn't cause us to try to open the file). */
 	static construct_args_t args = {
-		"Ethereal: Capture Filter",
+		"Wireshark: Capture Filter",
 		FALSE,
 		FALSE,
         FALSE
@@ -193,7 +193,7 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
 	static construct_args_t args = {
-		"Ethereal: Capture Filter",
+		"Wireshark: Capture Filter",
 		FALSE,
 		FALSE,
         FALSE
@@ -222,7 +222,7 @@ void
 dfilter_dialog_cb(GtkWidget *w _U_)
 {
 	static construct_args_t args = {
-		"Ethereal: Display Filter",
+		"Wireshark: Display Filter",
 		TRUE,
 		TRUE,
         FALSE

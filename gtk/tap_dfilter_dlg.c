@@ -94,7 +94,7 @@ void tap_dfilter_dlg_update (void)
 	
 	while(dialog != NULL) {
 		if(dialog->dlg) {
-			title = g_strdup_printf("Ethereal: %s: %s", dialog->cont.win_title , cf_get_display_name(&cfile));
+			title = g_strdup_printf("Wireshark: %s: %s", dialog->cont.win_title , cf_get_display_name(&cfile));
 			gtk_window_set_title(GTK_WINDOW(dialog->dlg), title);
 			g_free(title);
 		}
@@ -183,7 +183,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 		return;
 	}
 
-	title = g_strdup_printf("Ethereal: %s: %s", current_dlg->cont.win_title , cf_get_display_name(&cfile));
+	title = g_strdup_printf("Wireshark: %s: %s", current_dlg->cont.win_title , cf_get_display_name(&cfile));
 
 	current_dlg->dlg=dlg_window_new(title);
 	gtk_window_set_default_size(GTK_WINDOW(current_dlg->dlg), 300, -1);

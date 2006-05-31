@@ -130,7 +130,7 @@ B<Mergecap> is based heavily upon B<editcap> by Richard Sharpe
 B<Mergecap> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
-HTML versions of the Ethereal project man pages are available at:
+HTML versions of the Wireshark project man pages are available at:
 http://www.ethereal.com/docs/man-pages
 
 =head1 AUTHORS

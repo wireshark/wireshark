@@ -68,7 +68,7 @@
 	The "Open Capture File" dialog box allows you to search for a 
 	capture file containing previously captured packets for display in 
 	Ethereal.  <xref linkend="ChIOOpenFileDialog"/> shows an example 
-	  of the Ethereal Open File Dialog box.
+	  of the Wireshark Open File Dialog box.
       </para>
 	    <note>
 	      <title>Note</title>

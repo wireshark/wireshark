@@ -10,7 +10,7 @@ Everytime you change the filter string, all packets will be reread from the capt
 
 Ethereal offers a very powerful display filter language for this. It can be used for a wide range of purposes, from simply: "show only packets from a specific IP address", or on the other hand, to very complex filters like: "find all packets where a special application specific flag is set".
 
-Note: This display filter language is different from the one used for the Ethereal capture filters!
+Note: This display filter language is different from the one used for the Wireshark capture filters!
 
 -------------------------------------------------
 

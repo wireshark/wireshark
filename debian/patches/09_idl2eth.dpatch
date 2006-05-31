@@ -13,7 +13,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2eth.sh /tmp/dpep-work.ZF6eGD/ethe
  fi
  
 -#
--# Run ethereal backend, looking for ethereal_be.py and ethereal_gen.py
+-# Run wireshark backend, looking for ethereal_be.py and ethereal_gen.py
 -# in pythons's "site-packages" directory. If cannot find that, then
 -# try looking in current directory. If still cannot, then exit with
 -# error.

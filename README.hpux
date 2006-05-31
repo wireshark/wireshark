@@ -16,7 +16,7 @@ The Software Porting And Archive Centre for HP-UX, at
 
 (with mirrors in various countries, listed on the Centre's home page;
 you may want to choose a mirror closer to you) has ported versions, in
-both source and binary form, for Ethereal, as well as for the libpcap,
+both source and binary form, for Wireshark, as well as for the libpcap,
 GLib, GTK+, and zlib libraries that it uses.
 
 The changes they've made appear largely to be compile option changes; if

@@ -472,7 +472,7 @@ static int rint (double );	/* compiler template for Windows */
 static char helptext[] =
 #ifndef _WIN32
 "Here's what you can do:\n\
-- Left Mouse Button selects segment in ethereal's packet list\n\
+- Left Mouse Button selects segment in Wireshark's packet list\n\
 - Middle Mouse Button zooms in\n\
 - <shift>-Middle Button zooms out\n\
 - Right Mouse Button moves the graph (if zoomed in)\n\
@@ -483,7 +483,7 @@ static char helptext[] =
 ";
 #else /* _WIN32 */
 "Here's what you can do:\n\
-- <ctrl>-Left  Mouse Button selects segment in ethereal's packet list\n\
+- <ctrl>-Left  Mouse Button selects segment in Wireshark's packet list\n\
 - Left         Mouse Button zooms in\n\
 - <shift>-Left Mouse Button zooms out\n\
 - Right        Mouse Button moves the graph (if zoomed in)\n\
@@ -536,7 +536,7 @@ static void create_text_widget (struct graph *g)
 	GtkWidget *streamwindow, *txt_scrollw, *box;
 
 	debug(DBS_FENTRY) puts ("create_text_widget()");
-	streamwindow = dlg_window_new ("Ethereal: Packet chain");
+	streamwindow = dlg_window_new ("Wireshark: Packet chain");
 	gtk_widget_set_name (streamwindow, "Packet chain");
 	WIDGET_SET_SIZE(streamwindow, TXT_WIDTH, TXT_HEIGHT);
 	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
@@ -833,7 +833,7 @@ static void control_panel_create (struct graph *g)
     control_panel_add_graph_type_page (g, notebook);
 
     g_snprintf (window_title, WINDOW_TITLE_LENGTH,
-                "Graph %d - Control - Ethereal", refnum);
+                "Graph %d - Control - Wireshark", refnum);
     toplevel = dlg_window_new ("tcp-graph-control");
     gtk_window_set_title(GTK_WINDOW(toplevel), window_title);
 

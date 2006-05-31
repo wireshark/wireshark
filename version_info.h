@@ -1,6 +1,6 @@
 /* version_info.h
  * Declarations of outines to report version information for stuff used
- * by Ethereal
+ * by Wireshark
  *
  * $Id$
  *

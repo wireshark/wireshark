@@ -128,7 +128,7 @@ On IRIX, older versions of the libpcap library use, in
 "pcap_open_live()", the snapshot length passed in, without reducing it
 to be less than or equal to the MTU of the interface.  If the snapshot
 length is larger than the interface MTU, IRIX will return an error; this
-means that, for example, the Ethereal default snapshot length of 65535,
+means that, for example, the Wireshark default snapshot length of 65535,
 chosen so that all of the packet is captured, will not work.
 
 Current versions of libpcap, from tcpdump.org, do not do so.

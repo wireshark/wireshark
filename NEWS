@@ -387,7 +387,7 @@ Getting Ethereal
    Most Linux and Unix vendors supply their own Ethereal packages.
    You can install or upgrade Ethereal using the package management
    system specific to that platform. A list of third-party packages
-   can be found on the [5]download page on the Ethereal web site.
+   can be found on the [5]download page on the Wireshark web site.
 
 File Locations
 
@@ -512,7 +512,7 @@ Ethereal 0.10.13 has been released.
        manually through the View/Time Display Format menu items.
 
      o The WinPcap version 3.1 installer was released since the last Ethereal
-       release. The version included in the Ethereal Windows installer has
+       release. The version included in the Wireshark Windows installer has
        been updated from 3.1 beta 4 to 3.1. If you want to upgrade WinPcap
        separately or install a different version you can download it from:
        [3]the WinPcap web site.
@@ -525,7 +525,7 @@ Ethereal 0.10.13 has been released.
      o A new capture file format "Nanosecond libpcap (Ethereal)" was added.
        It is very similar to the common libpcap file format but is capable of
        keeping nanosecond resolution timestamps. This format is currently
-       supported only by Ethereal.
+       supported only by Wireshark.
 
      o Ethereal's memory managment has been greatly improved.
 
@@ -585,7 +585,7 @@ Getting Ethereal
    Most Linux and Unix vendors supply their own Ethereal packages. You can
    install or upgrade Ethereal using the package management system specific
    to that platform. A list of third-party packages can be found on the
-   [7]download page on the Ethereal web site.
+   [7]download page on the Wireshark web site.
 
 File Locations
 
@@ -745,7 +745,7 @@ New and updated features
 
   A lot of documentation was updated
 
-  Some command line parameters have changed, see the Ethereal / Tethereal
+  Some command line parameters have changed, see the Wireshark / Tethereal
   manual pages
 
   A "File/File Set" submenu was added to better handle multiple files
@@ -1227,7 +1227,7 @@ New and updated capture file support
 
 Ethereal 0.10.6 has been released.
 
-  This release fixes a preferences bug present in Ethereal which displayed
+  This release fixes a preferences bug present in Wireshark which displayed
  
     (ethereal.exe:3512): Gtk-CRITICAL **: file gtkwindow.c: line 3107
     (gtk_window_resize): assertion `height > 0' failed
@@ -1683,7 +1683,7 @@ New and updated features
 
   A preference file has been added for disabled protocols.
 
-  Color filters may now be imported and exported from within Ethereal.
+  Color filters may now be imported and exported from within Wireshark.
 
   A new column type has been added for cumulative bytes.
 
@@ -2007,7 +2007,7 @@ New and Updated Features
 
   A protocol hierarchy statistics tap was added to tethereal.  This
   code
-  may be used to replace the hierarchy statistics code in Ethereal.
+  may be used to replace the hierarchy statistics code in Wireshark.
 
   More updates have been added to TCP analysis.
 

@@ -38,7 +38,7 @@
   <section id="ChCodeStyle">
 	<title>Coding styleguides</title>
 	<para>
-	The coding styleguides for Ethereal can be found in the "Code style" 
+	The coding styleguides for Wireshark can be found in the "Code style" 
 	section of the file <filename>doc/README.developer</filename>.
 	</para>
   </section>

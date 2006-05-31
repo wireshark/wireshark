@@ -1,5 +1,5 @@
 /* graph_analysis.h
- * Graphic Analysis addition for ethereal
+ * Graphic Analysis addition for Wireshark
  *
  * $Id$
  *

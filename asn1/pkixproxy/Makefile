@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py PKIXProxy.asn packet-pkixproxy-template.c packet-pkixproxy-template.h pkixproxy.cnf
-	python ../../tools/asn2eth.py -X -b -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py PKIXProxy.asn packet-pkixproxy-template.c packet-pkixproxy-template.h pkixproxy.cnf
+	python ../../tools/asn2wrs.py -b -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn
 
 clean:
 	rm -f pkix1explicit-exp.cnf parsetab.py $(DISSECTOR_FILES)

@@ -1,4 +1,4 @@
-Ethereal is a GUI network protocol analyzer.
+Wireshark is a GUI network protocol analyzer.
 
 It lets you interactively browse packet data from a live network or from a previously saved capture file.
 
@@ -33,4 +33,4 @@ Ethereal's native capture file format is libpcap format, which is also the forma
 -Endace Measurement Systems' ERF format captures 
 -Linux Bluez Bluetooth stack hcidump -w traces
 
-There is no need to tell Ethereal what type of file you are reading; it will determine the file type by itself. Ethereal is also capable of reading any of these file formats if they are compressed using gzip. Ethereal recognizes this directly from the file; the '.gz' extension is not required for this purpose.
+There is no need to tell Ethereal what type of file you are reading; it will determine the file type by itself. Wireshark is also capable of reading any of these file formats if they are compressed using gzip. Ethereal recognizes this directly from the file; the '.gz' extension is not required for this purpose.

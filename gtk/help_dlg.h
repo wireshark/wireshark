@@ -5,7 +5,7 @@
  * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

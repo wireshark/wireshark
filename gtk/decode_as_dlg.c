@@ -543,7 +543,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 	return;
     }
 
-    decode_show_w = dlg_window_new("Ethereal: Decode As: Show");
+    decode_show_w = dlg_window_new("Wireshark: Decode As: Show");
 	/* Provide a minimum of a couple of rows worth of data */
     gtk_window_set_default_size(GTK_WINDOW(decode_show_w), -1, E_DECODE_MIN_HEIGHT);
 
@@ -1880,7 +1880,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     requested_action = E_DECODE_YES;
-    decode_w = dlg_window_new("Ethereal: Decode As");
+    decode_w = dlg_window_new("Wireshark: Decode As");
 	/* Provide a minimum of a couple of rows worth of data */
     gtk_window_set_default_size(GTK_WINDOW(decode_w), -1, E_DECODE_MIN_HEIGHT);
 

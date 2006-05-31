@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test the capture engine of the Ethereal tools
+# Test the capture engine of the Wireshark tools
 #
 # $Id$
 #

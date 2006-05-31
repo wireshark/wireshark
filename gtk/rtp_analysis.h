@@ -1,5 +1,5 @@
 /* rtp_analysis.h
- * RTP analysis addition for ethereal
+ * RTP analysis addition for Wireshark
  *
  * $Id$
  *

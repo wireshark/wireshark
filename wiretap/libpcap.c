@@ -281,7 +281,7 @@ static const struct {
 	/*
 	 * More values used by libpcap 0.5 as DLT_ values and used by the
 	 * current CVS version of libpcap in capture file headers.
-	 * They are not yet handled in Ethereal.
+	 * They are not yet handled in Wireshark.
 	 * If we get a capture that contains them, we'll implement them.
 	 */
 	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
@@ -289,7 +289,7 @@ static const struct {
 #endif
 
 	/*
-	 * These ones are handled in Ethereal, though.
+	 * These ones are handled in Wireshark, though.
 	 */
 	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
 	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */

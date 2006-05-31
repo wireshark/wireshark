@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Check the sanity of field definitions in Ethereal.
+Check the sanity of field definitions in Wireshark.
 """
 import sys
 

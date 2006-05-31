@@ -21,11 +21,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* Ethereal - this file is copied from "The GIMP" V2.0.2
+/* Wireshark - this file is copied from "The GIMP" V2.0.2
  * You will find the original file in the gimp distribution zip under:
  * \plug-ins\common\webbrowser.c
  *
- * It was modified to suit the Ethereal environment (#if 0)!
+ * It was modified to suit the Wireshark environment (#if 0)!
  */
 
 #include "config.h"
@@ -43,8 +43,8 @@
 
 /*
  * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer
- * the ability to build a GNOMEified Ethereal as well as a GTK+-only
- * Ethereal).
+ * the ability to build a GNOMEified Wireshark as well as a GTK+-only
+ * Wireshark).
  */
 
 #if defined(G_OS_WIN32)
@@ -197,7 +197,7 @@ browser_open_url (const gchar *url)
      XXX - has to be improved */
   simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
       PRIMARY_TEXT_START "Web browser access not implemented." PRIMARY_TEXT_END
-      "\n\nThis Ethereal version (using the GLib 1.x toolkit) can't access web browsers. "
+      "\n\nThis Wireshark version (using the GLib 1.x toolkit) can't access web browsers. "
       "\n\nYou may try to open the following URL in your web browser: \n\n"
       "%s",
       url);

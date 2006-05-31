@@ -1,4 +1,4 @@
-The REAMDE specific to the Ethereal "copy" of the pidl sources
+The REAMDE specific to the Wireshark "copy" of the pidl sources
 ==============================================================
 
 The tree tools/pidl is a direct extract from
@@ -8,7 +8,7 @@ to allow building Ethereal pidl dissectors without having to
 
 Don't do changes here, do them at the samba tree! Changes to this tree will
 be overwritten the next time the sources from the samba tree are updated,
-which is basically every time you do an svn up in the Ethereal toplevel dir.
+which is basically every time you do an svn up in the Wireshark toplevel dir.
 
 In order to build, install yapp (on Suse, the rpm is named perl-Parse-Yapp),
 then do

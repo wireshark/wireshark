@@ -176,7 +176,7 @@ io_stat_set_title(io_stat_t *io)
 	if(!io->window){
 		return;
 	}
-	title = g_strdup_printf("Ethereal IO Graphs: %s", cf_get_display_name(&cfile));
+	title = g_strdup_printf("Wireshark IO Graphs: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(io->window), title);
 	g_free(title);
 }
@@ -1782,7 +1782,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	/* filter prefs dialog */
 	gio->filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 
-	g_snprintf(str, 256, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
+	g_snprintf(str, 256, "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
 	if(gio->args->title){
 		g_free( (gpointer) (gio->args->title) );
 	}

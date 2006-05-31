@@ -114,7 +114,7 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 	gtk_clist_clear(etd->table);
 	gtk_clist_columns_autosize(etd->table);
 
-	gtk_window_set_title(GTK_WINDOW(etd->win), "Ethereal: ? Expert Infos");
+	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos");
 	gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
 }
 
@@ -275,7 +275,7 @@ expert_dlg_draw(void *data)
 	gtk_label_set_text(GTK_LABEL(etd->label), title);
 	g_free(title);
 
-	title = g_strdup_printf("Ethereal: %u Expert Info%s", 
+	title = g_strdup_printf("Wireshark: %u Expert Info%s", 
 		etd->disp_events,
 		plurality(etd->disp_events, "", "s"));
 	gtk_window_set_title(GTK_WINDOW(etd->win), title);
@@ -513,7 +513,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	etd->error_events = 0;
 	etd->severity_report_level = PI_CHAT;
 
-	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Expert Info");
+	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Expert Info");
 	gtk_window_set_default_size(GTK_WINDOW(etd->win), 650, 600);
 
 	vbox=gtk_vbox_new(FALSE, 3);

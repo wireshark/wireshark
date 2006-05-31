@@ -43,11 +43,11 @@
 
 static const char *proto_supported =
 "The following %d protocols (and packet types) are currently\n"
-"supported by Ethereal:\n\n";
+"supported by Wireshark:\n\n";
 
 static const char *dfilter_supported =
 "The following per-protocol fields are currently supported by\n"
-"Ethereal and can be used in display filters:\n";
+"Wireshark and can be used in display filters:\n";
 
 
 
@@ -92,7 +92,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  supported_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Supported Protocols");
+  supported_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Supported Protocols");
   gtk_window_set_default_size(GTK_WINDOW(supported_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(supported_w), 2);
 

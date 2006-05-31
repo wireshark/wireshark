@@ -1,5 +1,5 @@
 /* sctp_chunk_stat.c
- * SCTP chunk counter for ethereal
+ * SCTP chunk counter for Wireshark
  * Copyright 2005 Oleg Terletsky oleg.terletsky@comverse.com
  *
  * $Id$
@@ -299,7 +299,7 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	hs->number_of_packets = 0;
 	sctpstat_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: SCTP Chunk Statistics");
+	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Chunk Statistics");
 	gtk_window_set_default_size(GTK_WINDOW(hs->win), 600, 200);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);

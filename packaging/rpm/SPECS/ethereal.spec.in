@@ -19,7 +19,7 @@ Requires:	gtk2
 Requires:	libpcap openssl
 
 %description
-Ethereal is a free network protocol analyzer for Unix and Windows. It
+Wireshark is a free network protocol analyzer for Unix and Windows. It
 allows you to examine data from a live network or from a capture file
 on disk. You can interactively browse the capture data, viewing summary
 and detail information for each packet. Ethereal has several powerful

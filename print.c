@@ -392,7 +392,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 }
 
 /* Print info for a 'geninfo' pseudo-protocol. This is required by
- * the PDML spec. The information is contained in Ethereal's 'frame' protocol,
+ * the PDML spec. The information is contained in Wireshark's 'frame' protocol,
  * but we produce a 'geninfo' protocol in the PDML to conform to spec.
  * The 'frame' protocol follows the 'geninfo' protocol in the PDML. */
 static void
@@ -694,7 +694,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
  * This routine is based on a routine created by Dan Lasley
  * <DLASLEY@PROMUS.com>.
  *
- * It was modified for Ethereal by Gilbert Ramirez and others.
+ * It was modified for Wireshark by Gilbert Ramirez and others.
  */
 
 #define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */

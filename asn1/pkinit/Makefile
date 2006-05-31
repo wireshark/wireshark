@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py PKINIT.asn packet-pkinit-template.c packet-pkinit-template.h pkinit.cnf
-	python ../../tools/asn2eth.py -e -X -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py PKINIT.asn packet-pkinit-template.c packet-pkinit-template.h pkinit.cnf
+	python ../../tools/asn2wrs.py -e -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

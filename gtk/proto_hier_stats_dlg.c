@@ -324,7 +324,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Protocol Hierarchy Statistics");
+	dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Protocol Hierarchy Statistics");
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);

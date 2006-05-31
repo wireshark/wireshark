@@ -1,5 +1,5 @@
 /* t38_analysis.c
- * t38 fax analysis for ethereal
+ * T.38 fax analysis for Wireshark
  *
  * $Id$
  *

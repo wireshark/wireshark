@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Ethereal help files
+# Automake file for Wireshark help files
 #
 # $Id$
 #

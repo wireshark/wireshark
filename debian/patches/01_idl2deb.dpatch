@@ -12,7 +12,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2deb /tmp/dpep-work.K2bQz4/etherea
 +#!/usr/bin/env python
 +
 +# idl2deb - quick hack by W. Borgert <debacle@debian.org> to create
-+# Debian GNU/Linux packages from idl2eth modules for Ethereal.
++# Debian GNU/Linux packages from idl2eth modules for Wireshark.
 +# Copyright 2003, W. Borgert
 +
 +# Makefile.am and configure.ac code by:
@@ -150,7 +150,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2deb /tmp/dpep-work.K2bQz4/etherea
 +Depends: ethereal (= %s), ${shlibs:Depends}
 +Description: GIOP dissector for CORBA interface %s
 + This package provides a dissector for GIOP (General Inter-ORB
-+ Protocol) for the Ethereal protocol analyser.  It decodes the CORBA
++ Protocol) for the Wireshark protocol analyser.  It decodes the CORBA
 + (Common Object Request Broker Architecture) interfaces described
 + in the IDL (Interface Definition Language) file '%s.idl'.
 +""" % (base, name, email, base, deb, base, base))

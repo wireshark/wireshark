@@ -1,5 +1,5 @@
 /* voip_calls.c
- * VoIP calls summary addition for ethereal
+ * VoIP calls summary addition for Wireshark
  *
  * $Id$
  *

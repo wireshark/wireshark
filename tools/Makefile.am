@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Ethereal
+# Automake file for Wireshark
 #
 # $Id$
 #
@@ -67,7 +67,7 @@ EXTRA_DIST = \
 	$(PIDL_FILES)					\
 	EtherealXML.py					\
 	Makefile.nmake					\
-	asn2eth.py					\
+	asn2wrs.py					\
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
 	fuzz-test.sh					\

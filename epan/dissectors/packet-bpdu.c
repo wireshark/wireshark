@@ -391,7 +391,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
               default:
 		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
-		  "   (Warning: this version of Ethereal only knows about versions 0, 2 & 3)");
+                          "   (Warning: this version of Wireshark only knows about versions 0, 2 & 3)");
                 break;
             }
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb,

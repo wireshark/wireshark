@@ -21,7 +21,7 @@ Ethereal Info
 
   <section id="WhatIs"><title>What is Ethereal?</title>
     <para>
-      Ethereal is the world's most popular network protocol analyzer.  It
+      Wireshark is the world's most popular network protocol analyzer.  It
       is used for troubleshooting, analysis, development, and education.
     </para>
   </section>
@@ -147,7 +147,7 @@ Catapult DCT2000
 	Most Linux and Unix vendors supply their own Ethereal packages.
 	You can install or upgrade Ethereal using the package management
 	system specific to that platform.  A list of third-party packages
-        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Ethereal web site.
+        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
     </section>
 

@@ -1,5 +1,5 @@
 /* h225_ras_srt.c
- * h225 RAS Service Response Time statistics for ethereal
+ * H.225 RAS Service Response Time statistics for Wireshar
  * Copyright 2003 Lars Roland
  *
  * $Id$

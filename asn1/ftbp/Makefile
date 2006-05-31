@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py ftbp.asn packet-ftbp-template.c packet-ftbp-template.h ftbp.cnf 
-	python ../../tools/asn2eth.py -X -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template  ftbp.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py ftbp.asn packet-ftbp-template.c packet-ftbp-template.h ftbp.cnf 
+	python ../../tools/asn2wrs.py -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template  ftbp.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

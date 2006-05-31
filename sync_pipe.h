@@ -1,5 +1,5 @@
 /* sync_pipe.h
- * Low-level synchronization pipe routines for use by Ethereal and dumpcap
+ * Low-level synchronization pipe routines for use by Wireshark and dumpcap
  *
  * $Id$
  *

@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Parse::Pidl::Ethereal::NDR - Parser generator for Ethereal
+Parse::Pidl::Ethereal::NDR - Parser generator for Wireshark
 
 =cut
 
@@ -808,7 +808,7 @@ sub Parse($$$$)
 	from $idl_file and $cnf_file.
 	
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
-	It is maintained by the Samba team, not the Ethereal team.
+	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be 
 	found at http://wiki.ethereal.com/Pidl
 */

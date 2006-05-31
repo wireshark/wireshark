@@ -4,7 +4,7 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -91,7 +91,7 @@
  * Standard secondary message for unexpected errors.
  */
 static const char please_report[] =
-    "Please report this to the Ethereal developers";
+    "Please report this to the Wireshark developers";
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"

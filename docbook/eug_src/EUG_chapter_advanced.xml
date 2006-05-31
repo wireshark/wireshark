@@ -158,7 +158,7 @@
 	time stamp precision itself (whatever the benefit may be).
 	</para>
 	<para>
-	The common libpcap capture file format that is used by Ethereal (and a 
+	The common libpcap capture file format that is used by Wireshark (and a 
 	lot of other tools) supports a fixed microsecond resolution "0.123456" 
 	only. 
 	</para>
@@ -175,7 +175,7 @@
   </section>
   <section><title>Accuracy</title>
 	<para>
-	It's often asked: "Which time stamp accuracy is provided by Ethereal?". 
+	It's often asked: "Which time stamp accuracy is provided by Wireshark?". 
 	Well, Ethereal doesn't create any time stamps itself but simply get's them
 	from "somewhere else" and displays them. So accuracy will depend on the 
 	capture system (operating system, performance, ...) that you use. 
@@ -761,7 +761,7 @@
 	</listitem>
 	<listitem>
 	<para>
-	Turn off checksum validation of the specific protocol in the Ethereal 
+	Turn off checksum validation of the specific protocol in the Wireshark 
 	preferences.
 	</para>
 	</listitem>

@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py CRMF.asn packet-crmf-template.c packet-crmf-template.h crmf.cnf 
-	python ../../tools/asn2eth.py -X -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py CRMF.asn packet-crmf-template.c packet-crmf-template.h crmf.cnf 
+	python ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
