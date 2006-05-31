@@ -800,7 +800,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		if(extension_present){
-			offset = dissect_per_integer(tvb, offset, actx, tree,	hf_index,	value);
+			offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, (gint32*)value);
 			return offset;
 		}
 	}
@@ -1537,6 +1537,8 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				tvb_set_child_real_data_tvbuff(tvb,out_tvb);
 				add_new_data_source(actx->pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
 			}
+		} else {
+			val_start = offset>>3; 
 		}
 		val_length = length;
 	}
@@ -1562,11 +1564,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 		}
 	}
+
 	if (value_tvb)
-		if (out_tvb)
-			*value_tvb = out_tvb;
-		else
-			*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
+		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset(tvb, val_start, val_length, val_length);
+
 	return offset;
 }
 
