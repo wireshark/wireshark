@@ -126,8 +126,8 @@ sub update_configure_in
 	
 	open(CFGIN, "< configure.in") || die "Can't read configure.in!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^AM_INIT_AUTOMAKE\(ethereal, (\d+)\.(\d+).(\d+)/) {
-			$line = "AM_INIT_AUTOMAKE\(ethereal, $1.$2.$3$package_string)\n";
+		if ($line =~ /^AM_INIT_AUTOMAKE\(wireshark, (\d+)\.(\d+).(\d+)/) {
+			$line = "AM_INIT_AUTOMAKE\(wireshark, $1.$2.$3$package_string)\n";
 		}
 		$contents .= $line
 	}

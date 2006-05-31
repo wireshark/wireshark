@@ -335,7 +335,7 @@ files will be reconstructed from the "config.h.win32" files.  (If, for
 example, you have "config.h" files left over from a Unix build, a
 Windows build will fail.)
 
-In the ethereal directory, type "nmake -f makefile.nmake". It will
+In the wireshark directory, type "nmake -f makefile.nmake". It will
 recurse into the subdirectories as appropriate.
 
 Some generated source is created by traditionally "Unix-ish" tools.
@@ -431,7 +431,7 @@ file to specify where the NSIS binaries are installed and wether to use the mode
 You will need NSIS version 2 or higher, to build an installer with the modern user interface,
 and for a much smaller installer (using the lzma compression).
 
-In the ethereal directory, type "nmake -f makefile.nmake packaging" to build the installer. 
+In the wireshark directory, type "nmake -f makefile.nmake packaging" to build the installer. 
 Please be patient while the compression is done, it will take some time even on fast machines.
 
 You will hopefully now see something like wireshark-setup-0.10.12.exe in the dir packaging/nsis.
@@ -567,7 +567,7 @@ To get it running, execute the following steps:
 
 8. Run wireshark (add /opt/gnome/bin to $PATH if this is not yet done)
 
-     $ <wireshark-src>/ethereal
+     $ <wireshark-src>/wireshark
 
     And voila! Behold the mighty sniffer in all its glory!
 

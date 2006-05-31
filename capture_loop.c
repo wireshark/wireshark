@@ -930,7 +930,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #endif
             /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
 
-            /* WinPcap's remote capturing feature doesn't work, see http://wiki.ethereal.com/CaptureSetup_2fWinPcapRemote */
+            /* WinPcap's remote capturing feature doesn't work, see http://wiki.wireshark.org/CaptureSetup_2fWinPcapRemote */
             /* for reference, an example remote interface: rpcap://[1.2.3.4]/\Device\NPF_{39993D68-7C9B-4439-A329-F2D888DA7C5C} */
 
             /* emulate dispatch from pcap */

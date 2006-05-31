@@ -44,7 +44,7 @@ GENERATED_C_FILES = \
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
-# sources common for ethereal and tshark
+# sources common for wireshark and tshark
 WIRESHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_errs.c	\
@@ -136,7 +136,7 @@ EXTRA_wireshark_INCLUDES =	\
 	strerror.h	\
 	strptime.h
 
-# ethereal specifics
+# wireshark specifics
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	alert_box.c	\

@@ -75,13 +75,13 @@ README.win32 for those instructions.
         additional header files and libraries. Using this switch keeps
         'configure' from looking there
 
-    --disable-ethereal
+    --disable-wireshark
         By default, if 'configure' finds the GTK+ libraries, the Makefile
         build Ethereal, the GUI packet analyzer. You can disable the
         build of the GUI version of Ethereal with this switch.
 
     --disable-gtk2
-        Build Glib/Gtk+ 1.2[.x]-based ethereal.
+        Build Glib/Gtk+ 1.2[.x]-based wireshark.
 
     --disable-tshark
         By default the line-mode packet analyzer, TShark, is built.
@@ -180,7 +180,7 @@ README.win32 for those instructions.
 
     --with-plugins=DIR
         By default, plugins are installed in
-        ${LIBDIR}/ethereal/plugins/${VERSION}
+        ${LIBDIR}/wireshark/plugins/${VERSION}
 
         ${LIBDIR} can be set with --libdir, or defaults to ${EPREFIX/lib}
         ${EPREFIX} can be set with --exec-prefix, or defaults to ${PREFIX}
@@ -195,7 +195,7 @@ README.win32 for those instructions.
 
 6. Run 'make'.  Hopefully, you won't run into any problems.
 
-7. Run './ethereal' or './tshark', and make sure things are working.
+7. Run './wireshark' or './tshark', and make sure things are working.
     You must have root privileges in order to capture live data.
 
 8. Run 'make install'.  If you wish to install the man page, run

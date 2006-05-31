@@ -462,7 +462,7 @@ dumpcap_DEPENDENCIES = \
 dumpcap_LDADD = \
 	$(dumpcap_additional_libs)	\
 	@GLIB_LIBS@			\
-	@PCAP_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
@@ -577,6 +577,7 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
+	image/eexcl3d64.xpm	\
 	image/eicon3d16.xpm	\
 	image/eicon3d32.xpm	\
 	image/eicon3d48.xpm	\
@@ -587,12 +588,14 @@ EXTRA_DIST = \
 	image/elogo3d48x48.png	\
 	image/ethereal.exe.manifest.in \
 	image/ethereal.ico	\
-	image/wireshark.rc.in	\
+	image/ethereal.rc.in	\
 	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \
 	image/hi16-app-ethereal.png	\
 	image/hi32-app-ethereal.png	\
 	image/hi48-app-ethereal.png	\
+	image/icon-ethereal.xpm	\
+	image/icon-excl.xpm	\
 	image/libwireshark.rc.in	\
 	image/lo16-app-ethereal.png	\
 	image/lo32-app-ethereal.png	\

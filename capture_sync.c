@@ -257,7 +257,7 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = g_malloc(sizeof (char *));
     *argv = NULL;
 
-    /* take ethereal's absolute program path and replace "ethereal" with "dumpcap" */
+    /* take wireshark's absolute program path and replace "wireshark" with "dumpcap" */
     exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
                               get_progfile_dir());
 
