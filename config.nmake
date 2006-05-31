@@ -275,13 +275,13 @@ MAKENSIS_MODERN_UI=USE
 # It looks like we'll have to call "set copycmd=/y" before we run xcopy.
 COPYCMD=/y
 
-# If you don't want to build libethereal.dll, you should comment out the
+# If you don't want to build libwireshark.dll, you should comment out the
 # following line. (Note: for plugin support this option must stay activated)
-ENABLE_LIBETHEREAL=USE
+ENABLE_LIBWIRESHARK=USE
 
-!IFDEF ENABLE_LIBETHEREAL
-# Uncomment next line to link plugins with the import library of libethereal.dll 
-LINK_PLUGINS_WITH_LIBETHEREAL=USE
+!IFDEF ENABLE_LIBWIRESHARK
+# Uncomment next line to link plugins with the import library of libwireshark.dll 
+LINK_PLUGINS_WITH_LIBWIRESHARK=USE
 !ENDIF
 
 #
@@ -422,10 +422,10 @@ NETTLE_LIBS=
 NETTLE_CONFIG=
 !ENDIF
 
-!IFDEF ENABLE_LIBETHEREAL
-LIBETHEREAL_CONFIG=^#define HAVE_LIBETHEREALDLL 1
+!IFDEF ENABLE_LIBWIRESHARK
+LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
 !ELSE
-LIBETHEREAL_CONFIG=
+LIBWIRESHARK_CONFIG=
 !ENDIF
 
 !IFDEF GNUTLS_DIR

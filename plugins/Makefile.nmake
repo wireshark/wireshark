@@ -325,7 +325,7 @@ maintainer-clean: distclean
 ################################################################################
 
 install-plugins:
-!IFDEF ENABLE_LIBETHEREAL
+!IFDEF ENABLE_LIBWIRESHARK
 	rm -rf $(VERSION)
 	mkdir $(VERSION)
 	xcopy acn\*.dll $(VERSION) /d

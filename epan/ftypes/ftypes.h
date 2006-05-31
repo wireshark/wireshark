@@ -245,7 +245,7 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 SLAB_ITEM_TYPE_DEFINE(fvalue_t)
 
 /* Free all memory used by an fvalue_t. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
 

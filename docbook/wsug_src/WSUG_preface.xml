@@ -111,8 +111,8 @@
       </listitem>
       <listitem>
 	<para>
-	  Frank Singleton from whose <filename>README.idl2eth</filename> 
-	  <xref linkend="AppToolsidl2eth"/> is derived. 
+	  Frank Singleton from whose <filename>README.idl2wrs</filename> 
+	  <xref linkend="AppToolsidl2wrs"/> is derived. 
 	</para>
       </listitem>
     </itemizedlist>

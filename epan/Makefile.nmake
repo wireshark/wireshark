@@ -16,8 +16,8 @@ CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-# For use when making libethereal.dll
-libethereal_LIBS = \
+# For use when making libwireshark.dll
+libwireshark_LIBS = \
 	$(GLIB_LIBS)	\
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
@@ -33,7 +33,7 @@ libethereal_LIBS = \
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-LIBETHEREAL_OBJECTS = $(LIBETHEREAL_SRC:.c=.obj)
+LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
 #	snprintf.obj	\
@@ -49,30 +49,30 @@ EXTRA_OBJECTS = \
 DOXYGEN_DEP=doxygen
 !ENDIF
 
-!IFDEF ENABLE_LIBETHEREAL
-all: ftypes dfilter dissectors libethereal.dll
+!IFDEF ENABLE_LIBWIRESHARK
+all: ftypes dfilter dissectors libwireshark.dll
 !ELSE
 all: ftypes dfilter dissectors ethereal.lib
 !ENDIF
 
-# For use when making libethereal.dll
-libethereal.lib: libethereal.dll
-libethereal.exp: libethereal.dll
+# For use when making libwireshark.dll
+libwireshark.lib: libwireshark.dll
+libwireshark.exp: libwireshark.dll
 
-libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                 ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib ..\image\libethereal.res
-	@echo Linking libethereal.dll
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                 ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib ..\image\libwireshark.res
+	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
-		/DEF:libethereal.def /OUT:libethereal.dll \
-		/IMPLIB:libethereal.lib $(LIBETHEREAL_OBJECTS) \
-		$(libethereal_LIBS) ..\image\libethereal.res \
+		/DEF:libwireshark.def /OUT:libwireshark.dll \
+		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
+		$(libwireshark_LIBS) ..\image\libwireshark.res \
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+ethereal.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                   ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib
-	link /lib /out:ethereal.lib $(LIBETHEREAL_OBJECTS) \
+	link /lib /out:ethereal.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
 ..\config.h	: ..\config.h.win32 ..\config.nmake
@@ -81,7 +81,7 @@ ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS) ftypes dfilter dissectors $(DO
 	cd epan
 
 clean:
-	rm -f $(LIBETHEREAL_OBJECTS) $(EXTRA_OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) ethereal.lib libwireshark.dll libwireshark.lib libwireshark.exp $(PDB_FILE) doxygen.cfg html/*.*
 	if exist html rmdir html	
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean

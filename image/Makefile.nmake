@@ -4,7 +4,7 @@
 
 include ..\config.nmake
 
-ALL_RC=ethereal.rc libethereal.rc tethereal.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc wireshark.exe.manifest
+ALL_RC=ethereal.rc libwireshark.rc tethereal.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
 wireshark.exe.manifest: ethereal.exe.manifest.in ..\config.nmake
@@ -18,10 +18,10 @@ ethereal.rc   : win32-file-dlg.rc ethereal.rc.in wireshark.exe.manifest ..\confi
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< ethereal.rc.in > $@
 
-libethereal.rc: libethereal.rc.in ..\config.nmake
+libwireshark.rc: libwireshark.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
-		< libethereal.rc.in > $@
+		< libwireshark.rc.in > $@
 
 tethereal.rc  : tethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

@@ -1,21 +1,21 @@
 
 =head1 NAME
 
-idl2eth - CORBA IDL to Ethereal Plugin Generator
+idl2wrs - CORBA IDL to Ethereal Plugin Generator
 
 =head1 SYNOPSYS
 
-B<idl2eth> filename
+B<idl2wrs> filename
 
 =head1 DESCRIPTION
 
-B<idl2eth> is a program that takes a user specified B<CORBA IDL> 
+B<idl2wrs> is a program that takes a user specified B<CORBA IDL> 
 file and generates B<"C"> source code for an B<Ethereal> "plugin".
 
 This resulting file can be compiled as an B<Ethereal> plugin, and
 used to monitor B<GIOP/IIOP> traffic that is using this IDL.
 
-B<idl2eth> is actually a shell script wrapper for two B<Python> programs.
+B<idl2wrs> is actually a shell script wrapper for two B<Python> programs.
 
 These programs are:
 
@@ -27,7 +27,7 @@ B<ethereal_gen.py> - Contains the Source Code Generator Class
 
 =back
 
-B<idl2eth> supports heuristic dissection of GIOP/IIOP traffic,
+B<idl2wrs> supports heuristic dissection of GIOP/IIOP traffic,
 and some experimental code for explicit dissection, based on
 Object Key <-> Repository Id mapping.
 However, code for heuristic based plugins is
@@ -37,29 +37,29 @@ method unless you have some namespace collisions.
 
 =head1 OPTIONS
 
-Currently there are no options. B<idl2eth> can be invoked as follows.
+Currently there are no options. B<idl2wrs> can be invoked as follows.
 
 1.  To write the C code to stdout.  
 
-    idl2eth  <your_file.idl>
+    idl2wrs  <your_file.idl>
 
-    eg: idl2eth echo.idl
+    eg: idl2wrs echo.idl
 
 
 2. To write to a file, just redirect the output.
 
-    idl2eth echo.idl > packet-test.c
+    idl2wrs echo.idl > packet-test.c
 
 
 
 
 =head1 ENVIRONMENT
 
-B<idl2eth> will look for B<ethereal_be.py> and B<ethereal_gen.py> in
+B<idl2wrs> will look for B<ethereal_be.py> and B<ethereal_gen.py> in
 B<$PYTHONPATH/site-packages/> and if not found, will try the current
 directory B<./>
 
-The B<-p> option passed to omniidl (inside B<idl2eth>) indicates where
+The B<-p> option passed to omniidl (inside B<idl2wrs>) indicates where
 B<ethereal_be.py> and B<ethereal_gen.py> will be searched.  This may
 need tweaking if you place these files somewhere else.
 
@@ -76,11 +76,11 @@ I<ethereal(1)>
 
 =head1 NOTES
 
-B<idl2eth> (including B<ethereal_be.py> and B<ethereal_gen.py>) are part of 
+B<idl2wrs> (including B<ethereal_be.py> and B<ethereal_gen.py>) are part of 
 the B<Ethereal> distribution.  The latest version of B<Ethereal> can 
 be found at B<http://www.ethereal.com>.
 
-B<idl2eth> uses B<omniidl>, and IDL parser, and can be found at
+B<idl2wrs> uses B<omniidl>, and IDL parser, and can be found at
 B<http://omniorb.sourceforge.net/>
 
 =head1 TODO

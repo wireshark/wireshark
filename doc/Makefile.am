@@ -91,17 +91,17 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	--noindex							\
 	$(srcdir)/editcap.pod > ../editcap.html
 
-../idl2eth.1: idl2eth.pod ../config.h
+../idl2wrs.1: idl2wrs.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	$(srcdir)/idl2eth.pod > ../idl2eth.1
+	$(srcdir)/idl2wrs.pod > ../idl2wrs.1
 
-../idl2eth.html: idl2eth.pod ../config.h
+../idl2wrs.html: idl2wrs.pod ../config.h
 	$(POD2HTML)							\
-	--title="idl2eth - The Wireshark Network Analyzer $(VERSION)"	\
+	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)"	\
 	--noindex							\
-	$(srcdir)/idl2eth.pod > ../idl2eth.html
+	$(srcdir)/idl2wrs.pod > ../idl2wrs.html
 
 ../mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN)					\
@@ -158,8 +158,8 @@ CLEANFILES =		\
 	../text2pcap.html	\
 	../dumpcap.1	\
 	../dumpcap.html	\
-	../idl2eth.1	\
-	../idl2eth.html
+	../idl2wrs.1	\
+	../idl2wrs.html
 
 DISTCLEANFILES =	\
 	pod2htmi.tmp	\

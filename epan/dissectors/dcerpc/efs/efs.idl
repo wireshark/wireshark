@@ -28,7 +28,7 @@ WERROR EfsRpcWriteFileRaw(
 /* incomplete */
 );
 
-/*XXX this one is really void, need to fix idl2eth for this */
+/*XXX this one is really void, need to fix idl2wrs for this */
 WERROR EfsRpcCloseRaw(
 	[in,out,ref] policy_handle *pvContext,
 );

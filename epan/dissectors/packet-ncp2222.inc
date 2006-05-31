@@ -1696,7 +1696,7 @@ typedef proto_item* (*padd_func_t)(ptvcursor_t*, const ptvc_record*);
  * XXX - are these just DOS-format dates and times?
  *
  * Should we put code to understand various date and time formats (UNIX,
- * DOS, SMB weird mutant UNIX, NT, Mac, etc. into libethereal, and have
+ * DOS, SMB weird mutant UNIX, NT, Mac, etc. into libwireshark, and have
  * the "display" member of an HF_ABSOLUTE_TIME field specify whether
  * it's DOS date/DOS time, DOS time/DOS date, NT time, UNIX time_t,
  * UNIX "struct timeval", NFSv3/NFSv4 seconds/nanoseconds, Mac, etc.?

@@ -61,21 +61,21 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # the "man{section}_MANS" variables.
 #
 bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
-bin_SCRIPTS = @idl2eth_bin@
-man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @dumpcap_man@ @idl2eth_man@
+bin_SCRIPTS = @idl2wrs_bin@
+man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
 EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap
-EXTRA_SCRIPTS = idl2eth
+EXTRA_SCRIPTS = tools/idl2wrs
 
 #
 # Ethereal configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 	ethereal-filter.html capinfos.html editcap.html \
-	idl2eth.html mergecap.html text2pcap.html dumpcap.html \
+	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
 	cfilters colorfilters dfilters
 
 #
@@ -276,7 +276,7 @@ ethereal_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
 ethereal_additional_libs = \
 	gtk/libui.a		\
 	wiretap/libwiretap.la	\
-	epan/libethereal.la
+	epan/libwireshark.la
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -311,7 +311,7 @@ ethereal_LDADD = \
 # linked into the tethereal executable.
 tethereal_additional_libs =		\
 	wiretap/libwiretap.la		\
-	epan/libethereal.la
+	epan/libwireshark.la
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
@@ -429,7 +429,7 @@ randpkt_LDADD = \
 
 dftest_additional_libs =		\
 	wiretap/libwiretap.la		\
-	epan/libethereal.la
+	epan/libwireshark.la
 
 dftest_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
@@ -468,7 +468,7 @@ dumpcap_LDADD = \
 CLEANFILES =		\
 	svnversion.h	\
 	@rdps_bin@	\
-	idl2eth		\
+	idl2wrs		\
 	*~		\
 	vgcore.pid*
 
@@ -538,7 +538,7 @@ EXTRA_DIST = \
 	doc/README.capture	\
 	doc/README.design	\
 	doc/README.developer	\
-	doc/README.idl2eth	\
+	doc/README.idl2wrs	\
 	doc/README.malloc	\
 	doc/README.plugins	\
 	doc/README.regression   \
@@ -550,7 +550,7 @@ EXTRA_DIST = \
 	doc/editcap.pod		\
 	doc/ethereal-filter.pod.template \
 	doc/ethereal.pod	\
-	doc/idl2eth.pod		\
+	doc/idl2wrs.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
 	doc/tethereal.pod	\
@@ -560,11 +560,10 @@ EXTRA_DIST = \
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
-	epan/libethereal.def	\
+	epan/libwireshark.def	\
 	ethereal_be.py		\
 	ethereal_gen.py		\
 	ethereal.desktop	\
-	idl2eth.sh		\
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
 	image/README.image	\
@@ -593,7 +592,7 @@ EXTRA_DIST = \
 	image/hi48-app-ethereal.png	\
 	image/icon-ethereal.xpm	\
 	image/icon-excl.xpm	\
-	image/libethereal.rc.in	\
+	image/libwireshark.rc.in	\
 	image/lo16-app-ethereal.png	\
 	image/lo32-app-ethereal.png	\
 	image/lo48-app-ethereal.png	\
@@ -718,9 +717,9 @@ editcap.1: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.1 )
 
-idl2eth.1: doc/idl2eth.pod
+idl2wrs.1: doc/idl2wrs.pod
 	(cd doc ; \
-	$(MAKE) ../idl2eth.1 )
+	$(MAKE) ../idl2wrs.1 )
 
 mergecap.1: doc/mergecap.pod
 	(cd doc ; \
@@ -754,9 +753,9 @@ editcap.html: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.html )
 
-idl2eth.html: doc/idl2eth.pod
+idl2wrs.html: doc/idl2wrs.pod
 	(cd doc ; \
-	$(MAKE) ../idl2eth.html )
+	$(MAKE) ../idl2wrs.html )
 
 mergecap.html: doc/mergecap.pod
 	(cd doc ; \

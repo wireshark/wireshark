@@ -27,10 +27,10 @@
 include ../config.nmake
 
 doc: ethereal.html tethereal.html ethereal-filter.html capinfos.html \
-	editcap.html idl2eth.html mergecap.html text2pcap.html dumpcap.html
+	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html
 
 man: ethereal.1 tethereal.1 ethereal-filter.4 capinfos.1 editcap.1 \
-	idl2eth.1 mergecap.1 text2pcap.1 dumpcap.1
+	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1
 
 ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT-FORMAT
 	copy /B ethereal.pod + ..\AUTHORS-SHORT-FORMAT ethereal-tmp.pod
@@ -113,17 +113,17 @@ editcap.html: editcap.pod ../config.h
 	--noindex                                 \
 	editcap.pod > editcap.html
 
-idl2eth.1: idl2eth.pod ../config.h
+idl2wrs.1: idl2wrs.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	idl2eth.pod > idl2eth.1
+	idl2wrs.pod > idl2wrs.1
 
-idl2eth.html: idl2eth.pod ../config.h
+idl2wrs.html: idl2wrs.pod ../config.h
 	$(POD2HTML)                     \
-	--title="idl2eth - The Wireshark Network Analyzer $(VERSION)" \
+	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	idl2eth.pod > idl2eth.html
+	idl2wrs.pod > idl2wrs.html
 
 mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN)                      \
@@ -167,7 +167,7 @@ clean:
 	rm -f ethereal-filter.html ethereal-filter.4 ethereal-filter.pod
 	rm -f capinfos.html capinfos.1
 	rm -f editcap.html editcap.1
-	rm -f idl2eth.html idl2eth.1
+	rm -f idl2wrs.html idl2wrs.1
 	rm -f mergecap.html mergecap.1
 	rm -f text2pcap.html text2pcap.1
 	rm -f dumpcap.html dumpcap.1

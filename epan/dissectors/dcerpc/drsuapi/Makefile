@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../idl2eth drsuapi.idl drsuapi.cnf template.c template.h 
-	../idl2eth drsuapi
+$(DISSECTOR_FILES): ../idl2wrs drsuapi.idl drsuapi.cnf template.c template.h 
+	../idl2wrs drsuapi
 
 clean:
 	rm -f ETH_* $(DISSECTOR_FILES)

@@ -66,7 +66,7 @@ dfilter_free(dfilter_t *df);
 
 /* dfilter_error_msg is NULL if there was no error during dfilter_compile,
  * otherwise it points to a displayable error message. With MSVC and a 
- * libethereal.dll, we need a special declaration.
+ * libwireshark.dll, we need a special declaration.
  */
 
 ETH_VAR_IMPORT gchar *dfilter_error_msg;

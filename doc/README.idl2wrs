@@ -6,21 +6,21 @@ Copyright (C) 2001 Frank Singleton <frank.singleton@ericsson.com>
 What is it ?
 ============
 
-As you have probably guessed from the name, "idl2eth" takes a
+As you have probably guessed from the name, "idl2wrs" takes a
 user specified IDL file and attempts to build a dissector that
 can decode the IDL traffic over GIOP. The resulting file is
 "C" code, that should compile okay as an ethereal dissector.
 
-idl2eth basically parses the data struct given to it by
+idl2wrs basically parses the data struct given to it by
 the omniidl compiler, and using the GIOP API available in packet-giop.[ch],
 generates  get_CDR_xxx calls to decode the CORBA traffic on the wire.
 
 It consists of 4 main files.
 
-README.idl2eth     - This document
+README.idl2wrs     - This document
 ethereal_be.py     - The main compiler backend
 ethereal_gen.py    - A helper class, that generates the C code.
-idl2eth            - A simple shell script wrapper that the end user should
+idl2wrs            - A simple shell script wrapper that the end user should
                      use to generate the dissector from the IDL file(s).
 
 Why did you do this ?
@@ -40,10 +40,10 @@ It is also COOL to work on a great Open Source project such as
 the case with "Ethereal" (http://www.ethereal.com)
 
 
-How to use idl2eth
+How to use idl2wrs
 ==================
 
-To use the idl2eth to generate ethereal dissectors, you
+To use the idl2wrs to generate ethereal dissectors, you
 need the following.
 
 
@@ -54,7 +54,7 @@ need the following.
    http://omniorb.sourceforge.net/
 
 3  Of course you need ethereal installed to compile the
-   code an tweak it if required. idl2eth is part of the 
+   code an tweak it if required. idl2wrs is part of the 
    standard Ethereal distribution
 
 
@@ -63,14 +63,14 @@ Procedure
 
 1.  To write the C code to stdout.  
 
-    idl2eth  <your file.idl>
+    idl2wrs  <your file.idl>
 
-    eg: idl2eth echo.idl
+    eg: idl2wrs echo.idl
 
 
 2. To write to a file, just redirect the output.
 
-    idl2eth echo.idl > packet-test-idl.c
+    idl2wrs echo.idl > packet-test-idl.c
 
    You may wish to comment out the register_giop_user_module() code
    and that will leave you with heuristic dissection.

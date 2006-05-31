@@ -26,7 +26,7 @@
 
 /*
   TODO:
-  1) Dissect encoded data (do sth like idl2eth for CORBA).
+  1) Dissect encoded data (do sth like idl2wrs for CORBA).
   2) Add conversations.
   3) Register a dissector as one that can be selected by a UDP/TCP port number.
   4) Put in Preferences/Protocols/ICEP Option menu:

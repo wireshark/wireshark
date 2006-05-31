@@ -52,8 +52,8 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF HHC_DIR
 	$(HHC_DIR)\lib\htmlhelp.lib \
 !ENDIF
-!IFDEF ENABLE_LIBETHEREAL
-	epan\libethereal.lib \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
@@ -69,8 +69,8 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
-!IFDEF ENABLE_LIBETHEREAL
-	epan\libethereal.lib \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
@@ -101,8 +101,8 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
-!IFDEF ENABLE_LIBETHEREAL
-	epan\libethereal.lib \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
@@ -121,7 +121,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
-RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res \
+RESOURCES=image\ethereal.res image\libwireshark.res image\tethereal.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
@@ -230,7 +230,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_DATALINK_NAME_TO_VAL@/$(PCAP_DATALINK_NAME_TO_VAL_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_BREAKLOOP@/$(PCAP_BREAKLOOP_CONFIG)/" \
-	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
+	    -e "s/@HAVE_LIBWIRESHARKDLL@/$(LIBWIRESHARK_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
 	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
@@ -295,7 +295,7 @@ clean: gtk2_distclean
 		AUTHORS-SHORT-FORMAT \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext dumpcap.obj \
 		doxygen.cfg \
-		$(RESOURCES) libethereal.dll wiretap-$(WTAP_VERSION).dll
+		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll
 	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -660,8 +660,8 @@ install-gtk1-deps: install-required-deps
 install-required-deps:
 	set copycmd=/y
 	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d
-!IFDEF ENABLE_LIBETHEREAL
-	xcopy epan\libethereal.dll . /d
+!IFDEF ENABLE_LIBWIRESHARK
+	xcopy epan\libwireshark.dll . /d
 !ENDIF
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll . /d
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll . /d

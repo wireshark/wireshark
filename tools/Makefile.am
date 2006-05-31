@@ -71,6 +71,7 @@ EXTRA_DIST = \
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
 	fuzz-test.sh					\
+	idl2wrs.sh					\
 	lex.py						\
 	make-dissector-reg				\
 	make-dissector-reg.py				\

@@ -622,20 +622,20 @@ fi
 AC_SUBST(text2pcap_bin)
 AC_SUBST(text2pcap_man)
 
-# Enable/disable idl2eth
+# Enable/disable idl2wrs
 
-AC_ARG_ENABLE(idl2eth,
-[  --enable-idl2eth        build idl2eth.  [default=yes]],enable_idl2eth=$enableval,enable_idl2eth=yes)
+AC_ARG_ENABLE(idl2wrs,
+[  --enable-idl2wrs        build idl2wrs.  [default=yes]],enable_idl2wrs=$enableval,enable_idl2wrs=yes)
 
-if test "x$enable_idl2eth" = "xyes" ; then
-	idl2eth_bin="idl2eth"
-	idl2eth_man="idl2eth.1"
+if test "x$enable_idl2wrs" = "xyes" ; then
+	idl2wrs_bin="idl2wrs"
+	idl2wrs_man="idl2wrs.1"
 else
-	idl2eth_bin=""
-	idl2eth_man=""
+	idl2wrs_bin=""
+	idl2wrs_man=""
 fi
-AC_SUBST(idl2eth_bin)
-AC_SUBST(idl2eth_man)
+AC_SUBST(idl2wrs_bin)
+AC_SUBST(idl2wrs_man)
 
 
 # Enable/disable dftest
@@ -1269,7 +1269,7 @@ AC_SUBST(plugindir)
 #
 # The plugin dissectors reside in ./plugins/PROTO/
 #
-PLUGIN_LIBS="-L../../epan -lethereal $GLIB_LIBS"
+PLUGIN_LIBS="-L../../epan -lwireshark $GLIB_LIBS"
 AC_SUBST(PLUGIN_LIBS)
 
 dnl libtool defs
@@ -1408,7 +1408,7 @@ echo "                     Build editcap : $enable_editcap"
 echo "                     Build dumpcap : $enable_dumpcap"
 echo "                    Build mergecap : $enable_mergecap"
 echo "                   Build text2pcap : $enable_text2pcap"
-echo "                     Build idl2eth : $enable_idl2eth"
+echo "                     Build idl2wrs : $enable_idl2wrs"
 echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"
 echo ""

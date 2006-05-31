@@ -37,13 +37,13 @@
 #define HAVE_PLUGINS		1
 #define PLUGINS_NEED_ADDRESS_TABLE 1
 
-/* Plugins can also use the import library of libethereal.dll instead
+/* Plugins can also use the import library of libwireshark.dll instead
    of the old API. In that case we undefine PLUGINS_NEED_ADDRESS_TABLE 
    for the plugin. We don't undefine PLUGINS_NEED_ADDRESS_TABLE globally.
    Thus Ethereal will be still able to load plugins using the old API. 
-   The macro HAVE_WIN32_LIBETHEREAL_LIB has to be defined in plugin's 
+   The macro HAVE_WIN32_LIBWIRESHARK_LIB has to be defined in plugin's 
    makefile.nmake. A template is available in doc/README.plugins */
-#ifdef HAVE_WIN32_LIBETHEREAL_LIB
+#ifdef HAVE_WIN32_LIBWIRESHARK_LIB
 #undef PLUGINS_NEED_ADDRESS_TABLE
 #endif
 
@@ -61,15 +61,15 @@
 @HAVE_PCAP_DATALINK_NAME_TO_VAL@
 @HAVE_PCAP_DATALINK_VAL_TO_NAME@
 @WPCAP_CONSTIFIED@
-@HAVE_LIBETHEREALDLL@
+@HAVE_LIBWIRESHARKDLL@
 
 /* availability of pcap_freecode() is handled at runtime */
 #define HAVE_PCAP_FREECODE 1
 
 /* define macro for importing variables from an dll 
- * it depends on HAVE_LIBETHEREAL and _NEED_VAR_IMPORT_
+ * it depends on HAVE_LIBWIRESHARK and _NEED_VAR_IMPORT_
  */
-#if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBETHEREALDLL)
+#if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBWIRESHARKDLL)
 #  define ETH_VAR_IMPORT __declspec(dllimport) extern
 #else
 #  define ETH_VAR_IMPORT extern

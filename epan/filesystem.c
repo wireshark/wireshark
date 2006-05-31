@@ -478,7 +478,7 @@ get_progfile_dir(void)
  * Get the directory in which the global configuration and data files are
  * stored.
  *
- * XXX - if we ever make libethereal a real library, used by multiple
+ * XXX - if we ever make libwireshark a real library, used by multiple
  * applications (more than just Twireshark and versions of Wireshark with
  * various UIs), should the configuration files belong to the library
  * (and be shared by all those applications) or to the applications?
@@ -492,11 +492,11 @@ get_progfile_dir(void)
  * passed in as an argument, in some call, on UNIX.
  *
  * Note that some of those configuration files might be used by code in
- * libethereal, some of them might be used by dissectors (would they
- * belong to libethereal, the application, or a separate library?),
+ * libwireshark, some of them might be used by dissectors (would they
+ * belong to libwireshark, the application, or a separate library?),
  * and some of them might be used by other code (the Wireshark preferences
  * file includes resolver preferences that control the behavior of code
- * in libethereal, dissector preferences, and UI preferences, for
+ * in libwireshark, dissector preferences, and UI preferences, for
  * example).
  */
 const char *

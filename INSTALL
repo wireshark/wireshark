@@ -99,7 +99,7 @@ README.win32 for those instructions.
         By default the hex-dump-to-capture file conversion program
         is built. Use this switch to avoid building it.
 
-    --disable-idl2eth
+    --disable-idl2wrs
         By default the IDL-to-ethereal-dissector-source-code converter
         is built. Use this switch to avoid building it.
 

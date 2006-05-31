@@ -80,7 +80,7 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 #
 # The first argument is the directory in which the source files live.
 # The second argument is "dissectors", to indicate that we should build
-# a register.c file for libethereal.
+# a register.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
 register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \

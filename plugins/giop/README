@@ -1,10 +1,10 @@
 This directory contains Ethereal plugins that use the GIOP
 API (see packet-giop.h).
 
-It is intended that the tool "idl2eth", now part of the standard
+It is intended that the tool "idl2wrs", now part of the standard
 Ethereal distribution, will be used generate these plugins.
 
-Please read README.idl2eth for information on using "idl2eth"
+Please read README.idl2wrs for information on using "idl2wrs"
 and README.plugins for incorporating CORBA GIOP plugins into
 this directory (plugins/giop)
 

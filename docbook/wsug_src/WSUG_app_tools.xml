@@ -746,12 +746,12 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
     </variablelist>
   </section>
   
-  <section id="AppToolsidl2eth" >
-    <title><command>idl2eth</command>: 
+  <section id="AppToolsidl2wrs" >
+    <title><command>idl2wrs</command>: 
       Creating dissectors from Corba IDL files
     </title>
     <para>
-      In an ideal world idl2eth would be mentioned in the users guide 
+      In an ideal world idl2wrs would be mentioned in the users guide 
       in passing and documented in the developers guide.  As the 
       developers guide 
       has not yet been completed it will be documented here.
@@ -760,20 +760,20 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
       <title>What is it?</title>
       <para>
 	As you have probably guessed from the name, 
-	<command>idl2eth</command> takes a
+	<command>idl2wrs</command> takes a
 	user specified IDL file and attempts to build a dissector that
 	can decode the IDL traffic over GIOP. The resulting file is
 	"C" code, that should compile okay as an ethereal dissector.
       </para>
       <para>
-	<command>idl2eth</command> basically parses the data struct given to 
+	<command>idl2wrs</command> basically parses the data struct given to 
 	it by the omniidl compiler, and using the GIOP API available in 
 	packet-giop.[ch], generates  get_CDR_xxx calls to decode the 
 	CORBA traffic on the wire.
       </para>
       <para>It consists of 4 main files.</para>
       <variablelist>
-	<varlistentry><term><filename>README.idl2eth</filename></term>
+	<varlistentry><term><filename>README.idl2wrs</filename></term>
 	  <listitem>
 	    <para>This document</para>
 	  </listitem>
@@ -788,7 +788,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	    <para>A helper class, that generates the C code.</para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><filename>idl2eth</filename></term>
+	<varlistentry><term><filename>idl2wrs</filename></term>
 	  <listitem>
 	    <para> A simple shell script wrapper that the end user should
 	      use to generate the dissector from the IDL file(s).</para>
@@ -817,13 +817,13 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	)
       </para>
     </section>
-    <section><title>How to use idl2eth</title>
+    <section><title>How to use idl2wrs</title>
       <para>
-	To use the idl2eth to generate ethereal dissectors, you
+	To use the idl2wrs to generate ethereal dissectors, you
 	need the following:
       </para>
       <orderedlist>
-	<title>Prerequisites to using idl2eth</title>
+	<title>Prerequisites to using idl2wrs</title>
 	<listitem>
 	  <para>
 	    Python must be installed.  See 
@@ -839,13 +839,13 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>
 	    Of course you need ethereal installed to compile the
-	    code and tweak it if required. idl2eth is part of the 
+	    code and tweak it if required. idl2wrs is part of the 
 	    standard Wireshark distribution
 	  </para>
 	</listitem>
       </orderedlist>
       <para>
-	To use idl2eth to generate an ethereal dissector from an idl file 
+	To use idl2wrs to generate an ethereal dissector from an idl file 
 	use the following procedure:
       </para>
       <orderedlist>
@@ -856,14 +856,14 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>
 	    To write the C code to stdout.
-	    <programlisting>idl2eth  &lt;your file.idl&gt;</programlisting>
-	    eg: <programlisting>idl2eth echo.idl</programlisting>
+	    <programlisting>idl2wrs  &lt;your file.idl&gt;</programlisting>
+	    eg: <programlisting>idl2wrs echo.idl</programlisting>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    To write to a file, just redirect the output.
-	    <programlisting>idl2eth echo.idl > packet-test-idl.c</programlisting>
+	    <programlisting>idl2wrs echo.idl > packet-test-idl.c</programlisting>
 	    You may wish to comment out the register_giop_user_module() code 
 	    and that will leave you with heuristic dissection.
 	  </para>

@@ -304,8 +304,8 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
-!ifdef ENABLE_LIBETHEREAL
-File "..\..\epan\libethereal.dll"
+!ifdef ENABLE_LIBWIRESHARK
+File "..\..\epan\libwireshark.dll"
 !endif
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"

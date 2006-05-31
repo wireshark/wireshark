@@ -1,5 +1,5 @@
 /* This idl file originally came from the DCE project  but has been
-   significantly refactored to pass through the idl2eth   idl-lite
+   significantly refactored to pass through the idl2wrs   idl-lite
    compiler.
 
    DCE has been released as LGPL,   hats off to TheOpenGroup
@@ -126,14 +126,14 @@
    renamed error_status_t  WERROR  a 32bit integer ststus code
    removed handle_t   it has no wire encoding
 
-   rewrote the unions so that idl2eth can parse them
+   rewrote the unions so that idl2wrs can parse them
 
    changed all varying strings to the type butcNameString_t which is
    implemented in the template
 
-   changed the structs so they are compatible with idl2eth
+   changed the structs so they are compatible with idl2wrs
 
-   afshyper is called udlong  in idl2eth   8 bytes, aligned at 4 bytes
+   afshyper is called udlong  in idl2wrs   8 bytes, aligned at 4 bytes
 
    added afsnetaddr definition
 

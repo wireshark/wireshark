@@ -1,4 +1,4 @@
-; libethereal.def
+; libwireshark.def
 ; $Id$
 
 EXPORTS

@@ -23,7 +23,7 @@ srcdir = sys.argv[1]
 #
 # The second argument is either "plugin" or "dissectors"; if it's
 # "plugin", we build a plugin.c for a plugin, and if it's
-# "dissectors", we build a register.c for libethereal.
+# "dissectors", we build a register.c for libwireshark.
 #
 registertype = sys.argv[2]
 if registertype == "plugin":

@@ -2920,7 +2920,7 @@ int Exit(int code)
 
 void usage(void)
 {
-	fprintf(stderr, "Usage: idl2eth <interface>\n");
+	fprintf(stderr, "Usage: idl2wrs <interface>\n");
 }
 
 void
