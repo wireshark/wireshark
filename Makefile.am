@@ -662,6 +662,14 @@ EXTRA_DIST = \
 	image/icon_layout_6.xpm \
 	image/win32-file-dlg.rc \
 	image/wiretap.rc.in	\
+	image/wsicon16.png	\
+	image/wsicon200.png	\
+	image/wsicon32.png	\
+	image/wsicon48.png	\
+	image/wsicon64.png	\
+	image/wsicon.svg	\
+	image/wslogo.svg	\
+	image/wssplash.xpm	\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
 	make-manuf		\
