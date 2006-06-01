@@ -32,8 +32,8 @@ PIDL_FILES= \
 	pidl/lib/Parse/Pidl.pm				\
 	pidl/lib/Parse/Pidl/Compat.pm			\
 	pidl/lib/Parse/Pidl/Dump.pm			\
-	pidl/lib/Parse/Pidl/Ethereal/Conformance.pm	\
-	pidl/lib/Parse/Pidl/Ethereal/NDR.pm		\
+	pidl/lib/Parse/Pidl/Wireshark/Conformance.pm	\
+	pidl/lib/Parse/Pidl/Wireshark/NDR.pm		\
 	pidl/lib/Parse/Pidl/IDL.pm			\
 	pidl/lib/Parse/Pidl/NDR.pm			\
 	pidl/lib/Parse/Pidl/ODL.pm			\
@@ -65,7 +65,7 @@ PIDL_FILES= \
 
 EXTRA_DIST = \
 	$(PIDL_FILES)					\
-	EtherealXML.py					\
+	WiresharkXML.py					\
 	Makefile.nmake					\
 	asn2wrs.py					\
 	cvsdiff-fix.py					\
@@ -80,6 +80,8 @@ EXTRA_DIST = \
 	pkt-from-core.py				\
 	unix2dos.pl					\
 	win32-setup.sh					\
+	wireshark_be.py					\
+	wireshark_gen.py				\
 	yacc.py
 
 MAINTAINERCLEANFILES = \

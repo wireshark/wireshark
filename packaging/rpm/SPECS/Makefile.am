@@ -1,4 +1,4 @@
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-EXTRA_DIST = ethereal.spec.in
+EXTRA_DIST = wireshark.spec.in

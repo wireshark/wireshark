@@ -565,8 +565,6 @@ EXTRA_DIST = \
 	dumpcap.c	\
 	editcap.c		\
 	epan/libwireshark.def	\
-	wireshark_be.py		\
-	wireshark_gen.py		\
 	wireshark.desktop	\
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
