@@ -14,6 +14,7 @@ S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
+S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
 S<[ B<-k> ]>
 S<[ B<-l> ]>
@@ -255,6 +256,10 @@ After reading in a capture file using the B<-r> flag, go to the given I<packet n
 =item -h
 
 Print the version and options and exit.
+
+=item -H
+
+Hide the capture info dialog during live packet capture.
 
 =item -i  E<lt>capture interfaceE<gt>|-
 
