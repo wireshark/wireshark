@@ -816,7 +816,19 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		   to the bottom of the encoding */
 		range=1000000;
 	} else {
-		range=max-min+1;
+		/* Really ugly hack.
+		 * We should really use guint64 as parameters for min/max.
+		 * This is to prevent range from being 0 if
+		 * the range for a signed integer spans the entire 32 bit range.
+		 * Special case the 2 common cases when this can happen until
+		 * a real fix is implemented.
+		 */
+		if( (max==0x7fffffff && min==0x80000000)
+		||  (max==0xffffffff && min==0x00000000) ){
+			range=0xffffffff;
+		} else {
+			range=max-min+1;
+		}
 	}
 
 	num_bits=0;
@@ -824,6 +836,12 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	val=0;
 	timeval.secs=val; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
+
+	if(range==0){
+		/* something is really wrong if range is 0 */
+		g_assert_not_reached();
+	}
+
 	if(range==1){
 		val_start = offset>>3; val_length = 0;
 		val = min; 
