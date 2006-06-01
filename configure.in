@@ -304,13 +304,13 @@ esac
 
 #
 # Check for versions of "sed" inadequate to handle, in libtool, a list
-# of object files as large as the list in Ethereal.
+# of object files as large as the list in Wireshark.
 #
 # On Solaris, we check for "/bin/sed", "/usr/bin/sed", and "/usr/ucb/sed",
 # as both "/usr/bin/sed" (which is also "/bin/sed", as "/bin" is just a
 # symlink to "/usr/bin", but people may have "/bin" before "/usr/bin" in
 # their search path) and "/usr/ucb/sed" are inadequate; "/usr/xpg4/bin/sed"
-# is the only "sed" that comes with Solaris that can handle Ethereal.
+# is the only "sed" that comes with Solaris that can handle Wireshark.
 #
 # Add any checks here that are necessary for other OSes.
 #
@@ -1287,7 +1287,7 @@ AC_SUBST(LIBTOOL_DEPS)
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
 if test x$enable_static = xyes -a x$have_plugins = xyes
 then
-  AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Ethereal])
+  AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Wireshark])
 fi
 AC_SUBST(ENABLE_STATIC)
 
@@ -1400,7 +1400,7 @@ else
 fi
 
 echo ""
-echo "The Ethereal package has been configured with the following options."
+echo "The Wireshark package has been configured with the following options."
 echo "                    Build wireshark : $enable_wireshark"
 echo "                       Build tshark : $enable_tshark"
 echo "                     Build capinfos : $enable_capinfos"
