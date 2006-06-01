@@ -308,6 +308,12 @@ CallIdentifier/guid guid
         g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_FTR SetupAcknowledge-UUIE
+  /* Add to packet info */
+  h225_pi->cs_type = H225_SETUP_ACK;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_FTR Facility-UUIE
   /* Add to packet info */
   h225_pi->cs_type = H225_FACILITY;
