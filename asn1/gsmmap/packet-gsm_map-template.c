@@ -121,6 +121,7 @@ static int hf_geo_loc_uncertainty_code = -1;
 static int hf_geo_loc_uncertainty_semi_major = -1;
 static int hf_geo_loc_uncertainty_semi_minor = -1;
 static int hf_geo_loc_orientation_of_major_axis = -1;
+static int hf_geo_loc_uncertainty_altitude = -1;
 static int hf_geo_loc_confidence = -1;
 static int hf_geo_loc_no_of_points = -1;
 static int hf_geo_loc_D = -1;
@@ -450,29 +451,45 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==8){
 			/* Ellipsoid Point with Altitude */
-			offset++;
 			/*D: Direction of Altitude */
 			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
 			/* Altitude */
 			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
 		}else if(type_of_shape==9){
 			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
-			offset++;
-			/*D: Direction of Altitude */
+			/*D: Direction of Altitude octet 8,9 */
 			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
-			/* Altitude */
+			/* Altitude Octet 8,9*/
 			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
-			offset++;
-			/* Uncertainty semi-major */
+			offset = offset +2;
+			/* Uncertainty semi-major octet 10
+			 * To convert to metres 10*(((1.1)^X)-1) 
+			 *
+			 * value = tvb_get_guint8(tvb,offset)
+			 *
+			 * value = 10*(pow(1.1,tvb_get_guint8(tvb,offset))-1);
+			 * proto_tree_add_uint(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, value);
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			offset++;
-			/* Uncertainty semi-minor */
+			/* Uncertainty semi-minor Octet 11
+			 * To convert to metres 10*(((1.1)^X)-1) 
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			offset++;
-			/* Orientation of major axis */
+			/* Orientation of major axis octet 12
+			 * allowed value from 0-179 to convert 
+			 * to actual degrees multiply by 2.
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
 			offset++;
-			/* Confidence */
+			/* Uncertainty Altitude 13
+			 * to convert to metres 45*(((1.025)^X)-1) 
+			 */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence octet 14
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==10){
 			/* Ellipsoid Arc */
@@ -2080,12 +2097,12 @@ void proto_register_gsm_map(void) {
 	},
 	{ &hf_geo_loc_deg_of_lat,
 		{ "Degrees of latitude","gad.sign_of_latitude",
-		FT_UINT32,BASE_DEC, NULL, 0x3fffff,          
+		FT_UINT24,BASE_DEC, NULL, 0x7fffff,          
 		"Degrees of latitude", HFILL }
 	},
 	{ &hf_geo_loc_deg_of_long,
 		{ "Degrees of longitude","gad.sign_of_longitude",
-		FT_UINT32,BASE_DEC, NULL, 0xffffff,          
+		FT_UINT24,BASE_DEC, NULL, 0xffffff,          
 		"Degrees of longitude", HFILL }
 	},
 	{ &hf_geo_loc_uncertainty_code,
@@ -2096,7 +2113,7 @@ void proto_register_gsm_map(void) {
 	{ &hf_geo_loc_uncertainty_semi_major,
 		{ "Uncertainty semi-major","gad.uncertainty_semi_major",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty semi-majore", HFILL }
+		"Uncertainty semi-major", HFILL }
 	},
 	{ &hf_geo_loc_uncertainty_semi_minor,
 		{ "Uncertainty semi-minor","gad.uncertainty_semi_minor",
@@ -2108,10 +2125,15 @@ void proto_register_gsm_map(void) {
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Orientation of major axis", HFILL }
 	},
-	{ &hf_geo_loc_confidence,
-		{ "Confidence","gad.confidence",
+	{ &hf_geo_loc_uncertainty_altitude,
+		{ "Uncertainty Altitude","gad.uncertainty_altitude",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Confidence", HFILL }
+		"Uncertainty Altitude", HFILL }
+	},
+	{ &hf_geo_loc_confidence,
+		{ "Confidence(%)","gad.confidence",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Confidence(%)", HFILL }
 	},
 	{ &hf_geo_loc_no_of_points,
 		{ "Number of points","gad.no_of_points",
@@ -2120,11 +2142,11 @@ void proto_register_gsm_map(void) {
 	},
 	{ &hf_geo_loc_D,
 		{ "D: Direction of Altitude","gad.D",
-		FT_UINT8,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
+		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
 		"D: Direction of Altitude", HFILL }
 	},
 	{ &hf_geo_loc_altitude,
-		{ "Altitude","gad.altitude",
+		{ "Altitude in meters","gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
 		"Altitude", HFILL }
 	},

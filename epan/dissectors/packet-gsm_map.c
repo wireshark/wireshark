@@ -129,6 +129,7 @@ static int hf_geo_loc_uncertainty_code = -1;
 static int hf_geo_loc_uncertainty_semi_major = -1;
 static int hf_geo_loc_uncertainty_semi_minor = -1;
 static int hf_geo_loc_orientation_of_major_axis = -1;
+static int hf_geo_loc_uncertainty_altitude = -1;
 static int hf_geo_loc_confidence = -1;
 static int hf_geo_loc_no_of_points = -1;
 static int hf_geo_loc_D = -1;
@@ -421,7 +422,7 @@ static int hf_gsm_map_ext_basicService = -1;      /* Ext_BasicServiceCode */
 static int hf_gsm_map_ext_ss_Status = -1;         /* Ext_SS_Status */
 static int hf_gsm_map_forwardedToNumber = -1;     /* ISDN_AddressString */
 static int hf_gsm_map_forwardedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ext_forwardingOptions = -1;  /* T_forwardingOptions */
+static int hf_gsm_map_ext_forwardingOptions = -1;  /* T_ext_forwardingOptions */
 static int hf_gsm_map_ext_noReplyConditionTime = -1;  /* Ext_NoRepCondTime */
 static int hf_gsm_map_longForwardedToNumber = -1;  /* FTN_AddressString */
 static int hf_gsm_map_ext_callBarringFeatureList = -1;  /* Ext_CallBarFeatureList */
@@ -962,7 +963,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 134 "packet-gsm_map-template.c"
+#line 135 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1380,7 +1381,7 @@ static gint ett_gsm_map_ExtensionContainer = -1;
 static gint ett_gsm_map_AccessTypePriv = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 151 "packet-gsm_map-template.c"
+#line 152 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -1683,29 +1684,45 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==8){
 			/* Ellipsoid Point with Altitude */
-			offset++;
 			/*D: Direction of Altitude */
 			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
 			/* Altitude */
 			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
 		}else if(type_of_shape==9){
 			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
-			offset++;
-			/*D: Direction of Altitude */
+			/*D: Direction of Altitude octet 8,9 */
 			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
-			/* Altitude */
+			/* Altitude Octet 8,9*/
 			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
-			offset++;
-			/* Uncertainty semi-major */
+			offset = offset +2;
+			/* Uncertainty semi-major octet 10
+			 * To convert to metres 10*(((1.1)^X)-1) 
+			 *
+			 * value = tvb_get_guint8(tvb,offset)
+			 *
+			 * value = 10*(pow(1.1,tvb_get_guint8(tvb,offset))-1);
+			 * proto_tree_add_uint(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, value);
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			offset++;
-			/* Uncertainty semi-minor */
+			/* Uncertainty semi-minor Octet 11
+			 * To convert to metres 10*(((1.1)^X)-1) 
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			offset++;
-			/* Orientation of major axis */
+			/* Orientation of major axis octet 12
+			 * allowed value from 0-179 to convert 
+			 * to actual degrees multiply by 2.
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, FALSE);
 			offset++;
-			/* Confidence */
+			/* Uncertainty Altitude 13
+			 * to convert to metres 45*(((1.025)^X)-1) 
+			 */
+			proto_tree_add_item(tree, hf_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
+			offset++;
+			/* Confidence octet 14
+			 */
 			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==10){
 			/* Ellipsoid Arc */
@@ -5748,7 +5765,7 @@ dissect_gsm_map_Ext_ForwOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static int
-dissect_gsm_map_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_T_ext_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #line 498 "gsmmap.cnf"
@@ -5762,7 +5779,7 @@ dissect_gsm_map_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 static int dissect_ext_forwardingOptions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_forwardingOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingOptions);
+  return dissect_gsm_map_T_ext_forwardingOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingOptions);
 }
 
 
@@ -14676,7 +14693,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 515 "packet-gsm_map-template.c"
+#line 532 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -16245,12 +16262,12 @@ void proto_register_gsm_map(void) {
 	},
 	{ &hf_geo_loc_deg_of_lat,
 		{ "Degrees of latitude","gad.sign_of_latitude",
-		FT_UINT32,BASE_DEC, NULL, 0x3fffff,          
+		FT_UINT24,BASE_DEC, NULL, 0x7fffff,          
 		"Degrees of latitude", HFILL }
 	},
 	{ &hf_geo_loc_deg_of_long,
 		{ "Degrees of longitude","gad.sign_of_longitude",
-		FT_UINT32,BASE_DEC, NULL, 0xffffff,          
+		FT_UINT24,BASE_DEC, NULL, 0xffffff,          
 		"Degrees of longitude", HFILL }
 	},
 	{ &hf_geo_loc_uncertainty_code,
@@ -16261,7 +16278,7 @@ void proto_register_gsm_map(void) {
 	{ &hf_geo_loc_uncertainty_semi_major,
 		{ "Uncertainty semi-major","gad.uncertainty_semi_major",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty semi-majore", HFILL }
+		"Uncertainty semi-major", HFILL }
 	},
 	{ &hf_geo_loc_uncertainty_semi_minor,
 		{ "Uncertainty semi-minor","gad.uncertainty_semi_minor",
@@ -16273,10 +16290,15 @@ void proto_register_gsm_map(void) {
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Orientation of major axis", HFILL }
 	},
-	{ &hf_geo_loc_confidence,
-		{ "Confidence","gad.confidence",
+	{ &hf_geo_loc_uncertainty_altitude,
+		{ "Uncertainty Altitude","gad.uncertainty_altitude",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Confidence", HFILL }
+		"Uncertainty Altitude", HFILL }
+	},
+	{ &hf_geo_loc_confidence,
+		{ "Confidence(%)","gad.confidence",
+		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		"Confidence(%)", HFILL }
 	},
 	{ &hf_geo_loc_no_of_points,
 		{ "Number of points","gad.no_of_points",
@@ -16285,11 +16307,11 @@ void proto_register_gsm_map(void) {
 	},
 	{ &hf_geo_loc_D,
 		{ "D: Direction of Altitude","gad.D",
-		FT_UINT8,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
+		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
 		"D: Direction of Altitude", HFILL }
 	},
 	{ &hf_geo_loc_altitude,
-		{ "Altitude","gad.altitude",
+		{ "Altitude in meters","gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
 		"Altitude", HFILL }
 	},
@@ -19591,7 +19613,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2153 "packet-gsm_map-template.c"
+#line 2175 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -20011,7 +20033,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_AccessTypePriv,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2172 "packet-gsm_map-template.c"
+#line 2194 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
