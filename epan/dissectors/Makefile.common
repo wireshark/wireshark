@@ -620,6 +620,7 @@ DISSECTOR_SRC =	\
 	packet-tftp.c	\
 	packet-time.c	\
 	packet-tipc.c	\
+	packet-tivoconnect.c	\
 	packet-tns.c	\
 	packet-tpkt.c	\
 	packet-tr.c	\
