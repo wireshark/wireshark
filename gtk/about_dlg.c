@@ -100,7 +100,7 @@ splash_new(char *message)
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
-    about_wireshark(win, main_vb, "Wireshark - Network Protocol Analyzer");
+    about_wireshark(win, main_vb, "Network Protocol Analyzer");
 
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
@@ -143,7 +143,7 @@ about_wireshark_page_new(void)
 {
   GtkWidget   *main_vb, *msg_label /*, *icon*/;
   gchar       *message;
-  const char   title[] = "Wireshark - Network Protocol Analyzer";
+  const char   title[] = "Network Protocol Analyzer";
 
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
