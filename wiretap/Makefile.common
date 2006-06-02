@@ -71,6 +71,7 @@ NONGENERATED_HEADER_FILES = \
 	ascend-int.h		\
 	atm.h			\
 	buffer.h		\
+	catapult_dct2000.h	\
 	cosine.h		\
 	csids.h			\
 	dbs-etherwatch.h	\

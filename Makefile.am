@@ -75,7 +75,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 	chmod +x idl2wrs
 
 #
-# Ethereal configuration files are put in $(pkgdatadir).
+# Wireshark configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = AUTHORS-SHORT manuf wireshark.html tshark.html \
 	wireshark-filter.html capinfos.html editcap.html \
@@ -290,7 +290,7 @@ wireshark_DEPENDENCIES = \
 
 # This automake variable adds to the link-line for the executable.
 #
-# Note that Ethereal doesn't have to be linked with @GLIB_LIBS@, as
+# Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
 # they are included in @GTK_LIBS@, and doesn't have to be linked with
 # @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
@@ -584,9 +584,9 @@ EXTRA_DIST = \
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\
 	image/elogo3d48x48.png	\
-	image/ethereal.exe.manifest.in \
-	image/ethereal.ico	\
-	image/ethereal.rc.in	\
+	image/wireshark.exe.manifest.in \
+	image/wireshark.ico	\
+	image/wireshark.rc.in	\
 	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \
 	image/hi16-app-ethereal.png	\
