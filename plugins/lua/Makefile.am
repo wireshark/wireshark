@@ -61,10 +61,11 @@ DISTCLEANFILES = \
 	dummy
 
 MAINTAINERCLEANFILES = \
-	doc/*.pod	\
 	Makefile.in	\
+	doc/*.pod	\
 	elua_register.h \
-	init.lua
+	init.lua	\
+	plugin.c
 
 EXTRA_DIST = \
 	elua_register.h \

@@ -51,9 +51,10 @@ DISTCLEANFILES = \
 	http-parser.h
 
 MAINTAINERCLEANFILES = \
-	Makefile.in \
-	http-parser.c \
-	http-parser.h 
+	Makefile.in	\
+	http-parser.c	\
+	http-parser.h 	\
+	plugin.c
 
 EXTRA_DIST = \
 	http.tpg \

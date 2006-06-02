@@ -63,7 +63,8 @@ MAINTAINERCLEANFILES = \
 	mate_grammar.c		\
 	mate_grammar.h		\
 	mate_grammar.out	\
-	mate_parser.c
+	mate_parser.c		\
+	plugin.c
 
 EXTRA_DIST = \
 	mate_grammar.lemon \

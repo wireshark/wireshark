@@ -59,7 +59,8 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	Makefile.in
+	Makefile.in	\
+	plugin.c
 
 EXTRA_DIST = \
 	Makefile.nmake
