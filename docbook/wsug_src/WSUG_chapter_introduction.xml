@@ -283,7 +283,8 @@
     <para>
       In late 1997, Gerald Combs needed a tool for tracking down 
       networking problems and wanted to learn more about networking, so 
-      he started writing Ethereal as a way to solve both problems.
+      he started writing Ethereal (the former name of the Wireshark project) 
+	  as a way to solve both problems.
     </para>
     <para>
       Ethereal was initially released, after several pauses in development, 
@@ -314,7 +315,7 @@
 	  dissector and contributed the code back to the team.
     </para>
     <para>
-	In 2006 the project moved house and re-emerged as Wireshark.
+	In 2006 the project moved house and re-emerged under a new name: Wireshark.
     </para>
   </section>
   
