@@ -38,43 +38,43 @@
 	      <row>
 		<entry><command>preferences</command></entry>
 		<entry>Settings from the Preferences dialog box.</entry>
-		<entry>/etc/ethereal.conf, $HOME/.ethereal/preferences</entry>
-		<entry>%WIRESHARK%\ethereal.conf, %APPDATA%\Wireshark\preferences</entry>
+		<entry>/etc/wireshark.conf, $HOME/.wireshark/preferences</entry>
+		<entry>%WIRESHARK%\wireshark.conf, %APPDATA%\Wireshark\preferences</entry>
 	      </row>
 	      <row>
 		<entry><command>recent</command></entry>
 		<entry>Recent GUI settings (e.g. recent files lists).</entry>
-		<entry>$HOME/.ethereal/recent</entry>
+		<entry>$HOME/.wireshark/recent</entry>
 		<entry>%APPDATA%\Wireshark\recent</entry>
 	      </row>
 	      <row>
 		<entry><command>cfilters</command></entry>
 		<entry>Capture filters.</entry>
-		<entry>$HOME/.ethereal/cfilters</entry>
+		<entry>$HOME/.wireshark/cfilters</entry>
 		<entry>%WIRESHARK%\cfilters, %APPDATA%\Wireshark\cfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>dfilters</command></entry>
 		<entry>Display filters.</entry>
-		<entry>$HOME/.ethereal/dfilters</entry>
+		<entry>$HOME/.wireshark/dfilters</entry>
 		<entry>%WIRESHARK%\dfilters, %APPDATA%\Wireshark\dfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>colorfilters</command></entry>
 		<entry>Coloring rules.</entry>
-		<entry>$HOME/.ethereal/colorfilters</entry>
+		<entry>$HOME/.wireshark/colorfilters</entry>
 		<entry>%WIRESHARK%\colorfilters, %APPDATA%\Wireshark\colorfilters</entry>
 	      </row>
 	      <row>
 		<entry><command>disabled_protos</command></entry>
 		<entry>Disabled protocols.</entry>
-		<entry>$HOME/.ethereal/disabled_protos</entry>
+		<entry>$HOME/.wireshark/disabled_protos</entry>
 		<entry>%WIRESHARK%\disabled_protos, %APPDATA%\Wireshark\disabled_protos</entry>
 	      </row>
 	      <row>
 		<entry><command>ethers</command></entry>
 		<entry>Ethernet name resolution.</entry>
-		<entry>/etc/ethers, $HOME/.ethereal/ethers</entry>
+		<entry>/etc/ethers, $HOME/.wireshark/ethers</entry>
 		<entry>%WIRESHARK%\ethers, %APPDATA%\Wireshark\ethers</entry>
 	      </row>
 	      <row>
@@ -86,21 +86,21 @@
 	      <row>
 		<entry><command>hosts</command></entry>
 		<entry>IPv4 and IPv6 name resolution.</entry>
-		<entry>$HOME/.ethereal/hosts</entry>
+		<entry>$HOME/.wireshark/hosts</entry>
 		<entry>%APPDATA%\hosts</entry>
 	      </row>
 	      <row>
 		<entry><command>ipxnets</command></entry>
 		<entry>IPX name resolution.</entry>
-		<entry>$HOME/.ethereal/ipxnets</entry>
+		<entry>$HOME/.wireshark/ipxnets</entry>
 		<entry>%WIRESHARK%\ipxnets</entry>
 	      </row>
 	      <row>
 		<entry><command>plugins</command></entry>
 		<entry>Plugin directories.</entry>
-		<entry>/usr/share/ethereal/plugins, 
-	      /usr/local/share/ethereal/plugins, 
-	      $HOME/.ethereal/plugins
+		<entry>/usr/share/wireshark/plugins, 
+	      /usr/local/share/wireshark/plugins, 
+	      $HOME/.wireshark/plugins
 		</entry>
 		<entry>%WIRESHARK%\plugins\&lt;version&gt;, 
 		%APPDATA%\Wireshark\plugins</entry>
@@ -133,7 +133,7 @@
     <para>
       <variablelist>
 	<varlistentry>
-	  <term><command>preferences/ethereal.conf</command></term>
+	  <term><command>preferences/wireshark.conf</command></term>
 	  <listitem>
 	    <para>
 	      This file contains your Wireshark preferences, 
@@ -239,7 +239,7 @@ udp
 	      addresses to names, it consults the files listed in 
 		  <xref linkend="AppFilesTabFolders"/>.
 	      If an address is not found in /etc/ethers, 
-	      Wireshark looks in $HOME/.ethereal/ethers
+	      Wireshark looks in $HOME/.wireshark/ethers
 	    </para>
 	    <para>
 	      Each line in these files consists of one hardware address and 

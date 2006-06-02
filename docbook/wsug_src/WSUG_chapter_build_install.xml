@@ -661,11 +661,6 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
 	</para></listitem>
 	<listitem><para>
-    The ethereal.com mirror:
-	<ulink url="http://winpcap.mirror.ethereal.com">
-	http://winpcap.mirror.ethereal.com</ulink>
-	</para></listitem>
-	<listitem><para>
     The Wiretapped.net mirror:
 	<ulink url="http://www.mirrors.wiretapped.net/security/packet-capture/winpcap">
 	http://www.mirrors.wiretapped.net/security/packet-capture/winpcap</ulink>
