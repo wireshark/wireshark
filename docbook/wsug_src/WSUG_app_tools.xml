@@ -14,6 +14,18 @@
 	</para>
   </section>
   
+  <section id="AppToolstshark">
+    <title><command>tshark</command>: Terminal-based Wireshark</title>
+    <para>
+      <application>TShark</application> is a terminal oriented version 
+      of Wireshark designed for capturing and displaying packets when an 
+	  interactive user interface isn't necessary or available. It supports 
+	  the same options as <command>wireshark</command>. For more 
+      information on <command>tshark</command>, see the manual pages 
+      (<command>man tshark</command>).
+    </para>
+  </section>
+
   <section id="AppToolstcpdump">
     <title><command>tcpdump</command>: Capturing with tcpdump for viewing 
 	with Wireshark</title>
@@ -49,15 +61,65 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
 	</note>
   </section>
   
-  <section id="AppToolstshark">
-    <title><command>TShark</command>: Terminal-based Wireshark</title>
+  <section id="AppToolsdumpcap">
+    <title><command>dumpcap</command>: Capturing with dumpcap for viewing 
+	with Wireshark</title>
     <para>
-      <application>TShark</application> is a terminal oriented version 
-      of Wireshark designed for capturing and displaying packets when an 
-	  interactive user interface isn't necessary or available. It supports 
-	  the same options as <command>wireshark</command>. For more 
-      information on <command>tshark</command>, see the manual pages 
-      (<command>man tshark</command>).
+	<application>Dumpcap</application> is a network traffic dump tool. 
+	It lets you capture packet data from a live network and write the 
+	packets to a file. 
+	Dumpcap's native capture file format is libpcap format, which is also 
+	the format used by Wireshark, tcpdump and various other tools.
+    </para>
+    <para>
+	Without any options set it will use the pcap library to capture traffic 
+	from the first available network interface and writes the received raw 
+	packet data, along with the packets' time stamps into a libpcap file.
+    </para>
+    <para>
+	Packet capturing is performed with the pcap library. 
+	The capture filter syntax follows the rules of the pcap library.
+    </para>
+    <para>
+    <example id="AppToolsdumpcapEx">
+      <title>Help information available from dumpcap</title>
+      <programlisting>	
+Dumpcap 0.99.0
+Capture network packets and dump them into a libpcap file.
+See http://www.wireshark.org for more information.
+
+Usage: dumpcap [options] ...
+
+Capture interface:
+  -i &lt;interface>           name or idx of interface (def: first none loopback)
+  -f &lt;capture filter>      packet filter in libpcap filter syntax
+  -s &lt;snaplen>             packet snapshot length (def: 65535)
+  -p                       don't capture in promiscuous mode
+  -B &lt;buffer size>         size of kernel buffer (def: 1MB)
+  -y &lt;link type>           link layer type (def: first appropriate)
+  -D                       print list of interfaces and exit
+  -L                       print list of link-layer types of iface and exit
+
+Stop conditions:
+  -c &lt;packet count>        stop after n packets (def: infinite)
+  -a &lt;autostop cond.> ...  duration:NUM - stop after NUM seconds
+                           filesize:NUM - stop this file after NUM KB
+                              files:NUM - stop after NUM files
+Output (files):
+  -w &lt;filename>            name of file to save (def: tempfile)
+  -b &lt;ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
+                           filesize:NUM - switch to next file after NUM KB
+                              files:NUM - ringbuffer: replace after NUM files
+Miscellaneous:
+  -v                       print version information and exit
+  -h                       display this help and exit
+
+Example: dumpcap -i eth0 -a duration:60 -w output.pcap
+"Capture network packets from interface eth0 until 60s passed into output.pcap"
+
+Use Ctrl-C to stop capturing at any time.	
+      </programlisting>
+	</example>
     </para>
   </section>
 
