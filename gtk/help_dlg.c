@@ -326,10 +326,10 @@ void help_redraw(void)
 
 #ifdef HHC_DIR
 #define ONLINE_HELP_CALL help_topic
-#define ONLINE_HELP_PREFIX "eug_chm/"
+#define ONLINE_HELP_PREFIX "wsug_chm/"
 #else
 #define ONLINE_HELP_CALL browser_open_data_file
-#define ONLINE_HELP_PREFIX "eug_html_chunked/"
+#define ONLINE_HELP_PREFIX "wsug_html_chunked/"
 #endif
 
 static void
@@ -347,7 +347,7 @@ topic_action(topic_action_e action)
         browser_open_url ("http://www.wireshark.org/download.html");
         break;
     case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.wireshark.org/docs/eug_html_chunked");
+        browser_open_url ("http://www.wireshark.org/docs/wsug_html_chunked");
         break;
     case(ONLINEPAGE_FAQ):
         browser_open_url ("http://www.wireshark.org/faq.html");
