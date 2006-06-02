@@ -283,7 +283,7 @@ plugins_scan_dir(const char *dirname)
 		/*
 		 * It's just an unsupported old-style plugin;
 		 */
-		report_failure("The plugin %s has an old plugin init routine. Support has been dropped.\n Information on how to update your plugin is available at \nhttp://anonsvn.wireshark.com/wireshark/trunk/doc/README.plugins",
+		report_failure("The plugin %s has an old plugin init routine. Support has been dropped.\n Information on how to update your plugin is available at \nhttp://anonsvn.wireshark.org/wireshark/trunk/doc/README.plugins",
 		    name);
 		g_module_close(handle);
 		continue;

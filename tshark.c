@@ -218,7 +218,7 @@ print_usage(gboolean print_ver)
     fprintf(output, 
         "TShark " VERSION "%s\n"
         "Dump and analyze network traffic.\n"
-        "See http://www.wireshark.com for more information.\n"
+        "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
 	svnversion, get_copyright_info());
@@ -269,9 +269,9 @@ print_usage(gboolean print_ver)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
-  fprintf(stderr, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
-  fprintf(stderr, "  -F <output file type>    set the output file type, default is libpcap\n");
-  fprintf(stderr, "                           an empty \"-F\" option will list the file types\n");
+  fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+  fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
+  fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
@@ -282,10 +282,10 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
 
   fprintf(output, "\n");
-  fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h                       display this help and exit\n");
-  fprintf(stderr, "  -v                       display version info and exit\n");
-  fprintf(output, "  -o <name>:<value> ...   override preference setting\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h                       display this help and exit\n");
+  fprintf(output, "  -v                       display version info and exit\n");
+  fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
 }
 
 /*
