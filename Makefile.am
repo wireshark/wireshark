@@ -575,10 +575,10 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/eicon3d16.xpm	\
-	image/eicon3d32.xpm	\
-	image/eicon3d48.xpm	\
-	image/eicon3d64.xpm	\
+	image/wsicon16.xpm	\
+	image/wsicon32.xpm	\
+	image/wsicon48.xpm	\
+	image/wsicon64.xpm	\
 	image/eiconcap16.xpm	\
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\

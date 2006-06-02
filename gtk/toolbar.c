@@ -120,7 +120,7 @@
 #include "../image/toolbar/stock_preferences_24.xpm"
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
-#include "../image/eicon3d16.xpm"
+#include "../image/wsicon16.xpm"
 #endif
 #include "../image/toolbar/colorize_24.xpm"
 #include "../image/toolbar/autoscroll_24.xpm"
@@ -231,7 +231,7 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
         { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
         { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
-        { WIRESHARK_STOCK_ABOUT,                 eicon3d16_xpm },
+        { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
         { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
         { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
         { WIRESHARK_STOCK_RESIZE_COLUMNS,        resize_columns_24_xpm},

@@ -91,7 +91,7 @@ binary-arch: build
 	cp debian/wireshark-root.desktop `pwd`/debian/tmp/usr/share/applications/
 	mkdir -p `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-ethereal.png `pwd`/debian/tmp/usr/share/pixmaps/
-	cp image/eicon3d32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
+	cp image/wsicon32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
 	mkdir -p `pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
 	install -m 755 `pwd`/idl2deb `pwd`/debian/tmp/usr/bin/
 	install -m 755 `pwd`/asn2deb `pwd`/debian/tmp/usr/bin/

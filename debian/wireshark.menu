@@ -1,10 +1,10 @@
 ?package(ethereal):needs="X11" section="Apps/Net" title="Ethereal" \
 	command="/usr/bin/ethereal" \
-	icon="/usr/share/pixmaps/eicon3d32.xpm"
+	icon="/usr/share/pixmaps/wsicon32.xpm"
 
 ?package(ethereal):needs="X11" section="Apps/Net" title="Ethereal" \
 	command="/usr/bin/ethereal" \
-	icon="/usr/share/pixmaps/eicon3d32.xpm"
+	icon="/usr/share/pixmaps/wsicon32.xpm"
 
 ?package(ethereal):needs=X11 section=Apps/Net title="Ethereal" \
 	command="/usr/bin/ethereal"

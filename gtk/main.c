@@ -145,10 +145,10 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
-#include "../image/eicon3d16.xpm"
-#include "../image/eicon3d32.xpm"
-#include "../image/eicon3d48.xpm"
-#include "../image/eicon3d64.xpm"
+#include "../image/wsicon16.xpm"
+#include "../image/wsicon32.xpm"
+#include "../image/wsicon48.xpm"
+#include "../image/wsicon64.xpm"
 #include "../image/eiconcap16.xpm"
 #include "../image/eiconcap32.xpm"
 #include "../image/eiconcap48.xpm"
@@ -1630,7 +1630,7 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 
 #if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
-        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
+        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 #endif
@@ -1713,7 +1713,7 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 
 #if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
-        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
+        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 #endif
@@ -3237,7 +3237,7 @@ welcome_new(void)
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
-    icon = xpm_to_widget_from_parent(top_level, eicon3d64_xpm);
+    icon = xpm_to_widget_from_parent(top_level, wsicon64_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 5);
 
 #if GTK_MAJOR_VERSION < 2

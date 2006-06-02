@@ -13,10 +13,10 @@ clist_descend.xpm		indicators
 dn_arrow.xpm			Up and down arrows (originally intended for
 up_arrow.xpm			filter dialogs - not currently used)
 
-eicon3d16.xpm			3D Ethereal logo in various sizes with
-eicon3d32.xpm			transparent background, high color
-eicon3d48.xpm
-eicon3d64.xpm
+wsicon16.xpm			Wireshark logo in various sizes
+wsicon32.xpm
+wsicon48.xpm
+wsicon64.xpm
 
 elogo3d48x48.png		3D Ethereal logo with transparent background
 elogo3d64x64.png		
