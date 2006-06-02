@@ -89,6 +89,18 @@ static int hf_q931_redirecting_number 			= -1;
 static int hf_q931_screening_ind				= -1;
 static int hf_q931_presentation_ind				= -1;
 
+/* fields for Channel Indentification IE */
+static int hf_q931_channel_interface_explicit		= -1;
+static int hf_q931_channel_interface_type		= -1;
+static int hf_q931_channel_exclusive			= -1;
+static int hf_q931_channel_dchan			= -1;
+static int hf_q931_channel_selection_bri		= -1;
+static int hf_q931_channel_selection_pri		= -1;
+static int hf_q931_channel_map				= -1;
+static int hf_q931_channel_element_type			= -1;
+static int hf_q931_channel_number			= -1;
+
+
 static int hf_q931_segments = -1;
 static int hf_q931_segment = -1;
 static int hf_q931_segment_overlap = -1;
@@ -185,6 +197,21 @@ const value_string q931_message_type_vals[] = {
 static const true_false_string tfs_call_ref_flag = {
 	"Message sent to originating side",
 	"Message sent from originating side"
+};
+
+static const true_false_string tfs_interface_type = {
+    "Primary rate interface",
+    "Basic rate interface"
+};
+
+static const true_false_string tfs_channel_exclusive = {
+	"Exclusive; only the indicated channel is acceptable",
+	"Indicated channel is preferred"
+};
+
+static const true_false_string tfs_channel_map = {
+	"Channel indicated by slot map",
+	"Channel indicated by number"
 };
 
 /*
@@ -1401,28 +1428,17 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Interface %s identified",
-	    (octet & Q931_INTERFACE_IDENTIFIED) ? "explicitly" : "implicitly");
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "%s interface",
-	    (octet & Q931_NOT_BASIC_CHANNEL) ? "Not basic" : "Basic");
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Indicated channel is %s",
-	    (octet & 0x08) ? "required" : "preferred");
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Indicated channel is %sthe D-channel",
-	    (octet & 0x04) ? "" : "not ");
+
+	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_q931_channel_interface_explicit, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_q931_channel_interface_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_q931_channel_exclusive, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_q931_channel_dchan, tvb, offset, 1, FALSE);
+	
 	if (octet & Q931_NOT_BASIC_CHANNEL) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Channel selection: %s",
-		    val_to_str(octet & 0x03, q931_not_basic_channel_selection_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q931_channel_selection_pri, tvb, offset, 1, FALSE);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Channel selection: %s",
-		    val_to_str(octet & 0x03, q931_basic_channel_selection_vals,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_channel_selection_bri, tvb, offset, 1, FALSE);
 	}
 	offset += 1;
 	len -= 1;
@@ -1458,6 +1474,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			return;
 		octet = tvb_get_guint8(tvb, offset);
 		coding_standard = octet & 0x60;
+		proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
 		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 			/*
@@ -1470,14 +1487,9 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			    tvb_bytes_to_str(tvb, offset, len));
 			return;
 		}
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Channel is indicated by %s",
-		    (octet & Q931_IS_SLOT_MAP) ? "slot map" : "number");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s type: %s",
-		    (octet & Q931_IS_SLOT_MAP) ? "Map element" : "Channel",
-		    val_to_str(octet & 0x0F, q931_element_type_vals,
-		        "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_channel_map, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_q931_channel_element_type, tvb, offset, 1, FALSE);
+		
 		offset += 1;
 		len -= 1;
 
@@ -1496,8 +1508,10 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 				if (len == 0)
 					break;
 				octet = tvb_get_guint8(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 1,
-					"Channel number: %u", octet & ~Q931_IE_VL_EXTENSION);
+
+				proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tree,hf_q931_channel_number,tvb,offset,1,FALSE);
+
 				offset += 1;
 				len -= 1;
 			} while (!(octet & Q931_IE_VL_EXTENSION));
@@ -3176,6 +3190,48 @@ proto_register_q931(void)
 		{ &hf_q931_redirecting_number,
 		  { "Redirecting party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+
+    /* fields for channel identification IE */
+		/* 0x80 is the extension bit */
+
+		{ &hf_q931_channel_interface_explicit,
+		  { "Interface identifier present", "q931.channel.interface_id_present", FT_BOOLEAN, 8, NULL, 0x40,
+		    "True if the interface identifier is explicit in the following octets", HFILL }},
+
+		{ &hf_q931_channel_interface_type,
+		  { "Interface type", "q931.channel.interface_type", FT_BOOLEAN, 8, &tfs_interface_type, 0x20,
+		    "Identifies the ISDN interface type", HFILL }},
+
+		/* 0x10 is spare */
+                
+		{ &hf_q931_channel_exclusive,
+		  { "Indicated channel is exclusive", "q931.channel.exclusive", FT_BOOLEAN, 8, &tfs_channel_exclusive, 0x08,
+		    "True if only the indicated channel is acceptable", HFILL }},
+
+		{ &hf_q931_channel_dchan,
+		  { "D-channel indicator", "q931.channel.dchan", FT_BOOLEAN, 8, NULL, 0x04,
+		    "True if the identified channel is the D-Channel", HFILL }},
+
+		{ &hf_q931_channel_selection_bri,
+		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, q931_basic_channel_selection_vals, 0x03,
+		    "Identifies the information channel to be used", HFILL }},
+
+		{ &hf_q931_channel_selection_pri,
+		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, q931_not_basic_channel_selection_vals, 0x03,
+		    "Identifies the information channel to be used", HFILL }},
+
+		{ &hf_q931_channel_map,
+		  { "Number/map", "q931.channel.map", FT_BOOLEAN, 8, &tfs_channel_map, 0x10,
+		    "True if channel is indicates by channel map rather than number", HFILL }},
+                
+		{ &hf_q931_channel_element_type,
+		  { "Element type", "q931.channel.element_type", FT_UINT8, BASE_HEX, q931_element_type_vals, 0xF,
+		    "Type of element in the channel number/slot map octets", HFILL }},
+
+		{ &hf_q931_channel_number,
+		  { "Channel number", "q931.channel.number", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    "Channel number", HFILL }},
+               
     /* desegmentation fields */
 		{ &hf_q931_segment_overlap,
 		  { "Segment overlap", "q931.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,

@@ -91,6 +91,7 @@ static int hf_h263_optional_advanced_prediction_mode = -1;
 static int hf_h263_PB_frames_mode = -1;
 static int hf_h263_data        = -1;
 static int hf_h263_payload     = -1;
+static int hf_h263_GN          = -1;
 
 /* Source format types */
 #define SRCFORMAT_FORB   0  /* forbidden */
@@ -301,7 +302,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	data = tvb_get_ntohl(tvb, offset);
 	
 	if (( data & 0xffff8000) == 0x00008000 ) { /* PSC or Group of Block Start Code (GBSC) found */
-		if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
+		if (( data & 0x00007c00) == 0 ) { /* PSC found */
 			if ( check_col( pinfo->cinfo, COL_INFO) )
 			  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
 			if( tree ) {
@@ -339,7 +340,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				  proto_tree_add_item( h263_payload_tree, hf_h263_PB_frames_mode, tvb, offset, 1, FALSE );
 			  }
 			}
-		}else if ((data & 0x00007c00)!= 0) { /* GBSC found */
+		} else { /* GBSC found */
 			if ( check_col( pinfo->cinfo, COL_INFO) )
 			  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
 			if( tree ) {
@@ -350,6 +351,11 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 *
 				 */
 				proto_tree_add_uint(h263_payload_tree, hf_h263_gbsc,tvb, offset,3,data);
+ 				proto_tree_add_uint(h263_payload_tree, hf_h263_GN, tvb, offset,3,data);
+				/* GN is followed by (optionally) GBSI, then
+				 * GFID and GQUANT, but decoding them requires
+				 * knowing the value of CPM in the picture
+				 * header */
 				offset = offset + 2;
 			}
 		}
@@ -782,7 +788,18 @@ proto_register_h263(void)
 				"Optional PB-frames mode", HFILL
 			}
 		},
-
+		{
+			&hf_h263_GN,
+			{
+				"H.263 Group Number",
+				"h263.gn",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x00007c00,
+				"Group Number, GN", HFILL
+			}
+		},
 };
 
 	static gint *ett[] =
