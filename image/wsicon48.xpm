@@ -1,5 +1,5 @@
 /* XPM */
-static char *wsicon48_xpm[] = {
+static const char *wsicon48_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "    48    48      256            2",
 /* colors */

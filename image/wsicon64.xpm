@@ -1,5 +1,5 @@
 /* XPM */
-static char *wsicon64_xpm[] = {
+static const char *wsicon64_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "    64    64      256            2",
 /* colors */
