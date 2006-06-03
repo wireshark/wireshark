@@ -1,5 +1,5 @@
 /* XPM */
-static char * wssplash_xpm[] = {
+static const char * wssplash_xpm[] = {
 "184 64 240 2",
 "  	c #000000",
 ". 	c #FFFFFF",
