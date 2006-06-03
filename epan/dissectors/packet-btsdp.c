@@ -691,7 +691,6 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 	proto_tree *st;
 	proto_item *ti;
 	guint16 curr_count;
-	int i;
 	
 	proto_tree_add_item(t, hf_ssr_total_count, tvb, offset, 2, FALSE);
 	offset+=2;
