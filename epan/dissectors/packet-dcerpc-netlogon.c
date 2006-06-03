@@ -43,6 +43,7 @@ static int hf_netlogon_group_attrs_enabled_by_default = -1;
 static int hf_netlogon_group_attrs_enabled = -1;
 static int hf_netlogon_opnum = -1;
 static int hf_netlogon_rc = -1;
+static int hf_netlogon_dos_rc = -1;
 static int hf_netlogon_len = -1;
 static int hf_netlogon_sensitive_data_flag = -1;
 static int hf_netlogon_sensitive_data_len = -1;
@@ -537,7 +538,7 @@ netlogon_dissect_netrlogonuaslogon_reply(tvbuff_t *tvb, int offset,
 		"VALIDATION_UAS_INFO", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -604,7 +605,7 @@ netlogon_dissect_netrlogonuaslogoff_reply(tvbuff_t *tvb, int offset,
 		"LOGOFF_UAS_INFO", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -4095,7 +4096,7 @@ netlogon_dissect_netrlogoncontrol_reply(tvbuff_t *tvb, int offset,
 		"CONTROL_QUERY_INFORMATION:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -4129,7 +4130,7 @@ netlogon_dissect_netrgetanydcname_reply(tvbuff_t *tvb, int offset,
 		NDR_POINTER_UNIQUE, "Domain", hf_netlogon_dc_name, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -4225,7 +4226,7 @@ netlogon_dissect_netrlogoncontrol2_reply(tvbuff_t *tvb, int offset,
 		"CONTROL_QUERY_INFORMATION:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -4452,7 +4453,7 @@ netlogon_dissect_netrlogoncontrol2ex_reply(tvbuff_t *tvb, int offset,
 		"CONTROL_QUERY_INFORMATION:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -5480,7 +5481,7 @@ netlogon_dissect_netrenumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
 		"UNICODE_MULTI pointer: trust_dom_name_list", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -5519,7 +5520,7 @@ netlogon_dissect_dsrgetdcname_reply(tvbuff_t *tvb, int offset,
 		"DOMAIN_CONTROLLER_INFO:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -5820,7 +5821,7 @@ netlogon_dissect_dsrgetsitename_reply(tvbuff_t *tvb, int offset,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -6074,7 +6075,7 @@ netlogon_dissect_dsrgetdcnameex2_reply(tvbuff_t *tvb, int offset,
 		"DOMAIN_CONTROLLER_INFO:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -6305,7 +6306,7 @@ netlogon_dissect_dsrenumeratedomaintrusts_reply(tvbuff_t *tvb, int offset,
 		"DS_DOMAIN_TRUSTS_ARRAY:", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
+				  hf_netlogon_dos_rc, NULL);
 
 	return offset;
 }
@@ -6644,6 +6645,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_rc, {
 		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "Netlogon return code", HFILL }},
+
+	{ &hf_netlogon_dos_rc,
+	    { "DOS error code", "netlogon.dos.rc", FT_UINT32,
+	      BASE_HEX, VALS(DOS_errors), 0x0, "DOS Error Code", HFILL}},
 
 	{ &hf_netlogon_param_ctrl, {
 		"Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX,
