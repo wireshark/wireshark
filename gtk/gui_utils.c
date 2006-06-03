@@ -117,7 +117,8 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 
   if (icon_pmap == NULL) {
     icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
-		&icon_mask, &style->bg[GTK_STATE_NORMAL], wsicon16_xpm);
+		&icon_mask, &style->bg[GTK_STATE_NORMAL],
+		(gchar **) wsicon16_xpm);
   }
 
   gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
