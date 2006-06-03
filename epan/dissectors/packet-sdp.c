@@ -1073,9 +1073,11 @@ static const value_string mpeg4es_level_indication_vals[] =
   { 0xff, "Reserved for Escape" },
   { 0, NULL },
 };
-
+/* 
+ * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
+ */
 static void
-decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen, guint8 *mime_type){
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, guint8 *mime_type){
   gint next_offset;
   gint end_offset;
   guint8 *field_name;
@@ -1083,13 +1085,23 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen, guin
   proto_item *item;
 
   end_offset = offset + tokenlen;
+
+  /* Look for an '=' within this value - this may indicate that there is a
+     profile-level-id parameter to find if the MPEG4 media type is in use */
   next_offset = tvb_find_guint8(tvb,offset,-1,'=');
+  if (next_offset == -1)
+  {
+    /* Give up (and avoid exception) if '=' not found */
+    return;
+  }
 
+  /* Find the name of the parameter */
   tokenlen = next_offset - offset;
-
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+
   offset = next_offset;
 
+  /* Dissect the MPEG4 profile-level-id parameter if present */
   if (mime_type != NULL && strcmp(mime_type, "MP4V-ES") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
       offset++;
@@ -1099,6 +1111,20 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen, guin
       PROTO_ITEM_SET_GENERATED(item);
     }
   }
+#if 0
+  /* TODO: Add code to dissect H264 fmtp parameters wehen an example can be found */
+  if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
+    if (strcmp(field_name, "profile-level-id") == 0) {
+      char **endptr;
+
+      offset++;
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      proto_tree_add_text(tree, tvb, offset, tokenlen,
+		                    "Test %u", strtoul(format_specific_parameter, endptr, 16));
+	}
+  }
+#endif
 }
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transport_info_t *transport_info){
@@ -1219,10 +1245,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     tokenlen = next_offset - offset;
 
+    /* Media format extends to the next space */
     media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
-
+    /* Append encoding name to format if known */
     if (transport_info->encoding_name)
       proto_item_append_text(media_format_item, " [%s]",
                              transport_info->encoding_name);
@@ -1231,9 +1258,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     offset = next_offset + 1;
 
+    /* There may be 2 parameters given
+	 * TODO: Handle arbitarry number of parameters.
+	 */
     next_offset = tvb_find_guint8(tvb,offset,-1,';');
 
     if(next_offset != -1){
+      /* There are 2 - add the first parameter */
       tokenlen = next_offset - offset;
       fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
                                       hf_media_format_specific_parameter, tvb,
@@ -1247,6 +1278,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
       offset = next_offset + 1;
     }
 
+    /* Now add remaining (or only) parameter */
     tokenlen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
     fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
@@ -1260,6 +1292,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
     return;
   }
 
+  /* No special treatment for values of this attribute type, just add as one item. */
   proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
                       tvb, offset, -1, FALSE);
 }
