@@ -619,7 +619,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 		}
 		offset+=tvb_length_remaining(tvb, offset);
-	} else if((cid >= 0x0040) && (cid <= 0xFFFF)){ /* Connection oriented channel */
+	} else if(cid >= 0x0040) { /* Connection oriented channel */
 		if(check_col(pinfo->cinfo, COL_INFO)){ 	
 			col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
 		}
