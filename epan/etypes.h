@@ -252,6 +252,10 @@
 #define ETHERTYPE_CSM_ENCAPS	0x889B /* Mindspeed Technologies www.mindspeed.com */
 #endif
 
+#ifndef ETHERTYPE_TELKONET
+#define ETHERTYPE_TELKONET	0x88A1 /* Telkonet powerline ethernet */
+#endif
+
 #ifndef ETHERTYPE_AOE
 #define ETHERTYPE_AOE           0x88A2
 #endif
