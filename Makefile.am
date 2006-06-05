@@ -575,7 +575,6 @@ EXTRA_DIST = \
 	image/eiconcap16.xpm	\
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\
-	image/elogo3d48x48.png	\
 	image/ethereal48x48.png \
 	image/ethereal48x48-trans.png  \
 	image/Ethereal.icns	\
@@ -807,7 +806,7 @@ rpm-package: dist
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		ln -s ../../../wireshark.desktop ; \
-		ln -s ../../../image/elogo3d64x64.png ethereal.png ; \
+		ln -s ../../../image/wsicon64.png wireshark.png ; \
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \

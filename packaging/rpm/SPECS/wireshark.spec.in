@@ -4,7 +4,7 @@
 %define prefix   /usr
 
 Summary:	Network protocol analyzer
-Name:		ethereal
+Name:		wireshark
 Version:	%ver
 Release:	%rel
 License:	GPL
@@ -35,8 +35,8 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%prefix/X11R6/bin $RPM_BUILD_ROOT%prefix/X11R6/man/man1
-mv $RPM_BUILD_ROOT%prefix/bin/ethereal $RPM_BUILD_ROOT%prefix/X11R6/bin/ethereal
-mv $RPM_BUILD_ROOT%prefix/man/man1/ethereal.1* $RPM_BUILD_ROOT%prefix/X11R6/man/man1/
+mv $RPM_BUILD_ROOT%prefix/bin/wireshark $RPM_BUILD_ROOT%prefix/X11R6/bin/wireshark
+mv $RPM_BUILD_ROOT%prefix/man/man1/wireshark.1* $RPM_BUILD_ROOT%prefix/X11R6/man/man1/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -48,8 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 %prefix/X11R6/man/*/*
 %prefix/bin/*
 %prefix/lib/*
-%prefix/share/ethereal/*
-%prefix/share/ethereal/*/*
+%prefix/share/wireshark/*
+%prefix/share/wireshark/*/*
 %prefix/man/*/*
 
 %changelog
