@@ -22,11 +22,7 @@ SrtpKeys
 #.OMIT_ASSIGNMENT
 
 ECGDSASignature
-PwdCertToken
-KeySignedMaterial
 H235CertificateSignature
-ReturnSig
-KeySyncMaterial
  
 #.FIELD_RENAME
 

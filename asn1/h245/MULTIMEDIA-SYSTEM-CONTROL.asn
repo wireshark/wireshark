@@ -1,6 +1,9 @@
+-- MULTIMEDIA-SYSTEM-CONTROL.asn
 --
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h245/2005v12/MULTIMEDIA-SYSTEM-CONTROL.asn
+--
+-- $Id$
 --
 
 -- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:10/2005)

@@ -1,8 +1,9 @@
+-- H323-MESSAGES.asn
 --
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2003/H323-MESSAGES.asn
 --
--- Features unbacked with ASN.1 to Wireshark compiler was commented out
+-- $Id$
 --
 
 -- Module H323-MESSAGES (H.225.0:07/2003)
@@ -972,7 +973,7 @@ FastStartToken ::=
      
      -- set to "alias" --})
 
---EncodedFastStartToken ::= TYPE-IDENTIFIER.&Type(FastStartToken)
+EncodedFastStartToken ::= TYPE-IDENTIFIER.&Type(FastStartToken)
 
 CryptoH323Token ::= CHOICE {
   cryptoEPPwdHash

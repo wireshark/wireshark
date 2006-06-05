@@ -6991,6 +6991,15 @@ dissect_h225_FastStartToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 }
 
 
+
+static int
+dissect_h225_EncodedFastStartToken(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h225_FastStartToken);
+
+  return offset;
+}
+
+
 static const per_sequence_t CapacityReportingCapability_sequence[] = {
   { "canReportCallCapacity"       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_canReportCallCapacity },
   { NULL, 0, 0, NULL }

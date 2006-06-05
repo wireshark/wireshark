@@ -1,8 +1,9 @@
+-- H235-SECURITY-MESSAGES.asn
 --
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h235.0/2005/H235-SECURITY-MESSAGES.asn
 --
--- Features unbacked with ASN.1 to Wireshark compiler was commented out
+-- $Id$
 --
 
 -- Module H235-SECURITY-MESSAGES (H.235.0:09/2005)
@@ -236,8 +237,8 @@ Params ::= SEQUENCE {
   clearSalt     OCTET STRING OPTIONAL -- unencrypted salting key for encryption
 }
 
---EncodedGeneralToken ::=
---  TYPE-IDENTIFIER.&Type(ClearToken ++ general usage token ++)
+EncodedGeneralToken ::=
+  TYPE-IDENTIFIER.&Type(ClearToken -- general usage token --)
 
 PwdCertToken ::=
   ClearToken(WITH COMPONENTS {
@@ -246,7 +247,7 @@ PwdCertToken ::=
                generalID  PRESENT
              })
 
---EncodedPwdCertToken ::= TYPE-IDENTIFIER.&Type(PwdCertToken)
+EncodedPwdCertToken ::= TYPE-IDENTIFIER.&Type(PwdCertToken)
 
 CryptoToken ::= CHOICE {
   cryptoEncryptedToken
@@ -300,7 +301,7 @@ KeySignedMaterial ::= SEQUENCE {
   encrptval  ENCRYPTED{EncodedKeySyncMaterial}
 }
 
---EncodedKeySignedMaterial ::= TYPE-IDENTIFIER.&Type(KeySignedMaterial)
+EncodedKeySignedMaterial ::= TYPE-IDENTIFIER.&Type(KeySignedMaterial)
 
 H235CertificateSignature ::= SEQUENCE {
   certificate      TypedCertificate,
@@ -317,7 +318,7 @@ ReturnSig ::= SEQUENCE {
   certificate     TypedCertificate OPTIONAL -- requested certificate
 }
 
---EncodedReturnSig ::= TYPE-IDENTIFIER.&Type(ReturnSig)
+EncodedReturnSig ::= TYPE-IDENTIFIER.&Type(ReturnSig)
 
 KeySyncMaterial ::= SEQUENCE {
   generalID    Identifier,
@@ -325,7 +326,7 @@ KeySyncMaterial ::= SEQUENCE {
   ...
 }
 
---EncodedKeySyncMaterial ::= TYPE-IDENTIFIER.&Type(KeySyncMaterial)
+EncodedKeySyncMaterial ::= TYPE-IDENTIFIER.&Type(KeySyncMaterial)
 
 V3KeySyncMaterial ::= SEQUENCE {
   generalID              Identifier OPTIONAL, -- peer terminal ID
