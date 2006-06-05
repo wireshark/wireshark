@@ -1,5 +1,5 @@
 /* XPM */
-static const char * eiconcap48_xpm[] = {
+static char * eiconcap48_xpm[] = {
 "48 48 1162 2",
 "  	c None",
 ". 	c #B2B5B2",
