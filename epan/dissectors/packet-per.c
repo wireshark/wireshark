@@ -112,6 +112,27 @@ void asn_ctx_init(asn_ctx_t *actx, asn_enc_e encoding, gboolean aligned, packet_
 		offset=(offset&0xfffffff8)+8;	\
 	}
 
+/* 10 Encoding procedures -------------------------------------------------- */
+
+/* 10.2 Open type fields --------------------------------------------------- */
+guint32 
+dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type)
+{
+	guint32 type_length, end_offset;
+
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length);
+	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+	end_offset = offset + type_length * 8;
+
+	if (type) {
+		type(tvb, offset, actx, tree, hf_index);
+	} else {
+		actx->created_item = proto_tree_add_text(tree, tvb, offset>>3, BLEN(offset, end_offset), "Unknown Open Type");
+	}
+
+	return end_offset;
+}
+
 /* 10.9 General rules for encoding a length determinant -------------------- */
 guint32
 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# competh.py
+# asn2wrs.py
 # ASN.1 to Wireshark dissector compiler
 # 2004 Tomas Kukosa 
 #
@@ -23,6 +23,9 @@
 # 
 # ITU-T Recommendation X.680 (07/2002), 
 #   Information technology - Abstract Syntax Notation One (ASN.1): Specification of basic notation
+#
+# ITU-T Recommendation X.681 (07/2002), 
+#   Information technology - Abstract Syntax Notation One (ASN.1): Information object specification
 #
 # ITU-T Recommendation X.682 (07/2002), 
 #   Information technology - Abstract Syntax Notation One (ASN.1): Constraint specification
@@ -169,7 +172,8 @@ static_tokens = {
   r';'  : 'SEMICOLON',
   #r'@'  : 'AT',
   #r'\!' : 'EXCLAMATION',
-  r'\^' : 'CIRCUMFLEX'
+  r'\^' : 'CIRCUMFLEX',
+  r'\&' : 'AMPERSAND'
 }
 
 # 11.27 Reserved words
@@ -230,6 +234,8 @@ reserved_words = {
     'AUTOMATIC': 'AUTOMATIC',
     'OBJECT': 'OBJECT',
     'IDENTIFIER': 'IDENTIFIER',
+    'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
+    'ABSTRACT-SYNTAX' : 'ABSTRACT_SYNTAX',
 #      'OPERATION'       : 'OPERATION',
 #      'ARGUMENT'        : 'ARGUMENT',
 #      'RESULT'          : 'RESULT',
@@ -2942,6 +2948,56 @@ class EnumeratedType (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- OpenType -----------------------------------------------------------
+class OpenType (Type):
+  def to_python (self, ctx):
+    return "asn1.ANY"
+
+  def single_type(self):
+    if (self.HasConstraint() and 
+        self.constr.type == 'Type' and 
+        self.constr.subtype.type == 'Type_Ref'):
+      return self.constr.subtype.val
+    return None
+
+  def eth_reg_sub(self, ident, ectx):
+    t = self.single_type()
+    if t:
+      ectx.eth_dep_add(ident, t)
+
+  def eth_tname(self):
+    t = self.single_type()
+    if t:
+      return 'OpenType_' + t
+    else:
+      return Type.eth_tname(self)
+
+  def eth_ftype(self, ectx):
+    return ('FT_NONE', 'BASE_NONE')
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_ANY', '0')
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    t = self.single_type()
+    if t:
+      t = ectx.type[t]['ethname']
+      pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+      pars['TYPE_REF_TNAME'] = t
+      pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+    else:
+      pars['TYPE_REF_FN'] = 'NULL'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_open_type', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 #--- AnyType -----------------------------------------------------------
 class AnyType (Type):
   def to_python (self, ctx):
@@ -3635,8 +3691,8 @@ def p_ValueAssignment (t):
 # 16.1
 def p_Type (t):
   '''Type : BuiltinType
-  | ReferencedType
-  | ConstrainedType'''
+          | ReferencedType
+          | ConstrainedType'''
   t[0] = t[1]
 
 # 16.2
@@ -3649,6 +3705,7 @@ def p_BuiltinType (t):
                  | EnumeratedType
                  | IntegerType
                  | NullType
+                 | ObjectClassFieldType
                  | ObjectIdentifierType
                  | OctetStringType
                  | RealType
@@ -4084,7 +4141,7 @@ def p_AnyType (t):
 # 31.1
 def p_ObjectIdentifierType (t):
   'ObjectIdentifierType : OBJECT IDENTIFIER'
-  t[0] = ObjectIdentifierType ()
+  t[0] = ObjectIdentifierType()
 
 # 31.3
 def p_ObjectIdentifierValue (t):
@@ -4274,6 +4331,7 @@ def p_SubtypeElements (t):
                        | ValueRange
                        | PermittedAlphabet
                        | SizeConstraint
+                       | TypeConstraint
                        | InnerTypeConstraints
                        | PatternConstraint'''
     t[0] = t[1]
@@ -4335,9 +4393,9 @@ def p_SizeConstraint (t):
 
 # 47.6 Type constraint
 # 47.6.1
-#def p_TypeConstraint (t):
-#    'TypeConstraint : Type'
-#    t[0] = Constraint (type = 'Type', subtype = t[2])
+def p_TypeConstraint (t):
+    'TypeConstraint : Type'
+    t[0] = Constraint (type = 'Type', subtype = t[1])
 
 # 47.7 Permitted alphabet
 # 47.7.1
@@ -4477,9 +4535,64 @@ def p_char_string (t):
     t[0] = t[1]
 
 def p_number (t):
-    'number : NUMBER'
-    t[0] = t[1]
+  'number : NUMBER'
+  t[0] = t[1]
 
+
+#--- ITU-T Recommendation X.681 -----------------------------------------------
+
+# 7 ASN.1 lexical items -------------------------------------------------------
+
+# 7.4 Type field references
+
+def p_typefieldreference (t):
+  'typefieldreference : AMPERSAND UCASE_IDENT'
+  t[0] = t[2]
+
+# 7.5 Value field references
+
+def p_valuefieldreference (t):
+  'valuefieldreference : AMPERSAND LCASE_IDENT'
+  t[0] = t[2]
+
+# 8 Referencing definitions
+
+# 8.1
+def p_DefinedObjectClass (t):
+  'DefinedObjectClass : UsefulObjectClassReference'
+  t[0] = t[1]
+
+# 8.4
+def p_UsefulObjectClassReference (t):
+  '''UsefulObjectClassReference : TYPE_IDENTIFIER 
+                                | ABSTRACT_SYNTAX'''
+  t[0] = t[1]
+
+# 9 Information object class definition and assignment
+
+# 9.14
+def p_FieldName (t):
+  '''FieldName : typefieldreference
+               | valuefieldreference'''
+  t[0] = t[1]
+
+# 14 Notation for the object class field type ---------------------------------
+
+# 14.1
+def p_ObjectClassFieldType (t):
+  'ObjectClassFieldType : DefinedObjectClass DOT FieldName'''
+  t[0] = get_type_from_class(t[1], t[3])
+
+object_class_types = {
+  'TYPE-IDENTIFIER/id'   : lambda : ObjectIdentifierType(),
+  'TYPE-IDENTIFIER/Type' : lambda : OpenType(),
+  'ABSTRACT-SYNTAX/id'       : lambda : ObjectIdentifierType(),
+  'ABSTRACT-SYNTAX/Type'     : lambda : OpenType(),
+  'ABSTRACT-SYNTAX/property' : lambda : BitStringType(),
+}
+
+def get_type_from_class(cls, fld):
+  return object_class_types.get(cls + '/' + fld, lambda : AnyType())()
 
 #--- ITU-T Recommendation X.682 -----------------------------------------------
 
@@ -4487,17 +4600,17 @@ def p_number (t):
 
 # 8.1
 def p_GeneralConstraint (t):
-    '''GeneralConstraint : UserDefinedConstraint'''
+  '''GeneralConstraint : UserDefinedConstraint'''
 #                         | TableConstraint
 #                         | ContentsConstraint''
-    t[0] = t[1]
+  t[0] = t[1]
 
 # 9 User-defined constraints --------------------------------------------------
 
 # 9.1
 def p_UserDefinedConstraint (t):
-    'UserDefinedConstraint : CONSTRAINED BY LBRACE UserDefinedConstraintParameterList RBRACE'
-    t[0] = Constraint(type = 'UserDefined', subtype = t[4]) 
+  'UserDefinedConstraint : CONSTRAINED BY LBRACE UserDefinedConstraintParameterList RBRACE'
+  t[0] = Constraint(type = 'UserDefined', subtype = t[4]) 
 
 def p_UserDefinedConstraintParameterList_1 (t):
   'UserDefinedConstraintParameterList : '

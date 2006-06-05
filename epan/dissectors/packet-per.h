@@ -56,6 +56,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO)){ \
 tvb_get_guint8(tvb, 9999);
 
 typedef int (*per_callback)(tvbuff_t *, int, asn_ctx_t *, proto_tree *);
+typedef int (*per_type_fn)(tvbuff_t*, int, asn_ctx_t*, proto_tree*, int);
 
 /* in all functions here, offset is guint32 and is
    byteposition<<3 + bitposition
@@ -132,5 +133,7 @@ extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *
 extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb);
 
 extern guint32 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
+
+extern guint32 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type);
 
 #endif  /* __PACKET_PER_H__ */
