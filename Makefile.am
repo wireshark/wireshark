@@ -75,7 +75,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 	chmod +x idl2wrs
 
 #
-# Wireshark configuration files are put in $(pkgdatadir).
+# Ethereal configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = AUTHORS-SHORT manuf wireshark.html tshark.html \
 	wireshark-filter.html capinfos.html editcap.html \
@@ -290,7 +290,7 @@ wireshark_DEPENDENCIES = \
 
 # This automake variable adds to the link-line for the executable.
 #
-# Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
+# Note that Ethereal doesn't have to be linked with @GLIB_LIBS@, as
 # they are included in @GTK_LIBS@, and doesn't have to be linked with
 # @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
@@ -566,47 +566,42 @@ EXTRA_DIST = \
 	editcap.c		\
 	epan/libwireshark.def	\
 	wireshark.desktop	\
-	image/Ethereal.icns	\
-	image/Makefile.nmake	\
-	image/README.image	\
 	image/capinfos.rc.in	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/eexcl3d64.xpm	\
-	image/eicon3d16.xpm	\
-	image/eicon3d32.xpm	\
-	image/eicon3d48.xpm	\
-	image/eicon3d64.xpm	\
 	image/eiconcap16.xpm	\
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\
 	image/elogo3d48x48.png	\
-	image/wireshark.exe.manifest.in \
-	image/wireshark.ico	\
-	image/wireshark.rc.in	\
-	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \
+	image/ethereal48x48-trans.png  \
+	image/Ethereal.icns	\
 	image/hi16-app-ethereal.png	\
 	image/hi32-app-ethereal.png	\
 	image/hi48-app-ethereal.png	\
-	image/icon-ethereal.xpm	\
-	image/icon-excl.xpm	\
+	image/icon_layout_1.xpm \
+	image/icon_layout_2.xpm \
+	image/icon_layout_3.xpm \
+	image/icon_layout_4.xpm \
+	image/icon_layout_5.xpm \
+	image/icon_layout_6.xpm \
 	image/libwireshark.rc.in	\
 	image/lo16-app-ethereal.png	\
 	image/lo32-app-ethereal.png	\
 	image/lo48-app-ethereal.png	\
+	image/Makefile.nmake	\
 	image/mergecap.rc.in	\
 	image/nsis-checked.bmp	\
 	image/nsis-unchecked.bmp	\
+	image/README.image	\
 	image/stock_dialog_error_48.xpm	\
-	image/stock_dialog_warning_48.xpm	\
-	image/stock_dialog_question_48.xpm	\
 	image/stock_dialog_info_48.xpm	\
+	image/stock_dialog_question_48.xpm	\
 	image/stock_dialog_stop_48.xpm	\
-	image/tshark.rc.in	\
+	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in	\
 	image/toolbar/autoscroll_24.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
@@ -654,21 +649,21 @@ EXTRA_DIST = \
 	image/toolbar/time_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wiki_24.xpm	\
+	image/tshark.rc.in	\
 	image/up_arrow.xpm	\
-	image/icon_layout_1.xpm \
-	image/icon_layout_2.xpm \
-	image/icon_layout_3.xpm \
-	image/icon_layout_4.xpm \
-	image/icon_layout_5.xpm \
-	image/icon_layout_6.xpm \
 	image/win32-file-dlg.rc \
+	image/wireshark.exe.manifest.in \
+	image/wireshark.ico	\
+	image/wireshark.rc.in	\
 	image/wiretap.rc.in	\
 	image/wsicon16.png	\
-	image/wsicon200.png	\
+	image/wsicon16.xpm	\
 	image/wsicon32.png	\
+	image/wsicon32.xpm	\
 	image/wsicon48.png	\
+	image/wsicon48.xpm	\
 	image/wsicon64.png	\
-	image/wsicon.svg	\
+	image/wsicon64.xpm	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
 	make-authors-format.pl	\

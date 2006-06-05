@@ -14,6 +14,18 @@
 	</para>
   </section>
   
+  <section id="AppToolstshark">
+    <title><command>tshark</command>: Terminal-based Wireshark</title>
+    <para>
+      <application>TShark</application> is a terminal oriented version 
+      of Wireshark designed for capturing and displaying packets when an 
+	  interactive user interface isn't necessary or available. It supports 
+	  the same options as <command>wireshark</command>. For more 
+      information on <command>tshark</command>, see the manual pages 
+      (<command>man tshark</command>).
+    </para>
+  </section>
+
   <section id="AppToolstcpdump">
     <title><command>tcpdump</command>: Capturing with tcpdump for viewing 
 	with Wireshark</title>

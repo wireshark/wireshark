@@ -1,7 +1,7 @@
 
 		Just to avoid some misunderstandings: 
 	
-While parts of Ethereal can be built and distributed as libraries,
+While parts of Wireshark can be built and distributed as libraries,
 these parts are still covered by the license below, and NOT by the
 Lesser General Public License or any other license.
 

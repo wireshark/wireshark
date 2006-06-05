@@ -48,7 +48,7 @@
 #include "recent.h"
 
 
-#include "image/eicon3d16.xpm"
+#include "image/wsicon16.xpm"
 
 /* XXX - remove this later again, when dlg_xx function cleanup done */
 #include "dlg_utils.h"
@@ -99,7 +99,7 @@ static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
    specified by the WM_NAME property of a window or the resource
    or class name specified by the WM_CLASS property and base the
    choice of icon for the window on one of those; WM_CLASS for
-   Wireshark's windows has a resource name of "wireshark" and a class
+   Wireshark's windows has a resource name of "ethereal" and a class
    name of "Wireshark".  However, the way that's done is window-manager-
    specific, and there's no way to determine what size a particular
    window manager would want, so there's no way to automate this as
@@ -117,7 +117,8 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 
   if (icon_pmap == NULL) {
     icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
-		&icon_mask, &style->bg[GTK_STATE_NORMAL], eicon3d16_xpm);
+		&icon_mask, &style->bg[GTK_STATE_NORMAL],
+		(gchar **) wsicon16_xpm);
   }
 
   gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
