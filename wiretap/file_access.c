@@ -341,11 +341,11 @@ static const struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_WTAP */
-	{ "Wiretap (Ethereal)", NULL, FALSE,
+	{ "Wiretap (Wireshark)", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "libpcap (tcpdump, Ethereal, etc.)", "libpcap", TRUE,
+	{ "libpcap (tcpdump, Wireshark, etc.)", "libpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990417 */
@@ -369,7 +369,7 @@ static const struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP_NSEC */
-	{ "Nanosecond libpcap (Ethereal)", "nseclibpcap", TRUE,
+	{ "Nanosecond libpcap (Wireshark)", "nseclibpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_LANALYZER */

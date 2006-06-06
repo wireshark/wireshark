@@ -217,8 +217,8 @@ AC_DEFUN([AC_WIRETAP_ZLIB_CHECK],
 		# own zlib in the X11 library directory.
 		#
 		# The XFree86 zlib is an older version that lacks
-		# "gzgets()", and that's the zlib with which Ethereal
-		# gets linked, so the build of Ethereal fails.
+		# "gzgets()", and that's the zlib with which Wireshark
+		# gets linked, so the build of Wireshark fails.
 		#
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"

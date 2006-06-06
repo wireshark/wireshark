@@ -37,12 +37,12 @@ AC_ARG_WITH(extra-gcc-checks,
 [
 	if test $withval != no
 	then
-		ethereal_extra_gcc_flags=" -Wcast-qual -Wcast-align -Wbad-function-cast -pedantic -Wmissing-declarations -Wwrite-strings"
+		wireshark_extra_gcc_flags=" -Wcast-qual -Wcast-align -Wbad-function-cast -pedantic -Wmissing-declarations -Wwrite-strings"
 	fi
 ],)
-AC_MSG_CHECKING(to see if we can add '-Wall -W -Wcast-qual $ethereal_extra_gcc_flags' to CFLAGS)
+AC_MSG_CHECKING(to see if we can add '-Wall -W -Wcast-qual $wireshark_extra_gcc_flags' to CFLAGS)
 if test x$GCC != x ; then
-  CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -W $ethereal_extra_gcc_flags $CFLAGS"
+  CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -W $wireshark_extra_gcc_flags $CFLAGS"
   AC_MSG_RESULT(yes)
 else
   CFLAGS="-D_U_=\"\" $CFLAGS"
@@ -123,7 +123,7 @@ else
 fi
 	
 AC_ARG_ENABLE(gtk2,
-[  --disable-gtk2           build Glib1/Gtk1+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=yes)
+[  --disable-gtk2           build Glib1/Gtk1+-based wireshark/tshark.  [default=no]],enable_gtk2=$enableval,enable_gtk2=yes)
 
 if test "x$enable_gtk2" = "xyes" ; then
 	AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS", , gmodule)
@@ -219,7 +219,7 @@ AC_COMPILE_IFELSE(
 #
 # "--with-pcap" is merely done to allow the user to specify a directory
 # in which to look for <pcap.h> (and so that specifying it to the
-# top-level Ethereal configure script specifies it to the Wiretap
+# top-level Wireshark configure script specifies it to the Wiretap
 # configure script as well); we search for it regardless of whether
 # "--without-pcap" was specified, as Wiretap isn't linked with it and
 # there's no benefit to not looking for the header.
