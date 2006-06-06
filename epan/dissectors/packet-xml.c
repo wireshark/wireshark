@@ -160,6 +160,7 @@ static const gchar* default_media_types[] = {
 	"application/xcap-error+xml", 
 	"application/xml", 
 	"application/xml-dtd", 
+	"application/xpidf+xml",
 	"application/xslt+xml", 
 	"image/svg+xml", 
 };
@@ -171,7 +172,10 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbparse_elem_t* tok = NULL;
 	static GPtrArray* stack = NULL;
 	xml_frame_t* current_frame;
-	
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/XML");
+
 	if(!tree) return;
 	
 	if (stack != NULL)
@@ -1118,7 +1122,7 @@ static void init_xml_names(void) {
 	}
 	
 	if (test_for_directory(dirname) == EISDIR) {
-	    
+	
 	    if ((dir = OPENDIR_OP(dirname)) != NULL) {
 	        while ((file = DIRGETNEXT_OP(dir)) != NULL) {
 	            guint namelen;
@@ -1216,7 +1220,7 @@ proto_register_xml(void) {
     
 	xml_module = prefs_register_protocol(xml_ns.hf_tag,apply_prefs);
     prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics",
-                                   "Try to recognize XML for unknown HTTP media types",
+                                   "Try to recognize XML for unknown media types",
                                    &pref_heuristic);
     
     g_array_free(hf_arr,FALSE);
