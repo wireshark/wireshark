@@ -21,11 +21,6 @@ wsicon64.xpm
 wireshark.ico			Windows icon file with 16 and 32 pixel
 				3D logo icons, high and low color
 				
-ethereal48x48-trans.png		Old (flat, black & white) logo icon with
-				transparent background
-ethereal48x48.png		Old (flat, black & white) logo icon with
-				white background
-
 Ethereal.icns			Mac OS X icon file
 
 hi16-app-ethereal.png		KDE Icon Factory Styleguide-compliant
