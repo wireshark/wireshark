@@ -10,18 +10,18 @@
 
 =head1 NAME
 
-Parse::Pidl::Ethereal::NDR - Parser generator for Wireshark
+Parse::Pidl::Wireshark::NDR - Parser generator for Wireshark
 
 =cut
 
-package Parse::Pidl::Ethereal::NDR;
+package Parse::Pidl::Wireshark::NDR;
 
 use strict;
 use Parse::Pidl::Typelist qw(getType);
 use Parse::Pidl::Util qw(has_property ParseExpr property_matches make_str);
 use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
-use Parse::Pidl::Ethereal::Conformance qw(ReadConformance);
+use Parse::Pidl::Wireshark::Conformance qw(ReadConformance);
 use File::Basename;	
 
 use vars qw($VERSION);
@@ -789,7 +789,7 @@ sub Initialize($)
 }
 
 #####################################################################
-# Generate ethereal parser and header code
+# Generate wireshark parser and header code
 sub Parse($$$$)
 {
 	my($ndr,$idl_file,$h_filename,$cnf_file) = @_;
@@ -834,7 +834,7 @@ sub Parse($$$$)
 	$res{headers} .= "#include \"$h_basename\"\n";
 	pidl_code "";
 
-	# Ethereal protocol registration
+	# Wireshark protocol registration
 
 	ProcessInterface($_) foreach (@$ndr);
 

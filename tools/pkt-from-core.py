@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Retrieve a packet from a ethereal/tshark core file
+Retrieve a packet from a wireshark/tshark core file
 and save it in a packet-capture file.
 """
 
@@ -415,7 +415,7 @@ def usage():
 	print ""
 	print "\tGiven an executable file and a core file, this tool"
 	print "\tuses gdb to retrieve the packet that was being dissected"
-	print "\tat the time ethereal/tshark stopped running. The packet"
+	print "\tat the time wireshark/tshark stopped running. The packet"
 	print "\tis saved in the capture_file specified by the -w option."
 	print ""
 	print "\t-v : verbose"

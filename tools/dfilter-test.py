@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Test-suite to test ethereal's dfilter mechanism.
+Test-suite to test wireshark's dfilter mechanism.
 """
 
 #

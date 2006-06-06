@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-#    File      : ethereal_be.py
+#    File      : wireshark_be.py
 #
 #    Author    : Frank Singleton (frank.singleton@ericsson.com)
 #

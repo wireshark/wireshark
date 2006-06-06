@@ -25,7 +25,7 @@ import re
 import sys
 import array
 import string
-import EtherealXML
+import WiresharkXML
 import getopt
 
 # By default we output the HTML to stdout
@@ -218,13 +218,13 @@ class CaptureFile:
             "'msnms contains \"X-MMS-IM-Format\"' "
             "-r " + capture_filename, "r")
 
-        EtherealXML.parse_fh(pipe, self.collect_packets)
+        WiresharkXML.parse_fh(pipe, self.collect_packets)
 
         for conv in self.conversations:
             conv.Summarize()
 
     def collect_packets(self, packet):
-        """Collect the packets passed back from EtherealXML.
+        """Collect the packets passed back from WiresharkXML.
         Sort them by TCP/IP conversation, as there could be multiple
         clients per machine."""
         src_ip = packet.get_items("ip.src")[-1].get_show()

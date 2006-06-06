@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# ethereal_gen.py (part of idl2wrs)
+# wireshark_gen.py (part of idl2wrs)
 #
 # Author : Frank Singleton (frank.singleton@ericsson.com)
 #
@@ -36,7 +36,7 @@
 # Description:
 #
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
-#   passed from ethereal_be2.py and generates "C" code for compiling
+#   passed from wireshark_be2.py and generates "C" code for compiling
 #   as a plugin for the  Wireshark IP Protocol Analyser.
 #
 #

@@ -17,7 +17,7 @@ pidl - An IDL compiler written in Perl
 
 pidl --help
 
-pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
@@ -26,13 +26,13 @@ compatible with the midl compiler. IDL is short for
 "Interface Definition Language".
 
 pidl can generate stubs for DCE/RPC server code, DCE/RPC 
-client code and ethereal dissectors for DCE/RPC traffic.
+client code and wireshark dissectors for DCE/RPC traffic.
 
 IDL compilers like pidl take a description 
 of an interface as their input and use it to generate C 
 (though support for other languages may be added later) code that 
 can use these interfaces, pretty print data sent 
-using these interfaces, or even generate ethereal 
+using these interfaces, or even generate wireshark 
 dissectors that can parse data sent over the 
 wire by these interfaces. 
 
@@ -93,15 +93,15 @@ the interface. Filename defaults to ndr_OUTNAME_s.c.
 Generate stubs for a RPC server that implements the interface. Output will 
 be written to stdout.
 
-=item I<--eth-parser>
+=item I<--ws-parser>
 
-Generate an Ethereal dissector (in C) and header file. The dissector filename
+Generate an Wireshark dissector (in C) and header file. The dissector filename
 defaults to packet-dcerpc-OUTNAME.c while the header filename defaults to 
 packet-dcerpc-OUTNAME.h.
 	
-Pidl will read additional data from an ethereal conformance file if present. 
+Pidl will read additional data from an wireshark conformance file if present. 
 Such a file should have the same location as the IDL file but with the 
-extension I<cnf> rather then I<idl>. See L<Parse::Pidl::Ethereal::Conformance>
+extension I<cnf> rather then I<idl>. See L<Parse::Pidl::Wireshark::Conformance>
 for details on the format of this file.
 
 =item I<--diff>
@@ -369,8 +369,8 @@ usesgetlasterror, vararg, vi_progid, wire_marshal.
 
 =head1 EXAMPLES
 
-	# Generating an ethereal parser
-	$ ./pidl --eth-parser -- atsvc.idl
+	# Generating an wireshark parser
+	$ ./pidl --ws-parser -- atsvc.idl
 	
 	# Generating a TDR parser and header
 	$ ./pidl --tdr-parser --header -- regf.idl
@@ -477,7 +477,7 @@ my($opt_client);
 my($opt_server);
 my($opt_ndr_parser);
 my($opt_tdr_parser);
-my($opt_eth_parser);
+my($opt_ws_parser);
 my($opt_swig);
 my($opt_dcom_proxy);
 my($opt_com_header);
@@ -533,8 +533,8 @@ Samba 3 output:
  --samba3-ndr-client[=OUTF] create client calls for Samba3 
                             using Samba4's NDR code [cli_BASENAME.c]
 
-Ethereal parsers:
- --eth-parser[=OUTFILE]  create ethereal parser and header
+Wireshark parsers:
+ --ws-parser[=OUTFILE]  create wireshark parser and header
 \n";
     exit(0);
 }
@@ -560,7 +560,7 @@ my $result = GetOptions (
 	    'template' => \$opt_template,
 	    'ndr-parser:s' => \$opt_ndr_parser,
 	    'client:s' => \$opt_client,
-	    'eth-parser:s' => \$opt_eth_parser,
+	    'ws-parser:s' => \$opt_ws_parser,
 	    'ejs' => \$opt_ejs,
 	    'diff' => \$opt_diff,
 	    'swig:s' => \$opt_swig,
@@ -655,7 +655,7 @@ sub process_file($)
 
 	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl);
 
-	if (defined($opt_eth_parser) or 
+	if (defined($opt_ws_parser) or 
 	    defined($opt_client) or defined($opt_server) or 
 	    defined($opt_ndr_parser) or defined($opt_ejs) or 
 		defined($opt_dump_ndr_tree) or defined($opt_samba3_header) or 
@@ -744,15 +744,15 @@ $dcom
 
 	}
 
-	if (defined($opt_eth_parser)) {
-	  require Parse::Pidl::Ethereal::NDR;
-	  my($eparser) = ($opt_eth_parser or "$outputdir/packet-dcerpc-$basename.c");
+	if (defined($opt_ws_parser)) {
+	  require Parse::Pidl::Wireshark::NDR;
+	  my($eparser) = ($opt_ws_parser or "$outputdir/packet-dcerpc-$basename.c");
 	  my $eheader = $eparser;
 	  $eheader =~ s/\.c$/\.h/;
 	  my $cnffile = $idl_file;
 	  $cnffile =~ s/\.idl$/\.cnf/;
 
-	  my ($dp, $dh) = Parse::Pidl::Ethereal::NDR::Parse($ndr, $idl_file, $eheader, $cnffile);
+	  my ($dp, $dh) = Parse::Pidl::Wireshark::NDR::Parse($ndr, $idl_file, $eheader, $cnffile);
 	  FileSave($eparser, $dp) if defined($dp);
 	  FileSave($eheader, $dh) if defined($dh);
 	}
