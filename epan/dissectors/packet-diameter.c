@@ -1554,14 +1554,11 @@ dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return tvb_length(tvb);
 }
 
-static int
+static void
 dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (!check_diameter(tvb))
-	return 0;
   tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
 	get_diameter_pdu_len, dissect_diameter_common);
-  return tvb_length(tvb);
 } /* dissect_diameter_tcp */
 
 /*
@@ -2122,7 +2119,7 @@ proto_reg_handoff_diameter(void)
   static dissector_handle_t diameter_handle;
 
   if (!Initialized) {
-	diameter_tcp_handle = new_create_dissector_handle(dissect_diameter_tcp,
+	diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 	    proto_diameter);
 	diameter_handle = new_create_dissector_handle(dissect_diameter,
 	    proto_diameter);
@@ -2293,6 +2290,9 @@ proto_register_diameter(void)
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Allow dissector to find be found by name. */
+	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 
 	/* Register a configuration option for port */
 	diameter_module = prefs_register_protocol(proto_diameter,
