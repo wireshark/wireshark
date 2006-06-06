@@ -9,24 +9,31 @@
 # Additional options to fop.
 # This needs to contain at least the argument '-Xmx256m'
 FOP_OPTS=-Xmx256m
-# (comment this out, if you don't want pdf or don't have fop installed)
+
+# fop executable
+# Leave these commented out if you don't have fop instlled or you
+# don't want PDF documentation.
+#
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
 #FOP=fop-0.20.5/fop.bat
+#
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
-FOP="~/devel/fop-0.20.5/fop.sh"
+#FOP=fop-0.20.5/fop.sh
+#
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
 #FOP=fop
 
 # html help compiler (Win32 only)
-# (comment this out, if you don't want chm or don't have hhc installed)
+# Leave these commented out if you don't have HHC installed or you
+# don't want CHM documentation.
 #HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # elinks (text version of release notes)
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
 #ELINKS=elinks
-ELINKS=elinks
+ELINKS="true"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -89,6 +96,7 @@ WSUG_GRAPHICS =	\
 	graphics/ethereal-export-psml.png		\
 	graphics/ethereal-export-selected.png		\
 	graphics/ethereal-file-menu.png			\
+	graphics/ethereal-file-set-dialog.png		\
 	graphics/ethereal-filter-add-expression.png	\
 	graphics/ethereal-filter-toolbar.png		\
 	graphics/ethereal-filters-2.png			\
@@ -260,20 +268,22 @@ wsug.validated: $(WSUG_SOURCE)
 # create html single page file
 user-guide.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
-	mkdir -p eug_html/graphics/toolbar
-	cp graphics/*.* eug_html/graphics
-	cp graphics/toolbar/* eug_html/graphics/toolbar
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
-	-chmod -R og+rX eug_html
+	mkdir -p wsug_html/graphics/toolbar
+	cp graphics/*.* wsug_html/graphics
+	cp graphics/toolbar/* wsug_html/graphics/toolbar
+	cp ws.css wsug_html
+	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsug_html/$@
+	-chmod -R og+rX wsug_html
 	
 # create html chunked page files
-eug_html_chunked: $(WSUG_SOURCE)
+wsug_html_chunked: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
-	mkdir -p eug_html_chunked/graphics/toolbar
-	cp graphics/*.* eug_html_chunked/graphics
-	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
-	-chmod -R og+rX eug_html_chunked
+	mkdir -p wsug_html_chunked/graphics/toolbar
+	cp graphics/*.* wsug_html_chunked/graphics
+	cp graphics/toolbar/* wsug_html_chunked/graphics/toolbar
+	cp ws.css wsug_html_chunked
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -295,10 +305,10 @@ endif
 user-guide.chm: $(WSUG_SOURCE)
 ifdef HHC
 	@ echo --- WSUG - MICROSOFT HTML HELP ---
-	mkdir -p eug_chm/graphics/toolbar
-	-cp graphics/*.* eug_chm/graphics/
-	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	mkdir -p wsug_chm/graphics/toolbar
+	-cp graphics/*.* wsug_chm/graphics/
+	-cp graphics/toolbar/* wsug_chm/graphics/toolbar/
+	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
@@ -319,7 +329,8 @@ developer-guide.html: $(EDG_SOURCE)
 	@ echo --- EDG - HTML SINGLE PAGE ---
 	mkdir -p edg_html/edg_graphics
 	cp edg_graphics/* edg_html/edg_graphics
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
+	cp ws.css edg_html
+	$(XSLTPROC) --stringparam base.dir edg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
 	-chmod -R og+rX edg_html
 	
 # create html chunked page files
@@ -328,8 +339,9 @@ edg_html_chunked: $(EDG_SOURCE)
 	mkdir -p edg_html_chunked
 	mkdir -p edg_html_chunked/edg_graphics
 	cp edg_graphics/* edg_html_chunked/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
-	-chmod -R og+rX edg_html
+	cp ws.css edg_html_chunked
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX edg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -353,7 +365,7 @@ ifdef HHC
 	@ echo --- EDG - MICROSOFT HTML HELP ---
 	mkdir -p edg_chm/edg_graphics
 	cp edg_graphics/* edg_chm/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
@@ -376,7 +388,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 
 # create txt single page file
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
-	@ echo --- RELEASE NOTES - HTML ---
+	@ echo --- RELEASE NOTES - TXT ---
 	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(ELINKS) -dump -dump-width 72 > $@
 	
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
