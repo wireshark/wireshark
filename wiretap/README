@@ -4,7 +4,7 @@ Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
 is great in that it is very platform independent and has a wonderful
 BPF optimizing engine. But it has some shortcomings as well. These
-shortcomings came to a head during the development of Ethereal
+shortcomings came to a head during the development of Wireshark
 (http://www.wireshark.org/), a packet analyzer. As such, I began developing
 wiretap so that:
 

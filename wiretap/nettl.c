@@ -704,9 +704,9 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* Write the file header. */
 	memset(&file_hdr,0,sizeof(file_hdr));
 	memcpy(file_hdr.magic,nettl_magic_hpux10,sizeof(file_hdr.magic));
-	strcpy(file_hdr.file_name,"/tmp/ethereal.TRC000");
+	strcpy(file_hdr.file_name,"/tmp/wireshark.TRC000");
 	strcpy(file_hdr.tz,"UTC");
-	strcpy(file_hdr.host_name,"ethereal");
+	strcpy(file_hdr.host_name,"wireshark");
 	strcpy(file_hdr.os_vers,"B.11.11");
 	file_hdr.os_v=0x55;
 	strcpy(file_hdr.model,"9000/800");
