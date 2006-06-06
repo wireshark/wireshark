@@ -18,8 +18,8 @@ lib/Parse/Pidl/Samba4/SWIG.pm
 lib/Parse/Pidl/Samba4/TDR.pm
 lib/Parse/Pidl/Samba4/Template.pm
 lib/Parse/Pidl/Samba4/EJS.pm
-lib/Parse/Pidl/Ethereal/Conformance.pm
-lib/Parse/Pidl/Ethereal/NDR.pm
+lib/Parse/Pidl/Wireshark/Conformance.pm
+lib/Parse/Pidl/Wireshark/NDR.pm
 lib/Parse/Pidl/Typelist.pm
 lib/Parse/Pidl/Dump.pm
 lib/Parse/Pidl/Compat.pm
