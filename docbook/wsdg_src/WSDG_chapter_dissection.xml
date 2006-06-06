@@ -1,4 +1,4 @@
-<!-- EDG Chapter Dissection -->
+<!-- WSDG Chapter Dissection -->
 <!-- $Id$ -->
 
 <chapter id="ChapterDissection">
@@ -73,7 +73,7 @@ void proto_register_foo();
 void proto_reg_handoff_foo();
 void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Define version if we are not building ethereal statically */
+/* Define version if we are not building Wireshark statically */
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = "0.0";
 #endif
@@ -522,7 +522,7 @@ static const value_string packettypenames[] = {
 	{ 1, "Initialise" },
 	{ 2, "Terminate" },
 	{ 3, "Data" },
-	{ 0,       NULL },
+	{ 0, NULL }
 };
 ]]>	
    </programlisting></example>
@@ -1166,4 +1166,4 @@ static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo , epan_disse
   </section>
 
 </chapter>
-<!-- End of EDG Chapter Dissection -->
+<!-- End of WSDG Chapter Dissection -->

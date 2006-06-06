@@ -1,4 +1,4 @@
-<!-- EDG Chapter Tools -->
+<!-- WSDG Chapter Tools -->
 <!-- $Id$ -->
 
 <chapter id="ChapterTools">
@@ -10,7 +10,7 @@
 	the various tools needed for Wireshark development.
 	</para>
 	<para>
-	None of the tools mentioned in this chapter is needed to run Ethereal,
+	None of the tools mentioned in this chapter is needed to run Wireshark,
 	they are only needed to build it.
 	</para>
 	<para>
@@ -209,7 +209,7 @@
 	Don't get confused by the (optional) marker at some of the items in the 
 	"Tool" column. 
 	Although these tools are not required to <command>build</command> 
-	Ethereal they can make development life much easier and some are even 
+	Wireshark they can make development life much easier and some are even 
 	required by the following installation procedure.
 	</para>
 	</section>
@@ -218,7 +218,7 @@
 	<title>Install Microsoft Visual Studio Version 6</title>
 	<para>
 	Install MSVC the usual way. Don't forget to install vcvars32.bat or call 
-	it manually before building Ethereal. vcvars32.bat will set some required 
+	it manually before building Wireshark. vcvars32.bat will set some required 
 	environment settings.
 	</para>
 	<warning><title>Warning!</title>
@@ -332,7 +332,7 @@
 	<title>Install Additional Tools</title>	
 	<para>
 	Depending on your actual task the following tools are recommended. 
-	Please note that they are not required to build Ethereal but can be 
+	Please note that they are not required to build Wireshark but can be 
 	quite helpful.
 	</para>
 	<section>
@@ -380,7 +380,7 @@
 	<userinput>nmake -f Makefile.nmake verify_tools</userinput>
 	</para>
 	<para>
-	This will check for the various tools needed to build Ethereal:
+	This will check for the various tools needed to build Wireshark:
 	</para>
 	<para>
 	<programlisting>
@@ -471,7 +471,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</note>
 	</para>
 	<para>
-	The mainline for generating Ethereal on the windows platform, is using
+	The mainline for generating Wireshark on the windows platform, is using
 	the compiler cl.exe from the Microsoft Visual Studio version 6 (and it's 
 	nmake, as described below).
 	</para>
@@ -500,7 +500,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	<warning><title>Warning!</title>
 	<para>
 	The recent "Microsoft Visual Studio .NET" C compiler(s) currently cannot 
-	be used to compile Ethereal!!!
+	be used to compile Wireshark!!!
 	</para>
 	</warning>
 	</para>
@@ -528,7 +528,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	<para>
 	Example why this hurts: A dependant library might try to open a file using 
 	functions in MSVCRT.dll which creates an internal file handle and keeps 
-	information about that file. When Ethereal tries to read data from that 
+	information about that file. When Wireshark tries to read data from that 
 	file, it uses the functions from MSVCRT70.dll, which doesn't know anything 
 	about that previously opened file and returns an error code.
 	</para>
@@ -537,18 +537,18 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	MSVCRT.dll but they seemed to fail :-(
 	</para>
 	<para>
-	It's also still unsure, if shipping the MSVCRT70.dll together with Ethereal
+	It's also still unsure, if shipping the MSVCRT70.dll together with Wireshark
 	is compatible with the GPL license at all.	
 	</para>
 	<note><title>Note!</title>
 	<para>
-	This isn't an Ethereal specific problem. Any software project trying to use
+	This isn't an Wireshark specific problem. Any software project trying to use
 	the version 7 C compiler will have the problems described above!
 	</para>
 	</note>
 	<para>
 	XXX - what about the legal issue, as the MSVCRT70.dll had to be shipped 
-	with Ethereal.
+	with Wireshark.
 	</para>
 	</section>
 
@@ -561,7 +561,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	some people still think it's use is optional.
 	</para>
 	<para>
-	The debugger you use must match the C compiler Ethereal was compiled with, 
+	The debugger you use must match the C compiler Wireshark was compiled with, 
 	otherwise the debugger will simply fail or you will only see a lot of 
 	garbage.
 	</para>
@@ -728,7 +728,7 @@ Stop.]]>
 	<warning><title>Warning!</title>
 	<para>
 	It is recommended to use the Microsoft Visual Studio version 6 to compile
-	Ethereal for Win32, see <xref linkend="ChToolsCompiler"/>. Don't follow the
+	Wireshark for Win32, see <xref linkend="ChToolsCompiler"/>. Don't follow the
 	instructions in this section, until you now what you are doing.
 	</para>
 	</warning>
@@ -1146,7 +1146,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<para>
 	Diff is used to get a file of all differences between two source
 	files/trees (sometimes called a patch). The diff tool isn't needed for 
-	building Ethereal, but it's needed if you are going to commit your changes 
+	building Wireshark, but it's needed if you are going to commit your changes 
 	back to the Wireshark community.
 	</para>
 	<note><title>Note!</title>
@@ -1376,4 +1376,4 @@ written by Larry Wall and Paul Eggert]]>
 
 
 </chapter>
-<!-- End of EDG Chapter Tools -->
+<!-- End of WSDG Chapter Tools -->

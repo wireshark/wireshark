@@ -27,34 +27,34 @@ DOCUMENT SECTION
 -Use this section to encode all document information
 -->
 
-  <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &EtherealCurrentVersion;">
-  <!ENTITY DocumentTitleAbbreviation "EDG">
+  <!ENTITY DocumentTitle "<application>Wireshark</application> Developer's Guide">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &WiresharkCurrentVersion;">
+  <!ENTITY DocumentTitleAbbreviation "WSDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
-  <!ENTITY DocumentCopyrightYear "2004-2005">
+  <!ENTITY DocumentCopyrightYear "2004-2006">
 
   <!ENTITY DocumentEdition "Draft">
-  <!ENTITY DocumentVersion "Draft 0.0.2">
-  <!ENTITY DocumentPubDate "2005">
+  <!ENTITY DocumentVersion "Draft 0.0.3">
+  <!ENTITY DocumentPubDate "2006">
   <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
   %SvnVersionFile;
 
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
 <!--
-Ethereal Info
+Wireshark Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.14">
-  <!ENTITY EtherealWebSite "http://www.wireshark.org">
-  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
-  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
-  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
-  <!ENTITY EtherealDevMailList "wireshark-dev[AT]wireshark.org">
-  <!ENTITY EtherealDevsGuidePage "&EtherealWebSite;/docs">
-  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs">
-  <!ENTITY EtherealWikiSite "http://wiki.wireshark.org">
-  <!ENTITY EtherealBugsSite "http://bugs.wireshark.org">
+  <!ENTITY WiresharkCurrentVersion "0.99.0">
+  <!ENTITY WiresharkWebSite "http://www.wireshark.org">
+  <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
+  <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/introduction.html#authors">
+  <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
+  <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
+  <!ENTITY WiresharkDevsGuidePage "&WiresharkWebSite;/docs">
+  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs">
+  <!ENTITY WiresharkWikiSite "http://wiki.wireshark.org">
+  <!ENTITY WiresharkBugsSite "http://bugs.wireshark.org">
 
 <!--
 Gnu info
@@ -68,23 +68,23 @@ FILE SECTION
 
 <!-- These refer to graphics files and figures contained in the document -->
 
-  <!ENTITY EtherealLogo SYSTEM "./edg_graphics/wireshark-logo.png" NDATA PNG>
-  <!ENTITY EtherealFunctionBlocks SYSTEM "./edg_graphics/ethereal-function-blocks.png" NDATA PNG>
+  <!ENTITY WiresharkLogo SYSTEM "./edg_graphics/wireshark-logo.png" NDATA PNG>
+  <!ENTITY WiresharkFunctionBlocks SYSTEM "./edg_graphics/ethereal-function-blocks.png" NDATA PNG>
 
 <!-- These are the actual files that make up the document -->
 
-  <!ENTITY BookMetaInformation SYSTEM "edg_src/EDG_meta_info.xml">
-  <!ENTITY Preface SYSTEM "edg_src/EDG_preface.xml">
-  <!ENTITY EnvIntroduction SYSTEM "edg_src/EDG_chapter_env_intro.xml">
-  <!ENTITY Tools SYSTEM "edg_src/EDG_chapter_tools.xml">
-  <!ENTITY Libraries SYSTEM "edg_src/EDG_chapter_libraries.xml">
-  <!ENTITY Sources SYSTEM "edg_src/EDG_chapter_sources.xml">
+  <!ENTITY BookMetaInformation SYSTEM "wsdg_src/WSDG_meta_info.xml">
+  <!ENTITY Preface SYSTEM "wsdg_src/WSDG_preface.xml">
+  <!ENTITY EnvIntroduction SYSTEM "wsdg_src/WSDG_chapter_env_intro.xml">
+  <!ENTITY Tools SYSTEM "wsdg_src/WSDG_chapter_tools.xml">
+  <!ENTITY Libraries SYSTEM "wsdg_src/WSDG_chapter_libraries.xml">
+  <!ENTITY Sources SYSTEM "wsdg_src/WSDG_chapter_sources.xml">
   
-  <!ENTITY BuildIntroduction SYSTEM "edg_src/EDG_chapter_build_intro.xml">
-  <!ENTITY HowEtherealWorks SYSTEM "edg_src/EDG_chapter_works.xml">
-  <!ENTITY Capture SYSTEM "edg_src/EDG_chapter_capture.xml">
-  <!ENTITY Dissection SYSTEM "edg_src/EDG_chapter_dissection.xml">
-  <!ENTITY UserInterface SYSTEM "edg_src/EDG_chapter_userinterface.xml">
+  <!ENTITY BuildIntroduction SYSTEM "wsdg_src/WSDG_chapter_build_intro.xml">
+  <!ENTITY HowWiresharkWorks SYSTEM "wsdg_src/WSDG_chapter_works.xml">
+  <!ENTITY Capture SYSTEM "wsdg_src/WSDG_chapter_capture.xml">
+  <!ENTITY Dissection SYSTEM "wsdg_src/WSDG_chapter_dissection.xml">
+  <!ENTITY UserInterface SYSTEM "wsdg_src/WSDG_chapter_userinterface.xml">
 
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
@@ -98,18 +98,18 @@ FILE SECTION
 &BookMetaInformation;
 &Preface;
 <part id="PartEnvironment" label="I">
-<title>Ethereal Build Environment</title>
+<title>Wireshark Build Environment</title>
 <partintro>
 <para>
-<command>Part I. Ethereal Build Environment</command>
+<command>Part I. Wireshark Build Environment</command>
 </para>
 <para>
 <command>The first part describes how to set up the tools, libraries and 
-source needed to generate Ethereal, and how to do some typical development 
+source needed to generate Wireshark, and how to do some typical development 
 tasks.</command>
 </para>
 <para>
-Part II. Ethereal Development
+Part II. Wireshark Development
 </para>
 <para>
 The second part describes how the Wireshark sources are structured and how 
@@ -122,27 +122,27 @@ to change the sources (e.g. adding a new dissector).
 &Sources;
 </part>
 <part id="PartDevelopment" label="II">
-<title>Ethereal Development (incomplete)</title>
+<title>Wireshark Development (incomplete)</title>
 <partintro>
 <!--<para>
 This is the second of two parts:
 </para>-->
 <para>
-Part I. Ethereal Build Environment
+Part I. Wireshark Build Environment
 </para>
 <para>
 The first part describes how to set up the tools, libraries and source needed 
-to generate Ethereal, and how to do some typical development tasks.
+to generate Wireshark, and how to do some typical development tasks.
 </para>
 <para>
-<command>Part II. Ethereal Development</command>
+<command>Part II. Wireshark Development</command>
 </para>
 <para>
 <command>The second part describes how the Wireshark sources are structured and how 
 to change the sources (e.g. adding a new dissector).</command>
 </para>
 </partintro>
-&HowEtherealWorks;
+&HowWiresharkWorks;
 &BuildIntroduction;
 &Capture;
 &Dissection;

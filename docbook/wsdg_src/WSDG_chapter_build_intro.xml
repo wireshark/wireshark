@@ -1,4 +1,4 @@
-<!-- EDG Chapter Build Introduction -->
+<!-- WSDG Chapter Build Introduction -->
 <!-- $Id$ -->
 
 <chapter id="ChapterBuildIntro">
@@ -7,13 +7,13 @@
   <section id="ChCodeOverview">
 	<title>Source overview</title>
 	<para>
-	Ethereal consists of the following major parts:
+	Wireshark consists of the following major parts:
 	<itemizedlist>
 	<listitem><para>
 	Packet dissection - in the / and /epan directory
 	</para></listitem>
 	<listitem><para>
-	File I/O - using Ethereal's own wiretap library
+	File I/O - using Wireshark's own wiretap library
 	</para></listitem>
 	<listitem><para>
 	Capture - using the libpcap/winpcap library
@@ -59,9 +59,10 @@
 	</para>
 	<para>
 	GLib contains lot's of useful things for platform independant development.
-	See XXX for details about GLib.
+	See <ulink url="http://developer.gnome.org/doc/API/2.0/glib/index.html"/> 
+	for details about GLib.
 	</para>
   </section>
 
 </chapter>
-<!-- End of EDG Chapter Build Introduction -->
+<!-- End of WSDG Chapter Build Introduction -->

@@ -1,4 +1,4 @@
-<!-- EDG Chapter Libraries -->
+<!-- WSDG Chapter Libraries -->
 <!-- $Id$ -->
 
 <chapter id="ChapterLibraries">
@@ -7,7 +7,7 @@
   <section id="ChLibIntro">
 	<title>Introduction</title>
 	<para>
-	Several libraries are needed to build / run Ethereal. Most of the
+	Several libraries are needed to build / run Wireshark. Most of the
 	libraries are splitted into three packages:
 	<orderedlist>
 	<listitem>
@@ -23,7 +23,7 @@
 	<listitem>
 	<para>
 	Source package: library sources, usually not required to
-	build ethereal
+	build Wireshark
 	</para>
 	</listitem>
 	</orderedlist>
@@ -60,7 +60,7 @@
 	<section id="ChLibsFormatWin32MSVC6">
 	<title>Win32: MSVC V6</title>
 	<para>
-	Recommended for current Win32 Ethereal releases.
+	Recommended for current Win32 Wireshark releases.
 	Most of the Win32 binary libraries you will find on the web are in this
 	format. You will recognize MSVC libraries by the .lib/.dll file extension.
 	</para>
@@ -102,7 +102,7 @@
 	<para>
 	Before you start the download, you must have installed both
 	the required tools (see <xref linkend="ChapterTools"/>) and also the 
-	Ethereal sources (see <xref linkend="ChSrcObtain"/>).
+	Wireshark sources (see <xref linkend="ChSrcObtain"/>).
 	</para>
 	</note>
 	<para>
@@ -120,7 +120,7 @@
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
 	</para>
 	<para>
-	This will first check for all the various tools needed to build Ethereal,
+	This will first check for all the various tools needed to build Wireshark,
 	as described already in <xref linkend="ChToolsWin32Verify"/>.
 	</para>
 	<para>
@@ -149,7 +149,7 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	Update your Ethereal sources to the latest SVN files (see <xref 
+	Update your Wireshark sources to the latest SVN files (see <xref 
 	linkend="ChSrcObtain"/>), so the zip filenames in the setup target 
 	of Makefile.nmake is in sync with the library zip files on the server.
 	</para>
@@ -158,7 +158,7 @@
 	<para>	
 	Remove all files previously unzipped from the downloaded files in your 
 	WIRESHARK_LIBS library path (all the subdirs, e.g. 
-	<filename>c:\ethereal_libs\gtk+</filename>), 
+	<filename>c:\wireshark-win32-libs\gtk+</filename>), 
 	except for the zip files located at the toplevel, which are the files 
 	downloaded the last time(s). You could do this, be entering at the command line:
 	</para>
@@ -186,13 +186,13 @@
 	description about GLib, see <xref linkend="ChCodeGLib"/>.
 	</para>
 	<para>
-	The GTK and it's dependant libraries are used to build Ethereal's GUI. 
+	The GTK and it's dependant libraries are used to build Wireshark's GUI. 
 	For a detailed description of the GTK libraries, see <xref 
 	linkend="ChUIGTK"/>.
 	</para>
 	<para>
 	All other libraries are dependant on the two libraries mentioned above, 
-	you will typically not come in touch with these while doing Ethereal 
+	you will typically not come in touch with these while doing Wireshark 
 	development. 
 	</para>
 	<para>
@@ -242,10 +242,10 @@
 	<section id="ChLibsWin32SNMP">
 	<title>Win32 MSVC</title>
 	<para>
-	Ethereal uses the source Net-SNMP distribution at 
+	Wireshark uses the source Net-SNMP distribution at 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
 	Then libsnmp is compiled with the "libsnmp - Win32 Release" project 
-	using MSVC++ 6.0. A file called "README.ethereal" has been placed in the 
+	using MSVC++ 6.0. A file called "README.wireshark" has been placed in the 
 	net-snmp zip archive at <ulink 
 	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
 	describing the changes in more detail.
@@ -383,4 +383,4 @@ utilities."
 
   
 </chapter>
-<!-- End of EDG Chapter Libraries -->
+<!-- End of WSDG Chapter Libraries -->

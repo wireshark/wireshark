@@ -1,4 +1,4 @@
-<!-- EDG Chapter Sources -->
+<!-- WSDG Chapter Sources -->
 <!-- $Id$ -->
 
 <chapter id="ChapterSources">
@@ -33,7 +33,7 @@
 	<title>The Wireshark Subversion repository</title>
 	<para>
 	Subversion is used to keep track of the changes made to the Wireshark 
-	source code. The Wireshark source code is stored inside Ethereal project's 
+	source code. The Wireshark source code is stored inside Wireshark project's 
 	Subversion repository located at a server at the wireshark.org domain.
 	</para>
 	<para>
@@ -57,7 +57,7 @@
 	</para>
 	</tip>
 	<para>
-	Using Ethereal's Subversion repository you can:
+	Using Wireshark's Subversion repository you can:
 	<itemizedlist>
 	<listitem><para>
 	keep your private sources uptodate with very little effort
@@ -81,7 +81,7 @@
 	</itemizedlist>
 	</para>
 	<para>
-	The way Ethereal uses Subversion, it can be parted into a client and a 
+	The way Wireshark uses Subversion, it can be parted into a client and a 
 	server part. Thanks to Gerald Combs (the maintainer of the Subversion 
 	server), no user usually has to deal with the
 	Subversion server. You will only need a Subversion client, which is 
@@ -119,7 +119,7 @@
 	found at: 
 	</para>
 	<para>
-	<ulink url="http://anonsvn.wireshark.org/ethereal/trunk/"/>.
+	<ulink url="http://anonsvn.wireshark.org/wireshark/trunk/"/>.
 	</para>
 	<para>
 	A <command>comprehensive view</command> of all source versions 
@@ -127,7 +127,7 @@
 	is available at:
 	</para>
 	<para>
-	<ulink url="http://anonsvn.wireshark.org/viewcvs/viewcvs.py/"/>. 
+	<ulink url="http://anonsvn.wireshark.org/viewvc/viewvc.cgi/"/>.
 	</para>
 	<para>
 	Of special interest might be the subdirectories:
@@ -145,7 +145,7 @@
   <section id="ChSrcObtain">
 	<title>Obtain the Wireshark sources</title>
 	<para>
-	There are several ways to obtain the sources from Ethereal's Subversion 
+	There are several ways to obtain the sources from Wireshark's Subversion 
 	server.
 	</para>
 	<tip><title>Tip!</title>
@@ -181,9 +181,9 @@
 	</para>
 	<para>
 	You can use a Subversion client to download the source code from 
-	Ethereal's anonymous Subversion repository. The URL for the repository 
+	Wireshark's anonymous Subversion repository. The URL for the repository 
 	trunk is:
-	<ulink url="http://anonsvn.wireshark.org/ethereal/trunk/"/>.
+	<ulink url="http://anonsvn.wireshark.org/wireshark/trunk/"/>.
 	</para>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> how to install a Subversion client.
@@ -194,7 +194,7 @@
 	</para>
 	<para>
 	<prompt>$</prompt> 
-	<userinput>svn checkout http://anonsvn.wireshark.org/ethereal/trunk ethereal</userinput>
+	<userinput>svn checkout http://anonsvn.wireshark.org/wireshark/trunk wireshark</userinput>
 	</para>
 	<para>
 	The checkout has to be only done once. This will copy all the sources of 
@@ -215,7 +215,7 @@
 	<para>
 	 The entire source tree of the Subversion repository is available via a 
 	 web interface at:
-	 <ulink url="http://anonsvn.wireshark.org/viewcvs/viewcvs.py/"/>. 
+	 <ulink url="http://anonsvn.wireshark.org/viewvc/viewvc.cgi/"/>. 
 	 You can view 
 	 each revision of a particular file, as well as diffs between different 
 	 revisions. You can also download individual files or entire directories.
@@ -233,7 +233,7 @@
 	</para>
 	<para>
 	The buildbot server will automatically start to generate a snapshot of 
-	Ethereal's sourcetree after a source code change committed. 
+	Wireshark's sourcetree after a source code change committed. 
 	These snapshots can be found at: <ulink
 	url="http://www.wireshark.org/distribution/buildbot-builds/source/"/>.
 	</para>
@@ -259,7 +259,7 @@
 	<para>
 	The officially released source files can be found at: <ulink
 	url="http://www.wireshark.org/download.html"/>.
-	You should use these sources if you want to build Ethereal on your
+	You should use these sources if you want to build Wireshark on your
 	platform for productive use.
 	</para>
 	<para>
@@ -330,7 +330,7 @@
   </section>
 
   <section id="ChSrcBuildFirstTime">
-	<title>Build Ethereal for the first time</title>
+	<title>Build Wireshark for the first time</title>
 	<para>
 	The sources contains several documentation files, it's a good idea to
 	look at these files first.
@@ -344,7 +344,7 @@
 	<tip><title>Tip!</title>
 	<para>
 	It is a very good idea, to first test your complete build environment 
-	(including running and debugging Ethereal) before doing any changes 
+	(including running and debugging Wireshark) before doing any changes 
 	to the source code (unless otherwise noted).
 	</para>
 	</tip>
@@ -356,7 +356,7 @@
 	<section>
 	<title>Unix</title>
 	<para>
-	Run the autogen.sh script at the top-level ethereal directory to configure 
+	Run the autogen.sh script at the top-level wireshark directory to configure 
 	your build directory.
 	<programlisting>
 ./autogen.sh
@@ -400,11 +400,11 @@ make
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake all</userinput>
 	</para>
 	<para>
-	will start the whole Ethereal build process.
+	will start the whole Wireshark build process.
 	</para>
 	<para>
 	After the build process successfully finished, you should find an 
-	<filename>ethereal.exe</filename> and some other files
+	<filename>wireshark.exe</filename> and some other files
 	in the root directory.
 	</para>
 	</section>
@@ -412,11 +412,11 @@ make
   </section>
 
   <section id="ChSrcRunFirstTime">
-	<title>Run generated Ethereal for the first time</title>
+	<title>Run generated Wireshark for the first time</title>
 	<tip><title>Tip!</title>
 	<para>
-	An already installed Ethereal may interfere with your newly generated 
-	version in various ways. If you have any problems getting your Ethereal 
+	An already installed Wireshark may interfere with your newly generated 
+	version in various ways. If you have any problems getting your Wireshark 
 	running the first time, it might be a good idea to remove the previously 
 	installed version first.
 	</para>
@@ -427,9 +427,9 @@ make
   </section>
 	
   <section id="ChSrcDebug">
-	<title>Debug your generated Ethereal</title>
+	<title>Debug your generated Wireshark</title>
 	<para>
-	See the above info on running Ethereal.
+	See the above info on running Wireshark.
 	</para>
 	<para>
 	XXX - add more info here.
@@ -447,12 +447,12 @@ make
 	<title>Make changes to the Wireshark sources</title>
 	<para>
 	As the Wireshark developers working on many different platforms, a lot of 
-	editors are used to develop Ethereal (emacs, vi, Microsoft Visual Studio
+	editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
 	and many many others). There's no "standard" or "default" development 
 	environment.
 	</para>
 	<para>
-	There are several reasons why you might want to change the Ethereal
+	There are several reasons why you might want to change the Wireshark
 	sources:
 	<itemizedlist>
 	  <listitem><para>add your own new dissector</para></listitem>
@@ -492,22 +492,22 @@ make
 	<listitem><para>
 	Other people who find your contributions useful will appreciate
 	them, and you will know that you have helped people in the same way
-	that the developers of Ethereal have helped people
+	that the developers of Wireshark have helped people
 	</para></listitem>
 	<listitem><para>
-	The developers of Ethereal might improve your changes even more, as 
+	The developers of Wireshark might improve your changes even more, as 
 	there's always room for improvements. Or they may implement some advanced 
 	things on top of your code, which can be useful for yourself too.
 	</para></listitem>
 	<listitem><para>
-	The maintainers and developers of Ethereal will maintain your code as 
+	The maintainers and developers of Wireshark will maintain your code as 
 	well, fixing it when API changes or other changes are made, and generally 
-	keeping it in tune with what is happening with Ethereal. So if Wireshark is 
-	updated (which is done often), you can get a new Ethereal version from 
+	keeping it in tune with what is happening with Wireshark. So if Wireshark is 
+	updated (which is done often), you can get a new Wireshark version from 
 	the website and your changes will already be included without any effort 
-	for you. The maintainers and developers of Ethereal will maintain your
+	for you. The maintainers and developers of Wireshark will maintain your
 	code as well, fixing it when API changes or other changes are made, and
-	generally keeping it in tune with what is happening with Ethereal.
+	generally keeping it in tune with what is happening with Wireshark.
 	</para></listitem>
 	</itemizedlist>
 	There's no direct way to commit changes to the SVN repository. Only a few
@@ -542,9 +542,9 @@ make
 	Here is a small example of a patch file (XXX - generate a better example):
 	<programlisting>
 <![CDATA[
-diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/packet-dcerpc.c
---- ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c	2004-08-12 15:42:26.000000000 -0700
-+++ ./epan/dissectors/packet-dcerpc.c	2004-08-19 18:48:32.000000000 -0700
+diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/packet-dcerpc.c
+--- ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c	2005-08-12 15:42:26.000000000 -0700
++++ ./epan/dissectors/packet-dcerpc.c	2005-08-19 18:48:32.000000000 -0700
 @@ -282,6 +282,7 @@
  /* we need to keep track of what transport were used, ie what handle we came
   * in through so we know what kind of pinfo->private_data was passed to us.
@@ -576,7 +576,7 @@ diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	<section id="ChSrcSVNDiff">
 	<title>Using the svn command-line client</title>
 	<para>
-	svn diff -u [changed_files] > svn.diff
+	<userinput>svn diff [changed_files] > svn.diff</userinput>
 	</para>
 	<para>
 	XXX - add more details
@@ -720,7 +720,7 @@ diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	  <listitem><para>
 	  <command>Find a good descriptive filename for your patch.</command> 
 	  Think a moment to find a proper name for your patch file. Often a 
-	  filename like <filename>ethereal.diff</filename> is used, which isn't 
+	  filename like <filename>wireshark.diff</filename> is used, which isn't 
 	  really helpful if keeping several of these files and find the right 
 	  one later. For example: If you want to commit changes to the datatypes 
 	  of dissector foo, a good filename might be: 
@@ -752,10 +752,10 @@ diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	<title>Code Requirements</title>
 	<para>
 	The core maintainers have a lot of work fixing bugs and making code 
-	compile on the various platforms Ethereal supports.
+	compile on the various platforms Wireshark supports.
 	</para>
 	<para>
-	To ensure Ethereal's source code quality, and to reduce the workload of 
+	To ensure Wireshark's source code quality, and to reduce the workload of 
 	the core maintainers, there are some things you should 
 	think about <command>before</command> submitting a patch.
 	<warning><title>Warn!</title>
@@ -770,7 +770,7 @@ diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	  Just because something compiles on your platform, that doesn't 
 	  mean it'll compile on all of the other platforms for which Wireshark is 
 	  built. 
-	  Ethereal runs on many platforms, and can be compiled with a number of 
+	  Wireshark runs on many platforms, and can be compiled with a number of 
 	  different compilers. See <xref linkend="ChCodeStyle"/> for details.
 	  </para>
 	  </listitem>
@@ -872,7 +872,7 @@ diff -ur ../wireshark-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	<para>
 	If they're relative to a higher-level directory, you'd replace 0 with the 
 	number of higher-level directories in the path, e.g. if the names are 
-	"ethereal.orig/prefs.c" and "ethereal.mine/prefs.c", you'd run it with:
+	"wireshark.orig/prefs.c" and "wireshark.mine/prefs.c", you'd run it with:
 	</para>
 	<para>
     <userinput>patch -p1 &lt;new.diff</userinput>
@@ -960,7 +960,7 @@ diff -c -r1.5 dlnames.c
 	</para>
 	<note><title>Note!</title>
 	<para>
-	This action is only possible/allowed by the ethereal core developers who 
+	This action is only possible/allowed by the Wireshark core developers who 
 	have write access to the Subversion repository. It is put in here, to have 
 	all information in one place.
 	</para>
@@ -979,7 +979,7 @@ diff -c -r1.5 dlnames.c
 	Add a line to each new file, containing the following text (case is 
 	important, so don't write ID or id or iD):
 <programlisting>
-$Id$
+$Id:$
 </programlisting>
 	</para>
 	</listitem>
@@ -1028,7 +1028,7 @@ $Id$
 	<title>Binary packaging</title>
 	<para>
 	Delivering binary packages, makes it much easier for the end-users to
-	install Ethereal on their target system. This section will explain how
+	install Wireshark on their target system. This section will explain how
 	the binary packages are made.
 	</para>
 
@@ -1061,7 +1061,7 @@ $Id$
 	installed and wether to use the modern UI (which is recommended) or not.
 	</para>
 	<para>
-	In the ethereal directory, type:
+	In the wireshark directory, type:
 	</para>
 	<para>
 	<prompt>&gt;</prompt> <userinput>nmake -f makefile.nmake packaging</userinput>
@@ -1077,7 +1077,7 @@ $Id$
 	</tip>
 	<para>
 	If everything went well, you will now find something like:
-	<filename>wireshark-setup-&EtherealCurrentVersion;.exe</filename> in
+	<filename>wireshark-setup-&WiresharkCurrentVersion;.exe</filename> in
 	the <filename>packaging/nsis</filename> directory.
 	</para>
 	</section>
@@ -1085,4 +1085,4 @@ $Id$
   </section>
 
 </chapter>
-<!-- End of EDG Chapter Sources -->
+<!-- End of WSDG Chapter Sources -->

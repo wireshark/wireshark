@@ -1,5 +1,6 @@
 #
-# Make the "Ethereal User's Guide" in several formats.
+# Make the "Wireshark User Guide" and "Wireshark Developer Guide"
+# in several formats.
 # See the Readme.txt file for instructions.
 #
 # $Id$
@@ -46,6 +47,8 @@ XMLLINT="xmllint"
 # Automatically generate .pdf files from .fo files
 .fo.pdf:
 	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
+# On Debian use this line
+#	JAVA_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
 WSUG_FILES =	\
 	wsug_src/WSUG_app_files.xml \
@@ -175,30 +178,30 @@ WSUG_GRAPHICS =	\
 	graphics/wireshark-logo.png			\
 	graphics/wireshark-main.png
 
-EDG_FILES =	\
-	edg_src/EDG_chapter_build_intro.xml	\
-	edg_src/EDG_chapter_capture.xml		\
-	edg_src/EDG_chapter_dissection.xml	\
-	edg_src/EDG_chapter_env_intro.xml	\
-	edg_src/EDG_chapter_libraries.xml	\
-	edg_src/EDG_chapter_sources.xml		\
-	edg_src/EDG_chapter_tools.xml		\
-	edg_src/EDG_chapter_userinterface.xml	\
-	edg_src/EDG_chapter_works.xml		\
-	edg_src/EDG_meta_info.xml		\
-	edg_src/EDG_preface.xml
+WSDG_FILES =	\
+	wsdg_src/EDG_chapter_build_intro.xml	\
+	wsdg_src/EDG_chapter_capture.xml	\
+	wsdg_src/EDG_chapter_dissection.xml	\
+	wsdg_src/EDG_chapter_env_intro.xml	\
+	wsdg_src/EDG_chapter_libraries.xml	\
+	wsdg_src/EDG_chapter_sources.xml	\
+	wsdg_src/EDG_chapter_tools.xml		\
+	wsdg_src/EDG_chapter_userinterface.xml	\
+	wsdg_src/EDG_chapter_works.xml		\
+	wsdg_src/EDG_meta_info.xml		\
+	wsdg_src/EDG_preface.xml
 
-EDG_GRAPHICS =	\
-	edg_graphics/ethereal-capture-sync.dia		\
-	edg_graphics/ethereal-capture-sync.png		\
-	edg_graphics/ethereal-capture_internals.dia	\
-	edg_graphics/ethereal-capture_internals.png	\
-	edg_graphics/ethereal-function-blocks.dia	\
-	edg_graphics/ethereal-function-blocks.png	\
-	edg_graphics/wireshark-logo.png			\
-	edg_graphics/note.png				\
-	edg_graphics/tip.png				\
-	edg_graphics/warning.png
+WSDG_GRAPHICS =	\
+	wsdg_graphics/ethereal-capture-sync.dia		\
+	wsdg_graphics/ethereal-capture-sync.png		\
+	wsdg_graphics/ethereal-capture_internals.dia	\
+	wsdg_graphics/ethereal-capture_internals.png	\
+	wsdg_graphics/ethereal-function-blocks.dia	\
+	wsdg_graphics/ethereal-function-blocks.png	\
+	wsdg_graphics/wireshark-logo.png		\
+	wsdg_graphics/note.png				\
+	wsdg_graphics/tip.png				\
+	wsdg_graphics/warning.png
 
 # user-guide.xml must be first in the list (to match $<)
 WSUG_SOURCE =	\
@@ -208,11 +211,11 @@ WSUG_SOURCE =	\
 	$(WSUG_GRAPHICS)
 
 # developer-guide.xml must be first in the list (to match $<)
-EDG_SOURCE =	\
+WSDG_SOURCE =	\
 	developer-guide.xml	\
 	svn_version.xml		\
-	$(EDG_FILES)		\
-	$(EDG_GRAPHICS)
+	$(WSDG_FILES)		\
+	$(WSDG_GRAPHICS)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.xml	\
@@ -225,9 +228,9 @@ CLEANFILES =	\
 	*.hhp			\
 	*.pdf			\
 	*.validated		\
-	edg_chm			\
-	edg_html		\
-	edg_html_chunked	\
+	wsdg_chm		\
+	wsdg_html		\
+	wsdg_html_chunked	\
 	wsug_chm		\
 	wsug_html		\
 	wsug_html_chunked	\
@@ -238,7 +241,7 @@ CLEANFILES =	\
 	svn_version.xml		\
 
 
-all: wsug.validated edg.validated release_notes.validated wsug edg release_notes
+all: wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -316,56 +319,56 @@ ifdef HHC
 endif
 
 
-edg: edg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
+wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 # validate the content
-edg.validated: $(EDG_SOURCE)
-	@ echo --- EDG - VALIDATING XML ---
+wsdg.validated: $(WSDG_SOURCE)
+	@ echo --- WSDG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
 
 # create html single page file
-developer-guide.html: $(EDG_SOURCE)
-	@ echo --- EDG - HTML SINGLE PAGE ---
-	mkdir -p edg_html/edg_graphics
-	cp edg_graphics/* edg_html/edg_graphics
-	cp ws.css edg_html
-	$(XSLTPROC) --stringparam base.dir edg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
-	-chmod -R og+rX edg_html
+developer-guide.html: $(WSDG_SOURCE)
+	@ echo --- WSDG - HTML SINGLE PAGE ---
+	mkdir -p wsdg_html/wsdg_graphics
+	cp wsdg_graphics/* wsdg_html/wsdg_graphics
+	cp ws.css wsdg_html
+	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsdg_html/$@
+	-chmod -R og+rX wsdg_html
 	
 # create html chunked page files
-edg_html_chunked: $(EDG_SOURCE)
-	@ echo --- EDG - HTML CHUNKED ---
-	mkdir -p edg_html_chunked
-	mkdir -p edg_html_chunked/edg_graphics
-	cp edg_graphics/* edg_html_chunked/edg_graphics
-	cp ws.css edg_html_chunked
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
-	-chmod -R og+rX edg_html_chunked
+wsdg_html_chunked: $(WSDG_SOURCE)
+	@ echo --- WSDG - HTML CHUNKED ---
+	mkdir -p wsdg_html_chunked
+	mkdir -p wsdg_html_chunked/wsdg_graphics
+	cp wsdg_graphics/* wsdg_html_chunked/wsdg_graphics
+	cp ws.css wsdg_html_chunked
+	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX wsdg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-developer-guide-us.fo: $(EDG_SOURCE)
+developer-guide-us.fo: $(WSDG_SOURCE)
 ifdef FOP
-	@ echo --- EDG - PDF US PAPER ---
+	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-developer-guide-a4.fo: $(EDG_SOURCE)
+developer-guide-a4.fo: $(WSDG_SOURCE)
 ifdef FOP
-	@ echo --- EDG - PDF A4 PAPER ---
+	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
-developer-guide.chm: $(EDG_SOURCE)
+developer-guide.chm: $(WSDG_SOURCE)
 ifdef HHC
-	@ echo --- EDG - MICROSOFT HTML HELP ---
-	mkdir -p edg_chm/edg_graphics
-	cp edg_graphics/* edg_chm/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	@ echo --- WSDG - MICROSOFT HTML HELP ---
+	mkdir -p wsdg_chm/wsdg_graphics
+	cp wsdg_graphics/* wsdg_chm/wsdg_graphics
+	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
