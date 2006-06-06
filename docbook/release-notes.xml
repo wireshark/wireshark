@@ -10,16 +10,16 @@ DOCUMENT SECTION
 -->
 
 <!--
-Ethereal Info
+Wireshark Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.99.1">
+  <!ENTITY WiresharkCurrentVersion "0.99.1pre1">
 
 ]>
 
 <article>
-  <title>Ethereal &EtherealCurrentVersion; Release Notes</title>
+  <title>Wireshark &WiresharkCurrentVersion; Release Notes</title>
 
-  <section id="WhatIs"><title>What is Ethereal?</title>
+  <section id="WhatIs"><title>What is Wireshark?</title>
     <para>
       Wireshark is the world's most popular network protocol analyzer.  It
       is used for troubleshooting, analysis, development, and education.
@@ -38,34 +38,34 @@ Ethereal Info
 
 
     <para>
-      Ethereal could crash while adjusting column preferences.
+      Wireshark could crash while adjusting column preferences.
       <!-- Fixed in r17983 -->
       <!-- Bug IDs: 886 -->
       Versions affected: 0.99.0.
     </para>
 
     <para>
-      Ethereal could crash while selecting a capture interface.
+      Wireshark could crash while selecting a capture interface.
       <!-- Fixed in r17987 -->
       <!-- Bug IDs: None -->
       Versions affected: 0.99.0.
     </para>
 
     <para>
-      Ethereal could crash while following a TCP stream.
+      Wireshark could crash while following a TCP stream.
       <!-- Fixed in r18001 -->
       <!-- Bug IDs: 852 -->
       Versions affected: 0.99.0.
     </para>
 
     <para>
-      Ethereal would refuse to run under older versions of Windows.
+      Wireshark would refuse to run under older versions of Windows.
       <!-- Fixed in r18025 -->
       Versions affected: 0.99.0.
     </para>
 
     <para>
-      The Windows version of Ethereal would not export files properly.
+      The Windows version of Wireshark would not export files properly.
       <!-- Fixed in r18026 -->
       <!-- Bug IDs: 894 -->
       Versions affected: 0.99.0.
@@ -114,11 +114,11 @@ Catapult DCT2000
 
   </section>
 
-  <section id="GettingEthereal"><title>Getting Ethereal</title>
+  <section id="GettingWireshark"><title>Getting Wireshark</title>
     <section><title>Microsoft Windows</title>
       <para>
-	Download wireshark-setup-&EtherealCurrentVersion;.exe from the
-	<ulink url="http://www.wireshark.org/distribution/win32/">Windows
+	Download wireshark-setup-&WiresharkCurrentVersion;.exe from the
+	<ulink url="http://www.wireshark.org/download/win32/">Windows
 	download area</ulink> on the main web site.  Double-click the
 	installer executable.
       </para>
@@ -127,7 +127,7 @@ Catapult DCT2000
     <section><title>Sun Solaris</title>
       <para>
 	Download the appropriate package from the
-	<ulink url="http://www.wireshark.org/distribution/solaris/">Solaris
+	<ulink url="http://www.wireshark.org/download/solaris/">Solaris
 	download area</ulink> on the main web site.  Uncompress the package
 	using bzip2, and install it using pkgadd.
       </para>
@@ -135,8 +135,8 @@ Catapult DCT2000
 
     <section><title>Source Code</title>
       <para>
-	Download wireshark-&EtherealCurrentVersion;.tar.gz from the
-	<ulink url="http://www.wireshark.org/distribution/">main
+	Download wireshark-&WiresharkCurrentVersion;.tar.gz from the
+	<ulink url="http://www.wireshark.org/download/">main
 	download area</ulink> on the web site.  Extract the package
 	using tar and gzip.  Run "configure ; make ; make install".
       </para>
@@ -144,8 +144,8 @@ Catapult DCT2000
 
     <section><title>Vendor-supplied Packages</title>
       <para>
-	Most Linux and Unix vendors supply their own Ethereal packages.
-	You can install or upgrade Ethereal using the package management
+	Most Linux and Unix vendors supply their own Wireshark packages.
+	You can install or upgrade Wireshark using the package management
 	system specific to that platform.  A list of third-party packages
         can be found on the <ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
@@ -154,7 +154,7 @@ Catapult DCT2000
   </section>
 
   <!-- XXX needs to be written
-  <section id="RemovingEthereal"><title>Removing Ethereal</title>
+  <section id="RemovingWireshark"><title>Removing Wireshark</title>
     <para>
     </para>
   </section>
@@ -162,7 +162,7 @@ Catapult DCT2000
 
   <section id="FileLocations"><title>File Locations</title>
     <para>
-      Ethereal and TShark look in several different locations for
+      Wireshark and TShark look in several different locations for
       preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
       These locations vary from platform to platform.  You can use
       About->Folders to find the default locations on your system.
@@ -175,7 +175,7 @@ Catapult DCT2000
       On Windows systems the packet list scroll bar can sometimes disappear
       or become unusable.  Until the problem is fixed you can work around it
       by resizing the packet list or the main window.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug #220</ulink>)
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug #220</ulink>)
     </para>
 
     <para>
@@ -184,28 +184,28 @@ Catapult DCT2000
     </para>
 
     <para>
-      Trying to save flow data may crash Ethereal.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396">Bug #396</ulink>)
+      Trying to save flow data may crash Wireshark.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug #396</ulink>)
     </para>
 
     <para>
       It may not be possible to re-order coloring rules under Windows.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699">Bug #699</ulink>)
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug #699</ulink>)
     </para>
 
     <para>
       Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=757">Bug #757</ulink>)
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757">Bug #757</ulink>)
     </para>
 
     <para>
-      Ethereal may crash while viewing TCP streams.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug #852</ulink>)
+      Wireshark may crash while viewing TCP streams.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug #852</ulink>)
     </para>
 
     <para>
-      Ethereal may crash while adjusting column preferences.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=886">Bug #886</ulink>)
+      Wireshark may crash while adjusting column preferences.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=886">Bug #886</ulink>)
     </para>
 
   </section>
@@ -213,20 +213,20 @@ Catapult DCT2000
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
     Community support is available on the wireshark-users mailing list.
-    Subscription information and archives for all of Ethereal's mailing
+    Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
-    web site</ulink>. There is also an <ulink url="irc://irc.freenode.net/ethereal">IRC channel dedicated to Ethereal</ulink>.
+    web site</ulink>.
     </para>
     <para>
     Commercial support, training, and development services are available
-    from <ulink url="http://www.etherealsoft.com/">Ethereal Software</ulink>.
+    from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
     </para>
   </section>
 
   <section id="FAQ"><title>Frequently Asked Questions</title>
     <para>
     A complete FAQ is available on the
-    <ulink url="http://www.wireshark.org/faq.html">Ethereal web site</ulink>.
+    <ulink url="http://www.wireshark.org/faq.html">Wireshark web site</ulink>.
     </para>
   </section>
 
