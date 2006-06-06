@@ -439,6 +439,7 @@ SetOutPath $INSTDIR
 SetOutPath $INSTDIR\dtds
 File "..\..\dtds\dc.dtd"
 File "..\..\dtds\itunes.dtd"
+File "..\..\dtds\reginfo.dtd"
 File "..\..\dtds\rss.dtd"
 File "..\..\dtds\smil.dtd"
 SetOutPath $INSTDIR
