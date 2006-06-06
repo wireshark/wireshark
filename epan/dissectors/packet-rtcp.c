@@ -64,6 +64,7 @@
 
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 
 /* Version is the first 2 bits of the first octet*/
@@ -363,6 +364,7 @@ static int hf_rtcp_xr_stats_meanttl = -1;
 static int hf_rtcp_xr_stats_devttl = -1;
 static int hf_rtcp_xr_lrr = -1;
 static int hf_rtcp_xr_dlrr = -1;
+static int hf_rtcp_length_check = -1;
 
 /* RTCP setup fields */
 static int hf_rtcp_setup        = -1;
@@ -1843,6 +1845,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int packet_type = 0;
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
+	guint16 total_packet_length = 0;
 	guint rtcp_subtype		 = 0;
 	guint32 app_length		 = 0;
 
@@ -1905,7 +1908,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         /*
          * get the packet-length for the complete RTCP packet
          */
-        packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
+		packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
+		total_packet_length += packet_length;
 
 		ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
 		proto_item_append_text(ti, " (%s)",
@@ -1987,8 +1991,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
-				app_length = tvb_get_ntohs( tvb, offset ) <<2;
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, app_length );
+                app_length = tvb_get_ntohs( tvb, offset ) <<2;
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
                 offset += 2;
                 offset = dissect_rtcp_app( tvb, pinfo, offset,rtcp_tree, padding_set, packet_length - 4, rtcp_subtype, app_length);
                 break;
@@ -2029,6 +2033,29 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
         offset += tvb_length_remaining( tvb, offset) - 1;
         proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
+    }
+
+    /* offset should be total_packet_length by now... */
+    if (offset == (int)total_packet_length)
+    {
+        ti = proto_tree_add_boolean_format_value(tree, hf_rtcp_length_check, tvb,
+                                            0, 0, TRUE, "OK - %u bytes",
+                                            offset);
+        /* Hidden might be less annoying here...? */
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+    else
+    {
+        ti = proto_tree_add_boolean_format_value(tree, hf_rtcp_length_check, tvb,
+                                            0, 0, FALSE,
+                                            "Wrong (expected %u bytes, found %d)",
+                                            total_packet_length, offset);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        expert_add_info_format(pinfo, ti,
+                               PI_MALFORMED, PI_WARN,
+                               "Incorrect RTCP packet length information (expected %u bytes, found %d)",
+                               total_packet_length, offset);
     }
 }
 
@@ -2106,7 +2133,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"32-bit words (-1) in packet", HFILL
 			}
 		},
 		{
@@ -2806,6 +2833,18 @@ proto_register_rtcp(void)
 			}
 		},
 		{
+			&hf_rtcp_profile_specific_extension,
+			{
+				"Profile-specific extension",
+				"rtcp.profile-specific-extension",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Profile-specific extension", HFILL
+			}
+		},
+		{
 			&hf_rtcp_setup,
 			{
 				"Stream setup",
@@ -3379,6 +3418,18 @@ proto_register_rtcp(void)
 				NULL,
 				0x0,
 				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_length_check,
+			{
+				"RTCP frame length check",
+				"rtcp.length_check",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"RTCP frame length check", HFILL
 			}
 		},
 };
