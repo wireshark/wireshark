@@ -575,8 +575,6 @@ EXTRA_DIST = \
 	image/eiconcap16.xpm	\
 	image/eiconcap32.xpm	\
 	image/eiconcap48.xpm	\
-	image/ethereal48x48.png \
-	image/ethereal48x48-trans.png  \
 	image/Ethereal.icns	\
 	image/hi16-app-ethereal.png	\
 	image/hi32-app-ethereal.png	\
