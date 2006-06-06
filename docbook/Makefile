@@ -23,7 +23,7 @@ FOP_OPTS=-Xmx256m
 #FOP=fop-0.20.5/fop.sh
 #
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-#FOP=fop
+FOP=fop
 
 # html help compiler (Win32 only)
 # Leave these commented out if you don't have HHC installed or you
@@ -46,9 +46,9 @@ XMLLINT="xmllint"
 
 # Automatically generate .pdf files from .fo files
 .fo.pdf:
-	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
+#	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 # On Debian use this line
-#	JAVA_OPTS="$(FOP_OPTS)" $(FOP) $< $@
+	JAVA_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
 WSUG_FILES =	\
 	wsug_src/WSUG_app_files.xml \
@@ -179,17 +179,17 @@ WSUG_GRAPHICS =	\
 	graphics/wireshark-main.png
 
 WSDG_FILES =	\
-	wsdg_src/EDG_chapter_build_intro.xml	\
-	wsdg_src/EDG_chapter_capture.xml	\
-	wsdg_src/EDG_chapter_dissection.xml	\
-	wsdg_src/EDG_chapter_env_intro.xml	\
-	wsdg_src/EDG_chapter_libraries.xml	\
-	wsdg_src/EDG_chapter_sources.xml	\
-	wsdg_src/EDG_chapter_tools.xml		\
-	wsdg_src/EDG_chapter_userinterface.xml	\
-	wsdg_src/EDG_chapter_works.xml		\
-	wsdg_src/EDG_meta_info.xml		\
-	wsdg_src/EDG_preface.xml
+	wsdg_src/WSDG_chapter_build_intro.xml	\
+	wsdg_src/WSDG_chapter_capture.xml	\
+	wsdg_src/WSDG_chapter_dissection.xml	\
+	wsdg_src/WSDG_chapter_env_intro.xml	\
+	wsdg_src/WSDG_chapter_libraries.xml	\
+	wsdg_src/WSDG_chapter_sources.xml	\
+	wsdg_src/WSDG_chapter_tools.xml		\
+	wsdg_src/WSDG_chapter_userinterface.xml	\
+	wsdg_src/WSDG_chapter_works.xml		\
+	wsdg_src/WSDG_meta_info.xml		\
+	wsdg_src/WSDG_preface.xml
 
 WSDG_GRAPHICS =	\
 	wsdg_graphics/ethereal-capture-sync.dia		\
