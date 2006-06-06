@@ -19,14 +19,14 @@ platform=`uname -p`
 expected_platform="@host_cpu@"
 
 if [ -x $GTK_CONFIG ] ; then
-  # First try the GTK location that was used to build ethereal.  This
+  # First try the GTK location that was used to build wireshark.  This
   # is probably the safest bet.
   gtk_installed=`$GTK_CONFIG --version`
   gtk_major_installed=`echo $gtk_installed | cut -f1 -d.`
   gtk_minor_installed=`echo $gtk_installed | cut -f2 -d.`
 elif gtk_installed=`gtk-config --version 2>&-`; then
   # Punt! 
-  # If gtk-config is in the $PATH then ethereal should install fine.
+  # If gtk-config is in the $PATH then wireshark should install fine.
   # Some modifications to $LD_LIBRARY_PATH (or non Solaris equivalent)
   # may be required by the user.  Should there be a warning here?
   gtk_major_installed=`echo $gtk_installed | cut -f1 -d.`
