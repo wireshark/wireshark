@@ -10,16 +10,16 @@ DOCUMENT SECTION
 -->
 
 <!--
-Ethereal Info
+Wireshark Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.99.0">
+  <!ENTITY WiresharkCurrentVersion "1.1.0pre1">
 
 ]>
 
 <article>
-  <title>Ethereal &EtherealCurrentVersion; Release Notes</title>
+  <title>Wireshark &WiresharkCurrentVersion; Release Notes</title>
 
-  <section id="WhatIs"><title>What is Ethereal?</title>
+  <section id="WhatIs"><title>What is Wireshark?</title>
     <para>
       Wireshark is the world's most popular network protocol analyzer.  It
       is used for troubleshooting, analysis, development, and education.
@@ -54,7 +54,7 @@ Ethereal Info
         <!-- CID 150: Post-0.99.0 -->
 
         <listitem><para>
-	  XXXX feature could crash Ethereal.
+	  XXXX feature could crash Wireshark.
 	  <!-- Fixed in r##### -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID ### -->
@@ -98,11 +98,11 @@ Ethereal Info
 
   </section>
 
-  <section id="GettingEthereal"><title>Getting Ethereal</title>
+  <section id="GettingWireshark"><title>Getting Wireshark</title>
     <section><title>Microsoft Windows</title>
       <para>
-	Download wireshark-setup-&EtherealCurrentVersion;.exe from the
-	<ulink url="http://www.wireshark.org/distribution/win32/">Windows
+	Download wireshark-setup-&WiresharkCurrentVersion;.exe from the
+	<ulink url="http://www.wireshark.org/download/win32/">Windows
 	download area</ulink> on the main web site.  Double-click the
 	installer executable.
       </para>
@@ -111,7 +111,7 @@ Ethereal Info
     <section><title>Sun Solaris</title>
       <para>
 	Download the appropriate package from the
-	<ulink url="http://www.wireshark.org/distribution/solaris/">Solaris
+	<ulink url="http://www.wireshark.org/download/solaris/">Solaris
 	download area</ulink> on the main web site.  Uncompress the package
 	using bzip2, and install it using pkgadd.
       </para>
@@ -119,8 +119,8 @@ Ethereal Info
 
     <section><title>Source Code</title>
       <para>
-	Download wireshark-&EtherealCurrentVersion;.tar.gz from the
-	<ulink url="http://www.wireshark.org/distribution/">main
+	Download wireshark-&WiresharkCurrentVersion;.tar.gz from the
+	<ulink url="http://www.wireshark.org/download/">main
 	download area</ulink> on the web site.  Extract the package
 	using tar and gzip.  Run "configure ; make ; make install".
       </para>
@@ -128,8 +128,8 @@ Ethereal Info
 
     <section><title>Vendor-supplied Packages</title>
       <para>
-	Most Linux and Unix vendors supply their own Ethereal packages.
-	You can install or upgrade Ethereal using the package management
+	Most Linux and Unix vendors supply their own Wireshark packages.
+	You can install or upgrade Wireshark using the package management
 	system specific to that platform.  A list of third-party packages
         can be found on the <ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
@@ -138,7 +138,7 @@ Ethereal Info
   </section>
 
   <!-- XXX needs to be written
-  <section id="RemovingEthereal"><title>Removing Ethereal</title>
+  <section id="RemovingWireshark"><title>Removing Wireshark</title>
     <para>
     </para>
   </section>
@@ -146,7 +146,7 @@ Ethereal Info
 
   <section id="FileLocations"><title>File Locations</title>
     <para>
-      Ethereal and TShark look in several different locations for
+      Wireshark and TShark look in several different locations for
       preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
       These locations vary from platform to platform.  You can use
       About->Folders to find the default locations on your system.
@@ -169,7 +169,7 @@ Ethereal Info
     </para>
 
     <para>
-      Trying to save flow data may crash Ethereal.
+      Trying to save flow data may crash Wireshark.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
       #396</ulink>)
     </para>
@@ -187,7 +187,7 @@ Ethereal Info
     </para>
 
     <para>
-      Ethereal may crash while viewing TCP streams.
+      Wireshark may crash while viewing TCP streams.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug
       #852</ulink>)
     </para>
@@ -197,20 +197,20 @@ Ethereal Info
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
     Community support is available on the wireshark-users mailing list.
-    Subscription information and archives for all of Ethereal's mailing
+    Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
-    web site</ulink>. There is also an <ulink url="irc://irc.freenode.net/ethereal">IRC channel dedicated to Ethereal</ulink>.
+    web site</ulink>.
     </para>
     <para>
     Commercial support, training, and development services are available
-    from <ulink url="http://www.etherealsoft.com/">Ethereal Software</ulink>.
+    from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
     </para>
   </section>
 
   <section id="FAQ"><title>Frequently Asked Questions</title>
     <para>
     A complete FAQ is available on the
-    <ulink url="http://www.wireshark.org/faq.html">Ethereal web site</ulink>.
+    <ulink url="http://www.wireshark.org/faq.html">Wireshark web site</ulink>.
     </para>
   </section>
 
