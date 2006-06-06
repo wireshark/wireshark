@@ -1767,7 +1767,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     proto_item	*udh_item;
     proto_tree	*subtree = NULL;
     proto_tree	*udh_subtree = NULL;
-    guint	oct;
+    guint8	oct;
     guint	fill_bits;
     guint32	out_len;
     char	*ustr;
@@ -1797,7 +1797,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 
 		proto_tree_add_text(udh_subtree,
 		    tvb, offset, 1,
-		    "User Data Header Length (%d)",
+		    "User Data Header Length (%u)",
 		    oct);
 
 		offset++;
