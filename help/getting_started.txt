@@ -1,11 +1,11 @@
 Getting started
 ---------------
-This text will try to take you though the first steps of using Ethereal.
+This text will try to take you though the first steps of using Wireshark.
 
 
 Display
 -------
-When you start Ethereal, you will see the program window vertically divided into the following parts:
+When you start Wireshark, you will see the program window vertically divided into the following parts:
 
 -window title
 -menu
@@ -15,7 +15,7 @@ When you start Ethereal, you will see the program window vertically divided into
 -packet bytes   (empty)
 -statusbar      (with filter toolbar)
 
-As Ethereal has no packet data when started, most of the program's window is just empty.
+As Wireshark has no packet data when started, most of the program's window is just empty.
 
 Many of the features available in the menu will also be on the main toolbar.
 
@@ -83,6 +83,6 @@ Conclusion
 ----------
 There are a lot more features than described here. Just have a look at the menus to see them all. :-)
 
-For more information about Ethereal, see: "http://www.wireshark.org". You can get a user's guide and other useful information there.
+For more information about Wireshark, see: "http://www.wireshark.org". You can get a user's guide and other useful information there.
 
-We hope this helped you with the first steps of using Ethereal and that you will enjoy using this program.
+We hope this helped you with the first steps of using Wireshark and that you will enjoy using this program.
