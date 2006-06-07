@@ -15,12 +15,12 @@
  *
  *    www.packetcable.com
  *
- * Implemented in ethereal at April 7-8, 2004
+ * Implemented in wireshark at April 7-8, 2004
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

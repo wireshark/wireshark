@@ -3,7 +3,7 @@ The REAMDE specific to the Wireshark "copy" of the pidl sources
 
 The tree tools/pidl is a direct extract from
 svn://svnanon.samba.org/samba/branches/SAMBA_4_0/source/pidl
-to allow building Ethereal pidl dissectors without having to
+to allow building Wireshark pidl dissectors without having to
 *explicitely* access a remote svn repository.
 
 Don't do changes here, do them at the samba tree! Changes to this tree will
@@ -25,5 +25,5 @@ warning like:
 atsvc.idl:5:23: idl_types.h: No such file or directory
 and *may* result in additional warnings like:
 Warning: No conformance file `initshutdown.cnf'
-Unable to handle string with flags STR_LEN4|STR_NOTERM at /usr/lib/perl5/site_perl/5.8.6/Parse/Pidl/Ethereal/NDR.pm line 283.
+Unable to handle string with flags STR_LEN4|STR_NOTERM at /usr/lib/perl5/site_perl/5.8.6/Parse/Pidl/Wireshark/NDR.pm line 283.
 

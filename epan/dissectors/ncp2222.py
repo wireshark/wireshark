@@ -734,7 +734,7 @@ class Type:
 	def DFilter(self):
 		return "ncp." + self.abbrev
 
-	def EtherealFType(self):
+	def WiresharkFType(self):
 		return self.ftype
 
 	def Display(self, newval=None):
@@ -7906,7 +7906,7 @@ proto_register_ncp2222(void)
 		print "\t{ &%s," % (var.HFName())
 		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
 			(var.Description(), var.DFilter(),
-			var.EtherealFType(), var.Display(), var.ValuesName(),
+			var.WiresharkFType(), var.Display(), var.ValuesName(),
 			var.Mask())
 
 	print "\t};\n"

@@ -34,7 +34,7 @@
  * - The SCSI CDB is typically embedded inside the transport along with other
  *   header fields that have nothing to do with SCSI. So, it is required to be
  *   invoked on a embedded subset of the packet.
- * - Originally, Ethereal couldn't do filtering on protocol trees that were not
+ * - Originally, Wireshark couldn't do filtering on protocol trees that were not
  *   on the top level.
  *
  * There are four main routines that are provided:

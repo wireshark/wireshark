@@ -1,5 +1,5 @@
 /* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler    */
 /* ./packet-rnsap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 

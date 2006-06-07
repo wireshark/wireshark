@@ -2,14 +2,14 @@
  * Routines for smb2 packet dissection
  * Ronnie Sahlberg 2005
  *
- * See http://wiki.ethereal.com/SMB2  for documentation of
+ * See http://wiki.wireshark.org/SMB2  for documentation of
  * this protocol.
  * If you edit this file, keep the wiki updated as well.
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

@@ -6,15 +6,15 @@
  *
  * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode
  * skeleton to report values for most message/message fields.
- * Much help from Guy Harris on figuring out the ethereal api.
+ * Much help from Guy Harris on figuring out the wireshark api.
  *
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
