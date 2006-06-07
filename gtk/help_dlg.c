@@ -344,10 +344,10 @@ topic_action(topic_action_e action)
         browser_open_url ("http://wiki.wireshark.org");
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        browser_open_url ("http://www.wireshark.org/download.html");
+        browser_open_url ("http://www.wireshark.org/download/");
         break;
     case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.wireshark.org/docs/wsug_html_chunked");
+        browser_open_url ("http://www.wireshark.org/docs/wsug_html_chunked/");
         break;
     case(ONLINEPAGE_FAQ):
         browser_open_url ("http://www.wireshark.org/faq.html");

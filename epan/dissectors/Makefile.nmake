@@ -1,4 +1,4 @@
-## Makefile for building ethereal.exe with Microsoft C and nmake
+## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
