@@ -149,9 +149,9 @@
 #include "../image/wsicon32.xpm"
 #include "../image/wsicon48.xpm"
 #include "../image/wsicon64.xpm"
-#include "../image/eiconcap16.xpm"
-#include "../image/eiconcap32.xpm"
-#include "../image/eiconcap48.xpm"
+#include "../image/wsiconcap16.xpm"
+#include "../image/wsiconcap32.xpm"
+#include "../image/wsiconcap48.xpm"
 
 
 /*
@@ -1511,7 +1511,7 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 
 #if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
-        icon_list = icon_list_create(eiconcap16_xpm, eiconcap32_xpm, eiconcap48_xpm, NULL);
+        icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 #endif
