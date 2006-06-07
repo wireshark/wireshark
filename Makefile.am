@@ -75,7 +75,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 	chmod +x idl2wrs
 
 #
-# Ethereal configuration files are put in $(pkgdatadir).
+# Wireshark configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = AUTHORS-SHORT manuf wireshark.html tshark.html \
 	wireshark-filter.html capinfos.html editcap.html \
@@ -290,7 +290,7 @@ wireshark_DEPENDENCIES = \
 
 # This automake variable adds to the link-line for the executable.
 #
-# Note that Ethereal doesn't have to be linked with @GLIB_LIBS@, as
+# Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
 # they are included in @GTK_LIBS@, and doesn't have to be linked with
 # @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
@@ -572,13 +572,9 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/eiconcap16.xpm	\
-	image/eiconcap32.xpm	\
-	image/eiconcap48.xpm	\
-	image/Ethereal.icns	\
-	image/hi16-app-ethereal.png	\
-	image/hi32-app-ethereal.png	\
-	image/hi48-app-ethereal.png	\
+	image/hi16-app-wireshark.png	\
+	image/hi32-app-wireshark.png	\
+	image/hi48-app-wireshark.png	\
 	image/icon_layout_1.xpm \
 	image/icon_layout_2.xpm \
 	image/icon_layout_3.xpm \
@@ -586,9 +582,9 @@ EXTRA_DIST = \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
 	image/libwireshark.rc.in	\
-	image/lo16-app-ethereal.png	\
-	image/lo32-app-ethereal.png	\
-	image/lo48-app-ethereal.png	\
+	image/lo16-app-wireshark.png	\
+	image/lo32-app-wireshark.png	\
+	image/lo48-app-wireshark.png	\
 	image/Makefile.nmake	\
 	image/mergecap.rc.in	\
 	image/nsis-checked.bmp	\
@@ -661,6 +657,10 @@ EXTRA_DIST = \
 	image/wsicon48.xpm	\
 	image/wsicon64.png	\
 	image/wsicon64.xpm	\
+	image/wsiconcap16.xpm	\
+	image/wsiconcap32.xpm	\
+	image/wsiconcap48.xpm	\
+	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
 	make-authors-format.pl	\
