@@ -167,6 +167,16 @@
 	</note>
 	<note><title>Note!</title>
 	<para>
+	Protocol layers can consist of packets that won't contain any higher layer 
+	protocol, so the sum of all higher layer packets may not sum up to the 
+	protocols packet count.
+	Example: In the screenshot TCP has 85,83% but the sum of the subprotocols 
+	(HTTP, ...) is much less. This may be caused by TCP protocol overhead, 
+	e.g. TCP ACK packets won't be counted as packets of the higher layer).
+	</para>
+	</note>
+	<note><title>Note!</title>
+	<para>
 	A single packet can contain the same protocol more than once. In this case, 
 	the protocol is counted more than once. For example: in some tunneling 
 	configurations the IP layer can appear twice.
