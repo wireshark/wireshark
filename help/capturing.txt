@@ -51,7 +51,7 @@ Please note: this will slow down capturing, so increased packet drops might appe
 
 High performance capturing
 --------------------------
-When your network traffic is high, you might need to take some steps to ensure Ethereal doesn't get behind on its capture, particularly if you're running it on a slow computer.
+When your network traffic is high, you might need to take some steps to ensure Wireshark doesn't get behind on its capture, particularly if you're running it on a slow computer.
 
 When Etheral cannot keep up, packets are dropped. To help avoid this as much as possible:
 
@@ -62,9 +62,9 @@ b) Close other programs that might slow down your system, such as virus scanner 
 c) It might be a good idea not to use a capture filter. This will depend on the task you have to do.
 As a rule of thumb: if you want to see most of the packets and only filter a small number out, don't use a capture filter (you can use a display filter later). If you only want to capture a small proportion of the packets, it might be better to set a capture filter, as this will reduce the number of packets that have to be saved.
 
-d) If you still get packet drops, it might be an idea to use a tool dedicated to packet capturing and only use Ethereal for displaying and analyzing the packets.
+d) If you still get packet drops, it might be an idea to use a tool dedicated to packet capturing and only use Wireshark for displaying and analyzing the packets.
 
-Have a look at tshark, the command line variant of ethereal, which is included in this package.
+Have a look at tshark, the command line variant of wireshark, which is included in this package.
 XXX: add a list of possibly useful standalone capture programs.
 
 

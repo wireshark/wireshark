@@ -1,6 +1,6 @@
 Filtering packets while viewing
 -------------------------------
-After capturing packets or loading some network traffic from a file, Ethereal will display the packet data immediately on the screen.
+After capturing packets or loading some network traffic from a file, Wireshark will display the packet data immediately on the screen.
 
 Using display filters, you can choose which packets should (not) be shown on the screen. This is useful to reduce the "noise" usually on the network, showing only the packets you want to. So you can concentrate on the things you are really interested in. 
 
@@ -8,7 +8,7 @@ The display filter will not affect the data captured, it will only select which 
 
 Everytime you change the filter string, all packets will be reread from the capture file (or from memory), and processed by the display filter "machine". Packet by packet, this "machine" is asked, if this particular packet should be shown or not.
 
-Ethereal offers a very powerful display filter language for this. It can be used for a wide range of purposes, from simply: "show only packets from a specific IP address", or on the other hand, to very complex filters like: "find all packets where a special application specific flag is set".
+Wireshark offers a very powerful display filter language for this. It can be used for a wide range of purposes, from simply: "show only packets from a specific IP address", or on the other hand, to very complex filters like: "find all packets where a special application specific flag is set".
 
 Note: This display filter language is different from the one used for the Wireshark capture filters!
 
