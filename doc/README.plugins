@@ -39,7 +39,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 version       : a version number associated with the plugin.
 
 the #ifndef is to allow for the building of a non-plugin version of 
-the object for linking into a static ethereal binary.
+the object for linking into a static wireshark binary.
 
 3 New exported functions in packet-xxx.c
 
@@ -50,7 +50,7 @@ G_MODULE_EXPORT void
 plugin_register(void)
 #endif
 
-This function is called by Ethereal when the plugin is initialized; it's
+This function is called by Wireshark when the plugin is initialized; it's
 similar to the "proto_register_XXX()" routine for a non-plugin
 dissector, except for the name.
 
@@ -66,7 +66,7 @@ G_MODULE_EXPORT void
 plugin_reg_handoff(void)
 #endif
 
-This function is called by Ethereal after all dissectors, including all
+This function is called by Wireshark after all dissectors, including all
 plugins, are initialized; it's similar to the "proto_reg_handoff_XXX()"
 routine for a non-plugin dissector, except for the name. 
 

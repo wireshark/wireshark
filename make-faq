@@ -19,7 +19,8 @@ cat >FAQ <<EOF
 
 EOF
 
-lynx -dump -nolist "http://www.wireshark.org/faq.html" | sed -e '1,/^Index/d' >>FAQ
+lynx -dump -nolist "http://www.wireshark.org/faq_plain.html" | \
+	sed -e '1,/^Index/d' >>FAQ
 
 echo
 echo "Now verfiy everything is OK and copy FAQ to help/faq.txt"
