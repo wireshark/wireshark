@@ -649,15 +649,19 @@ EXTRA_DIST = \
 	image/wireshark.ico	\
 	image/wireshark.rc.in	\
 	image/wiretap.rc.in	\
+	image/wsicon.svg	\
 	image/wsicon16.png	\
 	image/wsicon16.xpm	\
+	image/wsicon200.png	\
 	image/wsicon32.png	\
 	image/wsicon32.xpm	\
 	image/wsicon48.png	\
 	image/wsicon48.xpm	\
 	image/wsicon64.png	\
 	image/wsicon64.xpm	\
+	image/wsiconcap.svg	\
 	image/wsiconcap16.xpm	\
+	image/wsiconcap200.png	\
 	image/wsiconcap32.xpm	\
 	image/wsiconcap48.xpm	\
 	image/wslogo.eps	\
