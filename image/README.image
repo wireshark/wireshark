@@ -1,7 +1,7 @@
 This directory contains a set of images and icons for the Wireshark suite of
 applications.  Of particular note for people creating packages for
-distribution are the files ethereal.ico, hi??-app-ethereal.png, and
-lo??-app-ethereal.png.
+distribution are the files wireshark.ico, hi??-app-wireshark.png, and
+lo??-app-wireshark.png.
 
 File descriptions:
 
@@ -21,14 +21,12 @@ wsicon64.xpm
 wireshark.ico			Windows icon file with 16 and 32 pixel
 				3D logo icons, high and low color
 				
-Ethereal.icns			Mac OS X icon file
-
-hi16-app-ethereal.png		KDE Icon Factory Styleguide-compliant
-hi32-app-ethereal.png		(http://www.kde.org/artist/introduction.html)
-hi48-app-ethereal.png		icons
-lo16-app-ethereal.png 
-lo32-app-ethereal.png
-lo48-app-ethereal.png
+hi16-app-wireshark.png		KDE Icon Factory Styleguide-compliant
+hi32-app-wireshark.png		(http://www.kde.org/artist/introduction.html)
+hi48-app-wireshark.png		icons
+lo16-app-wireshark.png 
+lo32-app-wireshark.png
+lo48-app-wireshark.png
 
 wireshark.rc.in			MSVC++ resource templates
 editcap.rc.in

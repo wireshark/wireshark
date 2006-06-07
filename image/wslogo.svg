@@ -12,12 +12,12 @@
    sodipodi:version="0.32"
    width="210mm"
    height="297mm"
-   sodipodi:docbase="/home/gerald/devel/wsweb"
+   sodipodi:docbase="/home/gerald/devel/wsweb/material"
    sodipodi:docname="wslogo.svg"
    inkscape:version="0.42"
-   inkscape:export-filename="/home/gerald/devel/psweb/wslogo.png"
-   inkscape:export-xdpi="90.000000"
-   inkscape:export-ydpi="90.000000">
+   inkscape:export-filename="/home/gerald/devel/wsweb/wslogotrans800.png"
+   inkscape:export-xdpi="181.64000"
+   inkscape:export-ydpi="181.64000">
   <metadata
      id="metadata1317">
     <rdf:RDF>
@@ -34,22 +34,23 @@
   <sodipodi:namedview
      id="base"
      showgrid="true"
-     showguides="false"
+     showguides="true"
      inkscape:zoom="2.1302710"
-     inkscape:cx="424.06336"
+     inkscape:cx="431.18454"
      inkscape:cy="582.92903"
-     inkscape:window-width="1069"
+     inkscape:window-width="1262"
      inkscape:window-height="874"
      inkscape:window-x="324"
      inkscape:window-y="68"
-     inkscape:current-layer="svg548" />
+     inkscape:current-layer="svg548"
+     inkscape:guide-bbox="true" />
   <text
      style="font-size:96.086143px;font-style:normal;font-weight:bold;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Luxi Sans"
      x="204.84328"
      y="452.43033"
      id="text555"
      transform="scale(0.947903,1.054960)"
-     sodipodi:linespacing="125%"
+     sodipodi:linespacing="125.00000%"
      inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
      inkscape:export-xdpi="90.000000"
      inkscape:export-ydpi="90.000000">
@@ -63,12 +64,12 @@
    id="tspan1330">SHARK</tspan>
 <tspan
    id="tspan1334"
-   style="font-family:Bitstream Vera Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;font-size:40.000005;text-anchor:start;text-align:start;writing-mode:lr;line-height:125.00002%">.org</tspan>
+   style="font-size:40.000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00002%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" />
 </tspan>
   </text>
   <path
-     style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:2.2500000;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1.0000000;stroke-miterlimit:4.0000000;stroke-dasharray:none"
-     d="M 196.43013,419.58784 L 318.70978,419.58784 C 318.70978,419.58784 322.69188,371.80261 363.84027,371.13892 C 350.56660,392.37680 363.05981,419.65527 363.05981,419.65527 L 657.47655,419.65527"
+     style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.2972369;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+     d="M 195.51343,420.14613 L 352.44720,420.14613 C 352.44720,420.14613 356.51830,372.36090 398.58648,371.69721 C 385.01611,392.93509 397.78858,420.21356 397.78858,420.21356 L 588.47175,420.21356"
      id="path1328"
      sodipodi:nodetypes="ccccc"
      inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
