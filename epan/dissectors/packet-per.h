@@ -32,7 +32,7 @@ typedef enum {
   ASN_ENC_BER,  /* X.690 - BER, CER, DER */
   ASN_ENC_PER,  /* X.691 - PER */
   ASN_ENC_ECN,  /* X.692 - ECN */
-  ASN_ENC_XER,  /* X.693 - XER */
+  ASN_ENC_XER   /* X.693 - XER */
 } asn_enc_e;
 
 typedef struct _asn_ctx_t {
