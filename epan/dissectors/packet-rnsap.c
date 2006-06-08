@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rnsap.c                                                           */
+/* ./packet-rnsap.c                                                           */
 /* ../../tools/asn2wrs.py -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 
 /* Input file: packet-rnsap-template.c */
@@ -47,10 +47,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "packet-rnsap.h"
 #include "packet-ber.h"
 #include "packet-per.h"
-#include "packet-rnsap.h"
-#include "packet-umts_rrc.h"
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
@@ -563,7 +562,6 @@ static int proto_rnsap = -1;
 
 static int hf_rnsap_pdu_length = -1;
 static int hf_rnsap_IE_length = -1;
-static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
 
 
 /*--- Included file: packet-rnsap-hf.c ---*/
@@ -2288,7 +2286,7 @@ static int hf_rnsap_privateIEid = -1;             /* PrivateIE_ID */
 static int hf_rnsap_privateIEvalue = -1;          /* PrivateIEvalue */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 561 "packet-rnsap-template.c"
+#line 559 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -3150,7 +3148,7 @@ static gint ett_rnsap_PrivateIE_Container = -1;
 static gint ett_rnsap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 570 "packet-rnsap-template.c"
+#line 568 "packet-rnsap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -10704,30 +10702,8 @@ static int dissect_id_HCS_Prio(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 84 "rnsap.cnf"
-
-	tvbuff_t *parameter_tvb;
-
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
-
-
-	if (!parameter_tvb)
-		return offset;
-
-	switch (ProcedureCode){
-
-	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
-		actx->encoding =FALSE;
-		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0,  actx, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
-		actx->encoding =TRUE;
-		break;
-	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
-	default:
-		break;
-	}
-
-
+                                     NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -30306,7 +30282,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 593 "packet-rnsap-template.c"
+#line 591 "packet-rnsap-template.c"
 
 
 static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
@@ -32032,11 +32008,6 @@ void proto_register_rnsap(void) {
 	{ &hf_rnsap_IE_length,
 		{ "IE Length", "rnsap.ie_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of octets in the IE", HFILL }},
-    { &hf_rnsap_L3_DL_DCCH_Message_PDU,
-      { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DL-DCCH-Message", HFILL }},
-
 
 /*--- Included file: packet-rnsap-hfarr.c ---*/
 #line 1 "packet-rnsap-hfarr.c"
@@ -38914,7 +38885,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2324 "packet-rnsap-template.c"
+#line 2317 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39777,7 +39748,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2334 "packet-rnsap-template.c"
+#line 2327 "packet-rnsap-template.c"
   };
 
 
