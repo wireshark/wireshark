@@ -2833,18 +2833,6 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_profile_specific_extension,
-			{
-				"Profile-specific extension",
-				"rtcp.profile-specific-extension",
-				FT_BYTES,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Profile-specific extension", HFILL
-			}
-		},
-		{
 			&hf_rtcp_setup,
 			{
 				"Stream setup",
