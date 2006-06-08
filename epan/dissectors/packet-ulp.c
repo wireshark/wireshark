@@ -444,7 +444,7 @@ static int dissect_imsi(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *
 static int
 dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     34, 34, FALSE);
+                                     34, 34, FALSE, NULL);
 
   return offset;
 }
@@ -883,7 +883,7 @@ static int dissect_sLPMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static int
 dissect_ulp_MAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE);
+                                     64, 64, FALSE, NULL);
 
   return offset;
 }
@@ -896,7 +896,7 @@ static int dissect_mAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 static int
 dissect_ulp_KeyIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -1769,7 +1769,7 @@ static int dissect_msSUPLSTART(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 static int
 dissect_ulp_BIT_STRING_SIZE_128(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -1782,7 +1782,7 @@ static int dissect_shortKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_ulp_BIT_STRING_SIZE_256(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, FALSE);
+                                     256, 256, FALSE, NULL);
 
   return offset;
 }
@@ -1820,7 +1820,7 @@ static int dissect_sETAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_ulp_KeyIdentity4(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -2124,7 +2124,7 @@ static int dissect_positionEstimate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static int
 dissect_ulp_BIT_STRING_SIZE_9(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     9, 9, FALSE);
+                                     9, 9, FALSE, NULL);
 
   return offset;
 }
@@ -2137,7 +2137,7 @@ static int dissect_bearing(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static int
 dissect_ulp_BIT_STRING_SIZE_16(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE);
+                                     16, 16, FALSE, NULL);
 
   return offset;
 }
@@ -2168,7 +2168,7 @@ static int dissect_horvel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 static int
 dissect_ulp_BIT_STRING_SIZE_1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE);
+                                     1, 1, FALSE, NULL);
 
   return offset;
 }
@@ -2181,7 +2181,7 @@ static int dissect_verdirect(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_ulp_BIT_STRING_SIZE_8(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -2398,7 +2398,7 @@ static int dissect_sUPLPOS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static int
 dissect_ulp_Ver(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE);
+                                     64, 64, FALSE, NULL);
 
   return offset;
 }
@@ -2490,7 +2490,7 @@ static int dissect_msSUPLEND(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_ulp_SETNonce(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -2503,7 +2503,7 @@ static int dissect_sETNonce(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_ulp_KeyIdentity2(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -2559,7 +2559,7 @@ static int dissect_sPCAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_ulp_KeyIdentity3(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
