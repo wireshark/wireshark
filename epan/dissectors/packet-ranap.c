@@ -3795,7 +3795,7 @@ static int dissect_id_Ass_RAB_Parameters(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static int
 dissect_ranap_BIT_STRING_SIZE_1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE);
+                                     1, 1, FALSE, NULL);
 
   return offset;
 }
@@ -3808,7 +3808,7 @@ static int dissect_cipheringKeyFlag(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static int
 dissect_ranap_BIT_STRING_SIZE_56(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     56, 56, FALSE);
+                                     56, 56, FALSE, NULL);
 
   return offset;
 }
@@ -4320,7 +4320,7 @@ static int dissect_RequestedMulticastServiceList_item(tvbuff_t *tvb, int offset,
 static int
 dissect_ranap_MBMS_PTP_RAB_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -4712,7 +4712,7 @@ static int dissect_encryptionpermittedAlgorithms(tvbuff_t *tvb, int offset, asn_
 static int
 dissect_ranap_EncryptionKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -4794,7 +4794,7 @@ static int dissect_gERAN_Classmark(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 static int
 dissect_ranap_RAB_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -5261,7 +5261,7 @@ static int dissect_iMEISVlist(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_ranap_BIT_STRING_SIZE_7(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     7, 7, FALSE);
+                                     7, 7, FALSE, NULL);
 
   return offset;
 }
@@ -5436,7 +5436,7 @@ static int dissect_permittedAlgorithms(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static int
 dissect_ranap_IntegrityProtectionKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE);
+                                     128, 128, FALSE, NULL);
 
   return offset;
 }
@@ -5701,7 +5701,7 @@ static int dissect_id_InterSystemInformation_TransparentContainer(tvbuff_t *tvb,
 static int
 dissect_ranap_IuSignallingConnectionIdentifier(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE);
+                                     24, 24, FALSE, NULL);
 
   return offset;
 }
@@ -6318,7 +6318,7 @@ static int dissect_id_MBMSSessionRepetitionNumber(tvbuff_t *tvb, int offset, asn
 static int
 dissect_ranap_NAS_SequenceNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE);
+                                     2, 2, FALSE, NULL);
 
   return offset;
 }
@@ -6511,7 +6511,7 @@ static int dissect_pDP_TypeInformation(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static int
 dissect_ranap_PositioningDataDiscriminator(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE);
+                                     4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -6894,7 +6894,7 @@ static int dissect_id_RAB_ContextList_RANAP_RelocInf(tvbuff_t *tvb, int offset, 
 static int
 dissect_ranap_TransportLayerAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE);
+                                     1, 160, TRUE, NULL);
 
   return offset;
 }
@@ -7991,7 +7991,7 @@ static int dissect_id_RAB_RelocationReleaseList(tvbuff_t *tvb, int offset, asn_c
 static int
 dissect_ranap_NAS_SynchronisationIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE);
+                                     4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -8042,7 +8042,7 @@ static int dissect_userPlaneMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static int
 dissect_ranap_UP_ModeVersions(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE);
+                                     16, 16, FALSE, NULL);
 
   return offset;
 }
@@ -9073,7 +9073,7 @@ static int dissect_id_UE_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_ranap_UESBI_IuA(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 128, FALSE);
+                                     1, 128, FALSE, NULL);
 
   return offset;
 }
@@ -9086,7 +9086,7 @@ static int dissect_uESBI_IuA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_ranap_UESBI_IuB(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 128, FALSE);
+                                     1, 128, FALSE, NULL);
 
   return offset;
 }

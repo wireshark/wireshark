@@ -314,7 +314,7 @@ static int dissect_generalId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_h235_KeyMaterial(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 2048, FALSE);
+                                     1, 2048, FALSE, NULL);
 
   return offset;
 }
@@ -427,7 +427,7 @@ static int dissect_nonStandard(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 static int
 dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 2048, FALSE);
+                                     0, 2048, FALSE, NULL);
 
   return offset;
 }
@@ -465,7 +465,7 @@ static int dissect_dhkey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 static int
 dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 511, FALSE);
+                                     0, 511, FALSE, NULL);
 
   return offset;
 }
@@ -801,7 +801,7 @@ static int dissect_encrptval(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }

@@ -1371,10 +1371,12 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 */
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
+	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
+	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -1423,6 +1425,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	if((min_len==max_len)&&(min_len<65536)){
 		/* align to byte */
 		BYTE_ALIGN_OFFSET(offset);
+		val_start = offset>>3;
+		val_length = (min_len+7)/8;
 		if (hfi) {
 			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (min_len+7)/8, FALSE);
 		}
@@ -1446,7 +1450,12 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (length+7)/8, FALSE);
 		}
 	}
+	val_start = offset>>3;
+	val_length = (length+7)/8;
 	offset+=length;
+
+	if (value_tvb)
+		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset(tvb, val_start, val_length, val_length);
 
 	return offset;
 }

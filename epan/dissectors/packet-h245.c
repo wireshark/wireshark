@@ -11032,7 +11032,7 @@ static int dissect_certificateResponse(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static int
 dissect_h245_BIT_STRING_SIZE_1_65535(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 65535, FALSE);
+                                     1, 65535, FALSE, NULL);
 
   return offset;
 }

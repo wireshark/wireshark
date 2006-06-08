@@ -47,9 +47,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-rnsap.h"
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-rnsap.h"
+#include "packet-umts_rrc.h"
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
@@ -562,6 +563,7 @@ static int proto_rnsap = -1;
 
 static int hf_rnsap_pdu_length = -1;
 static int hf_rnsap_IE_length = -1;
+static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
 
 
 /*--- Included file: packet-rnsap-hf.c ---*/
@@ -2286,7 +2288,7 @@ static int hf_rnsap_privateIEid = -1;             /* PrivateIE_ID */
 static int hf_rnsap_privateIEvalue = -1;          /* PrivateIEvalue */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 559 "packet-rnsap-template.c"
+#line 561 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -3148,7 +3150,7 @@ static gint ett_rnsap_PrivateIE_Container = -1;
 static gint ett_rnsap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 568 "packet-rnsap-template.c"
+#line 570 "packet-rnsap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -7891,7 +7893,7 @@ static int dissect_id_TDD_DCHs_to_Modify(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static int
 dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE);
+                                     1, 160, TRUE, NULL);
 
   return offset;
 }
@@ -10702,8 +10704,30 @@ static int dissect_id_HCS_Prio(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+#line 84 "rnsap.cnf"
+
+	tvbuff_t *parameter_tvb;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+
+	switch (ProcedureCode){
+
+	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
+		actx->encoding =FALSE;
+		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0,  actx, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
+		actx->encoding =TRUE;
+		break;
+	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
+	default:
+		break;
+	}
+
+
 
   return offset;
 }
@@ -11507,7 +11531,7 @@ static int dissect_powerAdjustmentType(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static int
 dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -19519,7 +19543,7 @@ static int dissect_sAT_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 static int
 dissect_rnsap_BIT_STRING_SIZE_8(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -19711,7 +19735,7 @@ static int dissect_tx_tow_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_rnsap_BIT_STRING_SIZE_14(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     14, 14, FALSE);
+                                     14, 14, FALSE, NULL);
 
   return offset;
 }
@@ -19727,7 +19751,7 @@ static int dissect_idot_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_rnsap_BIT_STRING_SIZE_2(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE);
+                                     2, 2, FALSE, NULL);
 
   return offset;
 }
@@ -19743,7 +19767,7 @@ static int dissect_ca_or_p_on_l2_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static int
 dissect_rnsap_BIT_STRING_SIZE_22(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     22, 22, FALSE);
+                                     22, 22, FALSE, NULL);
 
   return offset;
 }
@@ -19759,7 +19783,7 @@ static int dissect_a_f_zero_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 static int
 dissect_rnsap_BIT_STRING_SIZE_10(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE);
+                                     10, 10, FALSE, NULL);
 
   return offset;
 }
@@ -19775,7 +19799,7 @@ static int dissect_iodc_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_rnsap_BIT_STRING_SIZE_4(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE);
+                                     4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -19788,7 +19812,7 @@ static int dissect_user_range_accuracy_index_nav(tvbuff_t *tvb, int offset, asn_
 static int
 dissect_rnsap_BIT_STRING_SIZE_6(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE);
+                                     6, 6, FALSE, NULL);
 
   return offset;
 }
@@ -19801,7 +19825,7 @@ static int dissect_sv_health_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static int
 dissect_rnsap_BIT_STRING_SIZE_1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE);
+                                     1, 1, FALSE, NULL);
 
   return offset;
 }
@@ -19817,7 +19841,7 @@ static int dissect_fit_interval_flag_nav(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static int
 dissect_rnsap_BIT_STRING_SIZE_87(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     87, 87, FALSE);
+                                     87, 87, FALSE, NULL);
 
   return offset;
 }
@@ -19830,7 +19854,7 @@ static int dissect_sf1_reserved_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static int
 dissect_rnsap_BIT_STRING_SIZE_16(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE);
+                                     16, 16, FALSE, NULL);
 
   return offset;
 }
@@ -19879,7 +19903,7 @@ static int dissect_c_rc_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_rnsap_BIT_STRING_SIZE_32(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE);
+                                     32, 32, FALSE, NULL);
 
   return offset;
 }
@@ -19910,7 +19934,7 @@ static int dissect_a_zero_utc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_rnsap_BIT_STRING_SIZE_5(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE);
+                                     5, 5, FALSE, NULL);
 
   return offset;
 }
@@ -19923,7 +19947,7 @@ static int dissect_aodo_nav(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static int
 dissect_rnsap_BIT_STRING_SIZE_24(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE);
+                                     24, 24, FALSE, NULL);
 
   return offset;
 }
@@ -19951,7 +19975,7 @@ static int dissect_a_one_utc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static int
 dissect_rnsap_BIT_STRING_SIZE_20(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     20, 20, FALSE);
+                                     20, 20, FALSE, NULL);
 
   return offset;
 }
@@ -20097,7 +20121,7 @@ static int dissect_dATA_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static int
 dissect_rnsap_BIT_STRING_SIZE_11(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     11, 11, FALSE);
+                                     11, 11, FALSE, NULL);
 
   return offset;
 }
@@ -20160,7 +20184,7 @@ static int dissect_satellite_Almanac_Information(tvbuff_t *tvb, int offset, asn_
 static int
 dissect_rnsap_BIT_STRING_SIZE_364(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     364, 364, FALSE);
+                                     364, 364, FALSE, NULL);
 
   return offset;
 }
@@ -22662,7 +22686,7 @@ static int dissect_id_IPDL_TDD_ParametersLCR(tvbuff_t *tvb, int offset, asn_ctx_
 static int
 dissect_rnsap_CellCapabilityContainer_FDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE);
+                                     32, 32, FALSE, NULL);
 
   return offset;
 }
@@ -22675,7 +22699,7 @@ static int dissect_id_CellCapabilityContainer_FDD(tvbuff_t *tvb, int offset, asn
 static int
 dissect_rnsap_CellCapabilityContainer_TDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE);
+                                     32, 32, FALSE, NULL);
 
   return offset;
 }
@@ -22688,7 +22712,7 @@ static int dissect_id_CellCapabilityContainer_TDD(tvbuff_t *tvb, int offset, asn
 static int
 dissect_rnsap_CellCapabilityContainer_TDD_LCR(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE);
+                                     32, 32, FALSE, NULL);
 
   return offset;
 }
@@ -24603,7 +24627,7 @@ static int dissect_id_Angle_Of_Arrival_Value_LCR(tvbuff_t *tvb, int offset, asn_
 static int
 dissect_rnsap_GERAN_Cell_Capability(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE);
+                                     16, 16, FALSE, NULL);
 
   return offset;
 }
@@ -25618,7 +25642,7 @@ static int dissect_id_HSDSCH_Information_to_Modify_Unsynchronised(tvbuff_t *tvb,
 static int
 dissect_rnsap_DsField(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -25631,7 +25655,7 @@ static int dissect_dsField(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static int
 dissect_rnsap_GenericTrafficCategory(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -27588,7 +27612,7 @@ static int dissect_eDCH_HARQ_PO_FDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static int
 dissect_rnsap_E_DCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -27614,7 +27638,7 @@ static int dissect_maxBits_MACe_PDU_non_scheduled(tvbuff_t *tvb, int offset, asn
 static int
 dissect_rnsap_HARQ_Process_Allocation_2ms_EDCH(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE);
+                                     8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -29916,7 +29940,7 @@ static int dissect_band_Indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 static int
 dissect_rnsap_BCC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 3, FALSE);
+                                     3, 3, FALSE, NULL);
 
   return offset;
 }
@@ -29942,7 +29966,7 @@ static int dissect_bCCH_ARFCN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static int
 dissect_rnsap_NCC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 3, FALSE);
+                                     3, 3, FALSE, NULL);
 
   return offset;
 }
@@ -30282,7 +30306,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 591 "packet-rnsap-template.c"
+#line 593 "packet-rnsap-template.c"
 
 
 static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
@@ -32008,6 +32032,11 @@ void proto_register_rnsap(void) {
 	{ &hf_rnsap_IE_length,
 		{ "IE Length", "rnsap.ie_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of octets in the IE", HFILL }},
+    { &hf_rnsap_L3_DL_DCCH_Message_PDU,
+      { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DL-DCCH-Message", HFILL }},
+
 
 /*--- Included file: packet-rnsap-hfarr.c ---*/
 #line 1 "packet-rnsap-hfarr.c"
@@ -38885,7 +38914,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2317 "packet-rnsap-template.c"
+#line 2324 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39748,7 +39777,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2327 "packet-rnsap-template.c"
+#line 2334 "packet-rnsap-template.c"
   };
 
 
