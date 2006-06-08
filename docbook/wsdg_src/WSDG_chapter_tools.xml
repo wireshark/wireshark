@@ -1363,17 +1363,5 @@ written by Larry Wall and Paul Eggert]]>
 	</para>
 	</section>
 
-
-	<section id="ChToolsCVS">
-	<title>Obsolete: CVS client</title>
-	<para>
-	Some time ago, the Wireshark project was using CVS to keep track of all 
-	the source code changes. As now subversion (SVN) is used, a CVS client
-	is no longer helpful, see <xref linkend="ChToolsSubversion"/> for details 
-	about subversion clients.
-	</para>
-	</section>
-
-
 </chapter>
 <!-- End of WSDG Chapter Tools -->
