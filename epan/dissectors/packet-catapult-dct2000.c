@@ -74,7 +74,7 @@ static const value_string encap_vals[] = {
 
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
-gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
+static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
 {
     guint8 length;
     int offset = *data_offset;
