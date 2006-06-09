@@ -68,7 +68,7 @@ static int hf_tivoconnect_version = -1;
 static gint ett_tivoconnect = -1;
 
 /* Code to actually dissect the packets */
-static gboolean
+static int
 dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* parsing variables */
@@ -80,11 +80,8 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar * packet_machine = NULL;
 
     /* validate that we have a tivoconnect packet */
-    length = tvb->length;
-    if ( length < 11 ||
-         !(string = (gchar*)tvb_get_ephemeral_string(tvb, 0, length)) ||
-         strncasecmp(string,"tivoconnect",11) != 0) {
-        return FALSE;
+    if ( tvb_strncaseeql(tvb, 0, "tivoconnect", 11) != 0) {
+        return 0;
     }
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -198,7 +195,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
 
-    return TRUE;
+    return tvb_length(tvb);
 }
 
 
@@ -267,7 +264,7 @@ proto_reg_handoff_tivoconnect(void)
 
             dissector_handle_t tivoconnect_handle;
 
-            tivoconnect_handle = create_dissector_handle(dissect_tivoconnect,
+            tivoconnect_handle = new_create_dissector_handle(dissect_tivoconnect,
                                                          proto_tivoconnect);
             dissector_add("udp.port", 2190, tivoconnect_handle);
             dissector_add("tcp.port", 2190, tivoconnect_handle);
@@ -275,4 +272,3 @@ proto_reg_handoff_tivoconnect(void)
             inited = TRUE;
         }
 }
-
