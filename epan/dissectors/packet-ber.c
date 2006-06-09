@@ -1053,6 +1053,12 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
 
+		if(ind_field && (len == 2)){
+    			/* disgusting indefinite length zero length field, what are these people doing */
+			offset = eoffset;
+			continue;
+		}
+
 ber_sequence_try_again:
 		/* have we run out of known entries in the sequence ?*/
 		if(!seq->func) {
