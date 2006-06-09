@@ -1694,7 +1694,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           int i=0;
           for (i=0;i<bmaplen*8;i++) {
             if (bmap[i/8] & (1<<(i%8))) {
-              int aid=i+bmapoff*8;
+              int aid=i+2*bmapoff*8;
               len+=g_snprintf (out_buff+len, SHORT_STR-len," %u", aid);
               proto_item_append_text(ti, " %u", aid);
               if (len>=SHORT_STR) {
