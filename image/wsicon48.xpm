@@ -1,5 +1,5 @@
 /* XPM */
-static char * wsicon48_xpm[] = {
+static const char * wsicon48_xpm[] = {
 "48 48 336 2",
 "  	c None",
 ". 	c #000000",
