@@ -2482,6 +2482,10 @@ Kees Cook		<kees [AT] outflux.net> {
 	TiVoConnect Discovery Protocol
 }
 
+Thomas Dreibholz	<dreibh [AT] exp-math.uni-essen.de> {
+	RSerPol protocol stack
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 

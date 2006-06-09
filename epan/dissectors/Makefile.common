@@ -139,6 +139,7 @@ DISSECTOR_SRC =	\
 	packet-btrfcomm.c	\
 	packet-btsdp.c	\
 	packet-bvlc.c	\
+	packet-calcappprotocol.c	\
 	packet-camel.c	\
 	packet-cast.c	\
 	packet-catapult-dct2000.c	\
@@ -158,6 +159,7 @@ DISSECTOR_SRC =	\
 	packet-cmip.c \
 	packet-cmp.c	\
 	packet-cms.c	\
+	packet-componentstatus.c	\
 	packet-cops.c	\
 	packet-cosine.c	\
 	packet-cpfi.c	\
@@ -303,6 +305,7 @@ DISSECTOR_SRC =	\
 	packet-fddi.c	\
 	packet-fix.c	\
 	packet-fr.c	\
+	packet-fractalgeneratorprotocol.c	\
 	packet-frame.c	\
 	packet-ftam.c	\
 	packet-ftbp.c	\
@@ -490,6 +493,7 @@ DISSECTOR_SRC =	\
 	packet-pflog.c	\
 	packet-pgm.c	\
 	packet-pim.c	\
+	packet-pingpongprotocol.c	\
 	packet-pn-rt.c   \
 	packet-pkcs1.c	\
 	packet-pkix1explicit.c	\
