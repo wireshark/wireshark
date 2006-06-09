@@ -54,6 +54,7 @@
 #include <epan/nlpid.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/nstime.h>
 
 static int ip_tap = -1;
 
@@ -1931,12 +1932,12 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case ICMP_TSTAMP:
       case ICMP_TSTAMPREPLY:
-	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Originate timestamp: %u",
-	  tvb_get_ntohl(tvb, 8));
-	proto_tree_add_text(icmp_tree, tvb, 12, 4, "Receive timestamp: %u",
-	  tvb_get_ntohl(tvb, 12));
-	proto_tree_add_text(icmp_tree, tvb, 16, 4, "Transmit timestamp: %u",
-	  tvb_get_ntohl(tvb, 16));
+	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Originate timestamp: %s after midnight UTC",
+	  time_msecs_to_str(tvb_get_ntohl(tvb, 8)));
+	proto_tree_add_text(icmp_tree, tvb, 12, 4, "Receive timestamp: %s after midnight UTC",
+	  time_msecs_to_str(tvb_get_ntohl(tvb, 12)));
+	proto_tree_add_text(icmp_tree, tvb, 16, 4, "Transmit timestamp: %s after midnight UTC",
+	  time_msecs_to_str(tvb_get_ntohl(tvb, 16)));
 	break;
 
     case ICMP_MASKREQ:
