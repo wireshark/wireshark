@@ -1,18 +1,25 @@
 IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
 
-HF_FIELD hf_winreg_access_required "Access Required" "winreg.access_required" FT_UINT32 BASE_HEX NULL 0 "" "" ""
 
-HF_RENAME hf_winreg_winreg_OpenHKCR_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKLM_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKU_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_CreateKey_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKCC_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKDD_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKPT_access_required hf_winreg_access_required
-HF_RENAME hf_winreg_winreg_OpenHKPN_access_required hf_winreg_access_required
+#
+# Make all instances of an access mask use the same hf field display filter 
+# name
+#
+HF_FIELD hf_winreg_access_mask "Access Mask" "winreg.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
+HF_RENAME hf_winreg_winreg_OpenHKCR_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKLM_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKU_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_CreateKey_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKCC_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKDD_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKPT_access_mask hf_winreg_access_mask
+HF_RENAME hf_winreg_winreg_OpenHKPN_access_mask hf_winreg_access_mask
 
+
+#
+# Make all instances of a system name use the same hf display filter name
+#
 HF_FIELD hf_winreg_system_name "System Name" "winreg.system_name" FT_UINT16 BASE_DEC NULL 0 "" "" ""
-
 HF_RENAME hf_winreg_winreg_OpenHKCR_system_name hf_winreg_system_name
 HF_RENAME hf_winreg_winreg_OpenHKCU_system_name hf_winreg_system_name
 HF_RENAME hf_winreg_winreg_OpenHKLM_system_name hf_winreg_system_name
@@ -23,8 +30,11 @@ HF_RENAME hf_winreg_winreg_OpenHKDD_system_name hf_winreg_system_name
 HF_RENAME hf_winreg_winreg_OpenHKPT_system_name hf_winreg_system_name
 HF_RENAME hf_winreg_winreg_OpenHKPN_system_name hf_winreg_system_name
 
-HF_FIELD hf_winreg_handle "Handle" "winreg.handle" FT_BYTES BASE_NONE NULL 0 "" "" ""
 
+#
+# make all policyhandles use the same hf display filter name
+#
+HF_FIELD hf_winreg_handle "Handle" "winreg.handle" FT_BYTES BASE_NONE NULL 0 "" "" ""
 HF_RENAME hf_winreg_winreg_OpenHKCR_handle hf_winreg_handle
 HF_RENAME hf_winreg_winreg_OpenHKCU_handle hf_winreg_handle
 HF_RENAME hf_winreg_winreg_OpenHKLM_handle hf_winreg_handle
@@ -50,3 +60,112 @@ HF_RENAME hf_winreg_winreg_OpenHKCC_handle hf_winreg_handle
 HF_RENAME hf_winreg_winreg_OpenHKDD_handle hf_winreg_handle
 HF_RENAME hf_winreg_winreg_OpenHKPT_handle hf_winreg_handle
 HF_RENAME hf_winreg_winreg_OpenHKPN_handle hf_winreg_handle
+
+
+
+#
+# Make both instances of KeySecurityData resolve to the same
+# hf display filter field.
+#
+HF_FIELD hf_winreg_sd "KeySecurityData" "winreg.sd" FT_NONE BASE_NONE NULL 0 "" "" ""
+HF_RENAME hf_winreg_winreg_GetKeySecurity_sd hf_winreg_sd
+HF_RENAME hf_winreg_winreg_SetKeySecurity_sd hf_winreg_sd
+
+
+
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions (open==0x0001)
+PARAM_VALUE winreg_dissect_element_OpenHKCR_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKCU_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKLM_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKPD_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKU_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKCC_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKDD_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKPT_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenHKPN_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_CreateKey_new_handle_ 0x0001
+PARAM_VALUE winreg_dissect_element_OpenKey_new_handle_ 0x0001
+# Policyhandles are closed in these functions (close==0x0002)
+PARAM_VALUE winreg_dissect_element_CloseKey_handle_ 0x0002
+PARAM_VALUE winreg_dissect_element_DeleteKey_handle_ 0x0002
+
+
+
+#
+# Override the generation of dissectors of the security descriptor and the
+# access mask.
+# The security descriptor is just an array of bytes in the idl file
+# so we override generation of it and calls the proper wireshark dissector
+# after manually eating the 12 bytes of conformance data.
+#
+# Same for the access mask dissector since the idl would only define those
+# flag bits that are specific to WINREG  therefore we set up the appropriate
+# structures and then call the wireshark accessmask dissector instead.
+#
+#
+HF_FIELD hf_winreg_sd_max_size "Max Size" "winreg.sd.max_size" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+HF_FIELD hf_winreg_sd_offset "Offset" "winreg.sd.offset" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+HF_FIELD hf_winreg_sd_actual_size "Actual Size" "winreg.sd.actual_size" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+MANUAL winreg_dissect_element_KeySecurityData_data__
+MANUAL winreg_dissect_element_KeySecurityData_data_
+MANUAL winreg_dissect_bitmap_AccessMask
+
+
+
+CODE START
+static void
+winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+{
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG, tvb, offset, 4, access);
+}
+
+struct access_mask_info winreg_access_mask_info = {
+	"WINREG",		/* Name of specific rights */
+	winreg_specific_rights,	/* Dissection function */
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
+};
+
+static int
+winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	/* this is a varying and conformant array */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_winreg_sd_max_size, NULL);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_winreg_sd_offset, NULL);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_winreg_sd_actual_size, &len);
+
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
+		&winreg_access_mask_info);
+
+	offset += len;
+
+	return offset;
+}
+
+int
+winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_winreg_access_mask,
+		&winreg_access_mask_info, NULL);
+	return offset;
+}
+CODE END

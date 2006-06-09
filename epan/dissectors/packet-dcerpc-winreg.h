@@ -5,9 +5,9 @@
 	from winreg.idl and winreg.cnf.
 	
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
-	It is maintained by the Samba team, not the Wireshark team.
+	It is maintained by the Samba team, not the Ethereal team.
 	Instructions on how to download and install Pidl can be 
-	found at http://wiki.wireshark.org/Pidl
+	found at http://wiki.ethereal.com/Pidl
 */
 
 
@@ -18,6 +18,7 @@
 
 #include "packet-dcerpc-initshutdown.h"
 
+int winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 #define REG_NONE (0)
 #define REG_SZ (1)
 #define REG_EXPAND_SZ (2)

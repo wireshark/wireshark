@@ -80,17 +80,7 @@
 #define NDR_LITTLE_ENDIAN LIBNDR_FLAG_LITTLE_ENDIAN
 #define NDR_BIG_ENDIAN LIBNDR_FLAG_BIGENDIAN
 
-
-/*
-  these are used by the epmapper and mgmt interfaces
-*/
-#define error_status_t uint32
-#define boolean32 uint32
-#define unsigned32 uint32
-
 /*
   this is used to control formatting of uint8 arrays
 */
 #define NDR_PAHEX LIBNDR_PRINT_ARRAY_HEX
-
-#define bool8 uint8
