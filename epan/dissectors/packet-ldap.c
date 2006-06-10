@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ldap.c                                                            */
+/* ./packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -208,8 +208,8 @@ static int hf_ldap_lessOrEqual = -1;              /* AttributeValueAssertion */
 static int hf_ldap_present = -1;                  /* AttributeDescription */
 static int hf_ldap_approxMatch = -1;              /* AttributeValueAssertion */
 static int hf_ldap_extensibleMatch = -1;          /* MatchingRuleAssertion */
-static int hf_ldap_substringFilter_substrings = -1;  /* T_substrings */
-static int hf_ldap_substrings_item = -1;          /* T_substrings_item */
+static int hf_ldap_substringFilter_substrings = -1;  /* T_substringFilter_substrings */
+static int hf_ldap_substringFilter_substrings_item = -1;  /* T_substringFilter_substrings_item */
 static int hf_ldap_initial = -1;                  /* LDAPString */
 static int hf_ldap_any = -1;                      /* LDAPString */
 static int hf_ldap_final = -1;                    /* LDAPString */
@@ -222,7 +222,7 @@ static int hf_ldap_PartialAttributeList_item = -1;  /* PartialAttributeList_item
 static int hf_ldap_SearchResultReference_item = -1;  /* LDAPURL */
 static int hf_ldap_object = -1;                   /* LDAPDN */
 static int hf_ldap_modifyRequest_modification = -1;  /* ModifyRequest_modification */
-static int hf_ldap_modification_item = -1;        /* T_modification_item */
+static int hf_ldap_modifyRequest_modification_item = -1;  /* T_modifyRequest_modification_item */
 static int hf_ldap_operation = -1;                /* T_operation */
 static int hf_ldap_modification = -1;             /* AttributeTypeAndValues */
 static int hf_ldap_entry = -1;                    /* LDAPDN */
@@ -269,8 +269,8 @@ static gint ett_ldap_SearchRequest = -1;
 static gint ett_ldap_Filter = -1;
 static gint ett_ldap_SET_OF_Filter = -1;
 static gint ett_ldap_SubstringFilter = -1;
-static gint ett_ldap_T_substrings = -1;
-static gint ett_ldap_T_substrings_item = -1;
+static gint ett_ldap_T_substringFilter_substrings = -1;
+static gint ett_ldap_T_substringFilter_substrings_item = -1;
 static gint ett_ldap_MatchingRuleAssertion = -1;
 static gint ett_ldap_SearchResultEntry = -1;
 static gint ett_ldap_PartialAttributeList = -1;
@@ -278,7 +278,7 @@ static gint ett_ldap_PartialAttributeList_item = -1;
 static gint ett_ldap_SearchResultReference = -1;
 static gint ett_ldap_ModifyRequest = -1;
 static gint ett_ldap_ModifyRequest_modification = -1;
-static gint ett_ldap_T_modification_item = -1;
+static gint ett_ldap_T_modifyRequest_modification_item = -1;
 static gint ett_ldap_AttributeTypeAndValues = -1;
 static gint ett_ldap_AddRequest = -1;
 static gint ett_ldap_AttributeList = -1;
@@ -1333,14 +1333,14 @@ static int dissect_ava(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 }
 
 
-static const value_string ldap_T_substrings_item_vals[] = {
+static const value_string ldap_T_substringFilter_substrings_item_vals[] = {
   {   0, "initial" },
   {   1, "any" },
   {   2, "final" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_substrings_item_choice[] = {
+static const ber_choice_t T_substringFilter_substrings_item_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_initial_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_any_impl },
   {   2, BER_CLASS_CON, 2, 0, dissect_final_impl },
@@ -1348,31 +1348,31 @@ static const ber_choice_t T_substrings_item_choice[] = {
 };
 
 static int
-dissect_ldap_T_substrings_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ldap_T_substringFilter_substrings_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_substrings_item_choice, hf_index, ett_ldap_T_substrings_item,
+                                 T_substringFilter_substrings_item_choice, hf_index, ett_ldap_T_substringFilter_substrings_item,
                                  NULL);
 
   return offset;
 }
-static int dissect_substrings_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ldap_T_substrings_item(FALSE, tvb, offset, pinfo, tree, hf_ldap_substrings_item);
+static int dissect_substringFilter_substrings_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ldap_T_substringFilter_substrings_item(FALSE, tvb, offset, pinfo, tree, hf_ldap_substringFilter_substrings_item);
 }
 
 
-static const ber_sequence_t T_substrings_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_substrings_item },
+static const ber_sequence_t T_substringFilter_substrings_sequence_of[1] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_substringFilter_substrings_item },
 };
 
 static int
-dissect_ldap_T_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ldap_T_substringFilter_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_substrings_sequence_of, hf_index, ett_ldap_T_substrings);
+                                      T_substringFilter_substrings_sequence_of, hf_index, ett_ldap_T_substringFilter_substrings);
 
   return offset;
 }
 static int dissect_substringFilter_substrings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ldap_T_substrings(FALSE, tvb, offset, pinfo, tree, hf_ldap_substringFilter_substrings);
+  return dissect_ldap_T_substringFilter_substrings(FALSE, tvb, offset, pinfo, tree, hf_ldap_substringFilter_substrings);
 }
 
 
@@ -1781,26 +1781,26 @@ static int dissect_modification(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const ber_sequence_t T_modification_item_sequence[] = {
+static const ber_sequence_t T_modifyRequest_modification_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_operation },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modification },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_ldap_T_modification_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ldap_T_modifyRequest_modification_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_modification_item_sequence, hf_index, ett_ldap_T_modification_item);
+                                   T_modifyRequest_modification_item_sequence, hf_index, ett_ldap_T_modifyRequest_modification_item);
 
   return offset;
 }
-static int dissect_modification_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ldap_T_modification_item(FALSE, tvb, offset, pinfo, tree, hf_ldap_modification_item);
+static int dissect_modifyRequest_modification_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ldap_T_modifyRequest_modification_item(FALSE, tvb, offset, pinfo, tree, hf_ldap_modifyRequest_modification_item);
 }
 
 
 static const ber_sequence_t ModifyRequest_modification_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modification_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modifyRequest_modification_item },
 };
 
 static int
@@ -2612,7 +2612,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
     if (check_col(pinfo->cinfo, COL_INFO)) col_clear(pinfo->cinfo, COL_INFO);
 
-    ldap_item = proto_tree_add_item(tree, proto_ldap, tvb, 0, -1, FALSE);
+    ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, FALSE);
     ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
 
     /*
@@ -3518,9 +3518,9 @@ void proto_register_ldap(void) {
       { "substrings", "ldap.substrings",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SubstringFilter/substrings", HFILL }},
-    { &hf_ldap_substrings_item,
+    { &hf_ldap_substringFilter_substrings_item,
       { "Item", "ldap.substrings_item",
-        FT_UINT32, BASE_DEC, VALS(ldap_T_substrings_item_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(ldap_T_substringFilter_substrings_item_vals), 0,
         "SubstringFilter/substrings/_item", HFILL }},
     { &hf_ldap_initial,
       { "initial", "ldap.initial",
@@ -3570,7 +3570,7 @@ void proto_register_ldap(void) {
       { "modification", "ldap.modification",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ModifyRequest/modification", HFILL }},
-    { &hf_ldap_modification_item,
+    { &hf_ldap_modifyRequest_modification_item,
       { "Item", "ldap.modification_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ModifyRequest/modification/_item", HFILL }},
@@ -3664,8 +3664,8 @@ void proto_register_ldap(void) {
     &ett_ldap_Filter,
     &ett_ldap_SET_OF_Filter,
     &ett_ldap_SubstringFilter,
-    &ett_ldap_T_substrings,
-    &ett_ldap_T_substrings_item,
+    &ett_ldap_T_substringFilter_substrings,
+    &ett_ldap_T_substringFilter_substrings_item,
     &ett_ldap_MatchingRuleAssertion,
     &ett_ldap_SearchResultEntry,
     &ett_ldap_PartialAttributeList,
@@ -3673,7 +3673,7 @@ void proto_register_ldap(void) {
     &ett_ldap_SearchResultReference,
     &ett_ldap_ModifyRequest,
     &ett_ldap_ModifyRequest_modification,
-    &ett_ldap_T_modification_item,
+    &ett_ldap_T_modifyRequest_modification_item,
     &ett_ldap_AttributeTypeAndValues,
     &ett_ldap_AddRequest,
     &ett_ldap_AttributeList,

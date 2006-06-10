@@ -650,7 +650,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
     if (check_col(pinfo->cinfo, COL_INFO)) col_clear(pinfo->cinfo, COL_INFO);
 
-    ldap_item = proto_tree_add_item(tree, proto_ldap, tvb, 0, -1, FALSE);
+    ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, FALSE);
     ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
 
     /*
