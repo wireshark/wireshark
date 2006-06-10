@@ -103,6 +103,8 @@ static int hf_ldap_sasl_buffer_length = -1;
 static int hf_ldap_response_in = -1;
 static int hf_ldap_response_to = -1;
 static int hf_ldap_time = -1;
+static int hf_ldap_assertionValue_str = -1;       /* string AssertionValue*/
+static int hf_ldap_assertionValue_bin = -1;       /* binary AssertionValue*/
 
 static int hf_mscldap_netlogon_type = -1;
 static int hf_mscldap_netlogon_flags = -1;
@@ -244,6 +246,41 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
   const ldap_call_response_t *key2 = k2;
 
   return key1->messageId==key2->messageId;
+}
+
+/* if the octet string contain all ascii characters then display it as
+ * a string   else display it in the defaulkt HEX mode
+ */
+static int
+dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_)
+{
+  tvbuff_t *str_tvb=NULL;
+  int i, len, is_ascii=0;
+  char *str;
+
+  /* grab a tvb of the octet string so we can check if it is ascii or binary */
+  dissect_ber_octet_string(implicit_tag, pinfo, NULL, tvb, offset, hf_index, &str_tvb);
+
+  if(str_tvb){
+    len=tvb_length(str_tvb);
+    if(len>0){
+      str=tvb_get_ptr(str_tvb, 0, len);
+      is_ascii=1;
+      for(i=0;i<len;i++){
+        if(str[i]<0x20){
+          is_ascii=0;
+        }
+      }
+    }
+  }
+
+  if(is_ascii){
+    offset=dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_ldap_assertionValue_str, NULL);
+  } else {
+    offset=dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_ldap_assertionValue_bin, NULL);
+  }
+
+  return offset;
 }
 
 /* Global variables */
@@ -1166,6 +1203,16 @@ void proto_register_ldap(void) {
 	      { "Time", "ldap.time",
 	        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 	        "The time between the Call and the Reply", HFILL }},
+
+	    { &hf_ldap_assertionValue_str,
+	      { "assertionValue", "ldap.assertionValue_str",
+	        FT_STRING, BASE_NONE, NULL, 0,
+	        "AttributeValueAssertion/assertionValue", HFILL }},
+
+	    { &hf_ldap_assertionValue_bin,
+	      { "assertionValue", "ldap.assertionValue_bin",
+	        FT_BYTES, BASE_HEX, NULL, 0,
+	        "AttributeValueAssertion/assertionValue", HFILL }},
 
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
