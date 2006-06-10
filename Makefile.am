@@ -71,7 +71,7 @@ EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 EXTRA_SCRIPTS = idl2wrs
 
 idl2wrs: tools/idl2wrs.sh Makefile
-	$(do_subst) < $(srcdir)/tools/idl2wrs.sh > idl2wrs
+	cp $(srcdir)/tools/idl2wrs.sh idl2wrs
 	chmod +x idl2wrs
 
 #
