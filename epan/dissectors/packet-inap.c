@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-inap.c                                                            */
+/* ./packet-inap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
 
 /* Input file: packet-inap-template.c */
@@ -6830,6 +6830,10 @@ void proto_register_inap(void) {
   ssn_range = range_empty();
   
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
+
+  prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn");
+ 
+  prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn1");
 
   prefs_register_range_preference(inap_module, "ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for INAP",

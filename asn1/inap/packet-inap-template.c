@@ -701,6 +701,10 @@ void proto_register_inap(void) {
   
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 
+  prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn");
+ 
+  prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn1");
+
   prefs_register_range_preference(inap_module, "ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for INAP",
 				  &global_ssn_range, MAX_SSN);
