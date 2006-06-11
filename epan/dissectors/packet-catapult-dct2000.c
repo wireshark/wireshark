@@ -134,11 +134,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        offset = 0;
     gint        context_length;
     guint8      port_number;
-    guint8      variant;
     gint        protocol_start;
     gint        protocol_length;
     gint        timestamp_start;
     gint        timestamp_length;
+    gint        variant_start;
+    gint        variant_length;
     guint8      direction;
     tvbuff_t    *next_tvb;
     int         encap;
@@ -190,10 +191,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += protocol_length;
 
     /* Variant */
-    variant = tvb_get_guint8(tvb, offset);
+    variant_start = offset;
+    variant_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
-                        offset, 1, FALSE);
-    offset++;
+                        offset, variant_length, FALSE);
+    offset += variant_length;
 
     /* Direction */
     direction = tvb_get_guint8(tvb, offset);
@@ -210,13 +212,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_set_len(dct2000_tree, offset);
 
     /* Add useful details to protocol tree label */
-    proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%d)",
+    proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
                            tvb_get_ephemeral_string(tvb, 0, context_length),
                            port_number,
                            tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
                            (direction == 0) ? 'S' : 'R',
                            tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
-                           variant);
+                           tvb_get_ephemeral_string(tvb, variant_start, variant_length));
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
@@ -309,13 +311,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "Unparsed protocol data (context=%s.%u   t=%s   %c   prot=%s (v=%d))",
+                         "Unparsed protocol data (context=%s.%u   t=%s   %c   prot=%s (v=%s))",
                          tvb_get_ephemeral_string(tvb, 0, context_length),
                          port_number,
                          tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
                          (direction == 0) ? 'S' : 'R',
                          tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
-                         variant);
+                         tvb_get_ephemeral_string(tvb, variant_start, variant_length));
         }
     }
 }
@@ -365,7 +367,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_variant,
             { "Protocol variant",
-              "dct2000.variant", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "dct2000.variant", FT_STRING, BASE_NONE, NULL, 0x0,
               "DCT2000 protocol variant", HFILL
             }
         },

@@ -42,7 +42,7 @@
 #define MAX_CONTEXT_NAME           64
 #define MAX_PROTOCOL_NAME          64
 #define MAX_PORT_DIGITS            2
-#define MAX_VARIANT_DIGITS         2
+#define MAX_VARIANT_DIGITS         32
 #define AAL_HEADER_CHARS           12
 
 /* TODO:
@@ -104,7 +104,7 @@ static guint8 context_port;
 
 /* The DCT2000 protocol name of the packet, plus variant number */
 static gchar protocol_name[MAX_PROTOCOL_NAME+1];
-static gchar variant;
+static gchar variant_name[MAX_VARIANT_DIGITS+1];
 
 
 /*************************************************/
@@ -139,7 +139,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            packet_direction_t *direction,
                            int *encap,
                            gboolean seek_read);
-int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
                       packet_direction_t direction, int encap);
 static guchar hex_from_char(gchar c);
 static gchar char_from_hex(guchar hex);
@@ -740,8 +740,6 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     int  port_digits = 0;
     char port_number_string[MAX_PORT_DIGITS+1];
     int  variant_digits = 0;
-    char variant_number_string[MAX_VARIANT_DIGITS+1];
-
     int  protocol_chars = 0;
 
     char seconds_buff[MAX_SECONDS_CHARS+1];
@@ -908,7 +906,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         {
             return FALSE;
         }
-        variant_number_string[variant_digits] = linebuff[n];
+        variant_name[variant_digits] = linebuff[n];
     }
     if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
     {
@@ -916,12 +914,11 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
     if (variant_digits > 0)
     {
-        variant_number_string[variant_digits] = '\0';
-        variant = atoi(variant_number_string);
+        variant_name[variant_digits] = '\0';
     }
     else
     {
-        variant = 1;
+        strcpy(variant_name, "1");
     }
 
 
@@ -1106,9 +1103,9 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     stub_offset += (strlen(protocol_name) + 1);
 
     /* Protocol variant number */
-    frame_buffer[stub_offset] = variant;
-    stub_offset++;
-    
+    strcpy((void*)&frame_buffer[stub_offset], variant_name);
+    stub_offset += (strlen(variant_name) + 1);
+
     /* Direction */
     frame_buffer[stub_offset] = direction;
     stub_offset++;
