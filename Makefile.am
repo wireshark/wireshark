@@ -71,7 +71,7 @@ EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 EXTRA_SCRIPTS = idl2wrs
 
 idl2wrs: tools/idl2wrs.sh Makefile
-	$(do_subst) < $(srcdir)/tools/idl2wrs.sh > idl2wrs
+	cp $(srcdir)/tools/idl2wrs.sh idl2wrs
 	chmod +x idl2wrs
 
 #
@@ -105,9 +105,12 @@ dtdsdir = $(pkgdatadir)/dtds
 dtds_DATA = \
 	dtds/dc.dtd \
 	dtds/itunes.dtd \
+	dtds/pocsettings.dtd \
+	dtds/presence.dtd \
+	dtds/reginfo.dtd \
 	dtds/rss.dtd \
-	dtds/smil.dtd
-
+	dtds/smil.dtd \
+	dtds/watcherinfo.dtd
 #
 # Install the RADIUS directory files in the "radius" subdirectory
 # of that directory.
