@@ -891,7 +891,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gc, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uc, tvb, ie_offset, 1, FALSE);
 		/* UMA Protocols (Stage 3) R1.0.3 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
+		if(ie_len>1){
+			ie_offset++;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
+		}
 		break;
 	case 8:			
 		/* Geographical Location 
@@ -985,7 +988,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
 		break;
 	case 17:		/* GSM RR State */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 1, FALSE);
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
@@ -1056,14 +1059,14 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 32:		
 		/* Handover From UMAN Command 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
-		 * TODO: Find out RAT target
-		 */
-		 dtap_rr_ho_cmd(tvb, urr_ie_tree, offset, ie_len);
-		/*
 		 * If the target RAT is UTRAN, the rest of the IE is coded as
 		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
 		 */
-		break;
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
+		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		if  (!dissector_try_port(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);		break;
 	case 33:		/* UL Quality Indication */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ULQI, tvb, ie_offset, 1, FALSE);
 		break;
@@ -1793,7 +1796,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_rrs,
 			{ "RTP Redundancy Support(RRS)","uma.urr.rrs",
-			FT_UINT8,BASE_DEC, VALS(rrs_vals), 0xc,          
+			FT_UINT8,BASE_DEC, VALS(rrs_vals), 0x01,          
 			"RTP Redundancy Support(RRS)", HFILL }
 		},
 		{ &hf_uma_urr_location_estimate,
