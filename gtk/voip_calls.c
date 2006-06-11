@@ -1698,7 +1698,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_listinfo=list->data;
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
-				if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(&tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ){ 
+				if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ){ 
 					strinfo = (voip_calls_info_t*)(list->data);
 					break;
 				}
