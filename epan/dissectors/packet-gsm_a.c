@@ -4541,7 +4541,7 @@ static const true_false_string gsm_a_rr_set_of_amr_codec_modes  = {
 
 
 
-static guint8
+guint8
 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
@@ -12507,7 +12507,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_mid,	/* Mobile Identity */
     de_ms_cm_1,	/* Mobile Station Classmark 1 */
     de_ms_cm_2,	/* Mobile Station Classmark 2 */
-    NULL,	/* Mobile Station Classmark 3 */
+    NULL,		/* Mobile Station Classmark 3 */
     de_d_gb_call_ref,	/* Descriptive group or broadcast call reference */
     NULL /* handled inline */,	/* Group Cipher Key Number */
     de_pd_sapi,	/* PD and SAPI $(CCBS)$ */
@@ -15041,7 +15041,7 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
-/*
+/* 3GPP TS 24.008 version 4.7.0 Release 4
  * [3] 9.1.15
  */
 void
