@@ -183,12 +183,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
        
 	if (fh_tree) {
-	  proto_tree_add_boolean_hidden(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
-
-	  if(pinfo->fd->flags.ref_time){
-		proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
-	  }
-
 	  ts = pinfo->fd->abs_ts;
 
 	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -231,6 +225,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   * See proto.h for details.
 	   */
 	  PTREE_DATA(fh_tree)->visible=1;
+
+	  if(pinfo->fd->flags.ref_time){
+		ti = proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
+	    PROTO_ITEM_SET_GENERATED(ti);
+	  }
+
+	  ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
+	  PROTO_ITEM_SET_GENERATED(ti);
 
 	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
 	  	0, 0, "");
@@ -483,8 +485,8 @@ proto_register_frame(void)
 			"Frame is marked in the GUI", HFILL }},
 
 		{ &hf_frame_ref_time,
-		{ "This is a Ref Time frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
-			"This frame is a Reference Time frame", HFILL }},
+		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
+			"This frame is a Time Reference frame", HFILL }},
 
 		{ &hf_frame_protocols,
 		{ "Protocols in frame",	"frame.protocols", FT_STRING, 0, NULL, 0x0,
