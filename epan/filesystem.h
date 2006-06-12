@@ -65,9 +65,10 @@ extern int test_for_fifo(const char *);
 
 /*
  * Get the pathname of the directory from which the executable came,
- * and save it for future use.
+ * and save it for future use.  Returns NULL on success, and a
+ * g_mallocated string containing an error on failure.
  */
-extern void init_progfile_dir(const char *arg0);
+extern char *init_progfile_dir(const char *arg0);
 
 /*
  * Get the directory in which the program resides.
