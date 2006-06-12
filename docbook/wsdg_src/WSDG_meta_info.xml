@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 
 <bookinfo>
-  <title><inlinegraphic entityref="EtherealLogo" valign="middle" format="PNG"/> &DocumentTitle;</title>
+  <title><inlinegraphic entityref="WiresharkLogo" valign="middle" format="PNG"/>&DocumentTitle;</title>
   <subtitle>&DocumentSubTitle;</subtitle>
   <authorgroup>
     <author><firstname>&AuthorFirstName;</firstname><surname>&AuthorSurname;</surname>

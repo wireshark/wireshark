@@ -1,4 +1,4 @@
-<!-- EDG Chapter User Interface -->
+<!-- WSDG Chapter User Interface -->
 <!-- $Id$ -->
 
 <chapter id="ChapterUserInterface">
@@ -7,27 +7,27 @@
   <section id="ChUIIntro">
 	<title>Introduction</title>
 	<para>
-	Ethereal can be "logically" seperated into the backend (dissecting of
+	Wireshark can be "logically" seperated into the backend (dissecting of
 	protocols, file load/save, capturing, ...) and the frontend (the user
 	interface). However, there's currently no clear seperation between
 	these two parts (no clear API definition), but this might change in the
 	future.
 	</para>
 	<para>
-	The following frontends are currently maintained by the Ethereal
+	The following frontends are currently maintained by the Wireshark
 	development team:
 	<itemizedlist>
 	  <listitem><para>
-	  Ethereal, GTK1.x based
+	  Wireshark, GTK 1.x based
 	  </para></listitem>
 	  <listitem><para>
-	  Ethereal, GTK 2.x based
+	  Wireshark, GTK 2.x based
 	  </para></listitem>
 	  <listitem><para>
 	  TShark, console based
 	  </para></listitem>
 	</itemizedlist>
-	There are other Ethereal frontends existing, not developped nor
+	There are other Wireshark frontends existing, not developped nor
 	maintained by the Wireshark development team:
 	<itemizedlist>
 	  <listitem><para>
@@ -53,16 +53,16 @@
 	details. GTK is designed to hide the details of the underlying GUI in
 	a platform independant way. As this is appreciated for a
 	multiplatform tool, this has some drawbacks, as it will result in a
-	somewhat "non native" look and feel. For example: on win32, the "File
-	open" dialog of Ethereal looks very different compared to the native
-	win32 dialog the win32 users are used to see.
+	somewhat "non native" look and feel. For example: on Win32, the "File
+	open" dialog of Wireshark looks very different compared to the native
+	Win32 dialog the Win32 users are used to see.
 	</para>
 	<para>
 	GTK is available for a lot of different platforms including, but not
-	limitted, to: unix/linux, mac os x and win32. It's the foundation of
+	limited, to: Unix/Linux, Mac OS X and Win32. It's the foundation of
 	the famous GNOME desktop, so the future development of GTK should be
 	certain.
-	GTK is implemented in plain C (as Ethereal itself), and available under
+	GTK is implemented in plain C (as Wireshark itself), and available under
 	the LGPL (Lesser General Public License), being free to used by
 	commercial and noncommercial applications.
 	</para>
@@ -123,7 +123,7 @@
 	(typical for Win32 like systems).
 	</para>
 	<para>
-	XXX: include Ethereal GTK1 screenshot
+	XXX: include Wireshark GTK1 screenshot
 	</para>
 	</section>
 
@@ -189,7 +189,7 @@
 	  on X11, Windows, and the Linux framebuffer device.)
 	  </para></listitem>
 	</itemizedlist>
-	XXX: include Ethereal GTK2 screenshot
+	XXX: include Wireshark GTK2 screenshot
 	</para>
 	</section>
 
@@ -243,7 +243,7 @@
 	<para>
 	Theres no Win32 specific GTK mailing list. If you want to post 
 	a Win32 specific problem (e.g. a problem in the GtkFileChooser dialog)
-	and you are sure that it's really win32 specific, you 
+	and you are sure that it's really Win32 specific, you 
 	could send it to GIMPwin-users at <ulink 
 	url="http://www.gimp.org/mail_lists.html"/>.
 	</para>
@@ -262,9 +262,9 @@
 	<title>GUI Reference documents</title>
 	<para>
 	Although the GUI development of Wireshark is platform independant, the 
-	Ethereal development team tries to
+	Wireshark development team tries to
 	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
-	This is the case, because both GNOME and Ethereal are based on the GTK+ 
+	This is the case, because both GNOME and Wireshark are based on the GTK+ 
 	toolkit and the GNOME HIG is excellently written and easy to understand.
 	</para>
 	<para>
@@ -279,7 +279,7 @@
 	  <ulink url="http://developer.kde.org/documentation/library/ui.html"/>
 	  </para></listitem>
 	  <listitem><para>
-	  Win32 XXX - where are good win32 styleguides available?
+	  Win32 XXX - where are good Win32 styleguides available?
 	  </para></listitem>
 	</itemizedlist>
 	</para>
@@ -340,4 +340,4 @@
   </section>
 
 </chapter>
-<!-- End of EDG Chapter User Interface -->
+<!-- End of WSDG Chapter User Interface -->

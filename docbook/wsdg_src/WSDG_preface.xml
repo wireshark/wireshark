@@ -6,18 +6,18 @@
   <title>Foreword</title>
   <para>
 	This book tries to give you a guide to start your own experiments into 
-	the wonderful world of Ethereal development.
+	the wonderful world of Wireshark development.
   </para>
   <para>
-	Developers who are new to Ethereal are often having a hard time getting 
+	Developers who are new to Wireshark are often having a hard time getting 
 	their development environment up and running. This is
 	especially true for Win32 developers, as a lot of the tools and methods
-	used when building Ethereal are much more common in the UNIX world than
+	used when building Wireshark are much more common in the UNIX world than
 	on Win32.
   </para>
   <para>
 	The first part of this book will describe how to set up the environment 
-	needed to develop Ethereal.
+	needed to develop Wireshark.
   </para>
   <para>
 	The second part of this book will describe how to change the Wireshark 
@@ -32,25 +32,25 @@
   <title>Who should read this document?</title>
   <para>
   The intended audience of this book is anyone going into the development of 
-  Ethereal.
+  Wireshark.
   </para>
   <para>
-  This book is not intended to explain the usage of Ethereal in general. 
+  This book is not intended to explain the usage of Wireshark in general. 
   Please refer the 
-  <ulink url="&EtherealUsersGuidePage;">Ethereal User's Guide</ulink> 
-  about Ethereal usage.
+  <ulink url="&WiresharkUsersGuidePage;">Wireshark User's Guide</ulink> 
+  about Wireshark usage.
   </para>
   <para>
-  By reading this book, you will learn how to develop Ethereal. It will 
+  By reading this book, you will learn how to develop Wireshark. It will 
   hopefully guide you around some common problems that frequently appears for 
-  new (and sometimes even advanced) developers of Ethereal.
+  new (and sometimes even advanced) developers of Wireshark.
   </para>
   </section>
 
   <section id="PreAck">
   <title>Acknowledgements</title>
   <para>
-    The authors would like to thank the whole Ethereal team for their 
+    The authors would like to thank the whole Wireshark team for their 
 	assistance. In particular, the authors would like to thank:
     <itemizedlist>
       <listitem>
@@ -76,7 +76,7 @@
       </listitem>
     </itemizedlist>
 	And of course a big thank you to the many, many contributors of the 
-	Ethereal development community!
+	Wireshark development community!
   </para>
   </section>
 
@@ -105,7 +105,7 @@
     </note>
     <tip><title>This is a tip!</title>
 	<para>
-	Tips will be helpful for your everyday work developing Ethereal.
+	Tips will be helpful for your everyday work developing Wireshark.
 	</para>
     </tip>
   </section>
@@ -114,7 +114,7 @@
     <title>Where to get the latest copy of this document?</title>
     <para>
       The latest copy of this documentation can always be found at: 
-      <ulink url="&EtherealDevsGuidePage;">&EtherealDevsGuidePage;</ulink>
+      <ulink url="&WiresharkDevsGuidePage;">&WiresharkDevsGuidePage;</ulink>
 	  in PDF (A4 and US letter), HTML (single and chunked) and CHM format.
     </para>
   </section>
@@ -123,7 +123,7 @@
     <title>Providing feedback about this document</title>
     <para>
       Should you have any feedback about this document, please send it 
-      to the authors through <ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
+      to the authors through <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
     </para>
   </section>
 </preface>

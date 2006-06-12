@@ -1,8 +1,8 @@
-<!-- EDG Chapter Works -->
+<!-- WSDG Chapter Works -->
 <!-- $Id$ -->
 
 <chapter id="ChapterWorks">
-  <title>How Ethereal Works</title>
+  <title>How Wireshark Works</title>
   
   <section id="ChWorksIntro">
 	<title>Introduction</title>
@@ -14,12 +14,12 @@
   <section id="ChWorksOverview">
 	<title>Overview</title>
 	<para>
-	The following will give you a simplified overview of Ethereals function blocks:
+	The following will give you a simplified overview of Wiresharks function blocks:
 	<figure id="ChWorksFigOverview">
 	  <title>
-	    <application>Ethereal</application> function blocks.
+	    <application>Wireshark</application> function blocks.
 	  </title>
-	  <graphic entityref="EtherealFunctionBlocks" format="PNG"/>
+	  <graphic entityref="WiresharkFunctionBlocks" format="PNG"/>
 	</figure>
 	</para>
 	<para>
@@ -44,7 +44,7 @@
 	  <varlistentry><term><command>Epan</command></term>
 	    <listitem>
 	      <para>
-		  Ethereal Package ANalyzing (XXX - is this correct?) the packet 
+		  Ethereal Packet ANalyzer (XXX - is this correct?) the packet 
 		  analyzing engine, source code can be found in the 
 		  <filename>epan</filename> directory.
 	      </para>
@@ -113,7 +113,7 @@
 	</para>
 	<para>
 	To hide all the lowlevel machine dependant details from 
-	Ethereal, the libpcap/WinPcap (see <xref linkend="ChLibsPcap"/>) library 
+	Wireshark, the libpcap/WinPcap (see <xref linkend="ChLibsPcap"/>) library 
 	is used. This library provides a general purpose interface to capture 
 	packets from a lot of different network interface types (Ethernet, 
 	Token Ring, ...). 
@@ -123,12 +123,12 @@
 	<section id="ChWorksCaptureFiles">
 	<title>Capture Files</title>
 	<para>
-	Ethereal can read and write capture files in it's natural file format, the 
+	Wireshark can read and write capture files in it's natural file format, the 
 	libpcap format, which is used by many other network capturing tools, 
 	e.g. tcpdump. In addition to this, as one of it's strengths,
-	Ethereal can read/write files in many different file formats of other 
+	Wireshark can read/write files in many different file formats of other 
 	network capturing tools. The wiretap library, developed together with 
-	Ethereal, provides a general purpose interface to read/write all the file 
+	Wireshark, provides a general purpose interface to read/write all the file 
 	formats. If you need to add another capture file format, this is the place 
 	to start.	
 	</para>
@@ -138,17 +138,17 @@
 	<title>Dissect packets</title>
 	<para>
 	While Wireshark is loading packets from a file, each packet is dissected. 
-	Ethereal tries to detect what kind of packet it is and getting as much 
+	Wireshark tries to detect what kind of packet it is and getting as much 
 	information from it as possible. In this run, only the information showed 
 	in the packet list pane is needed though. 
 	</para>
 	<para>
 	As the user selects a specific packet in the packet list pane, this packet
-	will be dissected again. This time, Ethereal tries to 
+	will be dissected again. This time, Wireshark tries to 
 	get every single piece of information and put it into 
 	the packet details pane then.
 	</para>
 	</section>
 
 </chapter>
-<!-- End of EDG Chapter Works -->
+<!-- End of WSDG Chapter Works -->

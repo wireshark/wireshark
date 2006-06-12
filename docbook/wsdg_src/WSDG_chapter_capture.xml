@@ -1,4 +1,4 @@
-<!-- EDG Chapter Capture -->
+<!-- WSDG Chapter Capture -->
 <!-- $Id$ -->
 
 <chapter id="ChapterCapture">
@@ -13,7 +13,7 @@
 	<para>
 	The following is an excerpt from a developer mailing list mail, about 
 	adding ISO 9141 and 14230 (simple serial line car diagnostics) to 
-	Ethereal:
+	Wireshark:
 	</para>
 	<para>
 	For libpcap, the first thing you'd need to do would be to get DLT_ values 
@@ -69,7 +69,7 @@
 	routine, so that the user can select the appropriate link-layer type.
 	</para>
 	<para>
-	For Ethereal, you'd add support for those DLT_ values to wiretap/libpcap.c, 
+	For Wireshark, you'd add support for those DLT_ values to wiretap/libpcap.c, 
 	which might mean adding one or more WTAP_ENCAP types to wtap.h and to the 
 	encap_table[] table in wiretap/wtap.c.  You'd then have to write a 
 	dissector or dissectors for the link-layer protocols or protocols and have 
