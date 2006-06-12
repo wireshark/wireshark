@@ -2122,7 +2122,7 @@ proto_register_pn_io (void)
 	{ &hf_pn_io_cminitiator_macadd,
       { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_io_cminitiator_objectuuid,
-      { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid", FT_STRING, BASE_DEC, 0x0, 0x0, "", HFILL }},
+      { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_io_ar_properties,
 		{ "ARProperties", "pn_io.ar_properties", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 32 bitfield! */
 	{ &hf_pn_io_cminitiator_activitytimeoutfactor,
@@ -2209,9 +2209,9 @@ proto_register_pn_io (void)
       { "IOCS", "pn_io.io_cs", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_ar_uuid,
-      { "ARUUID", "pn_io.ar_uuid", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "ARUUID", "pn_io.ar_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_target_ar_uuid,
-      { "TargetARUUID", "pn_io.target_ar_uuid", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "TargetARUUID", "pn_io.target_ar_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_api,
       { "API", "pn_io.api", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_slot_nr,

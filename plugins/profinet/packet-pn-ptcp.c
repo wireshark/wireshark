@@ -1013,7 +1013,7 @@ proto_register_pn_ptcp (void)
 	{ &hf_pn_ptcp_master_source_address,
         { "MasterSourceAddress", "pn_ptcp.master_source_address", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_subdomain_uuid,
-        { "SubdomainUUID", "pn_ptcp.subdomain_uuid", FT_STRING, BASE_NONE, 0x0, 0x0, "", HFILL }},
+        { "SubdomainUUID", "pn_ptcp.subdomain_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
 	
     { &hf_pn_ptcp_request_source_address,
         { "RequestSourceAddress", "pn_ptcp.request_source_address", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
@@ -1041,7 +1041,7 @@ proto_register_pn_ptcp (void)
 
 
 	{ &hf_pn_ptcp_clock_uuid,
-        { "ClockUUID", "pn_ptcp.clock_uuid", FT_STRING, BASE_NONE, 0x0, 0x0, "", HFILL }},
+        { "ClockUUID", "pn_ptcp.clock_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_clockstratum,
         { "ClockStratum", "pn_ptcp.clockstratum", FT_UINT8, BASE_HEX, VALS(pn_ptcp_clock_stratum_vals), 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_clockvariance,
@@ -1059,7 +1059,7 @@ proto_register_pn_ptcp (void)
 		{ "Subtype",	"pn_ptcp.subtype", FT_UINT8, BASE_HEX, 0x0, 0x0, "Unkown Subtype", HFILL }},
         
 	{ &hf_pn_ptcp_irdata_uuid,
-        { "IRDataUUID", "pn_ptcp.irdata_uuid", FT_STRING, BASE_NONE, 0x0, 0x0, "", HFILL }},
+        { "IRDataUUID", "pn_ptcp.irdata_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
 	};
 
 	static gint *ett[] = {
