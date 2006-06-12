@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ldap.c                                                            */
+/* .\packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -416,7 +416,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
 
 	if(len==0){
-		return;
+		return offset;
 	}
 
 	/* check whether the string is ascii or binary */
