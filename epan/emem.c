@@ -204,8 +204,17 @@ ep_init_chunk(void)
 	GetSystemInfo(&sysinfo);
 	pagesize = sysinfo.dwPageSize;
 
-	versinfo.dwOSVersionInfoSize = sizeof(versinfo);
+	/* calling GetVersionEx using the OSVERSIONINFO structure.
+	 * OSVERSIONINFOEX requires Win NT4 with SP6 or newer NT Versions.
+	 * OSVERSIONINFOEX will fail on Win9x and older NT Versions.
+	 * See also:
+	 * http://msdn.microsoft.com/library/en-us/sysinfo/base/getversionex.asp
+	 * http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfo_str.asp
+	 * http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfoex_str.asp
+	 */
+	versinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&versinfo);
+
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
 #endif /* _WIN32 / USE_GUARD_PAGES */
@@ -268,9 +277,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
 		npc->amount_free_init = prot2 - prot1 - pagesize;
 		npc->amount_free = npc->amount_free_init;
