@@ -2349,7 +2349,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th_sum,
-	   "Checksum: 0x%04x [incorrect, should be 0x%04x]", th_sum,
+	   "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by checksum offloading?)]", th_sum,
 	   in_cksum_shouldbe(th_sum, computed_cksum));
 		expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
         item = proto_tree_add_boolean(tcp_tree, hf_tcp_checksum_bad, tvb,
@@ -2577,11 +2577,11 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_checksum,
 		{ "Checksum",			"tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			"Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 		{ &hf_tcp_checksum_bad,
 		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			"Maybe caused by checksum offloading, see: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 		{ &hf_tcp_analysis_flags,
 		{ "TCP Analysis Flags",		"tcp.analysis.flags", FT_NONE, BASE_NONE, NULL, 0x0,
