@@ -246,6 +246,8 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
   return key1->messageId==key2->messageId;
 }
 
+/* This string contains the last AssertionValue that was decoded */
+static char *assertionvalue_string=NULL;
 /* if the octet string contain all ascii characters then display it as
  * a string othervise just display it in hex.
  */
@@ -256,7 +258,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	gboolean pc, ind, is_ascii;
 	gint32 tag;
 	guint32 len, i;
-	char *str, *new_str;
+	char *str;
 
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
@@ -276,25 +278,33 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 	/* convert the string into a printable string */
 	if(is_ascii){
-		new_str=ep_alloc(len+1);
+		assertionvalue_string=ep_alloc(len+1);
 		for(i=0;i<len;i++){
-			new_str[i]=str[i];
+			assertionvalue_string[i]=str[i];
 		}
-		new_str[i]=0;
+		assertionvalue_string[i]=0;
 	} else {
-		new_str=ep_alloc(3*len);
+		assertionvalue_string=ep_alloc(3*len);
 		for(i=0;i<len;i++){
-			g_snprintf(new_str+i*3,3,"%02x",str[i]&0xff);
-			new_str[3*i+2]=':';
+			g_snprintf(assertionvalue_string+i*3,3,"%02x",str[i]&0xff);
+			assertionvalue_string[3*i+2]=':';
 		}
-		new_str[3*len-1]=0;
+		assertionvalue_string[3*len-1]=0;
 	}
 
-	proto_tree_add_string(tree, hf_index, tvb, offset, len, new_str);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, assertionvalue_string);
 	offset+=len;
 
 	return offset;
 }
+
+/* This string contains the last LDAPString that was decoded */
+static char *attributedesc_string=NULL;
+
+/* This string contains the last Filter item that was decoded */
+static char *Filter_string=NULL;
+static char *and_filter_string=NULL;
+
 
 /* Global variables */
 char *mechanism = NULL;

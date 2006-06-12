@@ -248,7 +248,7 @@ ldap_conv_info_t *ldap_info;
      ldap_do_protocolop(pinfo);
 
      if(parameter_tvb)
-        ldapstring = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+        ldapstring = tvb_get_ephemeral_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
      else
         ldapstring = "<ROOT>";
 
@@ -271,6 +271,12 @@ ldap_conv_info_t *ldap_info;
 
         if(ldm_tree)
   	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+     } else if (hf_index == hf_ldap_attributeDesc){
+	/* remember the attribute description */
+	attributedesc_string=ldapstring;
+     } else if (hf_index == hf_ldap_present){
+	/* remember the present name */
+	Filter_string=ldapstring;
      } else if (hf_index == hf_ldap_type) {
 	/* remember attribute type name */
 	attr_type = ep_strdup(ldapstring);
@@ -290,8 +296,6 @@ ldap_conv_info_t *ldap_info;
 
      }
      
-     if(parameter_tvb && ldapstring)
-        g_free(ldapstring);
   }
 
 #.FN_PARS T_scope VAL_PTR = &scope
@@ -423,6 +427,115 @@ ldap_conv_info_t *ldap_info;
  %(DEFAULT_BODY)s
 
  ldap_do_protocolop(pinfo);  
+
+
+
+
+
+#.FN_HDR SearchRequest/filter
+	Filter_string=NULL;
+
+#.FN_FTR SearchRequest/filter
+	Filter_string=NULL;
+	and_filter_string=NULL;
+
+#.FN_FTR Filter/equalityMatch
+	Filter_string=ep_strdup_printf("(%s==%s)",attributedesc_string,assertionvalue_string);
+
+
+#.FN_FTR Filter/greaterOrEqual
+	Filter_string=ep_strdup_printf("(%s>=%s)",attributedesc_string,assertionvalue_string);
+
+
+#.FN_FTR Filter/lessOrEqual
+	Filter_string=ep_strdup_printf("(%s<=%s)",attributedesc_string,assertionvalue_string);
+
+
+#.FN_FTR Filter/approxMatch
+	Filter_string=ep_strdup_printf("(%s~=%s)",attributedesc_string,assertionvalue_string);
+
+#.FN_BODY Filter/and/_item
+	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_and_item);
+
+	if(and_filter_string){
+		and_filter_string=ep_strdup_printf("%%s and %%s",and_filter_string,Filter_string);
+	} else {
+		and_filter_string=Filter_string;
+	}
+
+#.FN_BODY Filter/and
+	const ber_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
+};
+	proto_tree *tr=NULL;
+	proto_item *it=NULL;
+	char *old_and_filter_string=and_filter_string;
+
+	and_filter_string=NULL;
+	if(tree){
+		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
+		tr=proto_item_add_subtree(it, ett_ldap_T_and);
+	} 
+	offset = dissect_ber_set_of(implicit_tag, pinfo, tr, tvb, offset,
+                                 and_set_of, -1, ett_ldap_T_and);
+
+	proto_item_append_text(it, " %%s", and_filter_string);
+	Filter_string=ep_strdup_printf("(%%s)",and_filter_string);
+	and_filter_string=old_and_filter_string;
+
+#.FN_BODY Filter/or/_item
+	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_or_item);
+
+	if(and_filter_string){
+		and_filter_string=ep_strdup_printf("%%s and %%s",and_filter_string,Filter_string);
+	} else {
+		and_filter_string=Filter_string;
+	}
+
+
+#.FN_BODY Filter/or
+	const ber_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
+};
+	proto_tree *tr=NULL;
+	proto_item *it=NULL;
+	char *old_and_filter_string=and_filter_string;
+
+	and_filter_string=NULL;
+	if(tree){
+		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
+		tr=proto_item_add_subtree(it, ett_ldap_T_or);
+	} 
+	offset = dissect_ber_set_of(implicit_tag, pinfo, tr, tvb, offset,
+                                 or_set_of, -1, ett_ldap_T_or);
+
+	proto_item_append_text(it, " %%s", and_filter_string);
+	Filter_string=ep_strdup_printf("(%%s)",and_filter_string);
+	and_filter_string=old_and_filter_string;
+
+#.FN_FTR Filter/present
+	Filter_string=ep_strdup_printf("is_present %s",Filter_string);
+
+#.FN_FTR Filter/not
+	Filter_string=ep_strdup_printf("not (%s)",Filter_string);
+
+#.FN_FTR Filter/extensibleMatch
+	Filter_string="<extensibleMatch is not yet prettified>";
+
+#.FN_FTR Filter/substrings
+	Filter_string="<substrings are not yet prettified>";
+
+#.FN_BODY Filter
+	proto_tree *tr=NULL;
+	proto_item *it=NULL;
+
+	if(tree){
+		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
+		tr=proto_item_add_subtree(it, ett_ldap_Filter);
+	} 
+	offset = dissect_ber_choice(pinfo, tr, tvb, offset,
+                                 Filter_choice, -1, ett_ldap_Filter,
+                                 NULL);
+
+	proto_item_append_text(it, "%%s", Filter_string);
 
 #.NO_EMIT
 AttributeType
