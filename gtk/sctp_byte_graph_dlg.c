@@ -110,7 +110,7 @@ static guint32 max_tsn=0, min_tsn=0;
 
 static void sctp_graph_set_title(struct sctp_udata *u_data);
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
-
+static GtkWidget *zoomout_bt;
 
 static void draw_sack_graph(struct sctp_udata *u_data)
 {
@@ -188,7 +188,10 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 
 	for (i=0; i<size; i++)
 	{
-		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
+		if (u_data->io->uoff)
+			diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs - u_data->io->min_x;
+		else
+			diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->length;
 		if (end>max_tsn)
 		{
@@ -262,7 +265,10 @@ gint diff, width;
 
 	for (i=0; i<size; i++)
 	{
-		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
+		if (u_data->io->uoff)
+			diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs -u_data->io->min_x;
+		else
+			diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
 		start = ((struct tsn_sort*)(g_ptr_array_index(array, i)))->offset;
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->length;
 		if (start >= min_tsn && diff > 0 && diff <= width)
@@ -279,11 +285,12 @@ gint diff, width;
 
 static void sctp_graph_draw(struct sctp_udata *u_data)
 {
-	int length, lwidth, j, b;
-	guint32 distance=5, i, e, sec, w, start, a;
+	int length, lwidth;
+	guint32 distance=5, i, e, sec, w, start, a, j, b;
 	gint label_width, label_height;
 	char label_string[15];
 	gfloat dis;
+	gboolean write_label = FALSE;
 
 #if GTK_MAJOR_VERSION < 2
 	GdkFont *font;
@@ -296,8 +303,19 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	else
 		u_data->io->offset = 5;
 
-	u_data->io->min_x     = u_data->io->x1_tmp_sec * 1000000 + u_data->io->x1_tmp_usec;
-	u_data->io->max_x     = u_data->io->x2_tmp_sec * 1000000 + u_data->io->x2_tmp_usec;
+	if (u_data->io->x2_tmp_sec - u_data->io->x1_tmp_sec > 1500)
+	{
+		u_data->io->min_x=u_data->io->x1_tmp_sec;
+		u_data->io->max_x=u_data->io->x2_tmp_sec;
+		u_data->io->uoff = TRUE;
+	}
+	else
+	{
+		u_data->io->min_x=u_data->io->x1_tmp_sec*1000000.0+u_data->io->x1_tmp_usec;
+		u_data->io->max_x=u_data->io->x2_tmp_sec*1000000.0+u_data->io->x2_tmp_usec;		
+		u_data->io->uoff = FALSE;
+	}	
+
 	u_data->io->tmp_width = u_data->io->max_x - u_data->io->min_x;
 
 	if (u_data->dir == 1)
@@ -347,7 +365,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	              u_data->io->pixmap_width - RIGHT_BORDER + u_data->io->offset, u_data->io->pixmap_height - BOTTOM_BORDER, u_data->io->pixmap_width - RIGHT_BORDER + u_data->io->offset - 5, u_data->io->pixmap_height - BOTTOM_BORDER + 5);
 	u_data->io->axis_width = u_data->io->pixmap_width - LEFT_BORDER - RIGHT_BORDER - u_data->io->offset;
 
-	u_data->io->x_interval = (float)((u_data->io->axis_width * 1.0) / u_data->io->tmp_width);
+	if(u_data->io->tmp_width>0){
+		u_data->io->x_interval = (float)((u_data->io->axis_width*1.0)/u_data->io->tmp_width); /*distance in pixels between 2 data points*/
+	} else {
+		u_data->io->x_interval = (float)(u_data->io->axis_width);
+	}
 
 	e=0;
 	if (u_data->io->x_interval < 1)
@@ -391,7 +413,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #if GTK_MAJOR_VERSION < 2
 		lwidth = gdk_string_width(font, label_string);
 		gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
-		                LEFT_BORDER - 10,
+		                LEFT_BORDER - 25,
 		                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
 		                label_string);
 #else
@@ -400,7 +422,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 		gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
-		                LEFT_BORDER - 10,
+		                LEFT_BORDER - 25,
 		                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
 		                layout);
 #endif
@@ -408,11 +430,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	w = (guint32)(500 / (guint32)(distance * u_data->io->x_interval));
 	if (w == 0)
 		w = 1;
-	if (w == 4)
+	if (w == 4 || w==3 || w==2)
 	{
 		w = 5;
 		a = distance / 10;
-		b = 10 + (((u_data->io->min_x / 100000) - 1) % 5);
+		b = (guint32)((u_data->io->min_x/100000))%10; /* start for labels*/
 	}
 	else
 	{
@@ -420,18 +442,35 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		b = 0;
 	}
 
-	if (a > 1000000)
-		start = u_data->io->min_x / 1000000 * 1000000;
+	if (!u_data->io->uoff)	
+	{
+		if (a>=1000000)
+		{
+			start=u_data->io->min_x/1000000*1000000;
+			if (a==1000000)
+				b = 0;
+		}
+		else
+		{
+			start=u_data->io->min_x/100000;
+			if (start%2!=0)
+				start--;
+			start*=100000;
+			b = (guint32)((start/100000))%10;
+		}
+	}
 	else
 	{
-		start = u_data->io->min_x / 100000;
-		if (start % 2 != 0)
+		start = u_data->io->min_x;
+		if (start%2!=0)
 			start--;
-		start *= 100000;
+		b = 0;
+		
 	}
 
 	for (i=start, j=b; i<=u_data->io->max_x; i+=a, j++)
 	{
+		if (!u_data->io->uoff)
 		if (i >= u_data->io->min_x && i % 1000000 != 0)
 		{
 			length = 5;
@@ -467,9 +506,24 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			              u_data->io->pixmap_height - BOTTOM_BORDER + length);
 		}
 
-		if (i % 1000000 == 0)
+		if (!u_data->io->uoff)
 		{
-			sec = i / 1000000;
+			if (i%1000000==0 && j%w==0)
+			{
+				sec=i/1000000;
+				write_label = TRUE;
+			}
+		}
+		else
+		{
+			if (j%w == 0)
+			{
+				sec = i;
+				write_label = TRUE;
+			}
+		}
+		if (write_label)
+		{
 			gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
 			              (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval),
 			              u_data->io->pixmap_height - BOTTOM_BORDER,
@@ -480,7 +534,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #if GTK_MAJOR_VERSION < 2
 				lwidth = gdk_string_width(font, label_string);
 				gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
-				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval),
+				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval-10),
 				                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
 				                label_string);
 #else
@@ -489,10 +543,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 				pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 				gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
-				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval),
+				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval-10),
 				                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
 				                layout);
 #endif
+			write_label = FALSE;
 		}
 	}
 
@@ -504,7 +559,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	                font,
 	                u_data->io->draw_area->style->black_gc,
 	                u_data->io->pixmap_width - RIGHT_BORDER - 10,
-	                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
+	                u_data->io->pixmap_height - BOTTOM_BORDER + 30,
 	                label_string);
 #else
 	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
@@ -513,7 +568,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	gdk_draw_layout(u_data->io->pixmap,
 	                u_data->io->draw_area->style->black_gc,
 	                u_data->io->pixmap_width - RIGHT_BORDER - 10,
-	                u_data->io->pixmap_height - BOTTOM_BORDER + 25,
+	                u_data->io->pixmap_height - BOTTOM_BORDER + 30,
 	                layout);
 #endif
 
@@ -553,6 +608,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		for (i=0; i<=e; i++)
 			distance = distance * 10;
 	}
+	else if (u_data->io->y_interval<2)
+		distance = 10;
 
 	if (u_data->io->max_y > 0)
 	{
@@ -743,7 +800,12 @@ on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 		u_data->io->length = g_slist_length(u_data->assoc->min_max);
 		u_data->io->tmp=TRUE;
 		u_data->io->rectangle=FALSE;
+		gtk_widget_set_sensitive(zoomout_bt, TRUE);
 		sctp_graph_redraw(u_data);
+	}
+	else
+	{
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please draw a rectangle around the area you want to zoom in!");
 	}
 }
 
@@ -771,6 +833,7 @@ zoomin_bt (struct sctp_udata *u_data)
 	u_data->io->length = g_slist_length(u_data->assoc->min_max);
 	u_data->io->tmp=TRUE;
 	u_data->io->rectangle=FALSE;
+	gtk_widget_set_sensitive(zoomout_bt, TRUE);
 	sctp_graph_redraw(u_data);
 }
 
@@ -826,6 +889,8 @@ on_zoomout_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 		u_data->io->tmp_max_tsn2=u_data->assoc->max_bytes2;
 		u_data->io->tmp=FALSE;
 	}
+	if (g_slist_length(u_data->assoc->min_max)==1)
+		gtk_widget_set_sensitive(zoomout_bt, FALSE);
 	sctp_graph_redraw(u_data);
 }
 
@@ -939,14 +1004,26 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			x2_tmp=x1_tmp;
 			x1_tmp=helpx;
 		}
+		if (u_data->io->uoff)
+		{
+			if (x2_tmp - x1_tmp <= 1500)			
+				u_data->io->uoff = FALSE;
+			u_data->io->x1_tmp_sec=(guint32)x1_tmp;
+			u_data->io->x1_tmp_usec=0;
+			u_data->io->x2_tmp_sec=(guint32)x2_tmp;
+			u_data->io->x2_tmp_usec=0;
+		}
+		else 
+		{
+			u_data->io->x1_tmp_sec=(guint32)x1_tmp/1000000;
+			u_data->io->x1_tmp_usec=x1_tmp%1000000;
+			u_data->io->x2_tmp_sec=(guint32)x2_tmp/1000000;
+			u_data->io->x2_tmp_usec=x2_tmp%1000000;
+		}
 		u_data->io->x1_akt_sec = u_data->io->x1_tmp_sec;
 		u_data->io->x1_akt_usec = u_data->io->x1_tmp_usec;
 		u_data->io->x2_akt_sec = u_data->io->x2_tmp_sec;
 		u_data->io->x2_akt_usec = u_data->io->x2_tmp_usec;
-		u_data->io->x1_tmp_sec=(guint32)x1_tmp/1000000;
-		u_data->io->x1_tmp_usec=x1_tmp%1000000;
-		u_data->io->x2_tmp_sec=(guint32)x2_tmp/1000000;
-		u_data->io->x2_tmp_usec=x2_tmp%1000000;
 
 		u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-u_data->io->y_old)/u_data->io->y_interval);
 		u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y)/u_data->io->y_interval);
@@ -1032,7 +1109,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
-	GtkWidget *bt_close, *sack_bt, *tsn_bt, *both_bt, *zoomin_bt, *zoomout_bt;
+	GtkWidget *bt_close, *sack_bt, *tsn_bt, *both_bt, *zoomin_bt;
 	GtkTooltips *tooltip_in, *tooltip_out;
 
 	/* create the main window */
@@ -1078,7 +1155,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_show(zoomin_bt);
 	SIGNAL_CONNECT(zoomin_bt, "clicked", on_zoomin_bt, u_data);
 	tooltip_in = gtk_tooltips_new();
-	gtk_tooltips_set_tip(tooltip_in, zoomin_bt, "Draw a rectangle around the area you want to zoom in", NULL);
+	gtk_tooltips_set_tip(tooltip_in, zoomin_bt, "Zoom in the area you have selected", NULL);
 
 	zoomout_bt = gtk_button_new_with_label ("Zoom out");
 	gtk_box_pack_start(GTK_BOX(hbox), zoomout_bt, FALSE, FALSE, 0);
@@ -1086,7 +1163,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	SIGNAL_CONNECT(zoomout_bt, "clicked", on_zoomout_bt, u_data);
 	tooltip_out = gtk_tooltips_new();
 	gtk_tooltips_set_tip(tooltip_out, zoomout_bt, "Zoom out one step", NULL);
-
+	gtk_widget_set_sensitive(zoomout_bt, FALSE);
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), bt_close, FALSE, FALSE, 0);
