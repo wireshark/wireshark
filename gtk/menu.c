@@ -230,17 +230,21 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Find Pre_vious", "<control>B", find_previous_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Edit/_Time Reference", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 
-                        REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
-    ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Mark Packet (toggle)", "<control>M", packet_list_mark_frame_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Find Next Mark", "<shift><control>N", find_next_mark_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Find Previous Mark", "<shift><control>B", find_prev_mark_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Mark _All Packets", NULL, packet_list_mark_all_frames_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Unmark All Packets", NULL, packet_list_unmark_all_frames_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 
+                        REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
+    ITEM_FACTORY_ENTRY("/Edit/Find Next Reference", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Find Previous Reference", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
@@ -424,10 +428,7 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Mark Packet (toggle)", NULL, packet_list_mark_frame_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
-    ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
@@ -1991,13 +1992,21 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Time Reference",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
       cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Time Reference",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(packet_list_menu_factory, "/Set Time Reference (toggle)",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Reference",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Reference",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
       cf->current_frame != NULL);

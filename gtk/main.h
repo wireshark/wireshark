@@ -245,6 +245,22 @@ typedef enum {
  */
 extern void reftime_frame_cb(GtkWidget *widget, gpointer data, REFTIME_ACTION_E action);
 
+/** User requested the "Find Next Mark" function by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param action unused
+ */
+extern void find_next_mark_cb(GtkWidget *widget, gpointer data, int action);
+
+/** User requested the "Find Previous Mark" function by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param action unused
+ */
+extern void find_prev_mark_cb(GtkWidget *widget, gpointer data, int action);
+
 /** Add a display filter coming from the user's recent file to the dfilter combo box.
  *
  * @param dftext the filter string

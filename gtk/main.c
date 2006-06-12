@@ -649,6 +649,18 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
   }
 }
 
+void
+find_next_mark_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
+{
+    find_previous_next_frame_with_filter("frame.marked == TRUE", FALSE);
+}
+
+void
+find_prev_mark_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
+{
+    find_previous_next_frame_with_filter("frame.marked == TRUE", TRUE);
+}
+
 #if GTK_MAJOR_VERSION < 2
 static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
