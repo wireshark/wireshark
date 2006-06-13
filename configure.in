@@ -64,7 +64,7 @@ AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
 AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
 # gnu tls
-AM_PATH_LIBGNUTLS(1.0.0, 
+AM_PATH_LIBGNUTLS(1.0.0,
         [
                 echo "gnuTLS found, enabling ssl decryption"
                 AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
@@ -74,12 +74,12 @@ AM_PATH_LIBGNUTLS(1.0.0,
                 if test x$libgnutls_config_prefix != x ; then
 	                AC_MSG_ERROR([[gnuTLS not found; install gnuTLS-devel package for your system]])
                 else
-                        echo echo "gnuTLS not found, disabling ssl decryption"
+                        echo echo "gnuTLS not found, disabling ssl and ipsec decryption"
                         tls_message="no"
                 fi
         ]
-)        
-        
+)
+
 
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
@@ -436,7 +436,7 @@ AC_TRY_RUN([
 #include <stdio.h>
 #include <stdlib.h>
 
-int 
+int
 main ()
 {
   if (g_module_supported())
