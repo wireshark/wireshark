@@ -429,8 +429,8 @@ static dcerpc_auth_subdissector_fns gssapi_auth_fns = {
 	wrap_dissect_gssapi,			/* AUTH3 */
 	wrap_dissect_gssapi_verf, 		/* Request verifier */
 	wrap_dissect_gssapi_verf,		/* Response verifier */
-	NULL,			                /* Request data */
-	NULL			                /* Response data */
+	wrap_dissect_gssapi_payload,		/* Request data */
+	wrap_dissect_gssapi_payload             /* Response data */
 };
 
 void
