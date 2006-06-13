@@ -29,6 +29,11 @@ static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
 static void (*report_read_failure_func)(const char *, int);
 
+gchar*
+epan_get_version(void) {
+  return VERSION;
+}
+
 /*
  * XXX - this takes the plugin directory as an argument, because
  * libwireshark now has its own configure script and "config.h" file,

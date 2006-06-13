@@ -229,6 +229,7 @@ epan_dissect_free
 epan_dissect_new
 epan_dissect_prime_dfilter
 epan_dissect_run
+epan_get_version
 epan_init
 ether_to_str
 ex_opt_add

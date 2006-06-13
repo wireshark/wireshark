@@ -62,6 +62,8 @@ epan_new(void);
 void
 epan_free(epan_t*);
 
+extern gchar*
+epan_get_version(void);
 
 /* get a new single packet dissection */
 /* should be freed using epan_dissect_free() after packet dissection completed */
