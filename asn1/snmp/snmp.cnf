@@ -209,6 +209,16 @@ gint pdu_type;
 	proto_tree_add_item(tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
   }
 
+#.FN_BODY VarBind
+	oid_tvb = NULL;
+	value_tvb = NULL;
+ %(DEFAULT_BODY)s
+	if (oid_tvb && value_tvb) {
+		next_tvb_add_string(&var_list, value_tvb, (snmp_var_in_tree) ? tree : NULL, 
+			variable_oid_dissector_table, 
+			oid_to_str(tvb_get_ptr(oid_tvb, 0, tvb_length(oid_tvb)), tvb_length(oid_tvb)));
+	}
+
 #.FN_PARS ObjectName
 
 	VAL_PTR = &oid_tvb 
@@ -216,7 +226,7 @@ gint pdu_type;
 #.FN_BODY String-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
 #.FN_BODY Integer-value

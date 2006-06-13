@@ -59,6 +59,7 @@ LIBWIRESHARK_SRC = 		\
 	in_cksum.c		\
 	ipproto.c		\
 	ipv4.c			\
+	next_tvb.c		\
 	nstime.c		\
 	oid_resolv.c		\
 	osi-utils.c		\
@@ -144,6 +145,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	guid-utils.h		\
 	lapd_sapi.h		\
 	llcsaps.h		\
+	next_tvb.h		\
 	nlpid.h			\
 	nstime.h		\
 	oid_resolv.h		\

@@ -56,6 +56,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/next_tvb.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 
@@ -147,6 +148,7 @@ static int proto_smux = -1;
 
 static const gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
+static gboolean snmp_var_in_tree = TRUE;
 
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
@@ -162,9 +164,12 @@ static gboolean snmp_desegment = TRUE;
 
 guint32 MsgSecurityModel;
 tvbuff_t *oid_tvb=NULL;
+tvbuff_t *value_tvb=NULL;
 
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
+
+static next_tvb_list_t var_list;
 
 static int hf_snmp_v3_flags_auth = -1;
 static int hf_snmp_v3_flags_crypt = -1;
@@ -1129,6 +1134,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	next_tvb_init(&var_list);
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL,
 		    proto_get_protocol_short_name(find_protocol_by_id(proto)));
@@ -1162,10 +1169,10 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return length_remaining;
 		break;
 	}
+
+	next_tvb_call(&var_list, pinfo, tree, NULL, data_handle);
+
 	return offset;
-
-
-
 }
 
 static gint
@@ -1460,6 +1467,14 @@ void proto_register_snmp(void) {
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
 
+  prefs_register_bool_preference(snmp_module, "var_in_tree",
+		"Display dissected variables inside SNMP tree",
+		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
+		&snmp_var_in_tree);
+
+	variable_oid_dissector_table =
+	    register_dissector_table("snmp.variable_oid",
+	      "SNMP Variable OID", FT_STRING, BASE_NONE);
 }
 
 
@@ -1513,9 +1528,6 @@ proto_register_smux(void)
 	proto_register_field_array(proto_smux, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	variable_oid_dissector_table =
-	    register_dissector_table("snmp.variable_oid",
-	      "SNMP Variable OID", FT_STRING, BASE_NONE);
 }
 
 void

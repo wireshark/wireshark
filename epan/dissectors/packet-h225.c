@@ -53,6 +53,7 @@
 
 #include <epan/prefs.h>
 #include <epan/oid_resolv.h>
+#include <epan/next_tvb.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
@@ -63,68 +64,6 @@
 #include "packet-h245.h"
 #include "packet-q931.h"
 
-/*---------------------------------------------------------------------------*/
-/* next tvb list - can be moved to some more common file if other dissector needs it */
-
-#include <epan/emem.h>
-
-typedef struct next_tvb_item {
-  struct next_tvb_item *next;
-  struct next_tvb_item *previous;
-  dissector_handle_t handle;
-  tvbuff_t *tvb;
-  proto_tree *tree;
-} next_tvb_item_t;
-
-typedef struct {
-  next_tvb_item_t *first;
-  next_tvb_item_t *last;
-  int count;
-} next_tvb_list_t;
-
-void next_tvb_init(next_tvb_list_t *list);
-void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
-void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
-
-void next_tvb_init(next_tvb_list_t *list) {
-  list->first = NULL;
-  list->last = NULL;
-  list->count = 0;
-}
-
-void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle) {
-  next_tvb_item_t *item;
-
-  item = ep_alloc(sizeof(next_tvb_item_t));
-
-  item->handle = handle;
-  item->tvb = tvb;
-  item->tree = tree;
-
-  if (list->last) {
-    list->last->next = item;
-  } else {
-    list->first = item;
-  }
-  item->next = NULL;
-  item->previous = list->last;
-  list->last = item;
-  list->count++;
-}
-
-void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle) {
-  next_tvb_item_t *item;
-
-  item = list->first;
-  while (item) {
-    if (item->tvb && tvb_length(item->tvb)) {
-      call_dissector((item->handle) ? item->handle : ((handle) ? handle : data_handle), item->tvb, pinfo, (item->tree) ? item->tree : tree);
-    }
-    item = item->next;
-  }
-}
-
-/*---------------------------------------------------------------------------*/
 
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"
@@ -922,7 +861,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 170 "packet-h225-template.c"
+#line 109 "packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1162,7 +1101,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 174 "packet-h225-template.c"
+#line 113 "packet-h225-template.c"
 
 /* Preferences */
 static gboolean h225_reassembly = TRUE;
@@ -5482,7 +5421,7 @@ dissect_h225_ParallelH245Control_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, &h245_tvb);
 
-  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
+  next_tvb_add_handle(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
 
   return offset;
@@ -6356,7 +6295,7 @@ dissect_h225_H245Control_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, &h245_tvb);
 
-  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
+  next_tvb_add_handle(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
 
   return offset;
@@ -6431,7 +6370,7 @@ dissect_h225_T_messageContent_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, &next_tvb);
 
-  next_tvb_add(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
+  next_tvb_add_handle(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
 
 
   return offset;
@@ -9406,7 +9345,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 198 "packet-h225-template.c"
+#line 137 "packet-h225-template.c"
 
 
 static int
@@ -12496,7 +12435,7 @@ void proto_register_h225(void) {
         "ServiceControlResponse/result/notAvailable", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 311 "packet-h225-template.c"
+#line 250 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -12738,7 +12677,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 317 "packet-h225-template.c"
+#line 256 "packet-h225-template.c"
   };
   module_t *h225_module;
 

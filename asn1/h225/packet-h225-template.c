@@ -45,6 +45,7 @@
 
 #include <epan/prefs.h>
 #include <epan/oid_resolv.h>
+#include <epan/next_tvb.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
@@ -55,68 +56,6 @@
 #include "packet-h245.h"
 #include "packet-q931.h"
 
-/*---------------------------------------------------------------------------*/
-/* next tvb list - can be moved to some more common file if other dissector needs it */
-
-#include <epan/emem.h>
-
-typedef struct next_tvb_item {
-  struct next_tvb_item *next;
-  struct next_tvb_item *previous;
-  dissector_handle_t handle;
-  tvbuff_t *tvb;
-  proto_tree *tree;
-} next_tvb_item_t;
-
-typedef struct {
-  next_tvb_item_t *first;
-  next_tvb_item_t *last;
-  int count;
-} next_tvb_list_t;
-
-void next_tvb_init(next_tvb_list_t *list);
-void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
-void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
-
-void next_tvb_init(next_tvb_list_t *list) {
-  list->first = NULL;
-  list->last = NULL;
-  list->count = 0;
-}
-
-void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle) {
-  next_tvb_item_t *item;
-
-  item = ep_alloc(sizeof(next_tvb_item_t));
-
-  item->handle = handle;
-  item->tvb = tvb;
-  item->tree = tree;
-
-  if (list->last) {
-    list->last->next = item;
-  } else {
-    list->first = item;
-  }
-  item->next = NULL;
-  item->previous = list->last;
-  list->last = item;
-  list->count++;
-}
-
-void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle) {
-  next_tvb_item_t *item;
-
-  item = list->first;
-  while (item) {
-    if (item->tvb && tvb_length(item->tvb)) {
-      call_dissector((item->handle) ? item->handle : ((handle) ? handle : data_handle), item->tvb, pinfo, (item->tree) ? item->tree : tree);
-    }
-    item = item->next;
-  }
-}
-
-/*---------------------------------------------------------------------------*/
 
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"

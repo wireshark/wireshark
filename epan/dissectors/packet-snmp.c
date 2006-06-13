@@ -64,6 +64,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/next_tvb.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 
@@ -155,6 +156,7 @@ static int proto_smux = -1;
 
 static const gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
+static gboolean snmp_var_in_tree = TRUE;
 
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
@@ -170,9 +172,12 @@ static gboolean snmp_desegment = TRUE;
 
 guint32 MsgSecurityModel;
 tvbuff_t *oid_tvb=NULL;
+tvbuff_t *value_tvb=NULL;
 
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
+
+static next_tvb_list_t var_list;
 
 static int hf_snmp_v3_flags_auth = -1;
 static int hf_snmp_v3_flags_crypt = -1;
@@ -277,7 +282,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 185 "packet-snmp-template.c"
+#line 190 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -317,7 +322,7 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 196 "packet-snmp-template.c"
+#line 201 "packet-snmp-template.c"
 
 /* defined in net-SNMP; include/net-snmp/library/snmp.h */
 #undef SNMP_MSG_GET
@@ -1187,7 +1192,7 @@ dissect_snmp_NotificationName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 223 "snmp.cnf"
+#line 233 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1205,10 +1210,10 @@ static int dissect_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 217 "snmp.cnf"
+#line 227 "snmp.cnf"
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
 
@@ -1223,7 +1228,7 @@ static int dissect_string_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 229 "snmp.cnf"
+#line 239 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1241,7 +1246,7 @@ static int dissect_objectID_value(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 235 "snmp.cnf"
+#line 245 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1651,8 +1656,19 @@ static const ber_sequence_t VarBind_sequence[] = {
 
 static int
 dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+#line 213 "snmp.cnf"
+	oid_tvb = NULL;
+	value_tvb = NULL;
+   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    VarBind_sequence, hf_index, ett_snmp_VarBind);
+
+	if (oid_tvb && value_tvb) {
+		next_tvb_add_string(&var_list, value_tvb, (snmp_var_in_tree) ? tree : NULL, 
+			variable_oid_dissector_table, 
+			oid_to_str(tvb_get_ptr(oid_tvb, 0, tvb_length(oid_tvb)), tvb_length(oid_tvb)));
+	}
+
+
 
   return offset;
 }
@@ -2682,7 +2698,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1032 "packet-snmp-template.c"
+#line 1037 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -2783,6 +2799,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	next_tvb_init(&var_list);
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL,
 		    proto_get_protocol_short_name(find_protocol_by_id(proto)));
@@ -2816,10 +2834,10 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return length_remaining;
 		break;
 	}
+
+	next_tvb_call(&var_list, pinfo, tree, NULL, data_handle);
+
 	return offset;
-
-
-
 }
 
 static gint
@@ -3372,7 +3390,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1385 "packet-snmp-template.c"
+#line 1392 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3410,7 +3428,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1394 "packet-snmp-template.c"
+#line 1401 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
@@ -3480,6 +3498,14 @@ void proto_register_snmp(void) {
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
 
+  prefs_register_bool_preference(snmp_module, "var_in_tree",
+		"Display dissected variables inside SNMP tree",
+		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
+		&snmp_var_in_tree);
+
+	variable_oid_dissector_table =
+	    register_dissector_table("snmp.variable_oid",
+	      "SNMP Variable OID", FT_STRING, BASE_NONE);
 }
 
 
@@ -3533,9 +3559,6 @@ proto_register_smux(void)
 	proto_register_field_array(proto_smux, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	variable_oid_dissector_table =
-	    register_dissector_table("snmp.variable_oid",
-	      "SNMP Variable OID", FT_STRING, BASE_NONE);
 }
 
 void
