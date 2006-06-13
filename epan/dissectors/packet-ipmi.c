@@ -3902,6 +3902,19 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	
 
+	/* If ccode is non zero and there is only one more byte remaining in
+	 * the packet this probably means that the response has been truncated
+	 * and the single remaining byte is just the checksum field.
+	 */
+	if(ccode && response && tvb_reported_length_remaining(tvb, offset)==1){
+		proto_tree_add_text(ipmi_tree, tvb, offset, 0, "[Truncated response]");
+
+		/* checksum */
+		proto_tree_add_item(ipmi_tree, hf_ipmi_msg_csum2,
+				    tvb, offset++, 1, TRUE);
+		return;
+	}
+
 	/* determine data length */
 	len = tvb_get_guint8(tvb, authtype ? 25 : 9) - 6 - (response ? 1 : 0) -1;
 

@@ -110,6 +110,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
+#include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
@@ -117,6 +118,15 @@
 #include "packet-ansi_a.h"
 #include "packet-ansi_map.h"
 #include "packet-tcap.h"
+
+
+
+/* Preferenc settings default */
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
+dissector_handle_t ansi_map_handle;
+
 
 /* PROTOTYPES/FORWARDS */
 
@@ -11481,7 +11491,7 @@ param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
     case 0: str = "Not used"; break;
     case 1: str = "Serving System Option.  The serving system may discontinue a call or service in progress at its option."; break;
     case 2: str = "Report In Call.  The serving system shall continue to provide service when a call or service is in progress and just report its incidence."; break;
-    case 3: str = "Discontinue.  The serving system shall discontinue any call or service in progress, regardless of the MS’s qualification, profile or authentication."; break;
+    case 3: str = "Discontinue.  The serving system shall discontinue any call or service in progress, regardless of the MS's qualification, profile or authentication."; break;
     default:
 	if ((value >= 4) && (value <= 223)) { str = "Reserved, treat as Serving System Option"; }
 	else { str = "Reserved for protocol extension, treat as Serving System Option"; }
@@ -13015,6 +13025,48 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+ /*--- proto_reg_handoff_ansi_map ---------------------------------------*/
+ static void range_delete_callback(guint32 ssn)
+ {
+     if (ssn) {
+ 	delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
+ 	add_itu_tcap_subdissector(ssn , ansi_map_handle);
+     }
+ }
+ 
+ 
+ 
+ static void range_add_callback(guint32 ssn)
+ {
+     if (ssn) {
+ 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+     }
+ }
+ 
+ 
+ void
+ proto_reg_handoff_ansi_map(void)
+ {
+     static int ansi_map_prefs_initialized = FALSE;
+     data_handle = find_dissector("data");
+     
+     if(!ansi_map_prefs_initialized)
+     {
+ 	ansi_map_prefs_initialized = TRUE;
+ 	ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
+     }
+     else
+     {
+ 	range_foreach(ssn_range, range_delete_callback);
+     }
+     
+     g_free(ssn_range);
+     ssn_range = range_copy(global_ssn_range);
+ 
+     range_foreach(ssn_range, range_add_callback);
+ }
+ 
+
 
 /* Register the protocol with Wireshark */
 void
@@ -13022,6 +13074,7 @@ proto_register_ansi_map(void)
 {
     guint		i;
     gint		last_offset;
+	module_t	*ansi_map_module;
 
     /* Setup list of header fields */
     static hf_register_info hf[] =
@@ -13139,26 +13192,17 @@ proto_register_ansi_map(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     ansi_map_tap = register_tap("ansi_map");
+
+    range_convert_str(&global_ssn_range, "5-14", MAX_SSN);
+    ssn_range = range_empty();
+
+
+    ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
+    
+    prefs_register_range_preference(ansi_map_module, "map.ssn", "GSM MAP SSNs",
+				    "GSM MAP SSNs to decode as ANSI MAP",
+				    &global_ssn_range, MAX_SSN);
 }
 
 
-void
-proto_reg_handoff_ansi_map(void)
-{
-    dissector_handle_t ansi_map_handle;
 
-    ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
-
-    add_ansi_tcap_subdissector(5, ansi_map_handle);
-    add_ansi_tcap_subdissector(6, ansi_map_handle);
-    add_ansi_tcap_subdissector(7, ansi_map_handle);
-    add_ansi_tcap_subdissector(8, ansi_map_handle);
-    add_ansi_tcap_subdissector(9 , ansi_map_handle);
-    add_ansi_tcap_subdissector(10 , ansi_map_handle);
-    add_ansi_tcap_subdissector(11 , ansi_map_handle);
-    add_ansi_tcap_subdissector(12 , ansi_map_handle);
-    add_ansi_tcap_subdissector(13 , ansi_map_handle);
-    add_ansi_tcap_subdissector(14 , ansi_map_handle);
-
-    data_handle = find_dissector("data");
-}
