@@ -1243,36 +1243,70 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 }
 
 
-/* get a zero terminated wide character string from tvb */
-/* maxlength is including zero termination */
-/* XXX: is there a function existing somewhere, already implementing this? */
+/* get a wide character string from tvb (zero terminated or limited through inLength) */
+/* the string will be converted to ASCII if possible or simple hexdump otherwise */
+/* outLength is in output bytes including zero termination output */
 static int
-dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 maxlength, gchar *pszStr)
+dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *pszStr, guint32 outLength, gboolean *isPrintable)
 {
 	guint32 u32Idx;
-	guint32 u32Tmp;
+	guint32 u32IdxA;
+	guint32 u32IdxW;
+
+	guint8  u8Tmp1;
+	guint8  u8Tmp2;
 
 
-	/* get LPWSTR to ascii */
-	DISSECTOR_ASSERT(maxlength > 0);
-	u32Idx = 0;
-	pszStr[0] = 0;
-	while (u32Idx < maxlength-1) {
-		/* XXX: is this really correct? */
-		/* Is the marshalling direction of an WCHAR always fixed? */
-		pszStr[u32Idx] = tvb_get_guint8(tvb, offset++);
-		u32Tmp = tvb_get_guint8(tvb, offset++);
-		
-		if (pszStr[u32Idx] == 0 && u32Tmp == 0) {
-			pszStr[++u32Idx] = 0;
+    *isPrintable = TRUE;
+
+    /* we must have at least the space for the zero termination */
+	DISSECTOR_ASSERT(outLength >= 1);
+
+	/* determine length and printablility of the string */
+	for(u32Idx = 0; u32Idx < inLength-1; u32Idx+=2) {
+		/* the marshalling direction of a WCHAR is fixed! */
+		u8Tmp1 = tvb_get_guint8(tvb, offset+u32Idx);
+		u8Tmp2 = tvb_get_guint8(tvb, offset+u32Idx+1);
+
+        /* is this the zero termination? */
+		if (u8Tmp1 == 0 && u8Tmp2 == 0) {
+            u32Idx+=2;
 			break;
 		}
 
-		u32Idx++;
-		pszStr[u32Idx] = 0;
-	}
+        /* is this character printable? */
+        /* XXX - there are probably more printable chars than isprint() */
+        if(!isprint(u8Tmp1) || u8Tmp2 != 0) {
+            *isPrintable = FALSE;
+        }
+    }
 
-	return offset;
+    /* u32Idx now contains the string length in bytes */
+    /* (including optional zero termination) */
+
+    /* if this is a printable string? */
+    if(*isPrintable == TRUE) {
+        /* convert to ascii (every "2nd char") */
+        /* XXX - is it possible to convert to UTF8, so the output functions work with it? */
+        for(u32IdxA = 0, u32IdxW = 0;
+            u32IdxW < u32Idx && u32IdxA < outLength-2;
+            u32IdxW+=2, u32IdxA++) {
+		    pszStr[u32IdxA] = tvb_get_guint8(tvb, offset+u32IdxW);
+        }
+    } else {
+        /* convert to hexdump */
+        for(u32IdxA = 0, u32IdxW = 0; 
+            u32IdxW < u32Idx && u32IdxA < outLength-2;
+            u32IdxW++, u32IdxA+=2) {
+            sprintf(&pszStr[u32IdxA], "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
+        }
+    }
+
+    /* zero terminate the string, space must be available */
+	DISSECTOR_ASSERT(u32IdxA < outLength);
+    pszStr[u32IdxA] = 0;
+
+	return offset + u32Idx;
 }
 
 
@@ -1291,8 +1325,7 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-    gchar *pszEscaped;
-    guint32 u32Max = u32MaxStr;
+    gboolean isPrintable;
 
 
 	/* alignment of 4 needed */
@@ -1312,41 +1345,22 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, drep, 
                         &u32ArraySize);
 
-    DISSECTOR_ASSERT(u32MaxStr != 0);
-	u32ArraySize++;	/* u32MaxStr is including zero termination */
-	if (u32ArraySize < u32MaxStr) {
-		u32MaxStr = u32ArraySize;
-	}
-
 	u32StrStart = offset;
-    if(u32MaxStr != 0) {
-	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
-    } else {
-        *pszStr=0;
-    }
+    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
 
-#if GLIB_MAJOR_VERSION < 2
-    pszEscaped = g_strescape(pszStr);
-#else
-    pszEscaped = g_strescape(pszStr, "");
-#endif
-	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszEscaped);
+    proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
 
-	/* update subtree header */
+    /* update subtree header */
 	if (field_index != -1) {
-		proto_item_set_text(sub_item, "%s[%u]: \"%s\"", 
+		proto_item_set_text(sub_item, "%s[%u]: %s%s%s", 
 			proto_registrar_get_name(hfindex),
-			field_index, pszEscaped);
+			field_index, 
+            isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	} else {
-		proto_item_append_text(sub_item, "\"%s\"", pszEscaped);
+		proto_item_append_text(sub_item, "%s%s%s",
+            isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	}
 	proto_item_set_len(sub_item, offset - u32SubStart);
-
-    u32Max = MIN(u32Max, strlen(pszEscaped) + 1);
-    memcpy(pszStr, pszEscaped, u32Max);
-    pszStr[u32Max-1] = 0;
-
-    g_free(pszEscaped);
 
 	return offset;
 }
@@ -1380,8 +1394,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 u32SubStart;
 	guint32 u32ByteLength;
 	guint32	u32RealOffset;
-    gchar*  pszEscaped;
-    guint32 u32Max = u32MaxStr;
+    gboolean isPrintable;
 
 	/* alignment of 4 needed */
     if (offset % 4) {
@@ -1402,37 +1415,17 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	u32RealOffset = offset + u32ArraySize*2;
 
-    DISSECTOR_ASSERT(u32MaxStr != 0);
-	u32ArraySize++;	/* u32MaxStr is including zero termination */
-	if (u32ArraySize < u32MaxStr) {
-		u32MaxStr = u32ArraySize;
-	}
-
 	u32StrStart = offset;
-    if(u32MaxStr != 0) {
-	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
-    } else {
-        *pszStr=0;
-    }
+    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
 
-#if GLIB_MAJOR_VERSION < 2
-    pszEscaped = g_strescape(pszStr);
-#else
-    pszEscaped = g_strescape(pszStr, "");
-#endif
-	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszEscaped);
+	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
 
 	/* update subtree header */
-	proto_item_append_text(sub_item, "\"%s\"", pszEscaped);
+	proto_item_append_text(sub_item, "%s%s%s", 
+        isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	if ((int) (u32RealOffset - u32SubStart) <= 0)
 	    THROW(ReportedBoundsError);
 	proto_item_set_len(sub_item, u32RealOffset - u32SubStart);
-
-    u32Max = MIN(u32Max, strlen(pszEscaped) + 1);
-    memcpy(pszStr, pszEscaped, u32Max);
-    pszStr[u32Max-1] = 0;
-
-    g_free(pszEscaped);
 
 	return u32RealOffset;
 }
@@ -1459,6 +1452,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *subsub_item;
 	proto_tree *subsub_tree;
 	guint32	u32SubSubStart;
+    gboolean isPrintable;
 
 
 	/* add subtree header */
@@ -1483,7 +1477,8 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		offset = dissect_dcom_WORD(tvb, offset, pinfo, subsub_tree, drep, 
 							hf_dcom_dualstringarray_string_tower_id, &u16TowerId);
 		u32Start = offset;
-		offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, szStr);
+        /* we don't know the (zero terminated) input length, use the buffer length instead */
+		offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, szStr, u32MaxStr, &isPrintable);
 		proto_tree_add_string(subsub_tree, hf_dcom_dualstringarray_string_network_addr, 
 			tvb, u32Start, offset - u32Start, szStr);
 
@@ -1511,7 +1506,8 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 						&u16SecurityAuthzSvc);
 
 		u32Start = offset;
-		offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, szStr);
+        /* we don't know the (zero terminated) input length, use the buffer length instead */
+		offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, szStr, u32MaxStr, &isPrintable);
 		proto_tree_add_string(subsub_tree, hf_dcom_dualstringarray_security_princ_name, 
 			tvb, u32Start, offset - u32Start, szStr);
 
