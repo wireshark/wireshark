@@ -1315,7 +1315,7 @@ dissect_ldap_T_and_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_and_item);
 
 	if(and_filter_string){
-		and_filter_string=ep_strdup_printf("%s and %s",and_filter_string,Filter_string);
+		and_filter_string=ep_strdup_printf("(&%s%s)",and_filter_string,Filter_string);
 	} else {
 		and_filter_string=Filter_string;
 	}
@@ -1351,7 +1351,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
                                  and_set_of, -1, ett_ldap_T_and);
 
 	proto_item_append_text(it, " %s", and_filter_string);
-	Filter_string=ep_strdup_printf("(%s)",and_filter_string);
+	Filter_string=ep_strdup_printf("%s",and_filter_string);
 	and_filter_string=old_and_filter_string;
 
 
@@ -1370,7 +1370,7 @@ dissect_ldap_T_or_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_or_item);
 
 	if(and_filter_string){
-		and_filter_string=ep_strdup_printf("%s and %s",and_filter_string,Filter_string);
+		and_filter_string=ep_strdup_printf("(|%s%s)",and_filter_string,Filter_string);
 	} else {
 		and_filter_string=Filter_string;
 	}
@@ -1407,7 +1407,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
                                  or_set_of, -1, ett_ldap_T_or);
 
 	proto_item_append_text(it, " %s", and_filter_string);
-	Filter_string=ep_strdup_printf("(%s)",and_filter_string);
+	Filter_string=ep_strdup_printf("%s",and_filter_string);
 	and_filter_string=old_and_filter_string;
 
 
@@ -1425,7 +1425,7 @@ dissect_ldap_T_not(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
   offset = dissect_ldap_Filter(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #line 518 "ldap.cnf"
-	Filter_string=ep_strdup_printf("not (%s)",Filter_string);
+	Filter_string=ep_strdup_printf("(!%s)",Filter_string);
 
 
   return offset;
@@ -1487,7 +1487,7 @@ dissect_ldap_T_equalityMatch(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   offset = dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #line 443 "ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s==%s)",attributedesc_string,assertionvalue_string);
+	Filter_string=ep_strdup_printf("(%s=%s)",attributedesc_string,assertionvalue_string);
 
 
 
@@ -1612,7 +1612,7 @@ dissect_ldap_T_present(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   offset = dissect_ldap_AttributeDescription(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #line 515 "ldap.cnf"
-	Filter_string=ep_strdup_printf("is_present %s",Filter_string);
+	Filter_string=ep_strdup_printf("(%s=*)",Filter_string);
 
 
   return offset;
