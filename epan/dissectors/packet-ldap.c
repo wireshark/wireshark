@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ldap.c                                                            */
+/* ./packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -81,6 +81,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 
@@ -239,7 +240,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 133 "packet-ldap-template.c"
+#line 134 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -290,7 +291,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 142 "packet-ldap-template.c"
+#line 143 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -400,8 +401,8 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 
 /* This string contains the last AssertionValue that was decoded */
 static char *assertionvalue_string=NULL;
-/* if the octet string contain all ascii characters then display it as
- * a string othervise just display it in hex.
+/* if the octet string contain all printable ASCII characters, then
+ * display it as a string, othervise just display it in hex.
  */
 static int
 dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
@@ -410,7 +411,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	gboolean pc, ind, is_ascii;
 	gint32 tag;
 	guint32 len, i;
-	char *str;
+	const guchar *str;
 
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
@@ -419,21 +420,26 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 		return offset;
 	}
 
-	/* check whether the string is ascii or binary */
+	/*
+	 * Check whether the string is printable ASCII or binary.
+	 *
+	 * XXX - should we support reading RFC 2252-style schemas
+	 * for LDAP, and using that to determine how to display
+	 * attribute values and assertion values?
+	 */
 	str=tvb_get_ptr(tvb, offset, len);
 	is_ascii=TRUE;
 	for(i=0;i<len;i++){
-		if(str[i]<0x20){
+		if(!isascii(str[i]) || !isprint(str[i])){
 			is_ascii=FALSE;
+			break;
 		}
 	}
 
 	/* convert the string into a printable string */
 	if(is_ascii){
 		assertionvalue_string=ep_alloc(len+1);
-		for(i=0;i<len;i++){
-			assertionvalue_string[i]=str[i];
-		}
+		memcpy(assertionvalue_string,str,len);
 		assertionvalue_string[i]=0;
 	} else {
 		assertionvalue_string=ep_alloc(3*len);
@@ -2640,7 +2646,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 458 "packet-ldap-template.c"
+#line 464 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3916,7 +3922,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1341 "packet-ldap-template.c"
+#line 1347 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3969,7 +3975,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1352 "packet-ldap-template.c"
+#line 1358 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
