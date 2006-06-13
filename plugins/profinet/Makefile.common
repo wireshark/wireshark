@@ -30,4 +30,6 @@ PLUGIN_NAME = profinet
 DISSECTOR_SRC = \
 	packet-dcerpc-pn-io.c \
 	packet-pn-dcp.c \
+	packet-pn-mrp.c \
+	packet-pn-mrrt.c \
 	packet-pn-ptcp.c

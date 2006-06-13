@@ -298,13 +298,17 @@
 #endif							/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
 
 #ifndef ETHERTYPE_LLDP
-#define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1 Link Layer Discovery Protocol (LLDP) */
+#define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
 #endif
 
 #ifndef ETHERTYPE_3GPP2
 #define ETHERTYPE_3GPP2	        0x88d2  /* This will be used in a revision of the Interoperabi */
 #endif									/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 										/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
+
+#ifndef ETHERTYPE_MRP
+#define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
+#endif
 
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */

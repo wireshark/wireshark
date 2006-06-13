@@ -26,3 +26,6 @@ Version 0.2.0:
 
 * PN-PTCP: add whole new Precision Time Control Protocol dissector
 
+Version 0.2.1:
+
+* PN-MRP and PN-MRRT: add new Media Redundancy Protocol and Media Redundacy for RealTime Protocol dissector
