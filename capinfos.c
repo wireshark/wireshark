@@ -237,9 +237,9 @@ static void usage(gboolean is_error)
   fprintf(output, "  -y display average data rate (in bytes/s)\n");
   fprintf(output, "  -i display average data rate (in bits/s)\n");
   fprintf(output, "  -z display average packet size (in bytes)\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h display this help and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h display this help and exit\n");
   fprintf(output, "\n");
   fprintf(output, "If no options are given, default is to display all infos\n");
 }
