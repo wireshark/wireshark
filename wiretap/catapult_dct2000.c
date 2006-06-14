@@ -648,6 +648,10 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     for (; pd[n] != '\0'; n++);
     n++;
 
+    /* Variant number (as string) */
+    for (; pd[n] != '\0'; n++);
+    n++;
+
     /* Direction & encap */
     n += 2;
 
