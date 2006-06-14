@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-snmp.c                                                            */
+/* ./packet-snmp.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
@@ -54,6 +54,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 
@@ -282,7 +283,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 190 "packet-snmp-template.c"
+#line 191 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -322,7 +323,7 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 201 "packet-snmp-template.c"
+#line 202 "packet-snmp-template.c"
 
 /* defined in net-SNMP; include/net-snmp/library/snmp.h */
 #undef SNMP_MSG_GET
@@ -2698,7 +2699,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1037 "packet-snmp-template.c"
+#line 1038 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3390,7 +3391,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1392 "packet-snmp-template.c"
+#line 1393 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3428,7 +3429,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1401 "packet-snmp-template.c"
+#line 1402 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
