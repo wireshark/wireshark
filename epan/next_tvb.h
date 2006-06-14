@@ -35,7 +35,7 @@
 typedef enum {
   NTVB_HANDLE,
   NTVB_PORT,
-  NTVB_STRING,
+  NTVB_STRING
 } next_tvb_call_e;
 
 typedef struct next_tvb_item {
