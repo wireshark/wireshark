@@ -570,7 +570,7 @@ static void mcaststream_dlg_create (void)
     SIGNAL_CONNECT(clist, "click-column", mcaststream_click_column_cb, col_arrows);
 
     label_fwd = gtk_label_new (FWD_LABEL_TEXT);
-    //gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
+    /*gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);*/
 
     label_par = gtk_label_new (PAR_LABEL_TEXT);
     gtk_box_pack_start (GTK_BOX (main_vb), label_par, FALSE, FALSE, 0);
@@ -599,7 +599,7 @@ static void mcaststream_dlg_create (void)
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
     SIGNAL_CONNECT(clist, "select_row", mcaststream_on_select_row, NULL);
-    //SIGNAL_CONNECT(bt_unselect, "clicked", mcaststream_on_unselect, NULL);
+    /*SIGNAL_CONNECT(bt_unselect, "clicked", mcaststream_on_unselect, NULL);*/
     SIGNAL_CONNECT(bt_params, "clicked", mcast_on_params, NULL);
     SIGNAL_CONNECT(bt_filter, "clicked", mcaststream_on_filter, NULL);
     window_set_cancel_button(mcaststream_dlg_w, bt_close, window_cancel_button_cb);
