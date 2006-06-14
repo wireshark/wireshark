@@ -106,7 +106,6 @@ static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
-static gboolean verify_ber_length_field = TRUE;
 
 proto_item *ber_last_created_item=NULL;
 
@@ -528,16 +527,6 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 			tmp_ind = TRUE;
 			offset = tmp_offset;
 		}
-	}
-
-	if(verify_ber_length_field){
-	  /* check that the length is sane */
-	  if(tmp_length>(guint32)tvb_reported_length_remaining(tvb,offset)){
-	    proto_tree_add_text(tree, tvb, old_offset, offset-old_offset, "BER: Error length:%u longer than tvb_reported_length_remaining:%d",tmp_length, tvb_reported_length_remaining(tvb, offset));
-	    /* force the appropriate exception */
-	    tvb_ensure_bytes_exist(tvb, offset, tmp_length);
-	    /*tmp_length = (guint32)tvb_reported_length_remaining(tvb,offset);*/
-	  }
 	}
 
 	if (length)
@@ -2397,10 +2386,6 @@ proto_register_ber(void)
 	"Show internal BER encapsulation tokens",
 	"Whether the dissector should also display internal"
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
-
-    prefs_register_bool_preference(ber_module, "verify_length",
-	"Verify length",
-	"Verify that the current packet contains (at least) the number of bytes indicated by the length field", &verify_ber_length_field);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
 }

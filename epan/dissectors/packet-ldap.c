@@ -2676,27 +2676,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
     if (rest_is_pad && length_remaining < 6) return;
 
     /*
-     * The frame begins
-     * with a "Sequence Of" header.
-     * Can we do reassembly?
-     */
-    if (ldap_desegment && pinfo->can_desegment) {
-        /*
-         * Yes - is the "Sequence Of" header split across segment
-         * boundaries?  We require at least 6 bytes for the header
-         * which allows for a 4 byte length (ASN.1 BER).
-         */
-        if (length_remaining < 6) {
-	  /* stop if the caller says that we are given all data and the rest is padding
-	   * this is for the SASL GSSAPI case when the data is only signed and not sealed
-	   */
-          pinfo->desegment_offset = offset;
-          pinfo->desegment_len = 6 - length_remaining;
-          return;
-        }
-    }
-
-    /*
      * OK, try to read the "Sequence Of" header; this gets the total
      * length of the LDAP message.
      */
@@ -2728,29 +2707,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
       	 * we can do.  "dissect_ldap_message()" will display the error.
       	 */
       	msg_len = length_remaining;
-    }
-
-    /*
-     * Is the message split across segment boundaries?
-     */
-    if (length_remaining < msg_len) {
-        /* provide a hint to TCP where the next PDU starts */
-        pinfo->want_pdu_tracking=2;
-        pinfo->bytes_until_next_pdu= msg_len - length_remaining;
-        /*
-         * Can we do reassembly?
-         */
-        if (ldap_desegment && pinfo->can_desegment) {
-	    /*
-	     * Yes.  Tell the TCP dissector where the data for this message
-	     * starts in the data it handed us, and how many more bytes
-	     * we need, and return.
-	     */
-	    pinfo->desegment_offset = offset;
-	    pinfo->desegment_len = msg_len - length_remaining;
-
-	    return;
-        }
     }
 
     /*
@@ -2860,27 +2816,6 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
      */
     length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
-    /*
-     * Try to find out if we have a plain LDAP buffer
-     * with a "Sequence Of" header or a SASL buffer with
-     * Can we do reassembly?
-     */
-    if (ldap_desegment && pinfo->can_desegment) {
-        /*
-         * Yes - is the "Sequence Of" header split across segment
-         * boundaries?  We require at least 6 bytes for the header
-         * which allows for a 4 byte length (ASN.1 BER).
-	 * For the SASL case we need at least 4 bytes, so this is
-	 * no problem here because we check for 6 bytes ans sasl buffers
-	 * with less than 2 bytes should not exist...
-         */
-        if (length_remaining < 6) {
-    	    pinfo->desegment_offset = offset;
-    	    pinfo->desegment_len = 6 - length_remaining;
-    	    return;
-        }
-    }
-
     /* It might still be a packet containing a SASL security layer
      * but its just that we never saw the BIND packet.
      * check if it looks like it could be a SASL blob here
@@ -2951,28 +2886,6 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
          */
         show_reported_bounds_error(tvb, pinfo, tree);
         return;
-      }
-
-      /*
-       * Is the buffer split across segment boundaries?
-       */
-      if (length_remaining < sasl_msg_len) {
-        /* provide a hint to TCP where the next PDU starts */
-        pinfo->want_pdu_tracking = 2;
-        pinfo->bytes_until_next_pdu= sasl_msg_len - length_remaining;
-        /*
-         * Can we do reassembly?
-         */
-        if (ldap_desegment && pinfo->can_desegment) {
-          /*
-           * Yes.  Tell the TCP dissector where the data for this message
-           * starts in the data it handed us, and how many more bytes we
-           * need, and return.
-           */
-          pinfo->desegment_offset = offset;
-          pinfo->desegment_len = sasl_msg_len - length_remaining;
-          return;
-        }
       }
 
       /*
@@ -3343,9 +3256,106 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 
+static guint 
+get_sasl_ldap_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/* sasl encapsulated ldap is 4 bytes plus the length in size */
+	return tvb_get_ntohl(tvb, offset)+4;
+}
+
+static void 
+dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+	return;
+}
+
+static guint 
+get_normal_ldap_pdu_len(tvbuff_t *tvb, int offset)
+{
+	guint32 len;
+	gboolean ind;
+	int data_offset;
+
+	/* normal ldap is tag+len bytes plus the length
+	 * offset==0 is where the tag is 
+	 * offset==1 is where length starts
+	 */
+	data_offset=get_ber_length(NULL, tvb, 1, &len, &ind);
+	return len+data_offset;
+}
+
+static void 
+dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+	return;
+}
+
+
 static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	/* Here we must take care of reassembly but this is tricky since
+	 * depending on whether SASL is present or not, the heuristics
+	 * will be very different.
+	 */
+	if(ldap_desegment && (tvb_length(tvb)==tvb_reported_length(tvb))){
+		guint32 len;
+
+		/* check for a SASL header, i.e. four byte integer where the
+		 * first two bytes are 0x00 and the value is <64k and >2
+		 * (>2 to fight false positives, 0x00000000 is a common
+		 *     "random" tcp payload)
+		 * (no SASL ldap PDUs are ever going to be >64k in size?)
+		 *
+		 * Following the SASL header is a GSSAPI blob so the next byte
+		 * is always 0x60. (only true for MS SASL LDAP, there are other
+		 * blobs that may follow in real-world)
+		 */
+		len=tvb_get_ntohl(tvb, 0);
+		if( (len<65535)
+		&&  (len>2)
+		&&  (tvb_get_guint8(tvb, 4)==0x60)){
+			if(len<=tvb_length_remaining(tvb, 4)){
+				/* we have a full ldap pdu */
+				dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+				return;
+			} else {
+				/* we have to do reassembly */
+				tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
+				return;
+			}
+		}
+		/* check if it is a normal BER encoded LDAP packet
+		 * i.e. first byte is 0x30 followed by a length that is 
+		 * <64k
+		 * (no ldap PDUs are ever >64kb? )
+		 */
+		if(tvb_get_guint8(tvb, 0)==0x30){
+			gboolean ind;
+			int data_offset;
+
+			/* check that length makes sense */
+			data_offset=get_ber_length(NULL, tvb, 1, &len, &ind);
+
+			/* dont check ind since indefinite length is never used for ldap (famous last words)*/
+			if(len<2 || len>65535){
+				return;
+			}
+
+			if(len<=tvb_length_remaining(tvb, data_offset)){
+				/* we have a full ldap pdu */
+				dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+				return;
+			} else {
+				/* we have to do reassembly */
+				tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
+				return;
+			}
+		}
+	}
+
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
 	return;
 }
@@ -3922,7 +3932,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1347 "packet-ldap-template.c"
+#line 1357 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3975,7 +3985,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1358 "packet-ldap-template.c"
+#line 1368 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
