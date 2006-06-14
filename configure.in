@@ -74,12 +74,28 @@ AM_PATH_LIBGNUTLS(1.0.0,
                 if test x$libgnutls_config_prefix != x ; then
 	                AC_MSG_ERROR([[gnuTLS not found; install gnuTLS-devel package for your system]])
                 else
-                        echo echo "gnuTLS not found, disabling ssl and ipsec decryption"
+                        echo echo "gnuTLS not found, disabling ssl decryption"
                         tls_message="no"
                 fi
         ]
 )
 
+# libgrypt
+AM_PATH_LIBGCRYPT(1.1.0,
+        [
+                echo "libgcrypt found, enabling ipsec decryption"
+                AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
+                gcrypt_message="yes"
+        ]
+        , [
+                if test x$libgcrypt_config_prefix != x ; then
+	                AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
+                else
+                        echo echo "libgcrypt not found, disabling ipsec decryption"
+                        gcrypt_message="no"
+                fi
+        ]
+)
 
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
@@ -1425,6 +1441,7 @@ echo "                  Use zlib library : $zlib_message"
 echo "                  Use pcre library : $pcre_message"
 echo "              Use kerberos library : $krb5_message"
 echo "              Use GNU ADNS library : $adns_message"
+echo "            Use GNU crypto library : $gcrypt_message"
 echo "            Use SSL crypto library : $ssl_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/Net-SNMP library : $snmp_libs_message"
