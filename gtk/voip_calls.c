@@ -2289,7 +2289,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 						   check first if it is an ended call. We consider an ended call after 1sec we don't 
 						   get a packet in this Endpoint and the call has been released
 						*/
-						diff_time = nstime_to_sec(&pinfo->fd->rel_ts) - tmp_listinfo->stop_sec + (double)tmp_listinfo->stop_usec/1000000;
+						diff_time = nstime_to_sec(&pinfo->fd->rel_ts) - tmp_listinfo->stop_sec - (double)tmp_listinfo->stop_usec/1000000;
 						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) || (tmp_listinfo->call_state == VOIP_COMPLETED)  || (tmp_listinfo->call_state == VOIP_REJECTED)) && (diff_time > 1) ){
 							tmp_listinfo->call_active_state = VOIP_INACTIVE;
 						} else {
@@ -2317,7 +2317,8 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		} 
 	} else if ( ((pi->mgcp_type == MGCP_RESPONSE) && pi->request_available) ||
 			((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
-		/* if it is a response OR if it is a duplicated Request, lets look in the Graph if thre is a request that match */
+		/* if it is a response OR if it is a duplicated Request, lets look in the Graph to see
+		   if there is a request that matches */
 		listGraph = g_list_first(tapinfo->graph_analysis->list);
 		while (listGraph)
 		{
