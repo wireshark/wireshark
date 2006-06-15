@@ -2785,7 +2785,7 @@ static int dissect_diagnosticInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 479 "gsmmap.cnf"
+#line 513 "gsmmap.cnf"
 
 	
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
@@ -3307,7 +3307,7 @@ static int dissect_vlr_Capability_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 int
 dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 563 "gsmmap.cnf"
+#line 597 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -3703,7 +3703,7 @@ static int dissect_numberOfRequestedVectors(packet_info *pinfo, proto_tree *tree
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 611 "gsmmap.cnf"
+#line 645 "gsmmap.cnf"
 
         tvbuff_t        *parameter_tvb; 
         proto_item *item; 
@@ -5798,7 +5798,7 @@ static int
 dissect_gsm_map_T_ext_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
-#line 498 "gsmmap.cnf"
+#line 532 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -7241,7 +7241,7 @@ static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 509 "gsmmap.cnf"
+#line 543 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -7290,7 +7290,7 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 535 "gsmmap.cnf"
+#line 569 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -7336,7 +7336,7 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 549 "gsmmap.cnf"
+#line 583 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -8566,7 +8566,7 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
-#line 492 "gsmmap.cnf"
+#line 526 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -9448,7 +9448,7 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 593 "gsmmap.cnf"
+#line 627 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_item *item;
@@ -10792,18 +10792,20 @@ dissect_gsm_map_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 int
 dissect_gsm_map_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 442 "gsmmap.cnf"
+#line 446 "gsmmap.cnf"
+ /*The structure of the USSD-DataCodingScheme is defined by
+  * the Cell Broadcast Data Coding Scheme as described in
+  * TS 3GPP TS 23.038
+  * TODO: Should smpp_handle_dcs return encoding type? - like 7bit Alphabet
+  */
+  int CodingScheme_offset = 0;
+  tvbuff_t	*parameter_tvb;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
 
- guint8		octet;
- guint8		length;
- tvbuff_t	*next_tvb;
-
-  octet = tvb_get_guint8(tvb,0);
-  length = tvb_get_guint8(tvb,1);
-  if ( octet == 4) {
-    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-    smpp_handle_dcs(tree, next_tvb, &offset);
-	}
+  if (!parameter_tvb)
+     return offset;
+  smpp_handle_dcs(tree, parameter_tvb, &CodingScheme_offset);
 
 
 
@@ -10820,24 +10822,35 @@ static int dissect_dataCodingScheme_impl(packet_info *pinfo, proto_tree *tree, t
 
 int
 dissect_gsm_map_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 457 "gsmmap.cnf"
+#line 468 "gsmmap.cnf"
 
-  guint8		octet;
-  guint8		length;
+  tvbuff_t	*parameter_tvb;
+  int			length;
   guint8		out_len;
-  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? */
+  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
+   * use ep_alloc ?
+   * TODO: Shouldent this function use USSD-DataCodingScheme to chose decoding method???
+   */
   static char bigbuf[1024];
 
-  octet = tvb_get_guint8(tvb,0);
-  length = tvb_get_guint8(tvb,1);
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+     return offset;
+
+  length = tvb_length_remaining(parameter_tvb,0);
 
   out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
-              tvb_get_ptr(tvb, offset+2, length), bigbuf);
+              tvb_get_ptr(parameter_tvb, 0, length), bigbuf);
+
   bigbuf[out_len] = '\0';
   gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
   bigbuf[1023] = '\0';
-  
-  proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %s", bigbuf);
+  proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %s", bigbuf);
+
+
+
 
 
 

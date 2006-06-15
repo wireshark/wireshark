@@ -438,39 +438,73 @@ Component
  }
  
 #----------------------------------------------------------------------------------------
-#.FN_BODY USSD-DataCodingScheme
-
- guint8		octet;
- guint8		length;
- tvbuff_t	*next_tvb;
-
-  octet = tvb_get_guint8(tvb,0);
-  length = tvb_get_guint8(tvb,1);
-  if ( octet == 4) {
-    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-    smpp_handle_dcs(tree, next_tvb, &offset);
-	}
+#.FN_BODY USSD-DataCodingScheme VAL_PTR = &parameter_tvb
+#-- The structure of the USSD-DataCodingScheme is defined by
+#-- the Cell Broadcast Data Coding Scheme as described in
+#-- TS 3GPP TS 23.038
+#--
+ /*The structure of the USSD-DataCodingScheme is defined by
+  * the Cell Broadcast Data Coding Scheme as described in
+  * TS 3GPP TS 23.038
+  * TODO: Should smpp_handle_dcs return encoding type? - like 7bit Alphabet
+  */
+  int CodingScheme_offset = 0;
+  tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+     return offset;
+  smpp_handle_dcs(tree, parameter_tvb, &CodingScheme_offset);
+#--
+#--  octet = tvb_get_guint8(tvb,0);
+#--  length = tvb_get_guint8(tvb,1);
+#--  if ( octet == 4) {
+#--    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+#--    smpp_handle_dcs(tree, next_tvb, &offset);
+#--	}
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY USSD-String
+#.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
-  guint8		octet;
-  guint8		length;
+  tvbuff_t	*parameter_tvb;
+  int			length;
   guint8		out_len;
-  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? */
+  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
+   * use ep_alloc ?
+   * TODO: Shouldent this function use USSD-DataCodingScheme to chose decoding method???
+   */
   static char bigbuf[1024];
 
-  octet = tvb_get_guint8(tvb,0);
-  length = tvb_get_guint8(tvb,1);
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+     return offset;
+
+  length = tvb_length_remaining(parameter_tvb,0);
 
   out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
-              tvb_get_ptr(tvb, offset+2, length), bigbuf);
+              tvb_get_ptr(parameter_tvb, 0, length), bigbuf);
+
   bigbuf[out_len] = '\0';
   gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
   bigbuf[1023] = '\0';
-  
-  proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %%s", bigbuf);
+  proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", bigbuf);
+
+#--  guint8		octet;
+#--  guint8		length;
+#--  guint8		out_len;
+#--  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? */
+#--  static char bigbuf[1024];
+
+#--  octet = tvb_get_guint8(tvb,0);
+#--  length = tvb_get_guint8(tvb,1);
+
+#--  out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
+#--              tvb_get_ptr(tvb, offset+2, length), bigbuf);
+#--  bigbuf[out_len] = '\0';
+#--  gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+#--  bigbuf[1023] = '\0';
+#--  
+#--  proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %%s", bigbuf);
 
 #.END
 
