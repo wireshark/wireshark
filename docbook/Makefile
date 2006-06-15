@@ -17,18 +17,18 @@ FOP_OPTS=-Xmx256m
 #
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-#FOP=fop-0.20.5/fop.bat
+FOP=fop-0.20.5/fop.bat
 #
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
 #
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-FOP=fop
+#FOP=fop
 
 # html help compiler (Win32 only)
 # Leave these commented out if you don't have HHC installed or you
 # don't want CHM documentation.
-#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # elinks (text version of release notes)
@@ -70,113 +70,113 @@ WSUG_FILES =	\
 	wsug_src/WSUG_preface.xml
 
 WSUG_GRAPHICS =	\
-	graphics/ethereal-3pane.png			\
-	graphics/ethereal-analyze-menu.png		\
-	graphics/ethereal-bytes-pane-popup-menu.png	\
-	graphics/ethereal-bytes-pane-tabs.png		\
-	graphics/ethereal-bytes-pane.png		\
-	graphics/ethereal-capture-info.png		\
-	graphics/ethereal-capture-interfaces.png	\
-	graphics/ethereal-capture-menu.png		\
-	graphics/ethereal-capture-options.png		\
-	graphics/ethereal-capture-preferences.png	\
-	graphics/ethereal-choose-color-rule.png		\
-	graphics/ethereal-coloring-rules-dialog.png	\
-	graphics/ethereal-decode-as-show.png		\
-	graphics/ethereal-decode-as.png			\
-	graphics/ethereal-details-pane-popup-menu.png	\
-	graphics/ethereal-details-pane.png		\
-	graphics/ethereal-display-filter-tcp.png	\
-	graphics/ethereal-edit-color-rule-dialog.png	\
-	graphics/ethereal-edit-menu.png			\
-	graphics/ethereal-empty.png			\
-	graphics/ethereal-enabled-protocols.png		\
-	graphics/ethereal-error-file-exists.png		\
-	graphics/ethereal-error-open.png		\
-	graphics/ethereal-export-pdml.png		\
-	graphics/ethereal-export-plain.png		\
-	graphics/ethereal-export-ps.png			\
-	graphics/ethereal-export-psml.png		\
-	graphics/ethereal-export-selected.png		\
-	graphics/ethereal-file-menu.png			\
-	graphics/ethereal-file-set-dialog.png		\
-	graphics/ethereal-filter-add-expression.png	\
-	graphics/ethereal-filter-toolbar.png		\
-	graphics/ethereal-filters-2.png			\
-	graphics/ethereal-filters.png			\
-	graphics/ethereal-find-packet.png		\
-	graphics/ethereal-follow-stream.png		\
-	graphics/ethereal-go-menu.png			\
-	graphics/ethereal-goto-packet.png		\
-	graphics/ethereal-gui-colors-preferences.png	\
-	graphics/ethereal-gui-columns-preferences.png	\
-	graphics/ethereal-gui-font-preferences.png	\
-	graphics/ethereal-gui-layout-preferences.png	\
-	graphics/ethereal-gui-preferences.png		\
-	graphics/ethereal-help-menu.png			\
-	graphics/ethereal-list-pane.png			\
-	graphics/ethereal-main-toolbar.png		\
-	graphics/ethereal-menu.png			\
-	graphics/ethereal-merge.png			\
-	graphics/ethereal-nameresolution-preferences.png	\
-	graphics/ethereal-open.png			\
-	graphics/ethereal-packet-format.png		\
-	graphics/ethereal-packet-pane-popup-menu.png	\
-	graphics/ethereal-packet-range.png		\
-	graphics/ethereal-packet-selected.png		\
-	graphics/ethereal-packet-sep-win.png		\
-	graphics/ethereal-print.png			\
-	graphics/ethereal-printing-preferences.png	\
-	graphics/ethereal-save-as.png			\
-	graphics/ethereal-statistics-menu.png		\
-	graphics/ethereal-stats-conversations.png	\
-	graphics/ethereal-stats-endpoints.png		\
-	graphics/ethereal-stats-hierarchy.png		\
-	graphics/ethereal-stats-iographs.png		\
-	graphics/ethereal-stats-srt-dcerpc-filter.png	\
-	graphics/ethereal-stats-srt-dcerpc.png		\
-	graphics/ethereal-stats-summary.png		\
-	graphics/ethereal-statusbar-empty.png		\
-	graphics/ethereal-statusbar-loaded.png		\
-	graphics/ethereal-statusbar-selected.png	\
-	graphics/ethereal-time-reference.png		\
-	graphics/ethereal-view-menu.png			\
-	graphics/note.png				\
-	graphics/tip.png				\
-	graphics/warning.png				\
-	graphics/toolbar/autoscroll_24.png		\
-	graphics/toolbar/capture_filter_24.png		\
-	graphics/toolbar/capture_interfaces_24.png 	\
-	graphics/toolbar/capture_options_24.png 	\
-	graphics/toolbar/capture_restart_24.png 	\
-	graphics/toolbar/capture_start_24.png 		\
-	graphics/toolbar/capture_stop_24.png 		\
-	graphics/toolbar/colorize_24.png		\
-	graphics/toolbar/display_filter_24.png		\
-	graphics/toolbar/resize_columns_24.png		\
-	graphics/toolbar/stock_add_24.png		\
-	graphics/toolbar/stock_bottom_24.png		\
-	graphics/toolbar/stock_close_24.png		\
-	graphics/toolbar/stock_colorselector_24.png	\
-	graphics/toolbar/stock_help_24.png		\
-	graphics/toolbar/stock_jump_to_24.png		\
-	graphics/toolbar/stock_left_arrow_24.png	\
-	graphics/toolbar/stock_open_24.png		\
-	graphics/toolbar/stock_preferences_24.png	\
-	graphics/toolbar/stock_print_24.png		\
-	graphics/toolbar/stock_properties_24.png	\
-	graphics/toolbar/stock_refresh_24.png		\
-	graphics/toolbar/stock_right_arrow_24.png	\
-	graphics/toolbar/stock_save_24.png		\
-	graphics/toolbar/stock_save_as_24.png		\
-	graphics/toolbar/stock_search_24.png		\
-	graphics/toolbar/stock_stop_24.png		\
-	graphics/toolbar/stock_top_24.png		\
-	graphics/toolbar/stock_zoom_1_24.png		\
-	graphics/toolbar/stock_zoom_in_24.png		\
-	graphics/toolbar/stock_zoom_out_24.png		\
-	graphics/wireshark-logo.png			\
-	graphics/wireshark-main.png
+	wsug_graphics/ethereal-3pane.png			\
+	wsug_graphics/ethereal-analyze-menu.png		\
+	wsug_graphics/ethereal-bytes-pane-popup-menu.png	\
+	wsug_graphics/ethereal-bytes-pane-tabs.png		\
+	wsug_graphics/ethereal-bytes-pane.png		\
+	wsug_graphics/ethereal-capture-info.png		\
+	wsug_graphics/ethereal-capture-interfaces.png	\
+	wsug_graphics/ethereal-capture-menu.png		\
+	wsug_graphics/ethereal-capture-options.png		\
+	wsug_graphics/ethereal-capture-preferences.png	\
+	wsug_graphics/ethereal-choose-color-rule.png		\
+	wsug_graphics/ethereal-coloring-rules-dialog.png	\
+	wsug_graphics/ethereal-decode-as-show.png		\
+	wsug_graphics/ethereal-decode-as.png			\
+	wsug_graphics/ethereal-details-pane-popup-menu.png	\
+	wsug_graphics/ethereal-details-pane.png		\
+	wsug_graphics/ethereal-display-filter-tcp.png	\
+	wsug_graphics/ethereal-edit-color-rule-dialog.png	\
+	wsug_graphics/ethereal-edit-menu.png			\
+	wsug_graphics/ethereal-empty.png			\
+	wsug_graphics/ethereal-enabled-protocols.png		\
+	wsug_graphics/ethereal-error-file-exists.png		\
+	wsug_graphics/ethereal-error-open.png		\
+	wsug_graphics/ethereal-export-pdml.png		\
+	wsug_graphics/ethereal-export-plain.png		\
+	wsug_graphics/ethereal-export-ps.png			\
+	wsug_graphics/ethereal-export-psml.png		\
+	wsug_graphics/ethereal-export-selected.png		\
+	wsug_graphics/ethereal-file-menu.png			\
+	wsug_graphics/ethereal-file-set-dialog.png		\
+	wsug_graphics/ethereal-filter-add-expression.png	\
+	wsug_graphics/ethereal-filter-toolbar.png		\
+	wsug_graphics/ethereal-filters-2.png			\
+	wsug_graphics/ethereal-filters.png			\
+	wsug_graphics/ethereal-find-packet.png		\
+	wsug_graphics/ethereal-follow-stream.png		\
+	wsug_graphics/ethereal-go-menu.png			\
+	wsug_graphics/ethereal-goto-packet.png		\
+	wsug_graphics/ethereal-gui-colors-preferences.png	\
+	wsug_graphics/ethereal-gui-columns-preferences.png	\
+	wsug_graphics/ethereal-gui-font-preferences.png	\
+	wsug_graphics/ethereal-gui-layout-preferences.png	\
+	wsug_graphics/ethereal-gui-preferences.png		\
+	wsug_graphics/ethereal-help-menu.png			\
+	wsug_graphics/ethereal-list-pane.png			\
+	wsug_graphics/ethereal-main-toolbar.png		\
+	wsug_graphics/ethereal-menu.png			\
+	wsug_graphics/ethereal-merge.png			\
+	wsug_graphics/ethereal-nameresolution-preferences.png	\
+	wsug_graphics/ethereal-open.png			\
+	wsug_graphics/ethereal-packet-format.png		\
+	wsug_graphics/ethereal-packet-pane-popup-menu.png	\
+	wsug_graphics/ethereal-packet-range.png		\
+	wsug_graphics/ethereal-packet-selected.png		\
+	wsug_graphics/ethereal-packet-sep-win.png		\
+	wsug_graphics/ethereal-print.png			\
+	wsug_graphics/ethereal-printing-preferences.png	\
+	wsug_graphics/ethereal-save-as.png			\
+	wsug_graphics/ethereal-statistics-menu.png		\
+	wsug_graphics/ethereal-stats-conversations.png	\
+	wsug_graphics/ethereal-stats-endpoints.png		\
+	wsug_graphics/ethereal-stats-hierarchy.png		\
+	wsug_graphics/ethereal-stats-iographs.png		\
+	wsug_graphics/ethereal-stats-srt-dcerpc-filter.png	\
+	wsug_graphics/ethereal-stats-srt-dcerpc.png		\
+	wsug_graphics/ethereal-stats-summary.png		\
+	wsug_graphics/ethereal-statusbar-empty.png		\
+	wsug_graphics/ethereal-statusbar-loaded.png		\
+	wsug_graphics/ethereal-statusbar-selected.png	\
+	wsug_graphics/ethereal-time-reference.png		\
+	wsug_graphics/ethereal-view-menu.png			\
+	wsug_graphics/note.png				\
+	wsug_graphics/tip.png				\
+	wsug_graphics/warning.png				\
+	wsug_graphics/toolbar/autoscroll_24.png		\
+	wsug_graphics/toolbar/capture_filter_24.png		\
+	wsug_graphics/toolbar/capture_interfaces_24.png 	\
+	wsug_graphics/toolbar/capture_options_24.png 	\
+	wsug_graphics/toolbar/capture_restart_24.png 	\
+	wsug_graphics/toolbar/capture_start_24.png 		\
+	wsug_graphics/toolbar/capture_stop_24.png 		\
+	wsug_graphics/toolbar/colorize_24.png		\
+	wsug_graphics/toolbar/display_filter_24.png		\
+	wsug_graphics/toolbar/resize_columns_24.png		\
+	wsug_graphics/toolbar/stock_add_24.png		\
+	wsug_graphics/toolbar/stock_bottom_24.png		\
+	wsug_graphics/toolbar/stock_close_24.png		\
+	wsug_graphics/toolbar/stock_colorselector_24.png	\
+	wsug_graphics/toolbar/stock_help_24.png		\
+	wsug_graphics/toolbar/stock_jump_to_24.png		\
+	wsug_graphics/toolbar/stock_left_arrow_24.png	\
+	wsug_graphics/toolbar/stock_open_24.png		\
+	wsug_graphics/toolbar/stock_preferences_24.png	\
+	wsug_graphics/toolbar/stock_print_24.png		\
+	wsug_graphics/toolbar/stock_properties_24.png	\
+	wsug_graphics/toolbar/stock_refresh_24.png		\
+	wsug_graphics/toolbar/stock_right_arrow_24.png	\
+	wsug_graphics/toolbar/stock_save_24.png		\
+	wsug_graphics/toolbar/stock_save_as_24.png		\
+	wsug_graphics/toolbar/stock_search_24.png		\
+	wsug_graphics/toolbar/stock_stop_24.png		\
+	wsug_graphics/toolbar/stock_top_24.png		\
+	wsug_graphics/toolbar/stock_zoom_1_24.png		\
+	wsug_graphics/toolbar/stock_zoom_in_24.png		\
+	wsug_graphics/toolbar/stock_zoom_out_24.png		\
+	wsug_graphics/wireshark-logo.png			\
+	wsug_graphics/wireshark-main.png
 
 WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_build_intro.xml	\
@@ -271,21 +271,21 @@ wsug.validated: $(WSUG_SOURCE)
 # create html single page file
 user-guide.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
-	mkdir -p wsug_html/graphics/toolbar
-	cp graphics/*.* wsug_html/graphics
-	cp graphics/toolbar/* wsug_html/graphics/toolbar
+	mkdir -p wsug_html/wsug_graphics/toolbar
+	cp wsug_graphics/*.* wsug_html/wsug_graphics
+	cp wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar
 	cp ws.css wsug_html
-	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsug_html/$@
+	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsug_html/$@
 	-chmod -R og+rX wsug_html
 	
 # create html chunked page files
 wsug_html_chunked: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
-	mkdir -p wsug_html_chunked/graphics/toolbar
-	cp graphics/*.* wsug_html_chunked/graphics
-	cp graphics/toolbar/* wsug_html_chunked/graphics/toolbar
+	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
+	cp wsug_graphics/*.* wsug_html_chunked/wsug_graphics
+	cp wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar
 	cp ws.css wsug_html_chunked
-	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
@@ -308,10 +308,10 @@ endif
 user-guide.chm: $(WSUG_SOURCE)
 ifdef HHC
 	@ echo --- WSUG - MICROSOFT HTML HELP ---
-	mkdir -p wsug_chm/graphics/toolbar
-	-cp graphics/*.* wsug_chm/graphics/
-	-cp graphics/toolbar/* wsug_chm/graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	mkdir -p wsug_chm/wsug_graphics/toolbar
+	-cp wsug_graphics/*.* wsug_chm/wsug_graphics/
+	-cp wsug_graphics/toolbar/* wsug_chm/wsug_graphics/toolbar/
+	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
@@ -414,7 +414,7 @@ endif
 release-notes.chm: $(RELEASE_NOTES_SOURCE)
 ifdef HHC
 	@ echo --- RELEASE NOTES - MICROSOFT HTML HELP ---
-	$(XSLTPROC) --stringparam base.dir release_notes_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir release_notes_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp

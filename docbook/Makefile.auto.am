@@ -45,21 +45,21 @@ wsug_validate:
 wsug_html:
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p wsug_html
-	mkdir -p wsug_html/graphics
-	mkdir -p wsug_html/graphics/toolbar
-	cp ./graphics/*.* wsug_html/graphics
-	cp ./graphics/toolbar/*.* wsug_html/graphics/toolbar
+	mkdir -p wsug_html/wsug_graphics
+	mkdir -p wsug_html/wsug_graphics/toolbar
+	cp ./wsug_graphics/*.* wsug_html/wsug_graphics
+	cp ./wsug_graphics/toolbar/*.* wsug_html/wsug_graphics/toolbar
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > wsug_html/user-guide.html
 	
 # create html chunked page files
 wsug_html_chunked:
 	@ echo --- HTML CHUNKED ---
 	mkdir -p wsug_html_chunked
-	mkdir -p wsug_html_chunked/graphics
-	mkdir -p wsug_html_chunked/graphics/toolbar
-	cp ./graphics/*.* wsug_html_chunked/graphics
-	cp ./graphics/toolbar/*.* wsug_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl user-guide.xml
+	mkdir -p wsug_html_chunked/wsug_graphics
+	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
+	cp ./wsug_graphics/*.* wsug_html_chunked/wsug_graphics
+	cp ./wsug_graphics/toolbar/*.* wsug_html_chunked/wsug_graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl user-guide.xml
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -84,11 +84,11 @@ wsug_chm:
 if HAVE_HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p wsug_chm
-	mkdir -p wsug_chm/graphics
-	mkdir -p wsug_chm/graphics/toolbar
-	cp ./graphics/*.* wsug_chm/graphics
-	cp ./graphics/toolbar/*.* wsug_chm/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl user-guide.xml
+	mkdir -p wsug_chm/wsug_graphics
+	mkdir -p wsug_chm/wsug_graphics/toolbar
+	cp ./wsug_graphics/*.* wsug_chm/wsug_graphics
+	cp ./wsug_graphics/toolbar/*.* wsug_chm/wsug_graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl user-guide.xml
 	-$(HHC) htmlhelp.hhp
 	mv htmlhelp.chm user-guide.chm
 	rm -r htmlhelp.hhp
@@ -107,21 +107,21 @@ wsdg_validate:
 wsdg_html:
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p wsdg_html
-	mkdir -p wsdg_html/graphics
-	mkdir -p wsdg_html/graphics/toolbar
-	cp ./graphics/*.* wsdg_html/graphics
-	cp ./graphics/toolbar/*.* wsdg_html/graphics/toolbar
+	mkdir -p wsdg_html/wsdg_graphics
+	mkdir -p wsdg_html/wsdg_graphics/toolbar
+	cp ./wsdg_graphics/*.* wsdg_html/wsdg_graphics
+	cp ./wsdg_graphics/toolbar/*.* wsdg_html/wsdg_graphics/toolbar
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl developer-guide.xml > wsdg_html/developer-guide.html
 	
 # create html chunked page files
 wsdg_html_chunked:
 	@ echo --- HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked
-	mkdir -p wsdg_html_chunked/graphics
-	mkdir -p wsdg_html_chunked/graphics/toolbar
-	cp ./graphics/*.* wsdg_html_chunked/graphics
-	cp ./graphics/toolbar/*.* wsdg_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
+	mkdir -p wsdg_html_chunked/wsdg_graphics
+	mkdir -p wsdg_html_chunked/wsdg_graphics/toolbar
+	cp ./wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics
+	cp ./wsdg_graphics/toolbar/*.* wsdg_html_chunked/wsdg_graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -146,11 +146,11 @@ wsdg_chm:
 if HAVE_HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p wsdg_chm
-	mkdir -p wsdg_chm/graphics
-	mkdir -p wsdg_chm/graphics/toolbar
-	cp ./graphics/*.* wsdg_chm/graphics
-	cp ./graphics/toolbar/*.* wsdg_chm/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
+	mkdir -p wsdg_chm/wsdg_graphics
+	mkdir -p wsdg_chm/wsdg_graphics/toolbar
+	cp ./wsdg_graphics/*.* wsdg_chm/wsdg_graphics
+	cp ./wsdg_graphics/toolbar/*.* wsdg_chm/wsdg_graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
 	-$(HHC) htmlhelp.hhp
 	mv htmlhelp.chm developer-guide.chm
 	rm -r htmlhelp.hhp
