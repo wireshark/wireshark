@@ -102,6 +102,7 @@
 #include "packet-bssap.h"
 #include "packet-gsm_ss.h"
 #include "packet-ber.h"
+#include "packet-q931.h"
 #include "packet-gsm_a.h"
 
 #include "packet-ppp.h"
@@ -7508,6 +7509,21 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     return(curr_offset - offset);
 }
 
+/*
+ * 10.5.4.18 Low layer compatibility 
+ */
+static guint8
+de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+	dissect_q931_bearer_capability_ie(tvb, offset, len, tree);
+
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+}
 
 /*
  * [6] 3.6
@@ -12922,7 +12938,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_facility,	/* Facility */
     NULL,	/* High Layer Compatibility */
     de_keypad_facility,	/* Keypad Facility */
-    NULL,	/* Low Layer Compatibility */
+    de_llc,							/* 10.5.4.18 Low layer compatibility */
     NULL,	/* More Data */
     NULL,	/* Notification Indicator */
     de_prog_ind,	/* Progress Indicator */
