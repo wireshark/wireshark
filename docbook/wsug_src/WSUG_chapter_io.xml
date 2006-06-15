@@ -296,10 +296,20 @@
   <section id="ChIOOutputFormatsSection">
     <title>Output File Formats</title>
     <para>
-	The following file formats can be saved by <application>Wireshark</application>,
-	so other capture tools can read the capture data from:
+	Wireshark can save the packet data in it's "native" file format (libpcap) and 
+	in the file formats of some other protocol analyzers, so other tools can read 
+	the capture data.
+    </para>
+	<warning><title>Warning!</title>
+	<para>
+	The conversion to a different file format may reduce the time stamp accuracy, 
+	see the <xref linkend="ChAdvTimestamps"/> for details.
+	</para>
+	</warning>
+    <para>
+	The following file formats can be saved by <application>Wireshark</application>:
 	<itemizedlist>
-	      <listitem><para>libpcap (tcpdump)</para></listitem>
+	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format</para></listitem>
 	      <listitem><para>Novell LANalyzer</para></listitem>
 	      <listitem><para>Network Associates Sniffer</para></listitem>
 	      <listitem><para>Sun snoop</para></listitem>
@@ -310,10 +320,13 @@
 	      <listitem><para>HP-UX's nettl</para></listitem>
 	</itemizedlist>
     </para>
-	<note><title></title>
+    <para>
+	If the above tools will be more helpful than Wireshark is a different question ;-)
+    </para>
+	<note><title>Note!</title>
 	<para>
-	Other protocol analyzers may require that the file has a certain suffix 
-	in order to read the files you generate with Wireshark, e.g.:
+	Other protocol analyzers than Wireshark may require that the file has a 
+	certain suffix in order to read the files you generate with Wireshark, e.g.:
 	</para>
 	<para>
 	".DMP" for Tcpdump/libpcap
