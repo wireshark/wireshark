@@ -188,13 +188,13 @@ static int hf_x411_subject_intermediate_trace_information = -1;  /* SubjectInter
 static int hf_x411_returned_content = -1;         /* Content */
 static int hf_x411_additional_information = -1;   /* AdditionalInformation */
 static int hf_x411_per_recipient_report_fields = -1;  /* SEQUENCE_OF_PerRecipientReportTransferFields */
-static int hf_x411_per_recipient_fields_item = -1;  /* PerRecipientReportTransferFields */
+static int hf_x411_per_recipient_report_fields_item = -1;  /* PerRecipientReportTransferFields */
 static int hf_x411_mta_actual_recipient_name = -1;  /* MTAActualRecipientName */
 static int hf_x411_last_trace_information = -1;   /* LastTraceInformation */
 static int hf_x411_report_originally_intended_recipient_name = -1;  /* MTAOriginallyIntendedRecipientName */
 static int hf_x411_supplementary_information = -1;  /* SupplementaryInformation */
 static int hf_x411_country_name = -1;             /* CountryName */
-static int hf_x411_bilateral_domain = -1;         /* T_domain */
+static int hf_x411_bilateral_domain = -1;         /* T_bilateral_domain */
 static int hf_x411_administration_domain_name = -1;  /* AdministrationDomainName */
 static int hf_x411_private_domain = -1;           /* T_private_domain */
 static int hf_x411_private_domain_identifier = -1;  /* PrivateDomainIdentifier */
@@ -297,7 +297,7 @@ static int hf_x411_maximum_content_length = -1;   /* ContentLength */
 static int hf_x411_encoded_information_types_constraints = -1;  /* EncodedInformationTypesConstraints */
 static int hf_x411_security_labels = -1;          /* SecurityContext */
 static int hf_x411_class_priority = -1;           /* SET_OF_Priority */
-static int hf_x411_priority_item = -1;            /* Priority */
+static int hf_x411_class_priority_item = -1;      /* Priority */
 static int hf_x411_objects = -1;                  /* T_objects */
 static int hf_x411_applies_only_to = -1;          /* SEQUENCE_OF_Restriction */
 static int hf_x411_applies_only_to_item = -1;     /* Restriction */
@@ -311,8 +311,8 @@ static int hf_x411_source_name = -1;              /* ExactOrPattern */
 static int hf_x411_exact_match = -1;              /* ORName */
 static int hf_x411_pattern_match = -1;            /* ORName */
 static int hf_x411_standard_parameters = -1;      /* T_standard_parameters */
-static int hf_x411_type_extensions = -1;          /* T_extensions */
-static int hf_x411_type_extensions_item = -1;     /* T_extensions_item */
+static int hf_x411_type_extensions = -1;          /* T_type_extensions */
+static int hf_x411_type_extensions_item = -1;     /* T_type_extensions_item */
 static int hf_x411_mts_originator_name = -1;      /* MTSOriginatorName */
 static int hf_x411_per_recipient_message_submission_fields = -1;  /* SEQUENCE_OF_PerRecipientMessageSubmissionFields */
 static int hf_x411_per_recipient_message_submission_fields_item = -1;  /* PerRecipientMessageSubmissionFields */
@@ -564,7 +564,7 @@ static gint ett_x411_ReportTransferContent = -1;
 static gint ett_x411_SEQUENCE_OF_PerRecipientReportTransferFields = -1;
 static gint ett_x411_PerRecipientReportTransferFields = -1;
 static gint ett_x411_PerDomainBilateralInformation = -1;
-static gint ett_x411_T_domain = -1;
+static gint ett_x411_T_bilateral_domain = -1;
 static gint ett_x411_T_private_domain = -1;
 static gint ett_x411_PerRecipientIndicators = -1;
 static gint ett_x411_LastTraceInformation = -1;
@@ -625,7 +625,7 @@ static gint ett_x411_T_source_type = -1;
 static gint ett_x411_ExactOrPattern = -1;
 static gint ett_x411_RegistrationTypes = -1;
 static gint ett_x411_T_standard_parameters = -1;
-static gint ett_x411_T_extensions = -1;
+static gint ett_x411_T_type_extensions = -1;
 static gint ett_x411_MessageSubmissionEnvelope = -1;
 static gint ett_x411_SEQUENCE_OF_PerRecipientMessageSubmissionFields = -1;
 static gint ett_x411_PerRecipientMessageSubmissionFields = -1;
@@ -2466,8 +2466,8 @@ static int dissect_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 static int dissect_permissible_lowest_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_Priority(FALSE, tvb, offset, pinfo, tree, hf_x411_permissible_lowest_priority);
 }
-static int dissect_priority_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x411_Priority(FALSE, tvb, offset, pinfo, tree, hf_x411_priority_item);
+static int dissect_class_priority_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_Priority(FALSE, tvb, offset, pinfo, tree, hf_x411_class_priority_item);
 }
 
 
@@ -2558,28 +2558,28 @@ static int dissect_private_domain(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
-static const value_string x411_T_domain_vals[] = {
+static const value_string x411_T_bilateral_domain_vals[] = {
   {   0, "administration-domain-name" },
   {   1, "private-domain" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_domain_choice[] = {
+static const ber_choice_t T_bilateral_domain_choice[] = {
   {   0, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_administration_domain_name },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_private_domain },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_x411_T_domain(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x411_T_bilateral_domain(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_domain_choice, hf_index, ett_x411_T_domain,
+                                 T_bilateral_domain_choice, hf_index, ett_x411_T_bilateral_domain,
                                  NULL);
 
   return offset;
 }
 static int dissect_bilateral_domain(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x411_T_domain(FALSE, tvb, offset, pinfo, tree, hf_x411_bilateral_domain);
+  return dissect_x411_T_bilateral_domain(FALSE, tvb, offset, pinfo, tree, hf_x411_bilateral_domain);
 }
 
 
@@ -3573,13 +3573,13 @@ dissect_x411_PerRecipientReportTransferFields(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_per_recipient_fields_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x411_PerRecipientReportTransferFields(FALSE, tvb, offset, pinfo, tree, hf_x411_per_recipient_fields_item);
+static int dissect_per_recipient_report_fields_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_PerRecipientReportTransferFields(FALSE, tvb, offset, pinfo, tree, hf_x411_per_recipient_report_fields_item);
 }
 
 
 static const ber_sequence_t SEQUENCE_OF_PerRecipientReportTransferFields_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_per_recipient_fields_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_per_recipient_report_fields_item },
 };
 
 static int
@@ -5001,7 +5001,7 @@ static int dissect_user_address_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static const ber_sequence_t SET_OF_Priority_set_of[1] = {
-  { BER_CLASS_APP, 7, BER_FLAGS_NOOWNTAG, dissect_priority_item },
+  { BER_CLASS_APP, 7, BER_FLAGS_NOOWNTAG, dissect_class_priority_item },
 };
 
 static int
@@ -5295,7 +5295,7 @@ static int dissect_standard_parameters_impl(packet_info *pinfo, proto_tree *tree
 
 
 static int
-dissect_x411_T_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x411_T_type_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 223 "x411.cnf"
 /*XXX not implemented yet */
 
@@ -5304,23 +5304,23 @@ dissect_x411_T_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 static int dissect_type_extensions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x411_T_extensions_item(FALSE, tvb, offset, pinfo, tree, hf_x411_type_extensions_item);
+  return dissect_x411_T_type_extensions_item(FALSE, tvb, offset, pinfo, tree, hf_x411_type_extensions_item);
 }
 
 
-static const ber_sequence_t T_extensions_set_of[1] = {
+static const ber_sequence_t T_type_extensions_set_of[1] = {
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_type_extensions_item },
 };
 
 static int
-dissect_x411_T_extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x411_T_type_extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_extensions_set_of, hf_index, ett_x411_T_extensions);
+                                 T_type_extensions_set_of, hf_index, ett_x411_T_type_extensions);
 
   return offset;
 }
 static int dissect_type_extensions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x411_T_extensions(TRUE, tvb, offset, pinfo, tree, hf_x411_type_extensions);
+  return dissect_x411_T_type_extensions(TRUE, tvb, offset, pinfo, tree, hf_x411_type_extensions);
 }
 
 
@@ -7204,7 +7204,7 @@ static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
   const char *name = NULL;
-  char extension_oid[BER_MAX_OID_STR_LEN];
+  char extension_oid[MAX_OID_STR_LEN];
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
 
@@ -7756,7 +7756,7 @@ void proto_register_x411(void) {
       { "per-recipient-fields", "x411.per_recipient_fields",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ReportTransferContent/per-recipient-fields", HFILL }},
-    { &hf_x411_per_recipient_fields_item,
+    { &hf_x411_per_recipient_report_fields_item,
       { "Item", "x411.per_recipient_fields_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportTransferContent/per-recipient-fields/_item", HFILL }},
@@ -7782,7 +7782,7 @@ void proto_register_x411(void) {
         "", HFILL }},
     { &hf_x411_bilateral_domain,
       { "domain", "x411.domain",
-        FT_UINT32, BASE_DEC, VALS(x411_T_domain_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x411_T_bilateral_domain_vals), 0,
         "PerDomainBilateralInformation/domain", HFILL }},
     { &hf_x411_administration_domain_name,
       { "administration-domain-name", "x411.administration_domain_name",
@@ -8192,7 +8192,7 @@ void proto_register_x411(void) {
       { "priority", "x411.priority",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MessageClass/priority", HFILL }},
-    { &hf_x411_priority_item,
+    { &hf_x411_class_priority_item,
       { "Item", "x411.priority_item",
         FT_UINT32, BASE_DEC, VALS(x411_Priority_vals), 0,
         "MessageClass/priority/_item", HFILL }},
@@ -9171,7 +9171,7 @@ void proto_register_x411(void) {
     &ett_x411_SEQUENCE_OF_PerRecipientReportTransferFields,
     &ett_x411_PerRecipientReportTransferFields,
     &ett_x411_PerDomainBilateralInformation,
-    &ett_x411_T_domain,
+    &ett_x411_T_bilateral_domain,
     &ett_x411_T_private_domain,
     &ett_x411_PerRecipientIndicators,
     &ett_x411_LastTraceInformation,
@@ -9232,7 +9232,7 @@ void proto_register_x411(void) {
     &ett_x411_ExactOrPattern,
     &ett_x411_RegistrationTypes,
     &ett_x411_T_standard_parameters,
-    &ett_x411_T_extensions,
+    &ett_x411_T_type_extensions,
     &ett_x411_MessageSubmissionEnvelope,
     &ett_x411_SEQUENCE_OF_PerRecipientMessageSubmissionFields,
     &ett_x411_PerRecipientMessageSubmissionFields,

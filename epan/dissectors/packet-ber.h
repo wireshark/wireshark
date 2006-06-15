@@ -37,6 +37,8 @@ if (check_col(pinfo->cinfo, COL_INFO)){ \
 tvb_get_guint8(tvb, 9999);
 
 typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+typedef int (*ber_type_fn)(gboolean, tvbuff_t*, int, packet_info*, proto_tree*, int);
+
 
 #define BER_CLASS_UNI	0
 #define BER_CLASS_APP	1
@@ -73,7 +75,6 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_UNI_TAG_CHARACTERSTRING	    29
 #define BER_UNI_TAG_BMPString		    30
 
-#define BER_MAX_OID_STR_LEN MAX_OID_STR_LEN
 
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle TAGs (and LENGTHs) that fit inside 32 bit integers.
@@ -86,6 +87,8 @@ extern int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
  */
 extern int get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 extern int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
+
+extern int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type);
 
 extern int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);

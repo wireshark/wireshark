@@ -202,6 +202,38 @@ get_ber_oid_name(const char *oid)
 }
 
 
+int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type) 
+{
+ gint8 tmp_cls;
+ gint32 tmp_tag;
+ guint32 tmp_len;
+ tvbuff_t *next_tvb = tvb;
+
+ if (implicit_tag) {
+	offset = type(tag_impl, tvb, offset, pinfo, tree, hf_id);
+	return offset;
+ }
+
+ offset = get_ber_identifier(tvb, offset, &tmp_cls, NULL, &tmp_tag);
+ offset = get_ber_length(tree, tvb, offset, &tmp_len, NULL);
+ if ((tmp_cls != tag_cls) || (tmp_tag != tag_tag)) {
+	proto_tree_add_text(tree, tvb, offset, tmp_len, 
+		"BER Error: Wrong tag in tagged type - expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",
+		tag_cls, val_to_str(tag_cls, ber_class_codes, "Unknown"), tag_tag, val_to_str(tag_tag, ber_uni_tag_codes,"Unknown"),
+		tmp_cls, val_to_str(tmp_cls, ber_class_codes,"Unknown"), tmp_tag);
+ }
+
+ if (tag_impl) {
+	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tmp_len);
+	type(tag_impl, next_tvb, 0, pinfo, tree, hf_id);
+	offset += tmp_len;
+ } else {
+	offset = type(tag_impl, tvb, offset, pinfo, tree, hf_id);
+ }
+
+ return offset;
+}
+
 int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int start_offset;

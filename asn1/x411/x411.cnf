@@ -219,7 +219,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 #.FN_BODY AdditionalInformation
 /*XXX not implemented yet */
 
-#.FN_BODY T_extensions_item
+#.FN_BODY RegistrationTypes/extensions/_item
 /*XXX not implemented yet */
 
 #.FN_BODY ExtensionValue
@@ -238,11 +238,11 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
 
-#.FN_BODY T_extension_attribute_value
+#.FN_BODY ExtensionAttribute/extension-attribute-value
 
 	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, pinfo, tree);
 
-#.FN_BODY T_refused_extension
+#.FN_BODY RefusedOperation/refused-argument/refused-extension
 /*XXX not implemented yet */
 
 #.FN_BODY CountryName
