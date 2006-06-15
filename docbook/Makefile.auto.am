@@ -36,11 +36,6 @@ clean:
 	rm -rf wsdg_chm
 
 
-images:
-	cp $(DOCBOOKXSL)/images/note.png ./graphics
-	cp $(DOCBOOKXSL)/images/tip.png ./graphics
-	cp $(DOCBOOKXSL)/images/warning.png ./graphics
-
 # validate the content
 wsug_validate:
 	@ echo --- VALIDATING XML ---
@@ -57,7 +52,7 @@ wsug_html:
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > wsug_html/user-guide.html
 	
 # create html chunked page files
-wsug_html_chunked: images
+wsug_html_chunked:
 	@ echo --- HTML CHUNKED ---
 	mkdir -p wsug_html_chunked
 	mkdir -p wsug_html_chunked/graphics
@@ -68,7 +63,7 @@ wsug_html_chunked: images
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-wsug_pdf_us: images
+wsug_pdf_us:
 if HAVE_FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl user-guide.xml > user-guide.fo
@@ -77,7 +72,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-wsug_pdf_a4: images
+wsug_pdf_a4:
 if HAVE_FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > user-guide.fo
@@ -85,7 +80,7 @@ if HAVE_FOP
 endif
 
 # create MS html help file (through html chunked pages)
-wsug_chm: images
+wsug_chm:
 if HAVE_HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p wsug_chm
@@ -119,7 +114,7 @@ wsdg_html:
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl developer-guide.xml > wsdg_html/developer-guide.html
 	
 # create html chunked page files
-wsdg_html_chunked: images
+wsdg_html_chunked:
 	@ echo --- HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked
 	mkdir -p wsdg_html_chunked/graphics
@@ -130,7 +125,7 @@ wsdg_html_chunked: images
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-wsdg_pdf_us: images
+wsdg_pdf_us:
 if HAVE_FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl developer-guide.xml > developer-guide.fo
@@ -139,7 +134,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-wsdg_pdf_a4: images
+wsdg_pdf_a4:
 if HAVE_FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide.fo
@@ -147,7 +142,7 @@ if HAVE_FOP
 endif
 
 # create MS html help file (through html chunked pages)
-wsdg_chm: images
+wsdg_chm:
 if HAVE_HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p wsdg_chm
