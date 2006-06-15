@@ -209,7 +209,8 @@ ECT-CallState ::= ENUMERATED {
 
 NameIndicator ::= SEQUENCE {
 	callingName 		[0] Name OPTIONAL,
-...}
+	...
+	}
 
 Name ::= CHOICE {
 	namePresentationAllowed 	[0] NameSet,

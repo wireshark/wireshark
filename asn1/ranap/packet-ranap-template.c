@@ -1082,17 +1082,15 @@ static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 temp;
+	asn_ctx_t asn_ctx;
+	guint length;
+	int offset;
+
+	asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
 
     /* Is it a ranap packet?
      *
      * 4th octet should be the length of the rest of the message.
-     *    note: I believe the length octet may actually be represented
-     *          by more than one octet.  Something like...
-     *          bit 01234567          octets
-     *              0xxxxxxx             1
-     *              10xxxxxx xxxxxxxx    2
-     *          For now, we have ignored this.  I hope that's safe.
-     *
      * 2nd octet is the message-type e Z[0, 28]
      * (obviously there must be at least four octets)
      *
@@ -1102,7 +1100,14 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     #define LENGTH_OFFSET 3
     #define MSG_TYPE_OFFSET 1
     if (tvb_length(tvb) < 4) { return FALSE; }
-    if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }
+    /*if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }*/
+	/* Read the length NOTE offset in bits */
+	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn_ctx, tree, -1, &length);
+	offset = offset>>3;
+	if (length!= (tvb_length(tvb) - offset)){
+		return FALSE; 
+	}
+
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
 
