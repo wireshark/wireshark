@@ -711,13 +711,13 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
 		    tvb_bytes_to_str(tvb, offset, len));
-		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		return;
 	}
-	proto_tree_add_uint(tree, hf_q931_information_transfer_capability, tvb, offset, 1, octet);
-	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_information_transfer_capability, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
@@ -738,9 +738,9 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_q931_information_transfer_rate, tvb, offset, 1, octet);
-	proto_tree_add_uint(tree, hf_q931_transfer_mode, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_transfer_mode, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_information_transfer_rate, tvb, offset, 1, octet);
 	it_rate = octet & 0x1F;
 	offset += 1;
 	len -= 1;
@@ -760,8 +760,8 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		/*
 		 * Layer 1 information.
 		 */
-		proto_tree_add_uint(tree, hf_q931_uil1, tvb, offset, 1, octet);
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_uil1, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 
