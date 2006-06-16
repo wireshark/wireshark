@@ -158,10 +158,9 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   proto_item *association_item;
   proto_tree *association_tree;
   gint        associations;
-  size_t      i;
+  int         i;
   gint        offset;
   gint        remaining_length;
-  char        title[64];
 
   proto_tree_add_item(message_tree, hf_componentstatusreport_reportinterval, message_tvb, COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET, COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH, FALSE);
   proto_tree_add_item(message_tree, hf_componentstatusreport_location, message_tvb,  COMPONENTSTATUSREPORT_LOCATION_OFFSET, COMPONENTSTATUSREPORT_LOCATION_LENGTH, FALSE);
@@ -173,8 +172,8 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   offset = COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET;
   i = 1;
   while((remaining_length = tvb_length_remaining(message_tvb, offset)) >= COMPONENTASSOCIATION_LENGTH) {
-     snprintf((char*)&title, sizeof(title), "Association #%d", i++);
-     association_item = proto_tree_add_text(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH, title);
+     association_item = proto_tree_add_text(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
+         "Association #%d", i++);
      association_tree = proto_item_add_subtree(association_item, ett_association);
      association_tvb  = tvb_new_subset(message_tvb, offset, COMPONENTASSOCIATION_LENGTH, COMPONENTASSOCIATION_LENGTH);
 
