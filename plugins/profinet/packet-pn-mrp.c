@@ -369,24 +369,24 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 static void
 dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *mrp_tree = NULL;
+    proto_item *ti = NULL;
+    proto_tree *mrp_tree = NULL;
 	
-	guint32 offset = 0;
+    guint32 offset = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRP");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRP");
 		
-	/* Clear the information column on summary display */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-	}
+    /* Clear the information column on summary display */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
 
-	if (tree) 
-	{
-		ti = proto_tree_add_item(tree, proto_pn_mrp, tvb, offset, -1, FALSE);
-		mrp_tree = proto_item_add_subtree(ti, ett_pn_mrp);
-	}
+    if (tree) 
+    {
+        ti = proto_tree_add_item(tree, proto_pn_mrp, tvb, offset, -1, FALSE);
+        mrp_tree = proto_item_add_subtree(ti, ett_pn_mrp);
+    }
 
     dissect_PNMRP_PDU(tvb, offset, pinfo, mrp_tree, ti);
 }	
