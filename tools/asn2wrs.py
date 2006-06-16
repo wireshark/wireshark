@@ -1073,12 +1073,6 @@ class EthCtx:
       else:
         out += 'void'
       out += ' dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
-      if (self.Per()):
-        if (self.Aligned()):
-          aligned = 'TRUE'
-        else:
-          aligned = 'FALSE'
-        out += self.eth_fn_call('per_aligment_type_callback', par=((aligned,),))
       if (self.Ber()):
         par=((impl, 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       elif (self.Per()):
