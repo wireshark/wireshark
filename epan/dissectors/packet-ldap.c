@@ -92,6 +92,7 @@
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
 #include <epan/strutil.h>
+#include <epan/dissectors/packet-tcp.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
@@ -240,7 +241,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 134 "packet-ldap-template.c"
+#line 135 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -291,7 +292,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 143 "packet-ldap-template.c"
+#line 144 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -2646,7 +2647,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 464 "packet-ldap-template.c"
+#line 465 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3932,7 +3933,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1357 "packet-ldap-template.c"
+#line 1358 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3985,7 +3986,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1368 "packet-ldap-template.c"
+#line 1369 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;

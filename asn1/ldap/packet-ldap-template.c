@@ -84,6 +84,7 @@
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
 #include <epan/strutil.h>
+#include <epan/dissectors/packet-tcp.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
