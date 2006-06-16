@@ -288,7 +288,7 @@ emem_create_chunk(emem_chunk_t **free_list) {
 
 #elif defined(USE_GUARD_PAGES)
 		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
-			PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+			PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
 		g_assert(npc->buf != MAP_FAILED);
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
