@@ -14,7 +14,7 @@
 #	string  - 0-253 octets
 #	ipaddr  - 4 octets in network byte order
 #	integer - 32 bit value in big endian order (high byte first)
-#             (ethereal uses this type for non-standard 1-2-3 and 8 byte integers as well)
+#             (wireshark uses this type for non-standard 1-2-3 and 8 byte integers as well)
 #	date    - 32 bit value in big endian order - seconds since
 #					00:00:00 GMT,  Jan.  1,  1970
 #	ifid    - 8 octets in network byte order
