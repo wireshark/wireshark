@@ -83,8 +83,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offse
   wth->phdr.len = packet_size;
 
   if (fstat(wth->fd, &statb) == -1) {
-    if (err != NULL)
-      *err = errno;
+    *err = errno;
     return FALSE;
   }
 
