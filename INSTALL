@@ -14,10 +14,10 @@ README.win32 for those instructions.
 
 0. This is beta software.  Beware.
 
-1. If you wish to build Ethereal, make sure you have GTK+ and GLIB
+1. If you wish to build Wireshark, make sure you have GTK+ and GLIB
     installed. Try running 'gtk-config --version' and
     'glib-config --version' to see if you have them installed.
-    Ethereal needs versions 1.2.0 or above of both these packages.
+    Wireshark needs versions 1.2.0 or above of both these packages.
     If you need to install or re-install GTK+ or GLIB, you can find
     the packages at:
 
@@ -29,11 +29,11 @@ README.win32 for those instructions.
     header files and the like.  For example, Red Hat users will
     need to install a "gtk-devel" .rpm.
 
-    Note also that Ethereal configuration defaults to using GTK+ and
+    Note also that Wireshark configuration defaults to using GTK+ and
     GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
     1.2[.x].
 
-2. If you wish to build TShark, the line-mode version of Ethereal,
+2. If you wish to build TShark, the line-mode version of Wireshark,
     make sure you have GLIB installed.  See note #1 above for instructions
     on checking if you have GLIB installed. You can download GLIB from
     the same site as GTK.
@@ -60,11 +60,11 @@ README.win32 for those instructions.
 4. Run './configure' in the Wireshark distribution directory.
     Running './configure --help' displays a list of options.
     The file 'INSTALL.configure' contains general instructions for
-    using 'configure' and 'make'. Ethereal has some non-generic configure 
+    using 'configure' and 'make'. Wireshark has some non-generic configure 
     options:
 
     --sysconfdir=DIR
-        Ethereal installs a support file (manuf) in ${PREFIX}/etc by
+        Wireshark installs a support file (manuf) in ${PREFIX}/etc by
         default, where ${PREFIX} comes from --prefix=DIR. If you do not
         specify any --prefix option, ${PREFIX} is "/usr/local".
         You can change the location of the manuf file with the --sysconfdir
@@ -77,8 +77,8 @@ README.win32 for those instructions.
 
     --disable-wireshark
         By default, if 'configure' finds the GTK+ libraries, the Makefile
-        build Ethereal, the GUI packet analyzer. You can disable the
-        build of the GUI version of Ethereal with this switch.
+        build Wireshark, the GUI packet analyzer. You can disable the
+        build of the GUI version of Wireshark with this switch.
 
     --disable-gtk2
         Build Glib/Gtk+ 1.2[.x]-based wireshark.
@@ -115,13 +115,13 @@ README.win32 for those instructions.
         If you choose to build a packet analyzer that can analyze
         capture files but cannot capture packets on its own, but you
         *do* have libpcap installed, or if you are trying to build
-        Ethereal on a system that doesn't have libpcap installed (in
+        Wireshark on a system that doesn't have libpcap installed (in
         which case you have no choice but to build a version that can
         analyze capture files but cannot capture packets on its own),
         use --without-pcap to avoid using libpcap.
 
     --with-pcap=DIR
-        Use this to tell Ethereal where you have libpcap installed, if
+        Use this to tell Wireshark where you have libpcap installed, if
         it is installed in a non-standard location.
 
     --without-zlib
@@ -133,7 +133,7 @@ README.win32 for those instructions.
         this switch.
 
     --with-zlib=DIR
-        Use this to tell Ethereal where you have zlib installed, if it
+        Use this to tell Wireshark where you have zlib installed, if it
         is installed in a non-standard location.
 
     --disable-ipv6
@@ -144,7 +144,7 @@ README.win32 for those instructions.
 
     --enable-setuid-install
         Use this switch to install the packet analyzers as setuid.
-        Installating Ethereal and TShark as setuid 'root' is
+        Installating Wireshark and TShark as setuid 'root' is
         dangerous. Repeat: IT'S DANGEROUS. Don't do it.
 
     --with-ssl=DIR
