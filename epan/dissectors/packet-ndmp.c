@@ -271,10 +271,24 @@ typedef struct _ndmp_task_data_t {
 typedef struct _ndmp_conv_data_t {
 	guint8 version;
 	se_tree_t *tasks;	/* indexed by Sequence# */
+	se_tree_t *itl;		/* indexed by packet# */
 	ndmp_task_data_t *task;
 } ndmp_conv_data_t;
 ndmp_conv_data_t *ndmp_conv_data=NULL;
 static proto_tree *top_tree;
+
+static itl_nexus_t *
+get_itl_nexus(ndmp_conv_data_t *ndmp_conv_data, packet_info *pinfo, gboolean create_new)
+{
+	itl_nexus_t *itl;
+
+	if(create_new || !(itl=se_tree_lookup32_le(ndmp_conv_data->itl, pinfo->fd->num))){
+		itl=se_alloc(sizeof(itl_nexus_t));
+		itl->cmdset=0xff;
+		se_tree_insert32(ndmp_conv_data->itl, pinfo->fd->num, itl);
+	}
+	return itl;
+}
 
 static guint8 
 get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
@@ -1036,12 +1050,18 @@ dissect_get_server_info_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_scsi_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_scsi_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* device */
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_scsi_device, offset, NULL);
+
+
+	if(!pinfo->fd->flags.visited){
+		/* new scsi device addressed, create a new itl structure */
+		get_itl_nexus(ndmp_conv_data, pinfo, TRUE);
+	}
 
 	return offset;
 }
@@ -1159,7 +1179,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;
 		}
 		if(ndmp_conv_data->task->itlq){
-			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, NULL);
+			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
 		}
 		offset += cdb_len_full;
 	}
@@ -1204,7 +1224,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 		if(ndmp_conv_data->task->itlq){
 			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
-		 		   ndmp_conv_data->task->itlq, NULL);
+		 		   ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
 		}
 		offset += payload_len_full;
 	}
@@ -1291,7 +1311,7 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	if (sns_len != 0) {
 		if(ndmp_conv_data->task->itlq){
-			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, NULL);
+			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
 		}
 		offset += sns_len_full;
 	}
@@ -1312,7 +1332,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
 	status=tvb_get_ntohl(tvb, offset);
 	if(ndmp_conv_data->task->itlq){
-		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, NULL, status);
+		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE), status);
 	}
 	offset += 4;
 
@@ -1340,7 +1360,7 @@ static const value_string tape_open_mode_vals[] = {
 };
 
 static int
-dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* device */
@@ -1350,6 +1370,11 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* open mode */
 	proto_tree_add_item(tree, hf_ndmp_tape_open_mode, tvb, offset, 4, FALSE);
 	offset += 4;
+
+	if(!pinfo->fd->flags.visited){
+		/* new scsi device addressed, create a new itl structure */
+		get_itl_nexus(ndmp_conv_data, pinfo, TRUE);
+	}
 
 	return offset;
 }
@@ -2840,6 +2865,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
 		ndmp_conv_data->version=NDMP_PROTOCOL_UNKNOWN;
 		ndmp_conv_data->tasks=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "NDMP tasks");
+		ndmp_conv_data->itl=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "NDMP itl");
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 	}
