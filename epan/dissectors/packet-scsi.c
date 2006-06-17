@@ -1,3 +1,6 @@
+/* TODO make the contracts require that all functions be called with valid 
+ * pointers for itl and itlq and remove all tests for itl/itlq being NULL
+ */
 /* TODO audit value parameter for proto_tree_add_boolean() calls */
 /* TODO scsi_verdesc_val needs to be updated from appendix D in spc-3 */
 /* packet-scsi.c
@@ -7685,6 +7688,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0xff*/{NULL}
 };
 
+/* This function must be called with walid pointers for both itlq and itl */
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   gint devtype_arg, itlq_nexus_t *itlq, itl_nexus_t *itl)
@@ -7704,6 +7708,9 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->current_proto="SCSI";
 
     if(!itlq){
+        g_assert_not_reached();
+    }
+    if(!itl){
         g_assert_not_reached();
     }
 
