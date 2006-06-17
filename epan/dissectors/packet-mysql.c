@@ -487,10 +487,10 @@ static int mysql_dissect_collation(tvbuff_t *tvb, int offset, proto_tree *tree, 
 static int mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
 static int mysql_dissect_ext_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
 static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_field_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_row_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_param_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
+static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null);
 
@@ -1244,6 +1244,9 @@ static int mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (client_caps & MYSQL_CAPS_CD)
 	{
 		strlen= my_tvb_strsize(tvb,offset);
+		if(strlen<0){
+			return offset;
+		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			/* ugly hack: copy database to new buffer*/
@@ -1621,23 +1624,19 @@ static int mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		case FIELD_PACKET:
-			offset= mysql_dissect_field_packet(tvb, pinfo, offset,
-							   tree, conn_data);
+			offset= mysql_dissect_field_packet(tvb, offset, tree);
 			break;
 
 		case ROW_PACKET:
-			offset= mysql_dissect_row_packet(tvb, pinfo, offset,
-							 tree, conn_data);
+			offset= mysql_dissect_row_packet(tvb, offset, tree);
 			break;
 
 		case RESPONSE_PREPARE:
-			offset= mysql_dissect_response_prepare(tvb, pinfo, offset,
-							       tree, conn_data);
+			offset= mysql_dissect_response_prepare(tvb, offset, tree);
 			break;
 
 		case PARAM_PACKET:
-			offset= mysql_dissect_param_packet(tvb, pinfo, offset,
-							   tree, conn_data);
+			offset= mysql_dissect_param_packet(tvb, offset, tree);
 			break;
 
 		default:
@@ -1863,32 +1862,28 @@ static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 
-static int mysql_dissect_field_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
-				      proto_tree *tree, my_conn_data_t *conn_data)
+static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_field_packet()");
 	return offset + tvb_length_remaining(tvb, offset);
 }
 
 
-static int mysql_dissect_row_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
-				    proto_tree *tree, my_conn_data_t *conn_data)
+static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_row_packet()");
 	return offset + tvb_length_remaining(tvb, offset);
 }
 
 
-static int mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset,
-					  proto_tree *tree, my_conn_data_t *conn_data)
+static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_response_prepare()");
 	return offset + tvb_length_remaining(tvb, offset);
 }
 
 
-static int mysql_dissect_param_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
-				      proto_tree *tree, my_conn_data_t *conn_data)
+static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_param_packet()");
 	return offset + tvb_length_remaining(tvb, offset);
