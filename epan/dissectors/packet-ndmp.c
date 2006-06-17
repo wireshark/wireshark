@@ -1169,7 +1169,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
 		if(!ndmp_conv_data->task->itlq){
-			ndmp_conv_data->task->itlq=se_alloc(sizeof(ndmp_task_data_t));
+			ndmp_conv_data->task->itlq=se_alloc(sizeof(itlq_nexus_t));
 			ndmp_conv_data->task->itlq->lun=0xffff;
 			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->fd->num;
 			ndmp_conv_data->task->itlq->last_exchange_frame=0;
