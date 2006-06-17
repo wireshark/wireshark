@@ -185,13 +185,13 @@ capture_step_snapshot() {
 	fi
 }
 
-ethereal_capture_suite() {
+wireshark_capture_suite() {
 	# Q: quit after cap, k: start capture immediately
 	DUT="$WIRESHARK -Q -k"
 	test_step_add "Capture 10 packets" capture_step_10packets
-	# piping to stdout doesn't work with Ethereal and capturing!
+	# piping to stdout doesn't work with Wireshark and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
-	# read filter doesn't work with Ethereal and capturing!
+	# read filter doesn't work with Wireshark and capturing!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
@@ -226,6 +226,6 @@ capture_suite() {
 	test_step_set_post capture_cleanup_step
 	test_remark_add "Capture - need some traffic on interface: \"$TRAFFIC_CAPTURE_IFACE\""
 	test_suite_add "TShark capture" tshark_capture_suite
-	test_suite_add "Ethereal capture" ethereal_capture_suite
+	test_suite_add "Wireshark capture" wireshark_capture_suite
 	test_suite_add "Dumpcap capture" dumpcap_capture_suite
 }

@@ -6,14 +6,14 @@ What is it?
 -----------
 This is basically a collection of bash scripts to test the command line options of:
 
- - Ethereal
+ - Wireshark
  - TShark
  - Dumpcap 
 
 Motivation
 ----------
 
-The command line options of Ethereal and the companion command line tools are 
+The command line options of Wireshark and the companion command line tools are 
 numerous. This makes it hard to find newly introduced bugs doing manual testing 
 (try and error) with source code changes.
 
@@ -38,7 +38,7 @@ Prerequisites
 What you'll need (to do):
 
  - THE LATEST DEVELOPER BUILDS (the 0.10.13 release won't work)!
- - obviously, compile the programs (ethereal, ...) to be tested
+ - obviously, compile the programs (wireshark, ...) to be tested
  - have a bash (cygwin should do well)
  - you'll need a network interface with some network traffic 
    (so you can run the capture tests)
