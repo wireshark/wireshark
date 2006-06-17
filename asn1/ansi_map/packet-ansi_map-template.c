@@ -93,6 +93,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
@@ -110,7 +111,12 @@
 #define PSNAME "ANSI MAP"
 #define PFNAME "ansi_map"
 
-static dissector_handle_t ansi_map_handle=NULL;
+/* Preferenc settings default */
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
+
+dissector_handle_t ansi_map_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int ansi_map_tap = -1;
@@ -2122,11 +2128,18 @@ static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val
 
 /* SMS Teleservice Identifier (octets 1 and 2) */
 static const value_string ansi_map_SMS_TeleserviceIdentifier_vals[]  = {
-    {   0, "Not used"},
-    {   1, "Reserved for maintenance"},
-    {   2, "SSD Update no response"},
-    {   3, "SSD Update successful"},
-    {   4, "SSD Update failed"},
+    {     0, "Not used"},
+    {     1, "Reserved for maintenance"},
+    {     2, "SSD Update no response"},
+    {     3, "SSD Update successful"},
+    {     4, "SSD Update failed"},
+    {  4096, "AMPS Extended Protocol Enhanced Services" },
+    {  4097, "CDMA Cellular Paging Teleservice" },
+    {  4098, "CDMA Cellular Messaging Teleservice" },
+    {  4099, "CDMA Voice Mail Notification" },
+    { 32513, "TDMA Cellular Messaging Teleservice" },
+    { 32520, "TDMA System Assisted Mobile Positioning through Satellite (SAMPS)" },
+    { 32584, "TDMA Segmented System Assisted Mobile Positioning Service" },
 	{	0, NULL }
 };
 /* 6.5.2.140 SPINITriggers */
@@ -3549,8 +3562,47 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static void range_delete_callback(guint32 ssn)
+ {
+     if (ssn) {
+ 	delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
+ 	add_itu_tcap_subdissector(ssn , ansi_map_handle);
+     }
+ }
+
+ static void range_add_callback(guint32 ssn)
+ {
+     if (ssn) {
+ 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+     }
+ }
+
+ void
+ proto_reg_handoff_ansi_map(void)
+ {
+     static int ansi_map_prefs_initialized = FALSE;
+     data_handle = find_dissector("data");
+     
+     if(!ansi_map_prefs_initialized)
+     {
+ 	ansi_map_prefs_initialized = TRUE;
+ 	ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
+     }
+     else
+     {
+ 	range_foreach(ssn_range, range_delete_callback);
+     }
+     
+     g_free(ssn_range);
+     ssn_range = range_copy(global_ssn_range);
+ 
+     range_foreach(ssn_range, range_add_callback);
+ }
+
 /*--- proto_register_ansi_map -------------------------------------------*/
 void proto_register_ansi_map(void) {
+
+  module_t	*ansi_map_module;
 
   /* List of fields */
     static hf_register_info hf[] = {
@@ -4253,29 +4305,20 @@ void proto_register_ansi_map(void) {
 
   ansi_map_tap = register_tap("ansi_map");
 
-}
 
+  range_convert_str(&global_ssn_range, "5-14", MAX_SSN);
 
-/*--- proto_reg_handoff_ansi_map ---------------------------------------*/
-void
-proto_reg_handoff_ansi_map(void)
-{
+  ssn_range = range_empty();
 
-    ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
-
-	add_ansi_tcap_subdissector(5, ansi_map_handle); 
-    add_ansi_tcap_subdissector(6, ansi_map_handle); 
-    add_ansi_tcap_subdissector(7, ansi_map_handle); 
-    add_ansi_tcap_subdissector(8, ansi_map_handle); 
-    add_ansi_tcap_subdissector(9 , ansi_map_handle); 
-    add_ansi_tcap_subdissector(10 , ansi_map_handle); 
-    add_ansi_tcap_subdissector(11 , ansi_map_handle); 
-    add_ansi_tcap_subdissector(12 , ansi_map_handle); 
-    add_ansi_tcap_subdissector(13 , ansi_map_handle); 
-    add_ansi_tcap_subdissector(14 , ansi_map_handle); 
+  ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
     
-    data_handle = find_dissector("data");
 
+  prefs_register_range_preference(ansi_map_module, "map.ssn", "ANSI MAP SSNs",
+				    "ANSI MAP SSNs to decode as ANSI MAP",
+				    &global_ssn_range, MAX_SSN);
 }
+
+
+
 
 
