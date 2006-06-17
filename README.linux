@@ -1,6 +1,6 @@
 $Id$
 
-In order to capture packets (with Ethereal/TShark, tcpdump, or any
+In order to capture packets (with Wireshark/TShark, tcpdump, or any
 other libpcap-based packet capture program) on a Linux system, the
 "packet" protocol must be supported by your kernel.  If it is not, you
 may get error messages such as
@@ -83,13 +83,13 @@ distribution releases will not have this problem.
 In addition, older versions of libpcap will, on Linux systems with a
 2.0[.x] kernel, or if built for systems with a 2.0[.x] kernel, not turn
 promiscuous mode off on a network device until the program using
-promiscuous mode exits, so if you start a capture with Ethereal on some
+promiscuous mode exits, so if you start a capture with Wireshark on some
 Linux distributions, the network interface will be put in promiscuous
-mode and will remain in promiscuous mode until Ethereal exits.  There
+mode and will remain in promiscuous mode until Wireshark exits.  There
 might be additional libpcap bugs that cause it not to be turned off even
-when Ethereal exits; if your network is busy, this could cause the Linux
+when Wireshark exits; if your network is busy, this could cause the Linux
 networking stack to do a lot more work discarding packets not intended
-for the machine, so you may want to check, after running Ethereal,
+for the machine, so you may want to check, after running Wireshark,
 whether any network interfaces are in promiscuous mode (the output of
 "ifconfig -a" will say something such as
 

@@ -1,8 +1,8 @@
 $Id$
 
-Installing Ethereal, TShark, and Editcap on Win32
+Installing Wireshark, TShark, and Editcap on Win32
 ====================================================
-These are the instructions for installing Ethereal
+These are the instructions for installing Wireshark
 from the installation executable that is provided on
 the Wireshark website at:
 
@@ -12,7 +12,7 @@ and any of its mirrors.
 
 The installation package allows you to install:
 
-	o Ethereal - the GUI version
+	o Wireshark - the GUI version
 	o TShark - the console, line-mode version
 	o Editcap - a console, line-mode utility to convert
 	  capture files from one format to another.
@@ -24,29 +24,29 @@ The installation package allows you to install:
 
 Additionally, the installation package contains a "plugins"
 option, which installs some additional dissector plugins
-for use with Ethereal and TShark.
+for use with Wireshark and TShark.
 
 All binaries in Wireshark package are now built with debugging
 information embedded. If you are experiencing a crash when running
-Ethereal or other binaries, Dr. Watson or your debugger
+Wireshark or other binaries, Dr. Watson or your debugger
 can use the information embedded in the binary to provide useful 
 information to the Wireshark developers that will help them pinpoint 
 the problem. 
 
-In the past, two versions of Ethereal binaries were published -- a
+In the past, two versions of Wireshark binaries were published -- a
 version that could capture packets and a version which could not.
 The latter is useful if you're only reading files produced by
 another product (e.g., a sniffer, firewall, or intrustion detection system)
-and did not wish to install WinPcap, the library Ethereal uses
+and did not wish to install WinPcap, the library Wireshark uses
 to capture packets on Win32 platforms.
 
 As of WinPcap 2.1, all the WinPcap libraries have been released as DLLs. 
-This means that Ethereal can detect the presence of WinPcap at run time,
+This means that Wireshark can detect the presence of WinPcap at run time,
 which means that only one version of the Wireshark binaries needs to be
 shipped.
 
-If you don't want to capture packets, just install the Ethereal
-package. If you do want to capture packets, install Ethereal *and*
+If you don't want to capture packets, just install the Wireshark
+package. If you do want to capture packets, install Wireshark *and*
 install the latest non-beta version of WinPcap, available from:
 
 	http://winpcap.polito.it/
@@ -85,7 +85,7 @@ They also make Analyzer, a GUI sniffer for Win32:
 	http://analyzer.polito.it/
 
 The rest of this documentation is only interesting if
-you want to compile Ethereal yourself.
+you want to compile Wireshark yourself.
 
 
 Compiling the Wireshark distribution from source
@@ -93,7 +93,7 @@ Compiling the Wireshark distribution from source
 
 Developer's Guide
 -----------------
-You can find a comprehensive guide how to develop Ethereal in the 
+You can find a comprehensive guide how to develop Wireshark in the 
 Developer's Guide, which you can find (and much more info) at: 
 
 http://wiki.wireshark.org/Development
@@ -104,9 +104,9 @@ environment and it's usage.
 Compilers
 ---------
 MS Visual C++ Version 6
-This is the common compiler used for building Ethereal on win32.
+This is the common compiler used for building Wireshark on win32.
 
-If you've downloaded an Ethereal source tarball and unpacked it, then,
+If you've downloaded an Wireshark source tarball and unpacked it, then,
 before you do any build, you must do
 
 	nmake -f makefile.nmake distclean
@@ -131,7 +131,7 @@ Currently unsupported for two reasons:
 See section "Problems with MS Visual C++ Version 7 / VC.NET" below.
 
 Cygwin GCC
-Ethereal can entirely be built with cygwin GCC. However the built binaries will
+Wireshark can entirely be built with cygwin GCC. However the built binaries will
 only run in a cygwin environment, so they are not standalone Win32 applications.
 It is however not excluded that native Win32 code can be compiled on cygwin GCC
 but you then have to use -mms-bitfields as a strict minimum and probably
@@ -210,7 +210,7 @@ By default, the build process looks for these packages in
 C:\wireshark-win32-libs.  You can place them in a different directory, but
 you must update the WIRESHARK_LIBS variable in config.nmake accordingly.
 
-The following lists the packages needed to compile Ethereal and the default
+The following lists the packages needed to compile Wireshark and the default
 locations where to unpack them, when the above method isn't used.
 
     Package                               Default Location
@@ -248,7 +248,7 @@ Compiling the Wireshark distribution using GTK+2
 -----------------------------------------------
 
 The more recent version 2 of the GTK+ can be used to compile 
-Ethereal with, but is still considered beta.
+Wireshark with, but is still considered beta.
 
 GTK+2 will look better in various ways, especially for WIN32 users.
 
@@ -277,23 +277,23 @@ and optional:
 
 Be sure to set GTK2_DIR in config.nmake correct, to be able to compile.
 
-Running your freshly compiled Ethereal
+Running your freshly compiled Wireshark
 --------------------------------------
 
 Make sure the glib and gtk DLL's are in your path or you use a directory 
 where all required DLL's and the exe files reside.- i.e., that your
 path includes the directory (folder) or directories (folders) in which
-those DLLs are found - when you run Ethereal.
+those DLLs are found - when you run Wireshark.
 
 Note the wiretap*.dll must be in your path as well and if wiretap is changed
 be sure to put the new one in your path.
 
 Plugins (gryphon.dll and mgcp.dll) can go in:
-	<Ethereal installation directory>\plugins\<version>
+	<Wireshark installation directory>\plugins\<version>
 
 Where <version> is the version number, without brackets.  For example,
-if you have Ethereal 0.10.12 installed in the default location, plugins
-will reside in C:\Program Files\Ethereal\plugins\0.10.12
+if you have Wireshark 0.99.1 installed in the default location, plugins
+will reside in C:\Program Files\Wireshark\plugins\0.99.1
 
 Yes, the location of plugins needs to be more flexible.
 
@@ -320,7 +320,7 @@ as the "command.com" on Windows 2000, at least, can't handle non-8.3
 directory names.  (It may be that the "command.com" in Windows 95, Windows
 98, and Windows Me, as it's the only command interpreter in those systems,
 can handle those directories.  If not, it may not be possible to build
-Ethereal from the command line on those versions of Windows.)
+Wireshark from the command line on those versions of Windows.)
 
 Be sure that your command-line environment is set up to compile
 and link with MSVC++. When installing MSVC++, you can have your
@@ -329,8 +329,8 @@ command line, or you can invoke the vcvars32.bat script, which can
 usually be found in the "VC98\Bin" subdirectory of the directory in
 which Visual Studio was installed.
 
-The first time you build Ethereal, run "nmake -f makefile.nmake distclean" 
-in the top-level Ethereal source directory to make sure that the "config.h"
+The first time you build Wireshark, run "nmake -f makefile.nmake distclean" 
+in the top-level Wireshark source directory to make sure that the "config.h"
 files will be reconstructed from the "config.h.win32" files.  (If, for
 example, you have "config.h" files left over from a Unix build, a
 Windows build will fail.)
@@ -442,12 +442,12 @@ Installing GTK-Wimp
 
 GTK-Wimp can be used to get a native Look-and-Feel on WinXP machines, 
 especially with the new "coloured" WinXP theme. It will only take effect
-together with the GTK2 version of Ethereal. 
+together with the GTK2 version of Wireshark. 
 
 No changes to the Wireshark sources are needed, GTK-Wimp simply changes the 
 way GTK2 displays the widgets (by changing the GTK2 default theme).
 
-GTK-Wimp will be automatically installed if you use the official Ethereal Setup. 
+GTK-Wimp will be automatically installed if you use the official Wireshark Setup. 
 In this case, the files mentioned below are already existing at the appropriate 
 places.
 
@@ -456,7 +456,7 @@ method is error prone and therefore no longer recommended):
 
 1. Go to http://gtk-wimp.sourceforge.net/
 2. Download the ZIP archive containing the library and the theme
-3. Locate the installation directory of Ethereal (C:\Program Files\Ethereal)
+3. Locate the installation directory of Wireshark (C:\Program Files\Wireshark)
 4. Create a subdirectory 'share\themes\Default\gtk-2.0'
 5. Drop the file 'gtkrc' in 'share\themes\Default\gtk-2.0'
 6. Create a subdirectory named 'lib\gtk-2.0\2.4.0\engines'
@@ -464,10 +464,10 @@ method is error prone and therefore no longer recommended):
 
 When you're finished, you should have:
 
-C:\Program Files\Ethereal\lib\gtk-2.0\2.4.0\engines\libwimp.dll
-C:\Program Files\Ethereal\share\themes\Default\gtk-2.0\gtkrc
+C:\Program Files\Wireshark\lib\gtk-2.0\2.4.0\engines\libwimp.dll
+C:\Program Files\Wireshark\share\themes\Default\gtk-2.0\gtkrc
 
-After (re-)starting Ethereal, you should now see it's widgets in the modern 
+After (re-)starting Wireshark, you should now see it's widgets in the modern 
 WinXP style on your screen.
 
 
@@ -492,7 +492,7 @@ The same problem seems to apply on all MSVC compilers after version 6, like the
 Instructions for Cygwin
 -----------------------
 
-It is possible to build Ethereal under Cygwin using their version
+It is possible to build Wireshark under Cygwin using their version
 of XFree86. References:
  - http://www.ethereal.com/lists/ethereal-dev/200205/msg00107.html
  - http://www.ethereal.com/lists/ethereal-dev/200302/msg00026.html
@@ -546,10 +546,10 @@ To get it running, execute the following steps:
    removing "ethclist.c" from the dependencies.
 
    This patch is required since the private GTK+ clist widget
-   (was required for earlier versions of GTK+ but prevents Ethereal
+   (was required for earlier versions of GTK+ but prevents Wireshark
    from running with cygwin).
 
-6. Configure and make Ethereal:
+6. Configure and make Wireshark:
 
    Set the path (if this has not yet been done earlier)
 
@@ -575,7 +575,7 @@ To get it running, execute the following steps:
     want to use them. Note also that running "make install" produces lots of
     output to the console; this is normal.
 
-Note: Compiling Ethereal under cygwin takes a lot of time, because the
+Note: Compiling Wireshark under cygwin takes a lot of time, because the
 generation of 'register.c' takes ages. If you only edit one dissector and
 you know what you're doing, it is acceptable to uncomment the generation
 of the file 'register.c' in Makefile. Look for the 'register.c' target:
@@ -587,12 +587,12 @@ of the file 'register.c' in Makefile. Look for the 'register.c' target:
 
 Of course, you need to generate the 'register.c' file at least once.
 
-Note: You can also capture packets on a cygwin built Ethereal. You then have
+Note: You can also capture packets on a cygwin built Wireshark. You then have
 to unpack the WinPCap development package, install the files in lib/ and
 include/ in say /usr/lib and /usr/include (they must be in the search path of
 the compiler and linker, otherwise you have to specify the configure option
 --with-pcap=/location/to/pcap so the packet capture functionality can be used.
-In order to run Ethereal, you have to add the .dll files in a directory in the
+In order to run Wireshark, you have to add the .dll files in a directory in the
 PATH (e.g., /bin).
 Should you want packet capturing enabled in the cygwin build, then you have to
 remove --without-pcap from step 6.

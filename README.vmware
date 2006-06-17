@@ -23,7 +23,7 @@ With the patch from VMware, you can sniff the packets on these
 network devices. Note the distinction between "network device", where a
 device driver file exists in /dev, and "interface", which is a namespace
 private to the kernel (not on the filesystem). You have to supply the
-full pathname  of the device to Ethereal (i.e., "/dev/vmnetN").
+full pathname  of the device to Wireshark (i.e., "/dev/vmnetN").
 When vmnet1 is up, you will be able to select it from the list of
 interfaces, since it will have both a device name (/dev/vmnet1) and
 an interface name "vmnet1"

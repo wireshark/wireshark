@@ -35,9 +35,9 @@ Interface configuration
 
 In order to capture all packets on a network, you may want to allow
 applications to put the interface on that network into "local copy"
-mode, so that Ethereal can see packets sent by the host on which it's
+mode, so that Wireshark can see packets sent by the host on which it's
 running as well as packets received by that host, and to put the
-interface into "promiscuous" mode, so that Ethereal can see packets on
+interface into "promiscuous" mode, so that Wireshark can see packets on
 the network segment not sent to the host on which it's running, by using
 the pfconfig(1) command:
 

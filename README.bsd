@@ -1,6 +1,6 @@
 $Id$
 
-In order to capture packets (with Ethereal/TShark, tcpdump, or any
+In order to capture packets (with Wireshark/TShark, tcpdump, or any
 other packet capture program) on a BSD system, your kernel must have
 the Berkeley packet Filter mechanism enabled.  On some BSDs (recent
 versions of FreeBSD, for example), it's enabled by default in the

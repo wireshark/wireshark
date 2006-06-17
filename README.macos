@@ -1,21 +1,21 @@
 $Id$
 
-This file tries to help building Ethereal for Mac OS X (Ethereal does
+This file tries to help building Wireshark for Mac OS X (Wireshark does
 not work on earlier versions of Mac OS).
 
-In order to build Ethereal, you must have X11 and the X11 developer
+In order to build Wireshark, you must have X11 and the X11 developer
 headers and libraries installed; otherwise, you will not be able to
 build or install GTK+, and will only be able to build TShark.  The
 X11 and X11 SDK that come with Mac OS X 10.3[.x] are sufficient to build
-and run Ethereal.
+and run Wireshark.
 
 The changes to enable libwiretap and libwireshark being built as shared
 libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
 GTK+ 1.x release tarballs were built with an older version of libtool
 that didn't support shared libraries on Mac OS X, so you can't build and
 install them as shared libraries, but the shared-library build of
-Ethereal requires GLib and GTK+, on Mac OS X, to be shared libraries. 
-The alternative to build Ethereal as one big statically linked binary
+Wireshark requires GLib and GTK+, on Mac OS X, to be shared libraries. 
+The alternative to build Wireshark as one big statically linked binary
 isn't working either (and may never have worked on this OS).
 
 The way out of this situation is to use gtk2 and associated libraries
@@ -47,7 +47,7 @@ directory:
 However, on Tiger, it appears that the libraries built and installed by
 those packages collide with libraries that come with the OS, so you
 might have to configure GTK+ not to support loading those images
-(Ethereal doesn't use the ability to load JPEG, PNG, or TIFF images), by
+(Wireshark doesn't use the ability to load JPEG, PNG, or TIFF images), by
 using the "--without-libpng", "--without-libjpeg", and
 "---without-libtiff" flags when running "configure" in the GTK+ source
 directory.
@@ -77,11 +77,11 @@ do "sudo ranlib /usr/local/lib/libjpeg.a" after "make install-lib".
 For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
 
 Finally run the configure script. By default it will use
-the Glib2 and GTK+2 libraries. If you run Ethereal's configure script
+the Glib2 and GTK+2 libraries. If you run Wireshark's configure script
 with the "--disable-gtk2" argument it'll try to configure with GLib
 1.2[.x] and GTK+ 1.2[.x], in which case:
 
 	if they're not installed, the configure script will fail;
 
 	if they are installed, the configure script will configure
-	Ethereal to build with them.
+	Wireshark to build with them.
