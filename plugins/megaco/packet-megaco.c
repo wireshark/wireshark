@@ -1346,8 +1346,9 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '=');
 	tokenlen = tvb_current_offset  - tvb_previous_offset -1;
-	proto_tree_add_text(megaco_mediadescriptor_tree, tvb,	tvb_previous_offset, tokenlen,
-		"%s",	tvb_format_text(tvb, tvb_previous_offset,	tokenlen));
+	if (tokenlen > 0)
+		proto_tree_add_text(megaco_mediadescriptor_tree, tvb,	tvb_previous_offset, tokenlen,
+			"%s",	tvb_format_text(tvb, tvb_previous_offset,	tokenlen));
 
 	tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
 	/* If a StreamID is present */
@@ -2042,7 +2043,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 			if (tvb_current_offset == -1 || tvb_current_offset > tvb_observedevents_end_offset ){
 				tvb_current_offset = tvb_observedevents_end_offset;
 			}
-			if (tvb_current_offset <= tvb_previous_offset) {
+			if (tvb_current_offset = tvb_previous_offset) {
 				proto_tree_add_text(megaco_observedevent_tree, tvb, 0, 0, "[ Parse error: Invalid offset ]");
 				return;
 			}
