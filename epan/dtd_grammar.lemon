@@ -1,7 +1,7 @@
 %include {
 
 /* dtd_parser.lemon
-* XML dissector for ethereal 
+* XML dissector for wireshark 
 * XML's DTD grammar
 *
 * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
