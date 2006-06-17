@@ -70,7 +70,7 @@ Answer:
 How to add an operator FOO to the display filter language?
 ==========================================================
 
-Go to ethereal/epan/dfilter/
+Go to wireshark/epan/dfilter/
 
 Edit grammar.lemon and add the operator. Add the operator FOO and the test logic (defining TEST_OP_FOO).
 
@@ -88,7 +88,7 @@ Edit dfvm.c and add ANY_FOO to dfvm_dump() (for the dftest display filter test b
 
 Edit semcheck.c and look at the check_relation_XXX() methods if they still apply to the foo operator; if not, amend the code. Start from the check_test() method to discover the logic.
 
-Go to ethereal/epan/ftypes/
+Go to wireshark/epan/ftypes/
 
 Edit ftypes.h and declare the fvalue_foo(), ftype_can_foo() and fvalue_foo() methods. Add the cmp_foo() method to the struct _ftype_t.
 
@@ -100,8 +100,8 @@ Edit all ftype-*.c files and add the required fvalue_foo() methods.
 
 This is the point where you should be able to compile without errors in wireshark/epan/ftypes/. If not, first fix the errors.
 
-Go to ethereal/epan/ and run make. If this one succeeds, then we're almost done as no errors should occur here.
+Go to wireshark/epan/ and run make. If this one succeeds, then we're almost done as no errors should occur here.
 
-Go to ethereal/ and run make. One thing to do is make dftest and see if you can construct valid display filters with your new operator. Or you may want to move directly to the generation of ethereal.
+Go to wireshark/ and run make. One thing to do is make dftest and see if you can construct valid display filters with your new operator. Or you may want to move directly to the generation of wireshark.
 
-Look also at ethereal/gtk/dfilter_expr_dlg.c and edit the display filter expression generator.
+Look also at wireshark/gtk/dfilter_expr_dlg.c and edit the display filter expression generator.
