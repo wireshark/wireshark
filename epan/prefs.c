@@ -2005,10 +2005,12 @@ set_pref(gchar *pref_name, gchar *value)
       } else if (strcmp(module->name, "smpp") == 0) {
         /* Handle preferences that moved from SMPP. */
         module_t *new_module = find_module("gsm-sms-ud");
-        if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
-          pref = find_preference(new_module, "port_number_udh_means_wsp");
-        else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
-          pref = find_preference(new_module, "try_dissect_1st_fragment");
+        if(new_module){
+          if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
+            pref = find_preference(new_module, "port_number_udh_means_wsp");
+          else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
+            pref = find_preference(new_module, "try_dissect_1st_fragment");
+        }
       } else if (strcmp(module->name, "asn1") == 0) {
         /* Handle old generic ASN.1 preferences (it's not really a
            rename, as the new preferences support multiple ports,
