@@ -270,9 +270,9 @@ extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
     guint16 bc, guint16 datalen);
 
 /*
- * Add a FID to the protocol tree and the Info column.
+ * Dissect an smb FID
  */
-extern void add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+extern void dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, int len, guint16 fid);
 
 /*
