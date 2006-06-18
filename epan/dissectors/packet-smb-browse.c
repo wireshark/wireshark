@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <ctype.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-smb.h>
 
 #include "packet-smb-browse.h"
