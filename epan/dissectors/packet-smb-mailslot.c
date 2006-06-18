@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-smb.h>
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"
