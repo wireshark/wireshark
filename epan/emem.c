@@ -72,6 +72,21 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#if defined(MAP_ANONYMOUS)
+#define ANON_PAGE_MODE	(MAP_ANONYMOUS|MAP_PRIVATE)
+#elif defined(MAP_ANON)
+#define ANON_PAGE_MODE	(MAP_ANON|MAP_PRIVATE)
+#else
+#define ANON_PAGE_MODE	(MAP_PRIVATE)	/* have to map /dev/zero */
+#define NEED_DEV_ZERO
+#endif
+#ifdef NEED_DEV_ZERO
+#include <fcntl.h>
+static int dev_zero_fd;
+#define ANON_FD	dev_zero_fd
+#else
+#define ANON_FD	-1
+#endif
 #define USE_GUARD_PAGES 1
 #endif
 #endif
@@ -217,6 +232,10 @@ ep_init_chunk(void)
 
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
+#ifdef NEED_DEV_ZERO
+	dev_zero_fd = open("/dev/zero", O_RDWR);
+	g_assert(dev_zero_fd != -1);
+#endif
 #endif /* _WIN32 / USE_GUARD_PAGES */
 #endif /* SE_DEBUG_FREE */
 
@@ -288,7 +307,7 @@ emem_create_chunk(emem_chunk_t **free_list) {
 
 #elif defined(USE_GUARD_PAGES)
 		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
-			PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+			PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
 		g_assert(npc->buf != MAP_FAILED);
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
