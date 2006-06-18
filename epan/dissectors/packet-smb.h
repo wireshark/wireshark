@@ -249,6 +249,9 @@ typedef struct conv_tables {
 	/* This table is used to track TID->services for a conversation */
 	GHashTable *tid_service;
         gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
+
+	/* track fid to fidstruct (filename/openframe/closeframe */
+	se_tree_t *fid_tree;
 } conv_tables_t;
 
 typedef struct smb_info {
@@ -273,7 +276,7 @@ extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Dissect an smb FID
  */
 extern void dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int len, guint16 fid);
+    int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed);
 
 /*
  * Dissect named pipe state information.
