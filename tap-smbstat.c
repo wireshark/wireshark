@@ -35,6 +35,7 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-smb.h>
