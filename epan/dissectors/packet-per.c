@@ -929,7 +929,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		}
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
-		if ((display_internal_per_fields)&&(str))
+		if (display_internal_per_fields)
 			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfiled lengt %u, %s",range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
