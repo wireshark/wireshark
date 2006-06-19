@@ -173,7 +173,7 @@ static int hf_icmp_mip_f = -1;
 static int hf_icmp_mip_m = -1;
 static int hf_icmp_mip_g = -1;
 static int hf_icmp_mip_v = -1;
-static int hf_icmp_mip_res = -1;
+static int hf_icmp_mip_rt = -1;
 static int hf_icmp_mip_reserved = -1;
 static int hf_icmp_mip_coa = -1;
 static int hf_icmp_mip_challenge = -1;
@@ -1287,7 +1287,8 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_m, tvb, offset, 1, flags);
 	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_g, tvb, offset, 1, flags);
 	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_v, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_res, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_rt, tvb, offset, 1, flags);
+
 	  offset++;
 
 	  /* Reserved */
@@ -2274,9 +2275,10 @@ proto_register_icmp(void)
       { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 8, NULL, 2,
 	"Van Jacobson Header Compression Support", HFILL }},
 
-    { &hf_icmp_mip_res,
-      { "Reserved", "icmp.mip.res", FT_BOOLEAN, 8, NULL, 1,
-	"Reserved", HFILL }},
+    { &hf_icmp_mip_rt,
+      { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 8, NULL, 1,
+       "Reverse tunneling support", HFILL }},
+
 
     { &hf_icmp_mip_reserved,
       { "Reserved", "icmp.mip.reserved",     FT_UINT8, BASE_HEX, NULL, 0x0,
