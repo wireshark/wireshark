@@ -2043,7 +2043,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 			if (tvb_current_offset == -1 || tvb_current_offset > tvb_observedevents_end_offset ){
 				tvb_current_offset = tvb_observedevents_end_offset;
 			}
-			if (tvb_current_offset = tvb_previous_offset) {
+			if (tvb_current_offset < tvb_previous_offset) {
 				proto_tree_add_text(megaco_observedevent_tree, tvb, 0, 0, "[ Parse error: Invalid offset ]");
 				return;
 			}
