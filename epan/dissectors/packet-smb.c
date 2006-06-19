@@ -95,6 +95,8 @@
  */
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
+static int hf_smb_mapped_in = -1;
+static int hf_smb_unmapped_in = -1;
 static int hf_smb_opened_in = -1;
 static int hf_smb_closed_in = -1;
 static int hf_smb_key = -1;
@@ -638,6 +640,7 @@ static int hf_smb_reparse_tag = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
+static gint ett_smb_tid = -1;
 static gint ett_smb_hdr = -1;
 static gint ett_smb_command = -1;
 static gint ett_smb_fileattributes = -1;
@@ -2498,6 +2501,70 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
+/* used for tracking fid/tid to filename/sharename openedframe closedframe */
+typedef struct _smb_fid_into_t {
+	int opened_in;
+	int closed_in;
+	char *filename;
+} smb_fid_info_t;
+
+
+static int
+dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 tid, gboolean is_created, gboolean is_closed)
+{
+	smb_info_t *si = pinfo->private_data;
+	proto_item *it;
+	proto_tree *tr;
+	smb_fid_info_t *fid_info=NULL;
+
+	DISSECTOR_ASSERT(si);
+
+	/* tid */
+	it=proto_tree_add_uint(tree, hf_smb_tid, tvb, offset, 2, tid);
+	tr=proto_item_add_subtree(it, ett_smb_tid);
+	offset += 2;
+
+	if((!pinfo->fd->flags.visited) && is_created){
+		fid_info=se_alloc(sizeof(smb_fid_info_t));
+		fid_info->opened_in=pinfo->fd->num;
+		fid_info->closed_in=0;
+		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILENAME)){
+			fid_info->filename=si->sip->extra_info;
+		} else {
+			fid_info->filename=NULL;
+		}
+		se_tree_insert32(si->ct->tid_tree, pinfo->fd->num, fid_info);
+	}
+
+	if(!fid_info){
+		fid_info=se_tree_lookup32_le(si->ct->tid_tree, pinfo->fd->num);
+	}
+	if(!fid_info){
+		return offset;
+	}
+
+	if((!pinfo->fd->flags.visited) && is_closed){
+		fid_info->closed_in=pinfo->fd->num;
+	}
+
+	if(fid_info->opened_in){
+		if(fid_info->filename){
+			it=proto_tree_add_string(tr, hf_smb_path, tvb, 0, 0, fid_info->filename);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+
+		it=proto_tree_add_uint(tr, hf_smb_mapped_in, tvb, 0, 0, fid_info->opened_in);
+		PROTO_ITEM_SET_GENERATED(it);
+	}		
+	if(fid_info->closed_in){
+		it=proto_tree_add_uint(tr, hf_smb_unmapped_in, tvb, 0, 0, fid_info->closed_in);
+		PROTO_ITEM_SET_GENERATED(it);
+	}		
+
+
+	return offset;
+}
+
 static int
 dissect_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
@@ -2511,8 +2578,7 @@ dissect_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	offset += 2;
 
 	/* tid */
-	proto_tree_add_item(tree, hf_smb_tid, tvb, offset, 2, TRUE);
-	offset += 2;
+	offset=dissect_smb_tid(tvb, pinfo, tree, offset, tvb_get_letohs(tvb, offset), TRUE, FALSE);
 
 	BYTE_COUNT;
 
@@ -2660,9 +2726,7 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* tid */
 	tid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_tid, tvb, offset, 2, tid,
-		"TID (target): 0x%04x", tid);
-	offset += 2;
+	offset=dissect_smb_tid(tvb, pinfo, tree, offset, tid, FALSE, FALSE);
 
 	/* open function */
 	offset = dissect_open_function(tvb, tree, offset);
@@ -2731,9 +2795,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* tid */
 	tid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_tid, tvb, offset, 2, tid,
-		"TID (target): 0x%04x", tid);
-	offset += 2;
+	offset=dissect_smb_tid(tvb, pinfo, tree, offset, tid, FALSE, FALSE);
 
 	/* open function */
 	offset = dissect_open_function(tvb, tree, offset);
@@ -2869,13 +2931,6 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	return offset;
 }
-
-typedef struct _smb_fid_into_t {
-	int opened_in;
-	int closed_in;
-	char *filename;
-} smb_fid_info_t;
-
 
 /* fids are scoped by tcp session */
 void
@@ -6522,6 +6577,14 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_string(tree, hf_smb_path, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
+
+	/* store it for the tid->name/openframe/closeframe matching in
+	 * dissect_smb_tid()   called from the response.
+	 */
+	if((!pinfo->fd->flags.visited) && si->sip && an){
+		si->sip->extra_info_type=SMB_EI_FILENAME;
+		si->sip->extra_info=se_strdup(an);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
@@ -15357,7 +15420,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if(!si->ct){
 		/* No, not yet. create it and attach it to the conversation */
 		si->ct = se_alloc(sizeof(conv_tables_t));
-		conv_tables = g_slist_prepend(conv_tables, si->ct);
+
+			conv_tables = g_slist_prepend(conv_tables, si->ct);
 		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
 		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
@@ -15368,6 +15432,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct->raw_ntlmssp = 0;
 		
 		si->ct->fid_tree=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "SMB fid_tree");
+		si->ct->tid_tree=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "SMB tid_tree");
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 
@@ -15749,9 +15814,18 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset += 2;
 	}
 
-	/* TID */
-	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, si->tid);
-	offset += 2;
+	pinfo->private_data = si;
+
+	/* TID
+	 * TreeConnectAndX(0x75) is special, here it is the mere fact of 
+	 * having a response that means that the share was mapped and we 
+	 * need to track it
+	 */
+	if(!pinfo->fd->flags.visited && si->cmd==0x75 && !si->request){
+		offset=dissect_smb_tid(tvb, pinfo, htree, offset, si->tid, TRUE, FALSE);
+	} else {
+		offset=dissect_smb_tid(tvb, pinfo, htree, offset, si->tid, FALSE, FALSE);
+	}
 
 	/* PID */
 	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, si->pid);
@@ -15764,8 +15838,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* MID */
 	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si->mid);
 	offset += 2;
-
-	pinfo->private_data = si;
 
 	/* tap the packet before the dissectors are called so we still get
 	   the tap listener called even if there is an exception.
@@ -17874,6 +17946,14 @@ proto_register_smb(void)
 		{ "Closed in", "smb.fid.closed_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"The frame this fid was closed", HFILL }},
 
+	{ &hf_smb_mapped_in,
+		{ "Mapped in", "smb.fid.mapped_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The frame this share was mapped", HFILL }},
+
+	{ &hf_smb_unmapped_in,
+		{ "Unmapped in", "smb.fid.unmapped_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The frame this share was unmapped", HFILL }},
+
 	{ &hf_smb_segment,
 		{ "SMB Segment", "smb.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"SMB Segment", HFILL }},
@@ -17991,6 +18071,7 @@ proto_register_smb(void)
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_fid,
+		&ett_smb_tid,
 		&ett_smb_hdr,
 		&ett_smb_command,
 		&ett_smb_fileattributes,

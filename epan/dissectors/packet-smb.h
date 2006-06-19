@@ -253,6 +253,9 @@ typedef struct conv_tables {
 
 	/* track fid to fidstruct (filename/openframe/closeframe */
 	se_tree_t *fid_tree;
+
+	/* track tid to fidstruct (sharename/shareframe/unshareframe */
+	se_tree_t *tid_tree;
 } conv_tables_t;
 
 typedef struct smb_info {
