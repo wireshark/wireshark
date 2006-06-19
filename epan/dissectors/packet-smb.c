@@ -9133,6 +9133,14 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		fn);
 	COUNT_BYTES(fn_len);
 
+	/* store it for the fid->name/openframe/closeframe matching in
+	 * dissect_smb_fid()   called from the response.
+	 */
+	if((!pinfo->fd->flags.visited) && si->sip && fn){
+		si->sip->extra_info_type=SMB_EI_FILENAME;
+		si->sip->extra_info=se_strdup(fn);
+	}
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 		    format_text(fn, strlen(fn)));
