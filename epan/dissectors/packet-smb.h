@@ -199,7 +199,8 @@ typedef enum {
 	SMB_EI_FID,	/* FID */
 	SMB_EI_NTI,	/* smb_nt_transact_info_t * */
 	SMB_EI_TRI,	/* smb_transact_info_t * */
-	SMB_EI_T2I	/* smb_transact2_info_t * */
+	SMB_EI_T2I,	/* smb_transact2_info_t * */
+	SMB_EI_FILENAME	/* fid tracking  char * */
 } smb_extra_info_t;
 typedef struct {
 	guint32 frame_req, frame_res;
