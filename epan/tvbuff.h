@@ -428,6 +428,12 @@ extern char *tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, int len,
 extern gchar * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
 /**
+ * Like "tvb_format_text()", but for 'wsp'; don't show
+ * the characters as C-style escapes.
+ */
+extern gchar * tvb_format_text_wsp(tvbuff_t *tvb, gint offset, gint size);
+
+/**
  * Like "tvb_format_text()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */

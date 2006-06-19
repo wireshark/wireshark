@@ -1796,6 +1796,27 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 }
 
 /*
+ * Format the data in the tvb from offset for length ...
+ */
+
+gchar *
+tvb_format_text_wsp(tvbuff_t *tvb, gint offset, gint size)
+{
+  const guint8 *ptr;
+  gint len = size;
+
+  if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
+
+    len = tvb_length_remaining(tvb, offset);
+    ptr = ensure_contiguous(tvb, offset, len);
+
+  }
+
+  return format_text_wsp(ptr, len);
+
+}
+
+/*
  * Like "tvb_format_text()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */

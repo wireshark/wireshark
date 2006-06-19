@@ -64,6 +64,8 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  */
 gchar*     format_text(const guchar *line, int len);
 
+gchar*     format_text_wsp(const guchar *line, int len);
+
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
  * @param bd A pointer to the byte array

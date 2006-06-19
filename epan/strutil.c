@@ -213,27 +213,136 @@ format_text(const guchar *string, int len)
 	break;
 
       case '\b':
-	fmtbuf[idx][column] = 'b';
+	fmtbuf[idx][column] = 'b'; /* BS */
 	column++;
 	break;
 
       case '\f':
-	fmtbuf[idx][column] = 'f';
+	fmtbuf[idx][column] = 'f'; /* FF */
 	column++;
 	break;
 
       case '\n':
-	fmtbuf[idx][column] = 'n';
+	fmtbuf[idx][column] = 'n'; /* NL */
 	column++;
 	break;
 
       case '\r':
-	fmtbuf[idx][column] = 'r';
+	fmtbuf[idx][column] = 'r'; /* CR */
 	column++;
 	break;
 
       case '\t':
-	fmtbuf[idx][column] = 't';
+	fmtbuf[idx][column] = 't'; /* tab */
+	column++;
+	break;
+
+      case '\v':
+	fmtbuf[idx][column] = 'v';
+	column++;
+	break;
+
+      default:
+	i = (c>>6)&03;
+	fmtbuf[idx][column] = i + '0';
+	column++;
+	i = (c>>3)&07;
+	fmtbuf[idx][column] = i + '0';
+	column++;
+	i = (c>>0)&07;
+	fmtbuf[idx][column] = i + '0';
+	column++;
+	break;
+      }
+    }
+  }
+  fmtbuf[idx][column] = '\0';
+  return fmtbuf[idx];
+}
+
+/*
+ * Given a string, generate a string from it that shows non-printable
+ * characters as C-style escapes except a whitespace character 
+ * (space, tab, carriage return, new line, vertical tab, or formfeed)
+ * which will be replaved by a space, and return a pointer to it.
+ */
+gchar *
+format_text_wsp(const guchar *string, int len)
+{
+  static gchar *fmtbuf[3];
+  static int fmtbuf_len[3];
+  static int idx;
+  int column;
+  const guchar *stringend = string + len;
+  guchar c;
+  int i;
+
+  idx = (idx + 1) % 3;
+
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (fmtbuf[idx] == NULL) {
+    fmtbuf[idx] = g_malloc(INITIAL_FMTBUF_SIZE);
+    fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
+  }
+  column = 0;
+  while (string < stringend) {
+    /*
+     * Is there enough room for this character, if it expands to
+     * a backslash plus 3 octal digits (which is the most it can
+     * expand to), and also enough room for a terminating '\0'?
+     */
+    if (column+3+1 >= fmtbuf_len[idx]) {
+      /*
+       * Double the buffer's size if it's not big enough.
+       * The size of the buffer starts at 128, so doubling its size
+       * adds at least another 128 bytes, which is more than enough
+       * for one more character plus a terminating '\0'.
+       */
+      fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
+      fmtbuf[idx] = g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+    }
+    c = *string++;
+
+    if (isprint(c)) {
+      fmtbuf[idx][column] = c;
+      column++;
+    } else if  (isspace(c)) {
+      fmtbuf[idx][column] = ' ';
+      column++;
+	}else {
+      fmtbuf[idx][column] =  '\\';
+      column++;
+      switch (c) {
+
+      case '\a':
+	fmtbuf[idx][column] = 'a';
+	column++;
+	break;
+
+      case '\b':
+	fmtbuf[idx][column] = 'b'; /* BS */
+	column++;
+	break;
+
+      case '\f':
+	fmtbuf[idx][column] = 'f'; /* FF */
+	column++;
+	break;
+
+      case '\n':
+	fmtbuf[idx][column] = 'n'; /* NL */
+	column++;
+	break;
+
+      case '\r':
+	fmtbuf[idx][column] = 'r'; /* CR */
+	column++;
+	break;
+
+      case '\t':
+	fmtbuf[idx][column] = 't'; /* tab */
 	column++;
 	break;
 

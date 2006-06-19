@@ -671,6 +671,7 @@ tvb_find_guint8
 tvb_find_line_end
 tvb_find_line_end_unquoted
 tvb_format_text
+tvb_format_text_wsp
 tvb_get_ephemeral_string
 tvb_get_guid
 tvb_get_guint8
