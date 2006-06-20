@@ -69,7 +69,7 @@ dfilter_free(dfilter_t *df);
  * libwireshark.dll, we need a special declaration.
  */
 
-ETH_VAR_IMPORT gchar *dfilter_error_msg;
+WS_VAR_IMPORT gchar *dfilter_error_msg;
 
 
 /* Apply compiled dfilter */

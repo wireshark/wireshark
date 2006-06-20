@@ -53,8 +53,8 @@ extern int proto_malformed;
 /* following variables are exported from libwireshark.dll. 
  * Thus we need a special declaration. 
  */
-ETH_VAR_IMPORT int proto_frame;
-ETH_VAR_IMPORT int hf_frame_arrival_time;
-ETH_VAR_IMPORT int hf_frame_number;
-ETH_VAR_IMPORT int hf_frame_packet_len;
-ETH_VAR_IMPORT int hf_frame_capture_len;
+WS_VAR_IMPORT int proto_frame;
+WS_VAR_IMPORT int hf_frame_arrival_time;
+WS_VAR_IMPORT int hf_frame_number;
+WS_VAR_IMPORT int hf_frame_packet_len;
+WS_VAR_IMPORT int hf_frame_capture_len;

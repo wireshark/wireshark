@@ -1029,10 +1029,10 @@ fi
 AC_SUBST(ADNS_LIBS)
 
 #
-# Define ETH_VAR_IMPORT appropriately for declarations of external
+# Define WS_VAR_IMPORT appropriately for declarations of external
 # variables exported from dynamically-linked libraries.
 #
-AC_DEFINE(ETH_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
+AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST

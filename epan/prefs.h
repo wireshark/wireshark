@@ -151,7 +151,7 @@ typedef struct _e_prefs {
   gboolean capture_show_info;
 } e_prefs;
 
-ETH_VAR_IMPORT e_prefs prefs;
+WS_VAR_IMPORT e_prefs prefs;
 
 /*
  * Routines to let modules that have preference settings register

@@ -70,9 +70,9 @@
  * it depends on HAVE_LIBWIRESHARK and _NEED_VAR_IMPORT_
  */
 #if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBWIRESHARKDLL)
-#  define ETH_VAR_IMPORT __declspec(dllimport) extern
+#  define WS_VAR_IMPORT __declspec(dllimport) extern
 #else
-#  define ETH_VAR_IMPORT extern
+#  define WS_VAR_IMPORT extern
 #endif
 
 #define HAVE_NET_SNMP 1

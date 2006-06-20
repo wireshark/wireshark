@@ -30,7 +30,7 @@
 /* With MSVC and a libwireshark.dll, we need a 
  * special declaration of num_tap_filters.
  */
-ETH_VAR_IMPORT int num_tap_filters;
+WS_VAR_IMPORT int num_tap_filters;
 
 typedef void (*tap_reset_cb)(void *tapdata);
 typedef int  (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);

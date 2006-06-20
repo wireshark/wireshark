@@ -40,8 +40,8 @@ extern const value_string vals_wsp_reason_codes[];
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string vals_pdu_type[];
-ETH_VAR_IMPORT const value_string vals_status[];
+WS_VAR_IMPORT const value_string vals_pdu_type[];
+WS_VAR_IMPORT const value_string vals_status[];
 /*
  * exported functionality
  */

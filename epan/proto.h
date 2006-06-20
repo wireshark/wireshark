@@ -52,7 +52,7 @@
 #include "ftypes/ftypes.h"
 
 /** The header-field index for the special text pseudo-field. Exported by libwireshark.dll */
-ETH_VAR_IMPORT int hf_text_only;
+WS_VAR_IMPORT int hf_text_only;
 
 /** the maximum length of a protocol field string representation */
 #define ITEM_LABEL_LENGTH	240
@@ -1496,11 +1496,11 @@ extern void proto_registrar_dump_fields(int format);
    a subtree item type. That array element is TRUE if subtrees of
    an item of that type are to be expanded. With MSVC and a 
    libwireshark.dll, we need a special declaration. */
-ETH_VAR_IMPORT gboolean	     *tree_is_expanded;
+WS_VAR_IMPORT gboolean	     *tree_is_expanded;
 
 /** Number of elements in the tree_is_expanded array. With MSVC and a 
  * libwireshark.dll, we need a special declaration. */
-ETH_VAR_IMPORT int           num_tree_types;
+WS_VAR_IMPORT int           num_tree_types;
 
 /** glib doesn't have g_ptr_array_len of all things!*/
 #ifndef g_ptr_array_len

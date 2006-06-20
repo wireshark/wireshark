@@ -27,6 +27,6 @@
 /* "proto_data" is exported from libwireshark.dll. 
  * Thus we need a special declaration. 
  */
-ETH_VAR_IMPORT int proto_data;
+WS_VAR_IMPORT int proto_data;
 
 #endif /* __PACKET_DATA_H__ */

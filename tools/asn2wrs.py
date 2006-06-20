@@ -982,7 +982,7 @@ class EthCtx:
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
         if self.eth_type[t]['export'] & 0x08:
-          fx.write("ETH_VAR_IMPORT ")
+          fx.write("WS_VAR_IMPORT ")
         else:
           fx.write("extern ")
         fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))

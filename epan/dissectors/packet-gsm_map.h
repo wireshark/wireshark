@@ -43,7 +43,7 @@ typedef struct _gsm_map_tap_rec_t {
     guint16		size;
 } gsm_map_tap_rec_t;
 
-ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
+WS_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
 void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

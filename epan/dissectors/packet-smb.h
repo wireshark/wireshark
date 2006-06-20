@@ -26,14 +26,14 @@
 #ifndef __PACKET_SMB_H__
 #define __PACKET_SMB_H__
 
-ETH_VAR_IMPORT gboolean sid_name_snooping;
+WS_VAR_IMPORT gboolean sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string smb_cmd_vals[];
-ETH_VAR_IMPORT const value_string trans2_cmd_vals[];
-ETH_VAR_IMPORT const value_string nt_cmd_vals[];
+WS_VAR_IMPORT const value_string smb_cmd_vals[];
+WS_VAR_IMPORT const value_string trans2_cmd_vals[];
+WS_VAR_IMPORT const value_string nt_cmd_vals[];
 
 
 #define SMB_COM_CREATE_DIRECTORY		0x00

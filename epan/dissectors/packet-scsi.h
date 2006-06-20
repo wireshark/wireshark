@@ -69,8 +69,8 @@ void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            gboolean, itlq_nexus_t *, itl_nexus_t *);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
 
-ETH_VAR_IMPORT const value_string scsi_sbc2_vals[];
-ETH_VAR_IMPORT const value_string scsi_mmc_vals[];
-ETH_VAR_IMPORT const value_string scsi_ssc2_vals[];
+WS_VAR_IMPORT const value_string scsi_sbc2_vals[];
+WS_VAR_IMPORT const value_string scsi_mmc_vals[];
+WS_VAR_IMPORT const value_string scsi_ssc2_vals[];
 
 #endif

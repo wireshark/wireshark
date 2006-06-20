@@ -40,7 +40,7 @@ typedef struct _plugin {
     struct _plugin *next;         /* forward link */
 } plugin;
 
-ETH_VAR_IMPORT plugin *plugin_list;
+WS_VAR_IMPORT plugin *plugin_list;
 
 extern void init_plugins(const char *);
 extern void register_all_plugin_handoffs(void);

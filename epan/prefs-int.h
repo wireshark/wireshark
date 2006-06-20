@@ -42,7 +42,7 @@ struct pref_module {
  * Module used for protocol preferences. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT module_t *protocols_module;
+WS_VAR_IMPORT module_t *protocols_module;
 
 /*
  * PREF_OBSOLETE is used for preferences that a module used to support

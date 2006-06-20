@@ -121,7 +121,7 @@ static void follow_stream_om_server(GtkWidget * w, gpointer data);
 
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
-ETH_VAR_IMPORT FILE *data_out_file;
+WS_VAR_IMPORT FILE *data_out_file;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
 

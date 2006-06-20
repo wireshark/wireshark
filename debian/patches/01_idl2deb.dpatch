@@ -85,7 +85,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./idl2deb /tmp/dpep-work.K2bQz4/etherea
 +BUILT_SOURCES = packet-%s.c
 +INCLUDES = -DHAVE_CONFIG -DHAVE_SYS_TYPES_H -DHAVE_SYS_TIME_H \\
 +    -DHAVE_STDARG_H -D_U_=\"__attribute__((unused))\" \\
-+    -I/usr/include/ethereal -DETH_VAR_IMPORT=extern $(GLIB_CFLAGS)
++    -I/usr/include/ethereal -DWS_VAR_IMPORT=extern $(GLIB_CFLAGS)
 +LDADD = $(GLIB_LIBS)
 +
 +# Libs must be cleared, or else libtool won't create a shared module.

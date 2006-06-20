@@ -48,7 +48,7 @@ char camel_number_to_char(int );
 #define	camel_MAX_NUM_OPR_CODES	256
 
 
-ETH_VAR_IMPORT const value_string camel_opr_code_strings[];
+WS_VAR_IMPORT const value_string camel_opr_code_strings[];
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */

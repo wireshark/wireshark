@@ -79,7 +79,7 @@ extern guint32  mtp3_pc_hash(const guint8* data);
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
+WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
 
 /*
  * I only want to gather stats for non-spare SI codes

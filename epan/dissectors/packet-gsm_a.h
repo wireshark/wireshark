@@ -99,15 +99,15 @@ void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string gsm_a_bssmap_msg_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_mm_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_rr_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_cc_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_gmm_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
-ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
-ETH_VAR_IMPORT const gchar *gsm_a_pd_str[];
+WS_VAR_IMPORT const value_string gsm_a_bssmap_msg_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_mm_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_rr_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_cc_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_gmm_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
+WS_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
 extern const value_string gsm_a_qos_del_of_err_sdu_vals[];
 extern const value_string gsm_a_qos_del_order_vals[];

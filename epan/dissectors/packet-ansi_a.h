@@ -38,8 +38,8 @@ typedef struct _ansi_a_tap_rec_t {
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string ansi_a_ios401_bsmap_strings[];
-ETH_VAR_IMPORT const value_string ansi_a_ios401_dtap_strings[];
+WS_VAR_IMPORT const value_string ansi_a_ios401_bsmap_strings[];
+WS_VAR_IMPORT const value_string ansi_a_ios401_dtap_strings[];
 
 /*
  * allows ANSI MAP to use this for IS-880 enhancements

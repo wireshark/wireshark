@@ -32,7 +32,7 @@
 #include <epan/proto.h>
 #include <epan/prefs.h>
 
-#include "../wiretap/catapult_dct2000.h"
+#include <wiretap/catapult_dct2000.h>
 
 /* Protocol and registered fields. */
 static int proto_catapult_dct2000 = -1;
@@ -47,7 +47,6 @@ static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
 
 /* Variables used for preferences */
-gboolean catapult_dct2000_board_ports_only;
 gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 
 /* Protocol subtree. */

@@ -37,5 +37,5 @@ typedef struct _ansi_map_tap_rec_t {
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string ansi_map_opr_code_strings[];
+WS_VAR_IMPORT const value_string ansi_map_opr_code_strings[];
 

@@ -73,10 +73,10 @@ void t38_add_address(packet_info *pinfo,
                      int other_port,
                      const gchar *setup_method, guint32 setup_frame_number);
 
-ETH_VAR_IMPORT const value_string t30_indicator_vals[];
-ETH_VAR_IMPORT const value_string t30_facsimile_control_field_vals[];
-ETH_VAR_IMPORT const value_string t30_facsimile_control_field_vals_short[];
-ETH_VAR_IMPORT const value_string t30_data_vals[];
+WS_VAR_IMPORT const value_string t30_indicator_vals[];
+WS_VAR_IMPORT const value_string t30_facsimile_control_field_vals[];
+WS_VAR_IMPORT const value_string t30_facsimile_control_field_vals_short[];
+WS_VAR_IMPORT const value_string t30_data_vals[];
 
 
 

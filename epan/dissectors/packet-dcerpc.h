@@ -290,12 +290,12 @@ typedef struct _dcerpc_info {
 /* the init_protocol hooks. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT GHookList dcerpc_hooks_init_protos;
+WS_VAR_IMPORT GHookList dcerpc_hooks_init_protos;
 
 /* the registered subdissectors. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT GHashTable *dcerpc_uuids;
+WS_VAR_IMPORT GHashTable *dcerpc_uuids;
 
 typedef struct _dcerpc_uuid_key {
     e_uuid_t uuid;

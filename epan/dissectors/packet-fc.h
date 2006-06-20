@@ -59,7 +59,7 @@
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string fc_fc4_val[];
+WS_VAR_IMPORT const value_string fc_fc4_val[];
 
 /* DF_CTL bits */
 #define FC_DFCTL_DH         0x03   /* Device_Header type bits: */

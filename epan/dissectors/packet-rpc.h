@@ -174,7 +174,7 @@ typedef struct _rpc_prog_info_value {
 /* rpc_progs is also used in tap. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT GHashTable *rpc_progs;
+WS_VAR_IMPORT GHashTable *rpc_progs;
 
 typedef struct _rpc_proc_info_key {
 	guint32	prog;
@@ -191,7 +191,7 @@ typedef struct _rpc_proc_info_value {
 /* rpc_procs is also used in tap. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT GHashTable *rpc_procs;
+WS_VAR_IMPORT GHashTable *rpc_procs;
 
 #endif /* packet-rpc.h */
 

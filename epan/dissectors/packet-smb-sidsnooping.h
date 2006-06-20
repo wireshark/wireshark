@@ -29,7 +29,7 @@
 /* With MSVC and a libwireshark.dll, we need a 
  * special declaration for sid_name_table.
  */
-ETH_VAR_IMPORT GHashTable *sid_name_table;
+WS_VAR_IMPORT GHashTable *sid_name_table;
 
 typedef struct _sid_name {
 	char *sid;

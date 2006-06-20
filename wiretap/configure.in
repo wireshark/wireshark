@@ -172,6 +172,12 @@ dnl Checks for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h fcntl.h sys/stat.h sys/types.h)
 
+#
+# Define WS_VAR_IMPORT appropriately for declarations of external
+# variables exported from dynamically-linked libraries.
+#
+AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
+
 # We must know our byte order
 AC_C_BIGENDIAN
 

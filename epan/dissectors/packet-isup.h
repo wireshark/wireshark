@@ -40,9 +40,9 @@ typedef struct _isup_tap_rec_t {
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string isup_message_type_value[];
-ETH_VAR_IMPORT const value_string isup_message_type_value_acro[];
-ETH_VAR_IMPORT const value_string q850_cause_code_vals[];
+WS_VAR_IMPORT const value_string isup_message_type_value[];
+WS_VAR_IMPORT const value_string isup_message_type_value_acro[];
+WS_VAR_IMPORT const value_string q850_cause_code_vals[];
 /*
  * Export some definitions and value_string tables for other dissectors
  */

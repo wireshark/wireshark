@@ -89,24 +89,24 @@ typedef struct _h225_packet_info {
 
 /*--- Included file: packet-h225-exp.h ---*/
 #line 1 "packet-h225-exp.h"
-ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
-ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
+WS_VAR_IMPORT const value_string T_h323_message_body_vals[];
+WS_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
 extern const value_string h225_PresentationIndicator_vals[];
 extern const value_string h225_ScreeningIndicator_vals[];
-ETH_VAR_IMPORT const value_string FacilityReason_vals[];
+WS_VAR_IMPORT const value_string FacilityReason_vals[];
 extern const value_string AliasAddress_vals[];
 extern const value_string h225_PartyNumber_vals[];
-ETH_VAR_IMPORT const value_string RasMessage_vals[];
-ETH_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
-ETH_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
-ETH_VAR_IMPORT const value_string UnregRequestReason_vals[];
-ETH_VAR_IMPORT const value_string UnregRejectReason_vals[];
-ETH_VAR_IMPORT const value_string AdmissionRejectReason_vals[];
-ETH_VAR_IMPORT const value_string BandRejectReason_vals[];
-ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
-ETH_VAR_IMPORT const value_string DisengageReason_vals[];
-ETH_VAR_IMPORT const value_string DisengageRejectReason_vals[];
-ETH_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
+WS_VAR_IMPORT const value_string RasMessage_vals[];
+WS_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
+WS_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
+WS_VAR_IMPORT const value_string UnregRequestReason_vals[];
+WS_VAR_IMPORT const value_string UnregRejectReason_vals[];
+WS_VAR_IMPORT const value_string AdmissionRejectReason_vals[];
+WS_VAR_IMPORT const value_string BandRejectReason_vals[];
+WS_VAR_IMPORT const value_string LocationRejectReason_vals[];
+WS_VAR_IMPORT const value_string DisengageReason_vals[];
+WS_VAR_IMPORT const value_string DisengageRejectReason_vals[];
+WS_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
 int dissect_h225_PresentationIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
