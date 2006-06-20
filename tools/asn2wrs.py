@@ -1584,7 +1584,7 @@ class EthCnf:
           elif (ctx == 'EXPORTS'): p = 1
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
         for i in range(p, len(par)):
-          if (par[i] == 'ETH_VAR'):          flag |= 0x08
+          if (par[i] == 'WS_VAR'):          flag |= 0x08
           elif (par[i] == 'NO_PROT_PREFIX'): flag |= 0x10
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
@@ -1906,6 +1906,7 @@ class Type (Node):
   def __init__(self,*args, **kw) :
     self.name = None
     self.constr = None
+    self.tags = []
     Node.__init__ (self,*args, **kw)
 
   def IsNamed(self):
@@ -1921,23 +1922,21 @@ class Type (Node):
       return True
 
   def HasOwnTag(self):
-    return self.__dict__.has_key('tag')
+    return len(self.tags) > 0
 
   def HasImplicitTag(self, ectx):
-    return (self.HasOwnTag() and
-            ((self.tag.mode == 'IMPLICIT') or
-             ((self.tag.mode == 'default') and (ectx.tag_def == 'IMPLICIT'))))
+    return (self.HasOwnTag() and self.tags[0].IsImplicit(ectx))
 
   def IndetermTag(self, ectx):
     return False
 
-  def SetTag(self, tag):
-    self.tag = tag
+  def AddTag(self, tag):
+    self.tags[0:0] = [tag]
 
   def GetTag(self, ectx):
     #print "GetTag(%s)\n" % self.name;
     if (self.HasOwnTag()):
-      return self.tag.GetTag(ectx)
+      return self.tags[0].GetTag(ectx)
     else:
       return self.GetTTag(ectx)
 
@@ -2106,6 +2105,24 @@ class Value (Node):
   def get_dep(self):
     return None
 
+#--- Tag ---------------------------------------------------------------
+class Tag (Node):
+  def to_python (self, ctx):
+    return 'asn1.TYPE(%s,%s)' % (mk_tag_str (ctx, self.tag.cls,
+                                                self.tag_typ,
+                                                self.tag.num),
+                                    self.typ.to_python (ctx))
+  def IsImplicit(self, ectx):
+    return ((self.mode == 'IMPLICIT') or ((self.mode == 'default') and (ectx.tag_def == 'IMPLICIT')))
+
+  def GetTag(self, ectx):
+    tc = ''
+    if (self.cls == 'UNIVERSAL'): tc = 'BER_CLASS_UNI'
+    elif (self.cls == 'APPLICATION'): tc = 'BER_CLASS_APP'
+    elif (self.cls == 'CONTEXT'): tc = 'BER_CLASS_CON'
+    elif (self.cls == 'PRIVATE'): tc = 'BER_CLASS_PRI'
+    return (tc, self.num)
+ 
 #--- Constraint ---------------------------------------------------------------
 class Constraint (Node):
   def to_python (self, ctx):
@@ -2523,20 +2540,6 @@ def mk_tag_str (ctx, cls, typ, num):
         typ = ctx.tags_def
     return 'asn1.%s(%d,cls=asn1.%s_FLAG)' % (typ, val, cls) # XXX still ned
 
-class Tag (Node):
-  def to_python (self, ctx):
-    return 'asn1.TYPE(%s,%s)' % (mk_tag_str (ctx, self.tag.cls,
-                                                self.tag_typ,
-                                                self.tag.num),
-                                    self.typ.to_python (ctx))
-  def GetTag(self, ectx):
-    tc = ''
-    if (self.cls == 'UNIVERSAL'): tc = 'BER_CLASS_UNI'
-    elif (self.cls == 'APPLICATION'): tc = 'BER_CLASS_APP'
-    elif (self.cls == 'CONTEXT'): tc = 'BER_CLASS_CON'
-    elif (self.cls == 'PRIVATE'): tc = 'BER_CLASS_PRI'
-    return (tc, self.num)
- 
 #--- SequenceType -------------------------------------------------------------
 class SequenceType (SeqType):
   def to_python (self, ctx):
@@ -2769,7 +2772,7 @@ class ChoiceType (Type):
         opt = ''
         if (not e.HasOwnTag()):
           opt = 'BER_FLAGS_NOOWNTAG'
-        elif (e.tag.mode == 'IMPLICIT'):
+        elif (val.HasImplicitTag(ectx)):
           if (opt): opt += '|'
           opt += 'BER_FLAGS_IMPLTAG'
         if (not opt): opt = '0'
@@ -4095,14 +4098,14 @@ def p_TaggedType_1 (t):
     'TaggedType : Tag Type'
     t[1].mode = 'default'
     t[0] = t[2]
-    t[0].SetTag(t[1])
+    t[0].AddTag(t[1])
 
 def p_TaggedType_2 (t):
     '''TaggedType : Tag IMPLICIT Type
                   | Tag EXPLICIT Type'''
     t[1].mode = t[2]
     t[0] = t[3]
-    t[0].SetTag(t[1])
+    t[0].AddTag(t[1])
 
 def p_Tag (t):
     'Tag : LBRACK Class ClassNumber RBRACK'
@@ -4735,19 +4738,19 @@ from PyZ3950 import asn1""" % (fn, time_str)
 def eth_usage():
   print """
 asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
-  -h|?       : usage
-  -b         : BER (default is PER)
-  -u         : unaligned (default is aligned)
-  -p proto   : protocol name (implies -S)
-               default is module-name from input_file (renamed by #.MODULE if present)
-  -o name    : output files name core (default is <proto>)
-  -O dir     : output directory
+  -h|?          : usage
+  -b            : BER (default is PER)
+  -u            : unaligned (default is aligned)
+  -p proto      : protocol name (implies -S)
+                  default is module-name from input_file (renamed by #.MODULE if present)
+  -o name       : output files name core (default is <proto>)
+  -O dir        : output directory
   -c conform_file : conformation file
-  -e         : create conformation file for exported types
-  -S         : single output for multiple modules
-  -s template : single file output (template is input file without .c/.h extension)
-  -k         : keep intermediate files though single file output is used
-  input_file : input ASN.1 file
+  -e            : create conformation file for exported types
+  -S            : single output for multiple modules
+  -s template   : single file output (template is input file without .c/.h extension)
+  -k            : keep intermediate files though single file output is used
+  input_file(s) : input ASN.1 file(s)
 
   -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][o]
                l - lex 

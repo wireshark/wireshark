@@ -10,20 +10,20 @@
 #.EXPORTS
 #----------------------------------------------------------------------------------------
 NonStandardParameter	 		
-RasMessage			WITH_VALS ETH_VAR NO_PROT_PREFIX
-H323-UU-PDU/h323-message-body	ONLY_VALS ETH_VAR NO_PROT_PREFIX
-FacilityReason			ONLY_VALS ETH_VAR NO_PROT_PREFIX
-GatekeeperRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-UnregRequestReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-UnregRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-BandRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-DisengageReason			ONLY_VALS ETH_VAR NO_PROT_PREFIX
-DisengageRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-InfoRequestNakReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-ReleaseCompleteReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-AdmissionRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-LocationRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
-RegistrationRejectReason	ONLY_VALS ETH_VAR NO_PROT_PREFIX
+RasMessage			WITH_VALS WS_VAR NO_PROT_PREFIX
+H323-UU-PDU/h323-message-body	ONLY_VALS WS_VAR NO_PROT_PREFIX
+FacilityReason			ONLY_VALS WS_VAR NO_PROT_PREFIX
+GatekeeperRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+UnregRequestReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+UnregRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+BandRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+DisengageReason			ONLY_VALS WS_VAR NO_PROT_PREFIX
+DisengageRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+InfoRequestNakReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+ReleaseCompleteReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+AdmissionRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+LocationRejectReason		ONLY_VALS WS_VAR NO_PROT_PREFIX
+RegistrationRejectReason	ONLY_VALS WS_VAR NO_PROT_PREFIX
 AliasAddress			NO_PROT_PREFIX
 PartyNumber
 PresentationIndicator
