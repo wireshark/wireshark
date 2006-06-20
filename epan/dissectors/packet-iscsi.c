@@ -406,6 +406,7 @@ static const value_string iscsi_task_management_functions[] = {
     {5, "Logical Unit Reset"},
     {6, "Target Warm Reset"},
     {7, "Target Cold Reset"},
+    {8, "Target Reassign"},
     {0, NULL},
 };
 
@@ -1579,24 +1580,528 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     int digestsActive = 1;
     conversation_t *conversation = NULL;
     iscsi_session_t *iscsi_session=NULL;
+    guint8 opcode, tmpbyte;
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */
-    if (available_bytes < 48 && (!iscsi_desegment || available_bytes < 8)) {
+    if (available_bytes < 48 ){
 	/* no, so give up */
 	return FALSE;
     }
+
+    opcode = tvb_get_guint8(tvb, offset + 0);
+    opcode &= OPCODE_MASK;
+
+    /* heuristics to verify that the packet looks sane.   the heuristics
+     * are based on the RFC version of iscsi.
+     * (we should retire support for older iscsi versions in wireshark)
+     *      -- ronnie s
+     */
+    /* opcode must be any of the ones from the standard
+     * also check the header that it looks "sane"
+     * all reserved or undefined bits in iscsi must be set to zero.
+     */
+    switch(opcode){
+    case ISCSI_OPCODE_NOP_OUT:
+	/* top bit of byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0x80){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* bytes 2 and 3 must be 0 */
+	if(tvb_get_guint8(tvb, offset+2)||tvb_get_guint8(tvb, offset+3)){
+	    return FALSE;
+	}
+	/* assume ITT and TTT must always be non NULL (ok they can be NULL
+	 * from time to time but it usually means we are in the middle
+	 * of a zeroed datablock).
+	 */
+	if(!tvb_get_letohl(tvb,offset+16) || !tvb_get_letohl(tvb,offset+20)){
+	    return FALSE;
+	}
+	/* all reserved bytes between 32 - 47 must be null */
+	if(!tvb_get_letohl(tvb,offset+32)
+	|| !tvb_get_letohl(tvb,offset+36)
+	|| !tvb_get_letohl(tvb,offset+40)
+	|| !tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_LOGIN_COMMAND:
+	/* top two bits in byte 0 must be 0x40 */
+	if((tvb_get_guint8(tvb, offset+0)&0xc0)!=0x40){
+
+	    return FALSE;
+	}
+	/* exactly one of the T and C bits must be set
+	 * and the two reserved bits in byte 1 must be 0
+	 */
+	tmpbyte=tvb_get_guint8(tvb, offset+1);
+	switch(tmpbyte&0xf0){
+	case 0x80:
+	case 0x40:
+	    break;
+	default:
+	    return FALSE;
+	}
+	/* CSG and NSG must not be 2 */
+	if(((tmpbyte&0x03)==0x02)
+	|| ((tmpbyte&0xc0)==0x08)){
+	    return FALSE;
+	}
+	/* if T bit is set NSG must not be 0 */
+	if(tmpbyte&0x80){
+	    if(!(tmpbyte&0x03)){
+		return FALSE;
+	    }
+	}
+	/* should we test that datasegmentlen is non zero? */
+	break;
+    case ISCSI_OPCODE_LOGIN_RESPONSE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+
+	    return FALSE;
+	}
+	/* both the T and C bits can not be set
+	 * and the two reserved bits in byte 1 must be 0
+	 */
+	tmpbyte=tvb_get_guint8(tvb, offset+1);
+	switch(tmpbyte&0xf0){
+	case 0x80:
+	case 0x40:
+	case 0x00:
+	    break;
+	default:
+	    return FALSE;
+	}
+	/* CSG and NSG must not be 2 */
+	if(((tmpbyte&0x03)==0x02)
+	|| ((tmpbyte&0xc0)==0x08)){
+	    return FALSE;
+	}
+	/* if T bit is set NSG must not be 0 */
+	if(tmpbyte&0x80){
+	    if(!(tmpbyte&0x03)){
+		return FALSE;
+	    }
+	}
+	/* the 32bit words at offsets 20, 40, 44 must be zero */
+	if(tvb_get_letohl(tvb,offset+20)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	/* the two bytes at offset 38 must be zero */
+	if(tvb_get_letohs(tvb,offset+38)){
+	    return FALSE;
+	}
+	/* should we test that datasegmentlen is non zero unless we just
+	 * entered full featured phase? 
+	 */
+	break;
+    case ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION:
+	/* top bit in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0x80){
+	    return FALSE;
+	}
+	/* top bit in byte 1 must be set */
+	tmpbyte=tvb_get_guint8(tvb, offset+1);
+	if(!(tmpbyte&0x80)){
+	    return FALSE;
+	}
+	/* Function must be known */
+	if(!match_strval(tmpbyte&0x7f, iscsi_task_management_functions)){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* ahs and dsl must be null */
+	if(tvb_get_letohl(tvb,offset+4)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* response must be 0-6 or 255 */
+	tmpbyte=tvb_get_guint8(tvb,offset+2);
+	if(tmpbyte>6 && tmpbyte<255){
+	    return FALSE;
+	}
+	/* byte 3 must be 0 */
+	if(tvb_get_guint8(tvb,offset+3)){
+	    return FALSE;
+	}
+	/* ahs and dsl  as well as the 32bit words at offsets 8, 12, 20, 36
+	 * 40, 44 must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+4)
+	|| tvb_get_letohl(tvb,offset+8)
+	|| tvb_get_letohl(tvb,offset+12)
+	|| tvb_get_letohl(tvb,offset+20)
+	|| tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_LOGOUT_COMMAND:
+	/* top bit in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0x80){
+	    return FALSE;
+	}
+	/* top bit in byte 1 must be set */
+	tmpbyte=tvb_get_guint8(tvb, offset+1);
+	if(!(tmpbyte&0x80)){
+	    return FALSE;
+	}
+	/* Reason code must be known */
+	if(!match_strval(tmpbyte&0x7f, iscsi_logout_reasons)){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* ahs and dsl  as well as the 32bit words at offsets 8, 12, 32, 36
+	 * 40, 44 must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+4)
+	|| tvb_get_letohl(tvb,offset+8)
+	|| tvb_get_letohl(tvb,offset+12)
+	|| tvb_get_letohl(tvb,offset+32)
+	|| tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_SNACK_REQUEST:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* top 4 bits in byte 1 must be 0x80 */
+	tmpbyte=tvb_get_guint8(tvb, offset+1);
+	if((tmpbyte&0xf0)!=0x80){
+	    return FALSE;
+	}
+	/* type must be known */
+	if(!match_strval(tmpbyte&0x0f, iscsi_snack_types)){
+	    return FALSE;
+	}
+	/* for status/snack and datack itt must be 0xffffffff
+	 * for rdata/snack ttt must not be 0 or 0xffffffff
+	 */
+	switch(tmpbyte&0x0f){
+	case 1:
+	case 2:
+	    if(tvb_get_letohl(tvb,offset+16)!=0xffffffff){
+		return FALSE;
+	    }
+	    break;
+	case 3:
+	    if(tvb_get_letohl(tvb,offset+20)==0xffffffff){
+		return FALSE;
+	    }
+	    if(tvb_get_letohl(tvb,offset+20)==0){
+		return FALSE;
+	    }
+	    break;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 24, 32, 36
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+24)
+	|| tvb_get_letohl(tvb,offset+32)
+	|| tvb_get_letohl(tvb,offset+36)){
+	    return FALSE;
+	}
+
+	break;
+    case ISCSI_OPCODE_R2T:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* ahs and dsl must be null */
+	if(tvb_get_letohl(tvb,offset+4)){
+	    return FALSE;
+	}
+	/* desired data transfer length must not be null */
+	if(!tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_REJECT:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* reason must be known */
+	if(!match_strval(tvb_get_guint8(tvb,offset+2), iscsi_reject_reasons)){
+	    return FALSE;
+	}
+	/* byte 3 must be 0 */
+	if(tvb_get_guint8(tvb, offset+3)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 8, 12, 20, 40, 44
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+8)
+	|| tvb_get_letohl(tvb,offset+12)
+	|| tvb_get_letohl(tvb,offset+20)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	/* the 32bit word at 16 must be 0xffffffff */
+	if(tvb_get_letohl(tvb,offset+16)!=0xffffffff){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_TEXT_COMMAND:
+	/* top bit in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0x80){
+	    return FALSE;
+	}
+	/* one of the F and C bits must be set but not both
+	 * low 6 bits in byte 1 must be 0 
+	 */
+	switch(tvb_get_guint8(tvb,offset+1)){
+	case 0x80:
+	case 0x40:
+	    break;
+	default:
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 32, 36, 40, 44
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+32)
+	|| tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_TEXT_RESPONSE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* one of the F and C bits must be set but not both
+	 * low 6 bits in byte 1 must be 0 
+	 */
+	switch(tvb_get_guint8(tvb,offset+1)){
+	case 0x80:
+	case 0x40:
+	    break;
+	default:
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 36, 40, 44
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_SCSI_COMMAND:
+	/* top bit in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0x80){
+	    return FALSE;
+	}
+	/* reserved bits in byte 1 must be 0 */
+	if(tvb_get_guint8(tvb, offset+1)&0x18){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* expected data transfer length is never >16MByte ? */
+	if(tvb_get_guint8(tvb,offset+20)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_SCSI_RESPONSE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* top bit in byte 1 must be 1 */
+	tmpbyte=tvb_get_guint8(tvb,offset+1);
+	if(!(tmpbyte&0x80)){
+	    return FALSE;
+	}
+	/* the reserved bits in byte 1 must be 0 */
+	if(tmpbyte&0x61){
+	    return FALSE;
+	}
+	/* status must be known */
+	if(!match_strval(tvb_get_guint8(tvb,offset+3), scsi_status_val)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 8, 12
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+8)
+	|| tvb_get_letohl(tvb,offset+12)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_ASYNC_MESSAGE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 20, 44
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+20)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	/* the 32bit word at 16 must be 0xffffffff */
+	if(tvb_get_letohl(tvb,offset+16)!=0xffffffff){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_LOGOUT_RESPONSE:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* response must be known */
+	if(!match_strval(tvb_get_guint8(tvb,offset+2), iscsi_logout_response)){
+	    return FALSE;
+	}
+	/* byte 3 must be 0 */
+	if(tvb_get_guint8(tvb,offset+3)){
+	    return FALSE;
+	}
+	/* ahs and dsl  as well as the 32bit words at offsets 8, 12, 20, 36
+	 * 44 must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+4)
+	|| tvb_get_letohl(tvb,offset+8)
+	|| tvb_get_letohl(tvb,offset+12)
+	|| tvb_get_letohl(tvb,offset+20)
+	|| tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_SCSI_DATA_OUT:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* low 7 bits in byte 1 must be 0 */
+	if(tvb_get_guint8(tvb,offset+1)&0x7f){
+	    return FALSE;
+	}
+	/* bytes 2,3 must be null */
+	if(tvb_get_letohs(tvb,offset+2)){
+	    return FALSE;
+	}
+	/* the 32bit words at offsets 24, 32, 44
+	 * must all be 0
+	 */
+	if(tvb_get_letohl(tvb,offset+24)
+	|| tvb_get_letohl(tvb,offset+32)
+	|| tvb_get_letohl(tvb,offset+44)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_SCSI_DATA_IN:
+	/* top two bits in byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* reserved bits in byte 1 must be 0 */
+	if(tvb_get_guint8(tvb,offset+1)&0x38){
+	    return FALSE;
+	}
+	/* byte 2 must be reserved */
+	if(tvb_get_guint8(tvb,offset+2)){
+	    return FALSE;
+	}
+	break;
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_I0:
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_I1:
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_I2:
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_T0:
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_T1:
+    case ISCSI_OPCODE_VENDOR_SPECIFIC_T2:
+	break;
+    default:
+	return FALSE;
+    }
+
 
     /* process multiple iSCSI PDUs per packet */
     while(available_bytes >= 48 || (iscsi_desegment && available_bytes >= 8)) {
 	const char *opcode_str = NULL;
 	guint32 data_segment_len;
 	guint32 pduLen = 48;
-	guint8 opcode = tvb_get_guint8(tvb, offset + 0);
 	guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
 	int badPdu = FALSE;
 
 	/* mask out any extra bits in the opcode byte */
+	opcode = tvb_get_guint8(tvb, offset + 0);
 	opcode &= OPCODE_MASK;
 
 	opcode_str = match_strval(opcode, iscsi_opcodes);
@@ -1791,10 +2296,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
    this to be iSCSI using "Decode As..."
    In this case we will not check the port number for sanity and just
    do as the user said.
+   We still check that the PDU header looks sane though.
 */
-static void
+static int
 dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    dissect_iscsi(tvb, pinfo, tree, FALSE);
+    return dissect_iscsi(tvb, pinfo, tree, FALSE);
 }
 
 /* This is called through the heuristic handler.
@@ -2456,6 +2962,6 @@ proto_reg_handoff_iscsi(void)
 {
     heur_dissector_add("tcp", dissect_iscsi_heur, proto_iscsi);
 
-    iscsi_handle = create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
+    iscsi_handle = new_create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
     dissector_add_handle("tcp.port", iscsi_handle);
 }
