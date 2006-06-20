@@ -1151,10 +1151,13 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 	
     if (keep_persistent_data) {
 		se_tree_key_t key[] = {
-			{1,&(framenum)},
-			{1,&offset},
+			{1,NULL},
+			{1,NULL},
 			{0,NULL},
 		};
+
+	key[0].key = &(framenum);
+	key[1].key = &offset;
 
         if (( m = se_tree_lookup32_array(msgs,key) )) {
             m->commited = TRUE;
@@ -1224,12 +1227,16 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
 
         } else {
 			se_tree_key_t key[] = {
-				{1,&(m->hi_addr)},
-				{1,&(m->lo_addr)},
-				{1,&(t_id)},
+				{1,NULL},
+				{1,NULL},
+				{1,NULL},
 				{0,NULL}
 			};
 			
+            key[0].key = &(m->hi_addr);
+            key[1].key = &(m->lo_addr);
+            key[2].key = &(t_id);
+
             trxmsg = se_alloc(sizeof(h248_trx_msg_t));
             t = se_tree_lookup32_array(trxs,key);
 
@@ -1288,19 +1295,27 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
 
     if (keep_persistent_data) {
 		se_tree_key_t ctx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(c_id)},
+		{1,NULL},
+		{1,NULL},
+		{1,NULL},
 		{0,NULL}
 		};
 		
 		se_tree_key_t trx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(t->id)},
+		{1,NULL},
+		{1,NULL},
+		{1,NULL},
 		{0,NULL}
 		};
 		
+        ctx_key[0].key = &(m->hi_addr);
+        ctx_key[1].key = &(m->lo_addr);
+        ctx_key[2].key = &(c_id);
+
+        trx_key[0].key = &(m->hi_addr);
+        trx_key[1].key = &(m->lo_addr);
+        trx_key[2].key = &(t->id);
+
         if (m->commited) {
             if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                 return context;

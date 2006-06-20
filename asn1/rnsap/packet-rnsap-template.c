@@ -39,9 +39,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-rnsap.h"
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-rnsap.h"
+#include "packet-umts_rrc.h"
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
@@ -554,6 +555,7 @@ static int proto_rnsap = -1;
 
 static int hf_rnsap_pdu_length = -1;
 static int hf_rnsap_IE_length = -1;
+static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
 
 #include "packet-rnsap-hf.c"
 
@@ -2313,6 +2315,11 @@ void proto_register_rnsap(void) {
 	{ &hf_rnsap_IE_length,
 		{ "IE Length", "rnsap.ie_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of octets in the IE", HFILL }},
+    { &hf_rnsap_L3_DL_DCCH_Message_PDU,
+      { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DL-DCCH-Message", HFILL }},
+
 #include "packet-rnsap-hfarr.c"
   };
 

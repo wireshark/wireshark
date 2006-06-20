@@ -157,14 +157,14 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 		else if (pinfo->pseudo_header->lapd.pkttype == 3 /*PACKET_OTHERHOST*/) {
-			// We must be a TE, sniffing what other TE transmit
+			/* We must be a TE, sniffing what other TE transmit */
 
 			is_response = cr ? TRUE : FALSE;
 			srcname = "Remote User";
 			dstname = "Remote Network";
 		}
 		else {
-			// The frame is incoming
+			/* The frame is incoming */
 			if (pinfo->pseudo_header->lapd.we_network) {
 				is_response = cr ? TRUE : FALSE;
 				srcname = "Remote User";

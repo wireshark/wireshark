@@ -1388,11 +1388,16 @@ void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
 	se_tree_key_t key[] = {
-		{1,&len},
-		{div,(guint32*)(&k[0])},
-		{1,&residual},
+		{1,NULL},
+		{0,NULL},
+		{1,NULL},
 		{0,NULL}
 	};
+
+	key[0].key = &len;
+	key[1].length = div;
+	key[1].key = (guint32*)(&k[0]);
+	key[2].key = &residual;
 
 	if (! div) {
 		key[1].length = key[2].length;
@@ -1423,11 +1428,16 @@ void* se_tree_lookup_string(se_string_hash_t* se_tree, const gchar* k) {
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
 	se_tree_key_t key[] = {
-		{1,&len},
-		{div,(guint32*)(&k[0])},
-		{1,&residual},
+		{1,NULL},
+		{0,NULL},
+		{1,NULL},
 		{0,NULL}
 	};
+
+	key[0].key = &len;
+	key[1].length = div;
+	key[1].key = (guint32*)(&k[0]);
+	key[2].key = &residual;
 
 	if (! div) {
 		key[1].length = key[2].length;

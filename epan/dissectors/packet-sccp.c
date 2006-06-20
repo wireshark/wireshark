@@ -757,12 +757,16 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         {
 			/* Calling and called is seen from initiator of CR */
 			se_tree_key_t key[] = {
-				{1,&dpck},
-				{1,&opck},
-				{1,&src_lr},
+				{1,NULL},
+				{1,NULL},
+				{1,NULL},
 				{0,NULL}
 			};
 			
+            key[0].key = &dpck;
+            key[1].key = &opck;
+            key[2].key = &src_lr;
+
             if (! ( assoc = se_tree_lookup32_array(assocs,key) ) ) {
                 assoc = se_alloc(sizeof(sccp_assoc_info_t));
                 
@@ -783,17 +787,25 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         {
 			/* Calling and called is seen from initiator of CR */
 			se_tree_key_t called_key[] = {
-				{1,&opck},
-				{1,&dpck},
-				{1,&dst_lr},
+				{1,NULL},
+				{1,NULL},
+				{1,NULL},
 				{0,NULL}
 			};
 			se_tree_key_t calling_key[] = {
-				{1,&dpck},
-				{1,&opck},
-				{1,&src_lr},
+				{1,NULL},
+				{1,NULL},
+				{1,NULL},
 				{0,NULL}
 			};
+
+            called_key[0].key = &opck;
+            called_key[1].key = &dpck;
+            called_key[2].key = &dst_lr;
+
+            calling_key[0].key = &dpck;
+            calling_key[1].key = &opck;
+            calling_key[2].key = &src_lr;
 
             if (( assoc = se_tree_lookup32_array(assocs,calling_key) )) {
                 if ( ! assoc->has_called_key ) {
@@ -825,21 +837,28 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         default:
         {
 			se_tree_key_t calling_key[] = {
-				{1,&opck},
-				{1,&dpck},
-				{1,&dst_lr},
+				{1,NULL},
+				{1,NULL},
+				{1,NULL},
 				{0,NULL}
 			};
 			
+            calling_key[0].key = &opck;
+            calling_key[1].key = &dpck;
+            calling_key[2].key = &dst_lr;
+
             assoc = se_tree_lookup32_array(assocs,calling_key);
 			/* Should a check be made on pinfo->p2p_dir ??? */
 			if (!assoc){
 				se_tree_key_t called_key[] = {
-					{1,&dpck},
-					{1,&opck},
-					{1,&dst_lr},
+					{1,NULL},
+					{1,NULL},
+					{1,NULL},
 					{0,NULL}
 				};
+				called_key[0].key = &dpck;
+				called_key[1].key = &opck;
+				called_key[2].key = &dst_lr;
 				assoc = se_tree_lookup32_array(assocs,called_key);
 			}
             break;
