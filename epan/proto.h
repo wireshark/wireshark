@@ -389,8 +389,8 @@ extern int proto_item_get_len(proto_item *ti);
 /**
  * Sets an expert info to the proto_item.
  @param ti the item to set the expert info
- @param group the group of this info (e.g. FI_CHECKSUM)
- @param severity of this info (e.g. FI_ERROR)
+ @param group the group of this info (e.g. PI_CHECKSUM)
+ @param severity of this info (e.g. PI_ERROR)
  @return TRUE if value was written
  */
 extern gboolean proto_item_set_expert_flags(proto_item *ti, int group, int severity);
