@@ -859,7 +859,7 @@ PROTOSHORTNAME	An abbreviated name for the protocol; this is displayed
 		any preferences, and in the dialog box for filter fields
 		when constructing a filter expression.
 PROTOABBREV	A name for the protocol for use in filter expressions;
-		it should contain only lower-case letters, digits, and
+		it shall contain only lower-case letters, digits, and
 		hyphens.
 FIELDNAME	The displayed name for the header field.
 FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
