@@ -411,13 +411,13 @@ void proto_register_catapult_dct2000(void)
                                                       proto_reg_handoff_catapult_dct2000);
 
     /* Determines whether non-supported protocols should be shown anyway */
-    prefs_register_bool_preference(catapult_dct2000_module, "board_ports_only",
+/*    prefs_register_bool_preference(catapult_dct2000_module, "board_ports_only",
                                    "Only show known 'board-port' protocols",
                                    "Don't show other protocols, i.e. unknown board-port "
                                    "protocols and non-standard primitives between "
                                    "contexts on the same card.  The capture file "
                                    "needs to be (re)-loaded before effect will be seen",
-                                   &catapult_dct2000_board_ports_only);
+                                   &catapult_dct2000_board_ports_only);*/
 
     /* Determines whether for not-handled protocols we should try to parse it if:
        - it looks like its embedded in an ipprim message, AND
