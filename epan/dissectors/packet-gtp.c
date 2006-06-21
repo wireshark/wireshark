@@ -618,7 +618,7 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_MBMS_SA,				"MBMS Service Area" },							/* 7.7.60 */
 	{ GTP_EXT_SRC_RNC_PDP_CTX_INF,	"Source RNC PDCP context info" },				/* 7.7.61 */
 	{ GTP_EXT_ADD_TRS_INF,			"Additional Trace Info" },						/* 7.7.62 */
-	{ GTP_EXT_HOP_COUNT,				"Hop Counter" },								/* 7.7.63 */
+	{ GTP_EXT_HOP_COUNT,				"Hop Counter" },							/* 7.7.63 */
 	{ GTP_EXT_SEL_PLMN_ID,			"Selected PLMN ID" },							/* 7.7.64 */
 	{ GTP_EXT_MBMS_SES_ID,			"MBMS Session Identifier" },					/* 7.7.65 */
 	{ GTP_EXT_MBMS_2G_3G_IND,		"MBMS 2G/3G Indicator" },						/* 7.7.66 */
@@ -641,7 +641,104 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_PRIV_EXT, 			"Private Extension" },
 	{ 0, NULL }
 };
+/* It seems like some IE's are renamed in gtpv1 at least reading 
+ * 3GPP TS 29.060 version 6.11.0 Release 6
+ */ 
+static const value_string gtpv1_val[] = {
+	{ GTP_EXT_CAUSE,		"Cause of operation" },
+	{ GTP_EXT_IMSI,			"IMSI" },
+	{ GTP_EXT_RAI,			"Routing Area Identity" },
+	{ GTP_EXT_TLLI,			"Temporary Logical Link Identity" },
+	{ GTP_EXT_PTMSI,		"Packet TMSI" },
+	{ GTP_EXT_QOS_GPRS,		"Quality of Service" },
+	{ GTP_EXT_REORDER,		"Reorder required" },
+	{ GTP_EXT_AUTH_TRI,		"Authentication triplets" },
+	{ GTP_EXT_MAP_CAUSE,	"MAP cause" },
+	{ GTP_EXT_PTMSI_SIG,	"P-TMSI signature" },
+	{ GTP_EXT_MS_VALID,		"MS validated" },
+	{ GTP_EXT_RECOVER,		"Recovery" },
+	{ GTP_EXT_SEL_MODE,		"Selection mode" },
 
+	{ GTP_EXT_TEID,			"Tunnel Endpoint Identifier Data I" },			/* 3G */
+
+	{ GTP_EXT_TEID_CP,		"Tunnel Endpoint Identifier Data Control Plane" },	/* 3G */
+
+	{ GTP_EXT_TEID_II,		"Tunnel Endpoint Identifier Data II" },			/* 3G */
+
+	{ GTP_EXT_TEAR_IND,		"Teardown ID" },								/* 3G */
+	
+	{ GTP_EXT_NSAPI,		"NSAPI" },										/* 3G */
+	{ GTP_EXT_RANAP_CAUSE,	"RANAP cause" },								/* 3G */
+	{ GTP_EXT_RAB_CNTXT,	"RAB context" },								/* 3G */
+	{ GTP_EXT_RP_SMS,		"Radio Priority for MO SMS" },					/* 3G */
+	{ GTP_EXT_RP,			"Radio Priority" },								/* 3G */
+	{ GTP_EXT_PKT_FLOW_ID,	"Packet Flow ID" },								/* 3G */
+	{ GTP_EXT_CHRG_CHAR,	"Charging characteristics" },					/* 3G */
+	{ GTP_EXT_TRACE_REF,	"Trace references" },							/* 3G */
+	{ GTP_EXT_TRACE_TYPE,	"Trace type" },									/* 3G */
+	{ GTPv1_EXT_MS_REASON,	"MS not reachable reason" },					/* 3G */
+	{ GTP_EXT_TR_COMM,		"Packet transfer command" },					/* charging */
+	{ GTP_EXT_CHRG_ID,		"Charging ID" },
+	{ GTP_EXT_USER_ADDR,	"End user address" },
+	{ GTP_EXT_MM_CNTXT,		"MM context" },
+	{ GTP_EXT_PDP_CNTXT,	"PDP context" },
+	{ GTP_EXT_APN,			"Access Point Name" },
+	{ GTP_EXT_PROTO_CONF,	"Protocol configuration options" },
+	{ GTP_EXT_GSN_ADDR,		"GSN address" },
+	{ GTP_EXT_MSISDN,		"MS international PSTN/ISDN number" },
+	{ GTP_EXT_QOS_UMTS,		"Quality of service (UMTS)" },					/* 3G */
+	{ GTP_EXT_AUTH_QUI,		"Authentication quintuplets" },					/* 3G */
+	{ GTP_EXT_TFT,			"Traffic Flow Template (TFT)" },				/* 3G */
+	{ GTP_EXT_TARGET_ID,	"Target (RNC) identification" },				/* 3G */
+	{ GTP_EXT_UTRAN_CONT,	"UTRAN transparent field" },					/* 3G */
+	{ GTP_EXT_RAB_SETUP,	"RAB setup information" },						/* 3G */
+	{ GTP_EXT_HDR_LIST,		"Extension Header Types List" },				/* 3G */
+	{ GTP_EXT_TRIGGER_ID,	"Trigger Id" },									/* 3G */
+	{ GTP_EXT_OMC_ID,		"OMC Identity" },								/* 3G */
+
+	{ GTP_EXT_RAN_TR_CONT,			"RAN Transparent Container" },					/* 7.7.43 */
+	{ GTP_EXT_PDP_CONT_PRIO,		"PDP Context Prioritization" },					/* 7.7.45 */
+	{ GTP_EXT_ADD_RAB_SETUP_INF,	"Additional RAB Setup Information" },			/* 7.7.45A */
+	{ GTP_EXT_SSGN_NO,				"SGSN Number" },								/* 7.7.47 */
+	{ GTP_EXT_COMMON_FLGS,			"Common Flags" },								/* 7.7.48 */
+	{ GTP_EXT_APN_RES,				"APN Restriction" },							/* 3G */
+	{ GTP_EXT_RA_PRIO_LCS,			"Radio Priority LCS" },							/* 7.7.25B */
+	{ GTP_EXT_RAT_TYPE,				"RAT Type" },									/* 3G */
+	{ GTP_EXT_USR_LOC_INF,			"User Location Information" },					/* 7.7.51 */
+	{ GTP_EXT_MS_TIME_ZONE,			"MS Time Zone" },								/* 7.7.52 */
+
+	{ GTP_EXT_IMEISV,				"IMEI(SV)" },									/* 3G */
+	{ GTP_EXT_CAMEL_CHG_INF_CON,	"CAMEL Charging Information Container" },		/* 7.7.54 */
+	{ GTP_EXT_MBMS_UE_CTX,			"MBMS UE Context" },							/* 7.7.55 */
+	{ GTP_EXT_TMGI,					"Temporary Mobile Group Identity (TMGI)" },		/* 7.7.56 */
+	{ GTP_EXT_RIM_RA,				"RIM Routing Address" },						/* 7.7.57 */
+	{ GTP_EXT_MBMS_PROT_CONF_OPT,	"MBMS Protocol Configuration Options" },		/* 7.7.58 */
+	{ GTP_EXT_MBMS_SA,				"MBMS Service Area" },							/* 7.7.60 */
+	{ GTP_EXT_SRC_RNC_PDP_CTX_INF,	"Source RNC PDCP context info" },				/* 7.7.61 */
+	{ GTP_EXT_ADD_TRS_INF,			"Additional Trace Info" },						/* 7.7.62 */
+	{ GTP_EXT_HOP_COUNT,				"Hop Counter" },							/* 7.7.63 */
+	{ GTP_EXT_SEL_PLMN_ID,			"Selected PLMN ID" },							/* 7.7.64 */
+	{ GTP_EXT_MBMS_SES_ID,			"MBMS Session Identifier" },					/* 7.7.65 */
+	{ GTP_EXT_MBMS_2G_3G_IND,		"MBMS 2G/3G Indicator" },						/* 7.7.66 */
+	{ GTP_EXT_ENH_NSAPI,			"Enhanced NSAPI" },								/* 7.7.67 */
+	{ GTP_EXT_MBMS_SES_DUR,			"MBMS Session Duration" },						/* 7.7.59 */
+	{ GTP_EXT_ADD_MBMS_TRS_INF,		"Additional MBMS Trace Info" },					/* 7.7.68 */
+	{ GTP_EXT_MBMS_SES_ID_REP_NO,	"MBMS Session Identity Repetition Number" },	/* 7.7.69 */
+	{ GTP_EXT_MBMS_TIME_TO_DATA_TR,	"MBMS Time To Data Transfer" },					/* 7.7.70 */
+	{ GTP_EXT_PS_HO_REQ_CTX,		"PS Handover Request Context" },				/* 7.7.71 */
+	{ GTP_EXT_BSS_CONT,				"BSS Container" },								/* 7.7.72 */
+	{ GTP_EXT_CELL_ID,				"Cell Identification" },						/* 7.7.73 */
+	{ GTP_EXT_PDU_NO,				"PDU Numbers" },								/* 7.7.74 */
+	{ GTP_EXT_BSSGP_CAUSE,			"BSSGP Cause" },								/* 7.7.75 */
+	{ GTP_EXT_REL_PACK,				"Sequence numbers of released packets IE" },	/* charging */
+	{ GTP_EXT_CAN_PACK,				"Sequence numbers of canceled packets IE" },	/* charging */
+	{ GTP_EXT_CHRG_ADDR,			"Charging Gateway address" },	
+	{ GTP_EXT_DATA_REQ,				"Data record packet" },							/* charging */
+	{ GTP_EXT_DATA_RESP,			"Requests responded" },							/* charging */
+	{ GTP_EXT_NODE_ADDR,			"Address of recommended node" },				/* charging */
+	{ GTP_EXT_PRIV_EXT, 			"Private Extension" },
+	{ 0, NULL }
+};
 /* GPRS:	9.60 v7.6.0, page 37
  * UMTS:	29.060 v4.0, page 45
  */
@@ -2557,7 +2654,7 @@ decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 
 			return 4;
 		case 1:
-			te = proto_tree_add_text (tree, tvb, offset, 6, val_to_str(GTP_EXT_TEID_II, gtp_val, "Unknown message"));
+			te = proto_tree_add_text (tree, tvb, offset, 6, val_to_str(GTP_EXT_TEID_II, gtpv1_val, "Unknown message"));
 			ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
 
 			proto_tree_add_uint(ext_tree_flow_ii, hf_gtp_nsapi, tvb, offset+1, 1, tvb_get_guint8(tvb, offset+1) & 0x0F);
