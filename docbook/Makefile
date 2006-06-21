@@ -230,10 +230,14 @@ CLEANFILES =	\
 	*.validated		\
 	wsdg_chm		\
 	wsdg_html		\
+	wsdg_html.zip		\
 	wsdg_html_chunked	\
+	wsdg_html_chunked.zip	\
 	wsug_chm		\
 	wsug_html		\
+	wsug_html.zip		\
 	wsug_html_chunked	\
+	wsug_html_chunked.zip	\
 	htmlhelp.*		\
 	release_notes_chm	\
 	release-notes.html	\
