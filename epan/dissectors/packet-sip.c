@@ -1216,6 +1216,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	 */
 	orig_offset = offset;
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	if (tvb_strnlen(tvb, offset, linelen) > -1)
+	{
+		/*
+		 * There's a NULL in the line, 
+		 * this may be SIP within another protocol.
+		 * This heuristic still needs to improve.
+		 */
+		return -2;
+	}
 	line_type = sip_parse_line(tvb, offset, linelen, &token_1_len);
 	if (line_type == OTHER_LINE) {
 		/*
