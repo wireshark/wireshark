@@ -213,6 +213,14 @@
 	<xref linkend="ChIOSaveCaptureFileAs"/> shows an example of this 
 	  dialog box.
       </para>
+	    <warning>
+	      <title>Warning!</title>
+	      <para>
+		  Saving the captured packets will slightly reduce the amount of 
+		  information, e.g. the number of dropped packets will be lost,
+		  see <xref linkend="ChAppFilesCaptureFilesSection"/> for details.
+	      </para>
+	    </warning>
 	    <note>
 	      <title>Note</title>
 	      <para>

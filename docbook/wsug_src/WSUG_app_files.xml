@@ -2,7 +2,121 @@
 <!-- $Id$ -->
 
 <appendix id="AppFiles">
-  <title>Configuration (and other) Files and Folders</title>
+  <title>Files and Folders</title>
+  
+  <section id="ChAppFilesCaptureFilesSection"><title>Capture Files</title>
+    <para>
+	To understand which information will remain available after 
+	the captured packets are saved to a capture file,
+	it's helpful to know a bit about the capture file contents.
+    </para>
+    <para>
+	Wireshark uses the libpcap file format as the default format to save 
+	captured packets, this format exists for a long time and it's pretty simple.
+	However, it has some drawbacks: it's not extensible and lacks some 
+	information that would be really helpful (e.g. being able to add a comment
+	to a packet "the problems start here" would be really nice).
+    </para>
+    <para>
+	In addition to the libpcap format, Wireshark supports several different 
+	capture file formats. However, the problems described above also applies 
+	for these formats too.
+    </para>
+    <para>
+	A new capture file format "PCAP Next Generation Dump File Format"
+	is currently under development, which will fix these drawbacks. 
+	However, it still might take a while until the new file format is ready 
+	and Wireshark can use it.
+    </para>
+  <section id="ChIOFileContentSection"><title>Libpcap File Contents</title>
+    <para>
+	At the start of each libpcap capture file some basic information is stored 
+	like a magic number to identify the libpcap file format. 
+	The most interesting information of this file start is the link layer type 
+	(Ethernet, Token Ring, ...). 
+    </para>
+    <para>
+	The following data is saved for each packet:
+	<itemizedlist>
+	<listitem>
+	  <para>
+	    the timestamp with millisecond resolution
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    the packet length as it was "on the wire"
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	  	the packet length as it's saved in the file
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    the packet's raw bytes
+	  </para>
+	</listitem>
+      </itemizedlist>
+	A detailed description of the libpcap file format can be found at:
+	<ulink url="http://wiki.wireshark.org/Development/LibpcapFileFormat"/>
+    </para>
+  </section>
+  <section id="ChIOFileNotContentSection"><title>Not Saved in the Capture File</title>
+    <para>
+	Probably even more interesting for the everyday Wireshark usage is to know
+	the things that are <command>not saved</command> in the capture file:
+	<itemizedlist>
+	<listitem>
+	  <para>
+	    current selections (selected packet, ...)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    name resolution information, see <xref 
+		linkend="ChAdvNameResolutionSection"/> for details
+		<warning><title>Warning!</title>
+		<para>
+		The name resolution information is rebuild each time Wireshark is 
+		restarted so this information even might change when the capture file 
+		is reopened on the same machine later!
+		</para>
+		</warning>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    the number of packets dropped while capturing
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    packet marks set with "Edit/Mark Packet"
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    time references set with "Edit/Time Reference"
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    the current display filter
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    ...
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+  </section>
+  </section>
+
+    <section id="ChAppFilesConfigurationSection"><title>Configuration Files and Folders</title>
     <para>
       Wireshark uses a number of files and folders while it is running. Some 
 	  of these reside in the personal configuration folder and are used to 
@@ -344,6 +458,7 @@ c0-a8-1c-00      CEO
 	</varlistentry>
       </variablelist>
     </para>
+	</section>
 
 	<section id="ChWindowsFolder"><title>Windows folders</title>
 	<para>
