@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
+#include <epan/expert.h>
 
 static int proto_pn_ptcp = -1;
 
@@ -471,6 +472,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 	guint8 subType;
     guint8 padding8;
     e_uuid_t uuid;
+    proto_item *unknown_item;
 
     /* OUI already dissected! */
 
@@ -487,8 +489,11 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_irdata_uuid, &uuid);
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
+        unknown_item = proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
             "PROFINET Data: %d bytes", length);
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			"Unknown subType %u, %u bytes",
+			subType, length);
         break;
     }
 
@@ -502,6 +507,7 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 {
 	guint32 oui;
 	guint8 subType;
+    proto_item *unknown_item;
 
 
     /* verify remaining TLV length */
@@ -529,8 +535,10 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
         /* SubType */
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_unknown_subtype, &subType);
         length --;
-        proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
+        unknown_item = proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
             "Unknown OUI Data: %d bytes", length);
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			"Unknown OUI Data %u bytes", length);
 	}
 	
 	return (offset);
@@ -549,6 +557,7 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 	proto_item *tlvheader_item;
 	proto_tree *tlvheader_tree;
 	guint32 u32SubStart;
+    proto_item *unknown_item;
 
 
     *end = FALSE;
@@ -596,8 +605,10 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
         dissect_PNPTCP_Option(tvb, offset, pinfo, sub_tree, sub_item, length);
         break;
     default:
-        proto_tree_add_string_format(sub_tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
+        unknown_item = proto_tree_add_string_format(sub_tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
             "PN-PTCP Unknown BlockType 0x%x, Data: %d bytes", type, length);
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			"Unknown BlockType 0x%x, %u bytes", type, length);
     }
     offset += length;
 
@@ -887,6 +898,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     proto_tree *ptcp_tree = NULL;
     int offset = 0;
 	guint32 u32SubStart;
+    proto_item *unknown_item = NULL;
 
 
     /* the tvb will NOT contain the frame_id here, so get it from our private data! */
@@ -898,7 +910,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     /* 0xFF00 - 0xFF1F: AnnouncePDU */
     /* 0xFF20 - 0xFF3F: FollowUpPDU */
     /* 0xFF40 - 0xFF5F: Delay...PDU */
-	if ( (u16FrameID > 0x0100 && u16FrameID < 0xFF00) || (u16FrameID > 0xFF5F) ) {
+	if ( (u16FrameID >= 0x0100 && u16FrameID < 0xFF00) || (u16FrameID > 0xFF5F) ) {
         /* we are not interested in this packet */
         return FALSE;
     }
@@ -960,8 +972,11 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
         break;
         /* 0xFF44 - 0xFF5F reserved */
     default:
-        proto_tree_add_string_format(ptcp_tree, hf_pn_ptcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
+        unknown_item = proto_tree_add_string_format(ptcp_tree, hf_pn_ptcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
             "PN-PTCP Reserved FrameID 0x%04x, Data: %d bytes", u16FrameID, tvb_length_remaining(tvb, offset));
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			"Reserved FrameID 0x%04x, %u bytes", u16FrameID, tvb_length_remaining(tvb, offset));
+
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
 

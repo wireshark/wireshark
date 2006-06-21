@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include <epan/expert.h>
 
 static int proto_pn_dcp = -1;
 
@@ -415,6 +416,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 status;
     guint16 req_status;
     guint32 ip;
+    proto_item *item;
 
     
     offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip, &suboption);
@@ -455,8 +457,11 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", Router: %s", ip_to_str((guint8*)&ip));
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
             "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_IP, suboption, block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
         offset += block_length;
     }
 
@@ -479,6 +484,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8* typeofstation;
     guint8* nameofstation;
     guint16 status=0;
+    proto_item *item;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device, &suboption);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
@@ -550,8 +556,11 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
             "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_DEVICE, suboption, block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
         offset += block_length;
     }
 
@@ -565,11 +574,9 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
 								gboolean is_response _U_)
 {
-    /*guint8 result;*/
     guint8 suboption;
     guint16 block_length;
-    /*gchar *info_str;*/
-    /*guint16 status;*/
+    proto_item *item;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp, &suboption);
@@ -583,8 +590,11 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += block_length;
 		break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
             "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_DHCP, suboption, block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
         offset += block_length;
     }
 
@@ -598,16 +608,19 @@ dissect_PNDCP_Suboption_LLDP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
 								gboolean is_response _U_)
 {
-    /*guint8 result;*/
     guint8 suboption;
-    /*guint16 block_length;*/
-    /*gchar *info_str;*/
-    /*guint16 status;*/
+    guint16 block_length;
+    proto_item *item;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_lldp, &suboption);
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
     /* XXX - improve this */
+    item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_LLDP, suboption, block_length);
+    expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+		"Undecoded suboption %u", suboption);
 
     return offset;
 }
@@ -624,6 +637,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 block_length;
     gchar *info_str;
     guint16 status;
+    proto_item *item;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_control, &suboption);
@@ -661,8 +675,11 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", Result: %s", val_to_str(result, pn_dcp_result, "Unknown"));
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
             "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_CONTROL, suboption, block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
         offset += block_length;
     }
 
@@ -678,6 +695,7 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     guint8 suboption;
     guint16 block_length;
+    proto_item *item;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_all, &suboption);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
@@ -688,8 +706,11 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "All/All");
         break;
     default:
-	    proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+	    item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
         	"Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_ALLSELECTOR, suboption, block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
 	    offset += block_length;
     }
 
@@ -705,6 +726,7 @@ dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     guint8 suboption;
     guint16 block_length;
+    proto_item *item;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_manuf, &suboption);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
@@ -713,8 +735,11 @@ dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     default:
         pn_append_info(pinfo, dcp_item, ", Manufacturer Specific");
         proto_item_append_text(block_item, "Manufacturer Specific");
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
             "Block data: %d bytes", block_length);
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded suboption %u, %u bytes",
+			suboption, block_length);
         offset += block_length;
     }
 
@@ -790,6 +815,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
     int offset = 0;
     gchar *xid_str;
     gboolean is_response = FALSE;
+    proto_item *item;
 
 
     offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_service_id, &service_id);
@@ -815,8 +841,11 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         pn_append_info(pinfo, dcp_item, "Ident");
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
             "PN-DCP Unknown service ID %u, Data: %d bytes", service_id, tvb_length_remaining(tvb, offset));
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded service ID %u, %u bytes",
+			service_id, tvb_length_remaining(tvb, offset));
         return;
     }
 
@@ -835,6 +864,9 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
     default:
         proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
             "PN-DCP Unknown service type %u, Data: %d bytes", service_type, tvb_length_remaining(tvb, offset));
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Undecoded service type %u, %u bytes",
+			service_type, tvb_length_remaining(tvb, offset));
         return;
     }
 

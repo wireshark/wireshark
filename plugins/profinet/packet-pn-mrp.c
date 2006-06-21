@@ -39,6 +39,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 
 static int proto_pn_mrp = -1;
 
@@ -304,6 +305,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     guint8 type;
     guint8 length;
     gint i = 0;
+    proto_item *unknown_item;
 
 
     /* MRP_Version */
@@ -349,8 +351,11 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             offset = dissect_PNMRP_LinkUp(tvb, offset, pinfo, tree, item, length);
             break;
         default:
-            proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
+            unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
                 "PN-MRP Unknown TLVType 0x%x, Data: %d bytes", type, length);
+            expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			    "Unknown TLVType 0x%x, %u bytes",
+			    type, length);
 	        if (check_col(pinfo->cinfo, COL_INFO))
 		        col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
 
