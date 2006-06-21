@@ -91,6 +91,7 @@ static gint ett_pn_ptcp_header = -1;
 static gint ett_pn_ptcp_block = -1;
 static gint ett_pn_ptcp_block_header = -1;
 
+#define OUI_PROFINET_MULTICAST		0x010ECF	/* PROFIBUS Nutzerorganisation e.V. */
 
 
 static const value_string pn_ptcp_block_type[] = {
@@ -129,8 +130,8 @@ static const value_string pn_ptcp_clock_role_vals[] = {
 };
 
 static const value_string pn_ptcp_oui_vals[] = {
-	{ OUI_PROFINET,         "PROFINET" },
-
+	{ OUI_PROFINET,             "PROFINET" },
+	{ OUI_PROFINET_MULTICAST,   "PROFINET" },
 	{ 0, NULL }
 };
 
@@ -520,6 +521,8 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 	switch (oui)
 	{
 	case OUI_PROFINET:
+	case OUI_PROFINET_MULTICAST:
+        proto_item_append_text(item, ": PROFINET");
         offset = dissect_PNPTCP_Option_PROFINET(tvb, offset, pinfo, tree, item, length);
 		break;
 	default:
