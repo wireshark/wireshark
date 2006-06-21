@@ -127,5 +127,7 @@ extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree,
 extern int dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
 	const char* name);
 
+extern gint default_nfs_fhandle_type;
+
 #endif /* packet-nfs.h */
 

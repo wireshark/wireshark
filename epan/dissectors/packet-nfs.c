@@ -37,6 +37,7 @@
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include <epan/prefs.h>
+#include <epan/packet.h>
 #include <epan/emem.h>
 
 static int proto_nfs = -1;
@@ -46,6 +47,7 @@ static int hf_nfs_procedure_v3 = -1;
 static int hf_nfs_procedure_v4 = -1;
 static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_hash = -1;
+static int hf_nfs_fh_fhandle_data = -1;
 static int hf_nfs_fh_mount_fileid = -1;
 static int hf_nfs_fh_mount_generation = -1;
 static int hf_nfs_fh_snapid = -1;
@@ -410,6 +412,27 @@ static gint ett_nfs_clientaddr4 = -1;
 static gint ett_nfs_aceflag4 = -1;
 static gint ett_nfs_acemask4 = -1;
 
+/* what type of fhandles shoudl we dissect as */
+static dissector_table_t nfs_fhandle_table;
+
+
+#define FHT_UNKNOWN		0
+#define FHT_SVR4		1
+#define FHT_LINUX_KNFSD_LE	2
+#define FHT_LINUX_NFSD_LE	3
+#define FHT_LINUX_KNFSD_NEW	4
+#define FHT_NETAPP		5
+static enum_val_t nfs_fhandle_types[] = {
+	{ "unknown",	"Unknown",	FHT_UNKNOWN },
+	{ "svr4",	"SVR4",		FHT_SVR4 },
+	{ "knfsd_le",	"KNFSD_LE",	FHT_LINUX_KNFSD_LE },
+	{ "nfsd_le",	"NFSD_LE",	FHT_LINUX_NFSD_LE },
+	{ "knfsd_new",	"KNFSD_NEW",	FHT_LINUX_KNFSD_NEW },
+	{ "netapp",	"NetApp",	FHT_NETAPP },
+	{ NULL, NULL, 0 }
+};
+/* decode all nfs filehandles as this type */
+gint default_nfs_fhandle_type=FHT_UNKNOWN;
 
 /* For dissector helpers which take a "levels" argument to indicate how
  * many expansions up they should populate the expansion items with
@@ -476,7 +499,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
-	fhkey[1].key=nfs_fh->fh;
+	fhkey[1].key=(guint32 *)nfs_fh->fh;
 	fhkey[2].length=0;
 
 	new_nfs_fh=se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
@@ -493,7 +516,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
-	fhkey[1].key=nfs_fh->fh;
+	fhkey[1].key=(guint32 *)nfs_fh->fh;
 	fhkey[2].length=0;
 	se_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
 
@@ -755,7 +778,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 			fhkey[0].length=1;
 			fhkey[0].key=&fhlen;
 			fhkey[1].length=fhlen/4;
-			fhkey[1].key=nns->fh;
+			fhkey[1].key=(guint32 *)nns->fh;
 			fhkey[2].length=0;
 			se_tree_insert32_array(nfs_name_snoop_known, &fhkey[0], nns);
 
@@ -781,7 +804,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		fhkey[0].length=1;
 		fhkey[0].key=&fhlen;
 		fhkey[1].length=fhlen/4;
-		fhkey[1].key=tvb_get_ptr(tvb, fh_offset, fh_length);
+		fhkey[1].key=(guint32 *)tvb_get_ptr(tvb, fh_offset, fh_length);
 		fhkey[2].length=0;
 		
 		nns=se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
@@ -815,13 +838,6 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 /* file handle dissection */
 
-#define FHT_UNKNOWN		0
-#define FHT_SVR4		1
-#define FHT_LINUX_KNFSD_LE	2
-#define FHT_LINUX_NFSD_LE	3
-#define FHT_LINUX_KNFSD_NEW	4
-#define FHT_NETAPP		5
-
 static const value_string names_fhtype[] =
 {
 	{	FHT_UNKNOWN,		"unknown"				},
@@ -837,10 +853,9 @@ static const value_string names_fhtype[] =
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45) */
 
 static void
-dissect_fhandle_data_SVR4(tvbuff_t* tvb, int offset, proto_tree *tree,
-    int fhlen _U_)
+dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 nof = offset;
+	guint32 nof=0;
 
 	/* file system id */
 	{
@@ -988,9 +1003,9 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, int offset, proto_tree *tree,
 /* Checked with RedHat Linux 6.2 (kernel 2.2.14 knfsd) */
 
 static void
-dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
-    int fhlen _U_)
+dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	int offset=0;
 	guint32 dentry;
 	guint32 inode;
 	guint32 dirinode;
@@ -1069,9 +1084,10 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
 /* Checked with RedHat Linux 5.2 (nfs-server 2.2beta47 user-land nfsd) */
 
 static void
-dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
-    int fhlen _U_)
+dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	int offset=0;
+
 	/* pseudo inode */
 	{
 	guint32 pinode;
@@ -1139,9 +1155,10 @@ static const value_string fileid_type_names[] = {
 };
 
 static void
-dissect_fhandle_data_NETAPP(tvbuff_t* tvb, int offset, proto_tree *tree,
-    int fhlen _U_)
+dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	int offset=0;
+
 	if (tree) {
 		guint32 mount = tvb_get_letohl(tvb, offset + 0);
 		guint32 mount_gen = tvb_get_letohl(tvb, offset + 4);
@@ -1203,9 +1220,9 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, int offset, proto_tree *tree,
 }
 
 static void
-dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, int offset, proto_tree *tree,
-    int fhlen _U_)
+dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	int offset=0;
 	guint8 version;
 	guint8 auth_type;
 	guint8 fsid_type;
@@ -1374,28 +1391,11 @@ out:
 
 
 static void
-dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
-    guint fhlen)
+dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint sublen;
-	guint bytes_left;
-	gboolean first_line;
+	guint fhlen=tvb_length(tvb);
 
-	bytes_left = fhlen;
-	first_line = TRUE;
-	while (bytes_left != 0) {
-		sublen = 16;
-		if (sublen > bytes_left)
-			sublen = bytes_left;
-		proto_tree_add_text(tree, tvb, offset, sublen,
-					"%s%s",
-					first_line ? "data: " :
-					             "      ",
-					tvb_bytes_to_str(tvb,offset,sublen));
-		bytes_left -= sublen;
-		offset += sublen;
-		first_line = FALSE;
-	}
+	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, -1, FALSE);
 }
 
 
@@ -1403,14 +1403,6 @@ static void
 dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, unsigned int fhlen, gboolean hidden, guint32 *hash)
 {
-	unsigned int fhtype = FHT_UNKNOWN;
-
-	/* filehandle too long */
-	if (fhlen>64) goto type_ready;
-	/* Not all bytes there. Any attempt to deduce the type would be
-	   senseless. */
-	if (!tvb_bytes_exist(tvb,offset,fhlen)) goto type_ready;
-
 	/* this is to set up fhandle display filters to find both packets
 	   of an RPC call */
 	if(nfs_fhandle_reqrep_matching && (!hidden) ){
@@ -1464,109 +1456,20 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if(!hidden){
-		/* calculate (heuristically) fhtype */
-		switch (fhlen) {
-		case 12:
-			if (tvb_get_ntohl(tvb,offset) == 0x01000000) {
-					fhtype=FHT_LINUX_KNFSD_NEW;
-				}
-			break;
-		case 20:
-			if (tvb_get_ntohl(tvb,offset) == 0x01000001) {
-				fhtype=FHT_LINUX_KNFSD_NEW;
-			}
-			break;
-		case 24:
-			if (tvb_get_ntohl(tvb,offset) == 0x01000002) {
-				fhtype=FHT_LINUX_KNFSD_NEW;
-			}
-			break;
-		case 32: {
-			guint32 len1;
-			guint32 len2;
-			if (tvb_get_ntohs(tvb,offset+4) == 0) {
-				len1=tvb_get_ntohs(tvb,offset+8);
-				if (tvb_bytes_exist(tvb,offset+10+len1,2)) {
-					len2=tvb_get_ntohs(tvb,
-					    offset+10+len1);
-					if (fhlen==12+len1+len2) {
-						fhtype=FHT_SVR4;
-						goto type_ready;
-					}
-				}
-			}
-			/* For a NetApp filehandle, the flag bits must
-			   include WAFL_FH_MULTIVOLUME, and the fileid
-			   and generation number need to be nonzero in
-			   the mount point, file, and export. */
-			if ((tvb_get_ntohl(tvb,offset+8) & 0x20000000)
-			    && tvb_get_ntohl(tvb,offset+0)
-			    && tvb_get_ntohl(tvb,offset+4)
-			    && tvb_get_ntohl(tvb,offset+12)
-			    && tvb_get_ntohl(tvb,offset+16)
-			    && tvb_get_ntohl(tvb,offset+24)
-			    && tvb_get_ntohl(tvb,offset+28)) {
-				fhtype=FHT_NETAPP;
-				goto type_ready;
-			}
-			len1 = tvb_get_guint8(tvb,offset+4);
-			if (len1<28 && tvb_bytes_exist(tvb,offset+5,len1)) {
-				int wrong=0;
-				for (len2=5+len1;len2<32;len2++) {
-					if (tvb_get_guint8(tvb,offset+len2)) {
-						wrong=1;
-						break;
-					}
-				}
-				if (!wrong) {
-					fhtype=FHT_LINUX_NFSD_LE;
-					goto type_ready;
-				}
-			}
-			if (tvb_get_ntohl(tvb,offset+28) == 0) {
-				if (tvb_get_ntohs(tvb,offset+14) == 0) {
-					if (tvb_get_ntohs(tvb,offset+18) == 0) {
-						fhtype=FHT_LINUX_KNFSD_LE;
-						goto type_ready;
-					}
-				}
-			}
-			} break;
-		}
-	}
+		tvbuff_t *fh_tvb;
+		int real_length;
 
-type_ready:
-
-	if(!hidden){
 		proto_tree_add_text(tree, tvb, offset, 0,
-			"type: %s", val_to_str(fhtype, names_fhtype, "Unknown"));
+			"decode type as: %s", val_to_str(default_nfs_fhandle_type, names_fhtype, "Unknown"));
 
 
-		switch (fhtype) {
-		case FHT_SVR4:
-			dissect_fhandle_data_SVR4          (tvb, offset, tree,
-			    fhlen);
-		break;
-		case FHT_LINUX_KNFSD_LE:
-			dissect_fhandle_data_LINUX_KNFSD_LE(tvb, offset, tree,
-			    fhlen);
-		break;
-		case FHT_LINUX_NFSD_LE:
-			dissect_fhandle_data_LINUX_NFSD_LE (tvb, offset, tree,
-			    fhlen);
-		break;
-		case FHT_LINUX_KNFSD_NEW:
-			dissect_fhandle_data_LINUX_KNFSD_NEW (tvb, offset, tree,
-			    fhlen);
-		break;
-		case FHT_NETAPP:
-			dissect_fhandle_data_NETAPP (tvb, offset, tree,
-			    fhlen);
-		break;
-		case FHT_UNKNOWN:
-		default:
-			dissect_fhandle_data_unknown(tvb, offset, tree, fhlen);
-		break;
+		real_length=fhlen;
+		if(real_length<tvb_length_remaining(tvb, offset)){
+			real_length=tvb_length_remaining(tvb, offset);
+		}
+		fh_tvb=tvb_new_subset(tvb, offset, real_length, fhlen);
+		if(!dissector_try_port(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree)){
+			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree);
 		}
 	}
 }
@@ -8718,6 +8621,10 @@ proto_register_nfs(void)
 			"r_addr", "nfs.r_addr", FT_BYTES, BASE_DEC, NULL, 0,
 			"r_addr", HFILL }},
 
+		{ &hf_nfs_fh_fhandle_data, {
+			"filehandle", "nfs.fhandle", FT_BYTES, BASE_HEX, NULL, 0,
+			"Opaque nfs filehandle", HFILL }},
+
 		{ &hf_nfs_secinfo_arr4, {
 			"Flavors Info", "nfs.flavors.info", FT_NONE, BASE_NONE,
 			NULL, 0, "Flavors Info", HFILL }},
@@ -8854,19 +8761,54 @@ proto_register_nfs(void)
 				       "Fhandle filters finds both request/response",
 				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
 					&nfs_fhandle_reqrep_matching);
+	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
+	    "NFS Filehandle types", FT_UINT8, BASE_HEX);
+
+	prefs_register_enum_preference(nfs_module,
+		"default_fhandle_type",
+		"Decode nfs fhandles as",
+		"Decode all NFS file handles as if they are of this type",
+		&default_nfs_fhandle_type,
+		nfs_fhandle_types,
+		FALSE);
+
 	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_name_snoop_known");
 	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_file_handles");
 	nfs_fhandle_frame_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
 	register_init_routine(nfs_name_snoop_init);
+
 }
 
 void
 proto_reg_handoff_nfs(void)
 {
+	dissector_handle_t fhandle_handle;
+
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */
 	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, hf_nfs_procedure_v2);
 	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, hf_nfs_procedure_v3);
 	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, hf_nfs_procedure_v4);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_SVR4, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_LINUX_KNFSD_LE, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_LINUX_NFSD_LE, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_LINUX_KNFSD_NEW, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
+
+
 }
+
