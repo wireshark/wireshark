@@ -408,11 +408,21 @@ static const value_string operational_mau_type_values[] = {
 #define MAX_MAC_LEN	6
 
 
-const value_string profinet_port_status_vals[] = {
-	{ 0,	"Not used" },
-	{ 1,	"Mode configured" },
-	{ 2,	"Mode enabled" },
+const value_string profinet_port2_status_vals[] = {
+	{ 0,	"OFF" },
+	{ 1,	"SYNCDATA_LOADED" },
+	{ 2,	"RTCLASS2_UP" },
 	{ 3,	"Reserved" },
+	/* all other bits reserved */
+	{ 0,	NULL }
+};
+
+const value_string profinet_port3_status_vals[] = {
+	{ 0,	"OFF" },
+	{ 1,	"IRDATA_LOADED" },
+	{ 2,	"RTCLASS3_UP" },
+	{ 3,	"RTCLASS3_DOWN" },
+	{ 4,	"RTCLASS3_RUN" },
 	/* all other bits reserved */
 	{ 0,	NULL }
 };
@@ -2472,11 +2482,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_profinet_class2_port_status,
 			{ "RTClass2 Port Status",	"lldp.profinet.rtc2_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port_status_vals), 0x0, "", HFILL }
+	   		VALS(profinet_port2_status_vals), 0x0, "", HFILL }
 		},
 		{ &hf_profinet_class3_port_status,
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port_status_vals), 0x0, "", HFILL }
+	   		VALS(profinet_port3_status_vals), 0x0, "", HFILL }
 		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
