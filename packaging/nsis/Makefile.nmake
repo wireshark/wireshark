@@ -89,6 +89,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/rlm/rlm.dll \
 	../../plugins/rtnet/rtnet.dll \
 	../../plugins/rudp/rudp.dll \
+	../../plugins/sbus/sbus.dll \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/v5ua/v5ua.dll
 

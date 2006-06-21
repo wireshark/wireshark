@@ -216,6 +216,7 @@ plugin_libs = \
 	plugins/rlm/rlm.la \
 	plugins/rtnet/rtnet.la \
 	plugins/rudp/rudp.la \
+	plugins/sbus/sbus.la \
 	plugins/stats_tree/stats_tree.la \
 	plugins/v5ua/v5ua.la
 
@@ -256,6 +257,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/rlm/rlm.la \
 	"-dlopen" plugins/rtnet/rtnet.la \
 	"-dlopen" plugins/rudp/rudp.la \
+	"-dlopen" plugins/sbus/sbus.la \
 	"-dlopen" plugins/stats_tree/stats_tree.la \
 	"-dlopen" plugins/v5ua/v5ua.la
 

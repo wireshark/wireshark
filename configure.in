@@ -1356,6 +1356,7 @@ AC_OUTPUT(
   plugins/rlm/Makefile
   plugins/rtnet/Makefile
   plugins/rudp/Makefile
+  plugins/sbus/Makefile
   plugins/stats_tree/Makefile
   plugins/v5ua/Makefile
   tools/Makefile

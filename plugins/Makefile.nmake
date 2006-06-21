@@ -30,6 +30,7 @@ all: \
 	rlm \
 	rtnet \
 	rudp \
+	sbus \
 	stats_tree \
 	v5ua
 
@@ -151,6 +152,11 @@ rudp::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+sbus:: 
+       cd sbus
+       $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+       cd ..
+
 stats_tree:: 
 	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -209,6 +215,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../sbus
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../v5ua
@@ -262,6 +270,8 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../sbus
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../v5ua
@@ -313,6 +323,8 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../sbus
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../v5ua
@@ -353,6 +365,7 @@ install-plugins:
 	xcopy rlm\*.dll $(VERSION) /d
 	xcopy rtnet\*.dll $(VERSION) /d
 	xcopy rudp\*.dll $(VERSION) /d
+	xcopy sbus\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
 !ENDIF
