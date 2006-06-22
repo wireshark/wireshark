@@ -1681,6 +1681,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		while (list)
 		{
 			tmp_listinfo=list->data;
+			g_assert(tmp_h323info != NULL);
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
 				if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
@@ -1698,6 +1699,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_listinfo=list->data;
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
+				g_assert(tmp_h323info != NULL);
 				if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ){ 
 					strinfo = (voip_calls_info_t*)(list->data);
 					break;
@@ -1725,6 +1727,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->protocol=VOIP_H323;
 		strinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
 		tmp_h323info = strinfo->prot_info;
+		g_assert(tmp_h323info != NULL);
 		tmp_h323info->guid = g_memdup(&pi->guid, sizeof pi->guid);
 		tmp_h323info->h225SetupAddr.type = AT_NONE;
 		tmp_h323info->h225SetupAddr.len = 0;
