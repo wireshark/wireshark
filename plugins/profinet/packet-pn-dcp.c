@@ -862,7 +862,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         is_response = TRUE;
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
+        item = proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
             "PN-DCP Unknown service type %u, Data: %d bytes", service_type, tvb_length_remaining(tvb, offset));
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Undecoded service type %u, %u bytes",
