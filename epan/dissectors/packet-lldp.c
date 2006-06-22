@@ -94,6 +94,7 @@ static int hf_profinet_port_rx_delay_remote = -1;
 static int hf_profinet_port_tx_delay_local = -1;
 static int hf_profinet_port_tx_delay_remote = -1;
 static int hf_profinet_cable_delay_local = -1;
+static int hf_profinet_cm_mac = -1;
 static int hf_unknown_subtype = -1;
 
 /* Initialize the subtree pointers */
@@ -233,6 +234,8 @@ static const value_string profinet_subtypes[] = {
 	{ 1, "Measured Delay Values" },
 	{ 2, "Port Status" },
 	{ 3, "Alias" },
+	{ 4, "MRP Port Status" },
+	{ 5, "Chassis MAC" },
 	{ 0, NULL }
 };
 
@@ -2055,6 +2058,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_local;
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
+	guint8 mac_addr[6];
 
 	
 	/* Get subtype */
@@ -2120,7 +2124,13 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		break;
 	}
 	/*case 3:*/		/* XXX - Alias */
-    /*case 4:*/     /* XXX - MRT Port Status */
+    /*case 4:*/     /* XXX - MRP Port Status */
+    case 5:     /* Chassis MAC */
+    {
+	    proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
+        offset += 6;
+        break;
+    }
 	default:
 		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2, FALSE);
 	}
@@ -2488,6 +2498,11 @@ proto_register_lldp(void)
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
 	   		VALS(profinet_port3_status_vals), 0x0, "", HFILL }
 		},
+		{ &hf_profinet_cm_mac,
+			{ "CMMacAdd",	"lldp.profinet.rtc3_port_status", FT_ETHER, BASE_NONE,
+	   		NULL, 0x0, "CMResponderMacAdd or CMInitiatorMacAdd", HFILL }
+		},
+
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
 	   		NULL, 0x0, "", HFILL }
