@@ -414,8 +414,12 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	guint32 len, i;
 	const guchar *str;
 
-	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+	if(!implicit_tag){
+		offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+	} else {
+		len=tvb_length_remaining(tvb,offset);
+	}
 
 	if(len==0){
 		return offset;

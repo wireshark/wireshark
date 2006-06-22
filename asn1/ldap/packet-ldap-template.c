@@ -254,7 +254,7 @@ static char *assertionvalue_string=NULL;
  * display it as a string, othervise just display it in hex.
  */
 static int
-dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
+dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
 {
 	gint8 class;
 	gboolean pc, ind, is_ascii;
@@ -262,8 +262,12 @@ dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	guint32 len, i;
 	const guchar *str;
 
-	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+	if(!implicit_tag){
+		offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+	} else {
+		len=tvb_length_remaining(tvb,offset);
+	}
 
 	if(len==0){
 		return offset;
