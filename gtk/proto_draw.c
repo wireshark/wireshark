@@ -824,6 +824,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, int data_type)
 	}
 
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+	g_assert(data_p != NULL);
         
     g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
 	for (i=0; i<len; i++){
