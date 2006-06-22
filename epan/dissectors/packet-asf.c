@@ -28,7 +28,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #include <glib.h>
@@ -36,8 +36,8 @@
 
 /*
  * See
- *
  *	http://www.dmtf.org/standards/standard_alert.php
+ *	http://www.dmtf.org/standards/documents/ASF/DSP0136.pdf
  */
 
 #define RMCP_CLASS_ASF 0x06
@@ -59,9 +59,16 @@ static const value_string asf_type_vals[] = {
 	{ 0x40, "Presence Pong" },
 	{ 0x41, "Capabilities Response" },
 	{ 0x42, "System State Response" },
+	{ 0x43, "Open Session Response" },
+	{ 0x44, "Close Session Response" },
 	{ 0x80, "Presence Ping" },
 	{ 0x81, "Capabilities Request" },
 	{ 0x82, "System State Request" },
+	{ 0x83, "Open Session Request" },
+	{ 0x84, "Close Session Request" },
+	{ 0xC0, "RAKP Message 1" },
+	{ 0xC1, "RAKP Message 2" },
+	{ 0xC2, "RAKP Message 3" },
 	{ 0x00, NULL }
 };
 

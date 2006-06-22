@@ -28,7 +28,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #include <glib.h>
@@ -36,9 +36,8 @@
 
 /*
  * See
- *
  *	http://www.dmtf.org/standards/standard_alert.php
- *
+ *      http://www.dmtf.org/standards/documents/ASF/DSP0136.pdf
  * (the ASF specification includes RMCP)
  */
 
@@ -48,8 +47,18 @@ static int hf_rmcp_sequence = -1;
 static int hf_rmcp_class = -1;
 static int hf_rmcp_type = -1;
 
+static int proto_rsp = -1;
+static int hf_rsp_session_id = -1;
+static int hf_rsp_sequence = -1;
+static int hf_rsp_pad = -1;
+static int hf_rsp_pad_length = -1;
+static int hf_rsp_next_header = -1;
+static int hf_rsp_integrity_data = -1;
+
 static gint ett_rmcp = -1;
 static gint ett_rmcp_typeclass = -1;
+
+static gint ett_rsp = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t rmcp_dissector_table;
@@ -143,6 +152,35 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
+static int
+dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*rsp_tree = NULL, *field_tree;
+	proto_item	*ti, *tf;
+	tvbuff_t	*next_tvb;
+	int 		offset = 0;
+	
+	if (tree) {
+		ti = proto_tree_add_protocol_format(tree, proto_rsp, tvb, offset, 8,
+			 "RMCP Security-extension Protocol");
+		rsp_tree = proto_item_add_subtree(ti, ett_rsp);
+
+		proto_tree_add_item(rsp_tree, hf_rsp_session_id, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(rsp_tree, hf_rsp_sequence, tvb, offset, 4, FALSE);
+		offset += 4;
+	}
+	
+	/* XXX determination of RCMP message length needs to 
+	 * be done according to 3.2.3.3.3 of the specification.
+	 * This is only valid for session ID equals 0
+	 */
+	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+	dissect_rmcp(next_tvb, pinfo, tree);
+
+	return tvb_length(tvb);
+}
+
 void
 proto_register_rmcp(void)
 {
@@ -164,11 +202,11 @@ proto_register_rmcp(void)
 			"Message Type", "rmcp.type",
 			FT_UINT8, BASE_HEX,
 			VALS(rmcp_type_vals), RMCP_TYPE_MASK,
-			"RMCP Message Type", HFILL }},
+			"RMCP Message Type", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_rmcp,
-		&ett_rmcp_typeclass,
+		&ett_rmcp_typeclass
 	};
 
 	proto_rmcp = proto_register_protocol(
@@ -182,6 +220,29 @@ proto_register_rmcp(void)
 }
 
 void
+proto_register_rsp(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_rsp_session_id, {
+			"Session ID", "rsp.session_id",
+			FT_UINT32, BASE_HEX, NULL, 0,
+			"RSP session ID", HFILL }},
+		{ &hf_rsp_sequence, {
+			"Sequence", "rsp.sequence",
+			FT_UINT32, BASE_HEX, NULL, 0,
+			"RSP sequence", HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_rsp
+	};
+
+	proto_rsp = proto_register_protocol(
+		"RMCP Security-extensions Protocol", "RSP", "rsp");
+	proto_register_field_array(proto_rsp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
 proto_reg_handoff_rmcp(void)
 {
 	dissector_handle_t rmcp_handle;
@@ -190,5 +251,13 @@ proto_reg_handoff_rmcp(void)
 
 	rmcp_handle = new_create_dissector_handle(dissect_rmcp, proto_rmcp);
 	dissector_add("udp.port", UDP_PORT_RMCP, rmcp_handle);
-	dissector_add("udp.port", UDP_PORT_RMCP_SECURE, rmcp_handle);
+}
+
+void
+proto_reg_handoff_rsp(void)
+{
+	dissector_handle_t rsp_handle;
+
+	rsp_handle = new_create_dissector_handle(dissect_rsp, proto_rsp);
+	dissector_add("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
 }
