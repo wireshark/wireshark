@@ -2772,7 +2772,7 @@ class ChoiceType (Type):
         opt = ''
         if (not e.HasOwnTag()):
           opt = 'BER_FLAGS_NOOWNTAG'
-        elif (val.HasImplicitTag(ectx)):
+        elif (e.HasImplicitTag(ectx)):
           if (opt): opt += '|'
           opt += 'BER_FLAGS_IMPLTAG'
         if (not opt): opt = '0'
