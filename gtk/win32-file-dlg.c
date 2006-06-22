@@ -1285,7 +1285,7 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
 	    break;
 	case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
 	    SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
-	    packet_range_convert_str(range, range_text);
+	    packet_range_convert_str(range, utf_16to8((unsigned short *) range_text));
 	    range_update_dynamics(dlg_hwnd, range);
 	    break;
     }
