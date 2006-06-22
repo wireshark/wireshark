@@ -543,7 +543,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   size_t           nbytes = 0;
   char            *string = NULL;
   dfilter_t       *sfcode = NULL;
-  gboolean        found_packet;
+  gboolean        found_packet=FALSE;
 
   filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
   up_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
@@ -648,8 +648,10 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /* OK, what are we searching? */
     if (cfile.decode_data) {
       /* The text in the protocol tree */
-      found_packet = cf_find_packet_protocol_tree(&cfile, string);
-      g_free(string);
+      if(string){
+        found_packet = cf_find_packet_protocol_tree(&cfile, string);
+        g_free(string);
+      }
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
@@ -660,8 +662,10 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
     } else if (cfile.summary_data) {
       /* The text in the summary line */
-      found_packet = cf_find_packet_summary_line(&cfile, string);
-      g_free(string);
+      if(string){
+        found_packet = cf_find_packet_summary_line(&cfile, string);
+        g_free(string);
+      }
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
@@ -672,8 +676,10 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
     } else {
       /* The raw packet data */
-      found_packet = cf_find_packet_data(&cfile, string, strlen(string));
-      g_free(string);
+      if(string){
+        found_packet = cf_find_packet_data(&cfile, string, strlen(string));
+        g_free(string);
+      }
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
