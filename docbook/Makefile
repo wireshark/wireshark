@@ -17,18 +17,18 @@ FOP_OPTS=-Xmx256m
 #
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-#FOP=fop-0.20.5/fop.bat
+FOP=fop-0.20.5/fop.bat
 #
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
 #
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-FOP=fop
+#FOP=fop
 
 # html help compiler (Win32 only)
 # Leave these commented out if you don't have HHC installed or you
 # don't want CHM documentation.
-#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # elinks (text version of release notes)
