@@ -4420,6 +4420,7 @@ hfinfo_int_format(header_field_info *hfinfo)
 					DISSECTOR_ASSERT_NOT_REACHED();
 					;
 			}
+			break;
 		case BASE_HEX_DEC:
 			switch(hfinfo->type) {
 				case FT_INT8:
