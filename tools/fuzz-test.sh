@@ -23,6 +23,9 @@ TMP_DIR=/tmp
 TMP_FILE=fuzz-test-`$DATE +%Y-%m-%d`-$$.pcap
 ERR_FILE=fuzz-err-`$DATE +%Y-%m-%d`-$$.txt
 
+# Loop this many times (< 1 loops forever)
+MAX_PASSES=0
+
 # These may be set to your liking
 # Stop the child process, if it's running longer than x seconds
 MAX_CPU_TIME=900
@@ -33,6 +36,16 @@ ERR_PROB=0.02
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
 WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
+
+
+# To do: add options for file names and limits
+while getopts ":d:p:" OPTCHAR ; do
+	case $OPTCHAR in
+		d) TMP_DIR=$OPTARG ;;
+		p) MAX_PASSES=$OPTARG ;;
+	esac
+done
+shift $(($OPTIND - 1))
 
 # set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
 # (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
@@ -54,7 +67,7 @@ for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
 		echo "Couldn't find $i"
 		NOTFOUND=1
 	fi
-done 
+done
 if [ $NOTFOUND -eq 1 ]; then
 	exit 1
 fi
@@ -70,12 +83,16 @@ if [ $FOUND -eq 0 ] ; then
     cat <<FIN
 Error: No valid capture files found.
 
-Usage: `basename $0` capture file 1 [capture file 2]...
+Usage: `basename $0` [-p passes] [-d work_dir] capture file 1 [capture file 2]...
 FIN
     exit 1
 fi
 
-echo "Running $TSHARK with args: $TSHARK_ARGS"
+HOWMANY="forever"
+if [ $MAX_PASSES -gt 0 ]; then
+        HOWMANY="$MAX_PASSES passes"
+fi
+echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
 echo ""
 
 # Not yet - properly handle empty filenames
@@ -83,7 +100,7 @@ echo ""
 
 # Iterate over our capture files.
 PASS=0
-while [ 1 ] ; do
+while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     PASS=`expr $PASS + 1`
     echo "Pass $PASS:"
 
@@ -115,6 +132,7 @@ while [ 1 ] ; do
 	    > /dev/null 2>&1 && DISSECTOR_BUG=1
 	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
 	    FUZZ_FILE="fuzz-`$DATE +%Y-%m-%d`-$$.pcap"
+            echo ""
 	    echo " ERROR"
 	    echo -e "Processing failed.  Capture info follows:\n"
 	    mv $TMP_DIR/$TMP_FILE $TMP_DIR/$FUZZ_FILE
@@ -126,6 +144,7 @@ while [ 1 ] ; do
 	    exit 1
 	fi
 	echo " OK"
+        rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
 
