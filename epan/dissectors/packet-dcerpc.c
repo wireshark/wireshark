@@ -46,6 +46,7 @@
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -490,7 +491,7 @@ GHookList dcerpc_hooks_init_protos;
 #ifdef _WIN32
 int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
 {
-	char REG_UUID_NAME[MAX_PATH];
+	TCHAR REG_UUID_NAME[MAX_PATH];
 	HKEY hKey = NULL;
 	DWORD UUID_MAX_SIZE = MAX_PATH;
 	TCHAR REG_UUID_STR[MAX_PATH];
@@ -508,9 +509,9 @@ int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
 	{
 		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)REG_UUID_NAME, &UUID_MAX_SIZE) == ERROR_SUCCESS && UUID_MAX_SIZE <= MAX_PATH)
 			{
-			g_snprintf(UUID_NAME, UUID_NAME_MAX_LEN, "%s", REG_UUID_NAME);
+			g_snprintf(UUID_NAME, UUID_NAME_MAX_LEN, "%s", utf_16to8(REG_UUID_NAME));
 			RegCloseKey(hKey);
-			return strlen(REG_UUID_NAME);
+			return strlen(UUID_NAME);
 		}
 		RegCloseKey(hKey);
 	}
