@@ -1276,7 +1276,9 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			 * of the segments weren't captured.
 			 */
 			chunk_size = datalen;
-		}/* else if (new_tvb == NULL) {
+		}
+#if 0
+		  else if (new_tvb == NULL) {
 			new_tvb = tvb_new_composite();
 		}
 
@@ -1291,7 +1293,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			tvb_composite_append(new_tvb, chunk_tvb);
 
 		}
-		*/
+#endif
 
 		chunked_data_size += chunk_size;
 
