@@ -1231,18 +1231,11 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
-		proto_item *it=NULL;
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		optional_mask<<=1;
 		if(optional_field_flag){
 			optional_mask|=0x01;
-		}
-		if(it){
-			proto_item_append_text(it, " (%s %s present)",
-				index_get_optional_name(sequence, i),
-				optional_field_flag?"is":"is NOT"
-				);
 		}
 	}
 
