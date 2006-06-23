@@ -1395,7 +1395,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	guint fhlen=tvb_length(tvb);
 
-	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, -1, FALSE);
+	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, FALSE);
 }
 
 
@@ -6746,37 +6746,17 @@ dissect_nfs_stateid4(tvbuff_t *tvb, int offset,
 {
 	proto_item *fitem = NULL;
 	proto_tree *newftree = NULL;
-	int sublen;
-	int bytes_left;
-	gboolean first_line;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4, "stateid");
-
-	if (fitem) {
+	if(tree){
+		fitem = proto_tree_add_text(tree, tvb, offset, 4, "stateid");
 		newftree = proto_item_add_subtree(fitem, ett_nfs_stateid4);
-		if (newftree) {
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4,
-				offset);
-
-			bytes_left = 12;
-			first_line = TRUE;
-
-			while (bytes_left != 0)
-			{
-				sublen = 12;
-				if (sublen > bytes_left)
-					sublen = bytes_left;
-
-				proto_tree_add_text(newftree, tvb, offset, sublen, "%s%s",
-					first_line ? "other: " : "      ",
-					tvb_bytes_to_str(tvb, offset, sublen));
-
-				bytes_left -= sublen;
-				offset += sublen;
-				first_line = FALSE;
-			}
-		}
 	}
+
+	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+	offset+=4;
+
+	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, FALSE);
+	offset+=12;
 
 	return offset;
 }
@@ -8602,7 +8582,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.nfs_client_id4.id", HFILL }},
 
 		{ &hf_nfs_stateid4_other, {
-			"Data", "nfs.stateid4.other", FT_BYTES, BASE_DEC,
+			"Data", "nfs.stateid4.other", FT_BYTES, BASE_HEX,
 			NULL, 0, "Data", HFILL }},
 
 		{ &hf_nfs_acl4, {
