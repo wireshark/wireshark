@@ -635,7 +635,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           "Response: %s (Seq No: %d)", 
                                           val_to_str(sbus_web_aid,
                                                  webserver_aid_vals, "Unknown Request!"), 
-                                          sbus_web_seq);
+                                          sbus_web_aid);
        
                             } else {
                                    col_set_str(pinfo->cinfo, COL_INFO, "Response");
