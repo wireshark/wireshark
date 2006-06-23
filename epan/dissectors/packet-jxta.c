@@ -402,7 +402,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree);
-    if (ret <= 0) {
+    if (ret < 0) {
         /*
          * A heuristic dissector for a TCP-based protocol can reject
          * a packet, or it can request that more data be provided.
