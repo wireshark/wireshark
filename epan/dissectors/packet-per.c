@@ -1369,7 +1369,6 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tre
 	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
-	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -1448,7 +1447,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	offset+=length;
 
 	if (value_tvb)
-		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset(tvb, val_start, val_length, val_length);
+		*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
 
 	return offset;
 }
