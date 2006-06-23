@@ -27,5 +27,3 @@ int catapult_dct2000_dump_can_write_encap(int encap);
 #define DCT2000_ENCAP_UNHANDLED 0
 #define DCT2000_ENCAP_SSCOP     101
 #define DCT2000_ENCAP_MTP2      102
-
-gboolean catapult_dct2000_board_ports_only;
