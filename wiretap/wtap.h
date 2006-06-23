@@ -191,49 +191,49 @@
 #define WTAP_FILE_UNKNOWN			0
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
-#define WTAP_FILE_PCAP_SS990417			3
-#define WTAP_FILE_PCAP_SS990915			4
+#define WTAP_FILE_PCAP_NSEC			3
+#define WTAP_FILE_PCAP_AIX			4
 #define WTAP_FILE_PCAP_SS991029			5
 #define WTAP_FILE_PCAP_NOKIA			6
-#define WTAP_FILE_PCAP_AIX			7
-#define WTAP_FILE_PCAP_NSEC			8
-#define WTAP_FILE_LANALYZER			9
-#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	10
-#define WTAP_FILE_NGSNIFFER_COMPRESSED		11
-#define WTAP_FILE_SNOOP				12
-#define WTAP_FILE_SHOMITI			13
-#define WTAP_FILE_IPTRACE_1_0			14
-#define WTAP_FILE_IPTRACE_2_0			15
-#define WTAP_FILE_NETMON_1_x			16
-#define WTAP_FILE_NETMON_2_x			17
-#define WTAP_FILE_NETXRAY_OLD			18
-#define WTAP_FILE_NETXRAY_1_0			19
-#define WTAP_FILE_NETXRAY_1_1			20
-#define WTAP_FILE_NETXRAY_2_00x			21
-#define WTAP_FILE_RADCOM			22
-#define WTAP_FILE_ASCEND			23
-#define WTAP_FILE_NETTL				24
-#define WTAP_FILE_TOSHIBA			25
-#define WTAP_FILE_I4BTRACE			26
-#define WTAP_FILE_CSIDS				27
-#define WTAP_FILE_PPPDUMP			28
-#define WTAP_FILE_ETHERPEEK_V56			29
-#define WTAP_FILE_ETHERPEEK_V7			30
-#define WTAP_FILE_VMS				31
-#define WTAP_FILE_DBS_ETHERWATCH		32
-#define WTAP_FILE_VISUAL_NETWORKS		33
-#define WTAP_FILE_COSINE			34
-#define WTAP_FILE_5VIEWS			35
-#define WTAP_FILE_ERF				36
-#define WTAP_FILE_HCIDUMP			37
-#define WTAP_FILE_NETWORK_INSTRUMENTS_V9	38
-#define WTAP_FILE_AIROPEEK_V9			39
-#define WTAP_FILE_EYESDN			40
-#define WTAP_FILE_K12				41
-#define WTAP_FILE_ISERIES			42
-#define WTAP_FILE_ISERIES_UNICODE		43
-#define WTAP_FILE_CATAPULT_DCT2000		44
-#define WTAP_FILE_BER                           45
+#define WTAP_FILE_PCAP_SS990417			7
+#define WTAP_FILE_PCAP_SS990915			8
+#define WTAP_FILE_5VIEWS			9
+#define WTAP_FILE_IPTRACE_1_0			10
+#define WTAP_FILE_IPTRACE_2_0			11
+#define WTAP_FILE_BER                           12
+#define WTAP_FILE_HCIDUMP			13
+#define WTAP_FILE_CATAPULT_DCT2000		14
+#define WTAP_FILE_NETXRAY_OLD			15
+#define WTAP_FILE_NETXRAY_1_0			16
+#define WTAP_FILE_COSINE			17
+#define WTAP_FILE_CSIDS				18
+#define WTAP_FILE_DBS_ETHERWATCH		19
+#define WTAP_FILE_ERF				20
+#define WTAP_FILE_EYESDN			21
+#define WTAP_FILE_NETTL				22
+#define WTAP_FILE_ISERIES			23
+#define WTAP_FILE_ISERIES_UNICODE		24
+#define WTAP_FILE_I4BTRACE			25
+#define WTAP_FILE_ASCEND			26
+#define WTAP_FILE_NETMON_1_x			27
+#define WTAP_FILE_NETMON_2_x			28
+#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	29
+#define WTAP_FILE_NGSNIFFER_COMPRESSED		30
+#define WTAP_FILE_NETXRAY_1_1			31
+#define WTAP_FILE_NETXRAY_2_00x			32
+#define WTAP_FILE_NETWORK_INSTRUMENTS_V9	33
+#define WTAP_FILE_LANALYZER			34
+#define WTAP_FILE_PPPDUMP			35
+#define WTAP_FILE_RADCOM			36
+#define WTAP_FILE_SNOOP				37
+#define WTAP_FILE_SHOMITI			38
+#define WTAP_FILE_VMS				39
+#define WTAP_FILE_K12				40
+#define WTAP_FILE_TOSHIBA			41
+#define WTAP_FILE_VISUAL_NETWORKS		42
+#define WTAP_FILE_ETHERPEEK_V56			43
+#define WTAP_FILE_ETHERPEEK_V7			44
+#define WTAP_FILE_AIROPEEK_V9			45
 
 #define WTAP_NUM_FILE_TYPES			46
 
@@ -591,6 +591,9 @@ int wtap_file_tsprecision(wtap *wth);
 const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);
 int wtap_short_string_to_file_type(const char *short_name);
+
+const char *wtap_file_extensions_string(int filetype);
+const char *wtap_file_extension_default_string(int filetype);
 
 const char *wtap_encap_string(int encap);
 const char *wtap_encap_short_string(int encap);

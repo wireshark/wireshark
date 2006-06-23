@@ -12,6 +12,8 @@ wtap_dump_open
 wtap_encap_short_string
 wtap_encap_string
 wtap_file_encap
+wtap_file_extensions_string
+wtap_file_extension_default_string
 wtap_file_size
 wtap_file_tsprecision
 wtap_file_type

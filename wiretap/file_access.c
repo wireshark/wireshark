@@ -330,196 +330,217 @@ success:
 
 /* Table of the file types we know about. */
 static const struct file_type_info {
+    /* the file type name */
+    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
 	const char *name;
+
+    /* the file type short name, used as a shortcut for the command line tools */
+    /* should be NULL for all "pseudo" types that are are only internally used and not read/writeable */
 	const char *short_name;
+    
+    /* the common file extensions for this type (seperated by semicolon) */
+    /* should be *.* if no common extension is applicable */
+    const char *file_extensions;
+    
+    /* the default file extension, used to save this type */
+    /* should be NULL if no default extension is known */
+    const char *file_extension_default;
+    
+    /* can this type be compressed with gzip? */
 	gboolean	can_compress;
+    
+    /* can this type write this encapsulation format? */
+    /* should be NULL is this file type don't have write support */
 	int	(*can_write_encap)(int);
+    
+    /* the function to open the capture file for writing */
+    /* should be NULL is this file type don't have write support */
 	int	(*dump_open)(wtap_dumper *, gboolean, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
-	/* WTAP_FILE_UNKNOWN */
-	{ NULL, NULL, FALSE,
+	/* WTAP_FILE_UNKNOWN (only used internally for initialization) */
+	{ NULL, NULL, NULL, NULL, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_WTAP */
-	{ "Wiretap (Wireshark)", NULL, FALSE,
+	/* WTAP_FILE_WTAP (only used internally while capturing) */
+	{ NULL, NULL, NULL, NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "libpcap (tcpdump, Wireshark, etc.)", "libpcap", TRUE,
+	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_PCAP_SS990417 */
-	{ "RedHat Linux 6.1 libpcap (tcpdump)", "rh6_1libpcap", TRUE,
-	  libpcap_dump_can_write_encap, libpcap_dump_open },
-
-	/* WTAP_FILE_PCAP_SS990915 */
-	{ "SuSE Linux 6.3 libpcap (tcpdump)", "suse6_3libpcap", TRUE,
-	  libpcap_dump_can_write_encap, libpcap_dump_open },
-
-	/* WTAP_FILE_PCAP_SS991029 */
-	{ "modified libpcap (tcpdump)", "modlibpcap", TRUE,
-	  libpcap_dump_can_write_encap, libpcap_dump_open },
-
-	/* WTAP_FILE_PCAP_NOKIA */
-	{ "Nokia libpcap (tcpdump)", "nokialibpcap", TRUE,
+	/* WTAP_FILE_PCAP_NSEC */
+	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_AIX */
-	{ "AIX libpcap (tcpdump)", NULL, TRUE,
+	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap", ".pcap", TRUE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_PCAP_NSEC */
-	{ "Nanosecond libpcap (Wireshark)", "nseclibpcap", TRUE,
+	/* WTAP_FILE_PCAP_SS991029 */
+	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_LANALYZER */
-	{ "Novell LANalyzer","lanalyzer", FALSE,
-	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },
+	/* WTAP_FILE_PCAP_NOKIA */
+	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
-	{ "Network Associates Sniffer (DOS-based)", "ngsniffer", FALSE,
-	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
+	/* WTAP_FILE_PCAP_SS990417 */
+	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
-	{ "Network Associates Sniffer (DOS-based), compressed", "ngsniffer_comp", FALSE,
-	  NULL, NULL },
+	/* WTAP_FILE_PCAP_SS990915 */
+	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_SNOOP */
-	{ "Sun snoop", "snoop", FALSE,
-	  snoop_dump_can_write_encap, snoop_dump_open },
-
-	/* WTAP_FILE_SHOMITI */
-	{ "Shomiti/Finisar Surveyor", "shomiti", FALSE,
-	  NULL, NULL },
+	/* WTAP_FILE_5VIEWS */
+	{ "Accellent 5Views capture", "5views", "*.5vw", ".5vw", FALSE,
+	  _5views_dump_can_write_encap, _5views_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
-	{ "AIX iptrace 1.0", NULL, FALSE,
+	{ "AIX iptrace 1.0", "iptrace_1", "*.*", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_2_0 */
-	{ "AIX iptrace 2.0", NULL, FALSE,
+	{ "AIX iptrace 2.0", "iptrace_2", "*.*", NULL, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_NETMON_1_x */
-	{ "Microsoft Network Monitor 1.x", "netmon1", FALSE,
-	  netmon_dump_can_write_encap, netmon_dump_open },
-
-	/* WTAP_FILE_NETMON_2_x */
-	{ "Microsoft Network Monitor 2.x", "netmon2", FALSE,
-	  netmon_dump_can_write_encap, netmon_dump_open },
-
-	/* WTAP_FILE_NETXRAY_OLD */
-	{ "Cinco Networks NetXRay 1.x", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_NETXRAY_1_0 */
-	{ "Cinco Networks NetXRay 2.0 or later", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "Network Associates Sniffer (Windows-based) 1.1", "ngwsniffer_1_1", FALSE,
-	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
-
-	/* WTAP_FILE_NETXRAY_2_00x */
-	{ "Network Associates Sniffer (Windows-based) 2.00x", "ngwsniffer_2_0", FALSE,
-	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
-
-	/* WTAP_FILE_RADCOM */
-	{ "RADCOM WAN/LAN analyzer", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_ASCEND */
-	{ "Lucent/Ascend access server trace", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_NETTL */
-	{ "HP-UX nettl trace", "nettl", FALSE,
-	  nettl_dump_can_write_encap, nettl_dump_open },
-
-	/* WTAP_FILE_TOSHIBA */
-	{ "Toshiba Compact ISDN Router snoop trace", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_I4BTRACE */
-	{ "I4B ISDN trace", NULL, FALSE,
-	  NULL, NULL },
-
-        /* WTAP_FILE_CSIDS */
-        { "CSIDS IPLog", NULL, FALSE,
-          NULL, NULL },
-
-        /* WTAP_FILE_PPPDUMP */
-        { "pppd log (pppdump format)", NULL, FALSE,
-          NULL, NULL },
-
-	/* WTAP_FILE_ETHERPEEK_V56 */
-	{ "EtherPeek/TokenPeek trace (V5 & V6 file format)", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_ETHERPEEK_V7 */
-	{ "EtherPeek/TokenPeek/AiroPeek trace (V7 file format)", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_VMS */
-	{ "TCPIPtrace (VMS)", NULL, FALSE,
-	  NULL, NULL},
-
-	/* WTAP_FILE_DBS_ETHERWATCH */
-	{ "DBS Etherwatch (VMS)", NULL, FALSE,
-	  NULL, NULL},
-
-	/* WTAP_FILE_VISUAL_NETWORKS */
-	{ "Visual Networks traffic capture", "visual", FALSE,
-	  visual_dump_can_write_encap, visual_dump_open },
-
-	/* WTAP_FILE_COSINE */
-	{ "CoSine IPSX L2 capture", "cosine", FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_5VIEWS */
-	{ "Accellent 5Views capture", "5views", FALSE,
-	  _5views_dump_can_write_encap, _5views_dump_open },
-
-	/* WTAP_FILE_ERF */
-	{ "Endace DAG capture", "erf", FALSE,
-	  NULL, NULL },
+	/* WTAP_FILE_BER */
+	{ "ASN.1 Basic Encoding Rules", "ber", "*.*", NULL, FALSE,
+		NULL, NULL },
 
 	/* WTAP_FILE_HCIDUMP */
-	{ "Bluetooth HCI dump", "hcidump", FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer version 9", "niobserverv9", FALSE,
-	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
-
-	/* WTAP_FILE_AIROPEEK_V9 */
-	{ "EtherPeek/AiroPeek trace (V9 file format)", NULL, FALSE,
-	  NULL, NULL },
-    
-	/* WTAP_FILE_EYESDN */
-	{ "EyeSDN USB S0/E1 ISDN trace format", NULL, FALSE,
-		NULL, NULL },
-    
-	/* WTAP_FILE_K12 */
-	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", FALSE,
-		k12_dump_can_write_encap, k12_dump_open },
-
-	/* WTAP_FILE_ISERIES */
-	{ "IBM iSeries communications trace (ASCII)", NULL, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_ISERIES_UNICODE */
-	{ "IBM iSeries communications trace (UNICODE)", NULL, FALSE,
+	{ "Bluetooth HCI dump", "hcidump", "*.*", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_CATAPULT_DCT2000 */
-	{ "Catapult DCT2000 trace (.out format)", "dct2000", FALSE,
+	{ "Catapult DCT2000 trace (.out format)", "dct2000", "*.out", ".out", FALSE,
 	  catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open },
 
-	/* WTAP_FILE_BER */
-	{ "ASN.1 Basic Encoding Rules", "ber", FALSE,
-		NULL, NULL },
+	/* WTAP_FILE_NETXRAY_OLD */
+	{ "Cinco Networks NetXRay 1.x", "netxray1", "*.cap", ".cap", FALSE,
+	  NULL, NULL },
 
+	/* WTAP_FILE_NETXRAY_1_0 */
+	{ "Cinco Networks NetXRay 2.0 or later", "netxray2", "*.cap", ".cap", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_COSINE */
+	{ "CoSine IPSX L2 capture", "cosine", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_CSIDS */
+	{ "CSIDS IPLog", "csids", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_DBS_ETHERWATCH */
+	{ "DBS Etherwatch (VMS)", "etherwatch", "*.*", NULL, FALSE,
+	  NULL, NULL},
+
+	/* WTAP_FILE_ERF */
+	{ "Endace DAG capture", "erf", "*.erf", ".erf", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_EYESDN */
+	{ "EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "*.*", NULL, FALSE,
+		NULL, NULL },
+    
+	/* WTAP_FILE_NETTL */
+	{ "HP-UX nettl trace", "nettl", "*.TRC0;*.TRC1", ".TRC0", FALSE,
+	  nettl_dump_can_write_encap, nettl_dump_open },
+
+	/* WTAP_FILE_ISERIES */
+	{ "IBM iSeries comm. trace (ASCII)", "iseries_ascii", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ISERIES_UNICODE */
+	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_I4BTRACE */
+	{ "I4B ISDN trace", "i4btrace", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ASCEND */
+	{ "Lucent/Ascend access server trace", "ascend", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETMON_1_x */
+	{ "Microsoft NetMon 1.x", "netmon1", "*.cap", ".cap", FALSE,
+	  netmon_dump_can_write_encap, netmon_dump_open },
+
+	/* WTAP_FILE_NETMON_2_x */
+	{ "Microsoft NetMon 2.x", "netmon2", "*.cap", ".cap", FALSE,
+	  netmon_dump_can_write_encap, netmon_dump_open },
+
+	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
+	{ "NA Sniffer (DOS)", "ngsniffer", "*.cap;*.enc;*.trc;*.fdc;*.syc", ".cap", FALSE,
+	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
+
+	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
+	{ "NA Sniffer (DOS), compressed", "ngsniffer_comp", "*.caz", ".caz", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETXRAY_1_1 */
+	{ "NA Sniffer (Windows) 1.1", "ngwsniffer_1_1", "*.cap", ".cap", FALSE,
+	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
+
+	/* WTAP_FILE_NETXRAY_2_00x */
+	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "*.cap", ".cap", FALSE,
+	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
+
+	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
+	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", FALSE,
+	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
+
+	/* WTAP_FILE_LANALYZER */
+	{ "Novell LANalyzer","lanalyzer", "*.tr1", ".tr1", FALSE,
+	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },
+
+	/* WTAP_FILE_PPPDUMP */
+	{ "pppd log (pppdump format)", "pppd", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_RADCOM */
+	{ "RADCOM WAN/LAN analyzer", "radcom", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_SNOOP */
+	{ "Sun snoop", "snoop", "*.snoop;*.cap", ".snoop", FALSE,
+	  snoop_dump_can_write_encap, snoop_dump_open },
+
+	/* WTAP_FILE_SHOMITI */
+	{ "Shomiti/Finisar Surveyor", "shomiti", "*.cap", ".cap", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_VMS */
+	{ "TCPIPtrace (VMS)", "tcpiptrace", "*.*", NULL, FALSE,
+	  NULL, NULL},
+
+	/* WTAP_FILE_K12 */
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", FALSE,
+		k12_dump_can_write_encap, k12_dump_open },
+
+	/* WTAP_FILE_TOSHIBA */
+	{ "Toshiba Compact ISDN Router snoop", "toshiba", "*.*", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_VISUAL_NETWORKS */
+	{ "Visual Networks traffic capture", "visual", "*.*", NULL, FALSE,
+	  visual_dump_can_write_encap, visual_dump_open },
+
+	/* WTAP_FILE_ETHERPEEK_V56 */
+	{ "Wildpacket Ether/TokenPeek (V5 & V6)", "peek56", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ETHERPEEK_V7 */
+	{ "Wildpacket Ether/Token/AiroPeek (V7)", "peek7", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ETHERPEEK_V9 */
+	{ "Wildpacket Ether/AiroPeek (V9)", "peek9", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	  NULL, NULL },
+    
 };
 
 /* Name that should be somewhat descriptive. */
@@ -552,6 +573,24 @@ int wtap_short_string_to_file_type(const char *short_name)
 			return filetype;
 	}
 	return -1;	/* no such file type, or we can't write it */
+}
+
+/* file extensions to use. */
+const char *wtap_file_extensions_string(int filetype)
+{
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+		return NULL;
+	else
+		return dump_open_table[filetype].file_extensions;
+}
+
+/* default file extension to use. */
+const char *wtap_file_extension_default_string(int filetype)
+{
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+		return NULL;
+	else
+		return dump_open_table[filetype].file_extension_default;
 }
 
 gboolean wtap_dump_can_open(int filetype)
