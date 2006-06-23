@@ -1721,8 +1721,8 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   iax_call_data *iax_call = iax_packet -> call_data;
   iax_call_dirdata *dirdata;
-  gpointer value;
-  guint32 frag_offset;
+  gpointer value=NULL;
+  guint32 frag_offset=0;
   fragment_data *fd_head;
   gboolean must_desegment = FALSE;
 
@@ -1894,7 +1894,9 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 			    proto_tree *tree, guint32 ts, gboolean video,
 			    iax_packet_data *iax_packet)
 {
+#if 0
   gboolean out_of_order = FALSE;
+#endif
   tvbuff_t *sub_tvb;
   guint32 codec = iax_packet -> codec;
   guint32 nbytes;
@@ -1918,9 +1920,10 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
       col_append_fstr (pinfo->cinfo, COL_INFO, ", data, format %s",
 		       val_to_str (iax_call -> dataformat, 
 				   iax_dataformats, "unknown (0x%02x)"));
-
+#if 0
       if( out_of_order )
 	col_append_fstr (pinfo->cinfo, COL_INFO, " (out-of-order packet)");
+#endif
     } else {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
 		       val_to_str (codec, codec_types, "unknown (0x%02x)"));
