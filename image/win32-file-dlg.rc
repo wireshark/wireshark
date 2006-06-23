@@ -32,11 +32,6 @@ WIRESHARK_SAVEFILENAME_TEMPLATE DIALOG 0, 0, 368, 116
 STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | DS_3DLOOK | DS_CONTROL
 FONT 8, "MS Shell Dlg"
 {
-    // XXX - We need to come up with something less confusing than separate
-    // "Save as type" (which is built-in) and "File format" combos.
-    LTEXT    "File format:", -1, 5, 3, 35, 8
-    COMBOBOX EWFD_FILE_TYPE_COMBO, 54, 2, 155, 51, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-
     GROUPBOX "Packet Range", -1, 5, 21, 210, 90
 
     CONTROL  "Captured", EWFD_CAPTURED_BTN, "Button", BS_AUTORADIOBUTTON | WS_GROUP, 110, 32, 45, 10

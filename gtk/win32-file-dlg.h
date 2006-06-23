@@ -99,7 +99,6 @@ void file_set_save_marked_sensitive();
 #define EWFD_FIRST_LAST_BTN  1005
 #define EWFD_RANGE_BTN       1006
 #define EWFD_RANGE_EDIT      1007
-#define EWFD_FILE_TYPE_COMBO 1008
 
 #define EWFD_ALL_PKTS_CAP    1009
 #define EWFD_SEL_PKT_CAP     1010

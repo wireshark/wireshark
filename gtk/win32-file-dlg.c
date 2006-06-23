@@ -73,28 +73,11 @@ typedef enum {
     merge_prepend
 } merge_action_e;
 
-/*
- * XXX - There should be separate open and save lists, and they should
- * come from Wiretap.
- */
-#define FILE_TYPES_OPEN \
-    _T("Accellent 5Views (*.5vw)\0")			_T("*.5vw\0")               \
-    _T("Wireshark/tcpdump (*.cap, *.pcap)\0")		_T("*.cap;*.pcap\0")        \
-    _T("Novell LANalyzer (*.tr1)\0")			_T("*.tr1\0")               \
-    _T("NG/NAI Sniffer (*.cap, *.enc, *.trc)\0")	_T("*.cap;*.enc;*.trc\0")   \
-    _T("Sun snoop (*.snoop)\0")				_T("*.snoop\0")             \
-    _T("WildPackets EtherPeek (*.pkt)\0")		_T("*.pkt\0")               \
-    _T("All Files (*.*)\0")				_T("*.*\0")
-
-#define FILE_OPEN_DEFAULT 2 /* Wireshark/tcpdump */
-
-#define FILE_TYPES_SAVE FILE_TYPES_OPEN
-
-#define FILE_SAVE_DEFAULT FILE_OPEN_DEFAULT
-
-#define FILE_TYPES_MERGE FILE_TYPES_OPEN
+#define FILE_OPEN_DEFAULT 1 /* All Files */
 
 #define FILE_MERGE_DEFAULT FILE_OPEN_DEFAULT
+
+#define FILE_SAVE_DEFAULT 1 /* Wireshark/tcpdump */
 
 #define FILE_TYPES_EXPORT \
     _T("Plain text (*.txt)\0")		        	_T("*.txt\0")	\
@@ -124,6 +107,9 @@ static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
+
+static TCHAR *build_file_type_list(gboolean save);
+static int file_type_from_list_index(gboolean save, int index);
 
 static int            filetype;
 static packet_range_t range;
@@ -159,8 +145,7 @@ win32_open_file (HWND h_wnd) {
 #endif
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
-    ofn.lpstrFilter = FILE_TYPES_OPEN;
+    ofn.lpstrFilter = build_file_type_list(FALSE /*save*/);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = FILE_OPEN_DEFAULT;
@@ -185,6 +170,8 @@ win32_open_file (HWND h_wnd) {
     /* XXX - Get our filter */
 
     if (GetOpenFileName(&ofn)) {
+    g_free( (void *) ofn.lpstrFilter);
+
 	if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
 	    return FALSE;
 	}
@@ -204,7 +191,9 @@ win32_open_file (HWND h_wnd) {
 void
 win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data) {
     static OPENFILENAME ofn;
-    TCHAR  file_name[MAX_PATH] = _T("");
+    TCHAR  file_name16[MAX_PATH] = _T("");
+    GString *file_name8;
+    gchar *file_last_dot;
     gchar *dirname;
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
@@ -213,12 +202,11 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
-    ofn.lpstrFilter = FILE_TYPES_SAVE;
+    ofn.lpstrFilter = build_file_type_list(TRUE /*save*/);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = FILE_SAVE_DEFAULT;
-    ofn.lpstrFile = file_name;
+    ofn.lpstrFile = file_name16;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
@@ -236,20 +224,36 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
     if (GetSaveFileName(&ofn)) {
+    filetype = file_type_from_list_index(TRUE /*save*/, ofn.nFilterIndex);
+    g_free( (void *) ofn.lpstrFilter);
+
+    /* append the default file extension if there's none given by the user */
+    /* (we expect a file extension to be at most 5 chars + the dot) */
+    file_name8 = g_string_new(utf_16to8(file_name16));
+    file_last_dot = strrchr(file_name8->str,'.');
+    if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
+    	if(wtap_file_extension_default_string(filetype) != NULL) {
+        	file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
+        }
+    }
+
 	g_sf_hwnd = NULL;
 	/* Write out the packets (all, or only the ones from the current
 	   range) to the file with the specified name. */
 	/* XXX - If we're overwriting a file, GetSaveFileName does the
 	   standard windows confirmation.  cf_save() then rejects the overwrite. */
-	if (cf_save(&cfile, utf_16to8(file_name), &range, filetype, FALSE) != CF_OK) {
+	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
 	    /* The write failed.  Try again. */
+        g_string_free(file_name8, TRUE /* free_segment */);
 	    win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
 	    return;
 	}
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+	dirname = get_dirname(file_name8->str);  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
+
+    g_string_free(file_name8, TRUE /* free_segment */);
 
 	/* we have finished saving, do we have pending things to do? */
 	switch(action_after_save) {
@@ -304,8 +308,7 @@ win32_merge_file (HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
-    ofn.lpstrFilter = FILE_TYPES_MERGE;
+    ofn.lpstrFilter = build_file_type_list(FALSE /*save*/);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = FILE_MERGE_DEFAULT;
@@ -328,6 +331,7 @@ win32_merge_file (HWND h_wnd) {
 
     if (GetOpenFileName(&ofn)) {
 	filetype = cfile.cd_t;
+    g_free( (void *) ofn.lpstrFilter);
 
 	/* merge or append the two files */
 
@@ -1021,12 +1025,106 @@ can_save_with_wiretap(int ft)
    The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
 */
 
+static int
+file_type_from_list_index(gboolean save, int index) {
+    int   ft;
+    int curr_index;
+
+    /* Check all file types. */
+    curr_index = 0;
+    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+	if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
+	    if (!can_save_with_wiretap(ft))
+		continue;       /* We can't. */
+	}
+
+	/* OK, we can write it out in this type. */
+    if(wtap_file_type_string(ft) == NULL) {
+        continue;
+    }
+
+    curr_index++;
+    if(curr_index == index) {
+        return ft;
+    }
+    }
+
+    return -1;
+}
+
+
+static TCHAR *
+build_file_type_list(gboolean save) {
+    int   ft;
+    guint index;
+    guint item_to_select;
+    GString* str = g_string_new("");
+    TCHAR *str16;
+    GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
+    guint16 zero = 0;
+
+
+    /* Default to the first supported file type, if the file's current
+       type isn't supported. */
+    item_to_select = 0;
+
+    /* append the "All Files" entry */
+	if (!save) {
+        str16 = utf_8to16("All Files (*.*)");
+        sa = g_array_append_vals(sa, str16, strlen("All Files (*.*)"));
+        sa = g_array_append_val(sa, zero);
+        str16 = utf_8to16("*.*");
+        sa = g_array_append_vals(sa, str16, strlen("*.*"));
+        sa = g_array_append_val(sa, zero);
+    }
+
+    /* Check all file types. */
+    index = 0;
+    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+	if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
+	    if (!can_save_with_wiretap(ft))
+		continue;       /* We can't. */
+	}
+
+	/* OK, we can write it out in this type. */
+    if(wtap_file_type_string(ft) != NULL) {
+        g_string_printf(str, "%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
+    } else {
+        continue;
+    }
+    str16 = utf_8to16(str->str);
+    sa = g_array_append_vals(sa, str16, strlen(str->str));
+    sa = g_array_append_val(sa, zero);
+
+    g_string_printf(str, "%s", wtap_file_extensions_string(ft));
+    str16 = utf_8to16(str->str);
+    sa = g_array_append_vals(sa, str16, strlen(str->str));
+    sa = g_array_append_val(sa, zero);
+
+	if (ft == filetype) {
+	    /* Default to the same format as the file, if it's supported. */
+	    item_to_select = index;
+	}
+	index++;
+    }
+
+    /* terminate the array */
+    sa = g_array_append_val(sa, zero);
+
+    return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
+}
+
+
+#if 0
 static void
 build_file_format_list(HWND sf_hwnd) {
     HWND  format_cb;
     int   ft;
     guint index;
     guint item_to_select;
+    gchar *s;
 
     /* Default to the first supported file type, if the file's current
        type isn't supported. */
@@ -1045,7 +1143,13 @@ build_file_format_list(HWND sf_hwnd) {
 	}
 
 	/* OK, we can write it out in this type. */
-	SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(wtap_file_type_string(ft)));
+    if(wtap_file_extensions_string(ft) != NULL) {
+        s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
+    } else {
+        s = g_strdup_printf("%s (*.*)", wtap_file_type_string(ft));
+    }
+	SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
+    g_free(s);
 	SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
 	if (ft == filetype) {
 	    /* Default to the same format as the file, if it's supported. */
@@ -1056,13 +1160,14 @@ build_file_format_list(HWND sf_hwnd) {
 
     SendMessage(format_cb, CB_SETCURSEL, (WPARAM) item_to_select, 0);
 }
+#endif
 
 #define RANGE_TEXT_MAX 128
 static UINT CALLBACK
 save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
-    int            new_filetype, index;
+    /*int            new_filetype, index;*/
 
     switch(msg) {
 	case WM_INITDIALOG:
@@ -1075,7 +1180,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	    packet_range_init(&range);
 
 	    /* Fill in the file format list */
-	    build_file_format_list(sf_hwnd);
+	    /*build_file_format_list(sf_hwnd);*/
 
 	    range_handle_wm_initdialog(sf_hwnd, &range);
 
@@ -1084,6 +1189,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	    cur_ctrl = (HWND) l_param;
 
 	    switch (w_param) {
+#if 0
 		case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
 		    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
 		    if (index != CB_ERR) {
@@ -1107,6 +1213,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			}
 		    }
 		    break;
+#endif
 		default:
 		    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &range);
 		    break;
