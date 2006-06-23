@@ -47,12 +47,12 @@ Wireshark Info
 -->
   <!ENTITY WiresharkCurrentVersion "0.99.0">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
-  <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
-  <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/introduction.html#authors">
+  <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
+  <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
   <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
   <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
-  <!ENTITY WiresharkDevsGuidePage "&WiresharkWebSite;/docs">
-  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs">
+  <!ENTITY WiresharkDevsGuidePage "&WiresharkWebSite;/docs/">
+  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkWikiSite "http://wiki.wireshark.org">
   <!ENTITY WiresharkBugsSite "http://bugs.wireshark.org">
 

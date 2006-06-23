@@ -419,7 +419,7 @@
 
 	<section id="ChIntroBugDatabase"><title>Bug database</title>
 	<para>
-	The Etereal community started collecting bug reports in a Bugzilla database at
+	The Wireshark community started collecting bug reports in a Bugzilla database at
 	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
 	This database is filled with manually filed bug reports, usually after some 
 	discussion on wireshark-dev, and bug reports from the QA build tooling.
@@ -437,7 +437,7 @@
 	If you report problems, provide as much 
 	information as possible. In general, just think about what 
 	you would need to find that problem, if someone else sends you such a 
-	problem report. Also keep in mind, that people uses a lot of different 
+	problem report. Also keep in mind, that people use a lot of different 
 	platforms to compile/run Wireshark on. 
     </para>
     <para>

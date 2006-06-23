@@ -235,7 +235,7 @@
 	The buildbot server will automatically start to generate a snapshot of 
 	Wireshark's sourcetree after a source code change committed. 
 	These snapshots can be found at: <ulink
-	url="http://www.wireshark.org/distribution/buildbot-builds/source/"/>.
+	url="&WiresharkDownloadPage;automated/src/"/>.
 	</para>
 	<para>
 	If anonymous Subversion access isn't possible, e.g. if the connection to 
@@ -258,7 +258,7 @@
 	</para>
 	<para>
 	The officially released source files can be found at: <ulink
-	url="http://www.wireshark.org/download.html"/>.
+	url="&WiresharkDownloadPage;"/>.
 	You should use these sources if you want to build Wireshark on your
 	platform for productive use.
 	</para>
@@ -579,7 +579,12 @@ diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	<userinput>svn diff [changed_files] > svn.diff</userinput>
 	</para>
 	<para>
-	XXX - add more details
+	Use the command line svn client to generate a patch in the required format 
+	from the changes you've made to your working copy. If you leave out the 
+	name of the changed file the svn client searches for all changes in the 
+	working copy and usually produces a patch containing more than just the 
+	change you want to send. Therefore you should always check the produced 
+	patch file.
 	</para>
 	</section>
 
@@ -781,7 +786,7 @@ diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	  and the fuzz test randomly change bytes in this file, so unconditional 
 	  code paths in your dissector are passed. There are tools available to 
 	  automatically do this on any number of input files, see: 
-	  <ulink url="http://wiki.wireshark.org/FuzzTesting"/> for details.
+	  <ulink url="&WiresharkWikiSite;/FuzzTesting"/> for details.
 	  </para>
 	  </listitem>
 	</itemizedlist>
@@ -792,11 +797,11 @@ diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	<title>Sending your patch to the developer mailing list</title>
 	<para>
 	After generating a patch of your changes, you might want to have your
-	changes included into the SVN server.
+	changes included into the SVN repository.
 	</para>
 	<para>
 	You should send an email to <ulink
-	url="mailto:wireshark-dev[AT]wireshark.org"/> containing: 
+	url="mailto:&WiresharkDevMailList;"/> containing: 
 	<itemizedlist>
 	  <listitem><para>
 	  subject: [PATCH] and a short description of your changes
@@ -856,10 +861,8 @@ diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	of the patch and your source files match.
 	</para>
 	</warning>
-	<para>
-	XXX - the following is a collection of material and needs some 
-	clarification.
-	</para>
+	<section id="ChSrcPatchUse">
+	<title>Using patch</title>
 	<para>
 	Given the file "new.diff" containing a unified diff, the right way to 
 	call the patch tool depends on what the pathnames in "new.diff" look like.
@@ -906,6 +909,9 @@ diff -ur ../wireshark-0.99.0/epan/dissectors/packet-dcerpc.c ./epan/dissectors/p
 	that - especially if they're only patching files that exist in multiple 
 	directories, such as "Makefile.am".
 	</para>
+	</section>
+	<section id="ChSrcPatchCvs">
+	<title>CVS diff (obsolete)</title>
 	<para>
 	One other thing to note - "cvs diff" produces output that at least some
 	versions of "patch" can't handle; you'd get something such as
@@ -946,9 +952,7 @@ diff -c -r1.5 dlnames.c
 	doesn't have that problem.  Regular "diff -c" or "diff -u" output also
 	shouldn't have that problem.
 	</para>
-	<para>
-	XXX - add some more details and do some cleanup.
-	</para>
+	</section>
   </section>
 
   <section id="ChSrcAdd">
@@ -979,7 +983,7 @@ diff -c -r1.5 dlnames.c
 	Add a line to each new file, containing the following text (case is 
 	important, so don't write ID or id or iD):
 <programlisting>
-$Id:$
+$Id&#36;
 </programlisting>
 	</para>
 	</listitem>
@@ -1049,7 +1053,7 @@ $Id:$
 	<section id="ChSrcNSIS">
 	<title>Win32: NSIS .exe installer</title>
 	<para>
-	The "Nullsoft Install System" is a free installer generator for win32
+	The "Nullsoft Install System" is a free installer generator for Win32
 	based systems, instructions how to install it can be found in <xref 
 	linkend="ChToolsNSIS"/>. 
 	NSIS is script based, you will find the Wireshark installer

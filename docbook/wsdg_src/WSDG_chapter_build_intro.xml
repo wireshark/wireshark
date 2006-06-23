@@ -10,7 +10,7 @@
 	Wireshark consists of the following major parts:
 	<itemizedlist>
 	<listitem><para>
-	Packet dissection - in the / and /epan directory
+	Packet dissection - in the /epan/dissector and /plugin/* directory
 	</para></listitem>
 	<listitem><para>
 	File I/O - using Wireshark's own wiretap library
@@ -30,7 +30,7 @@
 	<para>
 	Currently there's no clean seperation of the modules in the code. 
 	However, as the development team switched from CVS to SVN some time ago, 
-	directory cleanup are much easier now. So there's a chance that
+	directory cleanup is much easier now. So there's a chance that
 	the directory structure will become clean in the future.
 	</para>
   </section>
