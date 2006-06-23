@@ -1383,6 +1383,8 @@ dissect_RealIdentificationData_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_number_of_apis, &u16NumberOfAPIs);
     }
 
+    proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
+
     while(u16NumberOfAPIs--) {
         if(u8BlockVersionLow == 1) {
             /* API */
@@ -1393,6 +1395,9 @@ dissect_RealIdentificationData_block(tvbuff_t *tvb, int offset,
         /* NumberOfSlots */
 	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_number_of_slots, &u16NumberOfSlots);
+
+        proto_item_append_text(item, ", Slots:%u", u16NumberOfSlots);
+
         while(u16NumberOfSlots--) {
             /* SlotNumber */
 	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -1403,6 +1408,9 @@ dissect_RealIdentificationData_block(tvbuff_t *tvb, int offset,
             /* NumberOfSubslots */
 	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                                 hf_pn_io_number_of_subslots, &u16NumberOfSubslots);
+
+            proto_item_append_text(item, ", Subslots:%u", u16NumberOfSubslots);
+
             while(u16NumberOfSubslots--) {
                 subslot_item = proto_tree_add_item(tree, hf_pn_io_subslot, tvb, offset, 6, FALSE);
 	            subslot_tree = proto_item_add_subtree(subslot_item, ett_pn_io_subslot);
@@ -2094,7 +2102,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 /* dissect the PDIRGlobalData block */
 static int
 dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     e_uuid_t uuid;
 
@@ -2159,8 +2167,8 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
 
 
-/*    proto_item_append_text(item, ": Slot:0x%x/0x%x",
-        u16SlotNr, u16SubslotNr);*/
+    proto_item_append_text(item, ": Offset:%u, Len:%u, Ratio:%u, Phase:%u, FrameID:%u",
+        u32FrameSendOffset, u16DataLength, u16ReductionRatio, u16Phase, u16FrameID);
 
     return offset;
 }
@@ -2169,7 +2177,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
 /* dissect the DiagnosisBlock */
 static int
 dissect_DiagnosisBlock(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 length)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint16 length)
 {
 
     /* XXX - how to decode this? */
@@ -3345,7 +3353,6 @@ static int
 dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint16 u16Index = 0;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 

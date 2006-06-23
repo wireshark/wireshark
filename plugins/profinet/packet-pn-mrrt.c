@@ -65,12 +65,6 @@ static const value_string pn_mrrt_block_type_vals[] = {
 	{ 0, NULL },
 };
 
-static const value_string pn_mrrt_oui_vals[] = {
-	{ OUI_PROFINET,         "PROFINET" },
-
-	{ 0, NULL }
-};
-
 
 /* XXX - use include file instead for these helpers */
 extern int dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -98,7 +92,7 @@ extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_PNMRRT_Common(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length _U_)
 {
     guint16 sequence_id;
     e_uuid_t uuid;
@@ -121,7 +115,7 @@ dissect_PNMRRT_Common(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRRT_Test(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length _U_)
 {
     guint8 mac[6];
 

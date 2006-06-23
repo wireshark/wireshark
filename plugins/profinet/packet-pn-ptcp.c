@@ -274,7 +274,7 @@ dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_PNPTCP_TLVHeader(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 *type, guint16 *length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 *type, guint16 *length)
 {
     guint16 tl_type;
     guint16 tl_length;
@@ -467,7 +467,7 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length)
 {
 	guint8 subType;
     guint8 padding8;
@@ -547,7 +547,7 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNPTCP_block(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, gboolean *end)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, gboolean *end)
 {
     guint16 type;
     guint16 length;

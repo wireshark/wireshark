@@ -605,7 +605,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* dissect the "LLDP" suboption */
 static int
 dissect_PNDCP_Suboption_LLDP(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
+                                proto_tree *tree, proto_item *block_item _U_, proto_item *dcp_item _U_, 
 								gboolean is_response _U_)
 {
     guint8 suboption;
