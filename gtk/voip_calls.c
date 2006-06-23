@@ -590,7 +590,7 @@ static void RTP_packet_draw(void *prs _U_)
 					if (rtp_listinfo->first_frame_num == gai->frame_num){
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						g_free(gai->comment);
-						gai->comment = g_strdup_printf("RTP Num packets:%d  Duration:%d.%03ds ssrc:%d", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						break;
 					/* add the RTP item to the graph if was not there*/
 					} else if (rtp_listinfo->first_frame_num<gai->frame_num){
@@ -604,7 +604,7 @@ static void RTP_packet_draw(void *prs _U_)
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Uknown RTP Event")); 
 						g_free(rtp_listinfo->pt_str);
-						new_gai->comment = g_strdup_printf("RTP Num packets:%d  Duration:%d.%03ds ssrc:%d", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						new_gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
 						new_gai->display=FALSE;
 						new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
@@ -903,7 +903,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		COPY_ADDRESS(&(tmp_dst), &(pinfo->dst));
 		
 		if (pi->request_method == NULL){
-			frame_label = g_strdup_printf("%d %s", pi->response_code, pi->reason_phrase );
+			frame_label = g_strdup_printf("%u %s", pi->response_code, pi->reason_phrase );
 			comment = g_strdup_printf("SIP Status");
 
 			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(strinfo->initial_speaker)))){
@@ -2441,7 +2441,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		if (frame_label == NULL) frame_label = g_strdup_printf("%s",pi->code);
 		break;
 	case MGCP_RESPONSE:
-		frame_label = g_strdup_printf("%d (%s)",pi->rspcode, pi->code);
+		frame_label = g_strdup_printf("%u (%s)",pi->rspcode, pi->code);
 		break;
 	case MGCP_OTHERS:
 		/* XXX what to do? */
