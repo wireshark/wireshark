@@ -630,13 +630,18 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             /* Special treatment of web server request 
                              * as is is very helpful to see more information in the packetlist */
                             if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) { 
+                                   sbus_web_size = tvb_get_guint8(tvb,9);
                                    sbus_web_aid = tvb_get_guint8(tvb,10);
                                    col_add_fstr(pinfo->cinfo, COL_INFO,
-                                          "Response: %s (Seq No: %d)", 
+                                          "Response: %s", 
                                           val_to_str(sbus_web_aid,
-                                                 webserver_aid_vals, "Unknown Request!"), 
-                                          sbus_web_aid);
-       
+                                                 webserver_aid_vals, "Unknown Request!"));
+                                   if (sbus_web_size > 1) {
+                                          sbus_web_seq = tvb_get_guint8(tvb,11);
+                                          col_append_fstr(pinfo->cinfo, COL_INFO,
+                                              " (Seq No: %d)",
+                                              sbus_web_seq);
+                                   }
                             } else {
                                    col_set_str(pinfo->cinfo, COL_INFO, "Response");
                             }
