@@ -1232,6 +1232,10 @@ DEBUG_ENTRY("dissect_per_sequence");
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
+		proto_item_append_text(actx->created_item, " (%s %s present)",
+			index_get_optional_name(sequence, i),
+			optional_field_flag?"is":"is NOT"
+		);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		optional_mask<<=1;
 		if(optional_field_flag){
