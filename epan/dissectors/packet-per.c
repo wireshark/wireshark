@@ -1266,7 +1266,6 @@ DEBUG_ENTRY("dissect_per_sequence");
 		guint32 num_known_extensions;
 		guint32 num_extensions;
 		guint32 extension_mask;
-		proto_item *it=NULL;
 
 		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_num_sequence_extensions, &num_extensions);
 		/* the X.691 standard is VERY unclear here.
@@ -1290,15 +1289,14 @@ DEBUG_ENTRY("dissect_per_sequence");
 		extension_mask=0;
 		for(i=0;i<num_extensions;i++){
 			offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_bit);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
-			extension_mask=(extension_mask<<1)|extension_bit;
-			if(it){
-				proto_item_append_text(it, " (%s %s present)",
-					index_get_extension_name(sequence, i),
-					extension_bit?"is":"is NOT"
-					);
-			}
+			proto_item_append_text(actx->created_item, " (%s %s present)",
+				index_get_extension_name(sequence, i),
+				extension_bit?"is":"is NOT"
+			);
 
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+
+			extension_mask=(extension_mask<<1)|extension_bit;
 		}
 
 		/* find how many extensions we know about */
