@@ -2428,7 +2428,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
       if ((adler32_correct) && !(crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
-      else if (!(adler32_correct) && (crc32c_correct))
+      else if ((!adler32_correct) && (crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
       else if ((adler32_correct) && (crc32c_correct))
