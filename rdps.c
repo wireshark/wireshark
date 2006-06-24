@@ -45,7 +45,7 @@ void end_code(FILE *fd);
 void ps_clean_string(char *out, const char *in,
 			int outbuf_size);
 
-enum ps_state { null, preamble, hex, finale };
+enum ps_state { null, preamble, finale };
 
 int main(int argc, char **argv)
 {
@@ -89,16 +89,6 @@ int main(int argc, char **argv)
 		}
 		else if (state == preamble) {
 			if (strcmp(buf, "% ---- wireshark preamble end ---- %\n") == 0) {
-				state = null;
-				end_code(output);
-				continue;
-			}
-			else {
-				write_code(output, buf);
-			}
-		}
-		else if (state == hex) {
-			if (strcmp(buf, "% ---- wireshark hex end ---- %\n") == 0) {
 				state = null;
 				end_code(output);
 				continue;
