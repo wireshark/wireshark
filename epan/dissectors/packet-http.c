@@ -1240,6 +1240,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *chunk_subtree = NULL;
 		tvbuff_t *data_tvb = NULL;
 		gchar *c = NULL;
+		guint8 *raw_data;
+		gint raw_len = 0;
 
 		linelen = tvb_find_line_end(tvb, offset, -1, &chunk_offset, TRUE);
 
@@ -1268,7 +1270,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-
+		
 		if (chunk_size > datalen) {
 			/*
 			 * The chunk size is more than what's in the tvbuff,
@@ -1277,6 +1279,9 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			 */
 			chunk_size = datalen;
 		}
+		/* 
+		 * chunk_size is guaranteed to be >0 from here on 
+		 */
 #if 0
 		  else if (new_tvb == NULL) {
 			new_tvb = tvb_new_composite();
@@ -1297,38 +1302,29 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		chunked_data_size += chunk_size;
 
-		if (chunk_size != 0) {
-			guint8 *raw_data = g_malloc(chunked_data_size);
-			gint raw_len = 0;
+		raw_data = g_malloc(chunked_data_size);
+		raw_len = 0;
 
-			if (new_tvb != NULL) {
-				raw_len = tvb_length_remaining(new_tvb, 0);
-				tvb_memcpy(new_tvb, raw_data, 0, raw_len);
+		if (new_tvb != NULL) {
+			raw_len = tvb_length_remaining(new_tvb, 0);
+			tvb_memcpy(new_tvb, raw_data, 0, raw_len);
 
-				tvb_free(new_tvb);
-			}
-
-			tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len),
-			    chunk_offset, chunk_size);
-
-			new_tvb = tvb_new_real_data(raw_data,
-			    chunked_data_size, chunked_data_size);
-			tvb_set_free_cb(new_tvb, g_free);
-
+			tvb_free(new_tvb);
 		}
 
+		tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len),
+			    chunk_offset, chunk_size);
+
+		new_tvb = tvb_new_real_data(raw_data,
+			    chunked_data_size, chunked_data_size);
+		tvb_set_free_cb(new_tvb, g_free);
+
+
 		if (subtree) {
-			if (chunk_size == 0) {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
-				    offset,
-				    chunk_offset - offset + chunk_size + 2,
-				    "Data chunk (last chunk)");
-			} else {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
+			chunk_ti = proto_tree_add_text(subtree, tvb,
 				    offset,
 				    chunk_offset - offset + chunk_size + 2,
 				    "Data chunk (%u octets)", chunk_size);
-			}
 
 			chunk_subtree = proto_item_add_subtree(chunk_ti,
 			    ett_http_chunk_data);
@@ -1341,17 +1337,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			    datalen);
 
 
-			if (chunk_size > 0) {
-				/*
-				 * XXX - just use "proto_tree_add_text()"?
-				 * This means that, in TShark, you get
-				 * the entire chunk dumped out in hex,
-				 * in addition to whatever dissection is
-				 * done on the reassembled data.
-				 */
-				call_dissector(data_handle, data_tvb, pinfo,
+			/*
+			 * XXX - just use "proto_tree_add_text()"?
+			 * This means that, in TShark, you get
+			 * the entire chunk dumped out in hex,
+			 * in addition to whatever dissection is
+			 * done on the reassembled data.
+			 */
+			call_dissector(data_handle, data_tvb, pinfo,
 				    chunk_subtree);
-			}
 
 			proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
 			    chunk_size, 2, "Chunk boundary");
