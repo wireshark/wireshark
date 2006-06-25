@@ -585,9 +585,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset = 0;
   tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6));
 
-  pinfo->ipproto = ipv6.ip6_nxt; /* XXX make work TCP follow (ipproto = 6) */
-
-  /* Get the payload length */
+  /* Get extension header and payload length */
   plen = g_ntohs(ipv6.ip6_plen);
 
   /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
@@ -731,6 +729,11 @@ again:
 #ifdef TEST_FINALHDR
   proto_tree_add_uint_hidden(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
 #endif
+
+  /* collect packet info */
+  pinfo->ipproto = nxt;
+  pinfo->iplen = sizeof(ipv6) + plen;
+  pinfo->iphdrlen = offset;
 
   /* If ipv6_reassemble is on, this is a fragment, and we have all the data
    * in the fragment, then just add the fragment to the hashtable.
