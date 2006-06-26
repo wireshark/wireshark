@@ -534,7 +534,8 @@ packet_list_new(e_prefs *prefs)
         if (cfile.cinfo.col_fmt[i] == COL_NUMBER ||
             cfile.cinfo.col_fmt[i] == COL_PACKET_LENGTH ||
             cfile.cinfo.col_fmt[i] == COL_CUMULATIVE_BYTES ||
-            cfile.cinfo.col_fmt[i] == COL_DCE_CALL)
+            cfile.cinfo.col_fmt[i] == COL_DCE_CALL ||
+            cfile.cinfo.col_fmt[i] == COL_DCE_CTX)
             eth_clist_set_column_justification(ETH_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }

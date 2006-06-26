@@ -45,12 +45,55 @@
 const gchar *
 col_format_to_string(gint fmt) {
   const gchar *slist[] = {
-	"%m", "%t", "%Rt", "%At", "%Yt", "%Tt", "%s", "%rs",
-	"%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
-	"%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
-	"%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-	"%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-	"%Xd", "%V", "%x", "%e", "%H", "%P", "%y", "%v", "%E"
+	"%m", 
+	"%t",
+	"%Rt",
+	"%At",
+	"%Yt",
+	"%Tt",
+	"%s",
+	"%rs",
+	"%us",
+	"%hs",
+	"%rhs",
+	"%uhs",
+	"%ns",
+	"%rns",
+	"%uns",
+	"%d",
+	"%rd",
+	"%ud",
+	"%hd",
+	"%rhd",
+    "%uhd",
+    "%nd", 
+    "%rnd",
+	"%und", 
+    "%S", 
+    "%rS", 
+    "%uS", 
+    "%D", 
+    "%rD", 
+    "%uD", 
+    "%p",
+	"%i", 
+    "%L", 
+    "%B", 
+    "%XO", 
+    "%XR", 
+    "%I", 
+    "%c", 
+    "%Xs", 
+	"%Xd", 
+    "%V", 
+    "%x", 
+    "%e", 
+    "%H", 
+    "%P", 
+    "%y", 
+    "%z", 
+    "%v", 
+    "%E"
 };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -62,54 +105,55 @@ col_format_to_string(gint fmt) {
 /* Given a format number (as defined in packet.h), returns its
   description */
 static const gchar *dlist[NUM_COL_FMTS] = {
-	"Number",
-	"Time (format as specified)",
-	"Relative time",
-	"Absolute time",
-	"Absolute date and time",
-	"Delta time",
-	"Source address",
-	"Src addr (resolved)",
-	"Src addr (unresolved)",
-	"Hardware src addr",
-	"Hw src addr (resolved)",
-	"Hw src addr (unresolved)",
-	"Network src addr",
-	"Net src addr (resolved)",
-	"Net src addr (unresolved)",
-	"Destination address",
-	"Dest addr (resolved)",
-	"Dest addr (unresolved)",
-	"Hardware dest addr",
-	"Hw dest addr (resolved)",
-	"Hw dest addr (unresolved)",
-	"Network dest addr",
-	"Net dest addr (resolved)",
-	"Net dest addr (unresolved)",
-	"Source port",
-	"Src port (resolved)",
-	"Src port (unresolved)",
-	"Destination port",
-	"Dest port (resolved)",
-	"Dest port (unresolved)",
-	"Protocol",
-	"Information",
-	"Packet length (bytes)" ,
-	"Cumulative Bytes" ,
-	"Fibre Channel OXID",
-	"Fibre Channel RXID",
-	"FW-1 monitor if/direction",
-	"Circuit ID",
-	"Cisco Src PortIdx",
-	"Cisco Dst PortIdx",
-	"Cisco VSAN",
-	"IEEE 802.11 TX rate",
-	"IEEE 802.11 RSSI",
-	"HP-UX Subsystem",
-	"HP-UX Device ID",
-	"DCE/RPC call (cn_call_id / dg_seqnum)",
-       "802.1Q VLAN id",
-	"TEI",
+	"Number",                                   /* COL_NUMBER */
+	"Time (format as specified)",               /* COL_CLS_TIME */
+	"Relative time",                            /* COL_REL_TIME */
+	"Absolute time",                            /* COL_ABS_TIME */
+	"Absolute date and time",                   /* COL_ABS_DATE_TIME */
+	"Delta time",                               /* COL_DELTA_TIME */
+	"Source address",                           /* COL_DEF_SRC */
+	"Src addr (resolved)",                      /* COL_RES_SRC */
+	"Src addr (unresolved)",                    /* COL_UNRES_SRC */
+	"Hardware src addr",                        /* COL_DEF_DL_SRC */
+	"Hw src addr (resolved)",                   /* COL_RES_DL_SRC*/
+	"Hw src addr (unresolved)",                 /* COL_UNRES_DL_SRC */
+	"Network src addr",                         /* COL_DEF_NET_SRC */
+	"Net src addr (resolved)",                  /* COL_RES_NET_SRC */
+	"Net src addr (unresolved)",                /* COL_UNRES_NET_SRC */
+	"Destination address",                      /* COL_DEF_DST */
+	"Dest addr (resolved)",                     /* COL_RES_DST */
+	"Dest addr (unresolved)",                   /* COL_UNRES_DST */
+	"Hardware dest addr",                       /* COL_DEF_DL_DST */
+	"Hw dest addr (resolved)",                  /* COL_RES_DL_DST */
+	"Hw dest addr (unresolved)",                /* COL_UNRES_DL_DST */
+	"Network dest addr",                        /* COL_DEF_NET_DST */
+	"Net dest addr (resolved)",                 /* COL_RES_NET_DST */
+	"Net dest addr (unresolved)",               /* COL_UNRES_NET_DST */
+	"Source port",                              /* COL_DEF_SRC_PORT */
+	"Src port (resolved)",                      /* COL_RES_SRC_PORT */
+	"Src port (unresolved)",                    /* COL_UNRES_SRC_PORT */
+	"Destination port",                         /* COL_DEF_DST_PORT */
+	"Dest port (resolved)",                     /* COL_RES_DST_PORT */
+	"Dest port (unresolved)",                   /* COL_UNRES_DST_PORT */
+	"Protocol",                                 /* COL_PROTOCOL */
+	"Information",                              /* COL_INFO */
+	"Packet length (bytes)" ,                   /* COL_PACKET_LENGTH */
+	"Cumulative Bytes" ,                        /* COL_CUMULATIVE_BYTES */
+	"Fibre Channel OXID",                       /* COL_OXID */
+	"Fibre Channel RXID",                       /* COL_RXID */
+	"FW-1 monitor if/direction",                /* COL_IF_DIR */
+	"Circuit ID",                               /* COL_CIRCUIT_ID */
+	"Cisco Src PortIdx",                        /* COL_SRCIDX */
+	"Cisco Dst PortIdx",                        /* COL_DSTIDX */
+	"Cisco VSAN",                               /* COL_VSAN */
+	"IEEE 802.11 TX rate",                      /* COL_TX_RATE */
+	"IEEE 802.11 RSSI",                         /* COL_RSSI */
+	"HP-UX Subsystem",                          /* COL_HPUX_SUBSYS */
+	"HP-UX Device ID",                          /* COL_HPUX_DEVID */
+	"DCE/RPC call (cn_call_id / dg_seqnum)",    /* COL_DCE_CALL */
+	"DCE/RPC context ID (cn_ctx_id)",           /* COL_DCE_CTX */
+	"802.1Q VLAN id",                           /* COL_8021Q_VLAN_ID */
+	"TEI",                                      /* XXX - why is it missing in column_utils.c and elsewhere? */
 };
 
 const gchar *
@@ -206,6 +250,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_DCE_CALL:
       fmt_list[COL_DCE_CALL] = TRUE;
+      break;
+    case COL_DCE_CTX:
+      fmt_list[COL_DCE_CTX] = TRUE;
       break;
     case COL_8021Q_VLAN_ID:
       fmt_list[COL_8021Q_VLAN_ID] = TRUE;
@@ -430,6 +477,9 @@ get_column_longest_string(gint format)
     case COL_DCE_CALL:
       return "0000";
       break;
+    case COL_DCE_CTX:
+      return "0000";
+      break;
     case COL_8021Q_VLAN_ID:
       return "0000";
       break;
@@ -581,6 +631,9 @@ get_column_format_from_str(gchar *str) {
 	break;
       case 'y':
 	return COL_DCE_CALL;
+	break;
+      case 'z':
+	return COL_DCE_CTX;
 	break;
       case 'v':
 	return COL_8021Q_VLAN_ID;
