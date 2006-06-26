@@ -1520,19 +1520,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
            have to select the first displayed frame after the selected
            frame. */
         selected_row = following_row;
-      } else {
-        /* Choose the closer of the last displayed frame before the
-           selected frame and the first displayed frame after the
-           selected frame; in case of a tie, choose the first displayed
-           frame after the selected frame. */
-        if (following_frame->num - selected_frame->num <=
-            selected_frame->num - preceding_frame->num) {
-          selected_row = following_row;
-        } else {
-          /* The previous frame is closer to the selected frame than the
-             next frame. */
-          selected_row = preceding_row;
-        }
       }
     }
   }
