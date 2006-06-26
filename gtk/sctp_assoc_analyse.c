@@ -41,6 +41,7 @@
 #include "compat_macros.h"
 
 #include "sctp_stat.h"
+#include "gtkglobals.h"
 
 static sctp_assoc_info_t static_assoc;
 
@@ -343,6 +344,130 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	}
 }
 
+
+void
+sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
+{
+	gchar *f_string = NULL;
+	guint32 framenumber=0;
+	GList *list, *srclist, *dstlist;
+	gchar *str=NULL;
+	GString *gstring=NULL;
+	struct sockaddr_in *infosrc=NULL;
+	struct sockaddr_in *infodst=NULL;
+	sctp_assoc_info_t *selected_stream;
+	gchar *filter_string = NULL;
+	selected_stream=u_data->assoc;
+
+	if (selected_stream->n_packets > 8)
+	{	
+		if (selected_stream->check_address==FALSE)
+		{
+			f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
+		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
+		                                   "(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
+		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
+			selected_stream->port1,
+			selected_stream->port2,
+			selected_stream->verification_tag1,
+			selected_stream->verification_tag2,
+			selected_stream->verification_tag2,
+			selected_stream->port2,
+			selected_stream->port1,
+			selected_stream->verification_tag2,
+			selected_stream->verification_tag1,
+			selected_stream->verification_tag1);
+			filter_string = f_string;
+		}
+		else
+		{
+			srclist = g_list_first(selected_stream->addr1);
+			infosrc=(struct sockaddr_in *) (srclist->data);
+			gstring = g_string_new(g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
+				selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr))));
+			srclist= g_list_next(srclist);
+
+			while (srclist)
+			{
+				infosrc=(struct sockaddr_in *) (srclist->data);
+				str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+				g_string_append(gstring, str);
+				srclist= g_list_next(srclist);
+			}
+
+			dstlist = g_list_first(selected_stream->addr2);
+			infodst=(struct sockaddr_in *) (dstlist->data);
+			str = g_strdup_printf(") && (ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			dstlist= g_list_next(dstlist);
+			while (dstlist)
+			{
+				infodst=(struct sockaddr_in *) (dstlist->data);
+				str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+				g_string_append(gstring, str);
+				dstlist= g_list_next(dstlist);
+			}
+
+			srclist = g_list_first(selected_stream->addr1);
+			infosrc=(struct sockaddr_in *) (srclist->data);
+			str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
+				selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			srclist= g_list_next(srclist);
+
+			while (srclist)
+			{
+				infosrc=(struct sockaddr_in *) (srclist->data);
+				str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+				g_string_append(gstring, str);
+				srclist= g_list_next(srclist);
+			}
+
+			dstlist = g_list_first(selected_stream->addr2);
+			infodst=(struct sockaddr_in *) (dstlist->data);
+			str = g_strdup_printf(") && (ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			dstlist= g_list_next(dstlist);
+			while (dstlist)
+			{
+				infodst=(struct sockaddr_in *) (dstlist->data);
+				str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+				g_string_append(gstring, str);
+				dstlist= g_list_next(dstlist);
+			}
+			str = g_strdup_printf(")))");
+			g_string_append(gstring, str);
+			filter_string = gstring->str;
+			g_string_free(gstring,FALSE);
+		}
+	}
+	else
+	{
+		printf("else\n");
+		list = g_list_first(selected_stream->frame_numbers);
+		framenumber = *((guint32 *)(list->data));
+		gstring = g_string_new(g_strdup_printf("frame.number==%u",framenumber));
+		list = g_list_next(list);
+		while (list)
+		{
+			framenumber = *((guint32 *)(list->data));
+			str =g_strdup_printf(" || frame.number==%u",framenumber);
+			g_string_append(gstring, str);
+			list = g_list_next(list);
+		}
+		filter_string = gstring->str;
+		g_string_free(gstring,FALSE);
+	}
+	
+	if (filter_string != NULL) {
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+	} else {
+		g_assert_not_reached();
+	}
+}
+
 static void analyse_window_set_title(struct sctp_analyse *u_data)
 {
 	char *title;
@@ -361,7 +486,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	GtkWidget *notebook;
 	GtkWidget *main_vb, *page1, *page2, *page3, *hbox, *vbox_l, *vbox_r, *addr_hb, *stat_fr;
 	GtkWidget *hbox_l1, *hbox_l2,*label, *h_button_box;
-	GtkWidget *chunk_stat_bt, *close_bt, *graph_bt1, *graph_bt2, *chunk_bt1;
+	GtkWidget *chunk_stat_bt, *close_bt, *graph_bt1, *graph_bt2, *chunk_bt1, *bt_filter;
 
 	u_data->analyse_nb = g_malloc(sizeof(struct notes));
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -435,6 +560,10 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_widget_show(chunk_stat_bt);
 	SIGNAL_CONNECT(chunk_stat_bt, "clicked", on_chunk_stat_bt, u_data);
 
+	bt_filter = gtk_button_new_with_label ("Set filter");
+	gtk_box_pack_start(GTK_BOX(hbox), bt_filter, FALSE, FALSE, 0);
+	gtk_widget_show (bt_filter);
+	SIGNAL_CONNECT(bt_filter, "clicked", sctp_set_filter, u_data);
 
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
@@ -705,7 +834,7 @@ void assoc_analyse(sctp_assoc_info_t* assoc)
 }
 
 
-static void sctp_analyse_cb(struct sctp_analyse* u_data)
+static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 {
 	guint8* ip_src;
 	guint16 srcport;
@@ -798,7 +927,8 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data)
 								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
 								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
 							}
-							create_analyse_window(u_data);
+							if (ext == FALSE)
+								create_analyse_window(u_data);
 							return;
 						}
 						else
@@ -836,7 +966,8 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data)
 								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
 								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
 							}
-							create_analyse_window(u_data);
+							if (ext == FALSE)
+								create_analyse_window(u_data);
 							return;
 						}
 						else
@@ -855,6 +986,26 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data)
 	}
 }
 
+void sctp_set_assoc_filter()
+{
+struct sctp_analyse * u_data;
+
+	/* Register the tap listener */
+	if (sctp_stat_get_info()->is_registered == FALSE)
+		register_tap_listener_sctp_stat();
+	/* (redissect all packets) */
+
+	sctp_stat_scan();
+	u_data = g_malloc(sizeof(struct sctp_analyse));
+	u_data->assoc        = NULL;
+	u_data->children     = NULL;
+	u_data->analyse_nb   = NULL;
+	u_data->window       = NULL;
+	u_data->num_children = 0;
+	cf_retap_packets(&cfile, FALSE);
+	sctp_analyse_cb(u_data, TRUE);
+	sctp_set_filter(NULL, u_data);
+}
 
 void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 {
@@ -875,13 +1026,13 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 	u_data->num_children = 0;
 
 	cf_retap_packets(&cfile, FALSE);
-	sctp_analyse_cb(u_data);
+	sctp_analyse_cb(u_data, FALSE);
 }
 
 
 void
 register_tap_listener_sctp_analyse(void)
 {
-	register_stat_menu_item("SCTP/Analyse Association", REGISTER_STAT_GROUP_TELEPHONY,
+	register_stat_menu_item("SCTP/Analyse this Association", REGISTER_STAT_GROUP_TELEPHONY,
 	                       sctp_analyse_start, NULL, NULL, NULL);
 }

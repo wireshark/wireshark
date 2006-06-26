@@ -79,6 +79,7 @@
 #include "packet_history.h"
 #include "color_filters.h"
 #include "ssl-dlg.h"
+#include "sctp_stat.h"
 
 GtkWidget *popup_menu_object;
 
@@ -459,6 +460,12 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/SCTP", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_ENTRY("/SCTP/Analyse this Association", NULL, sctp_analyse_start,
+                       0, NULL,NULL),
+    ITEM_FACTORY_ENTRY("/SCTP/Prepare Filter for this Association", NULL, sctp_set_assoc_filter,
+                       0, NULL,NULL),
 
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
@@ -2022,6 +2029,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
       cf->current_frame != NULL);
+  set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",

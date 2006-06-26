@@ -354,3 +354,5 @@ void increase_analyse_childcount(void);
 void set_analyse_child(struct sctp_analyse *child);
 
 void remove_analyse_child(struct sctp_analyse *child);
+
+void sctp_set_assoc_filter();
