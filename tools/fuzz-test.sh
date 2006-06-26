@@ -16,12 +16,13 @@ CAPINFOS=./capinfos
 
 # This needs to point to a 'date' that supports %s.
 DATE=/bin/date
+BASE_NAME=fuzz-`$DATE +%Y-%m-%d`-$$
 
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
 TMP_DIR=/tmp
-TMP_FILE=fuzz-test-`$DATE +%Y-%m-%d`-$$.pcap
-ERR_FILE=fuzz-err-`$DATE +%Y-%m-%d`-$$.txt
+TMP_FILE=$BASE_NAME.pcap
+ERR_FILE=$BASE_NAME.err
 
 # Loop this many times (< 1 loops forever)
 MAX_PASSES=0
