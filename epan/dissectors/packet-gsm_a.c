@@ -139,6 +139,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x2c,	"LSA Information" },
     { 0x2d,	"Perform Location Response" },
     { 0x2e,	"Perform Location Abort" },
+    { 0x2f,	"Common Id" },
     { 0x30,	"Reset" },
     { 0x31,	"Reset Acknowledge" },
     { 0x32,	"Overload" },
@@ -14483,6 +14484,26 @@ bssmap_change_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 /*
+ *  [2] 3.2.1.68
+ */
+static void
+bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+
+    ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_IMSI].value, BSSAP_PDU_TYPE_BSSMAP, BE_IMSI, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
  *  [2] 3.2.1.69
  */
 static void
@@ -14524,6 +14545,7 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+
 #define	NUM_GSM_BSSMAP_MSG (sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
@@ -14556,6 +14578,7 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_lsa_info,	/* LSA Information */
     NULL,	/* Perform Location Response */
     NULL,	/* Perform Location Abort */
+    bssmap_common_id,	/* Common Id */
     bssmap_reset,	/* Reset */
     NULL /* no associated data */,	/* Reset Acknowledge */
     bssmap_overload,	/* Overload */
@@ -18141,13 +18164,13 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 	}
-    }
 
     /*
      * add BSSMAP message name
      */
     proto_tree_add_uint_format(bssmap_tree, hf_gsm_a_bssmap_msg_type,
 	tvb, saved_offset, 1, oct, "Message Type %s",str);
+    }
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSSMAP;
     tap_p->message_type = oct;
@@ -19260,6 +19283,8 @@ proto_register_gsm_a(void)
     gsm_a_tap = register_tap("gsm_a");
 	
 	register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
+	register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
+	register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }
 
 
