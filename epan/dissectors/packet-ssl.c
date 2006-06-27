@@ -115,6 +115,11 @@
 static gboolean ssl_desegment = TRUE;
 static gboolean ssl_desegment_app_data = TRUE;
 
+/* we need to remember the top tree so that subdissectors we call are created
+ * at the root and not deep down inside the SSL decode
+ */
+static proto_tree *top_tree;
+
 
 /*********************************************************************
  *
@@ -864,6 +869,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     SslDecryptSession* ssl_session = NULL;
     guint* conv_version;
 
+    top_tree=tree;
+
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
      * v3 packet is dissected improperly.  This also allows
@@ -1451,7 +1458,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
                 ssl_print_text_data("decrypted app data",pi->app_data.data, 
                     pi->app_data.data_len);
-			call_dissector(association->handle, new_tvb, pinfo, ssl_record_tree);
+			call_dissector(association->handle, new_tvb, pinfo, top_tree);
             }
             /* add raw decrypted data only if a decoder is not found*/
             else 
