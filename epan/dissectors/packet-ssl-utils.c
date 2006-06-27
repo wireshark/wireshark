@@ -141,7 +141,33 @@ ssl_md5_cleanup(SSL_MD5_CTX* md)
     gcry_md_close(*(md));
 }
 
-
+static int
+ssl_cipher_setiv(gcry_cipher_hd_t *cipher,unsigned char* iv, int iv_len)
+{
+  unsigned char * ivp;
+  int ret=0;
+  int i;
+  gcry_cipher_hd_t c;
+  c=(gcry_cipher_hd_t)*cipher;
+  
+  ssl_debug_printf("--------------------------------------------------------------------");
+  /*for(ivp=c->iv,i=0; i < iv_len; i++ )
+    {
+      ssl_debug_printf("%d ",ivp[i]);
+      i++;
+    }
+  */
+  ssl_debug_printf("--------------------------------------------------------------------");
+  ret = gcry_cipher_setiv(*(cipher), iv, iv_len);
+  /*for(ivp=c->iv,i=0; i < iv_len; i++ )
+    {
+      ssl_debug_printf("%d ",ivp[i]);
+      i++;
+    }
+  */
+  ssl_debug_printf("--------------------------------------------------------------------");
+  return ret;
+}
 /* stream cipher abstraction layer*/
 static int 
 ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk, 
@@ -350,7 +376,7 @@ static const char *ciphers[]={
      "IDEA",
      "AES",
      "AES256",
-	 "*UNKNOWN*"
+     "*UNKNOWN*"
 };
 
 /* look in openssl/ssl/ssl_lib.c for a complete list of available cipersuite*/
@@ -900,7 +926,9 @@ tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
     
     /* hash sequence number */
     fmt_seq(decoder->seq,buf);
+    
     decoder->seq++;
+    
     ssl_hmac_update(&hm,buf,8);
     
     /* hash content type */
@@ -984,17 +1012,62 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
     return(0);
 }
-  
+ 
+/*static int 
+dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
+        guint32 datalen, guint8* mac)
+{
+    SSL_HMAC hm;
+    int md;
+    guint32 len;
+    guint8 buf[20];
+    guint32 netnum;
+    md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
+    ssl_debug_printf("dtls_check_mac mac type:%s md %d\n",
+        digests[decoder->cipher_suite->dig-0x40], md);
+    
+    ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md);
+    ssl_debug_printf("dtls_check_mac seq: %d epoch: %d\n",decoder->seq,decoder->epoch);
+    /* hash sequence number *
+   fmt_seq(decoder->seq,buf);
+   buf[0]=decoder->epoch>>8;
+   buf[1]=decoder->epoch;
+
+    ssl_hmac_update(&hm,buf,8);
+   
+    /* hash content type *
+    buf[0]=ct;
+    ssl_hmac_update(&hm,buf,1);
+
+    /* hash version,data lenght and data*
+    *((gint16*)buf) = g_htons(ver);
+    ssl_hmac_update(&hm,buf,2); 
+    
+    *((gint16*)buf) = g_htons(datalen);
+    ssl_hmac_update(&hm,buf,2);
+    ssl_hmac_update(&hm,data,datalen);
+    /* get digest and digest len*
+    ssl_hmac_final(&hm,buf,&len);
+    ssl_print_data("Mac", buf, len);
+    if(memcmp(mac,buf,len))
+        return -1;
+
+    ssl_hmac_cleanup(&hm);
+    return(0);
+}*/
+
+ 
 int 
 ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
         const unsigned char* in, int inl,unsigned char*out,int* outl)
 {
     int pad, worklen;
     guint8 *mac;
-    
+
+
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
-    
+  
     /* First decrypt*/
     if ((pad = ssl_cipher_decrypt(&decoder->evp,out,*outl,in,inl))!= 0)
         ssl_debug_printf("ssl_decrypt_record: %s %s\n", gcry_strsource (pad),
@@ -1020,17 +1093,33 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
     }
     mac=out+worklen;
 
+    /* if TLS 1.1 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
+    if(ssl->version_netorder==TLSV1DOT1_VERSION){
+	worklen=worklen-decoder->cipher_suite->block; 
+	memcpy(out,out+decoder->cipher_suite->block,worklen);
+   }
+  if(ssl->version_netorder==DTLSV1DOT0_VERSION){
+        worklen=worklen-decoder->cipher_suite->block; 
+	memcpy(out,out+decoder->cipher_suite->block,worklen);
+   }
     /* Now check the MAC */
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n", 
         worklen, ssl->version_netorder, ct, decoder->seq);
-    if(ssl->version_netorder==0x300){
+    if(ssl->version_netorder==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,out,worklen,mac) < 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
-    else{
+    else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION){
         if(tls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0) {
+            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
+            return -1;
+        }
+    }
+    else if(ssl->version_netorder==DTLSV1DOT0_VERSION){
+      /* follow the openssl dtls errors the rigth test is : dtls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0 */
+	if(tls_check_mac(decoder,ct,TLSV1_VERSION,out,worklen,mac)< 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
@@ -1261,6 +1350,8 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->client_random.data = ssl_session->_client_random;
     ssl_session->server_random.data = ssl_session->_server_random;
     ssl_session->master_secret.data_len = 48;
+    ssl_session->app_data_segment.data=NULL;
+    ssl_session->app_data_segment.data_len=0;
 }
 
 #ifdef SSL_DECRYPT_DEBUG

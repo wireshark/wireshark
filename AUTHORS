@@ -2486,6 +2486,11 @@ Thomas Dreibholz	<dreibh [AT] exp-math.uni-essen.de> {
 	RSerPol protocol stack
 }
 
+Authesserre Samuel	<sauthess [AT] gmail.com> {
+	SSL decryption updates
+	DTLS
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
