@@ -456,7 +456,8 @@ proto_register_amr(void)
       "Type of AMR encoding of the payload",
       "Type of AMR encoding of the payload",
       &amr_encoding_type, encoding_types, FALSE);
-
+	
+	register_dissector("amr", dissect_amr, proto_amr);
 	register_dissector("amr_if1", dissect_amr_if1, proto_amr);
 	register_dissector("amr_if2", dissect_amr_if2, proto_amr);
 }
