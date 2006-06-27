@@ -1087,8 +1087,8 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	if (i == array_length(auth_parameters_hf_array))
 	{
 		proto_tree_add_text(tree, tvb, start_offset, current_offset-start_offset,
-		                    tvb_get_ephemeral_string(tvb, start_offset,
-		                                             current_offset-start_offset));
+		                    tvb_format_text(tvb, start_offset,
+		                                    current_offset-start_offset));
 	}
 
 	return current_offset;
