@@ -997,7 +997,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint16 version;
     guint16 epoch;
     gdouble sequence_number;
-    guint64 sequence_number_temp;
+    gint64 sequence_number_temp;
     
     guint8 content_type;
     guint8 next_byte;
