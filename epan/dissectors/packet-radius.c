@@ -1114,6 +1114,7 @@ proto_register_radius(void)
 		dir = get_datafile_path("radius");
 		
 		if (test_for_directory(dir) != EISDIR) {
+			g_free(dir);
 			dir = NULL;
 		}
 	}
