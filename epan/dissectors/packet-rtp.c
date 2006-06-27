@@ -75,7 +75,15 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
+typedef struct _rfc2198_hdr {
+  guint8 pt;
+  int offset;
+  int len;
+  struct _rfc2198_hdr *next;
+} rfc2198_hdr;
+
 static dissector_handle_t rtp_handle;
+static dissector_handle_t rtp_rfc2198_handle;
 static dissector_handle_t stun_handle;
 static dissector_handle_t t38_handle;
 
@@ -101,6 +109,9 @@ static int hf_rtp_csrc_item    = -1;
 static int hf_rtp_data         = -1;
 static int hf_rtp_padding_data = -1;
 static int hf_rtp_padding_count= -1;
+static int hf_rtp_rfc2198_follow= -1;
+static int hf_rtp_rfc2198_tm_off= -1;
+static int hf_rtp_rfc2198_bl_len= -1;
 
 /* RTP header extension fields   */
 static int hf_rtp_prof_define  = -1;
@@ -117,6 +128,8 @@ static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
 static gint ett_rtp_setup = -1;
+static gint ett_rtp_rfc2198 = -1;
+static gint ett_rtp_rfc2198_hdr = -1;
 
 
 /* PacketCable CCC header fields */
@@ -157,6 +170,10 @@ static gboolean global_rtp_show_setup_info = TRUE;
 
 /* Try heuristic RTP decode */
 static gboolean global_rtp_heur = FALSE;
+
+/* RFC2198 Redundat Audio Data */
+static guint rtp_rfc2198_pt = 99;
+static guint rtp_saved_rfc2198_pt = 0;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -416,6 +433,70 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
 			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 
+}
+
+static void
+dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	int offset = 0;
+	guint8 octet1;
+	int cnt;
+	gboolean hdr_follow = TRUE;
+	proto_item *ti = NULL;
+	proto_tree *rfc2198_tree = NULL;
+	proto_tree *rfc2198_hdr_tree = NULL;
+	rfc2198_hdr *hdr_last, *hdr_new;
+	rfc2198_hdr *hdr_chain = NULL;
+
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC2198: Redundant Audio Data");
+	rfc2198_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198);
+
+	hdr_last = NULL;
+	cnt = 0;
+	while (hdr_follow) {
+		cnt++;
+		hdr_new = ep_alloc(sizeof(rfc2198_hdr));
+		hdr_new->next = NULL;
+		octet1 = tvb_get_guint8(tvb, offset);
+		hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
+		hdr_follow = (octet1 & 0x80);
+
+		ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
+		rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
+		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, FALSE );
+		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_payload_type, tvb, offset, 1, FALSE );
+		proto_item_append_text(ti, ": PT=%s", val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
+		offset += 1;
+
+		if (hdr_follow) {
+			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_tm_off, tvb, offset, 2, FALSE );
+			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_bl_len, tvb, offset + 1, 2, FALSE );
+			hdr_new->len = tvb_get_ntohs(tvb, offset + 1) & 0x03FF;
+			proto_item_append_text(ti, ", len=%u", hdr_new->len);
+			offset += 3;
+		} else {
+			hdr_new->len = -1;
+			hdr_follow = FALSE;
+		}
+
+		if (hdr_last) {
+			hdr_last->next = hdr_new;
+		} else {
+			hdr_chain = hdr_new;
+		}
+		hdr_last = hdr_new;
+	}
+
+	hdr_last = hdr_chain;
+	while (hdr_last) {
+		hdr_last->offset = offset;
+		if (!hdr_last->next) {
+			hdr_last->len = tvb_reported_length_remaining(tvb, offset);
+		}
+		dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt);
+		offset += hdr_last->len;
+		hdr_last = hdr_last->next;
+	}
 }
 
 static void
@@ -1158,6 +1239,42 @@ proto_register_rtp(void)
 				0x0,
 				"Method used to set up this stream", HFILL
 			}
+		},
+		{
+			&hf_rtp_rfc2198_follow,
+			{
+				"Follow",
+				"rtp.follow",
+				FT_BOOLEAN,
+				8,
+				TFS(&flags_set_truth),
+				0x80,
+				"Next header follows", HFILL
+			}
+		},
+		{
+			&hf_rtp_rfc2198_tm_off,
+			{
+				"Timestamp offset",
+				"rtp.timestamp-offset",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0xFFFC,
+				"Timestamp Offset", HFILL
+			}
+		},
+		{
+			&hf_rtp_rfc2198_bl_len,
+			{
+				"Block length",
+				"rtp.block-length",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x03FF,
+				"Block Length", HFILL
+			}
 		}
 
 	};
@@ -1167,7 +1284,9 @@ proto_register_rtp(void)
 		&ett_rtp,
 		&ett_csrc_list,
 		&ett_hdr_ext,
-		&ett_rtp_setup
+		&ett_rtp_setup,
+		&ett_rtp_rfc2198,
+		&ett_rtp_rfc2198_hdr
 	};
 
 	module_t *rtp_module;
@@ -1179,6 +1298,7 @@ proto_register_rtp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("rtp", dissect_rtp, proto_rtp);
+	register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
 
 	rtp_tap = register_tap("rtp");
 
@@ -1207,11 +1327,18 @@ proto_register_rtp(void)
 	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
+    prefs_register_uint_preference (rtp_module,
+                                    "rfc2198_payload_type", "Payload Type for RFC2198",
+                                    "Payload Type for RFC2198 Redundant Audio Data",
+                                    10,
+                                    &rtp_rfc2198_pt);
 }
 
 void
 proto_reg_handoff_rtp(void)
 {
+	static gboolean rtp_prefs_initialized = FALSE;
+
 	data_handle = find_dissector("data");
 	stun_handle = find_dissector("stun");
 	t38_handle = find_dissector("t38");
@@ -1220,7 +1347,17 @@ proto_reg_handoff_rtp(void)
 	 * UDP port number.
 	 */
 	rtp_handle = find_dissector("rtp");
+	rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
+
 	dissector_add_handle("udp.port", rtp_handle);
+
+  	if (rtp_prefs_initialized) {
+		dissector_delete("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
+	} else {
+		rtp_prefs_initialized = TRUE;
+	}
+	rtp_saved_rfc2198_pt = rtp_rfc2198_pt;
+	dissector_add("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
 
 	heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
 }
