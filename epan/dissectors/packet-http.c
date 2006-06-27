@@ -2201,8 +2201,6 @@ proto_register_message_http(void)
 			"message-http"
 	);
 	proto_register_subtree_array(ett, array_length(ett));
-	message_http_handle = create_dissector_handle(dissect_message_http,
-			proto_message_http);
 }
 
 void
