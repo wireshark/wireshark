@@ -137,6 +137,8 @@ static int hf_dcom_objref_flags = -1;
 static int hf_dcom_objref_iid = -1;
 static int hf_dcom_objref_clsid = -1;
 static int hf_dcom_objref_resolver_address = -1;
+static int hf_dcom_objref_cbextension = -1;
+static int hf_dcom_objref_size = -1;
 
 gint ett_dcom_stdobjref = -1;
 static int hf_dcom_stdobjref = -1;
@@ -348,6 +350,7 @@ const value_string dcom_hresult_vals[] = {
 
 	{ 0x80010108, "RPC_E_DISCONNECTED" },
 	{ 0x80010113, "RPC_E_INVALID_IPID" },
+	{ 0x8001011F, "RPC_E_TIMEOUT" },
 
 	{ 0x80020003, "DISP_E_MEMBERNOTFOUND" },
 	{ 0x80020004, "DISP_E_PARAMNOTFOUND" },
@@ -1577,6 +1580,8 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
+	guint32	u32CBExtension;
+	guint32	u32Size;
 
 
 	/* add subtree header */
@@ -1608,8 +1613,15 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_objref_resolver_address);
 		break;
-		case(0x4):	/* XXX: custom */
-			offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, sub_tree, drep, 10000);
+		case(0x4):	/* custom */
+			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
+								hf_dcom_objref_clsid, &clsid);
+	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_dcom_objref_cbextension, &u32CBExtension);
+	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_dcom_objref_size, &u32Size);
+            /* the following data depends on the CLSID, no docs available on this */
+			offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, sub_tree, drep, u32Size);
 		break;
 	}
 
@@ -1776,7 +1788,11 @@ proto_register_dcom (void)
 		{ &hf_dcom_objref_clsid,
 		{ "CLSID", "dcom.objref.clsid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_objref_resolver_address,
-		{ "ResolverAddress", "dcom.objref.resolver_address", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ "ResolverAddress", "dcom.objref.resolver_address", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_objref_cbextension,
+		{ "CBExtension", "dcom.objref.cbextension", FT_UINT32, BASE_DEC, NULL, 0x0, "Size of extension data", HFILL }},
+		{ &hf_dcom_objref_size,
+		{ "Size", "dcom.objref.size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
 	};
 
 	static hf_register_info hf_dcom_stdobjref_array[] = {
