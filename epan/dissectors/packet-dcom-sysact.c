@@ -38,6 +38,7 @@
 static int proto_ISystemActivator = -1;
 
 static int hf_opnum = -1;
+static int hf_sysact_unknown = -1;
 
 static gint ett_ISystemActivator = -1;
 
@@ -52,8 +53,12 @@ dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
+    /* XXX - what is this? */
     offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, tree, drep, 
-        tvb_ensure_length_remaining(tvb, offset));
+        4);
+
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
+						hf_sysact_unknown);
 
 	return offset;
 }
@@ -66,8 +71,11 @@ dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, tree, drep, 
-        tvb_ensure_length_remaining(tvb, offset));
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
+						hf_sysact_unknown);
+
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+					 NULL /* pu32HResult */);
 
 	return offset;
 }
@@ -89,8 +97,9 @@ proto_register_ISystemActivator (void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_opnum,
-		  { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "", HFILL }},
+		  { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_sysact_unknown,
+		{ "IUnknown", "isystemactivator.unknown", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ISystemActivator
