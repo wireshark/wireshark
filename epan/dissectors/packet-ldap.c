@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ldap.c                                                            */
+/* ./packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -488,7 +488,7 @@ static void ldap_do_protocolop(packet_info *pinfo)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", valstr, MessageID);
 
     if(ldm_tree)
-      proto_item_append_text(ldm_tree, " %s(%d)", valstr, MessageID); 
+      proto_item_append_text(ldm_tree, " %s(%d)", valstr, MessageID);
 
     do_protocolop = FALSE;
 
@@ -3167,11 +3167,11 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   for(field = fields; *field; field++) {
     proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
     hfi = proto_registrar_get_nth(*field);
-    
+
     if(flags & hfi->bitmask) {
 
       if(one_bit_set)
-	proto_item_append_text(item, ", ");	
+	proto_item_append_text(item, ", ");
       else
 	one_bit_set = TRUE;
 
@@ -3192,6 +3192,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   int old_offset, offset=0;
   char str[256];
 
+  ldm_tree = NULL;
+
 /*qqq*/
 
   /* Type */
@@ -3210,42 +3212,42 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
-  
+
   /* Domain */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
-  
+
   /* Hostname */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
-  
+
   /* NetBios Domain */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
-  
+
   /* NetBios Hostname */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
-  
+
   /* User */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
-  
+
   /* Site */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
-  
+
   /* Client Site */
   old_offset=offset;
   offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
   proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
-  
+
   /* Version */
   proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
   offset += 4;
@@ -3261,21 +3263,21 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 
-static guint 
+static guint
 get_sasl_ldap_pdu_len(tvbuff_t *tvb, int offset)
 {
 	/* sasl encapsulated ldap is 4 bytes plus the length in size */
 	return tvb_get_ntohl(tvb, offset)+4;
 }
 
-static void 
+static void
 dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
 	return;
 }
 
-static guint 
+static guint
 get_normal_ldap_pdu_len(tvbuff_t *tvb, int offset)
 {
 	guint32 len;
@@ -3283,14 +3285,14 @@ get_normal_ldap_pdu_len(tvbuff_t *tvb, int offset)
 	int data_offset;
 
 	/* normal ldap is tag+len bytes plus the length
-	 * offset==0 is where the tag is 
+	 * offset==0 is where the tag is
 	 * offset==1 is where length starts
 	 */
 	data_offset=get_ber_length(NULL, tvb, 1, &len, &ind);
 	return len+data_offset;
 }
 
-static void 
+static void
 dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
@@ -3301,6 +3303,8 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+        ldm_tree = NULL;
+
 	/* Here we must take care of reassembly but this is tricky since
 	 * depending on whether SASL is present or not, the heuristics
 	 * will be very different.
@@ -3333,7 +3337,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 		/* check if it is a normal BER encoded LDAP packet
-		 * i.e. first byte is 0x30 followed by a length that is 
+		 * i.e. first byte is 0x30 followed by a length that is
 		 * <64k
 		 * (no ldap PDUs are ever >64kb? )
 		 */
@@ -3937,7 +3941,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1362 "packet-ldap-template.c"
+#line 1366 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3990,7 +3994,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1373 "packet-ldap-template.c"
+#line 1377 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
