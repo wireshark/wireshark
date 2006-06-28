@@ -704,9 +704,9 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 			if(pinfo->fd)
 			  {
 			    p_remove_proto_data(pinfo->fd, proto_ssl);
+			    /* we add reassembled subprotocol data */
+			    p_add_proto_data(pinfo->fd, proto_ssl, pi2);
 			  }
-			/* we add reassembled subprotocol data */
-			p_add_proto_data(pinfo->fd, proto_ssl, pi2);
 			/* we delete saved app_data */
 			if(ssl->app_data_segment.data)
 			  g_free(ssl->app_data_segment.data);
