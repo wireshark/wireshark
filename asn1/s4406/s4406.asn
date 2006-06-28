@@ -256,6 +256,11 @@ Acp127MessageIdentifier ::= MilitaryString
 
 OriginatorPlad ::= MilitaryString
 
+Acp127NotificationType ::= BIT STRING {
+	negative (0),	-- nn, negative notification
+	positive (1),	-- pn, positive notification
+	transfer (2) }	-- tn, transfer notification
+
 -- Information label
 
 --security-information-labels IPMS-EXTENSION

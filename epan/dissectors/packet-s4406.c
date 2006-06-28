@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-s4406.c                                                           */
+/* ./packet-s4406.c                                                           */
 /* ../../tools/asn2wrs.py -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
@@ -82,6 +82,7 @@ static int hf_s4406_PilotInformationSeq_PDU = -1;  /* PilotInformationSeq */
 static int hf_s4406_PilotInformation_PDU = -1;    /* PilotInformation */
 static int hf_s4406_Acp127MessageIdentifier_PDU = -1;  /* Acp127MessageIdentifier */
 static int hf_s4406_OriginatorPlad_PDU = -1;      /* OriginatorPlad */
+static int hf_s4406_Acp127NotificationType_PDU = -1;  /* Acp127NotificationType */
 static int hf_s4406_SecurityInformationLabels_PDU = -1;  /* SecurityInformationLabels */
 static int hf_s4406_PriorityLevelQualifier_PDU = -1;  /* PriorityLevelQualifier */
 static int hf_s4406_mm = -1;                      /* IPM */
@@ -117,6 +118,10 @@ static int hf_s4406_body_part_security_labels = -1;  /* SEQUENCE_OF_BodyPartSecu
 static int hf_s4406_body_part_security_labels_item = -1;  /* BodyPartSecurityLabel */
 static int hf_s4406_body_part_security_label = -1;  /* SecurityLabel */
 static int hf_s4406_body_part_sequence_number = -1;  /* BodyPartSequenceNumber */
+/* named bits */
+static int hf_s4406_Acp127NotificationType_negative = -1;
+static int hf_s4406_Acp127NotificationType_positive = -1;
+static int hf_s4406_Acp127NotificationType_transfer = -1;
 
 /*--- End of included file: packet-s4406-hf.c ---*/
 #line 53 "packet-s4406-template.c"
@@ -142,6 +147,7 @@ static gint ett_s4406_PilotInformationSeq = -1;
 static gint ett_s4406_PilotInformation = -1;
 static gint ett_s4406_SEQUENCE_OF_ORDescriptor = -1;
 static gint ett_s4406_SEQUENCE_OF_MilitaryString = -1;
+static gint ett_s4406_Acp127NotificationType = -1;
 static gint ett_s4406_SecurityInformationLabels = -1;
 static gint ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel = -1;
 static gint ett_s4406_BodyPartSecurityLabel = -1;
@@ -187,8 +193,8 @@ static const value_string s4406_InformationObject_vals[] = {
 };
 
 static const ber_choice_t InformationObject_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_mm_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_mn_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mm_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mn_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -294,7 +300,7 @@ static int dissect_dist_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 63 "s4406.cnf"
+#line 65 "s4406.cnf"
 /* XXX: not implemented */
 
 
@@ -439,7 +445,7 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 68 "s4406.cnf"
+#line 70 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
@@ -469,7 +475,7 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 76 "s4406.cnf"
+#line 78 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
@@ -764,6 +770,23 @@ dissect_s4406_OriginatorPlad(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 }
 
 
+static const asn_namedbit Acp127NotificationType_bits[] = {
+  {  0, &hf_s4406_Acp127NotificationType_negative, -1, -1, "negative", NULL },
+  {  1, &hf_s4406_Acp127NotificationType_positive, -1, -1, "positive", NULL },
+  {  2, &hf_s4406_Acp127NotificationType_transfer, -1, -1, "transfer", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_s4406_Acp127NotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    Acp127NotificationType_bits, hf_index, ett_s4406_Acp127NotificationType,
+                                    NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_s4406_BodyPartSequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -910,6 +933,9 @@ static void dissect_Acp127MessageIdentifier_PDU(tvbuff_t *tvb, packet_info *pinf
 static void dissect_OriginatorPlad_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_OriginatorPlad(FALSE, tvb, 0, pinfo, tree, hf_s4406_OriginatorPlad_PDU);
 }
+static void dissect_Acp127NotificationType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_Acp127NotificationType(FALSE, tvb, 0, pinfo, tree, hf_s4406_Acp127NotificationType_PDU);
+}
 static void dissect_SecurityInformationLabels_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_SecurityInformationLabels(FALSE, tvb, 0, pinfo, tree, hf_s4406_SecurityInformationLabels_PDU);
 }
@@ -1044,6 +1070,10 @@ void proto_register_s4406(void) {
       { "OriginatorPlad", "s4406.OriginatorPlad",
         FT_STRING, BASE_NONE, NULL, 0,
         "OriginatorPlad", HFILL }},
+    { &hf_s4406_Acp127NotificationType_PDU,
+      { "Acp127NotificationType", "s4406.Acp127NotificationType",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Acp127NotificationType", HFILL }},
     { &hf_s4406_SecurityInformationLabels_PDU,
       { "SecurityInformationLabels", "s4406.SecurityInformationLabels",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1184,6 +1214,18 @@ void proto_register_s4406(void) {
       { "body-part-sequence-number", "s4406.body_part_sequence_number",
         FT_INT32, BASE_DEC, NULL, 0,
         "BodyPartSecurityLabel/body-part-sequence-number", HFILL }},
+    { &hf_s4406_Acp127NotificationType_negative,
+      { "negative", "s4406.negative",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_s4406_Acp127NotificationType_positive,
+      { "positive", "s4406.positive",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_s4406_Acp127NotificationType_transfer,
+      { "transfer", "s4406.transfer",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
 #line 93 "packet-s4406-template.c"
@@ -1211,6 +1253,7 @@ void proto_register_s4406(void) {
     &ett_s4406_PilotInformation,
     &ett_s4406_SEQUENCE_OF_ORDescriptor,
     &ett_s4406_SEQUENCE_OF_MilitaryString,
+    &ett_s4406_Acp127NotificationType,
     &ett_s4406_SecurityInformationLabels,
     &ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel,
     &ett_s4406_BodyPartSecurityLabel,
@@ -1249,6 +1292,7 @@ void proto_reg_handoff_s4406(void) {
   register_ber_oid_dissector("1.3.26.0.4406.0.2.12", dissect_PilotInformationSeq_PDU, proto_s4406, "pilot-forwarding-info");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.13", dissect_Acp127MessageIdentifier_PDU, proto_s4406, "acp127-message-identifierr");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.14", dissect_OriginatorPlad_PDU, proto_s4406, "originator-plad");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.15", dissect_Acp127NotificationType_PDU, proto_s4406, "acp127-notification-request");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.17", dissect_SecurityInformationLabels_PDU, proto_s4406, "information-labels");
   register_ber_oid_dissector("1.3.26.0.4406.0.8.0", dissect_PriorityLevelQualifier_PDU, proto_s4406, "priority-level-qualifier");
   register_ber_oid_dissector("1.3.26.0.4406.0.7.9", dissect_MMMessageData_PDU, proto_s4406, "mm-message");
