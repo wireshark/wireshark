@@ -1955,6 +1955,17 @@ void proto_register_h235(void) {
   proto_register_field_array(proto_h235, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* OID names */
+  /* H.235.1, Chapter 15, Table 3 */
+    /* A */
+    add_oid_str_name("0.0.8.235.0.1.1","itu-t(0) recommendation(0) h(8) 235 version(0) 1 1 - all fields in RAS/CS");
+    add_oid_str_name("0.0.8.235.0.2.1","itu-t(0) recommendation(0) h(8) 235 version(0) 2 1 - all fields in RAS/CS");
+    /* T */
+    add_oid_str_name("0.0.8.235.0.1.5","itu-t(0) recommendation(0) h(8) 235 version(0) 1 5 - ClearToken");
+    add_oid_str_name("0.0.8.235.0.2.5","itu-t(0) recommendation(0) h(8) 235 version(0) 2 5 - ClearToken");
+    /* U */
+    add_oid_str_name("0.0.8.235.0.1.6","itu-t(0) recommendation(0) h(8) 235 version(0) 1 6 - HMAC-SHA1-96");
+    add_oid_str_name("0.0.8.235.0.2.6","itu-t(0) recommendation(0) h(8) 235 version(0) 2 6 - HMAC-SHA1-96");
 }
 
 
