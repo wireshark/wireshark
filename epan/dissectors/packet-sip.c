@@ -942,7 +942,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 				}
 				current_offset = queried_offset;
 
-				/* Is it escaped? 
+				/* Is it escaped?
 				 * Look for uneven number of backslashes before '"' */
 				for(i=0;tvb_get_guint8(tvb, queried_offset - (i+1) ) == '\\';i++);
 				i=i%2;
@@ -1020,17 +1020,17 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	}
 
 	current_offset = start_offset;
-	
+
 	/* Now look for the end of the parameter */
 	while (current_offset < line_end_offset)
 	{
 		c = tvb_get_guint8(tvb, current_offset);
-		
+
 		if (c == '=')
 		{
 			equals_offset = current_offset;
 		}
-		
+
 		if(c == '"')
 		{
 			/* look for the next unescaped '"' */
@@ -1043,7 +1043,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 					return -1;
 				}
 
-				/* Is it escaped? 
+				/* Is it escaped?
 				 * Look for uneven number of backslashes before '"' */
 				for(i=0;tvb_get_guint8(tvb, current_offset - (i+1) ) == '\\';i++);
 				i=i%2;
@@ -1087,7 +1087,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	if (i == array_length(auth_parameters_hf_array))
 	{
 		proto_tree_add_text(tree, tvb, start_offset, current_offset-start_offset,
-		                    tvb_format_text(tvb, start_offset,
+		                    "%s", tvb_format_text(tvb, start_offset,
 		                                    current_offset-start_offset));
 	}
 
@@ -1219,7 +1219,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	if (tvb_strnlen(tvb, offset, linelen) > -1)
 	{
 		/*
-		 * There's a NULL in the line, 
+		 * There's a NULL in the line,
 		 * this may be SIP within another protocol.
 		 * This heuristic still needs to improve.
 		 */
@@ -1241,7 +1241,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 * Just dissect it as a continuation.
 		 */
 	} else if (use_reassembly) {
-		
+
 		/*
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
@@ -1802,7 +1802,7 @@ separator_found2:
 							comma_offset++; /* skip comma */
 						}
 					break;
-                    
+
 					case POS_AUTHORIZATION:
 					case POS_WWW_AUTHENTICATE:
 					case POS_PROXY_AUTHENTICATE:
