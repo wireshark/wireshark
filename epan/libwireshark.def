@@ -5,6 +5,8 @@ EXPORTS
 abs_time_to_str
 address_to_str
 add_new_data_source
+add_oid_name
+add_oid_str_name
 AdmissionRejectReason_vals      DATA
 ansi_a_ios401_bsmap_strings     DATA
 ansi_a_ios401_dtap_strings      DATA
@@ -349,6 +351,8 @@ get_hostname6
 get_host_ipaddr
 get_host_ipaddr6
 get_manuf_name_if_known
+get_oid_name
+get_oid_str_name
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir
