@@ -651,10 +651,7 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 		    /* we save the actual data to reuse them later */
 		    ssl_add_app_data(ssl, pi->app_data.data, pi->app_data.data_len);
 		    /* we remove data to forbid subdissection */
-		    if(pinfo->fd)
-		      {
-			p_remove_proto_data(pinfo->fd, proto_ssl);
-		      }
+		    p_remove_proto_data(pinfo->fd, proto_ssl);
 		    /* update of COL_INFO */
 		    if (check_col(pinfo->cinfo, COL_INFO)){
 		      col_append_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
@@ -680,10 +677,7 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 		    /* if the dissector need more bytes */
 		    if(pp->desegment_len>0){
 		      /* we remove data to forbid subdissection */
-		      if(pinfo->fd)
-			{
-			  p_remove_proto_data(pinfo->fd, proto_ssl);
-			}
+		      p_remove_proto_data(pinfo->fd, proto_ssl);
 		      /* update of COL_INFO */
 		      if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
@@ -700,12 +694,9 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 			pi2->app_data.data_len=ssl->app_data_segment.data_len;
 
 			/* we remove data if it's useful */
-			if(pinfo->fd)
-			  {
-			    p_remove_proto_data(pinfo->fd, proto_ssl);
-			    /* we add reassembled subprotocol data */
-			    p_add_proto_data(pinfo->fd, proto_ssl, pi2);
-			  }
+			p_remove_proto_data(pinfo->fd, proto_ssl);
+			/* we add reassembled subprotocol data */
+			p_add_proto_data(pinfo->fd, proto_ssl, pi2);
 			/* we delete saved app_data */
 			if(ssl->app_data_segment.data)
 			  g_free(ssl->app_data_segment.data);
