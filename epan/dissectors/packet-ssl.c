@@ -605,8 +605,7 @@ ssl_add_app_data(SslDecryptSession* ssl, unsigned char* data, int data_len){
     app->data=g_malloc(tmp_len+data_len);
     app->data_len=tmp_len+data_len;
     memcpy(app->data,tmp,tmp_len);
-    if(tmp!=NULL)
-      g_free(tmp);
+    g_free(tmp);
     memcpy(app->data+tmp_len, data,data_len);
   }
   else{
