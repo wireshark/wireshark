@@ -96,7 +96,7 @@ EncryptedContentInfo/contentType	encryptedContentType
   %(DEFAULT_BODY)s
 
   if(object_identifier_id) {
-    name = get_ber_oid_name(object_identifier_id);
+    name = get_oid_str_name(object_identifier_id);
     proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
   }
 

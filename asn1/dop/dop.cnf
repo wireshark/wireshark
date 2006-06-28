@@ -96,7 +96,7 @@ ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
   %(DEFAULT_BODY)s
 
   if(check_col(pinfo->cinfo, COL_INFO)) {
-    name = get_ber_oid_name(binding_type);
+    name = get_oid_str_name(binding_type);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", name ? name : binding_type);
   }
 

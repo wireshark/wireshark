@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -243,10 +244,10 @@ void proto_reg_handoff_disp(void) {
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
-  register_ber_oid_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
-  register_ber_oid_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
-  register_ber_oid_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
+  add_oid_str_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
+  add_oid_str_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
+  add_oid_str_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
+  add_oid_str_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
 
   /* ABSTRACT SYNTAXES */
 
@@ -259,7 +260,7 @@ void proto_reg_handoff_disp(void) {
   } 
 
   /* OPERATIONAL BINDING */
-  register_ber_oid_name("2.5.1.0.5.1", "id-op-binding-shadow");
+  add_oid_str_name("2.5.1.0.5.1", "id-op-binding-shadow");
 
   tpkt_handle = find_dissector("tpkt");
 

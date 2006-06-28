@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -80,7 +81,7 @@ void proto_register_wlancertextn(void) {
 /*--- proto_reg_handoff_wlancertextn -------------------------------------------*/
 void proto_reg_handoff_wlancertextn(void) {
 #include "packet-wlancertextn-dis-tab.c"
-  register_ber_oid_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
-  register_ber_oid_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
+  add_oid_str_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
+  add_oid_str_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
 }
 

@@ -114,7 +114,7 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 
   %(DEFAULT_BODY)s
   
-  name = get_ber_oid_name(object_identifier_id);
+  name = get_oid_str_name(object_identifier_id);
   proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 
 #.FN_BODY T_value

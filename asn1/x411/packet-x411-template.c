@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -86,7 +87,7 @@ call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *p
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
 
-  name = get_ber_oid_name(extension_oid);
+  name = get_oid_str_name(extension_oid);
   proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
 
   return call_ber_oid_callback(extension_oid, tvb, offset, pinfo, tree);
@@ -230,7 +231,7 @@ void proto_reg_handoff_x411(void) {
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.6.0.1.6", "id-ac-mts-transfer");
+  add_oid_str_name("2.6.0.1.6", "id-ac-mts-transfer");
 
   /* ABSTRACT SYNTAXES */
 

@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -76,8 +77,8 @@ void proto_register_pkixproxy(void) {
 /*--- proto_reg_handoff_pkixproxy -------------------------------------------*/
 void proto_reg_handoff_pkixproxy(void) {
 #include "packet-pkixproxy-dis-tab.c"
-  register_ber_oid_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
-  register_ber_oid_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
-  register_ber_oid_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");
+  add_oid_str_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
+  add_oid_str_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
+  add_oid_str_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");
 }
 

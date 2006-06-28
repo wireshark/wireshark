@@ -43,6 +43,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -136,7 +137,7 @@ static int hf_ftam_attribute_extension_names = -1;  /* Attribute_Extension_Names
 static int hf_ftam_read_attributes = -1;          /* Read_Attributes */
 static int hf_ftam_attributes = -1;               /* Change_Attributes */
 static int hf_ftam_processing_mode = -1;          /* T_processing_mode */
-static int hf_ftam_open_contents_type = -1;       /* T_contents_type */
+static int hf_ftam_open_contents_type = -1;       /* T_open_contents_type */
 static int hf_ftam_unknown = -1;                  /* NULL */
 static int hf_ftam_proposed = -1;                 /* Contents_Type_Attribute */
 static int hf_ftam_enable_fadu_locking = -1;      /* BOOLEAN */
@@ -245,7 +246,7 @@ static int hf_ftam_object_size = -1;              /* Object_Size_Attribute */
 static int hf_ftam_path_access_control = -1;      /* Access_Control_Attribute */
 static int hf_ftam_no_value_available = -1;       /* NULL */
 static int hf_ftam_actual_values3 = -1;           /* SET_OF_Access_Control_Element */
-static int hf_ftam_actual_values_item = -1;       /* Access_Control_Element */
+static int hf_ftam_actual_values3_item = -1;      /* Access_Control_Element */
 static int hf_ftam_actual_values1 = -1;           /* T_actual_values1 */
 static int hf_ftam_insert_values = -1;            /* SET_OF_Access_Control_Element */
 static int hf_ftam_insert_values_item = -1;       /* Access_Control_Element */
@@ -270,7 +271,7 @@ static int hf_ftam_parameter = -1;                /* T_parameter */
 static int hf_ftam_constraint_set_and_abstract_Syntax = -1;  /* T_constraint_set_and_abstract_Syntax */
 static int hf_ftam_constraint_set_name = -1;      /* Constraint_Set_Name */
 static int hf_ftam_actual_values5 = -1;           /* GeneralizedTime */
-static int hf_ftam_actual_values8 = -1;           /* T_actual_values */
+static int hf_ftam_actual_values8 = -1;           /* T_actual_values8 */
 static int hf_ftam_incomplete_pathname = -1;      /* Pathname */
 static int hf_ftam_complete_pathname = -1;        /* Pathname */
 static int hf_ftam_actual_values7 = -1;           /* INTEGER */
@@ -385,7 +386,7 @@ static int hf_ftam_abstract_Syntax_Pattern = -1;  /* Object_Identifier_Pattern *
 static int hf_ftam_Attribute_Extensions_Pattern_item = -1;  /* Attribute_Extensions_Pattern_item */
 static int hf_ftam_extension_set_attribute_Patterns = -1;  /* T_extension_set_attribute_Patterns */
 static int hf_ftam_extension_set_attribute_Patterns_item = -1;  /* T_extension_set_attribute_Patterns_item */
-static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* T_extension_attribute_identifier1 */
+static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* T_attribute_extension_attribute_identifier */
 static int hf_ftam_extension_attribute_Pattern = -1;  /* T_extension_attribute_Pattern */
 static int hf_ftam_Objects_Attributes_List_item = -1;  /* Read_Attributes */
 static int hf_ftam_success_Object_count = -1;     /* INTEGER */
@@ -485,7 +486,7 @@ static int hf_ftam_Attribute_Names_read_legal_qualifiCatiOnS = -1;
 static int hf_ftam_Attribute_Names_read_private_use = -1;
 
 /*--- End of included file: packet-ftam-hf.c ---*/
-#line 58 "packet-ftam-template.c"
+#line 59 "packet-ftam-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ftam = -1;
@@ -521,7 +522,7 @@ static gint ett_ftam_F_CHANGE_ATTRIB_request = -1;
 static gint ett_ftam_F_CHANGE_ATTRIB_response = -1;
 static gint ett_ftam_F_OPEN_request = -1;
 static gint ett_ftam_T_processing_mode = -1;
-static gint ett_ftam_T_contents_type = -1;
+static gint ett_ftam_T_open_contents_type = -1;
 static gint ett_ftam_SET_OF_Abstract_Syntax_Name = -1;
 static gint ett_ftam_F_OPEN_response = -1;
 static gint ett_ftam_F_CLOSE_request = -1;
@@ -659,7 +660,7 @@ static gint ett_ftam_AE_title = -1;
 static gint ett_ftam_Attribute_Value_Assertions = -1;
 
 /*--- End of included file: packet-ftam-ett.c ---*/
-#line 62 "packet-ftam-template.c"
+#line 63 "packet-ftam-template.c"
 
 
 /*--- Included file: packet-ftam-fn.c ---*/
@@ -2396,7 +2397,7 @@ static int dissect_storage_account(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const value_string ftam_T_actual_values_vals[] = {
+static const value_string ftam_T_actual_values8_vals[] = {
   {   0, "immediate-availability" },
   {   1, "deferred-availability" },
   { 0, NULL }
@@ -2404,14 +2405,14 @@ static const value_string ftam_T_actual_values_vals[] = {
 
 
 static int
-dissect_ftam_T_actual_values(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ftam_T_actual_values8(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_actual_values8_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ftam_T_actual_values(TRUE, tvb, offset, pinfo, tree, hf_ftam_actual_values8);
+  return dissect_ftam_T_actual_values8(TRUE, tvb, offset, pinfo, tree, hf_ftam_actual_values8);
 }
 
 
@@ -2606,8 +2607,8 @@ dissect_ftam_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
-static int dissect_actual_values_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ftam_Access_Control_Element(FALSE, tvb, offset, pinfo, tree, hf_ftam_actual_values_item);
+static int dissect_actual_values3_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ftam_Access_Control_Element(FALSE, tvb, offset, pinfo, tree, hf_ftam_actual_values3_item);
 }
 static int dissect_insert_values_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Access_Control_Element(FALSE, tvb, offset, pinfo, tree, hf_ftam_insert_values_item);
@@ -2618,7 +2619,7 @@ static int dissect_delete_values_item(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static const ber_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actual_values_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actual_values3_item },
 };
 
 static int
@@ -3402,28 +3403,28 @@ static int dissect_processing_mode_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
-static const value_string ftam_T_contents_type_vals[] = {
+static const value_string ftam_T_open_contents_type_vals[] = {
   {   0, "unknown" },
   {   1, "proposed" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_contents_type_choice[] = {
+static const ber_choice_t T_open_contents_type_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unknown_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_proposed },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_ftam_T_contents_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ftam_T_open_contents_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_contents_type_choice, hf_index, ett_ftam_T_contents_type,
+                                 T_open_contents_type_choice, hf_index, ett_ftam_T_open_contents_type,
                                  NULL);
 
   return offset;
 }
 static int dissect_open_contents_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ftam_T_contents_type(FALSE, tvb, offset, pinfo, tree, hf_ftam_open_contents_type);
+  return dissect_ftam_T_open_contents_type(FALSE, tvb, offset, pinfo, tree, hf_ftam_open_contents_type);
 }
 
 
@@ -4878,13 +4879,13 @@ static int dissect_object_availabiiity_Pattern_impl(packet_info *pinfo, proto_tr
 
 
 static int
-dissect_ftam_T_extension_attribute_identifier1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_ftam_T_attribute_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
 static int dissect_attribute_extension_attribute_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ftam_T_extension_attribute_identifier1(FALSE, tvb, offset, pinfo, tree, hf_ftam_attribute_extension_attribute_identifier);
+  return dissect_ftam_T_attribute_extension_attribute_identifier(FALSE, tvb, offset, pinfo, tree, hf_ftam_attribute_extension_attribute_identifier);
 }
 
 
@@ -6081,7 +6082,7 @@ dissect_ftam_Other_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-ftam-fn.c ---*/
-#line 64 "packet-ftam-template.c"
+#line 65 "packet-ftam-template.c"
 
 /*
 * Dissect FTAM PDUs inside a PPDU.
@@ -6410,7 +6411,7 @@ void proto_register_ftam(void) {
         "F-OPEN-request/processing-mode", HFILL }},
     { &hf_ftam_open_contents_type,
       { "contents-type", "ftam.contents_type",
-        FT_UINT32, BASE_DEC, VALS(ftam_T_contents_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(ftam_T_open_contents_type_vals), 0,
         "F-OPEN-request/contents-type", HFILL }},
     { &hf_ftam_unknown,
       { "unknown", "ftam.unknown",
@@ -6844,7 +6845,7 @@ void proto_register_ftam(void) {
       { "actual-values", "ftam.actual_values",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Access-Control-Attribute/actual-values", HFILL }},
-    { &hf_ftam_actual_values_item,
+    { &hf_ftam_actual_values3_item,
       { "Item", "ftam.actual_values_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "Access-Control-Attribute/actual-values/_item", HFILL }},
@@ -6946,7 +6947,7 @@ void proto_register_ftam(void) {
         "Date-and-Time-Attribute/actual-values", HFILL }},
     { &hf_ftam_actual_values8,
       { "actual-values", "ftam.actual_values",
-        FT_INT32, BASE_DEC, VALS(ftam_T_actual_values_vals), 0,
+        FT_INT32, BASE_DEC, VALS(ftam_T_actual_values8_vals), 0,
         "Object-Availability-Attribute/actual-values", HFILL }},
     { &hf_ftam_incomplete_pathname,
       { "incomplete-pathname", "ftam.incomplete_pathname",
@@ -7794,7 +7795,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 104 "packet-ftam-template.c"
+#line 105 "packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -7832,7 +7833,7 @@ void proto_register_ftam(void) {
     &ett_ftam_F_CHANGE_ATTRIB_response,
     &ett_ftam_F_OPEN_request,
     &ett_ftam_T_processing_mode,
-    &ett_ftam_T_contents_type,
+    &ett_ftam_T_open_contents_type,
     &ett_ftam_SET_OF_Abstract_Syntax_Name,
     &ett_ftam_F_OPEN_response,
     &ett_ftam_F_CLOSE_request,
@@ -7970,7 +7971,7 @@ void proto_register_ftam(void) {
     &ett_ftam_Attribute_Value_Assertions,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 110 "packet-ftam-template.c"
+#line 111 "packet-ftam-template.c"
   };
 
   /* Register protocol */
@@ -7990,22 +7991,22 @@ void proto_reg_handoff_ftam(void) {
 	register_ber_oid_dissector("1.3.14.5.2.2", dissect_ftam, proto_ftam,"NIST file directory entry abstract syntax");
 
 	/* Unstructured text file document type FTAM-1 */
-	register_ber_oid_name("1.0.8571.5.1","ISO FTAM unstructured text");
-	register_ber_oid_name("1.0.8571.5.2","ISO FTAM sequential text");
-	register_ber_oid_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
-	register_ber_oid_name("1.0.8571.2.4","FTAM sequential text abstract syntax");
-	register_ber_oid_name("1.0.8571.2.5","FTAM simple-hierarchy");
-	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
-	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
+	add_oid_str_name("1.0.8571.5.1","ISO FTAM unstructured text");
+	add_oid_str_name("1.0.8571.5.2","ISO FTAM sequential text");
+	add_oid_str_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
+	add_oid_str_name("1.0.8571.2.4","FTAM sequential text abstract syntax");
+	add_oid_str_name("1.0.8571.2.5","FTAM simple-hierarchy");
+	add_oid_str_name("1.0.8571.3.1","FTAM hierarchical file model");
+	add_oid_str_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
 	/* Unstructured text file document type FTAM-3 */
-	register_ber_oid_name("1.0.8571.5.3","ISO FTAM unstructured binary");
-	register_ber_oid_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
+	add_oid_str_name("1.0.8571.5.3","ISO FTAM unstructured binary");
+	add_oid_str_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
 
 	/* Filedirectory file document type NBS-9 */
-	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	add_oid_str_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
 
 	/* Filedirectory file document type NBS-9 (WITH OLD NIST OIDs)*/
-	register_ber_oid_name("1.3.9999.1.5.9","NBS-9-OLD FTAM file directory file");
-	register_ber_oid_name("1.3.9999.1.2.2","NIST file directory entry abstract syntax");
+	add_oid_str_name("1.3.9999.1.5.9","NBS-9-OLD FTAM file directory file");
+	add_oid_str_name("1.3.9999.1.2.2","NIST file directory entry abstract syntax");
 }

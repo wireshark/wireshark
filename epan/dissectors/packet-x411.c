@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -537,7 +538,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-x411-hf.c ---*/
-#line 74 "packet-x411-template.c"
+#line 75 "packet-x411-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
@@ -716,7 +717,7 @@ static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 78 "packet-x411-template.c"
+#line 79 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -1047,8 +1048,8 @@ static const value_string x411_Credentials_vals[] = {
 
 static const ber_choice_t Credentials_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_simple },
-  {   1, BER_CLASS_CON, 0, 0, dissect_strong_impl },
-  {   2, BER_CLASS_CON, 1, 0, dissect_protected_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_strong_impl },
+  {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_protected_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1280,7 +1281,7 @@ static const value_string x411_MTABindArgument_vals[] = {
 
 static const ber_choice_t MTABindArgument_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_unauthenticated },
-  {   1, BER_CLASS_CON, 1, 0, dissect_authenticated_argument_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_authenticated_argument_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1332,7 +1333,7 @@ static const value_string x411_MTABindResult_vals[] = {
 
 static const ber_choice_t MTABindResult_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_unauthenticated },
-  {   1, BER_CLASS_CON, 1, 0, dissect_authenticated_result_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_authenticated_result_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2363,7 +2364,7 @@ dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 
 	if(content_type_id) {
-	  name = get_ber_oid_name(content_type_id);
+	  name = get_oid_str_name(content_type_id);
 
   	  if(!name) name = content_type_id;
 
@@ -2784,8 +2785,8 @@ static const value_string x411_ExtensionType_vals[] = {
 };
 
 static const ber_choice_t ExtensionType_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_standard_extension_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_private_extension_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_standard_extension_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_private_extension_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2832,7 +2833,7 @@ dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
 	else if(object_identifier_id) {
 		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-		name = get_ber_oid_name(object_identifier_id);
+		name = get_oid_str_name(object_identifier_id);
 		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 	}
 		
@@ -3489,8 +3490,8 @@ static const value_string x411_ReportType_vals[] = {
 };
 
 static const ber_choice_t ReportType_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_delivery_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_non_delivery_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_delivery_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_non_delivery_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3645,9 +3646,9 @@ static const value_string x411_MTS_APDU_vals[] = {
 };
 
 static const ber_choice_t MTS_APDU_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_message_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_probe_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_report_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_message_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_probe_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_report_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3777,8 +3778,8 @@ static const value_string x411_ObjectName_vals[] = {
 
 static const ber_choice_t ObjectName_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_user_agent },
-  {   1, BER_CLASS_CON, 0, 0, dissect_mTA_impl },
-  {   2, BER_CLASS_CON, 4, 0, dissect_message_store_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mTA_impl },
+  {   2, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_message_store_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4470,7 +4471,7 @@ static const value_string x411_DeliveredContentType_vals[] = {
 };
 
 static const ber_choice_t DeliveredContentType_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_built_in_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_built_in_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extended },
   { 0, 0, 0, 0, NULL }
 };
@@ -4862,7 +4863,7 @@ static const value_string x411_T_refused_argument_vals[] = {
 };
 
 static const ber_choice_t T_refused_argument_choice[] = {
-  {   0, BER_CLASS_CON, 1, 0, dissect_built_in_argument_impl },
+  {   0, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_built_in_argument_impl },
   {   1, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_refused_extension },
   { 0, 0, 0, 0, NULL }
 };
@@ -4982,8 +4983,8 @@ static const value_string x411_UserAddress_vals[] = {
 };
 
 static const ber_choice_t UserAddress_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_x121_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_presentation_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x121_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentation_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5063,8 +5064,8 @@ static const value_string x411_ExactOrPattern_vals[] = {
 };
 
 static const ber_choice_t ExactOrPattern_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_exact_match_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_pattern_match_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_exact_match_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pattern_match_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6067,8 +6068,8 @@ static const value_string x411_T_report_type_vals[] = {
 };
 
 static const ber_choice_t T_report_type_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_report_type_delivery_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_non_delivery_report_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_report_type_delivery_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_non_delivery_report_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6142,8 +6143,8 @@ static const value_string x411_ExtendedCertificate_vals[] = {
 };
 
 static const ber_choice_t ExtendedCertificate_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_directory_entry_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_certificate_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_directory_entry_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_certificate_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6774,7 +6775,7 @@ static const value_string x411_ExtendedNetworkAddress_vals[] = {
 
 static const ber_choice_t ExtendedNetworkAddress_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_e163_4_address },
-  {   1, BER_CLASS_CON, 0, 0, dissect_psap_address_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_psap_address_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6921,7 +6922,7 @@ static const value_string x411_T_name_vals[] = {
 
 static const ber_choice_t T_name_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_token_recipient_name },
-  {   1, BER_CLASS_CON, 3, 0, dissect_token_mta_impl },
+  {   1, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_token_mta_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7198,7 +7199,7 @@ static void dissect_AsymmetricToken_PDU(tvbuff_t *tvb, packet_info *pinfo, proto
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 80 "packet-x411-template.c"
+#line 81 "packet-x411-template.c"
 
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -7208,7 +7209,7 @@ call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *p
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
 
-  name = get_ber_oid_name(extension_oid);
+  name = get_oid_str_name(extension_oid);
   proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
 
   return call_ber_oid_callback(extension_oid, tvb, offset, pinfo, tree);
@@ -9142,7 +9143,7 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 207 "packet-x411-template.c"
+#line 208 "packet-x411-template.c"
   };
 
   /* List of subtrees */
@@ -9323,7 +9324,7 @@ void proto_register_x411(void) {
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 213 "packet-x411-template.c"
+#line 214 "packet-x411-template.c"
   };
 
   /* Register protocol */
@@ -9411,11 +9412,11 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 230 "packet-x411-template.c"
+#line 231 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.6.0.1.6", "id-ac-mts-transfer");
+  add_oid_str_name("2.6.0.1.6", "id-ac-mts-transfer");
 
   /* ABSTRACT SYNTAXES */
 

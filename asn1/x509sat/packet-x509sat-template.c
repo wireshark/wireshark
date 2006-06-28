@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -81,33 +82,33 @@ void proto_reg_handoff_x509sat(void) {
 
   /* OBJECT CLASSES */
 
-  register_ber_oid_name("2.5.6.0", "top");
-  register_ber_oid_name("2.5.6.1", "alias");
-  register_ber_oid_name("2.5.6.2", "country");
-  register_ber_oid_name("2.5.6.3", "locality");
-  register_ber_oid_name("2.5.6.4", "organization");
-  register_ber_oid_name("2.5.6.1", "organizationalUnit");
-  register_ber_oid_name("2.5.6.6", "person");
-  register_ber_oid_name("2.5.6.7", "organizationalPerson");
-  register_ber_oid_name("2.5.6.8", "organizationalRole");
-  register_ber_oid_name("2.5.6.9", "groupOfNames");
-  register_ber_oid_name("2.5.6.10", "residentialPerson");
-  register_ber_oid_name("2.5.6.11", "applicationProcess");
-  register_ber_oid_name("2.5.6.12", "applicationEntity");
-  register_ber_oid_name("2.5.6.13", "dSA");
-  register_ber_oid_name("2.5.6.14", "device");
-  register_ber_oid_name("2.5.6.15", "strongAuthenticationUser");
-  register_ber_oid_name("2.5.6.16", "certificationAuthority");
-  register_ber_oid_name("2.5.6.16.2", "certificationAuthorityV2");
-  register_ber_oid_name("2.5.6.17", "groupOfUniqueNames");
-  register_ber_oid_name("2.5.6.18", "userSecurityInformation");
-  register_ber_oid_name("2.5.6.19", "cRLDistributionPoint");
-  register_ber_oid_name("2.5.6.20", "dmd");
-  register_ber_oid_name("2.5.6.21", "pkiUser");
-  register_ber_oid_name("2.5.6.22", "pkiCA");
+  add_oid_str_name("2.5.6.0", "top");
+  add_oid_str_name("2.5.6.1", "alias");
+  add_oid_str_name("2.5.6.2", "country");
+  add_oid_str_name("2.5.6.3", "locality");
+  add_oid_str_name("2.5.6.4", "organization");
+  add_oid_str_name("2.5.6.1", "organizationalUnit");
+  add_oid_str_name("2.5.6.6", "person");
+  add_oid_str_name("2.5.6.7", "organizationalPerson");
+  add_oid_str_name("2.5.6.8", "organizationalRole");
+  add_oid_str_name("2.5.6.9", "groupOfNames");
+  add_oid_str_name("2.5.6.10", "residentialPerson");
+  add_oid_str_name("2.5.6.11", "applicationProcess");
+  add_oid_str_name("2.5.6.12", "applicationEntity");
+  add_oid_str_name("2.5.6.13", "dSA");
+  add_oid_str_name("2.5.6.14", "device");
+  add_oid_str_name("2.5.6.15", "strongAuthenticationUser");
+  add_oid_str_name("2.5.6.16", "certificationAuthority");
+  add_oid_str_name("2.5.6.16.2", "certificationAuthorityV2");
+  add_oid_str_name("2.5.6.17", "groupOfUniqueNames");
+  add_oid_str_name("2.5.6.18", "userSecurityInformation");
+  add_oid_str_name("2.5.6.19", "cRLDistributionPoint");
+  add_oid_str_name("2.5.6.20", "dmd");
+  add_oid_str_name("2.5.6.21", "pkiUser");
+  add_oid_str_name("2.5.6.22", "pkiCA");
   
-  register_ber_oid_name("2.5.6.28", "parent");
-  register_ber_oid_name("2.5.6.29", "child");
+  add_oid_str_name("2.5.6.28", "parent");
+  add_oid_str_name("2.5.6.29", "child");
 }
 
 

@@ -48,6 +48,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 #include <epan/tap.h>
 
 #include <stdio.h>
@@ -580,7 +581,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 90 "packet-camel-template.c"
+#line 91 "packet-camel-template.c"
 static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
@@ -808,7 +809,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 108 "packet-camel-template.c"
+#line 109 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -1930,7 +1931,7 @@ static const value_string camel_AChBillingChargingCharacteristics_vals[] = {
 };
 
 static const ber_choice_t AChBillingChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_actimeDurationCharging_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_actimeDurationCharging_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1970,8 +1971,8 @@ static const value_string camel_LegID_vals[] = {
 };
 
 static const ber_choice_t LegID_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_sendingSideID_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_receivingSideID_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sendingSideID_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receivingSideID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2029,8 +2030,8 @@ static const value_string camel_AChChargingAddress_vals[] = {
 };
 
 static const ber_choice_t AChChargingAddress_choice[] = {
-  {   2, BER_CLASS_CON, 2, 0, dissect_legID_impl },
-  {  50, BER_CLASS_CON, 50, 0, dissect_srfConnection_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_legID_impl },
+  {  50, BER_CLASS_CON, 50, BER_FLAGS_IMPLTAG, dissect_srfConnection_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2353,7 +2354,7 @@ static const value_string camel_AudibleIndicator_vals[] = {
 
 static const ber_choice_t AudibleIndicator_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_tone },
-  {   1, BER_CLASS_CON, 1, 0, dissect_burstList_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_burstList_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2463,10 +2464,10 @@ static const value_string camel_BasicGapCriteria_vals[] = {
 };
 
 static const ber_choice_t BasicGapCriteria_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_calledAddressValue_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_gapOnService_impl },
-  {  29, BER_CLASS_CON, 29, 0, dissect_calledAddressAndService_impl },
-  {  30, BER_CLASS_CON, 30, 0, dissect_callingAddressAndService_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gapOnService_impl },
+  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_calledAddressAndService_impl },
+  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_callingAddressAndService_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2659,13 +2660,13 @@ static const value_string camel_ChangeOfLocation_vals[] = {
 };
 
 static const ber_choice_t ChangeOfLocation_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_cellGlobalId_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_serviceAreaId_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_locationAreaId_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_inter_SystemHandOver_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_inter_PLMNHandOver_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_inter_MSCHandOver_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_changeOfLocationAlt_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cellGlobalId_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceAreaId_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_locationAreaId_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_inter_SystemHandOver_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_inter_PLMNHandOver_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_inter_MSCHandOver_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_changeOfLocationAlt_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2723,9 +2724,9 @@ static const value_string camel_DpSpecificCriteria_vals[] = {
 };
 
 static const ber_choice_t DpSpecificCriteria_choice[] = {
-  {   1, BER_CLASS_CON, 1, 0, dissect_applicationTimer_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_midCallControlInfo_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_dpSpecificCriteriaAlt_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_applicationTimer_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_midCallControlInfo_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_dpSpecificCriteriaAlt_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2850,7 +2851,7 @@ static const value_string camel_BearerCapability_vals[] = {
 };
 
 static const ber_choice_t BearerCapability_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_bearerCap_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_bearerCap_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3008,7 +3009,7 @@ static const value_string camel_ReceivingSideID_vals[] = {
 };
 
 static const ber_choice_t ReceivingSideID_choice[] = {
-  {   1, BER_CLASS_CON, 1, 0, dissect_receivingSideID_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receivingSideID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3082,8 +3083,8 @@ static const value_string camel_TimeInformation_vals[] = {
 };
 
 static const ber_choice_t TimeInformation_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_timeIfNoTariffSwitch_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_timeIfTariffSwitch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_timeIfNoTariffSwitch_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_timeIfTariffSwitch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3144,7 +3145,7 @@ static const value_string camel_CAMEL_CallResult_vals[] = {
 };
 
 static const ber_choice_t CAMEL_CallResult_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_timeDurationChargingResult_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_timeDurationChargingResult_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3255,7 +3256,7 @@ static const value_string camel_CAMEL_AChBillingChargingCharacteristics_vals[] =
 };
 
 static const ber_choice_t CAMEL_AChBillingChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_timeDurationCharging_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_timeDurationCharging_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3288,7 +3289,7 @@ static const value_string camel_SendingSideID_vals[] = {
 };
 
 static const ber_choice_t SendingSideID_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_sendingSideID_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sendingSideID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3339,7 +3340,7 @@ static const value_string camel_CAMEL_FCIBillingChargingCharacteristics_vals[] =
 };
 
 static const ber_choice_t CAMEL_FCIBillingChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_fCIBCCCAMELsequence1_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_fCIBCCCAMELsequence1_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3426,7 +3427,7 @@ static const value_string camel_CAMEL_FCISMSBillingChargingCharacteristics_vals[
 };
 
 static const ber_choice_t CAMEL_FCISMSBillingChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_fCIBCCCAMELsequence3_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_fCIBCCCAMELsequence3_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3464,9 +3465,9 @@ static const value_string camel_CAMEL_SCIBillingChargingCharacteristics_vals[] =
 };
 
 static const ber_choice_t CAMEL_SCIBillingChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_aOCBeforeAnswer_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_aOCAfterAnswer_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_aOC_extension_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_aOCBeforeAnswer_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_aOCAfterAnswer_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_aOC_extension_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3586,8 +3587,8 @@ static const value_string camel_ChargingCharacteristics_vals[] = {
 };
 
 static const ber_choice_t ChargingCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_maxTransferredVolume_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_maxElapsedTime_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_maxTransferredVolume_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_maxElapsedTime_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3648,8 +3649,8 @@ static const value_string camel_TransferredVolume_vals[] = {
 };
 
 static const ber_choice_t TransferredVolume_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_volumeIfNoTariffSwitch_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_volumeIfTariffSwitch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_volumeIfNoTariffSwitch_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_volumeIfTariffSwitch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3710,8 +3711,8 @@ static const value_string camel_ElapsedTime_vals[] = {
 };
 
 static const ber_choice_t ElapsedTime_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_timeGPRSIfNoTariffSwitch_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_timeGPRSIfTariffSwitch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_timeGPRSIfNoTariffSwitch_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_timeGPRSIfTariffSwitch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3735,8 +3736,8 @@ static const value_string camel_ChargingResult_vals[] = {
 };
 
 static const ber_choice_t ChargingResult_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_transferredVolume_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_elapsedTime_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transferredVolume_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_elapsedTime_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3809,8 +3810,8 @@ static const value_string camel_TransferredVolumeRollOver_vals[] = {
 };
 
 static const ber_choice_t TransferredVolumeRollOver_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_rOVolumeIfNoTariffSwitch_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_rOVolumeIfTariffSwitch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_rOVolumeIfNoTariffSwitch_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rOVolumeIfTariffSwitch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3852,8 +3853,8 @@ static const value_string camel_ElapsedTimeRollOver_vals[] = {
 };
 
 static const ber_choice_t ElapsedTimeRollOver_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_rOTimeGPRSIfNoTariffSwitch_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_rOTimeGPRSIfTariffSwitch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_rOTimeGPRSIfNoTariffSwitch_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rOTimeGPRSIfTariffSwitch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3877,8 +3878,8 @@ static const value_string camel_ChargingRollOver_vals[] = {
 };
 
 static const ber_choice_t ChargingRollOver_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_transferredVolumeRollOver_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_elapsedTimeRollOver_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transferredVolumeRollOver_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_elapsedTimeRollOver_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3948,7 +3949,7 @@ static const value_string camel_CollectedInfo_vals[] = {
 };
 
 static const ber_choice_t CollectedInfo_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_collectedDigits_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_collectedDigits_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4331,8 +4332,8 @@ static const value_string camel_T_midCallEvents_vals[] = {
 };
 
 static const ber_choice_t T_midCallEvents_choice[] = {
-  {   3, BER_CLASS_CON, 3, 0, dissect_dTMFDigitsCompleted_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_dTMFDigitsTimeOut_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_dTMFDigitsCompleted_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_dTMFDigitsTimeOut_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4450,8 +4451,8 @@ static const value_string camel_T_midCallEvents1_vals[] = {
 };
 
 static const ber_choice_t T_midCallEvents1_choice[] = {
-  {   3, BER_CLASS_CON, 3, 0, dissect_dTMFDigitsCompleted_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_dTMFDigitsTimeOut_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_dTMFDigitsCompleted_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_dTMFDigitsTimeOut_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4585,17 +4586,17 @@ static const value_string camel_MetDPCriterion_vals[] = {
 };
 
 static const ber_choice_t MetDPCriterion_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_enteringCellGlobalId_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_leavingCellGlobalId_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_enteringServiceAreaId_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_leavingServiceAreaId_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_enteringLocationAreaId_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_leavingLocationAreaId_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_inter_SystemHandOverToUMTS_impl },
-  {   7, BER_CLASS_CON, 7, 0, dissect_inter_SystemHandOverToGSM_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_inter_PLMNHandOver_impl },
-  {   9, BER_CLASS_CON, 9, 0, dissect_inter_MSCHandOver_impl },
-  {  10, BER_CLASS_CON, 10, 0, dissect_metDPCriterionAlt_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_enteringCellGlobalId_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_leavingCellGlobalId_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_enteringServiceAreaId_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_leavingServiceAreaId_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_enteringLocationAreaId_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_leavingLocationAreaId_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_inter_SystemHandOverToUMTS_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_inter_SystemHandOverToGSM_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_inter_PLMNHandOver_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_inter_MSCHandOver_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_metDPCriterionAlt_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4686,23 +4687,23 @@ static const value_string camel_EventSpecificInformationBCSM_vals[] = {
 };
 
 static const ber_choice_t EventSpecificInformationBCSM_choice[] = {
-  {   2, BER_CLASS_CON, 2, 0, dissect_routeSelectFailureSpecificInfo_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_oCalledPartyBusySpecificInfo_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_oNoAnswerSpecificInfo_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_oAnswerSpecificInfo_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_oMidCallSpecificInfo_impl },
-  {   7, BER_CLASS_CON, 7, 0, dissect_oDisconnectSpecificInfo_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_tBusySpecificInfo_impl },
-  {   9, BER_CLASS_CON, 9, 0, dissect_tNoAnswerSpecificInfo_impl },
-  {  10, BER_CLASS_CON, 10, 0, dissect_tAnswerSpecificInfo_impl },
-  {  11, BER_CLASS_CON, 11, 0, dissect_tMidCallSpecificInfo_impl },
-  {  12, BER_CLASS_CON, 12, 0, dissect_tDisconnectSpecificInfo_impl },
-  {  13, BER_CLASS_CON, 13, 0, dissect_oTermSeizedSpecificInfo_impl },
-  {  20, BER_CLASS_CON, 20, 0, dissect_callAcceptedSpecificInfo_impl },
-  {  21, BER_CLASS_CON, 21, 0, dissect_oAbandonSpecificInfo_impl },
-  {  50, BER_CLASS_CON, 50, 0, dissect_oChangeOfPositionSpecificInfo_impl },
-  {  51, BER_CLASS_CON, 51, 0, dissect_tChangeOfPositionSpecificInfo_impl },
-  {  52, BER_CLASS_CON, 52, 0, dissect_dpSpecificInfoAlt_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_routeSelectFailureSpecificInfo_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_oCalledPartyBusySpecificInfo_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_oNoAnswerSpecificInfo_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_oAnswerSpecificInfo_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_oMidCallSpecificInfo_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_oDisconnectSpecificInfo_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_tBusySpecificInfo_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_tNoAnswerSpecificInfo_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_tAnswerSpecificInfo_impl },
+  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_tMidCallSpecificInfo_impl },
+  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_tDisconnectSpecificInfo_impl },
+  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_oTermSeizedSpecificInfo_impl },
+  {  20, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_callAcceptedSpecificInfo_impl },
+  {  21, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_oAbandonSpecificInfo_impl },
+  {  50, BER_CLASS_CON, 50, BER_FLAGS_IMPLTAG, dissect_oChangeOfPositionSpecificInfo_impl },
+  {  51, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_tChangeOfPositionSpecificInfo_impl },
+  {  52, BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_dpSpecificInfoAlt_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -4830,10 +4831,10 @@ static const value_string camel_EventSpecificInformationSMS_vals[] = {
 };
 
 static const ber_choice_t EventSpecificInformationSMS_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_o_smsFailureSpecificInfo_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_o_smsSubmittedSpecificInfo_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_t_smsFailureSpecificInfo_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_t_smsDeliverySpecificInfo_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_o_smsFailureSpecificInfo_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_o_smsSubmittedSpecificInfo_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_t_smsFailureSpecificInfo_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_t_smsDeliverySpecificInfo_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5123,11 +5124,11 @@ static const value_string camel_VariablePart_vals[] = {
 };
 
 static const ber_choice_t VariablePart_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_integer_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_number_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_time_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_date_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_price_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_integer_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_number_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_time_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_date_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_price_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5187,10 +5188,10 @@ static const value_string camel_MessageID_vals[] = {
 };
 
 static const ber_choice_t MessageID_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_elementaryMessageID_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_text_impl },
-  {  29, BER_CLASS_CON, 29, 0, dissect_elementaryMessageIDs_impl },
-  {  30, BER_CLASS_CON, 30, 0, dissect_variableMessage_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_elementaryMessageID_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_text_impl },
+  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_elementaryMessageIDs_impl },
+  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_variableMessage_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5268,8 +5269,8 @@ static const value_string camel_InformationToSend_vals[] = {
 };
 
 static const ber_choice_t InformationToSend_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_inbandInfo_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_tone1_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inbandInfo_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tone1_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5293,8 +5294,8 @@ static const value_string camel_GapTreatment_vals[] = {
 };
 
 static const ber_choice_t GapTreatment_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_informationToSend_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_releaseCause_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_informationToSend_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5347,8 +5348,8 @@ static const value_string camel_GPRS_QoS_vals[] = {
 };
 
 static const ber_choice_t GPRS_QoS_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_short_QoS_format_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_long_QoS_format_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_short_QoS_format_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_long_QoS_format_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5924,12 +5925,12 @@ static const value_string camel_GPRSEventSpecificInformation_vals[] = {
 };
 
 static const ber_choice_t GPRSEventSpecificInformation_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_attachChangeOfPositionSpecificInformation_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_pdp_ContextchangeOfPositionSpecificInformation_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_detachSpecificInformation_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_disconnectSpecificInformation_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_pDPContextEstablishmentSpecificInformation_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_pDPContextEstablishmentAcknowledgementSpecificInformation_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_attachChangeOfPositionSpecificInformation_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pdp_ContextchangeOfPositionSpecificInformation_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_detachSpecificInformation_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_disconnectSpecificInformation_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_pDPContextEstablishmentSpecificInformation_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_pDPContextEstablishmentAcknowledgementSpecificInformation_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6052,8 +6053,8 @@ static const value_string camel_LegOrCallSegment_vals[] = {
 };
 
 static const ber_choice_t LegOrCallSegment_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_callSegmentID_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_legID_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callSegmentID_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_legID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6192,10 +6193,10 @@ static const value_string camel_RequestedInformationValue_vals[] = {
 };
 
 static const ber_choice_t RequestedInformationValue_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_callAttemptElapsedTimeValue_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_callStopTimeValue_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_callConnectedElapsedTimeValue_impl },
-  {  30, BER_CLASS_CON, 30, 0, dissect_releaseCauseValue_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callAttemptElapsedTimeValue_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callStopTimeValue_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_callConnectedElapsedTimeValue_impl },
+  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_releaseCauseValue_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6786,9 +6787,9 @@ static const value_string camel_CancelArg_vals[] = {
 };
 
 static const ber_choice_t CancelArg_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_invokeID_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_allRequests_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_callSegmentToCancel_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_invokeID_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_allRequests_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_callSegmentToCancel_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6849,7 +6850,7 @@ static const value_string camel_ReceivedInformationArg_vals[] = {
 };
 
 static const ber_choice_t ReceivedInformationArg_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_digitsResponse_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_digitsResponse_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -6981,10 +6982,10 @@ static const value_string camel_SubscriberState_vals[] = {
 };
 
 static const ber_choice_t SubscriberState_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_assumedIdle_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_camelBusy_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assumedIdle_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_camelBusy_impl },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_netDetNotReachable },
-  {   3, BER_CLASS_CON, 2, 0, dissect_notProvidedFromVLR_impl },
+  {   3, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_notProvidedFromVLR_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7008,8 +7009,8 @@ static const value_string camel_CellIdOrLAI_vals[] = {
 };
 
 static const ber_choice_t CellIdOrLAI_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_cellIdFixedLength_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_laiFixedLength_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cellIdFixedLength_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_laiFixedLength_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7290,8 +7291,8 @@ static const value_string camel_T_resourceAddress_vals[] = {
 };
 
 static const ber_choice_t T_resourceAddress_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_ipRoutingAddress_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_none_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ipRoutingAddress_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_none_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7395,8 +7396,8 @@ static const value_string camel_EntityReleasedArg_vals[] = {
 };
 
 static const ber_choice_t EntityReleasedArg_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_callSegmentFailure_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_bCSM_Failure_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callSegmentFailure_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_bCSM_Failure_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7970,7 +7971,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 186 "packet-camel-template.c"
+#line 187 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -10441,7 +10442,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 732 "packet-camel-template.c"
+#line 733 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10669,7 +10670,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 750 "packet-camel-template.c"
+#line 751 "packet-camel-template.c"
   };
 
   /* Register protocol */
@@ -10683,7 +10684,7 @@ void proto_register_camel(void) {
   register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
 
-  register_ber_oid_name("0.4.0.0.1.1.5.2","iitu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
+  add_oid_str_name("0.4.0.0.1.1.5.2","iitu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
 
     
 

@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -268,7 +269,7 @@ static int hf_dop_GrantsAndDenials_grantInvoke = -1;
 static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
 /*--- End of included file: packet-dop-hf.c ---*/
-#line 70 "packet-dop-template.c"
+#line 71 "packet-dop-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
@@ -344,7 +345,7 @@ static gint ett_dop_T_basicLevels = -1;
 static gint ett_dop_GrantsAndDenials = -1;
 
 /*--- End of included file: packet-dop-ett.c ---*/
-#line 74 "packet-dop-template.c"
+#line 75 "packet-dop-template.c"
 
 
 /*--- Included file: packet-dop-fn.c ---*/
@@ -692,7 +693,7 @@ dissect_dop_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 
   if(check_col(pinfo->cinfo, COL_INFO)) {
-    name = get_ber_oid_name(binding_type);
+    name = get_oid_str_name(binding_type);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : binding_type);
   }
 
@@ -2385,7 +2386,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 76 "packet-dop-template.c"
+#line 77 "packet-dop-template.c"
 
 static int
 call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
@@ -3285,7 +3286,7 @@ void proto_register_dop(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 219 "packet-dop-template.c"
+#line 220 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3363,7 +3364,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 225 "packet-dop-template.c"
+#line 226 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -3421,10 +3422,10 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 260 "packet-dop-template.c"
+#line 261 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.3", "id-ac-directory-operational-binding-management");
+  add_oid_str_name("2.5.3.3", "id-ac-directory-operational-binding-management");
 
   /* ABSTRACT SYNTAXES */
     
@@ -3435,26 +3436,26 @@ void proto_reg_handoff_dop(void) {
 
   /* BINDING TYPES */
 
-  register_ber_oid_name("2.5.19.1", "shadow-agreement");
-  register_ber_oid_name("2.5.19.2", "hierarchical-agreement");
-  register_ber_oid_name("2.5.19.3", "non-specific-hierarchical-agreement");
+  add_oid_str_name("2.5.19.1", "shadow-agreement");
+  add_oid_str_name("2.5.19.2", "hierarchical-agreement");
+  add_oid_str_name("2.5.19.3", "non-specific-hierarchical-agreement");
 
   /* ACCESS CONTROL SCHEMES */
-  register_ber_oid_name("2.5.28.1", "basic-ACS");
-  register_ber_oid_name("2.5.28.2", "simplified-ACS");
-  register_ber_oid_name("2.5.28.3", "ruleBased-ACS");
-  register_ber_oid_name("2.5.28.4", "ruleAndBasic-ACS");
-  register_ber_oid_name("2.5.28.5", "ruleAndSimple-ACS");
+  add_oid_str_name("2.5.28.1", "basic-ACS");
+  add_oid_str_name("2.5.28.2", "simplified-ACS");
+  add_oid_str_name("2.5.28.3", "ruleBased-ACS");
+  add_oid_str_name("2.5.28.4", "ruleAndBasic-ACS");
+  add_oid_str_name("2.5.28.5", "ruleAndSimple-ACS");
 
   /* ADMINISTRATIVE ROLES */
-  register_ber_oid_name("2.5.23.1", "id-ar-autonomousArea");
-  register_ber_oid_name("2.5.23.2", "id-ar-accessControlSpecificArea");
-  register_ber_oid_name("2.5.23.3", "id-ar-accessControlInnerArea");
-  register_ber_oid_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
-  register_ber_oid_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
-  register_ber_oid_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
-  register_ber_oid_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
-  register_ber_oid_name("2.5.23.8", "id-ar-serviceSpecificArea");
+  add_oid_str_name("2.5.23.1", "id-ar-autonomousArea");
+  add_oid_str_name("2.5.23.2", "id-ar-accessControlSpecificArea");
+  add_oid_str_name("2.5.23.3", "id-ar-accessControlInnerArea");
+  add_oid_str_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
+  add_oid_str_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
+  add_oid_str_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
+  add_oid_str_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
+  add_oid_str_name("2.5.23.8", "id-ar-serviceSpecificArea");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -268,7 +269,7 @@ void proto_register_acse(void) {
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
 
-	register_ber_oid_name("2.2.3.1.1","aCSE-id");
+	add_oid_str_name("2.2.3.1.1","aCSE-id");
 	register_ber_oid_dissector(ACSE_APDU_OID, dissect_acse, proto_acse, "acse-as-id");
 
 

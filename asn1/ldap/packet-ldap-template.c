@@ -1424,26 +1424,26 @@ proto_reg_handoff_ldap(void)
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
-	register_ber_oid_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
-	register_ber_oid_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.970 ","None");
-	register_ber_oid_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
-	register_ber_oid_name("1.3.6.1.4.1.1466.101.119.1","None");
-	register_ber_oid_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
-	register_ber_oid_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
+	add_oid_str_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
+	add_oid_str_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
+	add_oid_str_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
+	add_oid_str_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
+	add_oid_str_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
+	add_oid_str_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
+	add_oid_str_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
+	add_oid_str_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
+	add_oid_str_name("1.2.840.113556.1.4.970 ","None");
+	add_oid_str_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
+	add_oid_str_name("1.3.6.1.4.1.1466.101.119.1","None");
+	add_oid_str_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
+	add_oid_str_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
 
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
 

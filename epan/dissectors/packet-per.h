@@ -77,7 +77,7 @@ typedef int (*per_type_fn)(tvbuff_t*, int, asn_ctx_t*, proto_tree*, int);
 
 typedef struct _per_choice_t {
 	int value;
-	const char *name;
+	const char *name_to_remove;
 	int extension;
 	per_callback func;
 } per_choice_t;

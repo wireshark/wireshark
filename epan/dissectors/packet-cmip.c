@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -212,7 +213,7 @@ static int hf_cmip_ProtocolVersion_version1 = -1;
 static int hf_cmip_ProtocolVersion_version2 = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 62 "packet-cmip-template.c"
+#line 63 "packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
@@ -291,7 +292,7 @@ static gint ett_cmip_CMIPUserInfo = -1;
 static gint ett_cmip_ProtocolVersion = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 66 "packet-cmip-template.c"
+#line 67 "packet-cmip-template.c"
 
 static guint32 opcode;
 
@@ -2836,7 +2837,7 @@ dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 90 "packet-cmip-template.c"
+#line 91 "packet-cmip-template.c"
 
 
 static void
@@ -3542,7 +3543,7 @@ void proto_register_cmip(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 231 "packet-cmip-template.c"
+#line 232 "packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -3623,7 +3624,7 @@ void proto_register_cmip(void) {
     &ett_cmip_ProtocolVersion,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 237 "packet-cmip-template.c"
+#line 238 "packet-cmip-template.c"
   };
 
   /* Register protocol */
@@ -3646,8 +3647,8 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.3.2.7.63", dissect_cmip_attribute_63, proto_cmip, "smi2AttributeID (7) nameBinding(63)");
 	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_attribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
 
-	register_ber_oid_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
-	register_ber_oid_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
+	add_oid_str_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
+	add_oid_str_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
 }
 

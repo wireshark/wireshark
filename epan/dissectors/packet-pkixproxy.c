@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +61,7 @@ static int hf_pkixproxy_policyLanguage = -1;      /* OBJECT_IDENTIFIER */
 static int hf_pkixproxy_policy = -1;              /* OCTET_STRING */
 
 /*--- End of included file: packet-pkixproxy-hf.c ---*/
-#line 46 "packet-pkixproxy-template.c"
+#line 47 "packet-pkixproxy-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -70,7 +71,7 @@ static gint ett_pkixproxy_ProxyCertInfoExtension = -1;
 static gint ett_pkixproxy_ProxyPolicy = -1;
 
 /*--- End of included file: packet-pkixproxy-ett.c ---*/
-#line 49 "packet-pkixproxy-template.c"
+#line 50 "packet-pkixproxy-template.c"
 
 
 /*--- Included file: packet-pkixproxy-fn.c ---*/
@@ -157,7 +158,7 @@ static void dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 
 /*--- End of included file: packet-pkixproxy-fn.c ---*/
-#line 51 "packet-pkixproxy-template.c"
+#line 52 "packet-pkixproxy-template.c"
 
 
 /*--- proto_register_pkixproxy ----------------------------------------------*/
@@ -190,7 +191,7 @@ void proto_register_pkixproxy(void) {
         "ProxyPolicy/policy", HFILL }},
 
 /*--- End of included file: packet-pkixproxy-hfarr.c ---*/
-#line 59 "packet-pkixproxy-template.c"
+#line 60 "packet-pkixproxy-template.c"
   };
 
   /* List of subtrees */
@@ -202,7 +203,7 @@ void proto_register_pkixproxy(void) {
     &ett_pkixproxy_ProxyPolicy,
 
 /*--- End of included file: packet-pkixproxy-ettarr.c ---*/
-#line 64 "packet-pkixproxy-template.c"
+#line 65 "packet-pkixproxy-template.c"
   };
 
   /* Register protocol */
@@ -224,9 +225,9 @@ void proto_reg_handoff_pkixproxy(void) {
 
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/
-#line 79 "packet-pkixproxy-template.c"
-  register_ber_oid_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
-  register_ber_oid_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
-  register_ber_oid_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");
+#line 80 "packet-pkixproxy-template.c"
+  add_oid_str_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
+  add_oid_str_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
+  add_oid_str_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");
 }
 

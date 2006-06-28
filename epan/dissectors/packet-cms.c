@@ -492,7 +492,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 
   if(object_identifier_id) {
-    name = get_ber_oid_name(object_identifier_id);
+    name = get_oid_str_name(object_identifier_id);
     proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
   }
 
@@ -754,7 +754,7 @@ const value_string cms_SignerIdentifier_vals[] = {
 
 static const ber_choice_t SignerIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_subjectKeyIdentifier_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -900,7 +900,7 @@ static const value_string cms_RecipientIdentifier_vals[] = {
 
 static const ber_choice_t RecipientIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_subjectKeyIdentifier_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1003,8 +1003,8 @@ static const value_string cms_OriginatorIdentifierOrKey_vals[] = {
 
 static const ber_choice_t OriginatorIdentifierOrKey_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
-  {   2, BER_CLASS_CON, 1, 0, dissect_originatorKey_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_subjectKeyIdentifier_impl },
+  {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_originatorKey_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1255,8 +1255,8 @@ static const value_string cms_RecipientInfo_vals[] = {
 
 static const ber_choice_t RecipientInfo_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ktri },
-  {   1, BER_CLASS_CON, 1, 0, dissect_kari_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_kekri_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_kari_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_kekri_impl },
   { 0, 0, 0, 0, NULL }
 };
 

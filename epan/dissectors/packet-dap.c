@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -117,7 +118,7 @@ static int hf_dap_familySelect = -1;              /* T_familySelect */
 static int hf_dap_familySelect_item = -1;         /* OBJECT_IDENTIFIER */
 static int hf_dap_name = -1;                      /* Name */
 static int hf_dap_fromEntry = -1;                 /* BOOLEAN */
-static int hf_dap_entry_information = -1;         /* T_information */
+static int hf_dap_entry_information = -1;         /* T_entry_information */
 static int hf_dap_entry_information_item = -1;    /* EntryInformationItem */
 static int hf_dap_attributeType = -1;             /* AttributeType */
 static int hf_dap_attribute = -1;                 /* Attribute */
@@ -129,7 +130,7 @@ static int hf_dap_familyEntries = -1;             /* SEQUENCE_OF_FamilyEntry */
 static int hf_dap_familyEntries_item = -1;        /* FamilyEntry */
 static int hf_dap_rdn = -1;                       /* RelativeDistinguishedName */
 static int hf_dap_family_information = -1;        /* FamilyInformation */
-static int hf_dap_information_item = -1;          /* T_information_item */
+static int hf_dap_family_information_item = -1;   /* T_family_information_item */
 static int hf_dap_family_info = -1;               /* SEQUENCE_OF_FamilyEntries */
 static int hf_dap_family_info_item = -1;          /* FamilyEntries */
 static int hf_dap_filter_item = -1;               /* FilterItem */
@@ -313,7 +314,7 @@ static int hf_dap_unsignedSearchResult = -1;      /* SearchResultData */
 static int hf_dap_signedSearchResult = -1;        /* T_signedSearchResult */
 static int hf_dap_searchResult = -1;              /* SearchResultData */
 static int hf_dap_add_entry = -1;                 /* SET_OF_Attribute */
-static int hf_dap_entry_item = -1;                /* Attribute */
+static int hf_dap_add_entry_item = -1;            /* Attribute */
 static int hf_dap_targetSystem = -1;              /* AccessPoint */
 static int hf_dap_unsignedAddEntryArgument = -1;  /* AddEntryArgumentData */
 static int hf_dap_signedAddEntryArgument = -1;    /* T_signedAddEntryArgument */
@@ -433,7 +434,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 70 "packet-dap-template.c"
+#line 71 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -458,13 +459,13 @@ static gint ett_dap_SET_OF_ContextAssertion = -1;
 static gint ett_dap_FamilyReturn = -1;
 static gint ett_dap_T_familySelect = -1;
 static gint ett_dap_EntryInformation = -1;
-static gint ett_dap_T_information = -1;
+static gint ett_dap_T_entry_information = -1;
 static gint ett_dap_EntryInformationItem = -1;
 static gint ett_dap_FamilyEntries = -1;
 static gint ett_dap_SEQUENCE_OF_FamilyEntry = -1;
 static gint ett_dap_FamilyEntry = -1;
 static gint ett_dap_FamilyInformation = -1;
-static gint ett_dap_T_information_item = -1;
+static gint ett_dap_T_family_information_item = -1;
 static gint ett_dap_SEQUENCE_OF_FamilyEntries = -1;
 static gint ett_dap_Filter = -1;
 static gint ett_dap_SetOfFilter = -1;
@@ -608,7 +609,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 74 "packet-dap-template.c"
+#line 75 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -781,8 +782,8 @@ static int dissect_baseAtt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int dissect_joinAtt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dap_joinAtt);
 }
-static int dissect_entry_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_dap_entry_item);
+static int dissect_add_entry_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_dap_add_entry_item);
 }
 static int dissect_targetSystem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dsp_AccessPoint(FALSE, tvb, offset, pinfo, tree, hf_dap_targetSystem);
@@ -1661,19 +1662,19 @@ static int dissect_entry_information_item(packet_info *pinfo, proto_tree *tree, 
 }
 
 
-static const ber_sequence_t T_information_set_of[1] = {
+static const ber_sequence_t T_entry_information_set_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_entry_information_item },
 };
 
 static int
-dissect_dap_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_dap_T_entry_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_information_set_of, hf_index, ett_dap_T_information);
+                                 T_entry_information_set_of, hf_index, ett_dap_T_entry_information);
 
   return offset;
 }
 static int dissect_entry_information(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_T_information(FALSE, tvb, offset, pinfo, tree, hf_dap_entry_information);
+  return dissect_dap_T_entry_information(FALSE, tvb, offset, pinfo, tree, hf_dap_entry_information);
 }
 
 
@@ -1702,33 +1703,33 @@ static int dissect_entries_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const value_string dap_T_information_item_vals[] = {
+static const value_string dap_T_family_information_item_vals[] = {
   {   0, "attributeType" },
   {   1, "attribute" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_information_item_choice[] = {
+static const ber_choice_t T_family_information_item_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attributeType },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attribute },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_dap_T_information_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_dap_T_family_information_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_information_item_choice, hf_index, ett_dap_T_information_item,
+                                 T_family_information_item_choice, hf_index, ett_dap_T_family_information_item,
                                  NULL);
 
   return offset;
 }
-static int dissect_information_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_T_information_item(FALSE, tvb, offset, pinfo, tree, hf_dap_information_item);
+static int dissect_family_information_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_T_family_information_item(FALSE, tvb, offset, pinfo, tree, hf_dap_family_information_item);
 }
 
 
 static const ber_sequence_t FamilyInformation_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_information_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_family_information_item },
 };
 
 static int
@@ -3971,7 +3972,7 @@ dissect_dap_SearchResultData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
 static const ber_sequence_t SET_OF_Attribute_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_entry_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_add_entry_item },
 };
 
 static int
@@ -5362,7 +5363,7 @@ dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 76 "packet-dap-template.c"
+#line 77 "packet-dap-template.c"
 
 /*
 * Dissect DAP PDUs inside a ROS PDUs
@@ -5775,9 +5776,9 @@ void proto_register_dap(void) {
       { "information", "dap.information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "FamilyEntry/information", HFILL }},
-    { &hf_dap_information_item,
+    { &hf_dap_family_information_item,
       { "Item", "dap.information_item",
-        FT_UINT32, BASE_DEC, VALS(dap_T_information_item_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(dap_T_family_information_item_vals), 0,
         "FamilyEntry/information/_item", HFILL }},
     { &hf_dap_family_info,
       { "family-info", "dap.family_info",
@@ -6511,7 +6512,7 @@ void proto_register_dap(void) {
       { "entry", "dap.entry",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AddEntryArgumentData/entry", HFILL }},
-    { &hf_dap_entry_item,
+    { &hf_dap_add_entry_item,
       { "Item", "dap.entry_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AddEntryArgumentData/entry/_item", HFILL }},
@@ -6981,7 +6982,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 278 "packet-dap-template.c"
+#line 279 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -7008,13 +7009,13 @@ void proto_register_dap(void) {
     &ett_dap_FamilyReturn,
     &ett_dap_T_familySelect,
     &ett_dap_EntryInformation,
-    &ett_dap_T_information,
+    &ett_dap_T_entry_information,
     &ett_dap_EntryInformationItem,
     &ett_dap_FamilyEntries,
     &ett_dap_SEQUENCE_OF_FamilyEntry,
     &ett_dap_FamilyEntry,
     &ett_dap_FamilyInformation,
-    &ett_dap_T_information_item,
+    &ett_dap_T_family_information_item,
     &ett_dap_SEQUENCE_OF_FamilyEntries,
     &ett_dap_Filter,
     &ett_dap_SetOfFilter,
@@ -7158,7 +7159,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 284 "packet-dap-template.c"
+#line 285 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -7194,7 +7195,7 @@ void proto_reg_handoff_dap(void) {
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.1", "id-ac-directory-access");
+  add_oid_str_name("2.5.3.1", "id-ac-directory-access");
 
   /* ABSTRACT SYNTAXES */
     

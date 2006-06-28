@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -185,7 +186,7 @@ static int hf_tcap_T_protocol_versionre_version1 = -1;
 static int hf_tcap_T_protocol_version3_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 53 "packet-tcap-template.c"
+#line 54 "packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -250,7 +251,7 @@ static gint ett_tcap_OperationCode = -1;
 static gint ett_tcap_ErrorCode = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 63 "packet-tcap-template.c"
+#line 64 "packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -2310,7 +2311,7 @@ dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 115 "packet-tcap-template.c"
+#line 116 "packet-tcap-template.c"
 
 
 
@@ -2360,7 +2361,7 @@ proto_reg_handoff_tcap(void)
         prefs_initialized = TRUE;
     }
     
-    register_ber_oid_name("0.0.17.773.1.1.1",
+    add_oid_str_name("0.0.17.773.1.1.1",
                           "itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
 
     data_handle = find_dissector("data");    
@@ -2887,7 +2888,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 199 "packet-tcap-template.c"
+#line 200 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2951,7 +2952,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 208 "packet-tcap-template.c"
+#line 209 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

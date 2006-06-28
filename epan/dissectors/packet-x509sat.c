@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -223,7 +224,7 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-#line 48 "packet-x509sat-template.c"
+#line 49 "packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -278,7 +279,7 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-#line 51 "packet-x509sat-template.c"
+#line 52 "packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
@@ -2026,7 +2027,7 @@ static void dissect_SyntaxGeneralString_PDU(tvbuff_t *tvb, packet_info *pinfo, p
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-#line 53 "packet-x509sat-template.c"
+#line 54 "packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -2699,7 +2700,7 @@ void proto_register_x509sat(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 61 "packet-x509sat-template.c"
+#line 62 "packet-x509sat-template.c"
   };
 
   /* List of subtrees */
@@ -2756,7 +2757,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 66 "packet-x509sat-template.c"
+#line 67 "packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2899,37 +2900,37 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 81 "packet-x509sat-template.c"
+#line 82 "packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 
-  register_ber_oid_name("2.5.6.0", "top");
-  register_ber_oid_name("2.5.6.1", "alias");
-  register_ber_oid_name("2.5.6.2", "country");
-  register_ber_oid_name("2.5.6.3", "locality");
-  register_ber_oid_name("2.5.6.4", "organization");
-  register_ber_oid_name("2.5.6.1", "organizationalUnit");
-  register_ber_oid_name("2.5.6.6", "person");
-  register_ber_oid_name("2.5.6.7", "organizationalPerson");
-  register_ber_oid_name("2.5.6.8", "organizationalRole");
-  register_ber_oid_name("2.5.6.9", "groupOfNames");
-  register_ber_oid_name("2.5.6.10", "residentialPerson");
-  register_ber_oid_name("2.5.6.11", "applicationProcess");
-  register_ber_oid_name("2.5.6.12", "applicationEntity");
-  register_ber_oid_name("2.5.6.13", "dSA");
-  register_ber_oid_name("2.5.6.14", "device");
-  register_ber_oid_name("2.5.6.15", "strongAuthenticationUser");
-  register_ber_oid_name("2.5.6.16", "certificationAuthority");
-  register_ber_oid_name("2.5.6.16.2", "certificationAuthorityV2");
-  register_ber_oid_name("2.5.6.17", "groupOfUniqueNames");
-  register_ber_oid_name("2.5.6.18", "userSecurityInformation");
-  register_ber_oid_name("2.5.6.19", "cRLDistributionPoint");
-  register_ber_oid_name("2.5.6.20", "dmd");
-  register_ber_oid_name("2.5.6.21", "pkiUser");
-  register_ber_oid_name("2.5.6.22", "pkiCA");
+  add_oid_str_name("2.5.6.0", "top");
+  add_oid_str_name("2.5.6.1", "alias");
+  add_oid_str_name("2.5.6.2", "country");
+  add_oid_str_name("2.5.6.3", "locality");
+  add_oid_str_name("2.5.6.4", "organization");
+  add_oid_str_name("2.5.6.1", "organizationalUnit");
+  add_oid_str_name("2.5.6.6", "person");
+  add_oid_str_name("2.5.6.7", "organizationalPerson");
+  add_oid_str_name("2.5.6.8", "organizationalRole");
+  add_oid_str_name("2.5.6.9", "groupOfNames");
+  add_oid_str_name("2.5.6.10", "residentialPerson");
+  add_oid_str_name("2.5.6.11", "applicationProcess");
+  add_oid_str_name("2.5.6.12", "applicationEntity");
+  add_oid_str_name("2.5.6.13", "dSA");
+  add_oid_str_name("2.5.6.14", "device");
+  add_oid_str_name("2.5.6.15", "strongAuthenticationUser");
+  add_oid_str_name("2.5.6.16", "certificationAuthority");
+  add_oid_str_name("2.5.6.16.2", "certificationAuthorityV2");
+  add_oid_str_name("2.5.6.17", "groupOfUniqueNames");
+  add_oid_str_name("2.5.6.18", "userSecurityInformation");
+  add_oid_str_name("2.5.6.19", "cRLDistributionPoint");
+  add_oid_str_name("2.5.6.20", "dmd");
+  add_oid_str_name("2.5.6.21", "pkiUser");
+  add_oid_str_name("2.5.6.22", "pkiCA");
   
-  register_ber_oid_name("2.5.6.28", "parent");
-  register_ber_oid_name("2.5.6.29", "child");
+  add_oid_str_name("2.5.6.28", "parent");
+  add_oid_str_name("2.5.6.29", "child");
 }
 
 

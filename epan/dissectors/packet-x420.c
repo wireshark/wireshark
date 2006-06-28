@@ -651,7 +651,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   
-  name = get_ber_oid_name(object_identifier_id);
+  name = get_oid_str_name(object_identifier_id);
   proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 
 
@@ -1598,17 +1598,17 @@ static const value_string x420_BodyPart_vals[] = {
 };
 
 static const ber_choice_t BodyPart_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_ia5_text_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_g3_facsimile_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_g4_class1_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_teletex_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_videotex_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_encrypted_bp_impl },
-  {   9, BER_CLASS_CON, 9, 0, dissect_message_impl },
-  {  11, BER_CLASS_CON, 11, 0, dissect_mixed_mode_impl },
-  {  14, BER_CLASS_CON, 14, 0, dissect_bilaterally_defined_impl },
-  {   7, BER_CLASS_CON, 7, 0, dissect_nationally_defined_impl },
-  {  15, BER_CLASS_CON, 15, 0, dissect_extended_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ia5_text_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_g3_facsimile_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_g4_class1_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_teletex_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_videotex_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_encrypted_bp_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_message_impl },
+  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_mixed_mode_impl },
+  {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_bilaterally_defined_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_nationally_defined_impl },
+  {  15, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_extended_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1947,9 +1947,9 @@ static const value_string x420_T_choice_vals[] = {
 };
 
 static const ber_choice_t T_choice_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_non_receipt_fields_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_receipt_fields_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_other_notification_type_fields_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_non_receipt_fields_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receipt_fields_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_other_notification_type_fields_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2003,8 +2003,8 @@ const value_string x420_InformationObject_vals[] = {
 };
 
 static const ber_choice_t InformationObject_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_ipm_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_ipn_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ipm_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ipn_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2107,10 +2107,10 @@ static const value_string x420_BodyPartReference_vals[] = {
 };
 
 static const ber_choice_t BodyPartReference_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_stored_entry_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_stored_content_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_submitted_body_part_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_stored_body_part_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_stored_entry_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_stored_content_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_submitted_body_part_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_stored_body_part_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2303,8 +2303,8 @@ static const value_string x420_BodyPartSecurityLabel_vals[] = {
 };
 
 static const ber_choice_t BodyPartSecurityLabel_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_body_part_unlabelled_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_body_part_security_label_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_body_part_unlabelled_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_body_part_security_label_impl },
   { 0, 0, 0, 0, NULL }
 };
 

@@ -141,7 +141,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
   if(object_identifier_id) {
     /* see if we can find a nice name */
-    name = get_ber_oid_name(object_identifier_id);
+    name = get_oid_str_name(object_identifier_id);
     if(!name) name = object_identifier_id;    
 
     if(doing_dn) { /* append it to the RDN */
@@ -197,7 +197,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
-    if(!(name = get_ber_oid_name(object_identifier_id)))
+    if(!(name = get_oid_str_name(object_identifier_id)))
       name = object_identifier_id;
     g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
 

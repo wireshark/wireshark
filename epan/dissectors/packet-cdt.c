@@ -129,7 +129,7 @@ dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &obj_id);
 
   if (obj_id) {
-    const char *name = get_ber_oid_name (obj_id);
+    const char *name = get_oid_str_name (obj_id);
 
     if (!name) {
       name = obj_id;

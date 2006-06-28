@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -321,7 +322,7 @@ void proto_reg_handoff_dsp(void) {
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.2", "id-ac-directory-system");
+  add_oid_str_name("2.5.3.2", "id-ac-directory-system");
 
   /* ABSTRACT SYNTAXES */
     

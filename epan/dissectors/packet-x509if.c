@@ -82,7 +82,7 @@ static int hf_x509if_ca_contextType = -1;         /* ContextId */
 static int hf_x509if_ca_contextValues = -1;       /* SET_OF_ContextValue */
 static int hf_x509if_ca_contextValues_item = -1;  /* ContextValue */
 static int hf_x509if_ata_assertedContexts = -1;   /* SEQUENCE_OF_ContextAssertion */
-static int hf_x509if_assertedContexts_item = -1;  /* ContextAssertion */
+static int hf_x509if_ata_assertedContexts_item = -1;  /* ContextAssertion */
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RDNSequence_item */
 static int hf_x509if_RelativeDistinguishedName_item = -1;  /* RelativeDistinguishedName_item */
@@ -381,7 +381,7 @@ dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   if(object_identifier_id) {
     /* see if we can find a nice name */
-    name = get_ber_oid_name(object_identifier_id);
+    name = get_oid_str_name(object_identifier_id);
     if(!name) name = object_identifier_id;    
 
     if(doing_dn) { /* append it to the RDN */
@@ -467,7 +467,7 @@ dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
-    if(!(name = get_ber_oid_name(object_identifier_id)))
+    if(!(name = get_oid_str_name(object_identifier_id)))
       name = object_identifier_id;
     g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
 
@@ -735,8 +735,8 @@ dissect_x509if_ContextAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 static int dissect_selectedContexts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_ContextAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509if_selectedContexts_item);
 }
-static int dissect_assertedContexts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_ContextAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509if_assertedContexts_item);
+static int dissect_ata_assertedContexts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_ContextAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509if_ata_assertedContexts_item);
 }
 
 
@@ -808,7 +808,7 @@ dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
 
 static const ber_sequence_t SEQUENCE_OF_ContextAssertion_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_assertedContexts_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ata_assertedContexts_item },
 };
 
 static int
@@ -2382,7 +2382,7 @@ void proto_register_x509if(void) {
       { "assertedContexts", "x509if.assertedContexts",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AttributeTypeAssertion/assertedContexts", HFILL }},
-    { &hf_x509if_assertedContexts_item,
+    { &hf_x509if_ata_assertedContexts_item,
       { "Item", "x509if.assertedContexts_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AttributeTypeAssertion/assertedContexts/_item", HFILL }},

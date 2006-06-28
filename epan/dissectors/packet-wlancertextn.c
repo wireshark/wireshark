@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -61,7 +62,7 @@ static int hf_wlancertextn_SSIDList_PDU = -1;     /* SSIDList */
 static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 
 /*--- End of included file: packet-wlancertextn-hf.c ---*/
-#line 50 "packet-wlancertextn-template.c"
+#line 51 "packet-wlancertextn-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -70,7 +71,7 @@ static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 static gint ett_wlancertextn_SSIDList = -1;
 
 /*--- End of included file: packet-wlancertextn-ett.c ---*/
-#line 53 "packet-wlancertextn-template.c"
+#line 54 "packet-wlancertextn-template.c"
 
 
 /*--- Included file: packet-wlancertextn-fn.c ---*/
@@ -112,7 +113,7 @@ static void dissect_SSIDList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
 /*--- End of included file: packet-wlancertextn-fn.c ---*/
-#line 55 "packet-wlancertextn-template.c"
+#line 56 "packet-wlancertextn-template.c"
 
 
 /*--- proto_register_wlancertextn ----------------------------------------------*/
@@ -133,7 +134,7 @@ void proto_register_wlancertextn(void) {
         "SSIDList/_item", HFILL }},
 
 /*--- End of included file: packet-wlancertextn-hfarr.c ---*/
-#line 63 "packet-wlancertextn-template.c"
+#line 64 "packet-wlancertextn-template.c"
   };
 
   /* List of subtrees */
@@ -144,7 +145,7 @@ void proto_register_wlancertextn(void) {
     &ett_wlancertextn_SSIDList,
 
 /*--- End of included file: packet-wlancertextn-ettarr.c ---*/
-#line 68 "packet-wlancertextn-template.c"
+#line 69 "packet-wlancertextn-template.c"
   };
 
   /* Register protocol */
@@ -167,8 +168,8 @@ void proto_reg_handoff_wlancertextn(void) {
 
 
 /*--- End of included file: packet-wlancertextn-dis-tab.c ---*/
-#line 83 "packet-wlancertextn-template.c"
-  register_ber_oid_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
-  register_ber_oid_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
+#line 84 "packet-wlancertextn-template.c"
+  add_oid_str_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
+  add_oid_str_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
 }
 

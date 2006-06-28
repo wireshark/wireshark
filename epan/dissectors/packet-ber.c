@@ -187,21 +187,6 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 	add_oid_str_name(oid, name);
 }
 
-/* Register the oid name to get translation in proto dissection */
-void
-register_ber_oid_name(const char *oid, const char *name)
-{
-	add_oid_str_name(oid, name);
-}
-
-/* Get oid name from hash table to get translation in proto dissection(packet-per.c) */
-const char *
-get_ber_oid_name(const char *oid)
-{
-	return get_oid_str_name(oid);
-}
-
-
 int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type) 
 {
  gint8 tmp_cls;
@@ -2427,7 +2412,7 @@ proto_reg_handoff_ber(void)
 {
         dissector_handle_t ber_handle;
 
-	register_ber_oid_name("2.1.1","joint-iso-itu-t(2) asn1(1) basic-encoding(1)");
+	add_oid_str_name("2.1.1","joint-iso-itu-t(2) asn1(1) basic-encoding(1)");
 
 	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
 	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);

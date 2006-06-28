@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ldap.c                                                            */
+/* .\packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -406,7 +406,7 @@ static char *assertionvalue_string=NULL;
  * display it as a string, othervise just display it in hex.
  */
 static int
-dissect_ldap_AssertionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
+dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
 {
 	gint8 class;
 	gboolean pc, ind, is_ascii;
@@ -918,8 +918,8 @@ static const value_string ldap_AuthenticationChoice_vals[] = {
 };
 
 static const ber_choice_t AuthenticationChoice_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_simple_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_sasl_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_simple_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sasl_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1511,9 +1511,9 @@ static const value_string ldap_T_substringFilter_substrings_item_vals[] = {
 };
 
 static const ber_choice_t T_substringFilter_substrings_item_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_initial_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_any_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_final_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_initial_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_any_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_final_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1703,16 +1703,16 @@ static const value_string ldap_Filter_vals[] = {
 };
 
 static const ber_choice_t Filter_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_and_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_or_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_not_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_equalityMatch_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_substrings_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_greaterOrEqual_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_lessOrEqual_impl },
-  {   7, BER_CLASS_CON, 7, 0, dissect_present_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_approxMatch_impl },
-  {   9, BER_CLASS_CON, 9, 0, dissect_extensibleMatch_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_and_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_or_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_not_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_equalityMatch_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_substrings_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_greaterOrEqual_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lessOrEqual_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_present_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_approxMatch_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_extensibleMatch_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2651,7 +2651,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 465 "packet-ldap-template.c"
+#line 469 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3937,7 +3937,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1358 "packet-ldap-template.c"
+#line 1362 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3990,7 +3990,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1369 "packet-ldap-template.c"
+#line 1373 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4045,26 +4045,26 @@ proto_reg_handoff_ldap(void)
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
-	register_ber_oid_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
-	register_ber_oid_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.970 ","None");
-	register_ber_oid_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
-	register_ber_oid_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
-	register_ber_oid_name("1.3.6.1.4.1.1466.101.119.1","None");
-	register_ber_oid_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
-	register_ber_oid_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
+	add_oid_str_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
+	add_oid_str_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
+	add_oid_str_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
+	add_oid_str_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
+	add_oid_str_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
+	add_oid_str_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
+	add_oid_str_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
+	add_oid_str_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
+	add_oid_str_name("1.2.840.113556.1.4.970 ","None");
+	add_oid_str_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
+	add_oid_str_name("1.3.6.1.4.1.1466.101.119.1","None");
+	add_oid_str_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
+	add_oid_str_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
 
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
 

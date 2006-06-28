@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -84,7 +85,7 @@ static int hf_disp_EstablishParameter_PDU = -1;   /* EstablishParameter */
 static int hf_disp_ModificationParameter_PDU = -1;  /* ModificationParameter */
 static int hf_disp_ShadowingAgreementInfo_PDU = -1;  /* ShadowingAgreementInfo */
 static int hf_disp_modifiedSecondaryShadows = -1;  /* SET_OF_SupplierAndConsumers */
-static int hf_disp_secondaryShadows_item = -1;    /* SupplierAndConsumers */
+static int hf_disp_modifiedSecondaryShadows_item = -1;  /* SupplierAndConsumers */
 static int hf_disp_shadowSubject = -1;            /* UnitOfReplication */
 static int hf_disp_updateMode = -1;               /* UpdateMode */
 static int hf_disp_master = -1;                   /* AccessPoint */
@@ -189,7 +190,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 73 "packet-disp-template.c"
+#line 74 "packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -252,7 +253,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 77 "packet-disp-template.c"
+#line 78 "packet-disp-template.c"
 
 
 /*--- Included file: packet-disp-fn.c ---*/
@@ -279,8 +280,8 @@ static int dissect_subordinate_changes(packet_info *pinfo, proto_tree *tree, tvb
 
 /*--- Fields for imported types ---*/
 
-static int dissect_secondaryShadows_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dop_SupplierAndConsumers(FALSE, tvb, offset, pinfo, tree, hf_disp_secondaryShadows_item);
+static int dissect_modifiedSecondaryShadows_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SupplierAndConsumers(FALSE, tvb, offset, pinfo, tree, hf_disp_modifiedSecondaryShadows_item);
 }
 static int dissect_master(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dsp_AccessPoint(FALSE, tvb, offset, pinfo, tree, hf_disp_master);
@@ -381,7 +382,7 @@ dissect_disp_EstablishParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static const ber_sequence_t SET_OF_SupplierAndConsumers_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_secondaryShadows_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_modifiedSecondaryShadows_item },
 };
 
 static int
@@ -507,8 +508,8 @@ static const value_string disp_ClassAttributes_vals[] = {
 
 static const ber_choice_t ClassAttributes_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allAttributes },
-  {   1, BER_CLASS_CON, 0, 0, dissect_include_impl },
-  {   2, BER_CLASS_CON, 1, 0, dissect_exclude_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_include_impl },
+  {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_exclude_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -814,8 +815,8 @@ static const value_string disp_UpdateMode_vals[] = {
 };
 
 static const ber_choice_t UpdateMode_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_supplierInitiated_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_consumerInitiated_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_supplierInitiated_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_consumerInitiated_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -967,7 +968,7 @@ static const value_string disp_CoordinateShadowUpdateArgument_vals[] = {
 };
 
 static const ber_choice_t CoordinateShadowUpdateArgument_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_unsignedCoordinateShadowUpdateArgument_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unsignedCoordinateShadowUpdateArgument_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedCoordinateShadowUpdateArgument },
   { 0, 0, 0, 0, NULL }
 };
@@ -1049,7 +1050,7 @@ static const value_string disp_Information_vals[] = {
 };
 
 static const ber_choice_t Information_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_unsignedInformation_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unsignedInformation_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedInformation },
   { 0, 0, 0, 0, NULL }
 };
@@ -1202,7 +1203,7 @@ static const value_string disp_RequestShadowUpdateArgument_vals[] = {
 };
 
 static const ber_choice_t RequestShadowUpdateArgument_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_unsignedRequestShadowUpdateArgument_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unsignedRequestShadowUpdateArgument_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedRequestShadowUpdateArgument },
   { 0, 0, 0, 0, NULL }
 };
@@ -1436,8 +1437,8 @@ static const value_string disp_T_attributeChanges_vals[] = {
 };
 
 static const ber_choice_t T_attributeChanges_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_replace_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_changes_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_replace_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_changes_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1484,9 +1485,9 @@ static const value_string disp_T_sDSEChanges_vals[] = {
 };
 
 static const ber_choice_t T_sDSEChanges_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_add_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_add_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_remove },
-  {   2, BER_CLASS_CON, 1, 0, dissect_modify_impl },
+  {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_modify_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1578,8 +1579,8 @@ static const value_string disp_RefreshInformation_vals[] = {
 
 static const ber_choice_t RefreshInformation_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_noRefresh },
-  {   1, BER_CLASS_CON, 0, 0, dissect_total_impl },
-  {   2, BER_CLASS_CON, 1, 0, dissect_incremental_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_total_impl },
+  {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_incremental_impl },
   {   3, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_otherStrategy },
   { 0, 0, 0, 0, NULL }
 };
@@ -1657,7 +1658,7 @@ static const value_string disp_UpdateShadowArgument_vals[] = {
 };
 
 static const ber_choice_t UpdateShadowArgument_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_unsignedUpdateShadowArgument_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unsignedUpdateShadowArgument_impl },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedUpdateShadowArgument },
   { 0, 0, 0, 0, NULL }
 };
@@ -1794,7 +1795,7 @@ static const value_string disp_ShadowError_vals[] = {
 
 static const ber_choice_t ShadowError_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_unsignedShadowError },
-  {   1, BER_CLASS_CON, 0, 0, dissect_signedShadowError_impl },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_signedShadowError_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1821,7 +1822,7 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 79 "packet-disp-template.c"
+#line 80 "packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -1966,7 +1967,7 @@ void proto_register_disp(void) {
       { "secondaryShadows", "disp.secondaryShadows",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ModificationParameter/secondaryShadows", HFILL }},
-    { &hf_disp_secondaryShadows_item,
+    { &hf_disp_modifiedSecondaryShadows_item,
       { "Item", "disp.secondaryShadows_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ModificationParameter/secondaryShadows/_item", HFILL }},
@@ -2380,7 +2381,7 @@ void proto_register_disp(void) {
         "ShadowError/signedShadowError/shadowError", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 205 "packet-disp-template.c"
+#line 206 "packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2445,7 +2446,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 211 "packet-disp-template.c"
+#line 212 "packet-disp-template.c"
   };
   module_t *disp_module;
 
@@ -2488,14 +2489,14 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 243 "packet-disp-template.c"
+#line 244 "packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
-  register_ber_oid_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
-  register_ber_oid_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
-  register_ber_oid_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
+  add_oid_str_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
+  add_oid_str_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
+  add_oid_str_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
+  add_oid_str_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
 
   /* ABSTRACT SYNTAXES */
 
@@ -2508,7 +2509,7 @@ void proto_reg_handoff_disp(void) {
   } 
 
   /* OPERATIONAL BINDING */
-  register_ber_oid_name("2.5.1.0.5.1", "id-op-binding-shadow");
+  add_oid_str_name("2.5.1.0.5.1", "id-op-binding-shadow");
 
   tpkt_handle = find_dissector("tpkt");
 

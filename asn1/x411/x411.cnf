@@ -229,7 +229,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
 	else if(object_identifier_id) {
 		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-		name = get_ber_oid_name(object_identifier_id);
+		name = get_oid_str_name(object_identifier_id);
 		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 	}
 		
@@ -327,7 +327,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	%(DEFAULT_BODY)s
 
 	if(content_type_id) {
-	  name = get_ber_oid_name(content_type_id);
+	  name = get_oid_str_name(content_type_id);
 
   	  if(!name) name = content_type_id;
 

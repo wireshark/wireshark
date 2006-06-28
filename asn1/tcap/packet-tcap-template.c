@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -161,7 +162,7 @@ proto_reg_handoff_tcap(void)
         prefs_initialized = TRUE;
     }
     
-    register_ber_oid_name("0.0.17.773.1.1.1",
+    add_oid_str_name("0.0.17.773.1.1.1",
                           "itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
 
     data_handle = find_dissector("data");    

@@ -271,7 +271,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
   if(algorithm_id) {
-    name = get_ber_oid_name(algorithm_id);
+    name = get_oid_str_name(algorithm_id);
 
     proto_item_append_text(tree, " (%s)", name ? name : algorithm_id); 
   }
@@ -494,7 +494,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
   if(extension_id) {
-    name = get_ber_oid_name(extension_id);
+    name = get_oid_str_name(extension_id);
 
     proto_item_append_text(tree, " (%s)", name ? name : extension_id);
   }

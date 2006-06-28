@@ -71,7 +71,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   %(DEFAULT_BODY)s
 
   if(algorithm_id) {
-    name = get_ber_oid_name(algorithm_id);
+    name = get_oid_str_name(algorithm_id);
 
     proto_item_append_text(tree, " (%%s)", name ? name : algorithm_id); 
   }
@@ -88,7 +88,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   %(DEFAULT_BODY)s
 
   if(extension_id) {
-    name = get_ber_oid_name(extension_id);
+    name = get_oid_str_name(extension_id);
 
     proto_item_append_text(tree, " (%%s)", name ? name : extension_id);
   }

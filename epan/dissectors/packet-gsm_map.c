@@ -47,6 +47,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -964,7 +965,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 136 "packet-gsm_map-template.c"
+#line 137 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1383,7 +1384,7 @@ static gint ett_gsm_map_ExtensionContainer = -1;
 static gint ett_gsm_map_AccessTypePriv = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 154 "packet-gsm_map-template.c"
+#line 155 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -14736,7 +14737,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 562 "packet-gsm_map-template.c"
+#line 563 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -19656,7 +19657,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2205 "packet-gsm_map-template.c"
+#line 2206 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -20077,7 +20078,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_AccessTypePriv,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2225 "packet-gsm_map-template.c"
+#line 2226 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -20094,9 +20095,9 @@ void proto_register_gsm_map(void) {
   gsm_map_tap = register_tap("gsm_map");
 
 /* #include "packet-gsm_map-dis-tab.c" */
-  register_ber_oid_name("1.2.826.0.1249.58.1.0","iso(1) member-body(2) bsi(826) disc(0) ericsson(1249) gsmNetworkApplicationsDefinition(58) gsm-Map(1) gsm-Map-Ext(0)" );
-  register_ber_oid_name("1.3.12.2.1107.3.66.1.2","accessTypeNotAllowed-id" );
-  /*register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
+  add_oid_str_name("1.2.826.0.1249.58.1.0","iso(1) member-body(2) bsi(826) disc(0) ericsson(1249) gsmNetworkApplicationsDefinition(58) gsm-Map(1) gsm-Map-Ext(0)" );
+  add_oid_str_name("1.3.12.2.1107.3.66.1.2","accessTypeNotAllowed-id" );
+  /*add_oid_str_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
    *
    * Register our configuration options, particularly our ssn:s
    * Set default SSNs

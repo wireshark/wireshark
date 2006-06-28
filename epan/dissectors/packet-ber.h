@@ -173,9 +173,7 @@ extern proto_item *get_ber_last_created_item(void);
 int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
 void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
-void register_ber_oid_name(const char *oid, const char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-const char * get_ber_oid_name(const char *str);
 
 #endif  /* __PACKET_BER_H__ */
 

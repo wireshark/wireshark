@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -259,7 +260,7 @@ void proto_reg_handoff_dop(void) {
 #include "packet-dop-dis-tab.c" 
   /* APPLICATION CONTEXT */
 
-  register_ber_oid_name("2.5.3.3", "id-ac-directory-operational-binding-management");
+  add_oid_str_name("2.5.3.3", "id-ac-directory-operational-binding-management");
 
   /* ABSTRACT SYNTAXES */
     
@@ -270,26 +271,26 @@ void proto_reg_handoff_dop(void) {
 
   /* BINDING TYPES */
 
-  register_ber_oid_name("2.5.19.1", "shadow-agreement");
-  register_ber_oid_name("2.5.19.2", "hierarchical-agreement");
-  register_ber_oid_name("2.5.19.3", "non-specific-hierarchical-agreement");
+  add_oid_str_name("2.5.19.1", "shadow-agreement");
+  add_oid_str_name("2.5.19.2", "hierarchical-agreement");
+  add_oid_str_name("2.5.19.3", "non-specific-hierarchical-agreement");
 
   /* ACCESS CONTROL SCHEMES */
-  register_ber_oid_name("2.5.28.1", "basic-ACS");
-  register_ber_oid_name("2.5.28.2", "simplified-ACS");
-  register_ber_oid_name("2.5.28.3", "ruleBased-ACS");
-  register_ber_oid_name("2.5.28.4", "ruleAndBasic-ACS");
-  register_ber_oid_name("2.5.28.5", "ruleAndSimple-ACS");
+  add_oid_str_name("2.5.28.1", "basic-ACS");
+  add_oid_str_name("2.5.28.2", "simplified-ACS");
+  add_oid_str_name("2.5.28.3", "ruleBased-ACS");
+  add_oid_str_name("2.5.28.4", "ruleAndBasic-ACS");
+  add_oid_str_name("2.5.28.5", "ruleAndSimple-ACS");
 
   /* ADMINISTRATIVE ROLES */
-  register_ber_oid_name("2.5.23.1", "id-ar-autonomousArea");
-  register_ber_oid_name("2.5.23.2", "id-ar-accessControlSpecificArea");
-  register_ber_oid_name("2.5.23.3", "id-ar-accessControlInnerArea");
-  register_ber_oid_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
-  register_ber_oid_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
-  register_ber_oid_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
-  register_ber_oid_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
-  register_ber_oid_name("2.5.23.8", "id-ar-serviceSpecificArea");
+  add_oid_str_name("2.5.23.1", "id-ar-autonomousArea");
+  add_oid_str_name("2.5.23.2", "id-ar-accessControlSpecificArea");
+  add_oid_str_name("2.5.23.3", "id-ar-accessControlInnerArea");
+  add_oid_str_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
+  add_oid_str_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
+  add_oid_str_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
+  add_oid_str_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
+  add_oid_str_name("2.5.23.8", "id-ar-serviceSpecificArea");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
