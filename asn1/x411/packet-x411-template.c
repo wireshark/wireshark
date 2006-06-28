@@ -75,6 +75,7 @@ call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *p
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
+static gint ett_x411_content_unknown = -1;
 #include "packet-x411-ett.c"
 
 #include "packet-x411-fn.c"
@@ -210,6 +211,7 @@ void proto_register_x411(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_x411,
+    &ett_x411_content_unknown,
 #include "packet-x411-ettarr.c"
   };
 

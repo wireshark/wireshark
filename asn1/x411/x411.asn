@@ -75,7 +75,11 @@ IMPORTS
   Certificates, AlgorithmIdentifier
     --==
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
-      authenticationFramework(7) 3};
+      authenticationFramework(7) 3} 
+  EXTERNAL
+    --==
+    FROM ACSE-1;
+
 
 --	Objects
 --mta MHS-OBJECT ::= {BOTH  {mta-transfer}
@@ -1935,7 +1939,7 @@ OriginatorCertificate ::= Certificates
 --  IDENTIFIED BY            standard-extension:16
 --}
 
---MessageToken ::= Token
+MessageToken ::= Token
 
 --content-confidentiality-algorithm-identifier EXTENSION ::= {
 --  ContentConfidentialityAlgorithmIdentifier,
@@ -2851,10 +2855,10 @@ AsymmetricToken ::= SEQUENCE {
   encrypted			BIT STRING
 }
 
---TokenData ::= SEQUENCE {
---  type   [0]  TOKEN-DATA.&id({TokenDataTable}),
---  value  [1]  TOKEN-DATA.&Type({TokenDataTable}{@type})
---}
+TokenData ::= SEQUENCE {
+  type   [0]  INTEGER -- TOKEN-DATA.&id({TokenDataTable}) --,
+  value  [1]  ANY -- TOKEN-DATA.&Type({TokenDataTable}{@type})
+}
 
 --TOKEN-DATA ::= CLASS {&id    INTEGER UNIQUE,
 --                      &Type  
@@ -2871,7 +2875,7 @@ AsymmetricToken ::= SEQUENCE {
 --}
 
 -- This is the only Token Data we know
-TokenData ::= BindTokenSignedData
+--TokenData ::= BindTokenSignedData
 
 BindTokenSignedData ::= RandomNumber
 
@@ -2882,39 +2886,39 @@ RandomNumber ::= BIT STRING
 --  IDENTIFIED BY  2
 --}
 
---MessageTokenSignedData ::= SEQUENCE {
---  content-confidentiality-algorithm-identifier
---    [0]  ContentConfidentialityAlgorithmIdentifier OPTIONAL,
---  content-integrity-check
---    [1]  ContentIntegrityCheck OPTIONAL,
---  message-security-label
---    [2]  MessageSecurityLabel OPTIONAL,
---  proof-of-delivery-request
---    [3]  ProofOfDeliveryRequest OPTIONAL,
---  message-sequence-number                       [4]  INTEGER OPTIONAL
---}
+MessageTokenSignedData ::= SEQUENCE {
+  content-confidentiality-algorithm-identifier
+    [0]  ContentConfidentialityAlgorithmIdentifier OPTIONAL,
+  content-integrity-check
+    [1]  ContentIntegrityCheck OPTIONAL,
+  message-security-label
+    [2]  MessageSecurityLabel OPTIONAL,
+  proof-of-delivery-request
+    [3]  ProofOfDeliveryRequest OPTIONAL,
+  message-sequence-number                       [4]  INTEGER OPTIONAL
+}
 
 --message-token-encrypted-data TOKEN-DATA ::= {
 --  MessageTokenEncryptedData
 --  IDENTIFIED BY  3
 --}
 
---MessageTokenEncryptedData ::= SEQUENCE {
---  content-confidentiality-key  [0]  EncryptionKey OPTIONAL,
---  content-integrity-check      [1]  ContentIntegrityCheck OPTIONAL,
---  message-security-label       [2]  MessageSecurityLabel OPTIONAL,
---  content-integrity-key        [3]  EncryptionKey OPTIONAL,
---  message-sequence-number      [4]  INTEGER OPTIONAL
---}
+MessageTokenEncryptedData ::= SEQUENCE {
+  content-confidentiality-key  [0]  EncryptionKey OPTIONAL,
+  content-integrity-check      [1]  ContentIntegrityCheck OPTIONAL,
+  message-security-label       [2]  MessageSecurityLabel OPTIONAL,
+  content-integrity-key        [3]  EncryptionKey OPTIONAL,
+  message-sequence-number      [4]  INTEGER OPTIONAL
+}
 
---EncryptionKey ::= BIT STRING
+EncryptionKey ::= BIT STRING
 
 --bind-token-encrypted-data TOKEN-DATA ::= {
 --  BindTokenEncryptedData
 --  IDENTIFIED BY  4
 --}
 
---BindTokenEncryptedData ::= EXTERNAL
+BindTokenEncryptedData ::= EXTERNAL
 
 --	Security Label
 SecurityLabel ::= SET {

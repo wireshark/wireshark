@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x411.c                                                            */
+/* ./packet-x411.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -89,6 +89,8 @@ static int hf_x411_MTS_APDU_PDU = -1;             /* MTS_APDU */
 static int hf_x411_InternalTraceInformation_PDU = -1;  /* InternalTraceInformation */
 static int hf_x411_TraceInformation_PDU = -1;     /* TraceInformation */
 static int hf_x411_ReportDeliveryArgument_PDU = -1;  /* ReportDeliveryArgument */
+static int hf_x411_RecipientCertificate_PDU = -1;  /* RecipientCertificate */
+static int hf_x411_ProofOfDelivery_PDU = -1;      /* ProofOfDelivery */
 static int hf_x411_ExtendedContentType_PDU = -1;  /* ExtendedContentType */
 static int hf_x411_ContentLength_PDU = -1;        /* ContentLength */
 static int hf_x411_RecipientReassignmentProhibited_PDU = -1;  /* RecipientReassignmentProhibited */
@@ -106,6 +108,7 @@ static int hf_x411_PhysicalRenditionAttributes_PDU = -1;  /* PhysicalRenditionAt
 static int hf_x411_OriginatorReturnAddress_PDU = -1;  /* OriginatorReturnAddress */
 static int hf_x411_PhysicalDeliveryReportRequest_PDU = -1;  /* PhysicalDeliveryReportRequest */
 static int hf_x411_OriginatorCertificate_PDU = -1;  /* OriginatorCertificate */
+static int hf_x411_MessageToken_PDU = -1;         /* MessageToken */
 static int hf_x411_ContentConfidentialityAlgorithmIdentifier_PDU = -1;  /* ContentConfidentialityAlgorithmIdentifier */
 static int hf_x411_ContentIntegrityCheck_PDU = -1;  /* ContentIntegrityCheck */
 static int hf_x411_MessageOriginAuthenticationCheck_PDU = -1;  /* MessageOriginAuthenticationCheck */
@@ -144,6 +147,10 @@ static int hf_x411_PhysicalDeliveryOfficeName_PDU = -1;  /* PhysicalDeliveryOffi
 static int hf_x411_ExtendedEncodedInformationType_PDU = -1;  /* ExtendedEncodedInformationType */
 static int hf_x411_MTANameAndOptionalGDI_PDU = -1;  /* MTANameAndOptionalGDI */
 static int hf_x411_AsymmetricToken_PDU = -1;      /* AsymmetricToken */
+static int hf_x411_BindTokenSignedData_PDU = -1;  /* BindTokenSignedData */
+static int hf_x411_MessageTokenSignedData_PDU = -1;  /* MessageTokenSignedData */
+static int hf_x411_MessageTokenEncryptedData_PDU = -1;  /* MessageTokenEncryptedData */
+static int hf_x411_BindTokenEncryptedData_PDU = -1;  /* BindTokenEncryptedData */
 static int hf_x411_unauthenticated = -1;          /* NULL */
 static int hf_x411_authenticated_argument = -1;   /* AuthenticatedArgument */
 static int hf_x411_authenticated_initiator_name = -1;  /* MTAName */
@@ -367,7 +374,7 @@ static int hf_x411_directory_entry = -1;          /* Name */
 static int hf_x411_DLExemptedRecipients_item = -1;  /* ORAddressAndOrDirectoryName */
 static int hf_x411_encryption_recipient = -1;     /* CertificateAssertion */
 static int hf_x411_encryption_originator = -1;    /* CertificateAssertion */
-static int hf_x411_content_integrity_check = -1;  /* CertificateAssertion */
+static int hf_x411_selectors_content_integrity_check = -1;  /* CertificateAssertion */
 static int hf_x411_token_signature = -1;          /* CertificateAssertion */
 static int hf_x411_message_origin_authentication = -1;  /* CertificateAssertion */
 static int hf_x411_local_identifier = -1;         /* LocalIdentifier */
@@ -449,6 +456,15 @@ static int hf_x411_encryption_algorithm_identifier = -1;  /* AlgorithmIdentifier
 static int hf_x411_encrypted_data = -1;           /* BIT_STRING */
 static int hf_x411_asymmetric_token_data = -1;    /* AsymmetricTokenData */
 static int hf_x411_algorithm_identifier = -1;     /* AlgorithmIdentifier */
+static int hf_x411_token_data_type = -1;          /* INTEGER */
+static int hf_x411_value = -1;                    /* T_value */
+static int hf_x411_content_confidentiality_algorithm_identifier = -1;  /* ContentConfidentialityAlgorithmIdentifier */
+static int hf_x411_content_integrity_check = -1;  /* ContentIntegrityCheck */
+static int hf_x411_message_security_label = -1;   /* MessageSecurityLabel */
+static int hf_x411_proof_of_delivery_request = -1;  /* ProofOfDeliveryRequest */
+static int hf_x411_message_sequence_number = -1;  /* INTEGER */
+static int hf_x411_content_confidentiality_key = -1;  /* EncryptionKey */
+static int hf_x411_content_integrity_key = -1;    /* EncryptionKey */
 static int hf_x411_security_policy_identifier = -1;  /* SecurityPolicyIdentifier */
 static int hf_x411_security_classification = -1;  /* SecurityClassification */
 static int hf_x411_privacy_mark = -1;             /* PrivacyMark */
@@ -542,6 +558,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
+static gint ett_x411_content_unknown = -1;
 
 /*--- Included file: packet-x411-ett.c ---*/
 #line 1 "packet-x411-ett.c"
@@ -712,12 +729,15 @@ static gint ett_x411_AsymmetricTokenData = -1;
 static gint ett_x411_T_name = -1;
 static gint ett_x411_MTANameAndOptionalGDI = -1;
 static gint ett_x411_AsymmetricToken = -1;
+static gint ett_x411_TokenData = -1;
+static gint ett_x411_MessageTokenSignedData = -1;
+static gint ett_x411_MessageTokenEncryptedData = -1;
 static gint ett_x411_SecurityLabel = -1;
 static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 79 "packet-x411-template.c"
+#line 80 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -745,8 +765,8 @@ static int dissect_encryption_recipient_impl(packet_info *pinfo, proto_tree *tre
 static int dissect_encryption_originator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x411_encryption_originator);
 }
-static int dissect_content_integrity_check_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x411_content_integrity_check);
+static int dissect_selectors_content_integrity_check_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x411_selectors_content_integrity_check);
 }
 static int dissect_token_signature_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x411_token_signature);
@@ -789,7 +809,7 @@ static int dissect_empty_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 370 "x411.cnf"
+#line 391 "x411.cnf"
 	tvbuff_t	*mtaname = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
@@ -909,7 +929,7 @@ static int dissect_token_type_identifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_x411_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 640 "x411.cnf"
+#line 661 "x411.cnf"
 	
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
@@ -1055,7 +1075,7 @@ static const ber_choice_t Credentials_choice[] = {
 
 static int
 dissect_x411_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 648 "x411.cnf"
+#line 669 "x411.cnf"
   guint32 credentials;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1144,7 +1164,7 @@ static int dissect_privacy_mark(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 317 "x411.cnf"
+#line 325 "x411.cnf"
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
@@ -1165,7 +1185,7 @@ static int dissect_category_type_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_x411_CategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 238 "x411.cnf"
+#line 246 "x411.cnf"
 
 	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
 
@@ -1359,7 +1379,7 @@ static const value_string x411_MTABindError_vals[] = {
 
 static int
 dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 631 "x411.cnf"
+#line 652 "x411.cnf"
   int error = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &error);
@@ -1376,7 +1396,7 @@ dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_x411_NumericString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 459 "x411.cnf"
+#line 480 "x411.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1414,7 +1434,7 @@ static int dissect_sub_address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 481 "x411.cnf"
+#line 502 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 	char 		*fmt = NULL;
 
@@ -1497,7 +1517,7 @@ static const ber_choice_t CountryName_choice[] = {
 
 static int
 dissect_x411_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 249 "x411.cnf"
+#line 257 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -1542,7 +1562,7 @@ static const ber_choice_t AdministrationDomainName_choice[] = {
 
 static int
 dissect_x411_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 271 "x411.cnf"
+#line 279 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -1588,7 +1608,7 @@ static const ber_choice_t PrivateDomainIdentifier_choice[] = {
 
 static int
 dissect_x411_PrivateDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 421 "x411.cnf"
+#line 442 "x411.cnf"
 
 	if(doing_address)
 		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
@@ -1619,7 +1639,7 @@ static const ber_sequence_t GlobalDomainIdentifier_sequence[] = {
 
 static int
 dissect_x411_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 528 "x411.cnf"
+#line 549 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
@@ -1650,7 +1670,7 @@ static int dissect_attempted_domain(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 542 "x411.cnf"
+#line 563 "x411.cnf"
 	tvbuff_t 	*id = NULL;
 	
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
@@ -1678,7 +1698,7 @@ static const ber_sequence_t MTSIdentifier_sequence[] = {
 
 static int
 dissect_x411_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 550 "x411.cnf"
+#line 571 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -1709,7 +1729,7 @@ static int dissect_message_identifier(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_x411_X121Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 390 "x411.cnf"
+#line 411 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1744,7 +1764,7 @@ static int dissect_network_address_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_x411_TerminalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 404 "x411.cnf"
+#line 425 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1780,7 +1800,7 @@ static const ber_choice_t PrivateDomainName_choice[] = {
 
 static int
 dissect_x411_PrivateDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 414 "x411.cnf"
+#line 435 "x411.cnf"
 
 	if(doing_address)
 		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
@@ -1802,7 +1822,7 @@ static int dissect_private_domain_name_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x411_OrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 431 "x411.cnf"
+#line 452 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1903,7 +1923,7 @@ static const ber_sequence_t BuiltInStandardAttributes_sequence[] = {
 
 static int
 dissect_x411_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 567 "x411.cnf"
+#line 588 "x411.cnf"
 
 	address_item = tree;	
 
@@ -1974,12 +1994,18 @@ static int dissect_standard_extension_impl(packet_info *pinfo, proto_tree *tree,
 static int dissect_extension_attribute_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x411_extension_attribute_type);
 }
+static int dissect_token_data_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x411_token_data_type);
+}
+static int dissect_message_sequence_number_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x411_message_sequence_number);
+}
 
 
 
 static int
 dissect_x411_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 242 "x411.cnf"
+#line 250 "x411.cnf"
 
 	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, pinfo, tree);
 
@@ -2036,7 +2062,7 @@ static const ber_sequence_t ORName_sequence[] = {
 
 int
 dissect_x411_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 515 "x411.cnf"
+#line 536 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
@@ -2169,7 +2195,7 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x411_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 469 "x411.cnf"
+#line 490 "x411.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -2323,7 +2349,7 @@ static const value_string x411_BuiltInContentType_vals[] = {
 
 static int
 dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 341 "x411.cnf"
+#line 349 "x411.cnf"
   guint32	ict = -1;	
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2339,6 +2365,7 @@ dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 	content_type_id = ep_strdup("2.6.1.10.1");
 	break;
 	default:
+	content_type_id = NULL;
 	break;
 	}
 
@@ -2357,7 +2384,7 @@ static int dissect_built_in_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 325 "x411.cnf"
+#line 333 "x411.cnf"
 	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &content_type_id);
@@ -2414,7 +2441,7 @@ static int dissect_ContentTypes_item(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x411_ContentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 291 "x411.cnf"
+#line 299 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -2500,7 +2527,7 @@ static int dissect_per_message_indicators(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_x411_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 610 "x411.cnf"
+#line 631 "x411.cnf"
 	tvbuff_t *arrival = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
@@ -2639,7 +2666,7 @@ static const value_string x411_RoutingAction_vals[] = {
 
 static int
 dissect_x411_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 621 "x411.cnf"
+#line 642 "x411.cnf"
 	int action = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2715,7 +2742,7 @@ static const ber_sequence_t DomainSuppliedInformation_set[] = {
 
 static int
 dissect_x411_DomainSuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 589 "x411.cnf"
+#line 610 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -2743,7 +2770,7 @@ static const ber_sequence_t TraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_TraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 573 "x411.cnf"
+#line 594 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -2826,7 +2853,7 @@ static int dissect_criticality_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 226 "x411.cnf"
+#line 234 "x411.cnf"
 	const char *name;
 
 	if(extension_id != -1) 
@@ -3030,14 +3057,26 @@ static int dissect_message_envelope(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 358 "x411.cnf"
+#line 367 "x411.cnf"
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
   offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
 
-  if (next_tvb && content_type_id)
-    (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+  if (next_tvb) {
+    if (content_type_id) {
+      (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+    } else {
+      proto_item *item = NULL;
+      proto_tree *next_tree = NULL;
+
+      item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "X.411 Unknown Content (unknown built-in content-type)");
+      if (item) {
+        next_tree=proto_item_add_subtree(item, ett_x411_content_unknown);
+      }
+      dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+    }
+  }
 
 
 
@@ -3253,7 +3292,7 @@ static int dissect_subject_intermediate_trace_information(packet_info *pinfo, pr
 
 static int
 dissect_x411_AdditionalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 220 "x411.cnf"
+#line 228 "x411.cnf"
 /*XXX not implemented yet */
 
 
@@ -3708,7 +3747,7 @@ static const ber_sequence_t MTASuppliedInformation_set[] = {
 
 static int
 dissect_x411_MTASuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 598 "x411.cnf"
+#line 619 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -3737,7 +3776,7 @@ static const ber_sequence_t InternalTraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_InternalTraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 581 "x411.cnf"
+#line 602 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -4844,7 +4883,7 @@ static int dissect_built_in_argument_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_x411_T_refused_extension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 246 "x411.cnf"
+#line 254 "x411.cnf"
 /*XXX not implemented yet */
 
 
@@ -5297,7 +5336,7 @@ static int dissect_standard_parameters_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x411_T_type_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 223 "x411.cnf"
+#line 231 "x411.cnf"
 /*XXX not implemented yet */
 
 
@@ -5663,7 +5702,7 @@ static const ber_sequence_t ORAddress_sequence[] = {
 
 int
 dissect_x411_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 502 "x411.cnf"
+#line 523 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
@@ -5722,10 +5761,22 @@ dissect_x411_OriginatorCertificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static int
+dissect_x411_MessageToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_Token(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
 dissect_x411_ContentConfidentialityAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
+}
+static int dissect_content_confidentiality_algorithm_identifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ContentConfidentialityAlgorithmIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x411_content_confidentiality_algorithm_identifier);
 }
 
 
@@ -5735,6 +5786,9 @@ dissect_x411_ContentIntegrityCheck(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   offset = dissect_x411_Signature(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
+}
+static int dissect_content_integrity_check_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ContentIntegrityCheck(TRUE, tvb, offset, pinfo, tree, hf_x411_content_integrity_check);
 }
 
 
@@ -5772,6 +5826,9 @@ dissect_x411_MessageSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_message_security_label_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_MessageSecurityLabel(TRUE, tvb, offset, pinfo, tree, hf_x411_message_security_label);
+}
 
 
 static const value_string x411_ProofOfSubmissionRequest_vals[] = {
@@ -5803,6 +5860,9 @@ dissect_x411_ProofOfDeliveryRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                                   NULL);
 
   return offset;
+}
+static int dissect_proof_of_delivery_request_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ProofOfDeliveryRequest(TRUE, tvb, offset, pinfo, tree, hf_x411_proof_of_delivery_request);
 }
 
 
@@ -6190,7 +6250,7 @@ dissect_x411_DLExemptedRecipients(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 static const ber_sequence_t CertificateSelectors_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryption_recipient_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryption_originator_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_integrity_check_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_selectors_content_integrity_check_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_token_signature_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_origin_authentication_impl },
   { 0, 0, 0, NULL }
@@ -6208,7 +6268,7 @@ dissect_x411_CertificateSelectors(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 static int
 dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 444 "x411.cnf"
+#line 465 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -6894,7 +6954,7 @@ static const ber_sequence_t MTANameAndOptionalGDI_sequence[] = {
 
 static int
 dissect_x411_MTANameAndOptionalGDI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 558 "x411.cnf"
+#line 579 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -6941,28 +7001,31 @@ static int dissect_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static int
-dissect_x411_RandomNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                    NULL, hf_index, -1,
-                                    NULL);
+dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 679 "x411.cnf"
+
+	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, pinfo, tree);
+
+
+
 
   return offset;
 }
-
-
-
-static int
-dissect_x411_BindTokenSignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_x411_RandomNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
+static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_T_value(TRUE, tvb, offset, pinfo, tree, hf_x411_value);
 }
 
 
+static const ber_sequence_t TokenData_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_token_data_type_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
+  { 0, 0, 0, NULL }
+};
 
 static int
 dissect_x411_TokenData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_x411_BindTokenSignedData(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   TokenData_sequence, hf_index, ett_x411_TokenData);
 
   return offset;
 }
@@ -7008,6 +7071,88 @@ dissect_x411_AsymmetricToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   return offset;
 }
 
+
+
+static int
+dissect_x411_RandomNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x411_BindTokenSignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_RandomNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MessageTokenSignedData_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_confidentiality_algorithm_identifier_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_integrity_check_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_security_label_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_proof_of_delivery_request_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_sequence_number_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x411_MessageTokenSignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   MessageTokenSignedData_sequence, hf_index, ett_x411_MessageTokenSignedData);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x411_EncryptionKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_content_confidentiality_key_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_EncryptionKey(TRUE, tvb, offset, pinfo, tree, hf_x411_content_confidentiality_key);
+}
+static int dissect_content_integrity_key_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_EncryptionKey(TRUE, tvb, offset, pinfo, tree, hf_x411_content_integrity_key);
+}
+
+
+static const ber_sequence_t MessageTokenEncryptedData_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_confidentiality_key_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_integrity_check_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_security_label_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_content_integrity_key_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_sequence_number_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x411_MessageTokenEncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   MessageTokenEncryptedData_sequence, hf_index, ett_x411_MessageTokenEncryptedData);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x411_BindTokenEncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_acse_EXTERNAL(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_MTABindArgument_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -7030,6 +7175,12 @@ static void dissect_TraceInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 static void dissect_ReportDeliveryArgument_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_ReportDeliveryArgument(FALSE, tvb, 0, pinfo, tree, hf_x411_ReportDeliveryArgument_PDU);
+}
+static void dissect_RecipientCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_RecipientCertificate(FALSE, tvb, 0, pinfo, tree, hf_x411_RecipientCertificate_PDU);
+}
+static void dissect_ProofOfDelivery_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_ProofOfDelivery(FALSE, tvb, 0, pinfo, tree, hf_x411_ProofOfDelivery_PDU);
 }
 static void dissect_ExtendedContentType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_ExtendedContentType(FALSE, tvb, 0, pinfo, tree, hf_x411_ExtendedContentType_PDU);
@@ -7081,6 +7232,9 @@ static void dissect_PhysicalDeliveryReportRequest_PDU(tvbuff_t *tvb, packet_info
 }
 static void dissect_OriginatorCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_OriginatorCertificate(FALSE, tvb, 0, pinfo, tree, hf_x411_OriginatorCertificate_PDU);
+}
+static void dissect_MessageToken_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MessageToken(FALSE, tvb, 0, pinfo, tree, hf_x411_MessageToken_PDU);
 }
 static void dissect_ContentConfidentialityAlgorithmIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_ContentConfidentialityAlgorithmIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x411_ContentConfidentialityAlgorithmIdentifier_PDU);
@@ -7196,10 +7350,22 @@ static void dissect_MTANameAndOptionalGDI_PDU(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_AsymmetricToken_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_AsymmetricToken(FALSE, tvb, 0, pinfo, tree, hf_x411_AsymmetricToken_PDU);
 }
+static void dissect_BindTokenSignedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_BindTokenSignedData(FALSE, tvb, 0, pinfo, tree, hf_x411_BindTokenSignedData_PDU);
+}
+static void dissect_MessageTokenSignedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MessageTokenSignedData(FALSE, tvb, 0, pinfo, tree, hf_x411_MessageTokenSignedData_PDU);
+}
+static void dissect_MessageTokenEncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MessageTokenEncryptedData(FALSE, tvb, 0, pinfo, tree, hf_x411_MessageTokenEncryptedData_PDU);
+}
+static void dissect_BindTokenEncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_BindTokenEncryptedData(FALSE, tvb, 0, pinfo, tree, hf_x411_BindTokenEncryptedData_PDU);
+}
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 81 "packet-x411-template.c"
+#line 82 "packet-x411-template.c"
 
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -7357,6 +7523,14 @@ void proto_register_x411(void) {
       { "ReportDeliveryArgument", "x411.ReportDeliveryArgument",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportDeliveryArgument", HFILL }},
+    { &hf_x411_RecipientCertificate_PDU,
+      { "RecipientCertificate", "x411.RecipientCertificate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RecipientCertificate", HFILL }},
+    { &hf_x411_ProofOfDelivery_PDU,
+      { "ProofOfDelivery", "x411.ProofOfDelivery",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProofOfDelivery", HFILL }},
     { &hf_x411_ExtendedContentType_PDU,
       { "ExtendedContentType", "x411.ExtendedContentType",
         FT_OID, BASE_NONE, NULL, 0,
@@ -7425,6 +7599,10 @@ void proto_register_x411(void) {
       { "OriginatorCertificate", "x411.OriginatorCertificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "OriginatorCertificate", HFILL }},
+    { &hf_x411_MessageToken_PDU,
+      { "MessageToken", "x411.MessageToken",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageToken", HFILL }},
     { &hf_x411_ContentConfidentialityAlgorithmIdentifier_PDU,
       { "ContentConfidentialityAlgorithmIdentifier", "x411.ContentConfidentialityAlgorithmIdentifier",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7577,6 +7755,22 @@ void proto_register_x411(void) {
       { "AsymmetricToken", "x411.AsymmetricToken",
         FT_NONE, BASE_NONE, NULL, 0,
         "AsymmetricToken", HFILL }},
+    { &hf_x411_BindTokenSignedData_PDU,
+      { "BindTokenSignedData", "x411.BindTokenSignedData",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BindTokenSignedData", HFILL }},
+    { &hf_x411_MessageTokenSignedData_PDU,
+      { "MessageTokenSignedData", "x411.MessageTokenSignedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageTokenSignedData", HFILL }},
+    { &hf_x411_MessageTokenEncryptedData_PDU,
+      { "MessageTokenEncryptedData", "x411.MessageTokenEncryptedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageTokenEncryptedData", HFILL }},
+    { &hf_x411_BindTokenEncryptedData_PDU,
+      { "BindTokenEncryptedData", "x411.BindTokenEncryptedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BindTokenEncryptedData", HFILL }},
     { &hf_x411_unauthenticated,
       { "unauthenticated", "x411.unauthenticated",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8469,7 +8663,7 @@ void proto_register_x411(void) {
       { "encryption-originator", "x411.encryption_originator",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificateSelectors/encryption-originator", HFILL }},
-    { &hf_x411_content_integrity_check,
+    { &hf_x411_selectors_content_integrity_check,
       { "content-integrity-check", "x411.content_integrity_check",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificateSelectors/content-integrity-check", HFILL }},
@@ -8779,7 +8973,7 @@ void proto_register_x411(void) {
         "AsymmetricTokenData/time", HFILL }},
     { &hf_x411_signed_data,
       { "signed-data", "x411.signed_data",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AsymmetricTokenData/signed-data", HFILL }},
     { &hf_x411_encryption_algorithm_identifier,
       { "encryption-algorithm-identifier", "x411.encryption_algorithm_identifier",
@@ -8797,6 +8991,42 @@ void proto_register_x411(void) {
       { "algorithm-identifier", "x411.algorithm_identifier",
         FT_NONE, BASE_NONE, NULL, 0,
         "AsymmetricToken/algorithm-identifier", HFILL }},
+    { &hf_x411_token_data_type,
+      { "type", "x411.type",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "TokenData/type", HFILL }},
+    { &hf_x411_value,
+      { "value", "x411.value",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TokenData/value", HFILL }},
+    { &hf_x411_content_confidentiality_algorithm_identifier,
+      { "content-confidentiality-algorithm-identifier", "x411.content_confidentiality_algorithm_identifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageTokenSignedData/content-confidentiality-algorithm-identifier", HFILL }},
+    { &hf_x411_content_integrity_check,
+      { "content-integrity-check", "x411.content_integrity_check",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_x411_message_security_label,
+      { "message-security-label", "x411.message_security_label",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_x411_proof_of_delivery_request,
+      { "proof-of-delivery-request", "x411.proof_of_delivery_request",
+        FT_UINT32, BASE_DEC, VALS(x411_ProofOfDeliveryRequest_vals), 0,
+        "MessageTokenSignedData/proof-of-delivery-request", HFILL }},
+    { &hf_x411_message_sequence_number,
+      { "message-sequence-number", "x411.message_sequence_number",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_x411_content_confidentiality_key,
+      { "content-confidentiality-key", "x411.content_confidentiality_key",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MessageTokenEncryptedData/content-confidentiality-key", HFILL }},
+    { &hf_x411_content_integrity_key,
+      { "content-integrity-key", "x411.content_integrity_key",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MessageTokenEncryptedData/content-integrity-key", HFILL }},
     { &hf_x411_security_policy_identifier,
       { "security-policy-identifier", "x411.security_policy_identifier",
         FT_OID, BASE_NONE, NULL, 0,
@@ -9143,12 +9373,13 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 208 "packet-x411-template.c"
+#line 209 "packet-x411-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_x411,
+    &ett_x411_content_unknown,
 
 /*--- Included file: packet-x411-ettarr.c ---*/
 #line 1 "packet-x411-ettarr.c"
@@ -9319,12 +9550,15 @@ void proto_register_x411(void) {
     &ett_x411_T_name,
     &ett_x411_MTANameAndOptionalGDI,
     &ett_x411_AsymmetricToken,
+    &ett_x411_TokenData,
+    &ett_x411_MessageTokenSignedData,
+    &ett_x411_MessageTokenEncryptedData,
     &ett_x411_SecurityLabel,
     &ett_x411_SecurityCategories,
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 214 "packet-x411-template.c"
+#line 216 "packet-x411-template.c"
   };
 
   /* Register protocol */
@@ -9359,6 +9593,7 @@ void proto_reg_handoff_x411(void) {
   register_ber_oid_dissector("x411.extension.13", dissect_OriginatorReturnAddress_PDU, proto_x411, "originator-return-address");
   register_ber_oid_dissector("x411.extension.14", dissect_PhysicalDeliveryReportRequest_PDU, proto_x411, "physical-delivery-report-request");
   register_ber_oid_dissector("x411.extension.15", dissect_OriginatorCertificate_PDU, proto_x411, "originator-certificate");
+  register_ber_oid_dissector("x411.extension.16", dissect_MessageToken_PDU, proto_x411, "message-token");
   register_ber_oid_dissector("x411.extension.17", dissect_ContentConfidentialityAlgorithmIdentifier_PDU, proto_x411, "content-confidentiality-algorithm-identifier");
   register_ber_oid_dissector("x411.extension.18", dissect_ContentIntegrityCheck_PDU, proto_x411, "content-integrity-check");
   register_ber_oid_dissector("x411.extension.19", dissect_MessageOriginAuthenticationCheck_PDU, proto_x411, "message-origin-authentication-check");
@@ -9370,6 +9605,8 @@ void proto_reg_handoff_x411(void) {
   register_ber_oid_dissector("x411.extension.25", dissect_RedirectionHistory_PDU, proto_x411, "redirection-history");
   register_ber_oid_dissector("x411.extension.26", dissect_DLExpansionHistory_PDU, proto_x411, "dl-expansion-history");
   register_ber_oid_dissector("x411.extension.27", dissect_PhysicalForwardingAddress_PDU, proto_x411, "physical-forwarding-address");
+  register_ber_oid_dissector("x411.extension.28", dissect_RecipientCertificate_PDU, proto_x411, "recipient-certificate");
+  register_ber_oid_dissector("x411.extension.29", dissect_ProofOfDelivery_PDU, proto_x411, "proof-of-delivery");
   register_ber_oid_dissector("x411.extension.30", dissect_OriginatorAndDLExpansionHistory_PDU, proto_x411, "originator-and-DL-expansion-history");
   register_ber_oid_dissector("x411.extension.31", dissect_ReportingDLName_PDU, proto_x411, "reporting-DL-name");
   register_ber_oid_dissector("x411.extension.32", dissect_ReportingMTACertificate_PDU, proto_x411, "reporting-MTA-certificate");
@@ -9397,6 +9634,10 @@ void proto_reg_handoff_x411(void) {
   register_ber_oid_dissector("2.6.1.4.14", dissect_ReportDeliveryArgument_PDU, proto_x411, "id-et-report");
   register_ber_oid_dissector("2.6.3.6.0", dissect_AsymmetricToken_PDU, proto_x411, "id-tok-asymmetricToken");
   register_ber_oid_dissector("2.6.5.6.0", dissect_MTANameAndOptionalGDI_PDU, proto_x411, "id-on-mtaName");
+  register_ber_oid_dissector("x411.tokendata.1", dissect_BindTokenSignedData_PDU, proto_x411, "bind-token-signed-data");
+  register_ber_oid_dissector("x411.tokendata.2", dissect_MessageTokenSignedData_PDU, proto_x411, "message-token-signed-data");
+  register_ber_oid_dissector("x411.tokendata.3", dissect_MessageTokenEncryptedData_PDU, proto_x411, "message-token-encrypted-data");
+  register_ber_oid_dissector("x411.tokendata.4", dissect_BindTokenEncryptedData_PDU, proto_x411, "bind-token-encrypted-data");
   register_ber_oid_dissector("2.6.5.2.0", dissect_ContentLength_PDU, proto_x411, "id-at-mhs-maximum-content-length");
   register_ber_oid_dissector("2.6.5.2.1", dissect_ExtendedContentType_PDU, proto_x411, "id-at-mhs-deliverable-content-types");
   register_ber_oid_dissector("2.6.5.2.2", dissect_ExtendedEncodedInformationType_PDU, proto_x411, "id-at-mhs-exclusively-acceptable-eits");
@@ -9412,7 +9653,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 231 "packet-x411-template.c"
+#line 233 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 

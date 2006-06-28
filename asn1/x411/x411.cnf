@@ -2,6 +2,7 @@
 CountryName 	   	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
+#.INCLUDE ../acse/acse-exp.cnf
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509sat/x509sat-exp.cnf
@@ -124,6 +125,8 @@ ReportTransferContent/per-recipient-fields		per-recipient-report-fields
 AsymmetricTokenData/name/mta				token-mta
 AsymmetricTokenData/name/recipient-name			token-recipient-name
 
+TokenData/type						token-data-type
+CertificateSelectors/content-integrity-check		selectors-content-integrity-check
 
 #.PDU
 MTABindArgument
@@ -147,7 +150,7 @@ PhysicalRenditionAttributes B "x411.extension.12" "physical-rendition-attributes
 OriginatorReturnAddress B "x411.extension.13" "originator-return-address"
 PhysicalDeliveryReportRequest B "x411.extension.14" "physical-delivery-report-request"
 OriginatorCertificate B "x411.extension.15" "originator-certificate"
-
+MessageToken B "x411.extension.16" "message-token"
 ContentConfidentialityAlgorithmIdentifier B "x411.extension.17" "content-confidentiality-algorithm-identifier"
 ContentIntegrityCheck B "x411.extension.18" "content-integrity-check"
 MessageOriginAuthenticationCheck B "x411.extension.19" "message-origin-authentication-check"
@@ -159,8 +162,8 @@ ProbeOriginAuthenticationCheck B "x411.extension.24" "probe-origin-authenticatio
 RedirectionHistory B "x411.extension.25" "redirection-history"
 DLExpansionHistory B "x411.extension.26" "dl-expansion-history"
 PhysicalForwardingAddress B "x411.extension.27" "physical-forwarding-address"
-
-
+RecipientCertificate B "x411.extension.28" "recipient-certificate"
+ProofOfDelivery B "x411.extension.29" "proof-of-delivery"
 OriginatorAndDLExpansionHistory B "x411.extension.30" "originator-and-DL-expansion-history"
 ReportingDLName B "x411.extension.31" "reporting-DL-name"
 ReportingMTACertificate B "x411.extension.32" "reporting-MTA-certificate"
@@ -173,7 +176,6 @@ ReportingMTAName B "x411.extension.39" "reporting-MTA-name"
 ExtendedCertificates B "x411.extension.40" "multiple-originator-certificates"
 
 DLExemptedRecipients B "x411.extension.42" "dl-exempted-recipients"
-
 
 CertificateSelectors B "x411.extension.45" "certificate-selectors"
 
@@ -197,6 +199,12 @@ ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
 
 AsymmetricToken		B	"2.6.3.6.0"	"id-tok-asymmetricToken"
 MTANameAndOptionalGDI	B	"2.6.5.6.0"	"id-on-mtaName"
+
+BindTokenSignedData	B	"x411.tokendata.1"	"bind-token-signed-data"
+MessageTokenSignedData	B	"x411.tokendata.2"	"message-token-signed-data"
+# the next two are unlikely to ever be seen (unless in a bad encoding)
+MessageTokenEncryptedData B	"x411.tokendata.3"	"message-token-encrypted-data"
+BindTokenEncryptedData	B	"x411.tokendata.4"	"bind-token-encrypted-data"
 
 # X402 - see master list in acp133.cnf
 
@@ -351,6 +359,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	content_type_id = ep_strdup("2.6.1.10.1");
 	break;
 	default:
+	content_type_id = NULL;
 	break;
 	}
 
@@ -360,8 +369,20 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   /* we can do this now constructed octet strings are supported */
   offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
 
-  if (next_tvb && content_type_id)
-    (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+  if (next_tvb) {
+    if (content_type_id) {
+      (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+    } else {
+      proto_item *item = NULL;
+      proto_tree *next_tree = NULL;
+
+      item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "X.411 Unknown Content (unknown built-in content-type)");
+      if (item) {
+        next_tree=proto_item_add_subtree(item, ett_x411_content_unknown);
+      }
+      dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+    }
+  }
 
 #.FN_PARS MTAName
 	VAL_PTR = &mtaname
@@ -653,5 +674,10 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	if(credentials == -1) credentials = 0;
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
   }
+
+#.FN_BODY T_value
+
+	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, pinfo, tree);
+
 
 #.END
