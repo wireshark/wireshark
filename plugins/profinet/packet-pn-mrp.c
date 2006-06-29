@@ -136,7 +136,7 @@ extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_PNMRP_Common(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 sequence_id;
     e_uuid_t uuid;
@@ -159,7 +159,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 port_role;
     guint16 interval;
@@ -191,7 +191,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 port_role;
     guint16 interval;
@@ -223,7 +223,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_Test(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 prio;
     guint8 mac[6];
@@ -267,7 +267,7 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 prio;
     guint8 mac[6];
@@ -336,19 +336,19 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             return offset;
             break;
         case(0x01):
-            offset = dissect_PNMRP_Common(tvb, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_Common(tvb, offset, pinfo, tree, item);
             break;
         case(0x02):
-            offset = dissect_PNMRP_Test(tvb, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_Test(tvb, offset, pinfo, tree, item);
             break;
         case(0x03):
-            offset = dissect_PNMRP_TopologyChange(tvb, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_TopologyChange(tvb, offset, pinfo, tree, item);
             break;
         case(0x04):
-            offset = dissect_PNMRP_LinkDown(tvb, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_LinkDown(tvb, offset, pinfo, tree, item);
             break;
         case(0x05):
-            offset = dissect_PNMRP_LinkUp(tvb, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_LinkUp(tvb, offset, pinfo, tree, item);
             break;
         default:
             unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
