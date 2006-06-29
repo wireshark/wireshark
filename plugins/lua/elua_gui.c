@@ -40,7 +40,7 @@ static int menu_cb_error_handler(lua_State* L) {
     return 0;    
 }
 
-ELUA_FUNCTION lua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
+ELUA_FUNCTION elua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
     lua_pushboolean(L,GPOINTER_TO_INT(ops));
     ELUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
 }

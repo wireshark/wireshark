@@ -287,7 +287,6 @@ static const eth_ft_types_t ftenums[] = {
 {NULL,FT_NONE}
 };
 
-#if 0
 static enum ftenum get_ftenum(const gchar* type) {
     const eth_ft_types_t* ts;
     for (ts = ftenums; ts->str; ts++) {
@@ -298,7 +297,6 @@ static enum ftenum get_ftenum(const gchar* type) {
     
     return FT_NONE;
 }
-#endif
 
 static const gchar* ftenum_to_string(enum ftenum ft) {
     const eth_ft_types_t* ts;
@@ -335,7 +333,6 @@ static const gchar* base_to_string(base_display_e base) {
     return NULL;
 }
 
-#if 0
 static base_display_e string_to_base(const gchar* str) {
     const struct base_display_string_t* b;
     for (b=base_displays;b->str;b++) {
@@ -344,7 +341,6 @@ static base_display_e string_to_base(const gchar* str) {
     }
     return BASE_NONE;
 }
-#endif
 
 static value_string* value_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -397,10 +393,10 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
 #define ELUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
 #define ELUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
 #define ELUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
-#define ELUA_OPTARG_ProtoField_new_VALUESTRING 3 /* a ValueString object. */
-#define ELUA_OPTARG_ProtoField_new_BASE 4 /* The representation BASE_*. */
-#define ELUA_OPTARG_ProtoField_new_MASK 5 /* the bitmask to be used.  */
-#define ELUA_OPTARG_ProtoField_new_DESCR 6 /* The description of the field.  */
+#define ELUA_OPTARG_ProtoField_new_VALUESTRING 4 /* a ValueString object. */
+#define ELUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
+#define ELUA_OPTARG_ProtoField_new_MASK 6 /* the bitmask to be used.  */
+#define ELUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 	
     ProtoField f = g_malloc(sizeof(eth_field_t));
     value_string* vs;
@@ -410,7 +406,7 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
 	f->ett = -1;
     f->name = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_NAME));
     f->abbr = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_ABBR));
-    f->type = luaL_checkint(L,ELUA_ARG_ProtoField_new_TYPE);
+    f->type = get_ftenum(luaL_checkstring(L,ELUA_ARG_ProtoField_new_TYPE));
     
 	/*XXX do it better*/
     if (f->type == FT_NONE) { 
@@ -418,8 +414,8 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
         return 0;
     }
     
-    if (! lua_isnil(L,4) ) {
-        vs = value_string_from_table(L,4);
+    if (! lua_isnil(L,ELUA_OPTARG_ProtoField_new_VALUESTRING) ) {
+        vs = value_string_from_table(L,ELUA_OPTARG_ProtoField_new_VALUESTRING);
         
         if (vs) {
             f->vs = vs;
@@ -434,7 +430,7 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
     }
     
     /* XXX: need BASE_ERROR */
-    f->base = luaL_optint(L, ELUA_OPTARG_ProtoField_new_BASE, BASE_NONE);
+    f->base = string_to_base(luaL_optstring(L, ELUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
     f->mask = luaL_optint(L, ELUA_OPTARG_ProtoField_new_MASK, 0x0);
     f->blob = g_strdup(luaL_optstring(L,ELUA_OPTARG_ProtoField_new_DESCR,""));
     

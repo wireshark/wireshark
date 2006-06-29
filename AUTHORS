@@ -2491,7 +2491,9 @@ Authesserre Samuel	<sauthess [AT] gmail.com> {
 	DTLS
 }
 
-And assorted fixes and enhancements by the people listed above
+Balint Reczey		<balint.reczey [AT] ericsson.com> {
+	Lua fixes
+}
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

@@ -78,7 +78,7 @@ elua.h: elua_register.h
 
 # do not do not unnecessarilly modify the old file in order avoid recompiling every module every time 
 elua_register.h: elua_makereg.pl $(lua_modules)
-	$(PERL) elua_makereg.pl $(lua_modules) > elua_register.h.new
+	$(PERL) elua_makereg.pl $(lua_modules) > elua_register.h.new ;\
 	if diff elua_register.h.new elua_register.h >/dev/null; then rm elua_register.h.new; else mv elua_register.h.new elua_register.h; fi
 
 doc: $(lua_modules)
