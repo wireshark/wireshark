@@ -3294,7 +3294,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     conversation_t *conv;
     guint16 ctx_id;
     guint16 opnum;
-    e_uuid_t obj_id;
+    e_uuid_t obj_id = DCERPC_UUID_NULL;
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
     char uuid_str[DCERPC_UUID_STR_LEN];
@@ -3423,6 +3423,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value=se_alloc (sizeof (dcerpc_call_value));
 				call_value->uuid = bind_value->uuid;
 				call_value->ver = bind_value->ver;
+                call_value->object_uuid = obj_id;
 				call_value->opnum = opnum;
 				call_value->req_frame=pinfo->fd->num;
 				call_value->req_time=pinfo->fd->abs_ts;
@@ -4594,6 +4595,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value=se_alloc (sizeof (dcerpc_call_value));
 	call_value->uuid = hdr->if_id;
 	call_value->ver = hdr->if_ver;
+	call_value->object_uuid = hdr->obj_id;
 	call_value->opnum = hdr->opnum;
 	call_value->req_frame=pinfo->fd->num;
 	call_value->req_time=pinfo->fd->abs_ts;
@@ -4614,6 +4616,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (!value) {
         v.uuid = hdr->if_id;
         v.ver = hdr->if_ver;
+        v.object_uuid = hdr->obj_id;
         v.opnum = hdr->opnum;
         v.req_frame = pinfo->fd->num;
         v.rep_frame = 0;
@@ -4677,6 +4680,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (!value) {
         v.uuid = hdr->if_id;
         v.ver = hdr->if_ver;
+        v.object_uuid = hdr->obj_id;
         v.opnum = hdr->opnum;
         v.req_frame=0;
         v.rep_frame=pinfo->fd->num;

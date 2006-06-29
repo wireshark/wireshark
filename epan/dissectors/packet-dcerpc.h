@@ -35,6 +35,8 @@ typedef struct _e_uuid_t {
     guint8 Data4[8];
 } e_uuid_t;
 
+#define DCERPC_UUID_NULL { 0,0,0, {0,0,0,0,0,0,0,0} }
+
 /* %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x */
 #define DCERPC_UUID_STR_LEN 36+1
 
@@ -258,8 +260,9 @@ const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
 
 /* Private data passed to subdissectors from the main DCERPC dissector. */
 typedef struct _dcerpc_call_value {
-    e_uuid_t uuid;
-    guint16 ver;
+    e_uuid_t uuid;          /* interface UUID */
+    guint16 ver;            /* interface version */
+    e_uuid_t object_uuid;   /* optional object UUID (or DCERPC_UUID_NULL) */
     guint16 opnum;
     guint32 req_frame;
     nstime_t req_time;
