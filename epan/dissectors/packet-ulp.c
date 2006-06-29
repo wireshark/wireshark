@@ -339,9 +339,6 @@ static gint ett_ulp_PosProtocol = -1;
 
 /*--- Included file: packet-ulp-fn.c ---*/
 #line 1 "packet-ulp-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -350,30 +347,6 @@ dissect_ulp_INTEGER_0_65535(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                               0U, 65535U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_length(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_length);
-}
-static int dissect_sessionId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_sessionId);
-}
-static int dissect_refNID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_refNID);
-}
-static int dissect_refBASEID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_refBASEID);
-}
-static int dissect_refWeekNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_refWeekNumber);
-}
-static int dissect_refLAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_refLAC);
-}
-static int dissect_refCI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_refCI);
-}
-static int dissect_maxLocAge(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_65535(tvb, offset, actx, tree, hf_ulp_maxLocAge);
 }
 
 
@@ -385,27 +358,12 @@ dissect_ulp_INTEGER_0_255(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_maj(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_255(tvb, offset, actx, tree, hf_ulp_maj);
-}
-static int dissect_min(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_255(tvb, offset, actx, tree, hf_ulp_min);
-}
-static int dissect_servind(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_255(tvb, offset, actx, tree, hf_ulp_servind);
-}
-static int dissect_tA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_255(tvb, offset, actx, tree, hf_ulp_tA);
-}
-static int dissect_iODE(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_255(tvb, offset, actx, tree, hf_ulp_iODE);
-}
 
 
 static const per_sequence_t Version_sequence[] = {
-  { "maj"                         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_maj },
-  { "min"                         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_min },
-  { "servind"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_servind },
+  { "maj"                   , &hf_ulp_maj             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
+  { "min"                   , &hf_ulp_min             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
+  { "servind"               , &hf_ulp_servind         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -415,9 +373,6 @@ dissect_ulp_Version(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
                                    ett_ulp_Version, Version_sequence);
 
   return offset;
-}
-static int dissect_version(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Version(tvb, offset, actx, tree, hf_ulp_version);
 }
 
 
@@ -429,15 +384,6 @@ dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_msisdn(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_msisdn);
-}
-static int dissect_mdn(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_mdn);
-}
-static int dissect_imsi(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_imsi);
-}
 
 
 
@@ -447,9 +393,6 @@ dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
                                      34, 34, FALSE, NULL);
 
   return offset;
-}
-static int dissect_min1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_34(tvb, offset, actx, tree, hf_ulp_min1);
 }
 
 
@@ -461,9 +404,6 @@ dissect_ulp_IA5String_SIZE_1_1000(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_nai(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_IA5String_SIZE_1_1000(tvb, offset, actx, tree, hf_ulp_nai);
-}
 
 
 
@@ -473,9 +413,6 @@ dissect_ulp_IPv4Address(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
                                        4, 4, NULL);
 
   return offset;
-}
-static int dissect_ipv4Address(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_IPv4Address(tvb, offset, actx, tree, hf_ulp_ipv4Address);
 }
 
 
@@ -487,9 +424,6 @@ dissect_ulp_IPv6Address(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_ipv6Address(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_IPv6Address(tvb, offset, actx, tree, hf_ulp_ipv6Address);
-}
 
 
 static const value_string ulp_IPAddress_vals[] = {
@@ -499,8 +433,8 @@ static const value_string ulp_IPAddress_vals[] = {
 };
 
 static const per_choice_t IPAddress_choice[] = {
-  {   0, "ipv4Address"                 , ASN1_NO_EXTENSIONS     , dissect_ipv4Address },
-  {   1, "ipv6Address"                 , ASN1_NO_EXTENSIONS     , dissect_ipv6Address },
+  {   0, &hf_ulp_ipv4Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_IPv4Address },
+  {   1, &hf_ulp_ipv6Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_IPv6Address },
   { 0, NULL, 0, NULL }
 };
 
@@ -511,9 +445,6 @@ dissect_ulp_IPAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                  NULL);
 
   return offset;
-}
-static int dissect_iPAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_IPAddress(tvb, offset, actx, tree, hf_ulp_iPAddress);
 }
 
 
@@ -528,12 +459,12 @@ static const value_string ulp_SETId_vals[] = {
 };
 
 static const per_choice_t SETId_choice[] = {
-  {   0, "msisdn"                      , ASN1_EXTENSION_ROOT    , dissect_msisdn },
-  {   1, "mdn"                         , ASN1_EXTENSION_ROOT    , dissect_mdn },
-  {   2, "min"                         , ASN1_EXTENSION_ROOT    , dissect_min1 },
-  {   3, "imsi"                        , ASN1_EXTENSION_ROOT    , dissect_imsi },
-  {   4, "nai"                         , ASN1_EXTENSION_ROOT    , dissect_nai },
-  {   5, "iPAddress"                   , ASN1_EXTENSION_ROOT    , dissect_iPAddress },
+  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   2, &hf_ulp_min1            , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
+  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
+  {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
   { 0, NULL, 0, NULL }
 };
 
@@ -545,14 +476,11 @@ dissect_ulp_SETId(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
 
   return offset;
 }
-static int dissect_setId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SETId(tvb, offset, actx, tree, hf_ulp_setId);
-}
 
 
 static const per_sequence_t SetSessionID_sequence[] = {
-  { "sessionId"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sessionId },
-  { "setId"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_setId },
+  { "sessionId"             , &hf_ulp_sessionId       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "setId"                 , &hf_ulp_setId           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_SETId },
   { NULL, 0, 0, NULL }
 };
 
@@ -562,9 +490,6 @@ dissect_ulp_SetSessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_ulp_SetSessionID, SetSessionID_sequence);
 
   return offset;
-}
-static int dissect_setSessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SetSessionID(tvb, offset, actx, tree, hf_ulp_setSessionID);
 }
 
 
@@ -576,9 +501,6 @@ dissect_ulp_OCTET_STRING_SIZE_4(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_sessionID1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_4(tvb, offset, actx, tree, hf_ulp_sessionID1);
-}
 
 
 
@@ -589,9 +511,6 @@ dissect_ulp_FQDN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tre
 
   return offset;
 }
-static int dissect_fQDN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FQDN(tvb, offset, actx, tree, hf_ulp_fQDN);
-}
 
 
 static const value_string ulp_SLPAddress_vals[] = {
@@ -601,8 +520,8 @@ static const value_string ulp_SLPAddress_vals[] = {
 };
 
 static const per_choice_t SLPAddress_choice[] = {
-  {   0, "iPAddress"                   , ASN1_EXTENSION_ROOT    , dissect_iPAddress },
-  {   1, "fQDN"                        , ASN1_EXTENSION_ROOT    , dissect_fQDN },
+  {   0, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
+  {   1, &hf_ulp_fQDN            , ASN1_EXTENSION_ROOT    , dissect_ulp_FQDN },
   { 0, NULL, 0, NULL }
 };
 
@@ -614,17 +533,11 @@ dissect_ulp_SLPAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_slpId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SLPAddress(tvb, offset, actx, tree, hf_ulp_slpId);
-}
-static int dissect_sLPAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SLPAddress(tvb, offset, actx, tree, hf_ulp_sLPAddress);
-}
 
 
 static const per_sequence_t SlpSessionID_sequence[] = {
-  { "sessionID"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sessionID1 },
-  { "slpId"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_slpId },
+  { "sessionID"             , &hf_ulp_sessionID1      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_4 },
+  { "slpId"                 , &hf_ulp_slpId           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_SLPAddress },
   { NULL, 0, 0, NULL }
 };
 
@@ -635,14 +548,11 @@ dissect_ulp_SlpSessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_slpSessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SlpSessionID(tvb, offset, actx, tree, hf_ulp_slpSessionID);
-}
 
 
 static const per_sequence_t SessionID_sequence[] = {
-  { "setSessionID"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_setSessionID },
-  { "slpSessionID"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_slpSessionID },
+  { "setSessionID"          , &hf_ulp_setSessionID    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_SetSessionID },
+  { "slpSessionID"          , &hf_ulp_slpSessionID    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_SlpSessionID },
   { NULL, 0, 0, NULL }
 };
 
@@ -652,9 +562,6 @@ dissect_ulp_SessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                    ett_ulp_SessionID, SessionID_sequence);
 
   return offset;
-}
-static int dissect_sessionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SessionID(tvb, offset, actx, tree, hf_ulp_sessionID);
 }
 
 
@@ -680,9 +587,6 @@ dissect_ulp_PosMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
 
   return offset;
 }
-static int dissect_posMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PosMethod(tvb, offset, actx, tree, hf_ulp_posMethod);
-}
 
 
 static const value_string ulp_NotificationType_vals[] = {
@@ -702,9 +606,6 @@ dissect_ulp_NotificationType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_notificationType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_NotificationType(tvb, offset, actx, tree, hf_ulp_notificationType);
-}
 
 
 static const value_string ulp_EncodingType_vals[] = {
@@ -722,9 +623,6 @@ dissect_ulp_EncodingType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_encodingType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_EncodingType(tvb, offset, actx, tree, hf_ulp_encodingType);
-}
 
 
 
@@ -734,9 +632,6 @@ dissect_ulp_OCTET_STRING_SIZE_1_maxReqLength(tvbuff_t *tvb, int offset, asn_ctx_
                                        1, maxReqLength, NULL);
 
   return offset;
-}
-static int dissect_requestorId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_1_maxReqLength(tvb, offset, actx, tree, hf_ulp_requestorId);
 }
 
 
@@ -759,12 +654,6 @@ dissect_ulp_FormatIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_requestorIdType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FormatIndicator(tvb, offset, actx, tree, hf_ulp_requestorIdType);
-}
-static int dissect_clientNameType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FormatIndicator(tvb, offset, actx, tree, hf_ulp_clientNameType);
-}
 
 
 
@@ -775,18 +664,15 @@ dissect_ulp_OCTET_STRING_SIZE_1_maxClientLength(tvbuff_t *tvb, int offset, asn_c
 
   return offset;
 }
-static int dissect_clientName(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_1_maxClientLength(tvb, offset, actx, tree, hf_ulp_clientName);
-}
 
 
 static const per_sequence_t Notification_sequence[] = {
-  { "notificationType"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_notificationType },
-  { "encodingType"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_encodingType },
-  { "requestorId"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_requestorId },
-  { "requestorIdType"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_requestorIdType },
-  { "clientName"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_clientName },
-  { "clientNameType"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_clientNameType },
+  { "notificationType"      , &hf_ulp_notificationType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_NotificationType },
+  { "encodingType"          , &hf_ulp_encodingType    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_EncodingType },
+  { "requestorId"           , &hf_ulp_requestorId     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_OCTET_STRING_SIZE_1_maxReqLength },
+  { "requestorIdType"       , &hf_ulp_requestorIdType , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_FormatIndicator },
+  { "clientName"            , &hf_ulp_clientName      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_OCTET_STRING_SIZE_1_maxClientLength },
+  { "clientNameType"        , &hf_ulp_clientNameType  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_FormatIndicator },
   { NULL, 0, 0, NULL }
 };
 
@@ -796,9 +682,6 @@ dissect_ulp_Notification(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_ulp_Notification, Notification_sequence);
 
   return offset;
-}
-static int dissect_notification(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Notification(tvb, offset, actx, tree, hf_ulp_notification);
 }
 
 
@@ -810,21 +693,6 @@ dissect_ulp_INTEGER_0_127(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_uncertaintySemiMajor(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_127(tvb, offset, actx, tree, hf_ulp_uncertaintySemiMajor);
-}
-static int dissect_uncertaintySemiMinor(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_127(tvb, offset, actx, tree, hf_ulp_uncertaintySemiMinor);
-}
-static int dissect_altUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_127(tvb, offset, actx, tree, hf_ulp_altUncertainty);
-}
-static int dissect_horacc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_127(tvb, offset, actx, tree, hf_ulp_horacc);
-}
-static int dissect_veracc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_127(tvb, offset, actx, tree, hf_ulp_veracc);
-}
 
 
 
@@ -835,16 +703,13 @@ dissect_ulp_INTEGER_0_7(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_delay(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_7(tvb, offset, actx, tree, hf_ulp_delay);
-}
 
 
 static const per_sequence_t QoP_sequence[] = {
-  { "horacc"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horacc },
-  { "veracc"                      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_veracc },
-  { "maxLocAge"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_maxLocAge },
-  { "delay"                       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_delay },
+  { "horacc"                , &hf_ulp_horacc          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_127 },
+  { "veracc"                , &hf_ulp_veracc          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_127 },
+  { "maxLocAge"             , &hf_ulp_maxLocAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
+  { "delay"                 , &hf_ulp_delay           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_7 },
   { NULL, 0, 0, NULL }
 };
 
@@ -854,9 +719,6 @@ dissect_ulp_QoP(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree
                                    ett_ulp_QoP, QoP_sequence);
 
   return offset;
-}
-static int dissect_qoP(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_QoP(tvb, offset, actx, tree, hf_ulp_qoP);
 }
 
 
@@ -874,9 +736,6 @@ dissect_ulp_SLPMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
 
   return offset;
 }
-static int dissect_sLPMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SLPMode(tvb, offset, actx, tree, hf_ulp_sLPMode);
-}
 
 
 
@@ -886,9 +745,6 @@ dissect_ulp_MAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree
                                      64, 64, FALSE, NULL);
 
   return offset;
-}
-static int dissect_mAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_MAC(tvb, offset, actx, tree, hf_ulp_mAC);
 }
 
 
@@ -900,19 +756,16 @@ dissect_ulp_KeyIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_keyIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_KeyIdentity(tvb, offset, actx, tree, hf_ulp_keyIdentity);
-}
 
 
 static const per_sequence_t SUPLINIT_sequence[] = {
-  { "posMethod"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_posMethod },
-  { "notification"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_notification },
-  { "sLPAddress"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sLPAddress },
-  { "qoP"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_qoP },
-  { "sLPMode"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sLPMode },
-  { "mAC"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mAC },
-  { "keyIdentity"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_keyIdentity },
+  { "posMethod"             , &hf_ulp_posMethod       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PosMethod },
+  { "notification"          , &hf_ulp_notification    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Notification },
+  { "sLPAddress"            , &hf_ulp_sLPAddress      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SLPAddress },
+  { "qoP"                   , &hf_ulp_qoP             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_QoP },
+  { "sLPMode"               , &hf_ulp_sLPMode         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_SLPMode },
+  { "mAC"                   , &hf_ulp_mAC             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MAC },
+  { "keyIdentity"           , &hf_ulp_keyIdentity     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_KeyIdentity },
   { NULL, 0, 0, NULL }
 };
 
@@ -923,9 +776,6 @@ dissect_ulp_SUPLINIT(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_msSUPLINIT(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLINIT(tvb, offset, actx, tree, hf_ulp_msSUPLINIT);
-}
 
 
 
@@ -935,73 +785,16 @@ dissect_ulp_BOOLEAN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
 
   return offset;
 }
-static int dissect_almanacRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_almanacRequested);
-}
-static int dissect_utcModelRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_utcModelRequested);
-}
-static int dissect_ionosphericModelRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_ionosphericModelRequested);
-}
-static int dissect_dgpsCorrectionsRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_dgpsCorrectionsRequested);
-}
-static int dissect_referenceLocationRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_referenceLocationRequested);
-}
-static int dissect_referenceTimeRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_referenceTimeRequested);
-}
-static int dissect_acquisitionAssistanceRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_acquisitionAssistanceRequested);
-}
-static int dissect_realTimeIntegrityRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_realTimeIntegrityRequested);
-}
-static int dissect_navigationModelRequested(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_navigationModelRequested);
-}
-static int dissect_agpsSETassisted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_agpsSETassisted);
-}
-static int dissect_agpsSETBased(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_agpsSETBased);
-}
-static int dissect_autonomousGPS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_autonomousGPS);
-}
-static int dissect_aFLT(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_aFLT);
-}
-static int dissect_eCID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_eCID);
-}
-static int dissect_eOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_eOTD);
-}
-static int dissect_oTDOA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_oTDOA);
-}
-static int dissect_tia801(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_tia801);
-}
-static int dissect_rrlp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_rrlp);
-}
-static int dissect_rrc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BOOLEAN(tvb, offset, actx, tree, hf_ulp_rrc);
-}
 
 
 static const per_sequence_t PosTechnology_sequence[] = {
-  { "agpsSETassisted"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_agpsSETassisted },
-  { "agpsSETBased"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_agpsSETBased },
-  { "autonomousGPS"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_autonomousGPS },
-  { "aFLT"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_aFLT },
-  { "eCID"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_eCID },
-  { "eOTD"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_eOTD },
-  { "oTDOA"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_oTDOA },
+  { "agpsSETassisted"       , &hf_ulp_agpsSETassisted , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "agpsSETBased"          , &hf_ulp_agpsSETBased    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "autonomousGPS"         , &hf_ulp_autonomousGPS   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "aFLT"                  , &hf_ulp_aFLT            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "eCID"                  , &hf_ulp_eCID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "eOTD"                  , &hf_ulp_eOTD            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "oTDOA"                 , &hf_ulp_oTDOA           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1011,9 +804,6 @@ dissect_ulp_PosTechnology(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                    ett_ulp_PosTechnology, PosTechnology_sequence);
 
   return offset;
-}
-static int dissect_posTechnology(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PosTechnology(tvb, offset, actx, tree, hf_ulp_posTechnology);
 }
 
 
@@ -1032,15 +822,12 @@ dissect_ulp_PrefMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_prefMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PrefMethod(tvb, offset, actx, tree, hf_ulp_prefMethod);
-}
 
 
 static const per_sequence_t PosProtocol_sequence[] = {
-  { "tia801"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tia801 },
-  { "rrlp"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp },
-  { "rrc"                         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrc },
+  { "tia801"                , &hf_ulp_tia801          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "rrlp"                  , &hf_ulp_rrlp            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "rrc"                   , &hf_ulp_rrc             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1051,15 +838,12 @@ dissect_ulp_PosProtocol(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_posProtocol(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PosProtocol(tvb, offset, actx, tree, hf_ulp_posProtocol);
-}
 
 
 static const per_sequence_t SETCapabilities_sequence[] = {
-  { "posTechnology"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_posTechnology },
-  { "prefMethod"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_prefMethod },
-  { "posProtocol"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_posProtocol },
+  { "posTechnology"         , &hf_ulp_posTechnology   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PosTechnology },
+  { "prefMethod"            , &hf_ulp_prefMethod      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PrefMethod },
+  { "posProtocol"           , &hf_ulp_posProtocol     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PosProtocol },
   { NULL, 0, 0, NULL }
 };
 
@@ -1069,9 +853,6 @@ dissect_ulp_SETCapabilities(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_ulp_SETCapabilities, SETCapabilities_sequence);
 
   return offset;
-}
-static int dissect_sETCapabilities(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SETCapabilities(tvb, offset, actx, tree, hf_ulp_sETCapabilities);
 }
 
 
@@ -1083,12 +864,6 @@ dissect_ulp_INTEGER_0_999(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_refMCC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_999(tvb, offset, actx, tree, hf_ulp_refMCC);
-}
-static int dissect_refMNC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_999(tvb, offset, actx, tree, hf_ulp_refMNC);
-}
 
 
 
@@ -1098,12 +873,6 @@ dissect_ulp_INTEGER_0_1023(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
                                               0U, 1023U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_aRFCN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_1023(tvb, offset, actx, tree, hf_ulp_aRFCN);
-}
-static int dissect_gpsWeek(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_1023(tvb, offset, actx, tree, hf_ulp_gpsWeek);
 }
 
 
@@ -1115,21 +884,12 @@ dissect_ulp_INTEGER_0_63(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_bSIC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_63(tvb, offset, actx, tree, hf_ulp_bSIC);
-}
-static int dissect_rxLev(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_63(tvb, offset, actx, tree, hf_ulp_rxLev);
-}
-static int dissect_satId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_63(tvb, offset, actx, tree, hf_ulp_satId);
-}
 
 
 static const per_sequence_t NMRelement_sequence[] = {
-  { "aRFCN"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_aRFCN },
-  { "bSIC"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bSIC },
-  { "rxLev"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rxLev },
+  { "aRFCN"                 , &hf_ulp_aRFCN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_1023 },
+  { "bSIC"                  , &hf_ulp_bSIC            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_63 },
+  { "rxLev"                 , &hf_ulp_rxLev           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_63 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1140,13 +900,10 @@ dissect_ulp_NMRelement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_NMR_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_NMRelement(tvb, offset, actx, tree, hf_ulp_NMR_item);
-}
 
 
 static const per_sequence_t NMR_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_NMR_item },
+  { ""                      , &hf_ulp_NMR_item        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_NMRelement },
 };
 
 static int
@@ -1157,18 +914,15 @@ dissect_ulp_NMR(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree
 
   return offset;
 }
-static int dissect_nMR(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_NMR(tvb, offset, actx, tree, hf_ulp_nMR);
-}
 
 
 static const per_sequence_t GsmCellInformation_sequence[] = {
-  { "refMCC"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refMCC },
-  { "refMNC"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refMNC },
-  { "refLAC"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refLAC },
-  { "refCI"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refCI },
-  { "nMR"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nMR },
-  { "tA"                          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_tA },
+  { "refMCC"                , &hf_ulp_refMCC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_999 },
+  { "refMNC"                , &hf_ulp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_999 },
+  { "refLAC"                , &hf_ulp_refLAC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "refCI"                 , &hf_ulp_refCI           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "nMR"                   , &hf_ulp_nMR             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NMR },
+  { "tA"                    , &hf_ulp_tA              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1178,9 +932,6 @@ dissect_ulp_GsmCellInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
                                    ett_ulp_GsmCellInformation, GsmCellInformation_sequence);
 
   return offset;
-}
-static int dissect_gsmCell(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_GsmCellInformation(tvb, offset, actx, tree, hf_ulp_gsmCell);
 }
 
 
@@ -1192,12 +943,6 @@ dissect_ulp_INTEGER_0_268435455(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_refUC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_268435455(tvb, offset, actx, tree, hf_ulp_refUC);
-}
-static int dissect_cellIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_268435455(tvb, offset, actx, tree, hf_ulp_cellIdentity);
-}
 
 
 
@@ -1208,20 +953,11 @@ dissect_ulp_UARFCN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *t
 
   return offset;
 }
-static int dissect_uarfcn_UL(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UARFCN(tvb, offset, actx, tree, hf_ulp_uarfcn_UL);
-}
-static int dissect_uarfcn_DL(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UARFCN(tvb, offset, actx, tree, hf_ulp_uarfcn_DL);
-}
-static int dissect_uarfcn_Nt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UARFCN(tvb, offset, actx, tree, hf_ulp_uarfcn_Nt);
-}
 
 
 static const per_sequence_t FrequencyInfoFDD_sequence[] = {
-  { "uarfcn-UL"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_uarfcn_UL },
-  { "uarfcn-DL"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_uarfcn_DL },
+  { "uarfcn-UL"             , &hf_ulp_uarfcn_UL       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_UARFCN },
+  { "uarfcn-DL"             , &hf_ulp_uarfcn_DL       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UARFCN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1232,13 +968,10 @@ dissect_ulp_FrequencyInfoFDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_fdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FrequencyInfoFDD(tvb, offset, actx, tree, hf_ulp_fdd);
-}
 
 
 static const per_sequence_t FrequencyInfoTDD_sequence[] = {
-  { "uarfcn-Nt"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_uarfcn_Nt },
+  { "uarfcn-Nt"             , &hf_ulp_uarfcn_Nt       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UARFCN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1249,9 +982,6 @@ dissect_ulp_FrequencyInfoTDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_tdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FrequencyInfoTDD(tvb, offset, actx, tree, hf_ulp_tdd);
-}
 
 
 static const value_string ulp_T_modeSpecificInfo_vals[] = {
@@ -1261,8 +991,8 @@ static const value_string ulp_T_modeSpecificInfo_vals[] = {
 };
 
 static const per_choice_t T_modeSpecificInfo_choice[] = {
-  {   0, "fdd"                         , ASN1_EXTENSION_ROOT    , dissect_fdd },
-  {   1, "tdd"                         , ASN1_EXTENSION_ROOT    , dissect_tdd },
+  {   0, &hf_ulp_fdd             , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoFDD },
+  {   1, &hf_ulp_tdd             , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoTDD },
   { 0, NULL, 0, NULL }
 };
 
@@ -1274,13 +1004,10 @@ dissect_ulp_T_modeSpecificInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_modeSpecificInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_modeSpecificInfo(tvb, offset, actx, tree, hf_ulp_modeSpecificInfo);
-}
 
 
 static const per_sequence_t FrequencyInfo_sequence[] = {
-  { "modeSpecificInfo"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_modeSpecificInfo },
+  { "modeSpecificInfo"      , &hf_ulp_modeSpecificInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo },
   { NULL, 0, 0, NULL }
 };
 
@@ -1290,9 +1017,6 @@ dissect_ulp_FrequencyInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                    ett_ulp_FrequencyInfo, FrequencyInfo_sequence);
 
   return offset;
-}
-static int dissect_frequencyInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_FrequencyInfo(tvb, offset, actx, tree, hf_ulp_frequencyInfo);
 }
 
 
@@ -1304,12 +1028,6 @@ dissect_ulp_INTEGER_0_511(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_refREFPN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_511(tvb, offset, actx, tree, hf_ulp_refREFPN);
-}
-static int dissect_primaryScramblingCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_511(tvb, offset, actx, tree, hf_ulp_primaryScramblingCode);
-}
 
 
 
@@ -1320,13 +1038,10 @@ dissect_ulp_UTRA_CarrierRSSI(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_utra_CarrierRSSI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UTRA_CarrierRSSI(tvb, offset, actx, tree, hf_ulp_utra_CarrierRSSI);
-}
 
 
 static const per_sequence_t PrimaryCPICH_Info_sequence[] = {
-  { "primaryScramblingCode"       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_primaryScramblingCode },
+  { "primaryScramblingCode" , &hf_ulp_primaryScramblingCode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_511 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1336,9 +1051,6 @@ dissect_ulp_PrimaryCPICH_Info(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
                                    ett_ulp_PrimaryCPICH_Info, PrimaryCPICH_Info_sequence);
 
   return offset;
-}
-static int dissect_primaryCPICH_Info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PrimaryCPICH_Info(tvb, offset, actx, tree, hf_ulp_primaryCPICH_Info);
 }
 
 
@@ -1350,9 +1062,6 @@ dissect_ulp_CPICH_Ec_N0(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_cpich_Ec_N0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CPICH_Ec_N0(tvb, offset, actx, tree, hf_ulp_cpich_Ec_N0);
-}
 
 
 
@@ -1362,9 +1071,6 @@ dissect_ulp_CPICH_RSCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
                                               0U, 127U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_cpich_RSCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CPICH_RSCP(tvb, offset, actx, tree, hf_ulp_cpich_RSCP);
 }
 
 
@@ -1376,16 +1082,13 @@ dissect_ulp_Pathloss(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_pathloss(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Pathloss(tvb, offset, actx, tree, hf_ulp_pathloss);
-}
 
 
 static const per_sequence_t T_fdd_sequence[] = {
-  { "primaryCPICH-Info"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_primaryCPICH_Info },
-  { "cpich-Ec-N0"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpich_Ec_N0 },
-  { "cpich-RSCP"                  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpich_RSCP },
-  { "pathloss"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_pathloss },
+  { "primaryCPICH-Info"     , &hf_ulp_primaryCPICH_Info, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_PrimaryCPICH_Info },
+  { "cpich-Ec-N0"           , &hf_ulp_cpich_Ec_N0     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_CPICH_Ec_N0 },
+  { "cpich-RSCP"            , &hf_ulp_cpich_RSCP      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_CPICH_RSCP },
+  { "pathloss"              , &hf_ulp_pathloss        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_Pathloss },
   { NULL, 0, 0, NULL }
 };
 
@@ -1395,9 +1098,6 @@ dissect_ulp_T_fdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
                                    ett_ulp_T_fdd, T_fdd_sequence);
 
   return offset;
-}
-static int dissect_fdd1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_fdd(tvb, offset, actx, tree, hf_ulp_fdd1);
 }
 
 
@@ -1409,9 +1109,6 @@ dissect_ulp_CellParametersID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_cellParametersID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CellParametersID(tvb, offset, actx, tree, hf_ulp_cellParametersID);
-}
 
 
 
@@ -1421,9 +1118,6 @@ dissect_ulp_TGSN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tre
                                               0U, 14U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_proposedTGSN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_TGSN(tvb, offset, actx, tree, hf_ulp_proposedTGSN);
 }
 
 
@@ -1435,9 +1129,6 @@ dissect_ulp_PrimaryCCPCH_RSCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_primaryCCPCH_RSCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PrimaryCCPCH_RSCP(tvb, offset, actx, tree, hf_ulp_primaryCCPCH_RSCP);
-}
 
 
 
@@ -1448,13 +1139,10 @@ dissect_ulp_TimeslotISCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_TimeslotISCP_List_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_TimeslotISCP(tvb, offset, actx, tree, hf_ulp_TimeslotISCP_List_item);
-}
 
 
 static const per_sequence_t TimeslotISCP_List_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_TimeslotISCP_List_item },
+  { ""                      , &hf_ulp_TimeslotISCP_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_TimeslotISCP },
 };
 
 static int
@@ -1465,17 +1153,14 @@ dissect_ulp_TimeslotISCP_List(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_timeslotISCP_List(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_TimeslotISCP_List(tvb, offset, actx, tree, hf_ulp_timeslotISCP_List);
-}
 
 
 static const per_sequence_t T_tdd_sequence[] = {
-  { "cellParametersID"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cellParametersID },
-  { "proposedTGSN"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_proposedTGSN },
-  { "primaryCCPCH-RSCP"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_primaryCCPCH_RSCP },
-  { "pathloss"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_pathloss },
-  { "timeslotISCP-List"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_timeslotISCP_List },
+  { "cellParametersID"      , &hf_ulp_cellParametersID, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_CellParametersID },
+  { "proposedTGSN"          , &hf_ulp_proposedTGSN    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_TGSN },
+  { "primaryCCPCH-RSCP"     , &hf_ulp_primaryCCPCH_RSCP, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_PrimaryCCPCH_RSCP },
+  { "pathloss"              , &hf_ulp_pathloss        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_Pathloss },
+  { "timeslotISCP-List"     , &hf_ulp_timeslotISCP_List, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_TimeslotISCP_List },
   { NULL, 0, 0, NULL }
 };
 
@@ -1486,9 +1171,6 @@ dissect_ulp_T_tdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
 
   return offset;
 }
-static int dissect_tdd1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_tdd(tvb, offset, actx, tree, hf_ulp_tdd1);
-}
 
 
 static const value_string ulp_T_modeSpecificInfo1_vals[] = {
@@ -1498,8 +1180,8 @@ static const value_string ulp_T_modeSpecificInfo1_vals[] = {
 };
 
 static const per_choice_t T_modeSpecificInfo1_choice[] = {
-  {   0, "fdd"                         , ASN1_NO_EXTENSIONS     , dissect_fdd1 },
-  {   1, "tdd"                         , ASN1_NO_EXTENSIONS     , dissect_tdd1 },
+  {   0, &hf_ulp_fdd1            , ASN1_NO_EXTENSIONS     , dissect_ulp_T_fdd },
+  {   1, &hf_ulp_tdd1            , ASN1_NO_EXTENSIONS     , dissect_ulp_T_tdd },
   { 0, NULL, 0, NULL }
 };
 
@@ -1511,14 +1193,11 @@ dissect_ulp_T_modeSpecificInfo1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_modeSpecificInfo1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_modeSpecificInfo1(tvb, offset, actx, tree, hf_ulp_modeSpecificInfo1);
-}
 
 
 static const per_sequence_t CellMeasuredResults_sequence[] = {
-  { "cellIdentity"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cellIdentity },
-  { "modeSpecificInfo"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_modeSpecificInfo1 },
+  { "cellIdentity"          , &hf_ulp_cellIdentity    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_268435455 },
+  { "modeSpecificInfo"      , &hf_ulp_modeSpecificInfo1, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1529,13 +1208,10 @@ dissect_ulp_CellMeasuredResults(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_CellMeasuredResultsList_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CellMeasuredResults(tvb, offset, actx, tree, hf_ulp_CellMeasuredResultsList_item);
-}
 
 
 static const per_sequence_t CellMeasuredResultsList_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_CellMeasuredResultsList_item },
+  { ""                      , &hf_ulp_CellMeasuredResultsList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_CellMeasuredResults },
 };
 
 static int
@@ -1546,15 +1222,12 @@ dissect_ulp_CellMeasuredResultsList(tvbuff_t *tvb, int offset, asn_ctx_t *actx _
 
   return offset;
 }
-static int dissect_cellMeasuredResultsList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CellMeasuredResultsList(tvb, offset, actx, tree, hf_ulp_cellMeasuredResultsList);
-}
 
 
 static const per_sequence_t MeasuredResults_sequence[] = {
-  { "frequencyInfo"               , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_frequencyInfo },
-  { "utra-CarrierRSSI"            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_utra_CarrierRSSI },
-  { "cellMeasuredResultsList"     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cellMeasuredResultsList },
+  { "frequencyInfo"         , &hf_ulp_frequencyInfo   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_FrequencyInfo },
+  { "utra-CarrierRSSI"      , &hf_ulp_utra_CarrierRSSI, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_UTRA_CarrierRSSI },
+  { "cellMeasuredResultsList", &hf_ulp_cellMeasuredResultsList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_CellMeasuredResultsList },
   { NULL, 0, 0, NULL }
 };
 
@@ -1565,13 +1238,10 @@ dissect_ulp_MeasuredResults(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_MeasuredResultsList_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_MeasuredResults(tvb, offset, actx, tree, hf_ulp_MeasuredResultsList_item);
-}
 
 
 static const per_sequence_t MeasuredResultsList_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_MeasuredResultsList_item },
+  { ""                      , &hf_ulp_MeasuredResultsList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_MeasuredResults },
 };
 
 static int
@@ -1582,18 +1252,15 @@ dissect_ulp_MeasuredResultsList(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_measuredResultsList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_MeasuredResultsList(tvb, offset, actx, tree, hf_ulp_measuredResultsList);
-}
 
 
 static const per_sequence_t WcdmaCellInformation_sequence[] = {
-  { "refMCC"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refMCC },
-  { "refMNC"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refMNC },
-  { "refUC"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refUC },
-  { "frequencyInfo"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_frequencyInfo },
-  { "primaryScramblingCode"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_primaryScramblingCode },
-  { "measuredResultsList"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_measuredResultsList },
+  { "refMCC"                , &hf_ulp_refMCC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_999 },
+  { "refMNC"                , &hf_ulp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_999 },
+  { "refUC"                 , &hf_ulp_refUC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_268435455 },
+  { "frequencyInfo"         , &hf_ulp_frequencyInfo   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_FrequencyInfo },
+  { "primaryScramblingCode" , &hf_ulp_primaryScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_511 },
+  { "measuredResultsList"   , &hf_ulp_measuredResultsList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MeasuredResultsList },
   { NULL, 0, 0, NULL }
 };
 
@@ -1603,9 +1270,6 @@ dissect_ulp_WcdmaCellInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
                                    ett_ulp_WcdmaCellInformation, WcdmaCellInformation_sequence);
 
   return offset;
-}
-static int dissect_wcdmaCell(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_WcdmaCellInformation(tvb, offset, actx, tree, hf_ulp_wcdmaCell);
 }
 
 
@@ -1617,12 +1281,6 @@ dissect_ulp_INTEGER_0_32767(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_altitude(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_32767(tvb, offset, actx, tree, hf_ulp_altitude);
-}
-static int dissect_refSID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_32767(tvb, offset, actx, tree, hf_ulp_refSID);
-}
 
 
 
@@ -1632,12 +1290,6 @@ dissect_ulp_INTEGER_0_4194303(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
                                               0U, 4194303U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_refBASELAT(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_4194303(tvb, offset, actx, tree, hf_ulp_refBASELAT);
-}
-static int dissect_refSeconds(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_4194303(tvb, offset, actx, tree, hf_ulp_refSeconds);
 }
 
 
@@ -1649,23 +1301,17 @@ dissect_ulp_INTEGER_0_8388607(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_latitude(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_8388607(tvb, offset, actx, tree, hf_ulp_latitude);
-}
-static int dissect_reBASELONG(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_8388607(tvb, offset, actx, tree, hf_ulp_reBASELONG);
-}
 
 
 static const per_sequence_t CdmaCellInformation_sequence[] = {
-  { "refNID"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refNID },
-  { "refSID"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refSID },
-  { "refBASEID"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refBASEID },
-  { "refBASELAT"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refBASELAT },
-  { "reBASELONG"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reBASELONG },
-  { "refREFPN"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refREFPN },
-  { "refWeekNumber"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refWeekNumber },
-  { "refSeconds"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_refSeconds },
+  { "refNID"                , &hf_ulp_refNID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "refSID"                , &hf_ulp_refSID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_32767 },
+  { "refBASEID"             , &hf_ulp_refBASEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "refBASELAT"            , &hf_ulp_refBASELAT      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_4194303 },
+  { "reBASELONG"            , &hf_ulp_reBASELONG      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_8388607 },
+  { "refREFPN"              , &hf_ulp_refREFPN        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_511 },
+  { "refWeekNumber"         , &hf_ulp_refWeekNumber   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "refSeconds"            , &hf_ulp_refSeconds      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_4194303 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1675,9 +1321,6 @@ dissect_ulp_CdmaCellInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
                                    ett_ulp_CdmaCellInformation, CdmaCellInformation_sequence);
 
   return offset;
-}
-static int dissect_cdmaCell(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CdmaCellInformation(tvb, offset, actx, tree, hf_ulp_cdmaCell);
 }
 
 
@@ -1689,9 +1332,9 @@ static const value_string ulp_CellInfo_vals[] = {
 };
 
 static const per_choice_t CellInfo_choice[] = {
-  {   0, "gsmCell"                     , ASN1_EXTENSION_ROOT    , dissect_gsmCell },
-  {   1, "wcdmaCell"                   , ASN1_EXTENSION_ROOT    , dissect_wcdmaCell },
-  {   2, "cdmaCell"                    , ASN1_EXTENSION_ROOT    , dissect_cdmaCell },
+  {   0, &hf_ulp_gsmCell         , ASN1_EXTENSION_ROOT    , dissect_ulp_GsmCellInformation },
+  {   1, &hf_ulp_wcdmaCell       , ASN1_EXTENSION_ROOT    , dissect_ulp_WcdmaCellInformation },
+  {   2, &hf_ulp_cdmaCell        , ASN1_EXTENSION_ROOT    , dissect_ulp_CdmaCellInformation },
   { 0, NULL, 0, NULL }
 };
 
@@ -1702,9 +1345,6 @@ dissect_ulp_CellInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
                                  NULL);
 
   return offset;
-}
-static int dissect_cellInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_CellInfo(tvb, offset, actx, tree, hf_ulp_cellInfo);
 }
 
 
@@ -1723,14 +1363,11 @@ dissect_ulp_Status(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *t
 
   return offset;
 }
-static int dissect_status(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Status(tvb, offset, actx, tree, hf_ulp_status);
-}
 
 
 static const per_sequence_t LocationId_sequence[] = {
-  { "cellInfo"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cellInfo },
-  { "status"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_status },
+  { "cellInfo"              , &hf_ulp_cellInfo        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellInfo },
+  { "status"                , &hf_ulp_status          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_Status },
   { NULL, 0, 0, NULL }
 };
 
@@ -1741,15 +1378,12 @@ dissect_ulp_LocationId(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_locationId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_LocationId(tvb, offset, actx, tree, hf_ulp_locationId);
-}
 
 
 static const per_sequence_t SUPLSTART_sequence[] = {
-  { "sETCapabilities"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sETCapabilities },
-  { "locationId"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_locationId },
-  { "qoP"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_qoP },
+  { "sETCapabilities"       , &hf_ulp_sETCapabilities , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_SETCapabilities },
+  { "locationId"            , &hf_ulp_locationId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_LocationId },
+  { "qoP"                   , &hf_ulp_qoP             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_QoP },
   { NULL, 0, 0, NULL }
 };
 
@@ -1759,9 +1393,6 @@ dissect_ulp_SUPLSTART(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                    ett_ulp_SUPLSTART, SUPLSTART_sequence);
 
   return offset;
-}
-static int dissect_msSUPLSTART(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLSTART(tvb, offset, actx, tree, hf_ulp_msSUPLSTART);
 }
 
 
@@ -1773,9 +1404,6 @@ dissect_ulp_BIT_STRING_SIZE_128(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_shortKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_128(tvb, offset, actx, tree, hf_ulp_shortKey);
-}
 
 
 
@@ -1786,9 +1414,6 @@ dissect_ulp_BIT_STRING_SIZE_256(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_longKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_256(tvb, offset, actx, tree, hf_ulp_longKey);
-}
 
 
 static const value_string ulp_SETAuthKey_vals[] = {
@@ -1798,8 +1423,8 @@ static const value_string ulp_SETAuthKey_vals[] = {
 };
 
 static const per_choice_t SETAuthKey_choice[] = {
-  {   0, "shortKey"                    , ASN1_EXTENSION_ROOT    , dissect_shortKey },
-  {   1, "longKey"                     , ASN1_EXTENSION_ROOT    , dissect_longKey },
+  {   0, &hf_ulp_shortKey        , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_128 },
+  {   1, &hf_ulp_longKey         , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_256 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1811,9 +1436,6 @@ dissect_ulp_SETAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_sETAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SETAuthKey(tvb, offset, actx, tree, hf_ulp_sETAuthKey);
-}
 
 
 
@@ -1824,16 +1446,13 @@ dissect_ulp_KeyIdentity4(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_keyIdentity4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_KeyIdentity4(tvb, offset, actx, tree, hf_ulp_keyIdentity4);
-}
 
 
 static const per_sequence_t SUPLRESPONSE_sequence[] = {
-  { "posMethod"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_posMethod },
-  { "sLPAddress"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sLPAddress },
-  { "sETAuthKey"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sETAuthKey },
-  { "keyIdentity4"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_keyIdentity4 },
+  { "posMethod"             , &hf_ulp_posMethod       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PosMethod },
+  { "sLPAddress"            , &hf_ulp_sLPAddress      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SLPAddress },
+  { "sETAuthKey"            , &hf_ulp_sETAuthKey      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SETAuthKey },
+  { "keyIdentity4"          , &hf_ulp_keyIdentity4    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_KeyIdentity4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1843,9 +1462,6 @@ dissect_ulp_SUPLRESPONSE(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_ulp_SUPLRESPONSE, SUPLRESPONSE_sequence);
 
   return offset;
-}
-static int dissect_msSUPLRESPONSE(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLRESPONSE(tvb, offset, actx, tree, hf_ulp_msSUPLRESPONSE);
 }
 
 
@@ -1857,9 +1473,6 @@ dissect_ulp_INTEGER_0_167(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_gpsToe(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_167(tvb, offset, actx, tree, hf_ulp_gpsToe);
-}
 
 
 
@@ -1869,9 +1482,6 @@ dissect_ulp_INTEGER_0_31(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                               0U, 31U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_nSAT(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_31(tvb, offset, actx, tree, hf_ulp_nSAT);
 }
 
 
@@ -1883,14 +1493,11 @@ dissect_ulp_INTEGER_0_10(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_toeLimit(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_10(tvb, offset, actx, tree, hf_ulp_toeLimit);
-}
 
 
 static const per_sequence_t SatelliteInfoElement_sequence[] = {
-  { "satId"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_satId },
-  { "iODE"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_iODE },
+  { "satId"                 , &hf_ulp_satId           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_63 },
+  { "iODE"                  , &hf_ulp_iODE            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1901,13 +1508,10 @@ dissect_ulp_SatelliteInfoElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_SatelliteInfo_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SatelliteInfoElement(tvb, offset, actx, tree, hf_ulp_SatelliteInfo_item);
-}
 
 
 static const per_sequence_t SatelliteInfo_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SatelliteInfo_item },
+  { ""                      , &hf_ulp_SatelliteInfo_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_SatelliteInfoElement },
 };
 
 static int
@@ -1918,17 +1522,14 @@ dissect_ulp_SatelliteInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_satInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SatelliteInfo(tvb, offset, actx, tree, hf_ulp_satInfo);
-}
 
 
 static const per_sequence_t NavigationModel_sequence[] = {
-  { "gpsWeek"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_gpsWeek },
-  { "gpsToe"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_gpsToe },
-  { "nSAT"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nSAT },
-  { "toeLimit"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_toeLimit },
-  { "satInfo"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_satInfo },
+  { "gpsWeek"               , &hf_ulp_gpsWeek         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_1023 },
+  { "gpsToe"                , &hf_ulp_gpsToe          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_167 },
+  { "nSAT"                  , &hf_ulp_nSAT            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_31 },
+  { "toeLimit"              , &hf_ulp_toeLimit        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_10 },
+  { "satInfo"               , &hf_ulp_satInfo         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SatelliteInfo },
   { NULL, 0, 0, NULL }
 };
 
@@ -1939,22 +1540,19 @@ dissect_ulp_NavigationModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_navigationModelData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_NavigationModel(tvb, offset, actx, tree, hf_ulp_navigationModelData);
-}
 
 
 static const per_sequence_t RequestedAssistData_sequence[] = {
-  { "almanacRequested"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_almanacRequested },
-  { "utcModelRequested"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_utcModelRequested },
-  { "ionosphericModelRequested"   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ionosphericModelRequested },
-  { "dgpsCorrectionsRequested"    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_dgpsCorrectionsRequested },
-  { "referenceLocationRequested"  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_referenceLocationRequested },
-  { "referenceTimeRequested"      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_referenceTimeRequested },
-  { "acquisitionAssistanceRequested", ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_acquisitionAssistanceRequested },
-  { "realTimeIntegrityRequested"  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_realTimeIntegrityRequested },
-  { "navigationModelRequested"    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_navigationModelRequested },
-  { "navigationModelData"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_navigationModelData },
+  { "almanacRequested"      , &hf_ulp_almanacRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "utcModelRequested"     , &hf_ulp_utcModelRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "ionosphericModelRequested", &hf_ulp_ionosphericModelRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "dgpsCorrectionsRequested", &hf_ulp_dgpsCorrectionsRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "referenceLocationRequested", &hf_ulp_referenceLocationRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "referenceTimeRequested", &hf_ulp_referenceTimeRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "acquisitionAssistanceRequested", &hf_ulp_acquisitionAssistanceRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "realTimeIntegrityRequested", &hf_ulp_realTimeIntegrityRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "navigationModelRequested", &hf_ulp_navigationModelRequested, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { "navigationModelData"   , &hf_ulp_navigationModelData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NavigationModel },
   { NULL, 0, 0, NULL }
 };
 
@@ -1965,9 +1563,6 @@ dissect_ulp_RequestedAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_requestedAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_RequestedAssistData(tvb, offset, actx, tree, hf_ulp_requestedAssistData);
-}
 
 
 
@@ -1977,9 +1572,6 @@ dissect_ulp_UTCTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
                                         NO_BOUND, NO_BOUND);
 
   return offset;
-}
-static int dissect_timestamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UTCTime(tvb, offset, actx, tree, hf_ulp_timestamp);
 }
 
 
@@ -1997,9 +1589,6 @@ dissect_ulp_T_latitudeSign(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_latitudeSign(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_latitudeSign(tvb, offset, actx, tree, hf_ulp_latitudeSign);
-}
 
 
 
@@ -2009,9 +1598,6 @@ dissect_ulp_INTEGER_M8388608_8388607(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
                                               -8388608, 8388607U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_longitude(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_ulp_longitude);
 }
 
 
@@ -2023,15 +1609,12 @@ dissect_ulp_INTEGER_0_180(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_orientationMajorAxis(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_180(tvb, offset, actx, tree, hf_ulp_orientationMajorAxis);
-}
 
 
 static const per_sequence_t T_uncertainty_sequence[] = {
-  { "uncertaintySemiMajor"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_uncertaintySemiMajor },
-  { "uncertaintySemiMinor"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_uncertaintySemiMinor },
-  { "orientationMajorAxis"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_orientationMajorAxis },
+  { "uncertaintySemiMajor"  , &hf_ulp_uncertaintySemiMajor, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_127 },
+  { "uncertaintySemiMinor"  , &hf_ulp_uncertaintySemiMinor, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_127 },
+  { "orientationMajorAxis"  , &hf_ulp_orientationMajorAxis, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_180 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2042,9 +1625,6 @@ dissect_ulp_T_uncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_uncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_uncertainty(tvb, offset, actx, tree, hf_ulp_uncertainty);
-}
 
 
 
@@ -2054,9 +1634,6 @@ dissect_ulp_INTEGER_0_100(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                               0U, 100U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_confidence(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_INTEGER_0_100(tvb, offset, actx, tree, hf_ulp_confidence);
 }
 
 
@@ -2074,15 +1651,12 @@ dissect_ulp_T_altitudeDirection(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_altitudeDirection(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_T_altitudeDirection(tvb, offset, actx, tree, hf_ulp_altitudeDirection);
-}
 
 
 static const per_sequence_t AltitudeInfo_sequence[] = {
-  { "altitudeDirection"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_altitudeDirection },
-  { "altitude"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_altitude },
-  { "altUncertainty"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_altUncertainty },
+  { "altitudeDirection"     , &hf_ulp_altitudeDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_altitudeDirection },
+  { "altitude"              , &hf_ulp_altitude        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_32767 },
+  { "altUncertainty"        , &hf_ulp_altUncertainty  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_127 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2093,18 +1667,15 @@ dissect_ulp_AltitudeInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_altitudeInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_AltitudeInfo(tvb, offset, actx, tree, hf_ulp_altitudeInfo);
-}
 
 
 static const per_sequence_t PositionEstimate_sequence[] = {
-  { "latitudeSign"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_latitudeSign },
-  { "latitude"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_latitude },
-  { "longitude"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_longitude },
-  { "uncertainty"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_uncertainty },
-  { "confidence"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_confidence },
-  { "altitudeInfo"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_altitudeInfo },
+  { "latitudeSign"          , &hf_ulp_latitudeSign    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_latitudeSign },
+  { "latitude"              , &hf_ulp_latitude        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_8388607 },
+  { "longitude"             , &hf_ulp_longitude       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_M8388608_8388607 },
+  { "uncertainty"           , &hf_ulp_uncertainty     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_T_uncertainty },
+  { "confidence"            , &hf_ulp_confidence      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_100 },
+  { "altitudeInfo"          , &hf_ulp_altitudeInfo    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_AltitudeInfo },
   { NULL, 0, 0, NULL }
 };
 
@@ -2114,9 +1685,6 @@ dissect_ulp_PositionEstimate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_ulp_PositionEstimate, PositionEstimate_sequence);
 
   return offset;
-}
-static int dissect_positionEstimate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PositionEstimate(tvb, offset, actx, tree, hf_ulp_positionEstimate);
 }
 
 
@@ -2128,9 +1696,6 @@ dissect_ulp_BIT_STRING_SIZE_9(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_bearing(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_9(tvb, offset, actx, tree, hf_ulp_bearing);
-}
 
 
 
@@ -2141,14 +1706,11 @@ dissect_ulp_BIT_STRING_SIZE_16(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_horspeed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_ulp_horspeed);
-}
 
 
 static const per_sequence_t Horvel_sequence[] = {
-  { "bearing"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bearing },
-  { "horspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horspeed },
+  { "bearing"               , &hf_ulp_bearing         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_9 },
+  { "horspeed"              , &hf_ulp_horspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2158,9 +1720,6 @@ dissect_ulp_Horvel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *t
                                    ett_ulp_Horvel, Horvel_sequence);
 
   return offset;
-}
-static int dissect_horvel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Horvel(tvb, offset, actx, tree, hf_ulp_horvel);
 }
 
 
@@ -2172,9 +1731,6 @@ dissect_ulp_BIT_STRING_SIZE_1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_verdirect(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_1(tvb, offset, actx, tree, hf_ulp_verdirect);
-}
 
 
 
@@ -2185,25 +1741,13 @@ dissect_ulp_BIT_STRING_SIZE_8(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_verspeed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_verspeed);
-}
-static int dissect_uncertspeed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_uncertspeed);
-}
-static int dissect_horuncertspeed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_horuncertspeed);
-}
-static int dissect_veruncertspeed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_ulp_veruncertspeed);
-}
 
 
 static const per_sequence_t Horandvervel_sequence[] = {
-  { "verdirect"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_verdirect },
-  { "bearing"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bearing },
-  { "horspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horspeed },
-  { "verspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_verspeed },
+  { "verdirect"             , &hf_ulp_verdirect       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_1 },
+  { "bearing"               , &hf_ulp_bearing         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_9 },
+  { "horspeed"              , &hf_ulp_horspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_16 },
+  { "verspeed"              , &hf_ulp_verspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2214,15 +1758,12 @@ dissect_ulp_Horandvervel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_horandvervel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Horandvervel(tvb, offset, actx, tree, hf_ulp_horandvervel);
-}
 
 
 static const per_sequence_t Horveluncert_sequence[] = {
-  { "bearing"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bearing },
-  { "horspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horspeed },
-  { "uncertspeed"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_uncertspeed },
+  { "bearing"               , &hf_ulp_bearing         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_9 },
+  { "horspeed"              , &hf_ulp_horspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_16 },
+  { "uncertspeed"           , &hf_ulp_uncertspeed     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2233,18 +1774,15 @@ dissect_ulp_Horveluncert(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_horveluncert(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Horveluncert(tvb, offset, actx, tree, hf_ulp_horveluncert);
-}
 
 
 static const per_sequence_t Horandveruncert_sequence[] = {
-  { "verdirect"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_verdirect },
-  { "bearing"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bearing },
-  { "horspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horspeed },
-  { "verspeed"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_verspeed },
-  { "horuncertspeed"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_horuncertspeed },
-  { "veruncertspeed"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_veruncertspeed },
+  { "verdirect"             , &hf_ulp_verdirect       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_1 },
+  { "bearing"               , &hf_ulp_bearing         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_9 },
+  { "horspeed"              , &hf_ulp_horspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_16 },
+  { "verspeed"              , &hf_ulp_verspeed        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
+  { "horuncertspeed"        , &hf_ulp_horuncertspeed  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
+  { "veruncertspeed"        , &hf_ulp_veruncertspeed  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2254,9 +1792,6 @@ dissect_ulp_Horandveruncert(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_ulp_Horandveruncert, Horandveruncert_sequence);
 
   return offset;
-}
-static int dissect_horandveruncert(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Horandveruncert(tvb, offset, actx, tree, hf_ulp_horandveruncert);
 }
 
 
@@ -2269,10 +1804,10 @@ static const value_string ulp_Velocity_vals[] = {
 };
 
 static const per_choice_t Velocity_choice[] = {
-  {   0, "horvel"                      , ASN1_EXTENSION_ROOT    , dissect_horvel },
-  {   1, "horandvervel"                , ASN1_EXTENSION_ROOT    , dissect_horandvervel },
-  {   2, "horveluncert"                , ASN1_EXTENSION_ROOT    , dissect_horveluncert },
-  {   3, "horandveruncert"             , ASN1_EXTENSION_ROOT    , dissect_horandveruncert },
+  {   0, &hf_ulp_horvel          , ASN1_EXTENSION_ROOT    , dissect_ulp_Horvel },
+  {   1, &hf_ulp_horandvervel    , ASN1_EXTENSION_ROOT    , dissect_ulp_Horandvervel },
+  {   2, &hf_ulp_horveluncert    , ASN1_EXTENSION_ROOT    , dissect_ulp_Horveluncert },
+  {   3, &hf_ulp_horandveruncert , ASN1_EXTENSION_ROOT    , dissect_ulp_Horandveruncert },
   { 0, NULL, 0, NULL }
 };
 
@@ -2284,15 +1819,12 @@ dissect_ulp_Velocity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_velocity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Velocity(tvb, offset, actx, tree, hf_ulp_velocity);
-}
 
 
 static const per_sequence_t Position_sequence[] = {
-  { "timestamp"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_timestamp },
-  { "positionEstimate"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_positionEstimate },
-  { "velocity"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_velocity },
+  { "timestamp"             , &hf_ulp_timestamp       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
+  { "positionEstimate"      , &hf_ulp_positionEstimate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PositionEstimate },
+  { "velocity"              , &hf_ulp_velocity        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Velocity },
   { NULL, 0, 0, NULL }
 };
 
@@ -2303,9 +1835,6 @@ dissect_ulp_Position(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_position(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Position(tvb, offset, actx, tree, hf_ulp_position);
-}
 
 
 
@@ -2315,12 +1844,6 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
                                        1, 8192, NULL);
 
   return offset;
-}
-static int dissect_tia801payload(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_1_8192(tvb, offset, actx, tree, hf_ulp_tia801payload);
-}
-static int dissect_rrcPayload(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_1_8192(tvb, offset, actx, tree, hf_ulp_rrcPayload);
 }
 
 
@@ -2341,9 +1864,6 @@ dissect_ulp_RRLPPayload(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_rrlpPayload(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_RRLPPayload(tvb, offset, actx, tree, hf_ulp_rrlpPayload);
-}
 
 
 static const value_string ulp_PosPayLoad_vals[] = {
@@ -2354,9 +1874,9 @@ static const value_string ulp_PosPayLoad_vals[] = {
 };
 
 static const per_choice_t PosPayLoad_choice[] = {
-  {   0, "tia801payload"               , ASN1_EXTENSION_ROOT    , dissect_tia801payload },
-  {   1, "rrcPayload"                  , ASN1_EXTENSION_ROOT    , dissect_rrcPayload },
-  {   2, "rrlpPayload"                 , ASN1_EXTENSION_ROOT    , dissect_rrlpPayload },
+  {   0, &hf_ulp_tia801payload   , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
+  {   1, &hf_ulp_rrcPayload      , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
+  {   2, &hf_ulp_rrlpPayload     , ASN1_EXTENSION_ROOT    , dissect_ulp_RRLPPayload },
   { 0, NULL, 0, NULL }
 };
 
@@ -2368,14 +1888,11 @@ dissect_ulp_PosPayLoad(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_posPayLoad(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_PosPayLoad(tvb, offset, actx, tree, hf_ulp_posPayLoad);
-}
 
 
 static const per_sequence_t SUPLPOS_sequence[] = {
-  { "posPayLoad"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_posPayLoad },
-  { "velocity"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_velocity },
+  { "posPayLoad"            , &hf_ulp_posPayLoad      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PosPayLoad },
+  { "velocity"              , &hf_ulp_velocity        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Velocity },
   { NULL, 0, 0, NULL }
 };
 
@@ -2385,12 +1902,6 @@ dissect_ulp_SUPLPOS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
                                    ett_ulp_SUPLPOS, SUPLPOS_sequence);
 
   return offset;
-}
-static int dissect_msSUPLPOS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLPOS(tvb, offset, actx, tree, hf_ulp_msSUPLPOS);
-}
-static int dissect_sUPLPOS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLPOS(tvb, offset, actx, tree, hf_ulp_sUPLPOS);
 }
 
 
@@ -2402,18 +1913,15 @@ dissect_ulp_Ver(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree
 
   return offset;
 }
-static int dissect_ver(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_Ver(tvb, offset, actx, tree, hf_ulp_ver);
-}
 
 
 static const per_sequence_t SUPLPOSINIT_sequence[] = {
-  { "sETCapabilities"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sETCapabilities },
-  { "requestedAssistData"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_requestedAssistData },
-  { "locationId"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_locationId },
-  { "position"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_position },
-  { "sUPLPOS"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sUPLPOS },
-  { "ver"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ver },
+  { "sETCapabilities"       , &hf_ulp_sETCapabilities , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_SETCapabilities },
+  { "requestedAssistData"   , &hf_ulp_requestedAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RequestedAssistData },
+  { "locationId"            , &hf_ulp_locationId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_LocationId },
+  { "position"              , &hf_ulp_position        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Position },
+  { "sUPLPOS"               , &hf_ulp_sUPLPOS         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SUPLPOS },
+  { "ver"                   , &hf_ulp_ver             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Ver },
   { NULL, 0, 0, NULL }
 };
 
@@ -2423,9 +1931,6 @@ dissect_ulp_SUPLPOSINIT(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
                                    ett_ulp_SUPLPOSINIT, SUPLPOSINIT_sequence);
 
   return offset;
-}
-static int dissect_msSUPLPOSINIT(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLPOSINIT(tvb, offset, actx, tree, hf_ulp_msSUPLPOSINIT);
 }
 
 
@@ -2462,15 +1967,12 @@ dissect_ulp_StatusCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_statusCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_StatusCode(tvb, offset, actx, tree, hf_ulp_statusCode);
-}
 
 
 static const per_sequence_t SUPLEND_sequence[] = {
-  { "position"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_position },
-  { "statusCode"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_statusCode },
-  { "ver"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ver },
+  { "position"              , &hf_ulp_position        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Position },
+  { "statusCode"            , &hf_ulp_statusCode      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_StatusCode },
+  { "ver"                   , &hf_ulp_ver             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Ver },
   { NULL, 0, 0, NULL }
 };
 
@@ -2480,9 +1982,6 @@ dissect_ulp_SUPLEND(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
                                    ett_ulp_SUPLEND, SUPLEND_sequence);
 
   return offset;
-}
-static int dissect_msSUPLEND(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLEND(tvb, offset, actx, tree, hf_ulp_msSUPLEND);
 }
 
 
@@ -2494,9 +1993,6 @@ dissect_ulp_SETNonce(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_sETNonce(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SETNonce(tvb, offset, actx, tree, hf_ulp_sETNonce);
-}
 
 
 
@@ -2507,14 +2003,11 @@ dissect_ulp_KeyIdentity2(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_keyIdentity2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_KeyIdentity2(tvb, offset, actx, tree, hf_ulp_keyIdentity2);
-}
 
 
 static const per_sequence_t SUPLAUTHREQ_sequence[] = {
-  { "sETNonce"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sETNonce },
-  { "keyIdentity2"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_keyIdentity2 },
+  { "sETNonce"              , &hf_ulp_sETNonce        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_SETNonce },
+  { "keyIdentity2"          , &hf_ulp_keyIdentity2    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_KeyIdentity2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2525,9 +2018,6 @@ dissect_ulp_SUPLAUTHREQ(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_msSUPLAUTHREQ(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLAUTHREQ(tvb, offset, actx, tree, hf_ulp_msSUPLAUTHREQ);
-}
 
 
 static const value_string ulp_SPCAuthKey_vals[] = {
@@ -2537,8 +2027,8 @@ static const value_string ulp_SPCAuthKey_vals[] = {
 };
 
 static const per_choice_t SPCAuthKey_choice[] = {
-  {   0, "shortKey"                    , ASN1_EXTENSION_ROOT    , dissect_shortKey },
-  {   1, "longKey"                     , ASN1_EXTENSION_ROOT    , dissect_longKey },
+  {   0, &hf_ulp_shortKey        , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_128 },
+  {   1, &hf_ulp_longKey         , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_256 },
   { 0, NULL, 0, NULL }
 };
 
@@ -2550,9 +2040,6 @@ dissect_ulp_SPCAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_sPCAuthKey(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SPCAuthKey(tvb, offset, actx, tree, hf_ulp_sPCAuthKey);
-}
 
 
 
@@ -2563,15 +2050,12 @@ dissect_ulp_KeyIdentity3(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_keyIdentity3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_KeyIdentity3(tvb, offset, actx, tree, hf_ulp_keyIdentity3);
-}
 
 
 static const per_sequence_t SUPLAUTHRESP_sequence[] = {
-  { "sPCAuthKey"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sPCAuthKey },
-  { "keyIdentity3"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_keyIdentity3 },
-  { "statusCode"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_statusCode },
+  { "sPCAuthKey"            , &hf_ulp_sPCAuthKey      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SPCAuthKey },
+  { "keyIdentity3"          , &hf_ulp_keyIdentity3    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_KeyIdentity3 },
+  { "statusCode"            , &hf_ulp_statusCode      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_StatusCode },
   { NULL, 0, 0, NULL }
 };
 
@@ -2581,9 +2065,6 @@ dissect_ulp_SUPLAUTHRESP(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_ulp_SUPLAUTHRESP, SUPLAUTHRESP_sequence);
 
   return offset;
-}
-static int dissect_msSUPLAUTHRESP(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_SUPLAUTHRESP(tvb, offset, actx, tree, hf_ulp_msSUPLAUTHRESP);
 }
 
 
@@ -2600,14 +2081,14 @@ static const value_string ulp_UlpMessage_vals[] = {
 };
 
 static const per_choice_t UlpMessage_choice[] = {
-  {   0, "msSUPLINIT"                  , ASN1_EXTENSION_ROOT    , dissect_msSUPLINIT },
-  {   1, "msSUPLSTART"                 , ASN1_EXTENSION_ROOT    , dissect_msSUPLSTART },
-  {   2, "msSUPLRESPONSE"              , ASN1_EXTENSION_ROOT    , dissect_msSUPLRESPONSE },
-  {   3, "msSUPLPOSINIT"               , ASN1_EXTENSION_ROOT    , dissect_msSUPLPOSINIT },
-  {   4, "msSUPLPOS"                   , ASN1_EXTENSION_ROOT    , dissect_msSUPLPOS },
-  {   5, "msSUPLEND"                   , ASN1_EXTENSION_ROOT    , dissect_msSUPLEND },
-  {   6, "msSUPLAUTHREQ"               , ASN1_EXTENSION_ROOT    , dissect_msSUPLAUTHREQ },
-  {   7, "msSUPLAUTHRESP"              , ASN1_EXTENSION_ROOT    , dissect_msSUPLAUTHRESP },
+  {   0, &hf_ulp_msSUPLINIT      , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLINIT },
+  {   1, &hf_ulp_msSUPLSTART     , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLSTART },
+  {   2, &hf_ulp_msSUPLRESPONSE  , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLRESPONSE },
+  {   3, &hf_ulp_msSUPLPOSINIT   , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLPOSINIT },
+  {   4, &hf_ulp_msSUPLPOS       , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLPOS },
+  {   5, &hf_ulp_msSUPLEND       , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLEND },
+  {   6, &hf_ulp_msSUPLAUTHREQ   , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLAUTHREQ },
+  {   7, &hf_ulp_msSUPLAUTHRESP  , ASN1_EXTENSION_ROOT    , dissect_ulp_SUPLAUTHRESP },
   { 0, NULL, 0, NULL }
 };
 
@@ -2630,16 +2111,13 @@ guint32 UlpMessage;
 
   return offset;
 }
-static int dissect_message(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ulp_UlpMessage(tvb, offset, actx, tree, hf_ulp_message);
-}
 
 
 static const per_sequence_t ULP_PDU_sequence[] = {
-  { "length"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_length },
-  { "version"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_version },
-  { "sessionID"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sessionID },
-  { "message"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_message },
+  { "length"                , &hf_ulp_length          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_65535 },
+  { "version"               , &hf_ulp_version         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_Version },
+  { "sessionID"             , &hf_ulp_sessionID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_SessionID },
+  { "message"               , &hf_ulp_message         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_UlpMessage },
   { NULL, 0, 0, NULL }
 };
 

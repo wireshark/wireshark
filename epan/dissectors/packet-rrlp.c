@@ -448,9 +448,6 @@ static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 
 /*--- Included file: packet-rrlp-fn.c ---*/
 #line 1 "packet-rrlp-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -469,12 +466,6 @@ tvbuff_t *parameter_tvb = NULL;
 
   return offset;
 }
-static int dissect_posEstimate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Ext_GeographicalInformation(tvb, offset, actx, tree, hf_rrlp_posEstimate);
-}
-static int dissect_threeDLocation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Ext_GeographicalInformation(tvb, offset, actx, tree, hf_rrlp_threeDLocation);
-}
 
 
 
@@ -484,9 +475,6 @@ dissect_rrlp_ExtensionContainer(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
                                        NO_BOUND, NO_BOUND, NULL);
 
   return offset;
-}
-static int dissect_extensionContainer(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ExtensionContainer(tvb, offset, actx, tree, hf_rrlp_extensionContainer);
 }
 
 
@@ -498,21 +486,6 @@ dissect_rrlp_INTEGER_0_7(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_referenceNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_7(tvb, offset, actx, tree, hf_rrlp_referenceNumber);
-}
-static int dissect_nbrOfMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_7(tvb, offset, actx, tree, hf_rrlp_nbrOfMeasurements);
-}
-static int dissect_status(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_7(tvb, offset, actx, tree, hf_rrlp_status);
-}
-static int dissect_dopplerUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_7(tvb, offset, actx, tree, hf_rrlp_dopplerUncertainty);
-}
-static int dissect_elevation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_7(tvb, offset, actx, tree, hf_rrlp_elevation);
-}
 
 
 
@@ -523,22 +496,10 @@ dissect_rrlp_Accuracy(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
 
   return offset;
 }
-static int dissect_msBased(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Accuracy(tvb, offset, actx, tree, hf_rrlp_msBased);
-}
-static int dissect_msBasedPref(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Accuracy(tvb, offset, actx, tree, hf_rrlp_msBasedPref);
-}
-static int dissect_msAssistedPref(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Accuracy(tvb, offset, actx, tree, hf_rrlp_msAssistedPref);
-}
-static int dissect_accuracy(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Accuracy(tvb, offset, actx, tree, hf_rrlp_accuracy);
-}
 
 
 static const per_sequence_t AccuracyOpt_sequence[] = {
-  { "accuracy"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_accuracy },
+  { "accuracy"              , &hf_rrlp_accuracy       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_Accuracy },
   { NULL, 0, 0, NULL }
 };
 
@@ -548,9 +509,6 @@ dissect_rrlp_AccuracyOpt(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_rrlp_AccuracyOpt, AccuracyOpt_sequence);
 
   return offset;
-}
-static int dissect_msAssisted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AccuracyOpt(tvb, offset, actx, tree, hf_rrlp_msAssisted);
 }
 
 
@@ -563,10 +521,10 @@ static const value_string rrlp_MethodType_vals[] = {
 };
 
 static const per_choice_t MethodType_choice[] = {
-  {   0, "msAssisted"                  , ASN1_NO_EXTENSIONS     , dissect_msAssisted },
-  {   1, "msBased"                     , ASN1_NO_EXTENSIONS     , dissect_msBased },
-  {   2, "msBasedPref"                 , ASN1_NO_EXTENSIONS     , dissect_msBasedPref },
-  {   3, "msAssistedPref"              , ASN1_NO_EXTENSIONS     , dissect_msAssistedPref },
+  {   0, &hf_rrlp_msAssisted     , ASN1_NO_EXTENSIONS     , dissect_rrlp_AccuracyOpt },
+  {   1, &hf_rrlp_msBased        , ASN1_NO_EXTENSIONS     , dissect_rrlp_Accuracy },
+  {   2, &hf_rrlp_msBasedPref    , ASN1_NO_EXTENSIONS     , dissect_rrlp_Accuracy },
+  {   3, &hf_rrlp_msAssistedPref , ASN1_NO_EXTENSIONS     , dissect_rrlp_Accuracy },
   { 0, NULL, 0, NULL }
 };
 
@@ -577,9 +535,6 @@ dissect_rrlp_MethodType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
                                  NULL);
 
   return offset;
-}
-static int dissect_methodType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MethodType(tvb, offset, actx, tree, hf_rrlp_methodType);
 }
 
 
@@ -598,9 +553,6 @@ dissect_rrlp_PositionMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_positionMethod(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_PositionMethod(tvb, offset, actx, tree, hf_rrlp_positionMethod);
-}
 
 
 
@@ -610,9 +562,6 @@ dissect_rrlp_MeasureResponseTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
                                               0U, 7U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_measureResponseTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MeasureResponseTime(tvb, offset, actx, tree, hf_rrlp_measureResponseTime);
 }
 
 
@@ -629,9 +578,6 @@ dissect_rrlp_UseMultipleSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_useMultipleSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_UseMultipleSets(tvb, offset, actx, tree, hf_rrlp_useMultipleSets);
 }
 
 
@@ -650,17 +596,14 @@ dissect_rrlp_EnvironmentCharacter(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_environmentCharacter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_EnvironmentCharacter(tvb, offset, actx, tree, hf_rrlp_environmentCharacter);
-}
 
 
 static const per_sequence_t PositionInstruct_sequence[] = {
-  { "methodType"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_methodType },
-  { "positionMethod"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_positionMethod },
-  { "measureResponseTime"         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_measureResponseTime },
-  { "useMultipleSets"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_useMultipleSets },
-  { "environmentCharacter"        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_environmentCharacter },
+  { "methodType"            , &hf_rrlp_methodType     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MethodType },
+  { "positionMethod"        , &hf_rrlp_positionMethod , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_PositionMethod },
+  { "measureResponseTime"   , &hf_rrlp_measureResponseTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MeasureResponseTime },
+  { "useMultipleSets"       , &hf_rrlp_useMultipleSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_UseMultipleSets },
+  { "environmentCharacter"  , &hf_rrlp_environmentCharacter, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_EnvironmentCharacter },
   { NULL, 0, 0, NULL }
 };
 
@@ -670,9 +613,6 @@ dissect_rrlp_PositionInstruct(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
                                    ett_rrlp_PositionInstruct, PositionInstruct_sequence);
 
   return offset;
-}
-static int dissect_positionInstruct(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_PositionInstruct(tvb, offset, actx, tree, hf_rrlp_positionInstruct);
 }
 
 
@@ -684,12 +624,6 @@ dissect_rrlp_BCCHCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_bcchCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BCCHCarrier(tvb, offset, actx, tree, hf_rrlp_bcchCarrier);
-}
-static int dissect_carrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BCCHCarrier(tvb, offset, actx, tree, hf_rrlp_carrier);
-}
 
 
 
@@ -699,9 +633,6 @@ dissect_rrlp_BSIC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
                                               0U, 63U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_bsic(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BSIC(tvb, offset, actx, tree, hf_rrlp_bsic);
 }
 
 
@@ -719,9 +650,6 @@ dissect_rrlp_TimeSlotScheme(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_timeSlotScheme(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TimeSlotScheme(tvb, offset, actx, tree, hf_rrlp_timeSlotScheme);
-}
 
 
 
@@ -731,16 +659,13 @@ dissect_rrlp_BTSPosition(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_btsPosition(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BTSPosition(tvb, offset, actx, tree, hf_rrlp_btsPosition);
-}
 
 
 static const per_sequence_t ReferenceAssistData_sequence[] = {
-  { "bcchCarrier"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bcchCarrier },
-  { "bsic"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bsic },
-  { "timeSlotScheme"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_timeSlotScheme },
-  { "btsPosition"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_btsPosition },
+  { "bcchCarrier"           , &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
+  { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
+  { "btsPosition"           , &hf_rrlp_btsPosition    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_BTSPosition },
   { NULL, 0, 0, NULL }
 };
 
@@ -750,9 +675,6 @@ dissect_rrlp_ReferenceAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
                                    ett_rrlp_ReferenceAssistData, ReferenceAssistData_sequence);
 
   return offset;
-}
-static int dissect_referenceAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceAssistData(tvb, offset, actx, tree, hf_rrlp_referenceAssistData);
 }
 
 
@@ -764,9 +686,6 @@ dissect_rrlp_MultiFrameOffset(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_multiFrameOffset(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MultiFrameOffset(tvb, offset, actx, tree, hf_rrlp_multiFrameOffset);
-}
 
 
 
@@ -776,9 +695,6 @@ dissect_rrlp_RoughRTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                               0U, 1250U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_roughRTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RoughRTD(tvb, offset, actx, tree, hf_rrlp_roughRTD);
 }
 
 
@@ -790,9 +706,6 @@ dissect_rrlp_FineRTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_fineRTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_FineRTD(tvb, offset, actx, tree, hf_rrlp_fineRTD);
-}
 
 
 
@@ -802,12 +715,6 @@ dissect_rrlp_RelDistance(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                               -200000, 200000U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_relativeNorth(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RelDistance(tvb, offset, actx, tree, hf_rrlp_relativeNorth);
-}
-static int dissect_relativeEast(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RelDistance(tvb, offset, actx, tree, hf_rrlp_relativeEast);
 }
 
 
@@ -819,15 +726,12 @@ dissect_rrlp_RelativeAlt(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_relativeAlt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RelativeAlt(tvb, offset, actx, tree, hf_rrlp_relativeAlt);
-}
 
 
 static const per_sequence_t ReferenceWGS84_sequence[] = {
-  { "relativeNorth"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_relativeNorth },
-  { "relativeEast"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_relativeEast },
-  { "relativeAlt"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_relativeAlt },
+  { "relativeNorth"         , &hf_rrlp_relativeNorth  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RelDistance },
+  { "relativeEast"          , &hf_rrlp_relativeEast   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RelDistance },
+  { "relativeAlt"           , &hf_rrlp_relativeAlt    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_RelativeAlt },
   { NULL, 0, 0, NULL }
 };
 
@@ -838,14 +742,11 @@ dissect_rrlp_ReferenceWGS84(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_referenceWGS84(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceWGS84(tvb, offset, actx, tree, hf_rrlp_referenceWGS84);
-}
 
 
 static const per_sequence_t CalcAssistanceBTS_sequence[] = {
-  { "fineRTD"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_fineRTD },
-  { "referenceWGS84"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceWGS84 },
+  { "fineRTD"               , &hf_rrlp_fineRTD        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FineRTD },
+  { "referenceWGS84"        , &hf_rrlp_referenceWGS84 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ReferenceWGS84 },
   { NULL, 0, 0, NULL }
 };
 
@@ -856,18 +757,15 @@ dissect_rrlp_CalcAssistanceBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_calcAssistanceBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_CalcAssistanceBTS(tvb, offset, actx, tree, hf_rrlp_calcAssistanceBTS);
-}
 
 
 static const per_sequence_t MsrAssistBTS_sequence[] = {
-  { "bcchCarrier"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bcchCarrier },
-  { "bsic"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bsic },
-  { "multiFrameOffset"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_multiFrameOffset },
-  { "timeSlotScheme"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_timeSlotScheme },
-  { "roughRTD"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_roughRTD },
-  { "calcAssistanceBTS"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_calcAssistanceBTS },
+  { "bcchCarrier"           , &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
+  { "multiFrameOffset"      , &hf_rrlp_multiFrameOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MultiFrameOffset },
+  { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
+  { "roughRTD"              , &hf_rrlp_roughRTD       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RoughRTD },
+  { "calcAssistanceBTS"     , &hf_rrlp_calcAssistanceBTS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_CalcAssistanceBTS },
   { NULL, 0, 0, NULL }
 };
 
@@ -878,13 +776,10 @@ dissect_rrlp_MsrAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_SeqOfMsrAssistBTS_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrAssistBTS(tvb, offset, actx, tree, hf_rrlp_SeqOfMsrAssistBTS_item);
-}
 
 
 static const per_sequence_t SeqOfMsrAssistBTS_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfMsrAssistBTS_item },
+  { ""                      , &hf_rrlp_SeqOfMsrAssistBTS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MsrAssistBTS },
 };
 
 static int
@@ -895,13 +790,10 @@ dissect_rrlp_SeqOfMsrAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_msrAssistList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfMsrAssistBTS(tvb, offset, actx, tree, hf_rrlp_msrAssistList);
-}
 
 
 static const per_sequence_t MsrAssistData_sequence[] = {
-  { "msrAssistList"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_msrAssistList },
+  { "msrAssistList"         , &hf_rrlp_msrAssistList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfMsrAssistBTS },
   { NULL, 0, 0, NULL }
 };
 
@@ -912,9 +804,6 @@ dissect_rrlp_MsrAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_msrAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrAssistData(tvb, offset, actx, tree, hf_rrlp_msrAssistData);
-}
 
 
 
@@ -924,26 +813,14 @@ dissect_rrlp_NULL(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
 
   return offset;
 }
-static int dissect_assistanceDataAck(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NULL(tvb, offset, actx, tree, hf_rrlp_assistanceDataAck);
-}
-static int dissect_notPresent(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NULL(tvb, offset, actx, tree, hf_rrlp_notPresent);
-}
-static int dissect_oldSatelliteAndModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NULL(tvb, offset, actx, tree, hf_rrlp_oldSatelliteAndModel);
-}
-static int dissect_gpsTimeAssistanceMeasurementRequest(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NULL(tvb, offset, actx, tree, hf_rrlp_gpsTimeAssistanceMeasurementRequest);
-}
 
 
 static const per_sequence_t AssistBTSData_sequence[] = {
-  { "bsic"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bsic },
-  { "multiFrameOffset"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_multiFrameOffset },
-  { "timeSlotScheme"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_timeSlotScheme },
-  { "roughRTD"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_roughRTD },
-  { "calcAssistanceBTS"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_calcAssistanceBTS },
+  { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
+  { "multiFrameOffset"      , &hf_rrlp_multiFrameOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MultiFrameOffset },
+  { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
+  { "roughRTD"              , &hf_rrlp_roughRTD       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RoughRTD },
+  { "calcAssistanceBTS"     , &hf_rrlp_calcAssistanceBTS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_CalcAssistanceBTS },
   { NULL, 0, 0, NULL }
 };
 
@@ -954,9 +831,6 @@ dissect_rrlp_AssistBTSData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_present(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AssistBTSData(tvb, offset, actx, tree, hf_rrlp_present);
-}
 
 
 static const value_string rrlp_SystemInfoAssistBTS_vals[] = {
@@ -966,8 +840,8 @@ static const value_string rrlp_SystemInfoAssistBTS_vals[] = {
 };
 
 static const per_choice_t SystemInfoAssistBTS_choice[] = {
-  {   0, "notPresent"                  , ASN1_NO_EXTENSIONS     , dissect_notPresent },
-  {   1, "present"                     , ASN1_NO_EXTENSIONS     , dissect_present },
+  {   0, &hf_rrlp_notPresent     , ASN1_NO_EXTENSIONS     , dissect_rrlp_NULL },
+  {   1, &hf_rrlp_present        , ASN1_NO_EXTENSIONS     , dissect_rrlp_AssistBTSData },
   { 0, NULL, 0, NULL }
 };
 
@@ -979,13 +853,10 @@ dissect_rrlp_SystemInfoAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_SeqOfSystemInfoAssistBTS_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SystemInfoAssistBTS(tvb, offset, actx, tree, hf_rrlp_SeqOfSystemInfoAssistBTS_item);
-}
 
 
 static const per_sequence_t SeqOfSystemInfoAssistBTS_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfSystemInfoAssistBTS_item },
+  { ""                      , &hf_rrlp_SeqOfSystemInfoAssistBTS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SystemInfoAssistBTS },
 };
 
 static int
@@ -996,13 +867,10 @@ dissect_rrlp_SeqOfSystemInfoAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_systemInfoAssistList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfSystemInfoAssistBTS(tvb, offset, actx, tree, hf_rrlp_systemInfoAssistList);
-}
 
 
 static const per_sequence_t SystemInfoAssistData_sequence[] = {
-  { "systemInfoAssistList"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_systemInfoAssistList },
+  { "systemInfoAssistList"  , &hf_rrlp_systemInfoAssistList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSystemInfoAssistBTS },
   { NULL, 0, 0, NULL }
 };
 
@@ -1012,9 +880,6 @@ dissect_rrlp_SystemInfoAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
                                    ett_rrlp_SystemInfoAssistData, SystemInfoAssistData_sequence);
 
   return offset;
-}
-static int dissect_systemInfoAssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SystemInfoAssistData(tvb, offset, actx, tree, hf_rrlp_systemInfoAssistData);
 }
 
 
@@ -1026,12 +891,6 @@ dissect_rrlp_GPSTOW23b(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_gpsTOW23b(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTOW23b(tvb, offset, actx, tree, hf_rrlp_gpsTOW23b);
-}
-static int dissect_gpsTOW3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTOW23b(tvb, offset, actx, tree, hf_rrlp_gpsTOW3);
-}
 
 
 
@@ -1042,14 +901,11 @@ dissect_rrlp_GPSWeek(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_gpsWeek(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSWeek(tvb, offset, actx, tree, hf_rrlp_gpsWeek);
-}
 
 
 static const per_sequence_t GPSTime_sequence[] = {
-  { "gpsTOW23b"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsTOW23b },
-  { "gpsWeek"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsWeek },
+  { "gpsTOW23b"             , &hf_rrlp_gpsTOW23b      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
+  { "gpsWeek"               , &hf_rrlp_gpsWeek        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSWeek },
   { NULL, 0, 0, NULL }
 };
 
@@ -1059,9 +915,6 @@ dissect_rrlp_GPSTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
                                    ett_rrlp_GPSTime, GPSTime_sequence);
 
   return offset;
-}
-static int dissect_gpsTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTime(tvb, offset, actx, tree, hf_rrlp_gpsTime);
 }
 
 
@@ -1073,9 +926,6 @@ dissect_rrlp_FrameNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_frameNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_FrameNumber(tvb, offset, actx, tree, hf_rrlp_frameNumber);
-}
 
 
 
@@ -1085,9 +935,6 @@ dissect_rrlp_TimeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                               0U, 7U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_timeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TimeSlot(tvb, offset, actx, tree, hf_rrlp_timeSlot);
 }
 
 
@@ -1099,17 +946,14 @@ dissect_rrlp_BitNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_bitNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BitNumber(tvb, offset, actx, tree, hf_rrlp_bitNumber);
-}
 
 
 static const per_sequence_t GSMTime_sequence[] = {
-  { "bcchCarrier"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bcchCarrier },
-  { "bsic"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bsic },
-  { "frameNumber"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_frameNumber },
-  { "timeSlot"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_timeSlot },
-  { "bitNumber"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bitNumber },
+  { "bcchCarrier"           , &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
+  { "frameNumber"           , &hf_rrlp_frameNumber    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FrameNumber },
+  { "timeSlot"              , &hf_rrlp_timeSlot       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlot },
+  { "bitNumber"             , &hf_rrlp_bitNumber      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BitNumber },
   { NULL, 0, 0, NULL }
 };
 
@@ -1119,9 +963,6 @@ dissect_rrlp_GSMTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
                                    ett_rrlp_GSMTime, GSMTime_sequence);
 
   return offset;
-}
-static int dissect_gsmTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GSMTime(tvb, offset, actx, tree, hf_rrlp_gsmTime);
 }
 
 
@@ -1133,15 +974,6 @@ dissect_rrlp_SatelliteID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_satelliteID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SatelliteID(tvb, offset, actx, tree, hf_rrlp_satelliteID);
-}
-static int dissect_svid(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SatelliteID(tvb, offset, actx, tree, hf_rrlp_svid);
-}
-static int dissect_SeqOf_BadSatelliteSet_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SatelliteID(tvb, offset, actx, tree, hf_rrlp_SeqOf_BadSatelliteSet_item);
-}
 
 
 
@@ -1151,9 +983,6 @@ dissect_rrlp_TLMWord(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
                                               0U, 16383U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tlmWord(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TLMWord(tvb, offset, actx, tree, hf_rrlp_tlmWord);
 }
 
 
@@ -1165,9 +994,6 @@ dissect_rrlp_AntiSpoofFlag(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_antiSpoof(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AntiSpoofFlag(tvb, offset, actx, tree, hf_rrlp_antiSpoof);
-}
 
 
 
@@ -1177,9 +1003,6 @@ dissect_rrlp_AlertFlag(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
                                               0U, 1U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_alert(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AlertFlag(tvb, offset, actx, tree, hf_rrlp_alert);
 }
 
 
@@ -1191,17 +1014,14 @@ dissect_rrlp_TLMReservedBits(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_tlmRsvdBits(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TLMReservedBits(tvb, offset, actx, tree, hf_rrlp_tlmRsvdBits);
-}
 
 
 static const per_sequence_t GPSTOWAssistElement_sequence[] = {
-  { "satelliteID"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satelliteID },
-  { "tlmWord"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tlmWord },
-  { "antiSpoof"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_antiSpoof },
-  { "alert"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alert },
-  { "tlmRsvdBits"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tlmRsvdBits },
+  { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "tlmWord"               , &hf_rrlp_tlmWord        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TLMWord },
+  { "antiSpoof"             , &hf_rrlp_antiSpoof      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AntiSpoofFlag },
+  { "alert"                 , &hf_rrlp_alert          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AlertFlag },
+  { "tlmRsvdBits"           , &hf_rrlp_tlmRsvdBits    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TLMReservedBits },
   { NULL, 0, 0, NULL }
 };
 
@@ -1212,13 +1032,10 @@ dissect_rrlp_GPSTOWAssistElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_GPSTOWAssist_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTOWAssistElement(tvb, offset, actx, tree, hf_rrlp_GPSTOWAssist_item);
-}
 
 
 static const per_sequence_t GPSTOWAssist_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_GPSTOWAssist_item },
+  { ""                      , &hf_rrlp_GPSTOWAssist_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOWAssistElement },
 };
 
 static int
@@ -1229,15 +1046,12 @@ dissect_rrlp_GPSTOWAssist(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_gpsTowAssist(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTOWAssist(tvb, offset, actx, tree, hf_rrlp_gpsTowAssist);
-}
 
 
 static const per_sequence_t ReferenceTime_sequence[] = {
-  { "gpsTime"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsTime },
-  { "gsmTime"                     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gsmTime },
-  { "gpsTowAssist"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gpsTowAssist },
+  { "gpsTime"               , &hf_rrlp_gpsTime        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTime },
+  { "gsmTime"               , &hf_rrlp_gsmTime        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GSMTime },
+  { "gpsTowAssist"          , &hf_rrlp_gpsTowAssist   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GPSTOWAssist },
   { NULL, 0, 0, NULL }
 };
 
@@ -1248,13 +1062,10 @@ dissect_rrlp_ReferenceTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_referenceTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceTime(tvb, offset, actx, tree, hf_rrlp_referenceTime);
-}
 
 
 static const per_sequence_t RefLocation_sequence[] = {
-  { "threeDLocation"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_threeDLocation },
+  { "threeDLocation"        , &hf_rrlp_threeDLocation , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
   { NULL, 0, 0, NULL }
 };
 
@@ -1264,9 +1075,6 @@ dissect_rrlp_RefLocation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_rrlp_RefLocation, RefLocation_sequence);
 
   return offset;
-}
-static int dissect_refLocation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RefLocation(tvb, offset, actx, tree, hf_rrlp_refLocation);
 }
 
 
@@ -1278,9 +1086,6 @@ dissect_rrlp_INTEGER_0_604799(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_gpsTOW2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_604799(tvb, offset, actx, tree, hf_rrlp_gpsTOW2);
-}
 
 
 
@@ -1290,9 +1095,6 @@ dissect_rrlp_INTEGER_0_239(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
                                               0U, 239U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_iode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_239(tvb, offset, actx, tree, hf_rrlp_iode);
 }
 
 
@@ -1304,15 +1106,6 @@ dissect_rrlp_INTEGER_0_3(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_udre(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_3(tvb, offset, actx, tree, hf_rrlp_udre);
-}
-static int dissect_ephemCodeOnL2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_3(tvb, offset, actx, tree, hf_rrlp_ephemCodeOnL2);
-}
-static int dissect_gpsBitNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_3(tvb, offset, actx, tree, hf_rrlp_gpsBitNumber);
-}
 
 
 
@@ -1322,9 +1115,6 @@ dissect_rrlp_INTEGER_M2047_2047(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
                                               -2047, 2047U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_pseudoRangeCor(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2047_2047(tvb, offset, actx, tree, hf_rrlp_pseudoRangeCor);
 }
 
 
@@ -1336,15 +1126,6 @@ dissect_rrlp_INTEGER_M127_127(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_rangeRateCor(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M127_127(tvb, offset, actx, tree, hf_rrlp_rangeRateCor);
-}
-static int dissect_deltaPseudoRangeCor2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M127_127(tvb, offset, actx, tree, hf_rrlp_deltaPseudoRangeCor2);
-}
-static int dissect_deltaPseudoRangeCor3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M127_127(tvb, offset, actx, tree, hf_rrlp_deltaPseudoRangeCor3);
-}
 
 
 
@@ -1355,24 +1136,18 @@ dissect_rrlp_INTEGER_M7_7(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_deltaRangeRateCor2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M7_7(tvb, offset, actx, tree, hf_rrlp_deltaRangeRateCor2);
-}
-static int dissect_deltaRangeRateCor3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M7_7(tvb, offset, actx, tree, hf_rrlp_deltaRangeRateCor3);
-}
 
 
 static const per_sequence_t SatElement_sequence[] = {
-  { "satelliteID"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satelliteID },
-  { "iode"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_iode },
-  { "udre"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_udre },
-  { "pseudoRangeCor"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pseudoRangeCor },
-  { "rangeRateCor"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rangeRateCor },
-  { "deltaPseudoRangeCor2"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_deltaPseudoRangeCor2 },
-  { "deltaRangeRateCor2"          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_deltaRangeRateCor2 },
-  { "deltaPseudoRangeCor3"        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_deltaPseudoRangeCor3 },
-  { "deltaRangeRateCor3"          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_deltaRangeRateCor3 },
+  { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "iode"                  , &hf_rrlp_iode           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_239 },
+  { "udre"                  , &hf_rrlp_udre           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_3 },
+  { "pseudoRangeCor"        , &hf_rrlp_pseudoRangeCor , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2047_2047 },
+  { "rangeRateCor"          , &hf_rrlp_rangeRateCor   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M127_127 },
+  { "deltaPseudoRangeCor2"  , &hf_rrlp_deltaPseudoRangeCor2, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M127_127 },
+  { "deltaRangeRateCor2"    , &hf_rrlp_deltaRangeRateCor2, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M7_7 },
+  { "deltaPseudoRangeCor3"  , &hf_rrlp_deltaPseudoRangeCor3, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M127_127 },
+  { "deltaRangeRateCor3"    , &hf_rrlp_deltaRangeRateCor3, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M7_7 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1383,13 +1158,10 @@ dissect_rrlp_SatElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_SeqOfSatElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SatElement(tvb, offset, actx, tree, hf_rrlp_SeqOfSatElement_item);
-}
 
 
 static const per_sequence_t SeqOfSatElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfSatElement_item },
+  { ""                      , &hf_rrlp_SeqOfSatElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatElement },
 };
 
 static int
@@ -1400,15 +1172,12 @@ dissect_rrlp_SeqOfSatElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_satList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfSatElement(tvb, offset, actx, tree, hf_rrlp_satList);
-}
 
 
 static const per_sequence_t DGPSCorrections_sequence[] = {
-  { "gpsTOW"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsTOW2 },
-  { "status"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_status },
-  { "satList"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satList },
+  { "gpsTOW"                , &hf_rrlp_gpsTOW2        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_604799 },
+  { "status"                , &hf_rrlp_status         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { "satList"               , &hf_rrlp_satList        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSatElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -1418,9 +1187,6 @@ dissect_rrlp_DGPSCorrections(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_rrlp_DGPSCorrections, DGPSCorrections_sequence);
 
   return offset;
-}
-static int dissect_dgpsCorrections(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_DGPSCorrections(tvb, offset, actx, tree, hf_rrlp_dgpsCorrections);
 }
 
 
@@ -1432,12 +1198,6 @@ dissect_rrlp_INTEGER_0_15(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_ephemURA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_15(tvb, offset, actx, tree, hf_rrlp_ephemURA);
-}
-static int dissect_codePhaseSearchWindow(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_15(tvb, offset, actx, tree, hf_rrlp_codePhaseSearchWindow);
-}
 
 
 
@@ -1447,24 +1207,6 @@ dissect_rrlp_INTEGER_0_63(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                               0U, 63U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_cNo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_cNo);
-}
-static int dissect_pseuRangeRMSErr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_pseuRangeRMSErr);
-}
-static int dissect_ephemSVhealth(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_ephemSVhealth);
-}
-static int dissect_doppler1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_doppler1);
-}
-static int dissect_referenceFrameMSB(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_referenceFrameMSB);
-}
-static int dissect_smlc_code(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_63(tvb, offset, actx, tree, hf_rrlp_smlc_code);
 }
 
 
@@ -1476,9 +1218,6 @@ dissect_rrlp_INTEGER_0_1023(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_ephemIODC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1023(tvb, offset, actx, tree, hf_rrlp_ephemIODC);
-}
 
 
 
@@ -1488,12 +1227,6 @@ dissect_rrlp_INTEGER_0_1(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                               0U, 1U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ephemL2Pflag(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1(tvb, offset, actx, tree, hf_rrlp_ephemL2Pflag);
-}
-static int dissect_ephemFitFlag(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1(tvb, offset, actx, tree, hf_rrlp_ephemFitFlag);
 }
 
 
@@ -1505,9 +1238,6 @@ dissect_rrlp_INTEGER_0_8388607(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_reserved1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_8388607(tvb, offset, actx, tree, hf_rrlp_reserved1);
-}
 
 
 
@@ -1517,15 +1247,6 @@ dissect_rrlp_INTEGER_0_16777215(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
                                               0U, 16777215U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_reserved2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_16777215(tvb, offset, actx, tree, hf_rrlp_reserved2);
-}
-static int dissect_reserved3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_16777215(tvb, offset, actx, tree, hf_rrlp_reserved3);
-}
-static int dissect_almanacAPowerHalf(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_16777215(tvb, offset, actx, tree, hf_rrlp_almanacAPowerHalf);
 }
 
 
@@ -1537,22 +1258,13 @@ dissect_rrlp_INTEGER_0_65535(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_refFrame(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_65535(tvb, offset, actx, tree, hf_rrlp_refFrame);
-}
-static int dissect_reserved4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_65535(tvb, offset, actx, tree, hf_rrlp_reserved4);
-}
-static int dissect_almanacE(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_65535(tvb, offset, actx, tree, hf_rrlp_almanacE);
-}
 
 
 static const per_sequence_t EphemerisSubframe1Reserved_sequence[] = {
-  { "reserved1"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_reserved1 },
-  { "reserved2"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_reserved2 },
-  { "reserved3"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_reserved3 },
-  { "reserved4"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_reserved4 },
+  { "reserved1"             , &hf_rrlp_reserved1      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_8388607 },
+  { "reserved2"             , &hf_rrlp_reserved2      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_16777215 },
+  { "reserved3"             , &hf_rrlp_reserved3      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_16777215 },
+  { "reserved4"             , &hf_rrlp_reserved4      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1562,9 +1274,6 @@ dissect_rrlp_EphemerisSubframe1Reserved(tvbuff_t *tvb, int offset, asn_ctx_t *ac
                                    ett_rrlp_EphemerisSubframe1Reserved, EphemerisSubframe1Reserved_sequence);
 
   return offset;
-}
-static int dissect_ephemSF1Rsvd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_EphemerisSubframe1Reserved(tvb, offset, actx, tree, hf_rrlp_ephemSF1Rsvd);
 }
 
 
@@ -1576,45 +1285,6 @@ dissect_rrlp_INTEGER_M128_127(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_ephemTgd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_ephemTgd);
-}
-static int dissect_ephemAF2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_ephemAF2);
-}
-static int dissect_alfa0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_alfa0);
-}
-static int dissect_alfa1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_alfa1);
-}
-static int dissect_alfa2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_alfa2);
-}
-static int dissect_alfa3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_alfa3);
-}
-static int dissect_beta0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_beta0);
-}
-static int dissect_beta1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_beta1);
-}
-static int dissect_beta2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_beta2);
-}
-static int dissect_beta3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_beta3);
-}
-static int dissect_utcDeltaTls(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_utcDeltaTls);
-}
-static int dissect_utcDN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_utcDN);
-}
-static int dissect_utcDeltaTlsf(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M128_127(tvb, offset, actx, tree, hf_rrlp_utcDeltaTlsf);
-}
 
 
 
@@ -1624,12 +1294,6 @@ dissect_rrlp_INTEGER_0_37799(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                               0U, 37799U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ephemToc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_37799(tvb, offset, actx, tree, hf_rrlp_ephemToc);
-}
-static int dissect_ephemToe(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_37799(tvb, offset, actx, tree, hf_rrlp_ephemToe);
 }
 
 
@@ -1641,39 +1305,6 @@ dissect_rrlp_INTEGER_M32768_32767(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_doppler(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_doppler);
-}
-static int dissect_ephemAF1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemAF1);
-}
-static int dissect_ephemCrs(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCrs);
-}
-static int dissect_ephemDeltaN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemDeltaN);
-}
-static int dissect_ephemCuc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCuc);
-}
-static int dissect_ephemCus(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCus);
-}
-static int dissect_ephemCic(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCic);
-}
-static int dissect_ephemCis(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCis);
-}
-static int dissect_ephemCrc(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_ephemCrc);
-}
-static int dissect_almanacKsii(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_almanacKsii);
-}
-static int dissect_almanacOmegaDot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M32768_32767(tvb, offset, actx, tree, hf_rrlp_almanacOmegaDot);
-}
 
 
 
@@ -1683,9 +1314,6 @@ dissect_rrlp_INTEGER_M2097152_2097151(tvbuff_t *tvb, int offset, asn_ctx_t *actx
                                               -2097152, 2097151U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ephemAF0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2097152_2097151(tvb, offset, actx, tree, hf_rrlp_ephemAF0);
 }
 
 
@@ -1697,21 +1325,6 @@ dissect_rrlp_INTEGER_M2147483648_2147483647(tvbuff_t *tvb, int offset, asn_ctx_t
 
   return offset;
 }
-static int dissect_ephemM0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2147483648_2147483647(tvb, offset, actx, tree, hf_rrlp_ephemM0);
-}
-static int dissect_ephemOmegaA0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2147483648_2147483647(tvb, offset, actx, tree, hf_rrlp_ephemOmegaA0);
-}
-static int dissect_ephemI0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2147483648_2147483647(tvb, offset, actx, tree, hf_rrlp_ephemI0);
-}
-static int dissect_ephemW(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2147483648_2147483647(tvb, offset, actx, tree, hf_rrlp_ephemW);
-}
-static int dissect_utcA0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2147483648_2147483647(tvb, offset, actx, tree, hf_rrlp_utcA0);
-}
 
 
 
@@ -1721,12 +1334,6 @@ dissect_rrlp_INTEGER_0_4294967295(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
                                               0U, 4294967295U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ephemE(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_4294967295(tvb, offset, actx, tree, hf_rrlp_ephemE);
-}
-static int dissect_ephemAPowerHalf(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_4294967295(tvb, offset, actx, tree, hf_rrlp_ephemAPowerHalf);
 }
 
 
@@ -1738,15 +1345,6 @@ dissect_rrlp_INTEGER_0_31(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_stdOfEOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_31(tvb, offset, actx, tree, hf_rrlp_stdOfEOTD);
-}
-static int dissect_ephemAODA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_31(tvb, offset, actx, tree, hf_rrlp_ephemAODA);
-}
-static int dissect_azimuth(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_31(tvb, offset, actx, tree, hf_rrlp_azimuth);
-}
 
 
 
@@ -1756,21 +1354,6 @@ dissect_rrlp_INTEGER_M8388608_8388607(tvbuff_t *tvb, int offset, asn_ctx_t *actx
                                               -8388608, 8388607U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ephemOmegaADot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rrlp_ephemOmegaADot);
-}
-static int dissect_utcA1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rrlp_utcA1);
-}
-static int dissect_almanacOmega0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rrlp_almanacOmega0);
-}
-static int dissect_almanacW(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rrlp_almanacW);
-}
-static int dissect_almanacM0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rrlp_almanacM0);
 }
 
 
@@ -1782,41 +1365,38 @@ dissect_rrlp_INTEGER_M8192_8191(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_ephemIDot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M8192_8191(tvb, offset, actx, tree, hf_rrlp_ephemIDot);
-}
 
 
 static const per_sequence_t UncompressedEphemeris_sequence[] = {
-  { "ephemCodeOnL2"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCodeOnL2 },
-  { "ephemURA"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemURA },
-  { "ephemSVhealth"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemSVhealth },
-  { "ephemIODC"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemIODC },
-  { "ephemL2Pflag"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemL2Pflag },
-  { "ephemSF1Rsvd"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemSF1Rsvd },
-  { "ephemTgd"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemTgd },
-  { "ephemToc"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemToc },
-  { "ephemAF2"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemAF2 },
-  { "ephemAF1"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemAF1 },
-  { "ephemAF0"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemAF0 },
-  { "ephemCrs"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCrs },
-  { "ephemDeltaN"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemDeltaN },
-  { "ephemM0"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemM0 },
-  { "ephemCuc"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCuc },
-  { "ephemE"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemE },
-  { "ephemCus"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCus },
-  { "ephemAPowerHalf"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemAPowerHalf },
-  { "ephemToe"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemToe },
-  { "ephemFitFlag"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemFitFlag },
-  { "ephemAODA"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemAODA },
-  { "ephemCic"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCic },
-  { "ephemOmegaA0"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemOmegaA0 },
-  { "ephemCis"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCis },
-  { "ephemI0"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemI0 },
-  { "ephemCrc"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemCrc },
-  { "ephemW"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemW },
-  { "ephemOmegaADot"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemOmegaADot },
-  { "ephemIDot"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ephemIDot },
+  { "ephemCodeOnL2"         , &hf_rrlp_ephemCodeOnL2  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_3 },
+  { "ephemURA"              , &hf_rrlp_ephemURA       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { "ephemSVhealth"         , &hf_rrlp_ephemSVhealth  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { "ephemIODC"             , &hf_rrlp_ephemIODC      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1023 },
+  { "ephemL2Pflag"          , &hf_rrlp_ephemL2Pflag   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { "ephemSF1Rsvd"          , &hf_rrlp_ephemSF1Rsvd   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_EphemerisSubframe1Reserved },
+  { "ephemTgd"              , &hf_rrlp_ephemTgd       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "ephemToc"              , &hf_rrlp_ephemToc       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_37799 },
+  { "ephemAF2"              , &hf_rrlp_ephemAF2       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "ephemAF1"              , &hf_rrlp_ephemAF1       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemAF0"              , &hf_rrlp_ephemAF0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2097152_2097151 },
+  { "ephemCrs"              , &hf_rrlp_ephemCrs       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemDeltaN"           , &hf_rrlp_ephemDeltaN    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemM0"               , &hf_rrlp_ephemM0        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { "ephemCuc"              , &hf_rrlp_ephemCuc       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemE"                , &hf_rrlp_ephemE         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4294967295 },
+  { "ephemCus"              , &hf_rrlp_ephemCus       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemAPowerHalf"       , &hf_rrlp_ephemAPowerHalf, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4294967295 },
+  { "ephemToe"              , &hf_rrlp_ephemToe       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_37799 },
+  { "ephemFitFlag"          , &hf_rrlp_ephemFitFlag   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { "ephemAODA"             , &hf_rrlp_ephemAODA      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
+  { "ephemCic"              , &hf_rrlp_ephemCic       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemOmegaA0"          , &hf_rrlp_ephemOmegaA0   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { "ephemCis"              , &hf_rrlp_ephemCis       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemI0"               , &hf_rrlp_ephemI0        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { "ephemCrc"              , &hf_rrlp_ephemCrc       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "ephemW"                , &hf_rrlp_ephemW         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { "ephemOmegaADot"        , &hf_rrlp_ephemOmegaADot , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { "ephemIDot"             , &hf_rrlp_ephemIDot      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8192_8191 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1826,12 +1406,6 @@ dissect_rrlp_UncompressedEphemeris(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
                                    ett_rrlp_UncompressedEphemeris, UncompressedEphemeris_sequence);
 
   return offset;
-}
-static int dissect_newSatelliteAndModelUC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_UncompressedEphemeris(tvb, offset, actx, tree, hf_rrlp_newSatelliteAndModelUC);
-}
-static int dissect_newNaviModelUC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_UncompressedEphemeris(tvb, offset, actx, tree, hf_rrlp_newNaviModelUC);
 }
 
 
@@ -1843,9 +1417,9 @@ static const value_string rrlp_SatStatus_vals[] = {
 };
 
 static const per_choice_t SatStatus_choice[] = {
-  {   0, "newSatelliteAndModelUC"      , ASN1_EXTENSION_ROOT    , dissect_newSatelliteAndModelUC },
-  {   1, "oldSatelliteAndModel"        , ASN1_EXTENSION_ROOT    , dissect_oldSatelliteAndModel },
-  {   2, "newNaviModelUC"              , ASN1_EXTENSION_ROOT    , dissect_newNaviModelUC },
+  {   0, &hf_rrlp_newSatelliteAndModelUC, ASN1_EXTENSION_ROOT    , dissect_rrlp_UncompressedEphemeris },
+  {   1, &hf_rrlp_oldSatelliteAndModel, ASN1_EXTENSION_ROOT    , dissect_rrlp_NULL },
+  {   2, &hf_rrlp_newNaviModelUC , ASN1_EXTENSION_ROOT    , dissect_rrlp_UncompressedEphemeris },
   { 0, NULL, 0, NULL }
 };
 
@@ -1857,14 +1431,11 @@ dissect_rrlp_SatStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_satStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SatStatus(tvb, offset, actx, tree, hf_rrlp_satStatus);
-}
 
 
 static const per_sequence_t NavModelElement_sequence[] = {
-  { "satelliteID"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satelliteID },
-  { "satStatus"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satStatus },
+  { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "satStatus"             , &hf_rrlp_satStatus      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatStatus },
   { NULL, 0, 0, NULL }
 };
 
@@ -1875,13 +1446,10 @@ dissect_rrlp_NavModelElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_SeqOfNavModelElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NavModelElement(tvb, offset, actx, tree, hf_rrlp_SeqOfNavModelElement_item);
-}
 
 
 static const per_sequence_t SeqOfNavModelElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfNavModelElement_item },
+  { ""                      , &hf_rrlp_SeqOfNavModelElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_NavModelElement },
 };
 
 static int
@@ -1892,13 +1460,10 @@ dissect_rrlp_SeqOfNavModelElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_navModelList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfNavModelElement(tvb, offset, actx, tree, hf_rrlp_navModelList);
-}
 
 
 static const per_sequence_t NavigationModel_sequence[] = {
-  { "navModelList"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_navModelList },
+  { "navModelList"          , &hf_rrlp_navModelList   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfNavModelElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -1909,20 +1474,17 @@ dissect_rrlp_NavigationModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_navigationModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NavigationModel(tvb, offset, actx, tree, hf_rrlp_navigationModel);
-}
 
 
 static const per_sequence_t IonosphericModel_sequence[] = {
-  { "alfa0"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alfa0 },
-  { "alfa1"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alfa1 },
-  { "alfa2"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alfa2 },
-  { "alfa3"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alfa3 },
-  { "beta0"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_beta0 },
-  { "beta1"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_beta1 },
-  { "beta2"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_beta2 },
-  { "beta3"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_beta3 },
+  { "alfa0"                 , &hf_rrlp_alfa0          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "alfa1"                 , &hf_rrlp_alfa1          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "alfa2"                 , &hf_rrlp_alfa2          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "alfa3"                 , &hf_rrlp_alfa3          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "beta0"                 , &hf_rrlp_beta0          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "beta1"                 , &hf_rrlp_beta1          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "beta2"                 , &hf_rrlp_beta2          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "beta3"                 , &hf_rrlp_beta3          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1932,9 +1494,6 @@ dissect_rrlp_IonosphericModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
                                    ett_rrlp_IonosphericModel, IonosphericModel_sequence);
 
   return offset;
-}
-static int dissect_ionosphericModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_IonosphericModel(tvb, offset, actx, tree, hf_rrlp_ionosphericModel);
 }
 
 
@@ -1946,35 +1505,17 @@ dissect_rrlp_INTEGER_0_255(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_utcTot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_utcTot);
-}
-static int dissect_utcWNt(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_utcWNt);
-}
-static int dissect_utcWNlsf(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_utcWNlsf);
-}
-static int dissect_alamanacWNa(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_alamanacWNa);
-}
-static int dissect_alamanacToa(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_alamanacToa);
-}
-static int dissect_almanacSVhealth(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_255(tvb, offset, actx, tree, hf_rrlp_almanacSVhealth);
-}
 
 
 static const per_sequence_t UTCModel_sequence[] = {
-  { "utcA1"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcA1 },
-  { "utcA0"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcA0 },
-  { "utcTot"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcTot },
-  { "utcWNt"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcWNt },
-  { "utcDeltaTls"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcDeltaTls },
-  { "utcWNlsf"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcWNlsf },
-  { "utcDN"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcDN },
-  { "utcDeltaTlsf"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_utcDeltaTlsf },
+  { "utcA1"                 , &hf_rrlp_utcA1          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { "utcA0"                 , &hf_rrlp_utcA0          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { "utcTot"                , &hf_rrlp_utcTot         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "utcWNt"                , &hf_rrlp_utcWNt         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "utcDeltaTls"           , &hf_rrlp_utcDeltaTls    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "utcWNlsf"              , &hf_rrlp_utcWNlsf       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "utcDN"                 , &hf_rrlp_utcDN          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { "utcDeltaTlsf"          , &hf_rrlp_utcDeltaTlsf   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1984,9 +1525,6 @@ dissect_rrlp_UTCModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
                                    ett_rrlp_UTCModel, UTCModel_sequence);
 
   return offset;
-}
-static int dissect_utcModel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_UTCModel(tvb, offset, actx, tree, hf_rrlp_utcModel);
 }
 
 
@@ -1998,27 +1536,21 @@ dissect_rrlp_INTEGER_M1024_1023(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_almanacAF0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M1024_1023(tvb, offset, actx, tree, hf_rrlp_almanacAF0);
-}
-static int dissect_almanacAF1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M1024_1023(tvb, offset, actx, tree, hf_rrlp_almanacAF1);
-}
 
 
 static const per_sequence_t AlmanacElement_sequence[] = {
-  { "satelliteID"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satelliteID },
-  { "almanacE"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacE },
-  { "alamanacToa"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alamanacToa },
-  { "almanacKsii"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacKsii },
-  { "almanacOmegaDot"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacOmegaDot },
-  { "almanacSVhealth"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacSVhealth },
-  { "almanacAPowerHalf"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacAPowerHalf },
-  { "almanacOmega0"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacOmega0 },
-  { "almanacW"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacW },
-  { "almanacM0"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacM0 },
-  { "almanacAF0"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacAF0 },
-  { "almanacAF1"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacAF1 },
+  { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "almanacE"              , &hf_rrlp_almanacE       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
+  { "alamanacToa"           , &hf_rrlp_alamanacToa    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "almanacKsii"           , &hf_rrlp_almanacKsii    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "almanacOmegaDot"       , &hf_rrlp_almanacOmegaDot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "almanacSVhealth"       , &hf_rrlp_almanacSVhealth, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "almanacAPowerHalf"     , &hf_rrlp_almanacAPowerHalf, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_16777215 },
+  { "almanacOmega0"         , &hf_rrlp_almanacOmega0  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { "almanacW"              , &hf_rrlp_almanacW       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { "almanacM0"             , &hf_rrlp_almanacM0      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { "almanacAF0"            , &hf_rrlp_almanacAF0     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
+  { "almanacAF1"            , &hf_rrlp_almanacAF1     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2029,13 +1561,10 @@ dissect_rrlp_AlmanacElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_SeqOfAlmanacElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AlmanacElement(tvb, offset, actx, tree, hf_rrlp_SeqOfAlmanacElement_item);
-}
 
 
 static const per_sequence_t SeqOfAlmanacElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfAlmanacElement_item },
+  { ""                      , &hf_rrlp_SeqOfAlmanacElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AlmanacElement },
 };
 
 static int
@@ -2046,14 +1575,11 @@ dissect_rrlp_SeqOfAlmanacElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_almanacList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfAlmanacElement(tvb, offset, actx, tree, hf_rrlp_almanacList);
-}
 
 
 static const per_sequence_t Almanac_sequence[] = {
-  { "alamanacWNa"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alamanacWNa },
-  { "almanacList"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_almanacList },
+  { "alamanacWNa"           , &hf_rrlp_alamanacWNa    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { "almanacList"           , &hf_rrlp_almanacList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfAlmanacElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -2064,14 +1590,11 @@ dissect_rrlp_Almanac(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_almanac(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Almanac(tvb, offset, actx, tree, hf_rrlp_almanac);
-}
 
 
 static const per_sequence_t TimeRelation_sequence[] = {
-  { "gpsTOW"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsTOW3 },
-  { "gsmTime"                     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gsmTime },
+  { "gpsTOW"                , &hf_rrlp_gpsTOW3        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
+  { "gsmTime"               , &hf_rrlp_gsmTime        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GSMTime },
   { NULL, 0, 0, NULL }
 };
 
@@ -2081,9 +1604,6 @@ dissect_rrlp_TimeRelation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                    ett_rrlp_TimeRelation, TimeRelation_sequence);
 
   return offset;
-}
-static int dissect_timeRelation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TimeRelation(tvb, offset, actx, tree, hf_rrlp_timeRelation);
 }
 
 
@@ -2095,14 +1615,11 @@ dissect_rrlp_INTEGER_M2048_2047(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_doppler0(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_M2048_2047(tvb, offset, actx, tree, hf_rrlp_doppler0);
-}
 
 
 static const per_sequence_t AddionalDopplerFields_sequence[] = {
-  { "doppler1"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_doppler1 },
-  { "dopplerUncertainty"          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_dopplerUncertainty },
+  { "doppler1"              , &hf_rrlp_doppler1       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { "dopplerUncertainty"    , &hf_rrlp_dopplerUncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2112,9 +1629,6 @@ dissect_rrlp_AddionalDopplerFields(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
                                    ett_rrlp_AddionalDopplerFields, AddionalDopplerFields_sequence);
 
   return offset;
-}
-static int dissect_addionalDoppler(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AddionalDopplerFields(tvb, offset, actx, tree, hf_rrlp_addionalDoppler);
 }
 
 
@@ -2126,12 +1640,6 @@ dissect_rrlp_INTEGER_0_1022(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_wholeChips(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1022(tvb, offset, actx, tree, hf_rrlp_wholeChips);
-}
-static int dissect_codePhase(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1022(tvb, offset, actx, tree, hf_rrlp_codePhase);
-}
 
 
 
@@ -2142,14 +1650,11 @@ dissect_rrlp_INTEGER_0_19(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_intCodePhase(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_19(tvb, offset, actx, tree, hf_rrlp_intCodePhase);
-}
 
 
 static const per_sequence_t AddionalAngleFields_sequence[] = {
-  { "azimuth"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_azimuth },
-  { "elevation"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_elevation },
+  { "azimuth"               , &hf_rrlp_azimuth        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
+  { "elevation"             , &hf_rrlp_elevation      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2160,20 +1665,17 @@ dissect_rrlp_AddionalAngleFields(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_addionalAngle(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AddionalAngleFields(tvb, offset, actx, tree, hf_rrlp_addionalAngle);
-}
 
 
 static const per_sequence_t AcquisElement_sequence[] = {
-  { "svid"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_svid },
-  { "doppler0"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_doppler0 },
-  { "addionalDoppler"             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_addionalDoppler },
-  { "codePhase"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_codePhase },
-  { "intCodePhase"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_intCodePhase },
-  { "gpsBitNumber"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsBitNumber },
-  { "codePhaseSearchWindow"       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_codePhaseSearchWindow },
-  { "addionalAngle"               , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_addionalAngle },
+  { "svid"                  , &hf_rrlp_svid           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "doppler0"              , &hf_rrlp_doppler0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2048_2047 },
+  { "addionalDoppler"       , &hf_rrlp_addionalDoppler, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_AddionalDopplerFields },
+  { "codePhase"             , &hf_rrlp_codePhase      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1022 },
+  { "intCodePhase"          , &hf_rrlp_intCodePhase   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_19 },
+  { "gpsBitNumber"          , &hf_rrlp_gpsBitNumber   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_3 },
+  { "codePhaseSearchWindow" , &hf_rrlp_codePhaseSearchWindow, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { "addionalAngle"         , &hf_rrlp_addionalAngle  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_AddionalAngleFields },
   { NULL, 0, 0, NULL }
 };
 
@@ -2184,13 +1686,10 @@ dissect_rrlp_AcquisElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_SeqOfAcquisElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AcquisElement(tvb, offset, actx, tree, hf_rrlp_SeqOfAcquisElement_item);
-}
 
 
 static const per_sequence_t SeqOfAcquisElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfAcquisElement_item },
+  { ""                      , &hf_rrlp_SeqOfAcquisElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AcquisElement },
 };
 
 static int
@@ -2201,14 +1700,11 @@ dissect_rrlp_SeqOfAcquisElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_acquisList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfAcquisElement(tvb, offset, actx, tree, hf_rrlp_acquisList);
-}
 
 
 static const per_sequence_t AcquisAssist_sequence[] = {
-  { "timeRelation"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_timeRelation },
-  { "acquisList"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_acquisList },
+  { "timeRelation"          , &hf_rrlp_timeRelation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeRelation },
+  { "acquisList"            , &hf_rrlp_acquisList     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfAcquisElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -2219,13 +1715,10 @@ dissect_rrlp_AcquisAssist(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_acquisAssist(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AcquisAssist(tvb, offset, actx, tree, hf_rrlp_acquisAssist);
-}
 
 
 static const per_sequence_t SeqOf_BadSatelliteSet_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOf_BadSatelliteSet_item },
+  { ""                      , &hf_rrlp_SeqOf_BadSatelliteSet_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
 };
 
 static int
@@ -2236,21 +1729,18 @@ dissect_rrlp_SeqOf_BadSatelliteSet(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_realTimeIntegrity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOf_BadSatelliteSet(tvb, offset, actx, tree, hf_rrlp_realTimeIntegrity);
-}
 
 
 static const per_sequence_t ControlHeader_sequence[] = {
-  { "referenceTime"               , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_referenceTime },
-  { "refLocation"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_refLocation },
-  { "dgpsCorrections"             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_dgpsCorrections },
-  { "navigationModel"             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_navigationModel },
-  { "ionosphericModel"            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ionosphericModel },
-  { "utcModel"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_utcModel },
-  { "almanac"                     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_almanac },
-  { "acquisAssist"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_acquisAssist },
-  { "realTimeIntegrity"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_realTimeIntegrity },
+  { "referenceTime"         , &hf_rrlp_referenceTime  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_ReferenceTime },
+  { "refLocation"           , &hf_rrlp_refLocation    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_RefLocation },
+  { "dgpsCorrections"       , &hf_rrlp_dgpsCorrections, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_DGPSCorrections },
+  { "navigationModel"       , &hf_rrlp_navigationModel, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_NavigationModel },
+  { "ionosphericModel"      , &hf_rrlp_ionosphericModel, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_IonosphericModel },
+  { "utcModel"              , &hf_rrlp_utcModel       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_UTCModel },
+  { "almanac"               , &hf_rrlp_almanac        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_Almanac },
+  { "acquisAssist"          , &hf_rrlp_acquisAssist   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_AcquisAssist },
+  { "realTimeIntegrity"     , &hf_rrlp_realTimeIntegrity, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOf_BadSatelliteSet },
   { NULL, 0, 0, NULL }
 };
 
@@ -2261,13 +1751,10 @@ dissect_rrlp_ControlHeader(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_controlHeader(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ControlHeader(tvb, offset, actx, tree, hf_rrlp_controlHeader);
-}
 
 
 static const per_sequence_t GPS_AssistData_sequence[] = {
-  { "controlHeader"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_controlHeader },
+  { "controlHeader"         , &hf_rrlp_controlHeader  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ControlHeader },
   { NULL, 0, 0, NULL }
 };
 
@@ -2277,9 +1764,6 @@ dissect_rrlp_GPS_AssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_rrlp_GPS_AssistData, GPS_AssistData_sequence);
 
   return offset;
-}
-static int dissect_gps_AssistData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPS_AssistData(tvb, offset, actx, tree, hf_rrlp_gps_AssistData);
 }
 
 
@@ -2291,9 +1775,6 @@ dissect_rrlp_ExpectedOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_expectedOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ExpectedOTD(tvb, offset, actx, tree, hf_rrlp_expectedOTD);
-}
 
 
 
@@ -2304,17 +1785,11 @@ dissect_rrlp_ExpOTDUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_expOTDUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ExpOTDUncertainty(tvb, offset, actx, tree, hf_rrlp_expOTDUncertainty);
-}
-static int dissect_expOTDuncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ExpOTDUncertainty(tvb, offset, actx, tree, hf_rrlp_expOTDuncertainty);
-}
 
 
 static const per_sequence_t MsrAssistBTS_R98_ExpOTD_sequence[] = {
-  { "expectedOTD"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_expectedOTD },
-  { "expOTDUncertainty"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_expOTDUncertainty },
+  { "expectedOTD"           , &hf_rrlp_expectedOTD    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpectedOTD },
+  { "expOTDUncertainty"     , &hf_rrlp_expOTDUncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpOTDUncertainty },
   { NULL, 0, 0, NULL }
 };
 
@@ -2325,13 +1800,10 @@ dissect_rrlp_MsrAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
   return offset;
 }
-static int dissect_SeqOfMsrAssistBTS_R98_ExpOTD_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrAssistBTS_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD_item);
-}
 
 
 static const per_sequence_t SeqOfMsrAssistBTS_R98_ExpOTD_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfMsrAssistBTS_R98_ExpOTD_item },
+  { ""                      , &hf_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MsrAssistBTS_R98_ExpOTD },
 };
 
 static int
@@ -2342,13 +1814,10 @@ dissect_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *
 
   return offset;
 }
-static int dissect_msrAssistList_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_msrAssistList_R98_ExpOTD);
-}
 
 
 static const per_sequence_t MsrAssistData_R98_ExpOTD_sequence[] = {
-  { "msrAssistList-R98-ExpOTD"    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_msrAssistList_R98_ExpOTD },
+  { "msrAssistList-R98-ExpOTD", &hf_rrlp_msrAssistList_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD },
   { NULL, 0, 0, NULL }
 };
 
@@ -2359,14 +1828,11 @@ dissect_rrlp_MsrAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_msrAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrAssistData_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_msrAssistData_R98_ExpOTD);
-}
 
 
 static const per_sequence_t AssistBTSData_R98_ExpOTD_sequence[] = {
-  { "expectedOTD"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_expectedOTD },
-  { "expOTDuncertainty"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_expOTDuncertainty },
+  { "expectedOTD"           , &hf_rrlp_expectedOTD    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpectedOTD },
+  { "expOTDuncertainty"     , &hf_rrlp_expOTDuncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpOTDUncertainty },
   { NULL, 0, 0, NULL }
 };
 
@@ -2377,9 +1843,6 @@ dissect_rrlp_AssistBTSData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_present1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AssistBTSData_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_present1);
-}
 
 
 static const value_string rrlp_SystemInfoAssistBTS_R98_ExpOTD_vals[] = {
@@ -2389,8 +1852,8 @@ static const value_string rrlp_SystemInfoAssistBTS_R98_ExpOTD_vals[] = {
 };
 
 static const per_choice_t SystemInfoAssistBTS_R98_ExpOTD_choice[] = {
-  {   0, "notPresent"                  , ASN1_NO_EXTENSIONS     , dissect_notPresent },
-  {   1, "present"                     , ASN1_NO_EXTENSIONS     , dissect_present1 },
+  {   0, &hf_rrlp_notPresent     , ASN1_NO_EXTENSIONS     , dissect_rrlp_NULL },
+  {   1, &hf_rrlp_present1       , ASN1_NO_EXTENSIONS     , dissect_rrlp_AssistBTSData_R98_ExpOTD },
   { 0, NULL, 0, NULL }
 };
 
@@ -2402,13 +1865,10 @@ dissect_rrlp_SystemInfoAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t
 
   return offset;
 }
-static int dissect_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SystemInfoAssistBTS_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item);
-}
 
 
 static const per_sequence_t SeqOfSystemInfoAssistBTS_R98_ExpOTD_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item },
+  { ""                      , &hf_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SystemInfoAssistBTS_R98_ExpOTD },
 };
 
 static int
@@ -2419,13 +1879,10 @@ dissect_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_
 
   return offset;
 }
-static int dissect_systemInfoAssistListR98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_systemInfoAssistListR98_ExpOTD);
-}
 
 
 static const per_sequence_t SystemInfoAssistData_R98_ExpOTD_sequence[] = {
-  { "systemInfoAssistListR98-ExpOTD", ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_systemInfoAssistListR98_ExpOTD },
+  { "systemInfoAssistListR98-ExpOTD", &hf_rrlp_systemInfoAssistListR98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD },
   { NULL, 0, 0, NULL }
 };
 
@@ -2436,14 +1893,11 @@ dissect_rrlp_SystemInfoAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_
 
   return offset;
 }
-static int dissect_systemInfoAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SystemInfoAssistData_R98_ExpOTD(tvb, offset, actx, tree, hf_rrlp_systemInfoAssistData_R98_ExpOTD);
-}
 
 
 static const per_sequence_t Rel98_Ext_ExpOTD_sequence[] = {
-  { "msrAssistData-R98-ExpOTD"    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_msrAssistData_R98_ExpOTD },
-  { "systemInfoAssistData-R98-ExpOTD", ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_systemInfoAssistData_R98_ExpOTD },
+  { "msrAssistData-R98-ExpOTD", &hf_rrlp_msrAssistData_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_MsrAssistData_R98_ExpOTD },
+  { "systemInfoAssistData-R98-ExpOTD", &hf_rrlp_systemInfoAssistData_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SystemInfoAssistData_R98_ExpOTD },
   { NULL, 0, 0, NULL }
 };
 
@@ -2453,9 +1907,6 @@ dissect_rrlp_Rel98_Ext_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
                                    ett_rrlp_Rel98_Ext_ExpOTD, Rel98_Ext_ExpOTD_sequence);
 
   return offset;
-}
-static int dissect_rel98_Ext_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel98_Ext_ExpOTD(tvb, offset, actx, tree, hf_rrlp_rel98_Ext_ExpOTD);
 }
 
 
@@ -2467,15 +1918,12 @@ dissect_rrlp_GPSReferenceTimeUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
   return offset;
 }
-static int dissect_gpsReferenceTimeUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSReferenceTimeUncertainty(tvb, offset, actx, tree, hf_rrlp_gpsReferenceTimeUncertainty);
-}
 
 
 static const per_sequence_t Rel98_MsrPosition_Req_Extension_sequence[] = {
-  { "rel98-Ext-ExpOTD"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rel98_Ext_ExpOTD },
-  { "gpsTimeAssistanceMeasurementRequest", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_gpsTimeAssistanceMeasurementRequest },
-  { "gpsReferenceTimeUncertainty" , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_gpsReferenceTimeUncertainty },
+  { "rel98-Ext-ExpOTD"      , &hf_rrlp_rel98_Ext_ExpOTD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Rel98_Ext_ExpOTD },
+  { "gpsTimeAssistanceMeasurementRequest", &hf_rrlp_gpsTimeAssistanceMeasurementRequest, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
   { NULL, 0, 0, NULL }
 };
 
@@ -2485,9 +1933,6 @@ dissect_rrlp_Rel98_MsrPosition_Req_Extension(tvbuff_t *tvb, int offset, asn_ctx_
                                    ett_rrlp_Rel98_MsrPosition_Req_Extension, Rel98_MsrPosition_Req_Extension_sequence);
 
   return offset;
-}
-static int dissect_rel98_MsrPosition_Req_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel98_MsrPosition_Req_Extension(tvb, offset, actx, tree, hf_rrlp_rel98_MsrPosition_Req_extension);
 }
 
 
@@ -2499,14 +1944,11 @@ dissect_rrlp_INTEGER_0_262143(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_transaction_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_262143(tvb, offset, actx, tree, hf_rrlp_transaction_ID);
-}
 
 
 static const per_sequence_t Extended_reference_sequence[] = {
-  { "smlc-code"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_smlc_code },
-  { "transaction-ID"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_transaction_ID },
+  { "smlc-code"             , &hf_rrlp_smlc_code      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { "transaction-ID"        , &hf_rrlp_transaction_ID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_262143 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2517,13 +1959,10 @@ dissect_rrlp_Extended_reference(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_extended_reference(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Extended_reference(tvb, offset, actx, tree, hf_rrlp_extended_reference);
-}
 
 
 static const per_sequence_t Rel5_MsrPosition_Req_Extension_sequence[] = {
-  { "extended-reference"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_extended_reference },
+  { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_Extended_reference },
   { NULL, 0, 0, NULL }
 };
 
@@ -2534,20 +1973,17 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb, int offset, asn_ctx_t
 
   return offset;
 }
-static int dissect_rel5_MsrPosition_Req_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvb, offset, actx, tree, hf_rrlp_rel5_MsrPosition_Req_extension);
-}
 
 
 static const per_sequence_t MsrPosition_Req_sequence[] = {
-  { "positionInstruct"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_positionInstruct },
-  { "referenceAssistData"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_referenceAssistData },
-  { "msrAssistData"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msrAssistData },
-  { "systemInfoAssistData"        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_systemInfoAssistData },
-  { "gps-AssistData"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gps_AssistData },
-  { "extensionContainer"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionContainer },
-  { "rel98-MsrPosition-Req-extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel98_MsrPosition_Req_extension },
-  { "rel5-MsrPosition-Req-extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel5_MsrPosition_Req_extension },
+  { "positionInstruct"      , &hf_rrlp_positionInstruct, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_PositionInstruct },
+  { "referenceAssistData"   , &hf_rrlp_referenceAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceAssistData },
+  { "msrAssistData"         , &hf_rrlp_msrAssistData  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MsrAssistData },
+  { "systemInfoAssistData"  , &hf_rrlp_systemInfoAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SystemInfoAssistData },
+  { "gps-AssistData"        , &hf_rrlp_gps_AssistData , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPS_AssistData },
+  { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
+  { "rel98-MsrPosition-Req-extension", &hf_rrlp_rel98_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_MsrPosition_Req_Extension },
+  { "rel5-MsrPosition-Req-extension", &hf_rrlp_rel5_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_MsrPosition_Req_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2557,9 +1993,6 @@ dissect_rrlp_MsrPosition_Req(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_rrlp_MsrPosition_Req, MsrPosition_Req_sequence);
 
   return offset;
-}
-static int dissect_msrPositionReq(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrPosition_Req(tvb, offset, actx, tree, hf_rrlp_msrPositionReq);
 }
 
 
@@ -2571,9 +2004,6 @@ dissect_rrlp_INTEGER_2_3(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_nbrOfSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_2_3(tvb, offset, actx, tree, hf_rrlp_nbrOfSets);
-}
 
 
 
@@ -2583,9 +2013,6 @@ dissect_rrlp_INTEGER_1_3(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                               1U, 3U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_nbrOfReferenceBTSs(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_1_3(tvb, offset, actx, tree, hf_rrlp_nbrOfReferenceBTSs);
 }
 
 
@@ -2604,15 +2031,12 @@ dissect_rrlp_ReferenceRelation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_referenceRelation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceRelation(tvb, offset, actx, tree, hf_rrlp_referenceRelation);
-}
 
 
 static const per_sequence_t MultipleSets_sequence[] = {
-  { "nbrOfSets"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbrOfSets },
-  { "nbrOfReferenceBTSs"          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbrOfReferenceBTSs },
-  { "referenceRelation"           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_referenceRelation },
+  { "nbrOfSets"             , &hf_rrlp_nbrOfSets      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_2_3 },
+  { "nbrOfReferenceBTSs"    , &hf_rrlp_nbrOfReferenceBTSs, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_1_3 },
+  { "referenceRelation"     , &hf_rrlp_referenceRelation, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_ReferenceRelation },
   { NULL, 0, 0, NULL }
 };
 
@@ -2623,14 +2047,11 @@ dissect_rrlp_MultipleSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_multipleSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MultipleSets(tvb, offset, actx, tree, hf_rrlp_multipleSets);
-}
 
 
 static const per_sequence_t BSICAndCarrier_sequence[] = {
-  { "carrier"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_carrier },
-  { "bsic"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bsic },
+  { "carrier"               , &hf_rrlp_carrier        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
   { NULL, 0, 0, NULL }
 };
 
@@ -2640,9 +2061,6 @@ dissect_rrlp_BSICAndCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_rrlp_BSICAndCarrier, BSICAndCarrier_sequence);
 
   return offset;
-}
-static int dissect_bsicAndCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_BSICAndCarrier(tvb, offset, actx, tree, hf_rrlp_bsicAndCarrier);
 }
 
 
@@ -2654,12 +2072,6 @@ dissect_rrlp_CellID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
 
   return offset;
 }
-static int dissect_ci(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_CellID(tvb, offset, actx, tree, hf_rrlp_ci);
-}
-static int dissect_referenceCI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_CellID(tvb, offset, actx, tree, hf_rrlp_referenceCI);
-}
 
 
 
@@ -2669,9 +2081,6 @@ dissect_rrlp_RequestIndex(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                               1U, 16U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_requestIndex(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RequestIndex(tvb, offset, actx, tree, hf_rrlp_requestIndex);
 }
 
 
@@ -2683,9 +2092,6 @@ dissect_rrlp_SystemInfoIndex(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_systemInfoIndex(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SystemInfoIndex(tvb, offset, actx, tree, hf_rrlp_systemInfoIndex);
-}
 
 
 
@@ -2696,14 +2102,11 @@ dissect_rrlp_LAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tre
 
   return offset;
 }
-static int dissect_referenceLAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_LAC(tvb, offset, actx, tree, hf_rrlp_referenceLAC);
-}
 
 
 static const per_sequence_t CellIDAndLAC_sequence[] = {
-  { "referenceLAC"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceLAC },
-  { "referenceCI"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceCI },
+  { "referenceLAC"          , &hf_rrlp_referenceLAC   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_LAC },
+  { "referenceCI"           , &hf_rrlp_referenceCI    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_CellID },
   { NULL, 0, 0, NULL }
 };
 
@@ -2713,9 +2116,6 @@ dissect_rrlp_CellIDAndLAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                    ett_rrlp_CellIDAndLAC, CellIDAndLAC_sequence);
 
   return offset;
-}
-static int dissect_ciAndLAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_CellIDAndLAC(tvb, offset, actx, tree, hf_rrlp_ciAndLAC);
 }
 
 
@@ -2729,11 +2129,11 @@ static const value_string rrlp_ReferenceIdentityType_vals[] = {
 };
 
 static const per_choice_t ReferenceIdentityType_choice[] = {
-  {   0, "bsicAndCarrier"              , ASN1_NO_EXTENSIONS     , dissect_bsicAndCarrier },
-  {   1, "ci"                          , ASN1_NO_EXTENSIONS     , dissect_ci },
-  {   2, "requestIndex"                , ASN1_NO_EXTENSIONS     , dissect_requestIndex },
-  {   3, "systemInfoIndex"             , ASN1_NO_EXTENSIONS     , dissect_systemInfoIndex },
-  {   4, "ciAndLAC"                    , ASN1_NO_EXTENSIONS     , dissect_ciAndLAC },
+  {   0, &hf_rrlp_bsicAndCarrier , ASN1_NO_EXTENSIONS     , dissect_rrlp_BSICAndCarrier },
+  {   1, &hf_rrlp_ci             , ASN1_NO_EXTENSIONS     , dissect_rrlp_CellID },
+  {   2, &hf_rrlp_requestIndex   , ASN1_NO_EXTENSIONS     , dissect_rrlp_RequestIndex },
+  {   3, &hf_rrlp_systemInfoIndex, ASN1_NO_EXTENSIONS     , dissect_rrlp_SystemInfoIndex },
+  {   4, &hf_rrlp_ciAndLAC       , ASN1_NO_EXTENSIONS     , dissect_rrlp_CellIDAndLAC },
   { 0, NULL, 0, NULL }
 };
 
@@ -2745,13 +2145,10 @@ dissect_rrlp_ReferenceIdentityType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_SeqOfReferenceIdentityType_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceIdentityType(tvb, offset, actx, tree, hf_rrlp_SeqOfReferenceIdentityType_item);
-}
 
 
 static const per_sequence_t SeqOfReferenceIdentityType_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfReferenceIdentityType_item },
+  { ""                      , &hf_rrlp_SeqOfReferenceIdentityType_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ReferenceIdentityType },
 };
 
 static int
@@ -2762,13 +2159,10 @@ dissect_rrlp_SeqOfReferenceIdentityType(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
   return offset;
 }
-static int dissect_refBTSList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfReferenceIdentityType(tvb, offset, actx, tree, hf_rrlp_refBTSList);
-}
 
 
 static const per_sequence_t ReferenceIdentity_sequence[] = {
-  { "refBTSList"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_refBTSList },
+  { "refBTSList"            , &hf_rrlp_refBTSList     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfReferenceIdentityType },
   { NULL, 0, 0, NULL }
 };
 
@@ -2778,9 +2172,6 @@ dissect_rrlp_ReferenceIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
                                    ett_rrlp_ReferenceIdentity, ReferenceIdentity_sequence);
 
   return offset;
-}
-static int dissect_referenceIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ReferenceIdentity(tvb, offset, actx, tree, hf_rrlp_referenceIdentity);
 }
 
 
@@ -2792,9 +2183,6 @@ dissect_rrlp_INTEGER_0_42431(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_refFrameNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_42431(tvb, offset, actx, tree, hf_rrlp_refFrameNumber);
-}
 
 
 
@@ -2804,12 +2192,6 @@ dissect_rrlp_ModuloTimeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                               0U, 3U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_referenceTimeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ModuloTimeSlot(tvb, offset, actx, tree, hf_rrlp_referenceTimeSlot);
-}
-static int dissect_nborTimeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ModuloTimeSlot(tvb, offset, actx, tree, hf_rrlp_nborTimeSlot);
 }
 
 
@@ -2821,9 +2203,6 @@ dissect_rrlp_RefQuality(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_refQuality(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RefQuality(tvb, offset, actx, tree, hf_rrlp_refQuality);
-}
 
 
 
@@ -2834,14 +2213,11 @@ dissect_rrlp_NumOfMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_numOfMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NumOfMeasurements(tvb, offset, actx, tree, hf_rrlp_numOfMeasurements);
-}
 
 
 static const per_sequence_t TOA_MeasurementsOfRef_sequence[] = {
-  { "refQuality"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_refQuality },
-  { "numOfMeasurements"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_numOfMeasurements },
+  { "refQuality"            , &hf_rrlp_refQuality     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RefQuality },
+  { "numOfMeasurements"     , &hf_rrlp_numOfMeasurements, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_NumOfMeasurements },
   { NULL, 0, 0, NULL }
 };
 
@@ -2851,9 +2227,6 @@ dissect_rrlp_TOA_MeasurementsOfRef(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
                                    ett_rrlp_TOA_MeasurementsOfRef, TOA_MeasurementsOfRef_sequence);
 
   return offset;
-}
-static int dissect_toaMeasurementsOfRef(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_TOA_MeasurementsOfRef(tvb, offset, actx, tree, hf_rrlp_toaMeasurementsOfRef);
 }
 
 
@@ -2865,9 +2238,6 @@ dissect_rrlp_StdResolution(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_stdResolution(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_StdResolution(tvb, offset, actx, tree, hf_rrlp_stdResolution);
-}
 
 
 
@@ -2878,14 +2248,11 @@ dissect_rrlp_INTEGER_0_960(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_taCorrection(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_960(tvb, offset, actx, tree, hf_rrlp_taCorrection);
-}
 
 
 static const per_sequence_t MultiFrameCarrier_sequence[] = {
-  { "bcchCarrier"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bcchCarrier },
-  { "multiFrameOffset"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_multiFrameOffset },
+  { "bcchCarrier"           , &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { "multiFrameOffset"      , &hf_rrlp_multiFrameOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MultiFrameOffset },
   { NULL, 0, 0, NULL }
 };
 
@@ -2895,9 +2262,6 @@ dissect_rrlp_MultiFrameCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
                                    ett_rrlp_MultiFrameCarrier, MultiFrameCarrier_sequence);
 
   return offset;
-}
-static int dissect_multiFrameCarrier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MultiFrameCarrier(tvb, offset, actx, tree, hf_rrlp_multiFrameCarrier);
 }
 
 
@@ -2912,12 +2276,12 @@ static const value_string rrlp_NeighborIdentity_vals[] = {
 };
 
 static const per_choice_t NeighborIdentity_choice[] = {
-  {   0, "bsicAndCarrier"              , ASN1_NO_EXTENSIONS     , dissect_bsicAndCarrier },
-  {   1, "ci"                          , ASN1_NO_EXTENSIONS     , dissect_ci },
-  {   2, "multiFrameCarrier"           , ASN1_NO_EXTENSIONS     , dissect_multiFrameCarrier },
-  {   3, "requestIndex"                , ASN1_NO_EXTENSIONS     , dissect_requestIndex },
-  {   4, "systemInfoIndex"             , ASN1_NO_EXTENSIONS     , dissect_systemInfoIndex },
-  {   5, "ciAndLAC"                    , ASN1_NO_EXTENSIONS     , dissect_ciAndLAC },
+  {   0, &hf_rrlp_bsicAndCarrier , ASN1_NO_EXTENSIONS     , dissect_rrlp_BSICAndCarrier },
+  {   1, &hf_rrlp_ci             , ASN1_NO_EXTENSIONS     , dissect_rrlp_CellID },
+  {   2, &hf_rrlp_multiFrameCarrier, ASN1_NO_EXTENSIONS     , dissect_rrlp_MultiFrameCarrier },
+  {   3, &hf_rrlp_requestIndex   , ASN1_NO_EXTENSIONS     , dissect_rrlp_RequestIndex },
+  {   4, &hf_rrlp_systemInfoIndex, ASN1_NO_EXTENSIONS     , dissect_rrlp_SystemInfoIndex },
+  {   5, &hf_rrlp_ciAndLAC       , ASN1_NO_EXTENSIONS     , dissect_rrlp_CellIDAndLAC },
   { 0, NULL, 0, NULL }
 };
 
@@ -2929,14 +2293,11 @@ dissect_rrlp_NeighborIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_neighborIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_NeighborIdentity(tvb, offset, actx, tree, hf_rrlp_neighborIdentity);
-}
 
 
 static const per_sequence_t EOTDQuality_sequence[] = {
-  { "nbrOfMeasurements"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbrOfMeasurements },
-  { "stdOfEOTD"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_stdOfEOTD },
+  { "nbrOfMeasurements"     , &hf_rrlp_nbrOfMeasurements, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { "stdOfEOTD"             , &hf_rrlp_stdOfEOTD      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2946,9 +2307,6 @@ dissect_rrlp_EOTDQuality(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_rrlp_EOTDQuality, EOTDQuality_sequence);
 
   return offset;
-}
-static int dissect_eotdQuality(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_EOTDQuality(tvb, offset, actx, tree, hf_rrlp_eotdQuality);
 }
 
 
@@ -2960,16 +2318,13 @@ dissect_rrlp_OTDValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
 
   return offset;
 }
-static int dissect_otdValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTDValue(tvb, offset, actx, tree, hf_rrlp_otdValue);
-}
 
 
 static const per_sequence_t OTD_MeasurementWithID_sequence[] = {
-  { "neighborIdentity"            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_neighborIdentity },
-  { "nborTimeSlot"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nborTimeSlot },
-  { "eotdQuality"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_eotdQuality },
-  { "otdValue"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_otdValue },
+  { "neighborIdentity"      , &hf_rrlp_neighborIdentity, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_NeighborIdentity },
+  { "nborTimeSlot"          , &hf_rrlp_nborTimeSlot   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
+  { "eotdQuality"           , &hf_rrlp_eotdQuality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_EOTDQuality },
+  { "otdValue"              , &hf_rrlp_otdValue       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTDValue },
   { NULL, 0, 0, NULL }
 };
 
@@ -2980,9 +2335,6 @@ dissect_rrlp_OTD_MeasurementWithID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_identityPresent(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MeasurementWithID(tvb, offset, actx, tree, hf_rrlp_identityPresent);
-}
 
 
 
@@ -2992,16 +2344,10 @@ dissect_rrlp_OTD_FirstSetMsrs(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_SeqOfOTD_FirstSetMsrs_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_FirstSetMsrs(tvb, offset, actx, tree, hf_rrlp_SeqOfOTD_FirstSetMsrs_item);
-}
-static int dissect_SeqOfOTD_FirstSetMsrs_R98_Ext_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_FirstSetMsrs(tvb, offset, actx, tree, hf_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext_item);
-}
 
 
 static const per_sequence_t SeqOfOTD_FirstSetMsrs_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfOTD_FirstSetMsrs_item },
+  { ""                      , &hf_rrlp_SeqOfOTD_FirstSetMsrs_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_FirstSetMsrs },
 };
 
 static int
@@ -3012,18 +2358,15 @@ dissect_rrlp_SeqOfOTD_FirstSetMsrs(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_otd_FirstSetMsrs(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfOTD_FirstSetMsrs(tvb, offset, actx, tree, hf_rrlp_otd_FirstSetMsrs);
-}
 
 
 static const per_sequence_t OTD_MsrElementFirst_sequence[] = {
-  { "refFrameNumber"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_refFrameNumber },
-  { "referenceTimeSlot"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceTimeSlot },
-  { "toaMeasurementsOfRef"        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_toaMeasurementsOfRef },
-  { "stdResolution"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_stdResolution },
-  { "taCorrection"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_taCorrection },
-  { "otd-FirstSetMsrs"            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_otd_FirstSetMsrs },
+  { "refFrameNumber"        , &hf_rrlp_refFrameNumber , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_42431 },
+  { "referenceTimeSlot"     , &hf_rrlp_referenceTimeSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
+  { "toaMeasurementsOfRef"  , &hf_rrlp_toaMeasurementsOfRef, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_TOA_MeasurementsOfRef },
+  { "stdResolution"         , &hf_rrlp_stdResolution  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_StdResolution },
+  { "taCorrection"          , &hf_rrlp_taCorrection   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_960 },
+  { "otd-FirstSetMsrs"      , &hf_rrlp_otd_FirstSetMsrs, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_FirstSetMsrs },
   { NULL, 0, 0, NULL }
 };
 
@@ -3034,15 +2377,12 @@ dissect_rrlp_OTD_MsrElementFirst(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_otdMsrFirstSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MsrElementFirst(tvb, offset, actx, tree, hf_rrlp_otdMsrFirstSets);
-}
 
 
 static const per_sequence_t OTD_Measurement_sequence[] = {
-  { "nborTimeSlot"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nborTimeSlot },
-  { "eotdQuality"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_eotdQuality },
-  { "otdValue"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_otdValue },
+  { "nborTimeSlot"          , &hf_rrlp_nborTimeSlot   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
+  { "eotdQuality"           , &hf_rrlp_eotdQuality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_EOTDQuality },
+  { "otdValue"              , &hf_rrlp_otdValue       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTDValue },
   { NULL, 0, 0, NULL }
 };
 
@@ -3053,9 +2393,6 @@ dissect_rrlp_OTD_Measurement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_identityNotPresent(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_Measurement(tvb, offset, actx, tree, hf_rrlp_identityNotPresent);
-}
 
 
 static const value_string rrlp_OTD_MsrsOfOtherSets_vals[] = {
@@ -3065,8 +2402,8 @@ static const value_string rrlp_OTD_MsrsOfOtherSets_vals[] = {
 };
 
 static const per_choice_t OTD_MsrsOfOtherSets_choice[] = {
-  {   0, "identityNotPresent"          , ASN1_NO_EXTENSIONS     , dissect_identityNotPresent },
-  {   1, "identityPresent"             , ASN1_NO_EXTENSIONS     , dissect_identityPresent },
+  {   0, &hf_rrlp_identityNotPresent, ASN1_NO_EXTENSIONS     , dissect_rrlp_OTD_Measurement },
+  {   1, &hf_rrlp_identityPresent, ASN1_NO_EXTENSIONS     , dissect_rrlp_OTD_MeasurementWithID },
   { 0, NULL, 0, NULL }
 };
 
@@ -3078,13 +2415,10 @@ dissect_rrlp_OTD_MsrsOfOtherSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_SeqOfOTD_MsrsOfOtherSets_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MsrsOfOtherSets(tvb, offset, actx, tree, hf_rrlp_SeqOfOTD_MsrsOfOtherSets_item);
-}
 
 
 static const per_sequence_t SeqOfOTD_MsrsOfOtherSets_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfOTD_MsrsOfOtherSets_item },
+  { ""                      , &hf_rrlp_SeqOfOTD_MsrsOfOtherSets_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrsOfOtherSets },
 };
 
 static int
@@ -3095,18 +2429,15 @@ dissect_rrlp_SeqOfOTD_MsrsOfOtherSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_otd_MsrsOfOtherSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfOTD_MsrsOfOtherSets(tvb, offset, actx, tree, hf_rrlp_otd_MsrsOfOtherSets);
-}
 
 
 static const per_sequence_t OTD_MsrElementRest_sequence[] = {
-  { "refFrameNumber"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_refFrameNumber },
-  { "referenceTimeSlot"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceTimeSlot },
-  { "toaMeasurementsOfRef"        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_toaMeasurementsOfRef },
-  { "stdResolution"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_stdResolution },
-  { "taCorrection"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_taCorrection },
-  { "otd-MsrsOfOtherSets"         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_otd_MsrsOfOtherSets },
+  { "refFrameNumber"        , &hf_rrlp_refFrameNumber , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_42431 },
+  { "referenceTimeSlot"     , &hf_rrlp_referenceTimeSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
+  { "toaMeasurementsOfRef"  , &hf_rrlp_toaMeasurementsOfRef, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_TOA_MeasurementsOfRef },
+  { "stdResolution"         , &hf_rrlp_stdResolution  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_StdResolution },
+  { "taCorrection"          , &hf_rrlp_taCorrection   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_960 },
+  { "otd-MsrsOfOtherSets"   , &hf_rrlp_otd_MsrsOfOtherSets, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_MsrsOfOtherSets },
   { NULL, 0, 0, NULL }
 };
 
@@ -3117,13 +2448,10 @@ dissect_rrlp_OTD_MsrElementRest(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_SeqOfOTD_MsrElementRest_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MsrElementRest(tvb, offset, actx, tree, hf_rrlp_SeqOfOTD_MsrElementRest_item);
-}
 
 
 static const per_sequence_t SeqOfOTD_MsrElementRest_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfOTD_MsrElementRest_item },
+  { ""                      , &hf_rrlp_SeqOfOTD_MsrElementRest_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrElementRest },
 };
 
 static int
@@ -3134,14 +2462,11 @@ dissect_rrlp_SeqOfOTD_MsrElementRest(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
   return offset;
 }
-static int dissect_otdMsrRestSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfOTD_MsrElementRest(tvb, offset, actx, tree, hf_rrlp_otdMsrRestSets);
-}
 
 
 static const per_sequence_t OTD_MeasureInfo_sequence[] = {
-  { "otdMsrFirstSets"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_otdMsrFirstSets },
-  { "otdMsrRestSets"              , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_otdMsrRestSets },
+  { "otdMsrFirstSets"       , &hf_rrlp_otdMsrFirstSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrElementFirst },
+  { "otdMsrRestSets"        , &hf_rrlp_otdMsrRestSets , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_MsrElementRest },
   { NULL, 0, 0, NULL }
 };
 
@@ -3152,9 +2477,6 @@ dissect_rrlp_OTD_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_otd_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MeasureInfo(tvb, offset, actx, tree, hf_rrlp_otd_MeasureInfo);
-}
 
 
 
@@ -3164,9 +2486,6 @@ dissect_rrlp_INTEGER_0_14399999(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
                                               0U, 14399999U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_gpsTOW(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_14399999(tvb, offset, actx, tree, hf_rrlp_gpsTOW);
 }
 
 
@@ -3184,16 +2503,13 @@ dissect_rrlp_FixType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_fixType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_FixType(tvb, offset, actx, tree, hf_rrlp_fixType);
-}
 
 
 static const per_sequence_t LocationInfo_sequence[] = {
-  { "refFrame"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_refFrame },
-  { "gpsTOW"                      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gpsTOW },
-  { "fixType"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_fixType },
-  { "posEstimate"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_posEstimate },
+  { "refFrame"              , &hf_rrlp_refFrame       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
+  { "gpsTOW"                , &hf_rrlp_gpsTOW         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_14399999 },
+  { "fixType"               , &hf_rrlp_fixType        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FixType },
+  { "posEstimate"           , &hf_rrlp_posEstimate    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
   { NULL, 0, 0, NULL }
 };
 
@@ -3203,9 +2519,6 @@ dissect_rrlp_LocationInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                    ett_rrlp_LocationInfo, LocationInfo_sequence);
 
   return offset;
-}
-static int dissect_locationInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_LocationInfo(tvb, offset, actx, tree, hf_rrlp_locationInfo);
 }
 
 
@@ -3217,9 +2530,6 @@ dissect_rrlp_GPSTOW24b(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_gpsTOW1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTOW24b(tvb, offset, actx, tree, hf_rrlp_gpsTOW1);
-}
 
 
 
@@ -3229,9 +2539,6 @@ dissect_rrlp_INTEGER_0_1024(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                               0U, 1024U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_fracChips(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_1024(tvb, offset, actx, tree, hf_rrlp_fracChips);
 }
 
 
@@ -3251,19 +2558,16 @@ dissect_rrlp_MpathIndic(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_mpathIndic(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MpathIndic(tvb, offset, actx, tree, hf_rrlp_mpathIndic);
-}
 
 
 static const per_sequence_t GPS_MsrElement_sequence[] = {
-  { "satelliteID"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_satelliteID },
-  { "cNo"                         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cNo },
-  { "doppler"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_doppler },
-  { "wholeChips"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_wholeChips },
-  { "fracChips"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_fracChips },
-  { "mpathIndic"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpathIndic },
-  { "pseuRangeRMSErr"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pseuRangeRMSErr },
+  { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { "cNo"                   , &hf_rrlp_cNo            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { "doppler"               , &hf_rrlp_doppler        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { "wholeChips"            , &hf_rrlp_wholeChips     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1022 },
+  { "fracChips"             , &hf_rrlp_fracChips      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1024 },
+  { "mpathIndic"            , &hf_rrlp_mpathIndic     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MpathIndic },
+  { "pseuRangeRMSErr"       , &hf_rrlp_pseuRangeRMSErr, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3274,13 +2578,10 @@ dissect_rrlp_GPS_MsrElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_SeqOfGPS_MsrElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPS_MsrElement(tvb, offset, actx, tree, hf_rrlp_SeqOfGPS_MsrElement_item);
-}
 
 
 static const per_sequence_t SeqOfGPS_MsrElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfGPS_MsrElement_item },
+  { ""                      , &hf_rrlp_SeqOfGPS_MsrElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPS_MsrElement },
 };
 
 static int
@@ -3291,15 +2592,12 @@ dissect_rrlp_SeqOfGPS_MsrElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_gps_msrList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfGPS_MsrElement(tvb, offset, actx, tree, hf_rrlp_gps_msrList);
-}
 
 
 static const per_sequence_t GPS_MsrSetElement_sequence[] = {
-  { "refFrame"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_refFrame },
-  { "gpsTOW"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsTOW1 },
-  { "gps-msrList"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gps_msrList },
+  { "refFrame"              , &hf_rrlp_refFrame       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_65535 },
+  { "gpsTOW"                , &hf_rrlp_gpsTOW1        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW24b },
+  { "gps-msrList"           , &hf_rrlp_gps_msrList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGPS_MsrElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -3310,13 +2608,10 @@ dissect_rrlp_GPS_MsrSetElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_SeqOfGPS_MsrSetElement_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPS_MsrSetElement(tvb, offset, actx, tree, hf_rrlp_SeqOfGPS_MsrSetElement_item);
-}
 
 
 static const per_sequence_t SeqOfGPS_MsrSetElement_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfGPS_MsrSetElement_item },
+  { ""                      , &hf_rrlp_SeqOfGPS_MsrSetElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPS_MsrSetElement },
 };
 
 static int
@@ -3327,13 +2622,10 @@ dissect_rrlp_SeqOfGPS_MsrSetElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _
 
   return offset;
 }
-static int dissect_gpsMsrSetList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfGPS_MsrSetElement(tvb, offset, actx, tree, hf_rrlp_gpsMsrSetList);
-}
 
 
 static const per_sequence_t GPS_MeasureInfo_sequence[] = {
-  { "gpsMsrSetList"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gpsMsrSetList },
+  { "gpsMsrSetList"         , &hf_rrlp_gpsMsrSetList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGPS_MsrSetElement },
   { NULL, 0, 0, NULL }
 };
 
@@ -3343,9 +2635,6 @@ dissect_rrlp_GPS_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_rrlp_GPS_MeasureInfo, GPS_MeasureInfo_sequence);
 
   return offset;
-}
-static int dissect_gps_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPS_MeasureInfo(tvb, offset, actx, tree, hf_rrlp_gps_MeasureInfo);
 }
 
 
@@ -3372,9 +2661,6 @@ dissect_rrlp_LocErrorReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_locErrorReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_LocErrorReason(tvb, offset, actx, tree, hf_rrlp_locErrorReason);
-}
 
 
 
@@ -3385,14 +2671,11 @@ dissect_rrlp_GPSAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_gpsAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSAssistanceData(tvb, offset, actx, tree, hf_rrlp_gpsAssistanceData);
-}
 
 
 static const per_sequence_t AdditionalAssistanceData_sequence[] = {
-  { "gpsAssistanceData"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gpsAssistanceData },
-  { "extensionContainer"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionContainer },
+  { "gpsAssistanceData"     , &hf_rrlp_gpsAssistanceData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPSAssistanceData },
+  { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -3403,14 +2686,11 @@ dissect_rrlp_AdditionalAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_additionalAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AdditionalAssistanceData(tvb, offset, actx, tree, hf_rrlp_additionalAssistanceData);
-}
 
 
 static const per_sequence_t LocationError_sequence[] = {
-  { "locErrorReason"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_locErrorReason },
-  { "additionalAssistanceData"    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_additionalAssistanceData },
+  { "locErrorReason"        , &hf_rrlp_locErrorReason , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_LocErrorReason },
+  { "additionalAssistanceData", &hf_rrlp_additionalAssistanceData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AdditionalAssistanceData },
   { NULL, 0, 0, NULL }
 };
 
@@ -3421,13 +2701,10 @@ dissect_rrlp_LocationError(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_locationError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_LocationError(tvb, offset, actx, tree, hf_rrlp_locationError);
-}
 
 
 static const per_sequence_t SeqOfOTD_FirstSetMsrs_R98_Ext_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SeqOfOTD_FirstSetMsrs_R98_Ext_item },
+  { ""                      , &hf_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_FirstSetMsrs },
 };
 
 static int
@@ -3438,13 +2715,10 @@ dissect_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t 
 
   return offset;
 }
-static int dissect_otd_FirstSetMsrs_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext(tvb, offset, actx, tree, hf_rrlp_otd_FirstSetMsrs_R98_Ext);
-}
 
 
 static const per_sequence_t OTD_MsrElementFirst_R98_Ext_sequence[] = {
-  { "otd-FirstSetMsrs-R98-Ext"    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_otd_FirstSetMsrs_R98_Ext },
+  { "otd-FirstSetMsrs-R98-Ext", &hf_rrlp_otd_FirstSetMsrs_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -3455,13 +2729,10 @@ dissect_rrlp_OTD_MsrElementFirst_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
   return offset;
 }
-static int dissect_otdMsrFirstSets_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MsrElementFirst_R98_Ext(tvb, offset, actx, tree, hf_rrlp_otdMsrFirstSets_R98_Ext);
-}
 
 
 static const per_sequence_t OTD_MeasureInfo_R98_Ext_sequence[] = {
-  { "otdMsrFirstSets-R98-Ext"     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_otdMsrFirstSets_R98_Ext },
+  { "otdMsrFirstSets-R98-Ext", &hf_rrlp_otdMsrFirstSets_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrElementFirst_R98_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -3472,13 +2743,10 @@ dissect_rrlp_OTD_MeasureInfo_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
   return offset;
 }
-static int dissect_otd_MeasureInfo_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MeasureInfo_R98_Ext(tvb, offset, actx, tree, hf_rrlp_otd_MeasureInfo_R98_Ext);
-}
 
 
 static const per_sequence_t T_rel_98_Ext_MeasureInfo_sequence[] = {
-  { "otd-MeasureInfo-R98-Ext"     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_otd_MeasureInfo_R98_Ext },
+  { "otd-MeasureInfo-R98-Ext", &hf_rrlp_otd_MeasureInfo_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_OTD_MeasureInfo_R98_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -3488,9 +2756,6 @@ dissect_rrlp_T_rel_98_Ext_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx
                                    ett_rrlp_T_rel_98_Ext_MeasureInfo, T_rel_98_Ext_MeasureInfo_sequence);
 
   return offset;
-}
-static int dissect_rel_98_Ext_MeasureInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_T_rel_98_Ext_MeasureInfo(tvb, offset, actx, tree, hf_rrlp_rel_98_Ext_MeasureInfo);
 }
 
 
@@ -3502,9 +2767,6 @@ dissect_rrlp_INTEGER_0_9999(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_gpsTowSubms(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_9999(tvb, offset, actx, tree, hf_rrlp_gpsTowSubms);
-}
 
 
 
@@ -3515,16 +2777,13 @@ dissect_rrlp_INTEGER_0_127(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_deltaTow(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_INTEGER_0_127(tvb, offset, actx, tree, hf_rrlp_deltaTow);
-}
 
 
 static const per_sequence_t GPSTimeAssistanceMeasurements_sequence[] = {
-  { "referenceFrameMSB"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceFrameMSB },
-  { "gpsTowSubms"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gpsTowSubms },
-  { "deltaTow"                    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_deltaTow },
-  { "gpsReferenceTimeUncertainty" , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gpsReferenceTimeUncertainty },
+  { "referenceFrameMSB"     , &hf_rrlp_referenceFrameMSB, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { "gpsTowSubms"           , &hf_rrlp_gpsTowSubms    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_9999 },
+  { "deltaTow"              , &hf_rrlp_deltaTow       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_127 },
+  { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
   { NULL, 0, 0, NULL }
 };
 
@@ -3535,14 +2794,11 @@ dissect_rrlp_GPSTimeAssistanceMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t 
 
   return offset;
 }
-static int dissect_timeAssistanceMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_GPSTimeAssistanceMeasurements(tvb, offset, actx, tree, hf_rrlp_timeAssistanceMeasurements);
-}
 
 
 static const per_sequence_t Rel_98_MsrPosition_Rsp_Extension_sequence[] = {
-  { "rel-98-Ext-MeasureInfo"      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rel_98_Ext_MeasureInfo },
-  { "timeAssistanceMeasurements"  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_timeAssistanceMeasurements },
+  { "rel-98-Ext-MeasureInfo", &hf_rrlp_rel_98_Ext_MeasureInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_T_rel_98_Ext_MeasureInfo },
+  { "timeAssistanceMeasurements", &hf_rrlp_timeAssistanceMeasurements, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSTimeAssistanceMeasurements },
   { NULL, 0, 0, NULL }
 };
 
@@ -3553,9 +2809,6 @@ dissect_rrlp_Rel_98_MsrPosition_Rsp_Extension(tvbuff_t *tvb, int offset, asn_ctx
 
   return offset;
 }
-static int dissect_rel_98_MsrPosition_Rsp_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel_98_MsrPosition_Rsp_Extension(tvb, offset, actx, tree, hf_rrlp_rel_98_MsrPosition_Rsp_Extension);
-}
 
 
 
@@ -3564,9 +2817,6 @@ dissect_rrlp_OTD_MeasureInfo_5_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
   offset = dissect_rrlp_SeqOfOTD_MsrElementRest(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_otd_MeasureInfo_5_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_OTD_MeasureInfo_5_Ext(tvb, offset, actx, tree, hf_rrlp_otd_MeasureInfo_5_Ext);
 }
 
 
@@ -3584,15 +2834,12 @@ dissect_rrlp_UlPseudoSegInd(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_ulPseudoSegInd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_UlPseudoSegInd(tvb, offset, actx, tree, hf_rrlp_ulPseudoSegInd);
-}
 
 
 static const per_sequence_t Rel_5_MsrPosition_Rsp_Extension_sequence[] = {
-  { "extended-reference"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extended_reference },
-  { "otd-MeasureInfo-5-Ext"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_otd_MeasureInfo_5_Ext },
-  { "ulPseudoSegInd"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulPseudoSegInd },
+  { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Extended_reference },
+  { "otd-MeasureInfo-5-Ext" , &hf_rrlp_otd_MeasureInfo_5_Ext, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_OTD_MeasureInfo_5_Ext },
+  { "ulPseudoSegInd"        , &hf_rrlp_ulPseudoSegInd , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_UlPseudoSegInd },
   { NULL, 0, 0, NULL }
 };
 
@@ -3603,21 +2850,18 @@ dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension(tvbuff_t *tvb, int offset, asn_ctx_
 
   return offset;
 }
-static int dissect_rel_5_MsrPosition_Rsp_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension(tvb, offset, actx, tree, hf_rrlp_rel_5_MsrPosition_Rsp_Extension);
-}
 
 
 static const per_sequence_t MsrPosition_Rsp_sequence[] = {
-  { "multipleSets"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_multipleSets },
-  { "referenceIdentity"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_referenceIdentity },
-  { "otd-MeasureInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_otd_MeasureInfo },
-  { "locationInfo"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_locationInfo },
-  { "gps-MeasureInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gps_MeasureInfo },
-  { "locationError"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_locationError },
-  { "extensionContainer"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionContainer },
-  { "rel-98-MsrPosition-Rsp-Extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel_98_MsrPosition_Rsp_Extension },
-  { "rel-5-MsrPosition-Rsp-Extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel_5_MsrPosition_Rsp_Extension },
+  { "multipleSets"          , &hf_rrlp_multipleSets   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MultipleSets },
+  { "referenceIdentity"     , &hf_rrlp_referenceIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceIdentity },
+  { "otd-MeasureInfo"       , &hf_rrlp_otd_MeasureInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_OTD_MeasureInfo },
+  { "locationInfo"          , &hf_rrlp_locationInfo   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_LocationInfo },
+  { "gps-MeasureInfo"       , &hf_rrlp_gps_MeasureInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPS_MeasureInfo },
+  { "locationError"         , &hf_rrlp_locationError  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_LocationError },
+  { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
+  { "rel-98-MsrPosition-Rsp-Extension", &hf_rrlp_rel_98_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_98_MsrPosition_Rsp_Extension },
+  { "rel-5-MsrPosition-Rsp-Extension", &hf_rrlp_rel_5_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3627,9 +2871,6 @@ dissect_rrlp_MsrPosition_Rsp(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_rrlp_MsrPosition_Rsp, MsrPosition_Rsp_sequence);
 
   return offset;
-}
-static int dissect_msrPositionRsp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MsrPosition_Rsp(tvb, offset, actx, tree, hf_rrlp_msrPositionRsp);
 }
 
 
@@ -3647,15 +2888,12 @@ dissect_rrlp_MoreAssDataToBeSent(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_moreAssDataToBeSent(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_MoreAssDataToBeSent(tvb, offset, actx, tree, hf_rrlp_moreAssDataToBeSent);
-}
 
 
 static const per_sequence_t Rel98_AssistanceData_Extension_sequence[] = {
-  { "rel98-Ext-ExpOTD"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rel98_Ext_ExpOTD },
-  { "gpsTimeAssistanceMeasurementRequest", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_gpsTimeAssistanceMeasurementRequest },
-  { "gpsReferenceTimeUncertainty" , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_gpsReferenceTimeUncertainty },
+  { "rel98-Ext-ExpOTD"      , &hf_rrlp_rel98_Ext_ExpOTD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Rel98_Ext_ExpOTD },
+  { "gpsTimeAssistanceMeasurementRequest", &hf_rrlp_gpsTimeAssistanceMeasurementRequest, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
   { NULL, 0, 0, NULL }
 };
 
@@ -3666,13 +2904,10 @@ dissect_rrlp_Rel98_AssistanceData_Extension(tvbuff_t *tvb, int offset, asn_ctx_t
 
   return offset;
 }
-static int dissect_rel98_AssistanceData_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel98_AssistanceData_Extension(tvb, offset, actx, tree, hf_rrlp_rel98_AssistanceData_Extension);
-}
 
 
 static const per_sequence_t Rel5_AssistanceData_Extension_sequence[] = {
-  { "extended-reference"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_extended_reference },
+  { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_Extended_reference },
   { NULL, 0, 0, NULL }
 };
 
@@ -3683,20 +2918,17 @@ dissect_rrlp_Rel5_AssistanceData_Extension(tvbuff_t *tvb, int offset, asn_ctx_t 
 
   return offset;
 }
-static int dissect_rel5_AssistanceData_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel5_AssistanceData_Extension(tvb, offset, actx, tree, hf_rrlp_rel5_AssistanceData_Extension);
-}
 
 
 static const per_sequence_t AssistanceData_sequence[] = {
-  { "referenceAssistData"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_referenceAssistData },
-  { "msrAssistData"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msrAssistData },
-  { "systemInfoAssistData"        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_systemInfoAssistData },
-  { "gps-AssistData"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gps_AssistData },
-  { "moreAssDataToBeSent"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_moreAssDataToBeSent },
-  { "extensionContainer"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionContainer },
-  { "rel98-AssistanceData-Extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel98_AssistanceData_Extension },
-  { "rel5-AssistanceData-Extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel5_AssistanceData_Extension },
+  { "referenceAssistData"   , &hf_rrlp_referenceAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceAssistData },
+  { "msrAssistData"         , &hf_rrlp_msrAssistData  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MsrAssistData },
+  { "systemInfoAssistData"  , &hf_rrlp_systemInfoAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SystemInfoAssistData },
+  { "gps-AssistData"        , &hf_rrlp_gps_AssistData , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPS_AssistData },
+  { "moreAssDataToBeSent"   , &hf_rrlp_moreAssDataToBeSent, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MoreAssDataToBeSent },
+  { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
+  { "rel98-AssistanceData-Extension", &hf_rrlp_rel98_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_AssistanceData_Extension },
+  { "rel5-AssistanceData-Extension", &hf_rrlp_rel5_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_AssistanceData_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3706,9 +2938,6 @@ dissect_rrlp_AssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_rrlp_AssistanceData, AssistanceData_sequence);
 
   return offset;
-}
-static int dissect_assistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_AssistanceData(tvb, offset, actx, tree, hf_rrlp_assistanceData);
 }
 
 
@@ -3730,13 +2959,10 @@ dissect_rrlp_ErrorCodes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_errorCause(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ErrorCodes(tvb, offset, actx, tree, hf_rrlp_errorCause);
-}
 
 
 static const per_sequence_t Rel_5_ProtocolError_Extension_sequence[] = {
-  { "extended-reference"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extended_reference },
+  { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Extended_reference },
   { NULL, 0, 0, NULL }
 };
 
@@ -3747,15 +2973,12 @@ dissect_rrlp_Rel_5_ProtocolError_Extension(tvbuff_t *tvb, int offset, asn_ctx_t 
 
   return offset;
 }
-static int dissect_rel_5_ProtocolError_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_Rel_5_ProtocolError_Extension(tvb, offset, actx, tree, hf_rrlp_rel_5_ProtocolError_Extension);
-}
 
 
 static const per_sequence_t ProtocolError_sequence[] = {
-  { "errorCause"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_errorCause },
-  { "extensionContainer"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionContainer },
-  { "rel-5-ProtocolError-Extension", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rel_5_ProtocolError_Extension },
+  { "errorCause"            , &hf_rrlp_errorCause     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_ErrorCodes },
+  { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
+  { "rel-5-ProtocolError-Extension", &hf_rrlp_rel_5_ProtocolError_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_5_ProtocolError_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3765,9 +2988,6 @@ dissect_rrlp_ProtocolError(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
                                    ett_rrlp_ProtocolError, ProtocolError_sequence);
 
   return offset;
-}
-static int dissect_protocolError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_ProtocolError(tvb, offset, actx, tree, hf_rrlp_protocolError);
 }
 
 
@@ -3781,11 +3001,11 @@ static const value_string rrlp_RRLP_Component_vals[] = {
 };
 
 static const per_choice_t RRLP_Component_choice[] = {
-  {   0, "msrPositionReq"              , ASN1_EXTENSION_ROOT    , dissect_msrPositionReq },
-  {   1, "msrPositionRsp"              , ASN1_EXTENSION_ROOT    , dissect_msrPositionRsp },
-  {   2, "assistanceData"              , ASN1_EXTENSION_ROOT    , dissect_assistanceData },
-  {   3, "assistanceDataAck"           , ASN1_EXTENSION_ROOT    , dissect_assistanceDataAck },
-  {   4, "protocolError"               , ASN1_EXTENSION_ROOT    , dissect_protocolError },
+  {   0, &hf_rrlp_msrPositionReq , ASN1_EXTENSION_ROOT    , dissect_rrlp_MsrPosition_Req },
+  {   1, &hf_rrlp_msrPositionRsp , ASN1_EXTENSION_ROOT    , dissect_rrlp_MsrPosition_Rsp },
+  {   2, &hf_rrlp_assistanceData , ASN1_EXTENSION_ROOT    , dissect_rrlp_AssistanceData },
+  {   3, &hf_rrlp_assistanceDataAck, ASN1_EXTENSION_ROOT    , dissect_rrlp_NULL },
+  {   4, &hf_rrlp_protocolError  , ASN1_EXTENSION_ROOT    , dissect_rrlp_ProtocolError },
   { 0, NULL, 0, NULL }
 };
 
@@ -3797,14 +3017,11 @@ dissect_rrlp_RRLP_Component(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_component(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_rrlp_RRLP_Component(tvb, offset, actx, tree, hf_rrlp_component);
-}
 
 
 static const per_sequence_t PDU_sequence[] = {
-  { "referenceNumber"             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_referenceNumber },
-  { "component"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_component },
+  { "referenceNumber"       , &hf_rrlp_referenceNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { "component"             , &hf_rrlp_component      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RRLP_Component },
   { NULL, 0, 0, NULL }
 };
 

@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\ranap-exp.cnf
-# ../../tools/asn2wrs.py -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn
+# ../../tools/asn2wrs.py -e -F -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn
 
 #.MODULE
 RANAP-PDU-Descriptions  ranap

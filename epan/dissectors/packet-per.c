@@ -255,7 +255,7 @@ dissect_per_null(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree 
 
 /* 19 this function dissects a sequence of */
 static guint32
-dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int (*func)(tvbuff_t *, int , asn_ctx_t *, proto_tree *), guint32 length)
+dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, per_type_fn func, int hf_index, guint32 length)
 {
 	guint32 i;
 
@@ -268,7 +268,7 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 		litem=proto_tree_add_text(tree, tvb, offset>>3, 0, "Item %d", i);
 		ltree=proto_item_add_subtree(litem, ett_per_sequence_of_item);
 
-		offset=(*func)(tvb, offset, actx, ltree);
+		offset=(*func)(tvb, offset, actx, ltree, hf_index);
 		proto_item_set_len(litem, (offset>>3)!=(lold_offset>>3)?(offset>>3)-(lold_offset>>3):1);
 	}
 
@@ -299,7 +299,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
-	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, length);
+	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -593,7 +593,7 @@ call_sohelper:
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
-	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, length);
+	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -1081,7 +1081,7 @@ DEBUG_ENTRY("dissect_per_choice");
 	/* count the number of entries in the extension root and extension addition */
 	extension_root_entries = 0;
 	extension_addition_entries = 0;
-	for (i=0; choice[i].func; i++) {
+	for (i=0; choice[i].p_id; i++) {
 		switch(choice[i].extension){
 			case ASN1_NO_EXTENSIONS:
 			case ASN1_EXTENSION_ROOT:
@@ -1104,7 +1104,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 
 		index = -1; cidx = choice_index;
-		for (i=0; choice[i].func; i++) {
+		for (i=0; choice[i].p_id; i++) {
 			if(choice[i].extension != ASN1_NOT_EXTENSION_ROOT){
 				if (!cidx) { index = i; break; }
 				cidx--;
@@ -1115,7 +1115,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &ext_length);
 
 		index = -1; cidx = choice_index;
-		for (i=0; choice[i].func; i++) {
+		for (i=0; choice[i].p_id; i++) {
 			if(choice[i].extension == ASN1_NOT_EXTENSION_ROOT){
 				if (!cidx) { index = i; break; }
 				cidx--;
@@ -1127,9 +1127,9 @@ DEBUG_ENTRY("dissect_per_choice");
 		choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset>>3, 0, choice[index].value);
 		choice_tree = proto_item_add_subtree(choice_item, ett_index);
 		if (!extension_flag) {
-			offset = choice[index].func(tvb, offset, actx, choice_tree);
+			offset = choice[index].func(tvb, offset, actx, choice_tree, *choice[index].p_id);
 		} else {
-			choice[index].func(tvb, offset, actx, choice_tree);
+			choice[index].func(tvb, offset, actx, choice_tree, *choice[index].p_id);
 			offset += ext_length * 8;
 		}
 		proto_item_set_len(choice_item, BLEN(old_offset, offset));
@@ -1257,7 +1257,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				}
 			}
 			if(sequence[i].func){
-				offset=sequence[i].func(tvb, offset, actx, tree);
+				offset=sequence[i].func(tvb, offset, actx, tree, *sequence[i].p_id);
 			} else {
 				PER_NOT_DECODED_YET(sequence[i].name);
 			}
@@ -1344,7 +1344,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			}
 
 			if(sequence[extension_index].func){
-				new_offset=sequence[extension_index].func(tvb, offset, actx, tree);
+				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
 			} else {
 				PER_NOT_DECODED_YET(sequence[extension_index].name);
 			}

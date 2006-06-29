@@ -77,16 +77,17 @@ typedef int (*per_type_fn)(tvbuff_t*, int, asn_ctx_t*, proto_tree*, int);
 
 typedef struct _per_choice_t {
 	int value;
-	const char *name_to_remove;
+	const int *p_id;
 	int extension;
-	per_callback func;
+	per_type_fn func;
 } per_choice_t;
 
 typedef struct _per_sequence_t {
 	const char *name;
+	const int *p_id;
 	int extension;
 	int optional;
-	per_callback func;
+	per_type_fn func;
 } per_sequence_t;
 
 extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length);

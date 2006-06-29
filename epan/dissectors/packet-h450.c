@@ -143,6 +143,7 @@ static dissector_handle_t h4501_handle=NULL;
 static int proto_h4501 = -1;
 
 static int hf_h4501 = -1;
+static int hf_h4501_dummy = -1;
 static int hf_h4501_constrained_invokeId = -1;
 static int hf_h4501_invokeId = -1;
 static int hf_h4501_localOpcode = -1;
@@ -478,7 +479,7 @@ static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_h450_extensionArgument = -1;        /* ExtensionArgument */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-#line 195 "packet-h450-template.c"
+#line 196 "packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h4501 = -1;
@@ -619,7 +620,7 @@ static gint ett_h450_Unspecified = -1;
 static gint ett_h450_Extension = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-#line 210 "packet-h450-template.c"
+#line 211 "packet-h450-template.c"
 
 /* Global variables */
 static guint32 localOpcode;
@@ -711,7 +712,7 @@ static const value_string localOpcode_vals[] = {
 	{  0, NULL }
 };
 
-static int dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
 
 
@@ -719,57 +720,6 @@ static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 /*--- Included file: packet-h450-fn.c ---*/
 #line 1 "packet-h450-fn.c"
-/*--- Fields for imported types ---*/
-
-static int dissect_rosApdus_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_ros_ROSxxx(tvb, offset, actx, tree, hf_h450_rosApdus_item);
-}
-static int dissect_numberUnscreened_presentationAllowedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_PartyNumber(tvb, offset, actx, tree, hf_h450_numberUnscreened_presentationAllowedAddress);
-}
-static int dissect_numberUnscreened_presentationRestrictedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_PartyNumber(tvb, offset, actx, tree, hf_h450_numberUnscreened_presentationRestrictedAddress);
-}
-static int dissect_partyNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_PartyNumber(tvb, offset, actx, tree, hf_h450_partyNumber);
-}
-static int dissect_screeningIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_ScreeningIndicator(tvb, offset, actx, tree, hf_h450_screeningIndicator);
-}
-static int dissect_destinationAddress_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_AliasAddress(tvb, offset, actx, tree, hf_h450_destinationAddress_item);
-}
-static int dissect_remoteExtensionAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_AliasAddress(tvb, offset, actx, tree, hf_h450_remoteExtensionAddress);
-}
-static int dissect_destinationAddressPresentationIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_PresentationIndicator(tvb, offset, actx, tree, hf_h450_destinationAddressPresentationIndicator);
-}
-static int dissect_destinationAddressScreeningIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_ScreeningIndicator(tvb, offset, actx, tree, hf_h450_destinationAddressScreeningIndicator);
-}
-static int dissect_remoteExtensionAddressPresentationIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_PresentationIndicator(tvb, offset, actx, tree, hf_h450_remoteExtensionAddressPresentationIndicator);
-}
-static int dissect_remoteExtensionAddressScreeningIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_ScreeningIndicator(tvb, offset, actx, tree, hf_h450_remoteExtensionAddressScreeningIndicator);
-}
-static int dissect_nonStandardData(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_NonStandardParameter(tvb, offset, actx, tree, hf_h450_nonStandardData);
-}
-static int dissect_callPickupId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_CallIdentifier(tvb, offset, actx, tree, hf_h450_callPickupId);
-}
-static int dissect_ccIdentifier(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_CallIdentifier(tvb, offset, actx, tree, hf_h450_ccIdentifier);
-}
-static int dissect_specificCall(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_CallIdentifier(tvb, offset, actx, tree, hf_h450_specificCall);
-}
-static int dissect_nonStandard(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h225_NonStandardParameter(tvb, offset, actx, tree, hf_h450_nonStandard);
-}
-
 
 
 static int
@@ -777,105 +727,6 @@ dissect_h450_NULL(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_endpoint(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_endpoint);
-}
-static int dissect_anyEntity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_anyEntity);
-}
-static int dissect_discardAnyUnrecognizedInvokePdu(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_discardAnyUnrecognizedInvokePdu);
-}
-static int dissect_clearCallIfAnyInvokePduNotRecognized(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_clearCallIfAnyInvokePduNotRecognized);
-}
-static int dissect_rejectAnyUnrecognizedInvokePdu(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_rejectAnyUnrecognizedInvokePdu);
-}
-static int dissect_presentationRestricted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_presentationRestricted);
-}
-static int dissect_numberNotAvailableDueToInterworking(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_numberNotAvailableDueToInterworking);
-}
-static int dissect_nameNotAvailable(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_nameNotAvailable);
-}
-static int dissect_restrictedNull(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_restrictedNull);
-}
-static int dissect_silentMonitoringPermitted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_silentMonitoringPermitted);
-}
-static int dissect_callIntrusionImpending(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callIntrusionImpending);
-}
-static int dissect_callIntruded(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callIntruded);
-}
-static int dissect_callIsolated(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callIsolated);
-}
-static int dissect_callForceReleased(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callForceReleased);
-}
-static int dissect_callIntrusionComplete(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callIntrusionComplete);
-}
-static int dissect_callIntrusionEnd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_callIntrusionEnd);
-}
-static int dissect_ssCFreRoutingSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCFreRoutingSupported);
-}
-static int dissect_ssCTreRoutingSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCTreRoutingSupported);
-}
-static int dissect_ssCCBSPossible(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCCBSPossible);
-}
-static int dissect_ssCCNRPossible(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCCNRPossible);
-}
-static int dissect_ssCOSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCOSupported);
-}
-static int dissect_ssCIForcedReleaseSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCIForcedReleaseSupported);
-}
-static int dissect_ssCIIsolationSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCIIsolationSupported);
-}
-static int dissect_ssCIWaitOnBusySupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCIWaitOnBusySupported);
-}
-static int dissect_ssCISilentMonitoringSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCISilentMonitoringSupported);
-}
-static int dissect_ssCIConferenceSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCIConferenceSupported);
-}
-static int dissect_ssCHFarHoldSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCHFarHoldSupported);
-}
-static int dissect_ssMWICallbackSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssMWICallbackSupported);
-}
-static int dissect_ssCPCallParkSupported(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCPCallParkSupported);
-}
-static int dissect_ssCHDoNotHold(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCHDoNotHold);
-}
-static int dissect_ssCTDoNotTransfer(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCTDoNotTransfer);
-}
-static int dissect_ssMWICallbackCall(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssMWICallbackCall);
-}
-static int dissect_ssCISilentMonitorPermitted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NULL(tvb, offset, actx, tree, hf_h450_ssCISilentMonitorPermitted);
 }
 
 
@@ -886,8 +737,8 @@ static const value_string h450_EntityType_vals[] = {
 };
 
 static const per_choice_t EntityType_choice[] = {
-  {   0, "endpoint"                    , ASN1_EXTENSION_ROOT    , dissect_endpoint },
-  {   1, "anyEntity"                   , ASN1_EXTENSION_ROOT    , dissect_anyEntity },
+  {   0, &hf_h450_endpoint       , ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   1, &hf_h450_anyEntity      , ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -899,12 +750,6 @@ dissect_h450_EntityType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_sourceEntity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EntityType(tvb, offset, actx, tree, hf_h450_sourceEntity);
-}
-static int dissect_destinationEntity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EntityType(tvb, offset, actx, tree, hf_h450_destinationEntity);
-}
 
 
 
@@ -914,19 +759,13 @@ dissect_h450_AddressInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_sourceEntityAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_AddressInformation(tvb, offset, actx, tree, hf_h450_sourceEntityAddress);
-}
-static int dissect_destinationEntityAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_AddressInformation(tvb, offset, actx, tree, hf_h450_destinationEntityAddress);
-}
 
 
 static const per_sequence_t NetworkFacilityExtension_sequence[] = {
-  { "sourceEntity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sourceEntity },
-  { "sourceEntityAddress"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sourceEntityAddress },
-  { "destinationEntity"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_destinationEntity },
-  { "destinationEntityAddress"    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_destinationEntityAddress },
+  { "sourceEntity"          , &hf_h450_sourceEntity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EntityType },
+  { "sourceEntityAddress"   , &hf_h450_sourceEntityAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_AddressInformation },
+  { "destinationEntity"     , &hf_h450_destinationEntity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EntityType },
+  { "destinationEntityAddress", &hf_h450_destinationEntityAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_AddressInformation },
   { NULL, 0, 0, NULL }
 };
 
@@ -936,9 +775,6 @@ dissect_h450_NetworkFacilityExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx
                                    ett_h450_NetworkFacilityExtension, NetworkFacilityExtension_sequence);
 
   return offset;
-}
-static int dissect_networkFacilityExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NetworkFacilityExtension(tvb, offset, actx, tree, hf_h450_networkFacilityExtension);
 }
 
 
@@ -950,9 +786,9 @@ static const value_string h450_InterpretationApdu_vals[] = {
 };
 
 static const per_choice_t InterpretationApdu_choice[] = {
-  {   0, "discardAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT    , dissect_discardAnyUnrecognizedInvokePdu },
-  {   1, "clearCallIfAnyInvokePduNotRecognized", ASN1_EXTENSION_ROOT    , dissect_clearCallIfAnyInvokePduNotRecognized },
-  {   2, "rejectAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT    , dissect_rejectAnyUnrecognizedInvokePdu },
+  {   0, &hf_h450_discardAnyUnrecognizedInvokePdu, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   1, &hf_h450_clearCallIfAnyInvokePduNotRecognized, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_rejectAnyUnrecognizedInvokePdu, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -964,13 +800,10 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_interpretationApdu(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_InterpretationApdu(tvb, offset, actx, tree, hf_h450_interpretationApdu);
-}
 
 
 static const per_sequence_t SEQUENCE_OF_ROSxxx_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rosApdus_item },
+  { ""                      , &hf_h450_rosApdus_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ros_ROSxxx },
 };
 
 static int
@@ -980,9 +813,6 @@ dissect_h450_SEQUENCE_OF_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_rosApdus(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_OF_ROSxxx(tvb, offset, actx, tree, hf_h450_rosApdus);
-}
 
 
 static const value_string h450_ServiceApdus_vals[] = {
@@ -991,7 +821,7 @@ static const value_string h450_ServiceApdus_vals[] = {
 };
 
 static const per_choice_t ServiceApdus_choice[] = {
-  {   0, "rosApdus"                    , ASN1_EXTENSION_ROOT    , dissect_rosApdus },
+  {   0, &hf_h450_rosApdus       , ASN1_EXTENSION_ROOT    , dissect_h450_SEQUENCE_OF_ROSxxx },
   { 0, NULL, 0, NULL }
 };
 
@@ -1003,15 +833,12 @@ dissect_h450_ServiceApdus(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_serviceApdu(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ServiceApdus(tvb, offset, actx, tree, hf_h450_serviceApdu);
-}
 
 
 static const per_sequence_t H4501SupplementaryService_sequence[] = {
-  { "networkFacilityExtension"    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_networkFacilityExtension },
-  { "interpretationApdu"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_interpretationApdu },
-  { "serviceApdu"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_serviceApdu },
+  { "networkFacilityExtension", &hf_h450_networkFacilityExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NetworkFacilityExtension },
+  { "interpretationApdu"    , &hf_h450_interpretationApdu, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_InterpretationApdu },
+  { "serviceApdu"           , &hf_h450_serviceApdu    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_ServiceApdus },
   { NULL, 0, 0, NULL }
 };
 
@@ -1042,9 +869,6 @@ dissect_h450_SubaddressInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_subaddressInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SubaddressInformation(tvb, offset, actx, tree, hf_h450_subaddressInformation);
-}
 
 
 
@@ -1054,29 +878,11 @@ dissect_h450_BOOLEAN(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
   return offset;
 }
-static int dissect_oddCountIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_oddCountIndicator);
-}
-static int dissect_remoteEnabled(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_remoteEnabled);
-}
-static int dissect_callbackReq(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_callbackReq);
-}
-static int dissect_can_retain_service(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_can_retain_service);
-}
-static int dissect_retain_sig_connection(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_retain_sig_connection);
-}
-static int dissect_retain_service(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BOOLEAN(tvb, offset, actx, tree, hf_h450_retain_service);
-}
 
 
 static const per_sequence_t UserSpecifiedSubaddress_sequence[] = {
-  { "subaddressInformation"       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_subaddressInformation },
-  { "oddCountIndicator"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_oddCountIndicator },
+  { "subaddressInformation" , &hf_h450_subaddressInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SubaddressInformation },
+  { "oddCountIndicator"     , &hf_h450_oddCountIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1086,9 +892,6 @@ dissect_h450_UserSpecifiedSubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
                                    ett_h450_UserSpecifiedSubaddress, UserSpecifiedSubaddress_sequence);
 
   return offset;
-}
-static int dissect_userSpecifiedSubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_UserSpecifiedSubaddress(tvb, offset, actx, tree, hf_h450_userSpecifiedSubaddress);
 }
 
 
@@ -1100,9 +903,6 @@ dissect_h450_NSAPSubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_nsapSubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NSAPSubaddress(tvb, offset, actx, tree, hf_h450_nsapSubaddress);
-}
 
 
 static const value_string h450_PartySubaddress_vals[] = {
@@ -1112,8 +912,8 @@ static const value_string h450_PartySubaddress_vals[] = {
 };
 
 static const per_choice_t PartySubaddress_choice[] = {
-  {   0, "userSpecifiedSubaddress"     , ASN1_EXTENSION_ROOT    , dissect_userSpecifiedSubaddress },
-  {   1, "nsapSubaddress"              , ASN1_EXTENSION_ROOT    , dissect_nsapSubaddress },
+  {   0, &hf_h450_userSpecifiedSubaddress, ASN1_EXTENSION_ROOT    , dissect_h450_UserSpecifiedSubaddress },
+  {   1, &hf_h450_nsapSubaddress , ASN1_EXTENSION_ROOT    , dissect_h450_NSAPSubaddress },
   { 0, NULL, 0, NULL }
 };
 
@@ -1125,21 +925,12 @@ dissect_h450_PartySubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_partySubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_PartySubaddress(tvb, offset, actx, tree, hf_h450_partySubaddress);
-}
-static int dissect_redirectionSubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_PartySubaddress(tvb, offset, actx, tree, hf_h450_redirectionSubaddress);
-}
-static int dissect_callingPartySubaddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_PartySubaddress(tvb, offset, actx, tree, hf_h450_callingPartySubaddress);
-}
 
 
 static const per_sequence_t AddressScreened_sequence[] = {
-  { "partyNumber"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_partyNumber },
-  { "screeningIndicator"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_screeningIndicator },
-  { "partySubaddress"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_partySubaddress },
+  { "partyNumber"           , &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
+  { "screeningIndicator"    , &hf_h450_screeningIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_ScreeningIndicator },
+  { "partySubaddress"       , &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
   { NULL, 0, 0, NULL }
 };
 
@@ -1149,12 +940,6 @@ dissect_h450_AddressScreened(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
                                    ett_h450_AddressScreened, AddressScreened_sequence);
 
   return offset;
-}
-static int dissect_addressScreened_presentationAllowedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_AddressScreened(tvb, offset, actx, tree, hf_h450_addressScreened_presentationAllowedAddress);
-}
-static int dissect_addressScreened_presentationRestrictedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_AddressScreened(tvb, offset, actx, tree, hf_h450_addressScreened_presentationRestrictedAddress);
 }
 
 
@@ -1167,10 +952,10 @@ static const value_string h450_PresentedAddressScreened_vals[] = {
 };
 
 static const per_choice_t PresentedAddressScreened_choice[] = {
-  {   0, "presentationAllowedAddress"  , ASN1_EXTENSION_ROOT    , dissect_addressScreened_presentationAllowedAddress },
-  {   1, "presentationRestricted"      , ASN1_EXTENSION_ROOT    , dissect_presentationRestricted },
-  {   2, "numberNotAvailableDueToInterworking", ASN1_EXTENSION_ROOT    , dissect_numberNotAvailableDueToInterworking },
-  {   3, "presentationRestrictedAddress", ASN1_EXTENSION_ROOT    , dissect_addressScreened_presentationRestrictedAddress },
+  {   0, &hf_h450_addressScreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_AddressScreened },
+  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   3, &hf_h450_addressScreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_AddressScreened },
   { 0, NULL, 0, NULL }
 };
 
@@ -1185,8 +970,8 @@ dissect_h450_PresentedAddressScreened(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t Address_sequence[] = {
-  { "partyNumber"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_partyNumber },
-  { "partySubaddress"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_partySubaddress },
+  { "partyNumber"           , &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
+  { "partySubaddress"       , &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
   { NULL, 0, 0, NULL }
 };
 
@@ -1196,12 +981,6 @@ dissect_h450_Address(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
                                    ett_h450_Address, Address_sequence);
 
   return offset;
-}
-static int dissect_addressUnscreened_presentationAllowedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Address(tvb, offset, actx, tree, hf_h450_addressUnscreened_presentationAllowedAddress);
-}
-static int dissect_addressUnscreened_presentationRestrictedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Address(tvb, offset, actx, tree, hf_h450_addressUnscreened_presentationRestrictedAddress);
 }
 
 
@@ -1214,10 +993,10 @@ static const value_string h450_PresentedAddressUnscreened_vals[] = {
 };
 
 static const per_choice_t PresentedAddressUnscreened_choice[] = {
-  {   0, "presentationAllowedAddress"  , ASN1_EXTENSION_ROOT    , dissect_addressUnscreened_presentationAllowedAddress },
-  {   1, "presentationRestricted"      , ASN1_EXTENSION_ROOT    , dissect_presentationRestricted },
-  {   2, "numberNotAvailableDueToInterworking", ASN1_EXTENSION_ROOT    , dissect_numberNotAvailableDueToInterworking },
-  {   3, "presentationRestrictedAddress", ASN1_EXTENSION_ROOT    , dissect_addressUnscreened_presentationRestrictedAddress },
+  {   0, &hf_h450_addressUnscreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_Address },
+  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   3, &hf_h450_addressUnscreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_Address },
   { 0, NULL, 0, NULL }
 };
 
@@ -1232,8 +1011,8 @@ dissect_h450_PresentedAddressUnscreened(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t NumberScreened_sequence[] = {
-  { "partyNumber"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_partyNumber },
-  { "screeningIndicator"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_screeningIndicator },
+  { "partyNumber"           , &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
+  { "screeningIndicator"    , &hf_h450_screeningIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_ScreeningIndicator },
   { NULL, 0, 0, NULL }
 };
 
@@ -1243,12 +1022,6 @@ dissect_h450_NumberScreened(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
                                    ett_h450_NumberScreened, NumberScreened_sequence);
 
   return offset;
-}
-static int dissect_numberScreened_presentationAllowedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NumberScreened(tvb, offset, actx, tree, hf_h450_numberScreened_presentationAllowedAddress);
-}
-static int dissect_numberScreened_presentationRestrictedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NumberScreened(tvb, offset, actx, tree, hf_h450_numberScreened_presentationRestrictedAddress);
 }
 
 
@@ -1261,10 +1034,10 @@ static const value_string h450_PresentedNumberScreened_vals[] = {
 };
 
 static const per_choice_t PresentedNumberScreened_choice[] = {
-  {   0, "presentationAllowedAddress"  , ASN1_EXTENSION_ROOT    , dissect_numberScreened_presentationAllowedAddress },
-  {   1, "presentationRestricted"      , ASN1_EXTENSION_ROOT    , dissect_presentationRestricted },
-  {   2, "numberNotAvailableDueToInterworking", ASN1_EXTENSION_ROOT    , dissect_numberNotAvailableDueToInterworking },
-  {   3, "presentationRestrictedAddress", ASN1_EXTENSION_ROOT    , dissect_numberScreened_presentationRestrictedAddress },
+  {   0, &hf_h450_numberScreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_NumberScreened },
+  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   3, &hf_h450_numberScreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_NumberScreened },
   { 0, NULL, 0, NULL }
 };
 
@@ -1287,10 +1060,10 @@ static const value_string h450_PresentedNumberUnscreened_vals[] = {
 };
 
 static const per_choice_t PresentedNumberUnscreened_choice[] = {
-  {   0, "presentationAllowedAddress"  , ASN1_EXTENSION_ROOT    , dissect_numberUnscreened_presentationAllowedAddress },
-  {   1, "presentationRestricted"      , ASN1_EXTENSION_ROOT    , dissect_presentationRestricted },
-  {   2, "numberNotAvailableDueToInterworking", ASN1_EXTENSION_ROOT    , dissect_numberNotAvailableDueToInterworking },
-  {   3, "presentationRestrictedAddress", ASN1_EXTENSION_ROOT    , dissect_numberUnscreened_presentationRestrictedAddress },
+  {   0, &hf_h450_numberUnscreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h225_PartyNumber },
+  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   3, &hf_h450_numberUnscreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h225_PartyNumber },
   { 0, NULL, 0, NULL }
 };
 
@@ -1305,7 +1078,7 @@ dissect_h450_PresentedNumberUnscreened(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t SEQUENCE_OF_AliasAddress_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_destinationAddress_item },
+  { ""                      , &hf_h450_destinationAddress_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_AliasAddress },
 };
 
 static int
@@ -1315,18 +1088,15 @@ dissect_h450_SEQUENCE_OF_AliasAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
   return offset;
 }
-static int dissect_destinationAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_OF_AliasAddress(tvb, offset, actx, tree, hf_h450_destinationAddress);
-}
 
 
 static const per_sequence_t EndpointAddress_sequence[] = {
-  { "destinationAddress"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_destinationAddress },
-  { "remoteExtensionAddress"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_remoteExtensionAddress },
-  { "destinationAddressPresentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_destinationAddressPresentationIndicator },
-  { "destinationAddressScreeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_destinationAddressScreeningIndicator },
-  { "remoteExtensionAddressPresentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_remoteExtensionAddressPresentationIndicator },
-  { "remoteExtensionAddressScreeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_remoteExtensionAddressScreeningIndicator },
+  { "destinationAddress"    , &hf_h450_destinationAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SEQUENCE_OF_AliasAddress },
+  { "remoteExtensionAddress", &hf_h450_remoteExtensionAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_AliasAddress },
+  { "destinationAddressPresentationIndicator", &hf_h450_destinationAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
+  { "destinationAddressScreeningIndicator", &hf_h450_destinationAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
+  { "remoteExtensionAddressPresentationIndicator", &hf_h450_remoteExtensionAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
+  { "remoteExtensionAddressScreeningIndicator", &hf_h450_remoteExtensionAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
   { NULL, 0, 0, NULL }
 };
 
@@ -1337,96 +1107,6 @@ dissect_h450_EndpointAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_reroutingNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_reroutingNumber);
-}
-static int dissect_transferringNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_transferringNumber);
-}
-static int dissect_redirectionNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_redirectionNumber);
-}
-static int dissect_connectedAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_connectedAddress);
-}
-static int dissect_divertedToAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_divertedToAddress);
-}
-static int dissect_servedUserNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_servedUserNr);
-}
-static int dissect_activatingUserNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_activatingUserNr);
-}
-static int dissect_deactivatingUserNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_deactivatingUserNr);
-}
-static int dissect_interrogatingUserNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_interrogatingUserNr);
-}
-static int dissect_divertedToNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_divertedToNr);
-}
-static int dissect_calledAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_calledAddress);
-}
-static int dissect_lastReroutingNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_lastReroutingNr);
-}
-static int dissect_callingNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_callingNumber);
-}
-static int dissect_originalCalledNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_originalCalledNr);
-}
-static int dissect_nominatedNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_nominatedNr);
-}
-static int dissect_redirectingNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_redirectingNr);
-}
-static int dissect_divertingNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_divertingNr);
-}
-static int dissect_redirectionNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_redirectionNr);
-}
-static int dissect_callingNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_callingNr);
-}
-static int dissect_parkingNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_parkingNumber);
-}
-static int dissect_parkedNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_parkedNumber);
-}
-static int dissect_parkedToNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_parkedToNumber);
-}
-static int dissect_groupMemberUserNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_groupMemberUserNr);
-}
-static int dissect_partyToRetrieve(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_partyToRetrieve);
-}
-static int dissect_retrieveAddress(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_retrieveAddress);
-}
-static int dissect_picking_upNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_picking_upNumber);
-}
-static int dissect_originatingNr(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_originatingNr);
-}
-static int dissect_mwipartyNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_mwipartyNumber);
-}
-static int dissect_numberA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_numberA);
-}
-static int dissect_numberB(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndpointAddress(tvb, offset, actx, tree, hf_h450_numberB);
-}
 
 
 
@@ -1436,9 +1116,6 @@ dissect_h450_PresentationAllowedIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *
 
   return offset;
 }
-static int dissect_presentationAllowedIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_PresentationAllowedIndicator(tvb, offset, actx, tree, hf_h450_presentationAllowedIndicator);
-}
 
 
 
@@ -1447,9 +1124,6 @@ dissect_h450_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
   offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
-}
-static int dissect_extensionId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_h450_extensionId);
 }
 
 
@@ -1461,14 +1135,11 @@ dissect_h450_ExtensionArgument(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_extensionArgument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionArgument(tvb, offset, actx, tree, hf_h450_extensionArgument);
-}
 
 
 static const per_sequence_t Extension_sequence[] = {
-  { "extensionId"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_extensionId },
-  { "extensionArgument"           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_extensionArgument },
+  { "extensionId"           , &hf_h450_extensionId    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_OBJECT_IDENTIFIER },
+  { "extensionArgument"     , &hf_h450_extensionArgument, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_ExtensionArgument },
   { NULL, 0, 0, NULL }
 };
 
@@ -1479,19 +1150,10 @@ dissect_h450_Extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_ExtensionSeq_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Extension(tvb, offset, actx, tree, hf_h450_ExtensionSeq_item);
-}
-static int dissect_mixedExtension_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Extension(tvb, offset, actx, tree, hf_h450_mixedExtension_extension);
-}
-static int dissect_unspecified_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Extension(tvb, offset, actx, tree, hf_h450_unspecified_extension);
-}
 
 
 static const per_sequence_t ExtensionSeq_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ExtensionSeq_item },
+  { ""                      , &hf_h450_ExtensionSeq_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_Extension },
 };
 
 static int
@@ -1500,9 +1162,6 @@ dissect_h450_ExtensionSeq(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                       ett_h450_ExtensionSeq, ExtensionSeq_sequence_of);
 
   return offset;
-}
-static int dissect_extensionSeq(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionSeq(tvb, offset, actx, tree, hf_h450_extensionSeq);
 }
 
 
@@ -1513,8 +1172,8 @@ static const value_string h450_DummyArg_vals[] = {
 };
 
 static const per_choice_t DummyArg_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -1554,9 +1213,6 @@ dissect_h450_CallIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_callIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CallIdentity(tvb, offset, actx, tree, hf_h450_callIdentity);
-}
 
 
 static const value_string h450_ArgumentExtension_vals[] = {
@@ -1566,8 +1222,8 @@ static const value_string h450_ArgumentExtension_vals[] = {
 };
 
 static const per_choice_t ArgumentExtension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -1579,30 +1235,12 @@ dissect_h450_ArgumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_cTInitiateArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_cTInitiateArg_argumentExtension);
-}
-static int dissect_cTSetupArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_cTSetupArg_argumentExtension);
-}
-static int dissect_cTUpdateArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_cTUpdateArg_argumentExtension);
-}
-static int dissect_subaddressTransferArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_subaddressTransferArg_argumentExtension);
-}
-static int dissect_cTCompleteArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_cTCompleteArg_argumentExtension);
-}
-static int dissect_cTActiveArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, actx, tree, hf_h450_cTActiveArg_argumentExtension);
-}
 
 
 static const per_sequence_t CTInitiateArg_sequence[] = {
-  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
-  { "reroutingNumber"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reroutingNumber },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTInitiateArg_argumentExtension },
+  { "callIdentity"          , &hf_h450_callIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CallIdentity },
+  { "reroutingNumber"       , &hf_h450_reroutingNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "argumentExtension"     , &hf_h450_cTInitiateArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1625,9 +1263,9 @@ dissect_h450_CallTransferInitiate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
 
 static const per_sequence_t CTSetupArg_sequence[] = {
-  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
-  { "transferringNumber"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_transferringNumber },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTSetupArg_argumentExtension },
+  { "callIdentity"          , &hf_h450_callIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CallIdentity },
+  { "transferringNumber"    , &hf_h450_transferringNumber, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "argumentExtension"     , &hf_h450_cTSetupArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1657,24 +1295,6 @@ dissect_h450_BMPString_SIZE_1_128(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_redirectionInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_redirectionInfo);
-}
-static int dissect_connectedInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_connectedInfo);
-}
-static int dissect_callingInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_callingInfo);
-}
-static int dissect_redirectingInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_redirectingInfo);
-}
-static int dissect_originalCalledInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_originalCalledInfo);
-}
-static int dissect_nominatedInfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BMPString_SIZE_1_128(tvb, offset, actx, tree, hf_h450_nominatedInfo);
-}
 
 
 
@@ -1685,19 +1305,13 @@ dissect_h450_H225InformationElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _
 
   return offset;
 }
-static int dissect_basicCallInfoElements(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_H225InformationElement(tvb, offset, actx, tree, hf_h450_basicCallInfoElements);
-}
-static int dissect_h225InfoElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_H225InformationElement(tvb, offset, actx, tree, hf_h450_h225InfoElement);
-}
 
 
 static const per_sequence_t CTUpdateArg_sequence[] = {
-  { "redirectionNumber"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_redirectionNumber },
-  { "redirectionInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectionInfo },
-  { "basicCallInfoElements"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_basicCallInfoElements },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTUpdateArg_argumentExtension },
+  { "redirectionNumber"     , &hf_h450_redirectionNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "redirectionInfo"       , &hf_h450_redirectionInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "basicCallInfoElements" , &hf_h450_basicCallInfoElements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_H225InformationElement },
+  { "argumentExtension"     , &hf_h450_cTUpdateArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1720,8 +1334,8 @@ dissect_h450_CallTransferUpdate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
 
 static const per_sequence_t SubaddressTransferArg_sequence[] = {
-  { "redirectionSubaddress"       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_redirectionSubaddress },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_subaddressTransferArg_argumentExtension },
+  { "redirectionSubaddress" , &hf_h450_redirectionSubaddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_PartySubaddress },
+  { "argumentExtension"     , &hf_h450_subaddressTransferArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1757,9 +1371,6 @@ dissect_h450_EndDesignation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_endDesignation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_EndDesignation(tvb, offset, actx, tree, hf_h450_endDesignation);
-}
 
 
 static const value_string h450_CallStatus_vals[] = {
@@ -1776,18 +1387,15 @@ dissect_h450_CallStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_callStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CallStatus(tvb, offset, actx, tree, hf_h450_callStatus);
-}
 
 
 static const per_sequence_t CTCompleteArg_sequence[] = {
-  { "endDesignation"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_endDesignation },
-  { "redirectionNumber"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_redirectionNumber },
-  { "basicCallInfoElements"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_basicCallInfoElements },
-  { "redirectionInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectionInfo },
-  { "callStatus"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callStatus },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTCompleteArg_argumentExtension },
+  { "endDesignation"        , &hf_h450_endDesignation , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndDesignation },
+  { "redirectionNumber"     , &hf_h450_redirectionNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicCallInfoElements" , &hf_h450_basicCallInfoElements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_H225InformationElement },
+  { "redirectionInfo"       , &hf_h450_redirectionInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "callStatus"            , &hf_h450_callStatus     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_CallStatus },
+  { "argumentExtension"     , &hf_h450_cTCompleteArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1810,10 +1418,10 @@ dissect_h450_CallTransferComplete(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
 
 static const per_sequence_t CTActiveArg_sequence[] = {
-  { "connectedAddress"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_connectedAddress },
-  { "basicCallInfoElements"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_basicCallInfoElements },
-  { "connectedInfo"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_connectedInfo },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTActiveArg_argumentExtension },
+  { "connectedAddress"      , &hf_h450_connectedAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicCallInfoElements" , &hf_h450_basicCallInfoElements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_H225InformationElement },
+  { "connectedInfo"         , &hf_h450_connectedInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "argumentExtension"     , &hf_h450_cTActiveArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ArgumentExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1842,8 +1450,8 @@ static const value_string h450_DummyRes_vals[] = {
 };
 
 static const per_choice_t DummyRes_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -1864,8 +1472,8 @@ static const value_string h450_T_resultExtension_vals[] = {
 };
 
 static const per_choice_t T_resultExtension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -1877,15 +1485,12 @@ dissect_h450_T_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_T_resultExtension(tvb, offset, actx, tree, hf_h450_resultExtension);
-}
 
 
 static const per_sequence_t CTIdentifyRes_sequence[] = {
-  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
-  { "reroutingNumber"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reroutingNumber },
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_resultExtension },
+  { "callIdentity"          , &hf_h450_callIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CallIdentity },
+  { "reroutingNumber"       , &hf_h450_reroutingNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "resultExtension"       , &hf_h450_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_T_resultExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -1912,9 +1517,6 @@ dissect_h450_Procedure(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
                                      3, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_procedure(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Procedure(tvb, offset, actx, tree, hf_h450_procedure);
 }
 
 
@@ -1971,12 +1573,6 @@ dissect_h450_BasicService(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_basicService(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BasicService(tvb, offset, actx, tree, hf_h450_basicService);
-}
-static int dissect_service(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_BasicService(tvb, offset, actx, tree, hf_h450_service);
-}
 
 
 static const value_string h450_ActivateDiversionQArg_extension_vals[] = {
@@ -1986,8 +1582,8 @@ static const value_string h450_ActivateDiversionQArg_extension_vals[] = {
 };
 
 static const per_choice_t ActivateDiversionQArg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -1999,18 +1595,15 @@ dissect_h450_ActivateDiversionQArg_extension(tvbuff_t *tvb, int offset, asn_ctx_
 
   return offset;
 }
-static int dissect_activateDiversionQArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ActivateDiversionQArg_extension(tvb, offset, actx, tree, hf_h450_activateDiversionQArg_extension);
-}
 
 
 static const per_sequence_t ActivateDiversionQArg_sequence[] = {
-  { "procedure"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_procedure },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "divertedToAddress"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_divertedToAddress },
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "activatingUserNr"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_activatingUserNr },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_activateDiversionQArg_extension },
+  { "procedure"             , &hf_h450_procedure      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_Procedure },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "divertedToAddress"     , &hf_h450_divertedToAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "activatingUserNr"      , &hf_h450_activatingUserNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extension"             , &hf_h450_activateDiversionQArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ActivateDiversionQArg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2030,8 +1623,8 @@ static const value_string h450_ActivateDiversionQRes_vals[] = {
 };
 
 static const per_choice_t ActivateDiversionQRes_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2052,8 +1645,8 @@ static const value_string h450_DeactivateDiversionQArg_extension_vals[] = {
 };
 
 static const per_choice_t DeactivateDiversionQArg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2065,17 +1658,14 @@ dissect_h450_DeactivateDiversionQArg_extension(tvbuff_t *tvb, int offset, asn_ct
 
   return offset;
 }
-static int dissect_deactivateDiversionQArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DeactivateDiversionQArg_extension(tvb, offset, actx, tree, hf_h450_deactivateDiversionQArg_extension);
-}
 
 
 static const per_sequence_t DeactivateDiversionQArg_sequence[] = {
-  { "procedure"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_procedure },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "deactivatingUserNr"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_deactivatingUserNr },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_deactivateDiversionQArg_extension },
+  { "procedure"             , &hf_h450_procedure      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_Procedure },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "deactivatingUserNr"    , &hf_h450_deactivatingUserNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extension"             , &hf_h450_deactivateDiversionQArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DeactivateDiversionQArg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2095,8 +1685,8 @@ static const value_string h450_DeactivateDiversionQRes_vals[] = {
 };
 
 static const per_choice_t DeactivateDiversionQRes_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2117,8 +1707,8 @@ static const value_string h450_InterrogateDiversionQ_extension_vals[] = {
 };
 
 static const per_choice_t InterrogateDiversionQ_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2130,17 +1720,14 @@ dissect_h450_InterrogateDiversionQ_extension(tvbuff_t *tvb, int offset, asn_ctx_
 
   return offset;
 }
-static int dissect_interrogateDiversionQ_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_InterrogateDiversionQ_extension(tvb, offset, actx, tree, hf_h450_interrogateDiversionQ_extension);
-}
 
 
 static const per_sequence_t InterrogateDiversionQ_sequence[] = {
-  { "procedure"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_procedure },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_basicService },
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "interrogatingUserNr"         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_interrogatingUserNr },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_interrogateDiversionQ_extension },
+  { "procedure"             , &hf_h450_procedure      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_Procedure },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BasicService },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "interrogatingUserNr"   , &hf_h450_interrogatingUserNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extension"             , &hf_h450_interrogateDiversionQ_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_InterrogateDiversionQ_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2160,8 +1747,8 @@ static const value_string h450_IntResult_extension_vals[] = {
 };
 
 static const per_choice_t IntResult_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2173,18 +1760,15 @@ dissect_h450_IntResult_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_intResult_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_IntResult_extension(tvb, offset, actx, tree, hf_h450_intResult_extension);
-}
 
 
 static const per_sequence_t IntResult_sequence[] = {
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "procedure"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_procedure },
-  { "divertedToAddress"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_divertedToAddress },
-  { "remoteEnabled"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_remoteEnabled },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_intResult_extension },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "procedure"             , &hf_h450_procedure      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_Procedure },
+  { "divertedToAddress"     , &hf_h450_divertedToAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "remoteEnabled"         , &hf_h450_remoteEnabled  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BOOLEAN },
+  { "extension"             , &hf_h450_intResult_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_IntResult_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2195,13 +1779,10 @@ dissect_h450_IntResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_IntResultList_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_IntResult(tvb, offset, actx, tree, hf_h450_IntResultList_item);
-}
 
 
 static const per_sequence_t IntResultList_set_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IntResultList_item },
+  { ""                      , &hf_h450_IntResultList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_IntResult },
 };
 
 static int
@@ -2230,8 +1811,8 @@ static const value_string h450_CheckRestrictionArg_extension_vals[] = {
 };
 
 static const per_choice_t CheckRestrictionArg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2243,16 +1824,13 @@ dissect_h450_CheckRestrictionArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t 
 
   return offset;
 }
-static int dissect_checkRestrictionArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CheckRestrictionArg_extension(tvb, offset, actx, tree, hf_h450_checkRestrictionArg_extension);
-}
 
 
 static const per_sequence_t CheckRestrictionArg_sequence[] = {
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "divertedToNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_divertedToNr },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_checkRestrictionArg_extension },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "divertedToNr"          , &hf_h450_divertedToNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extension"             , &hf_h450_checkRestrictionArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_CheckRestrictionArg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2272,8 +1850,8 @@ static const value_string h450_CheckRestrictionRes_vals[] = {
 };
 
 static const per_choice_t CheckRestrictionRes_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2303,18 +1881,6 @@ dissect_h450_DiversionReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_reroutingReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DiversionReason(tvb, offset, actx, tree, hf_h450_reroutingReason);
-}
-static int dissect_originalReroutingReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DiversionReason(tvb, offset, actx, tree, hf_h450_originalReroutingReason);
-}
-static int dissect_diversionReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DiversionReason(tvb, offset, actx, tree, hf_h450_diversionReason);
-}
-static int dissect_originalDiversionReason(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DiversionReason(tvb, offset, actx, tree, hf_h450_originalDiversionReason);
-}
 
 
 
@@ -2324,9 +1890,6 @@ dissect_h450_INTEGER_1_15(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                               1U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_diversionCounter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_INTEGER_1_15(tvb, offset, actx, tree, hf_h450_diversionCounter);
 }
 
 
@@ -2345,9 +1908,6 @@ dissect_h450_SubscriptionOption(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_subscriptionOption(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SubscriptionOption(tvb, offset, actx, tree, hf_h450_subscriptionOption);
-}
 
 
 static const value_string h450_CallReroutingArg_extension_vals[] = {
@@ -2357,8 +1917,8 @@ static const value_string h450_CallReroutingArg_extension_vals[] = {
 };
 
 static const per_choice_t CallReroutingArg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2370,26 +1930,23 @@ dissect_h450_CallReroutingArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
   return offset;
 }
-static int dissect_callReroutingArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CallReroutingArg_extension(tvb, offset, actx, tree, hf_h450_callReroutingArg_extension);
-}
 
 
 static const per_sequence_t CallReroutingArg_sequence[] = {
-  { "reroutingReason"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reroutingReason },
-  { "originalReroutingReason"     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalReroutingReason },
-  { "calledAddress"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_calledAddress },
-  { "diversionCounter"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_diversionCounter },
-  { "h225InfoElement"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225InfoElement },
-  { "lastReroutingNr"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lastReroutingNr },
-  { "subscriptionOption"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_subscriptionOption },
-  { "callingPartySubaddress"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callingPartySubaddress },
-  { "callingNumber"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callingNumber },
-  { "callingInfo"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callingInfo },
-  { "originalCalledNr"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalCalledNr },
-  { "redirectingInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectingInfo },
-  { "originalCalledInfo"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalCalledInfo },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callReroutingArg_extension },
+  { "reroutingReason"       , &hf_h450_reroutingReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_DiversionReason },
+  { "originalReroutingReason", &hf_h450_originalReroutingReason, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DiversionReason },
+  { "calledAddress"         , &hf_h450_calledAddress  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "diversionCounter"      , &hf_h450_diversionCounter, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_INTEGER_1_15 },
+  { "h225InfoElement"       , &hf_h450_h225InfoElement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_H225InformationElement },
+  { "lastReroutingNr"       , &hf_h450_lastReroutingNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "subscriptionOption"    , &hf_h450_subscriptionOption, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SubscriptionOption },
+  { "callingPartySubaddress", &hf_h450_callingPartySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
+  { "callingNumber"         , &hf_h450_callingNumber  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "callingInfo"           , &hf_h450_callingInfo    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "originalCalledNr"      , &hf_h450_originalCalledNr, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "redirectingInfo"       , &hf_h450_redirectingInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "originalCalledInfo"    , &hf_h450_originalCalledInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "extension"             , &hf_h450_callReroutingArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_CallReroutingArg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2409,8 +1966,8 @@ static const value_string h450_CallReroutingRes_vals[] = {
 };
 
 static const per_choice_t CallReroutingRes_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2431,8 +1988,8 @@ static const value_string h450_DivertingLegInformation1Arg_extension_vals[] = {
 };
 
 static const per_choice_t DivertingLegInformation1Arg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2444,19 +2001,16 @@ dissect_h450_DivertingLegInformation1Arg_extension(tvbuff_t *tvb, int offset, as
 
   return offset;
 }
-static int dissect_divertingLegInformation1Arg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DivertingLegInformation1Arg_extension(tvb, offset, actx, tree, hf_h450_divertingLegInformation1Arg_extension);
-}
 
 
 static const per_sequence_t DivertingLegInformation1Arg_sequence[] = {
-  { "diversionReason"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_diversionReason },
-  { "subscriptionOption"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_subscriptionOption },
-  { "nominatedNr"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nominatedNr },
-  { "nominatedInfo"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nominatedInfo },
-  { "redirectingNr"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectingNr },
-  { "redirectingInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectingInfo },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_divertingLegInformation1Arg_extension },
+  { "diversionReason"       , &hf_h450_diversionReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_DiversionReason },
+  { "subscriptionOption"    , &hf_h450_subscriptionOption, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SubscriptionOption },
+  { "nominatedNr"           , &hf_h450_nominatedNr    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "nominatedInfo"         , &hf_h450_nominatedInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "redirectingNr"         , &hf_h450_redirectingNr  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "redirectingInfo"       , &hf_h450_redirectingInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "extension"             , &hf_h450_divertingLegInformation1Arg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DivertingLegInformation1Arg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2476,8 +2030,8 @@ static const value_string h450_DivertingLegInformation2Arg_extension_vals[] = {
 };
 
 static const per_choice_t DivertingLegInformation2Arg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2489,20 +2043,17 @@ dissect_h450_DivertingLegInformation2Arg_extension(tvbuff_t *tvb, int offset, as
 
   return offset;
 }
-static int dissect_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DivertingLegInformation2Arg_extension(tvb, offset, actx, tree, hf_h450_extension);
-}
 
 
 static const per_sequence_t DivertingLegInformation2Arg_sequence[] = {
-  { "diversionCounter"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_diversionCounter },
-  { "diversionReason"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_diversionReason },
-  { "originalDiversionReason"     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalDiversionReason },
-  { "divertingNr"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_divertingNr },
-  { "originalCalledNr"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalCalledNr },
-  { "redirectingInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectingInfo },
-  { "originalCalledInfo"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originalCalledInfo },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extension },
+  { "diversionCounter"      , &hf_h450_diversionCounter, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_INTEGER_1_15 },
+  { "diversionReason"       , &hf_h450_diversionReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_DiversionReason },
+  { "originalDiversionReason", &hf_h450_originalDiversionReason, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DiversionReason },
+  { "divertingNr"           , &hf_h450_divertingNr    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "originalCalledNr"      , &hf_h450_originalCalledNr, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "redirectingInfo"       , &hf_h450_redirectingInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "originalCalledInfo"    , &hf_h450_originalCalledInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "extension"             , &hf_h450_extension      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DivertingLegInformation2Arg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2522,8 +2073,8 @@ static const value_string h450_DivertingLegInformation3Arg_extension_vals[] = {
 };
 
 static const per_choice_t DivertingLegInformation3Arg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2535,16 +2086,13 @@ dissect_h450_DivertingLegInformation3Arg_extension(tvbuff_t *tvb, int offset, as
 
   return offset;
 }
-static int dissect_divertingLegInformation3Arg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DivertingLegInformation3Arg_extension(tvb, offset, actx, tree, hf_h450_divertingLegInformation3Arg_extension);
-}
 
 
 static const per_sequence_t DivertingLegInformation3Arg_sequence[] = {
-  { "presentationAllowedIndicator", ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_presentationAllowedIndicator },
-  { "redirectionNr"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectionNr },
-  { "redirectionInfo"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_redirectionInfo },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_divertingLegInformation3Arg_extension },
+  { "presentationAllowedIndicator", &hf_h450_presentationAllowedIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_PresentationAllowedIndicator },
+  { "redirectionNr"         , &hf_h450_redirectionNr  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "redirectionInfo"       , &hf_h450_redirectionInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "extension"             , &hf_h450_divertingLegInformation3Arg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DivertingLegInformation3Arg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2564,8 +2112,8 @@ static const value_string h450_DivertingLegInformation4Arg_extension_vals[] = {
 };
 
 static const per_choice_t DivertingLegInformation4Arg_extension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2577,19 +2125,16 @@ dissect_h450_DivertingLegInformation4Arg_extension(tvbuff_t *tvb, int offset, as
 
   return offset;
 }
-static int dissect_divertingLegInformation4Arg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_DivertingLegInformation4Arg_extension(tvb, offset, actx, tree, hf_h450_divertingLegInformation4Arg_extension);
-}
 
 
 static const per_sequence_t DivertingLegInformation4Arg_sequence[] = {
-  { "diversionReason"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_diversionReason },
-  { "subscriptionOption"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_subscriptionOption },
-  { "callingNr"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callingNr },
-  { "callingInfo"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callingInfo },
-  { "nominatedNr"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nominatedNr },
-  { "nominatedInfo"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nominatedInfo },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_divertingLegInformation4Arg_extension },
+  { "diversionReason"       , &hf_h450_diversionReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_DiversionReason },
+  { "subscriptionOption"    , &hf_h450_subscriptionOption, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SubscriptionOption },
+  { "callingNr"             , &hf_h450_callingNr      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "callingInfo"           , &hf_h450_callingInfo    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "nominatedNr"           , &hf_h450_nominatedNr    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "nominatedInfo"         , &hf_h450_nominatedInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BMPString_SIZE_1_128 },
+  { "extension"             , &hf_h450_divertingLegInformation4Arg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_DivertingLegInformation4Arg_extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2609,8 +2154,8 @@ static const value_string h450_CfnrDivertedLegFailedArg_vals[] = {
 };
 
 static const per_choice_t CfnrDivertedLegFailedArg_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_extensionSeq   , ASN1_NO_EXTENSIONS     , dissect_h450_ExtensionSeq },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2631,8 +2176,8 @@ static const value_string h450_MixedExtension_vals[] = {
 };
 
 static const per_choice_t MixedExtension_choice[] = {
-  {   0, "extension"                   , ASN1_NO_EXTENSIONS     , dissect_mixedExtension_extension },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  {   0, &hf_h450_mixedExtension_extension, ASN1_NO_EXTENSIONS     , dissect_h450_Extension },
+  {   1, &hf_h450_nonStandardData, ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -2644,130 +2189,10 @@ dissect_h450_MixedExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_holdNotificArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_holdNotificArg_extensionArg_item);
-}
-static int dissect_retrieveNotificArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_retrieveNotificArg_extensionArg_item);
-}
-static int dissect_remoteHoldArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteHoldArg_extensionArg_item);
-}
-static int dissect_extensionRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_extensionRes_item);
-}
-static int dissect_remoteRetrieveArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteRetrieveArg_extensionArg_item);
-}
-static int dissect_cpRequestArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpRequestArg_extensionArg_item);
-}
-static int dissect_cpSetupArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpSetupArg_extensionArg_item);
-}
-static int dissect_groupIndicationOnArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOnArg_extensionArg_item);
-}
-static int dissect_groupIndicationOffArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOffArg_extensionArg_item);
-}
-static int dissect_pickrequArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickrequArg_extensionArg_item);
-}
-static int dissect_pickupArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickupArg_extensionArg_item);
-}
-static int dissect_pickExeArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_pickExeArg_extensionArg_item);
-}
-static int dissect_cpNotifyArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpNotifyArg_extensionArg_item);
-}
-static int dissect_cpickupNotifyArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cpickupNotifyArg_extensionArg_item);
-}
-static int dissect_callWaitingArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_callWaitingArg_extensionArg_item);
-}
-static int dissect_MwiDummyRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_MwiDummyRes_item);
-}
-static int dissect_ExtensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ExtensionArg_item);
-}
-static int dissect_nameArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_nameArg_extensionArg_item);
-}
-static int dissect_ccRequestArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestArg_extension_item);
-}
-static int dissect_ccRequestRes_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestRes_extension_item);
-}
-static int dissect_ccShortArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccShortArg_extension_item);
-}
-static int dissect_ccLongArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_ccLongArg_extension_item);
-}
-static int dissect_coReqOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_coReqOptArg_extension_item);
-}
-static int dissect_rUAlertOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_rUAlertOptArg_extension_item);
-}
-static int dissect_cfbOvrOptArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cfbOvrOptArg_extension_item);
-}
-static int dissect_cIRequestArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestArg_argumentExtension_item);
-}
-static int dissect_cIRequestRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestRes_resultExtension_item);
-}
-static int dissect_cIGetCIPLOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLOptArg_argumentExtension_item);
-}
-static int dissect_cIGetCIPLRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLRes_resultExtension_item);
-}
-static int dissect_cIIsOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptArg_argumentExtension_item);
-}
-static int dissect_cIIsOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptRes_resultExtension_item);
-}
-static int dissect_cIFrcRelArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelArg_argumentExtension_item);
-}
-static int dissect_cIFrcRelOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelOptRes_resultExtension_item);
-}
-static int dissect_cIWobOptArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptArg_argumentExtension_item);
-}
-static int dissect_cIWobOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptRes_resultExtension_item);
-}
-static int dissect_cISilentArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentArg_argumentExtension_item);
-}
-static int dissect_cISilentOptRes_resultExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentOptRes_resultExtension_item);
-}
-static int dissect_cINotificationArg_argumentExtension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cINotificationArg_argumentExtension_item);
-}
-static int dissect_cmnArg_extension_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnArg_extension_item);
-}
-static int dissect_cmnRequestArg_extensionArg_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnRequestArg_extensionArg_item);
-}
 
 
 static const per_sequence_t SEQUENCE_SIZE_0_255_OF_MixedExtension_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_holdNotificArg_extensionArg_item },
+  { ""                      , &hf_h450_holdNotificArg_extensionArg_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_MixedExtension },
 };
 
 static int
@@ -2778,124 +2203,10 @@ dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvbuff_t *tvb, int offset, as
 
   return offset;
 }
-static int dissect_holdNotificArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_holdNotificArg_extensionArg);
-}
-static int dissect_retrieveNotificArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_retrieveNotificArg_extensionArg);
-}
-static int dissect_remoteHoldArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteHoldArg_extensionArg);
-}
-static int dissect_extensionRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_extensionRes);
-}
-static int dissect_remoteRetrieveArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_remoteRetrieveArg_extensionArg);
-}
-static int dissect_cpRequestArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cpRequestArg_extensionArg);
-}
-static int dissect_cpSetupArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cpSetupArg_extensionArg);
-}
-static int dissect_groupIndicationOnArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOnArg_extensionArg);
-}
-static int dissect_groupIndicationOffArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_groupIndicationOffArg_extensionArg);
-}
-static int dissect_pickrequArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_pickrequArg_extensionArg);
-}
-static int dissect_pickupArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_pickupArg_extensionArg);
-}
-static int dissect_pickExeArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_pickExeArg_extensionArg);
-}
-static int dissect_cpNotifyArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cpNotifyArg_extensionArg);
-}
-static int dissect_cpickupNotifyArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cpickupNotifyArg_extensionArg);
-}
-static int dissect_callWaitingArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_callWaitingArg_extensionArg);
-}
-static int dissect_nameArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_nameArg_extensionArg);
-}
-static int dissect_ccRequestArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestArg_extension);
-}
-static int dissect_ccRequestRes_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_ccRequestRes_extension);
-}
-static int dissect_ccShortArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_ccShortArg_extension);
-}
-static int dissect_ccLongArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_ccLongArg_extension);
-}
-static int dissect_coReqOptArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_coReqOptArg_extension);
-}
-static int dissect_rUAlertOptArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_rUAlertOptArg_extension);
-}
-static int dissect_cfbOvrOptArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cfbOvrOptArg_extension);
-}
-static int dissect_cIRequestArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestArg_argumentExtension);
-}
-static int dissect_cIRequestRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIRequestRes_resultExtension);
-}
-static int dissect_cIGetCIPLOptArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLOptArg_argumentExtension);
-}
-static int dissect_cIGetCIPLRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIGetCIPLRes_resultExtension);
-}
-static int dissect_cIIsOptArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptArg_argumentExtension);
-}
-static int dissect_cIIsOptRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIIsOptRes_resultExtension);
-}
-static int dissect_cIFrcRelArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelArg_argumentExtension);
-}
-static int dissect_cIFrcRelOptRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIFrcRelOptRes_resultExtension);
-}
-static int dissect_cIWobOptArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptArg_argumentExtension);
-}
-static int dissect_cIWobOptRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cIWobOptRes_resultExtension);
-}
-static int dissect_cISilentArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentArg_argumentExtension);
-}
-static int dissect_cISilentOptRes_resultExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cISilentOptRes_resultExtension);
-}
-static int dissect_cINotificationArg_argumentExtension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cINotificationArg_argumentExtension);
-}
-static int dissect_cmnArg_extension(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnArg_extension);
-}
-static int dissect_cmnRequestArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvb, offset, actx, tree, hf_h450_cmnRequestArg_extensionArg);
-}
 
 
 static const per_sequence_t HoldNotificArg_sequence[] = {
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_holdNotificArg_extensionArg },
+  { "extensionArg"          , &hf_h450_holdNotificArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2909,7 +2220,7 @@ dissect_h450_HoldNotificArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
 
 static const per_sequence_t RetrieveNotificArg_sequence[] = {
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_retrieveNotificArg_extensionArg },
+  { "extensionArg"          , &hf_h450_retrieveNotificArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2923,7 +2234,7 @@ dissect_h450_RetrieveNotificArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
 
 static const per_sequence_t RemoteHoldArg_sequence[] = {
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_remoteHoldArg_extensionArg },
+  { "extensionArg"          , &hf_h450_remoteHoldArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2937,7 +2248,7 @@ dissect_h450_RemoteHoldArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 
 static const per_sequence_t RemoteHoldRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2951,7 +2262,7 @@ dissect_h450_RemoteHoldRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 
 static const per_sequence_t RemoteRetrieveArg_sequence[] = {
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_remoteRetrieveArg_extensionArg },
+  { "extensionArg"          , &hf_h450_remoteRetrieveArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2965,7 +2276,7 @@ dissect_h450_RemoteRetrieveArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
 
 static const per_sequence_t RemoteRetrieveRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2986,20 +2297,14 @@ dissect_h450_ParkedToPosition(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_parkedToPosition(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ParkedToPosition(tvb, offset, actx, tree, hf_h450_parkedToPosition);
-}
-static int dissect_parkPosition(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ParkedToPosition(tvb, offset, actx, tree, hf_h450_parkPosition);
-}
 
 
 static const per_sequence_t CpRequestArg_sequence[] = {
-  { "parkingNumber"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkingNumber },
-  { "parkedNumber"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedNumber },
-  { "parkedToNumber"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedToNumber },
-  { "parkedToPosition"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkedToPosition },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpRequestArg_extensionArg },
+  { "parkingNumber"         , &hf_h450_parkingNumber  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedNumber"          , &hf_h450_parkedNumber   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToNumber"        , &hf_h450_parkedToNumber , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToPosition"      , &hf_h450_parkedToPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "extensionArg"          , &hf_h450_cpRequestArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3028,16 +2333,13 @@ dissect_h450_ParkCondition(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_parkCondition(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ParkCondition(tvb, offset, actx, tree, hf_h450_parkCondition);
-}
 
 
 static const per_sequence_t CpRequestRes_sequence[] = {
-  { "parkedToNumber"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedToNumber },
-  { "parkedToPosition"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkedToPosition },
-  { "parkCondition"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkCondition },
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "parkedToNumber"        , &hf_h450_parkedToNumber , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToPosition"      , &hf_h450_parkedToPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "parkCondition"         , &hf_h450_parkCondition  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_ParkCondition },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3051,11 +2353,11 @@ dissect_h450_CpRequestRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CpSetupArg_sequence[] = {
-  { "parkingNumber"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkingNumber },
-  { "parkedNumber"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedNumber },
-  { "parkedToNumber"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedToNumber },
-  { "parkedToPosition"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkedToPosition },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpSetupArg_extensionArg },
+  { "parkingNumber"         , &hf_h450_parkingNumber  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedNumber"          , &hf_h450_parkedNumber   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToNumber"        , &hf_h450_parkedToNumber , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToPosition"      , &hf_h450_parkedToPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "extensionArg"          , &hf_h450_cpSetupArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3069,10 +2371,10 @@ dissect_h450_CpSetupArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 static const per_sequence_t CpSetupRes_sequence[] = {
-  { "parkedToNumber"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkedToNumber },
-  { "parkedToPosition"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkedToPosition },
-  { "parkCondition"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_parkCondition },
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "parkedToNumber"        , &hf_h450_parkedToNumber , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkedToPosition"      , &hf_h450_parkedToPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "parkCondition"         , &hf_h450_parkCondition  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_ParkCondition },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3099,19 +2401,16 @@ dissect_h450_CallType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
 
   return offset;
 }
-static int dissect_retrieveCallType(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CallType(tvb, offset, actx, tree, hf_h450_retrieveCallType);
-}
 
 
 static const per_sequence_t GroupIndicationOnArg_sequence[] = {
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callPickupId },
-  { "groupMemberUserNr"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_groupMemberUserNr },
-  { "retrieveCallType"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_retrieveCallType },
-  { "partyToRetrieve"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_partyToRetrieve },
-  { "retrieveAddress"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_retrieveAddress },
-  { "parkPosition"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkPosition },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_groupIndicationOnArg_extensionArg },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
+  { "groupMemberUserNr"     , &hf_h450_groupMemberUserNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "retrieveCallType"      , &hf_h450_retrieveCallType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CallType },
+  { "partyToRetrieve"       , &hf_h450_partyToRetrieve, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "retrieveAddress"       , &hf_h450_retrieveAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkPosition"          , &hf_h450_parkPosition   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "extensionArg"          , &hf_h450_groupIndicationOnArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3125,7 +2424,7 @@ dissect_h450_GroupIndicationOnArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
 
 static const per_sequence_t GroupIndicationOnRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3139,9 +2438,9 @@ dissect_h450_GroupIndicationOnRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
 
 static const per_sequence_t GroupIndicationOffArg_sequence[] = {
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callPickupId },
-  { "groupMemberUserNr"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_groupMemberUserNr },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_groupIndicationOffArg_extensionArg },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
+  { "groupMemberUserNr"     , &hf_h450_groupMemberUserNr, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extensionArg"          , &hf_h450_groupIndicationOffArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3155,7 +2454,7 @@ dissect_h450_GroupIndicationOffArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
 
 static const per_sequence_t GroupIndicationOffRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3169,12 +2468,12 @@ dissect_h450_GroupIndicationOffRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 
 
 static const per_sequence_t PickrequArg_sequence[] = {
-  { "picking-upNumber"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_picking_upNumber },
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callPickupId },
-  { "partyToRetrieve"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_partyToRetrieve },
-  { "retrieveAddress"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_retrieveAddress },
-  { "parkPosition"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkPosition },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pickrequArg_extensionArg },
+  { "picking-upNumber"      , &hf_h450_picking_upNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_CallIdentifier },
+  { "partyToRetrieve"       , &hf_h450_partyToRetrieve, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "retrieveAddress"       , &hf_h450_retrieveAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "parkPosition"          , &hf_h450_parkPosition   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ParkedToPosition },
+  { "extensionArg"          , &hf_h450_pickrequArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3188,8 +2487,8 @@ dissect_h450_PickrequArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t PickrequRes_sequence[] = {
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callPickupId },
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3203,9 +2502,9 @@ dissect_h450_PickrequRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t PickupArg_sequence[] = {
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callPickupId },
-  { "picking-upNumber"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_picking_upNumber },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pickupArg_extensionArg },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
+  { "picking-upNumber"      , &hf_h450_picking_upNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extensionArg"          , &hf_h450_pickupArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3219,7 +2518,7 @@ dissect_h450_PickupArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
 
 static const per_sequence_t PickupRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3233,10 +2532,10 @@ dissect_h450_PickupRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
 
 static const per_sequence_t PickExeArg_sequence[] = {
-  { "callPickupId"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callPickupId },
-  { "picking-upNumber"            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_picking_upNumber },
-  { "partyToRetrieve"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_partyToRetrieve },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pickExeArg_extensionArg },
+  { "callPickupId"          , &hf_h450_callPickupId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
+  { "picking-upNumber"      , &hf_h450_picking_upNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "partyToRetrieve"       , &hf_h450_partyToRetrieve, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "extensionArg"          , &hf_h450_pickExeArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3250,7 +2549,7 @@ dissect_h450_PickExeArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 static const per_sequence_t PickExeRes_sequence[] = {
-  { "extensionRes"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_extensionRes },
+  { "extensionRes"          , &hf_h450_extensionRes   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3264,8 +2563,8 @@ dissect_h450_PickExeRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 static const per_sequence_t CpNotifyArg_sequence[] = {
-  { "parkingNumber"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_parkingNumber },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpNotifyArg_extensionArg },
+  { "parkingNumber"         , &hf_h450_parkingNumber  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "extensionArg"          , &hf_h450_cpNotifyArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3279,8 +2578,8 @@ dissect_h450_CpNotifyArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t CpickupNotifyArg_sequence[] = {
-  { "picking-upNumber"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_picking_upNumber },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpickupNotifyArg_extensionArg },
+  { "picking-upNumber"      , &hf_h450_picking_upNumber, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "extensionArg"          , &hf_h450_cpickupNotifyArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3301,14 +2600,11 @@ dissect_h450_INTEGER_0_255(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_nbOfAddWaitingCalls(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_INTEGER_0_255(tvb, offset, actx, tree, hf_h450_nbOfAddWaitingCalls);
-}
 
 
 static const per_sequence_t CallWaitingArg_sequence[] = {
-  { "nbOfAddWaitingCalls"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbOfAddWaitingCalls },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callWaitingArg_extensionArg },
+  { "nbOfAddWaitingCalls"   , &hf_h450_nbOfAddWaitingCalls, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_INTEGER_0_255 },
+  { "extensionArg"          , &hf_h450_callWaitingArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3329,9 +2625,6 @@ dissect_h450_INTEGER_0_65535(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_integer(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_INTEGER_0_65535(tvb, offset, actx, tree, hf_h450_integer);
-}
 
 
 
@@ -3341,9 +2634,6 @@ dissect_h450_NumericString_SIZE_1_10(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
                                           1, 10);
 
   return offset;
-}
-static int dissect_numericString(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NumericString_SIZE_1_10(tvb, offset, actx, tree, hf_h450_numericString);
 }
 
 
@@ -3355,9 +2645,9 @@ static const value_string h450_MsgCentreId_vals[] = {
 };
 
 static const per_choice_t MsgCentreId_choice[] = {
-  {   0, "integer"                     , ASN1_NO_EXTENSIONS     , dissect_integer },
-  {   1, "mwipartyNumber"              , ASN1_NO_EXTENSIONS     , dissect_mwipartyNumber },
-  {   2, "numericString"               , ASN1_NO_EXTENSIONS     , dissect_numericString },
+  {   0, &hf_h450_integer        , ASN1_NO_EXTENSIONS     , dissect_h450_INTEGER_0_65535 },
+  {   1, &hf_h450_mwipartyNumber , ASN1_NO_EXTENSIONS     , dissect_h450_EndpointAddress },
+  {   2, &hf_h450_numericString  , ASN1_NO_EXTENSIONS     , dissect_h450_NumericString_SIZE_1_10 },
   { 0, NULL, 0, NULL }
 };
 
@@ -3369,9 +2659,6 @@ dissect_h450_MsgCentreId(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_msgCentreId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MsgCentreId(tvb, offset, actx, tree, hf_h450_msgCentreId);
-}
 
 
 
@@ -3381,9 +2668,6 @@ dissect_h450_NbOfMessages(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
                                               0U, 65535U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_nbOfMessages(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NbOfMessages(tvb, offset, actx, tree, hf_h450_nbOfMessages);
 }
 
 
@@ -3395,9 +2679,6 @@ dissect_h450_TimeStamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_timestamp(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_TimeStamp(tvb, offset, actx, tree, hf_h450_timestamp);
-}
 
 
 
@@ -3408,13 +2689,10 @@ dissect_h450_INTEGER_0_9(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
   return offset;
 }
-static int dissect_priority(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_INTEGER_0_9(tvb, offset, actx, tree, hf_h450_priority);
-}
 
 
 static const per_sequence_t ExtensionArg_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ExtensionArg_item },
+  { ""                      , &hf_h450_ExtensionArg_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_MixedExtension },
 };
 
 static int
@@ -3425,29 +2703,17 @@ dissect_h450_ExtensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_mWIActivateArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionArg(tvb, offset, actx, tree, hf_h450_mWIActivateArg_extensionArg);
-}
-static int dissect_mWIDeactivateArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionArg(tvb, offset, actx, tree, hf_h450_mWIDeactivateArg_extensionArg);
-}
-static int dissect_mWIInterrogateArg_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionArg(tvb, offset, actx, tree, hf_h450_mWIInterrogateArg_extensionArg);
-}
-static int dissect_mWIInterrogateResElt_extensionArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtensionArg(tvb, offset, actx, tree, hf_h450_mWIInterrogateResElt_extensionArg);
-}
 
 
 static const per_sequence_t MWIActivateArg_sequence[] = {
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "msgCentreId"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msgCentreId },
-  { "nbOfMessages"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbOfMessages },
-  { "originatingNr"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originatingNr },
-  { "timestamp"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_timestamp },
-  { "priority"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_priority },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mWIActivateArg_extensionArg },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "msgCentreId"           , &hf_h450_msgCentreId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_MsgCentreId },
+  { "nbOfMessages"          , &hf_h450_nbOfMessages   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NbOfMessages },
+  { "originatingNr"         , &hf_h450_originatingNr  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "timestamp"             , &hf_h450_timestamp      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_TimeStamp },
+  { "priority"              , &hf_h450_priority       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_INTEGER_0_9 },
+  { "extensionArg"          , &hf_h450_mWIActivateArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ExtensionArg },
   { NULL, 0, 0, NULL }
 };
 
@@ -3470,11 +2736,11 @@ dissect_h450_MwiActivate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t MWIDeactivateArg_sequence[] = {
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "msgCentreId"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msgCentreId },
-  { "callbackReq"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callbackReq },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mWIDeactivateArg_extensionArg },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "msgCentreId"           , &hf_h450_msgCentreId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_MsgCentreId },
+  { "callbackReq"           , &hf_h450_callbackReq    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BOOLEAN },
+  { "extensionArg"          , &hf_h450_mWIDeactivateArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ExtensionArg },
   { NULL, 0, 0, NULL }
 };
 
@@ -3497,11 +2763,11 @@ dissect_h450_MwiDeactivate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 
 static const per_sequence_t MWIInterrogateArg_sequence[] = {
-  { "servedUserNr"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_servedUserNr },
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "msgCentreId"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msgCentreId },
-  { "callbackReq"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_callbackReq },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mWIInterrogateArg_extensionArg },
+  { "servedUserNr"          , &hf_h450_servedUserNr   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "msgCentreId"           , &hf_h450_msgCentreId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_MsgCentreId },
+  { "callbackReq"           , &hf_h450_callbackReq    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BOOLEAN },
+  { "extensionArg"          , &hf_h450_mWIInterrogateArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ExtensionArg },
   { NULL, 0, 0, NULL }
 };
 
@@ -3524,7 +2790,7 @@ dissect_h450_MwiInterrogate(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
 
 static const per_sequence_t MwiDummyRes_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_MwiDummyRes_item },
+  { ""                      , &hf_h450_MwiDummyRes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_MixedExtension },
 };
 
 static int
@@ -3538,13 +2804,13 @@ dissect_h450_MwiDummyRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t MWIInterrogateResElt_sequence[] = {
-  { "basicService"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_basicService },
-  { "msgCentreId"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_msgCentreId },
-  { "nbOfMessages"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbOfMessages },
-  { "originatingNr"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_originatingNr },
-  { "timestamp"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_timestamp },
-  { "priority"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_priority },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mWIInterrogateResElt_extensionArg },
+  { "basicService"          , &hf_h450_basicService   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "msgCentreId"           , &hf_h450_msgCentreId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_MsgCentreId },
+  { "nbOfMessages"          , &hf_h450_nbOfMessages   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NbOfMessages },
+  { "originatingNr"         , &hf_h450_originatingNr  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "timestamp"             , &hf_h450_timestamp      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_TimeStamp },
+  { "priority"              , &hf_h450_priority       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_INTEGER_0_9 },
+  { "extensionArg"          , &hf_h450_mWIInterrogateResElt_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_ExtensionArg },
   { NULL, 0, 0, NULL }
 };
 
@@ -3555,13 +2821,10 @@ dissect_h450_MWIInterrogateResElt(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_MWIInterrogateRes_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_MWIInterrogateResElt(tvb, offset, actx, tree, hf_h450_MWIInterrogateRes_item);
-}
 
 
 static const per_sequence_t MWIInterrogateRes_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_MWIInterrogateRes_item },
+  { ""                      , &hf_h450_MWIInterrogateRes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_MWIInterrogateResElt },
 };
 
 static int
@@ -3582,9 +2845,6 @@ dissect_h450_SimpleName(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_simpleName(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SimpleName(tvb, offset, actx, tree, hf_h450_simpleName);
-}
 
 
 
@@ -3595,9 +2855,6 @@ dissect_h450_ExtendedName(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
   return offset;
 }
-static int dissect_extendedName(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_ExtendedName(tvb, offset, actx, tree, hf_h450_extendedName);
-}
 
 
 static const value_string h450_NamePresentationAllowed_vals[] = {
@@ -3607,8 +2864,8 @@ static const value_string h450_NamePresentationAllowed_vals[] = {
 };
 
 static const per_choice_t NamePresentationAllowed_choice[] = {
-  {   0, "simpleName"                  , ASN1_EXTENSION_ROOT    , dissect_simpleName },
-  {   1, "extendedName"                , ASN1_EXTENSION_ROOT    , dissect_extendedName },
+  {   0, &hf_h450_simpleName     , ASN1_EXTENSION_ROOT    , dissect_h450_SimpleName },
+  {   1, &hf_h450_extendedName   , ASN1_EXTENSION_ROOT    , dissect_h450_ExtendedName },
   { 0, NULL, 0, NULL }
 };
 
@@ -3620,9 +2877,6 @@ dissect_h450_NamePresentationAllowed(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
   return offset;
 }
-static int dissect_namePresentationAllowed(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NamePresentationAllowed(tvb, offset, actx, tree, hf_h450_namePresentationAllowed);
-}
 
 
 static const value_string h450_NamePresentationRestricted_vals[] = {
@@ -3633,9 +2887,9 @@ static const value_string h450_NamePresentationRestricted_vals[] = {
 };
 
 static const per_choice_t NamePresentationRestricted_choice[] = {
-  {   0, "simpleName"                  , ASN1_EXTENSION_ROOT    , dissect_simpleName },
-  {   1, "extendedName"                , ASN1_EXTENSION_ROOT    , dissect_extendedName },
-  {   2, "restrictedNull"              , ASN1_EXTENSION_ROOT    , dissect_restrictedNull },
+  {   0, &hf_h450_simpleName     , ASN1_EXTENSION_ROOT    , dissect_h450_SimpleName },
+  {   1, &hf_h450_extendedName   , ASN1_EXTENSION_ROOT    , dissect_h450_ExtendedName },
+  {   2, &hf_h450_restrictedNull , ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -3647,9 +2901,6 @@ dissect_h450_NamePresentationRestricted(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
   return offset;
 }
-static int dissect_namePresentationRestricted(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_NamePresentationRestricted(tvb, offset, actx, tree, hf_h450_namePresentationRestricted);
-}
 
 
 static const value_string h450_Name_vals[] = {
@@ -3660,9 +2911,9 @@ static const value_string h450_Name_vals[] = {
 };
 
 static const per_choice_t Name_choice[] = {
-  {   0, "namePresentationAllowed"     , ASN1_EXTENSION_ROOT    , dissect_namePresentationAllowed },
-  {   1, "namePresentationRestricted"  , ASN1_EXTENSION_ROOT    , dissect_namePresentationRestricted },
-  {   2, "nameNotAvailable"            , ASN1_EXTENSION_ROOT    , dissect_nameNotAvailable },
+  {   0, &hf_h450_namePresentationAllowed, ASN1_EXTENSION_ROOT    , dissect_h450_NamePresentationAllowed },
+  {   1, &hf_h450_namePresentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NamePresentationRestricted },
+  {   2, &hf_h450_nameNotAvailable, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -3674,14 +2925,11 @@ dissect_h450_Name(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tr
 
   return offset;
 }
-static int dissect_name(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_Name(tvb, offset, actx, tree, hf_h450_name);
-}
 
 
 static const per_sequence_t NameArg_sequence[] = {
-  { "name"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_name },
-  { "extensionArg"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nameArg_extensionArg },
+  { "name"                  , &hf_h450_name           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_Name },
+  { "extensionArg"          , &hf_h450_nameArg_extensionArg, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3695,13 +2943,13 @@ dissect_h450_NameArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 
 
 static const per_sequence_t CcRequestArg_sequence[] = {
-  { "numberA"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_numberA },
-  { "numberB"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_numberB },
-  { "ccIdentifier"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccIdentifier },
-  { "service"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_service },
-  { "can-retain-service"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_can_retain_service },
-  { "retain-sig-connection"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_retain_sig_connection },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccRequestArg_extension },
+  { "numberA"               , &hf_h450_numberA        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "numberB"               , &hf_h450_numberB        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_EndpointAddress },
+  { "ccIdentifier"          , &hf_h450_ccIdentifier   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_CallIdentifier },
+  { "service"               , &hf_h450_service        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BasicService },
+  { "can-retain-service"    , &hf_h450_can_retain_service, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BOOLEAN },
+  { "retain-sig-connection" , &hf_h450_retain_sig_connection, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BOOLEAN },
+  { "extension"             , &hf_h450_ccRequestArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3715,8 +2963,8 @@ dissect_h450_CcRequestArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CcRequestRes_sequence[] = {
-  { "retain-service"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_retain_service },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccRequestRes_extension },
+  { "retain-service"        , &hf_h450_retain_service , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_BOOLEAN },
+  { "extension"             , &hf_h450_ccRequestRes_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3730,8 +2978,8 @@ dissect_h450_CcRequestRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CcShortArg_sequence[] = {
-  { "ccIdentifier"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccIdentifier },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccShortArg_extension },
+  { "ccIdentifier"          , &hf_h450_ccIdentifier   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_CallIdentifier },
+  { "extension"             , &hf_h450_ccShortArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3742,17 +2990,14 @@ dissect_h450_CcShortArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
   return offset;
 }
-static int dissect_shortArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CcShortArg(tvb, offset, actx, tree, hf_h450_shortArg);
-}
 
 
 static const per_sequence_t CcLongArg_sequence[] = {
-  { "numberA"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_numberA },
-  { "numberB"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_numberB },
-  { "ccIdentifier"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccIdentifier },
-  { "service"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_service },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ccLongArg_extension },
+  { "numberA"               , &hf_h450_numberA        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "numberB"               , &hf_h450_numberB        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_EndpointAddress },
+  { "ccIdentifier"          , &hf_h450_ccIdentifier   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_CallIdentifier },
+  { "service"               , &hf_h450_service        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_BasicService },
+  { "extension"             , &hf_h450_ccLongArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3763,9 +3008,6 @@ dissect_h450_CcLongArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_longArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CcLongArg(tvb, offset, actx, tree, hf_h450_longArg);
-}
 
 
 static const value_string h450_CcArg_vals[] = {
@@ -3775,8 +3017,8 @@ static const value_string h450_CcArg_vals[] = {
 };
 
 static const per_choice_t CcArg_choice[] = {
-  {   0, "shortArg"                    , ASN1_EXTENSION_ROOT    , dissect_shortArg },
-  {   1, "longArg"                     , ASN1_EXTENSION_ROOT    , dissect_longArg },
+  {   0, &hf_h450_shortArg       , ASN1_EXTENSION_ROOT    , dissect_h450_CcShortArg },
+  {   1, &hf_h450_longArg        , ASN1_EXTENSION_ROOT    , dissect_h450_CcLongArg },
   { 0, NULL, 0, NULL }
 };
 
@@ -3791,7 +3033,7 @@ dissect_h450_CcArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *t
 
 
 static const per_sequence_t CoReqOptArg_sequence[] = {
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_coReqOptArg_extension },
+  { "extension"             , &hf_h450_coReqOptArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3805,7 +3047,7 @@ dissect_h450_CoReqOptArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t RUAlertOptArg_sequence[] = {
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rUAlertOptArg_extension },
+  { "extension"             , &hf_h450_rUAlertOptArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3819,7 +3061,7 @@ dissect_h450_RUAlertOptArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 
 static const per_sequence_t CfbOvrOptArg_sequence[] = {
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cfbOvrOptArg_extension },
+  { "extension"             , &hf_h450_cfbOvrOptArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3847,14 +3089,11 @@ dissect_h450_CICapabilityLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_ciCapabilityLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CICapabilityLevel(tvb, offset, actx, tree, hf_h450_ciCapabilityLevel);
-}
 
 
 static const per_sequence_t CIRequestArg_sequence[] = {
-  { "ciCapabilityLevel"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciCapabilityLevel },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIRequestArg_argumentExtension },
+  { "ciCapabilityLevel"     , &hf_h450_ciCapabilityLevel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CICapabilityLevel },
+  { "argumentExtension"     , &hf_h450_cIRequestArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3878,12 +3117,12 @@ static const value_string h450_CIStatusInformation_vals[] = {
 };
 
 static const per_choice_t CIStatusInformation_choice[] = {
-  {   0, "callIntrusionImpending"      , ASN1_EXTENSION_ROOT    , dissect_callIntrusionImpending },
-  {   1, "callIntruded"                , ASN1_EXTENSION_ROOT    , dissect_callIntruded },
-  {   2, "callIsolated"                , ASN1_EXTENSION_ROOT    , dissect_callIsolated },
-  {   3, "callForceReleased"           , ASN1_EXTENSION_ROOT    , dissect_callForceReleased },
-  {   4, "callIntrusionComplete"       , ASN1_EXTENSION_ROOT    , dissect_callIntrusionComplete },
-  {   5, "callIntrusionEnd"            , ASN1_EXTENSION_ROOT    , dissect_callIntrusionEnd },
+  {   0, &hf_h450_callIntrusionImpending, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   1, &hf_h450_callIntruded   , ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   2, &hf_h450_callIsolated   , ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   3, &hf_h450_callForceReleased, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   4, &hf_h450_callIntrusionComplete, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
+  {   5, &hf_h450_callIntrusionEnd, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -3895,14 +3134,11 @@ dissect_h450_CIStatusInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_ciStatusInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CIStatusInformation(tvb, offset, actx, tree, hf_h450_ciStatusInformation);
-}
 
 
 static const per_sequence_t CIRequestRes_sequence[] = {
-  { "ciStatusInformation"         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciStatusInformation },
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIRequestRes_resultExtension },
+  { "ciStatusInformation"   , &hf_h450_ciStatusInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CIStatusInformation },
+  { "resultExtension"       , &hf_h450_cIRequestRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3916,7 +3152,7 @@ dissect_h450_CIRequestRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CIGetCIPLOptArg_sequence[] = {
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIGetCIPLOptArg_argumentExtension },
+  { "argumentExtension"     , &hf_h450_cIGetCIPLOptArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3945,15 +3181,12 @@ dissect_h450_CIProtectionLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_ciProtectionLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_CIProtectionLevel(tvb, offset, actx, tree, hf_h450_ciProtectionLevel);
-}
 
 
 static const per_sequence_t CIGetCIPLRes_sequence[] = {
-  { "ciProtectionLevel"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciProtectionLevel },
-  { "silentMonitoringPermitted"   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_silentMonitoringPermitted },
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIGetCIPLRes_resultExtension },
+  { "ciProtectionLevel"     , &hf_h450_ciProtectionLevel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CIProtectionLevel },
+  { "silentMonitoringPermitted", &hf_h450_silentMonitoringPermitted, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "resultExtension"       , &hf_h450_cIGetCIPLRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3967,7 +3200,7 @@ dissect_h450_CIGetCIPLRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CIIsOptArg_sequence[] = {
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIIsOptArg_argumentExtension },
+  { "argumentExtension"     , &hf_h450_cIIsOptArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3981,7 +3214,7 @@ dissect_h450_CIIsOptArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 static const per_sequence_t CIIsOptRes_sequence[] = {
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIIsOptRes_resultExtension },
+  { "resultExtension"       , &hf_h450_cIIsOptRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3995,8 +3228,8 @@ dissect_h450_CIIsOptRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 
 static const per_sequence_t CIFrcRelArg_sequence[] = {
-  { "ciCapabilityLevel"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciCapabilityLevel },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIFrcRelArg_argumentExtension },
+  { "ciCapabilityLevel"     , &hf_h450_ciCapabilityLevel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CICapabilityLevel },
+  { "argumentExtension"     , &hf_h450_cIFrcRelArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4010,7 +3243,7 @@ dissect_h450_CIFrcRelArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t CIFrcRelOptRes_sequence[] = {
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIFrcRelOptRes_resultExtension },
+  { "resultExtension"       , &hf_h450_cIFrcRelOptRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4024,7 +3257,7 @@ dissect_h450_CIFrcRelOptRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
 
 static const per_sequence_t CIWobOptArg_sequence[] = {
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIWobOptArg_argumentExtension },
+  { "argumentExtension"     , &hf_h450_cIWobOptArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4038,7 +3271,7 @@ dissect_h450_CIWobOptArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t CIWobOptRes_sequence[] = {
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cIWobOptRes_resultExtension },
+  { "resultExtension"       , &hf_h450_cIWobOptRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4052,9 +3285,9 @@ dissect_h450_CIWobOptRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t CISilentArg_sequence[] = {
-  { "ciCapabilityLevel"           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciCapabilityLevel },
-  { "specificCall"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_specificCall },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cISilentArg_argumentExtension },
+  { "ciCapabilityLevel"     , &hf_h450_ciCapabilityLevel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CICapabilityLevel },
+  { "specificCall"          , &hf_h450_specificCall   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_CallIdentifier },
+  { "argumentExtension"     , &hf_h450_cISilentArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4068,7 +3301,7 @@ dissect_h450_CISilentArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
 
 
 static const per_sequence_t CISilentOptRes_sequence[] = {
-  { "resultExtension"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cISilentOptRes_resultExtension },
+  { "resultExtension"       , &hf_h450_cISilentOptRes_resultExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4082,8 +3315,8 @@ dissect_h450_CISilentOptRes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
 
 static const per_sequence_t CINotificationArg_sequence[] = {
-  { "ciStatusInformation"         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ciStatusInformation },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cINotificationArg_argumentExtension },
+  { "ciStatusInformation"   , &hf_h450_ciStatusInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_CIStatusInformation },
+  { "argumentExtension"     , &hf_h450_cINotificationArg_argumentExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4097,19 +3330,19 @@ dissect_h450_CINotificationArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
 
 static const per_sequence_t FeatureList_sequence[] = {
-  { "ssCFreRoutingSupported"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCFreRoutingSupported },
-  { "ssCTreRoutingSupported"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCTreRoutingSupported },
-  { "ssCCBSPossible"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCCBSPossible },
-  { "ssCCNRPossible"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCCNRPossible },
-  { "ssCOSupported"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCOSupported },
-  { "ssCIForcedReleaseSupported"  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCIForcedReleaseSupported },
-  { "ssCIIsolationSupported"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCIIsolationSupported },
-  { "ssCIWaitOnBusySupported"     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCIWaitOnBusySupported },
-  { "ssCISilentMonitoringSupported", ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCISilentMonitoringSupported },
-  { "ssCIConferenceSupported"     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCIConferenceSupported },
-  { "ssCHFarHoldSupported"        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCHFarHoldSupported },
-  { "ssMWICallbackSupported"      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssMWICallbackSupported },
-  { "ssCPCallParkSupported"       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCPCallParkSupported },
+  { "ssCFreRoutingSupported", &hf_h450_ssCFreRoutingSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCTreRoutingSupported", &hf_h450_ssCTreRoutingSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCCBSPossible"        , &hf_h450_ssCCBSPossible , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCCNRPossible"        , &hf_h450_ssCCNRPossible , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCOSupported"         , &hf_h450_ssCOSupported  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCIForcedReleaseSupported", &hf_h450_ssCIForcedReleaseSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCIIsolationSupported", &hf_h450_ssCIIsolationSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCIWaitOnBusySupported", &hf_h450_ssCIWaitOnBusySupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCISilentMonitoringSupported", &hf_h450_ssCISilentMonitoringSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCIConferenceSupported", &hf_h450_ssCIConferenceSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCHFarHoldSupported"  , &hf_h450_ssCHFarHoldSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssMWICallbackSupported", &hf_h450_ssMWICallbackSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCPCallParkSupported" , &hf_h450_ssCPCallParkSupported, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
   { NULL, 0, 0, NULL }
 };
 
@@ -4119,9 +3352,6 @@ dissect_h450_FeatureList(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_t
                                    ett_h450_FeatureList, FeatureList_sequence);
 
   return offset;
-}
-static int dissect_featureList(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_FeatureList(tvb, offset, actx, tree, hf_h450_featureList);
 }
 
 
@@ -4141,9 +3371,6 @@ dissect_h450_PartyCategory(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_partyCategory(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_PartyCategory(tvb, offset, actx, tree, hf_h450_partyCategory);
-}
 
 
 
@@ -4154,14 +3381,11 @@ dissect_h450_SSCIProtectionLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_ssCIprotectionLevel(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_SSCIProtectionLevel(tvb, offset, actx, tree, hf_h450_ssCIprotectionLevel);
-}
 
 
 static const per_sequence_t FeatureValues_sequence[] = {
-  { "partyCategory"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_partyCategory },
-  { "ssCIprotectionLevel"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCIprotectionLevel },
+  { "partyCategory"         , &hf_h450_partyCategory  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartyCategory },
+  { "ssCIprotectionLevel"   , &hf_h450_ssCIprotectionLevel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SSCIProtectionLevel },
   { NULL, 0, 0, NULL }
 };
 
@@ -4172,16 +3396,13 @@ dissect_h450_FeatureValues(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_featureValues(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_FeatureValues(tvb, offset, actx, tree, hf_h450_featureValues);
-}
 
 
 static const per_sequence_t FeatureControl_sequence[] = {
-  { "ssCHDoNotHold"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCHDoNotHold },
-  { "ssCTDoNotTransfer"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCTDoNotTransfer },
-  { "ssMWICallbackCall"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssMWICallbackCall },
-  { "ssCISilentMonitorPermitted"  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ssCISilentMonitorPermitted },
+  { "ssCHDoNotHold"         , &hf_h450_ssCHDoNotHold  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCTDoNotTransfer"     , &hf_h450_ssCTDoNotTransfer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssMWICallbackCall"     , &hf_h450_ssMWICallbackCall, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
+  { "ssCISilentMonitorPermitted", &hf_h450_ssCISilentMonitorPermitted, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_NULL },
   { NULL, 0, 0, NULL }
 };
 
@@ -4192,16 +3413,13 @@ dissect_h450_FeatureControl(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_featureControl(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_h450_FeatureControl(tvb, offset, actx, tree, hf_h450_featureControl);
-}
 
 
 static const per_sequence_t CmnArg_sequence[] = {
-  { "featureList"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_featureList },
-  { "featureValues"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_featureValues },
-  { "featureControl"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_featureControl },
-  { "extension"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cmnArg_extension },
+  { "featureList"           , &hf_h450_featureList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_FeatureList },
+  { "featureValues"         , &hf_h450_featureValues  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_FeatureValues },
+  { "featureControl"        , &hf_h450_featureControl , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_FeatureControl },
+  { "extension"             , &hf_h450_cmnArg_extension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4215,7 +3433,7 @@ dissect_h450_CmnArg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *
 
 
 static const per_sequence_t CmnRequestArg_sequence[] = {
-  { "extensionArg"                , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cmnRequestArg_extensionArg },
+  { "extensionArg"          , &hf_h450_cmnRequestArg_extensionArg, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension },
   { NULL, 0, 0, NULL }
 };
 
@@ -4235,8 +3453,8 @@ static const value_string h450_Unspecified_vals[] = {
 };
 
 static const per_choice_t Unspecified_choice[] = {
-  {   0, "extension"                   , ASN1_NO_EXTENSIONS     , dissect_unspecified_extension },
-  {   1, "nonStandard"                 , ASN1_NO_EXTENSIONS     , dissect_nonStandard },
+  {   0, &hf_h450_unspecified_extension, ASN1_NO_EXTENSIONS     , dissect_h450_Extension },
+  {   1, &hf_h450_nonStandard    , ASN1_NO_EXTENSIONS     , dissect_h225_NonStandardParameter },
   { 0, NULL, 0, NULL }
 };
 
@@ -4324,7 +3542,7 @@ static void dissect_CallReroutingRes_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 /*--- End of included file: packet-h450-fn.c ---*/
-#line 307 "packet-h450-template.c"
+#line 308 "packet-h450-template.c"
 
 static const value_string InvokeProblem_vals[] = {
    {  0, "duplicateInvocation"},
@@ -4338,9 +3556,9 @@ static const value_string InvokeProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_InvokeProblem, 0, 7, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 7, NULL, FALSE);
    return offset;
 }
 
@@ -4352,9 +3570,9 @@ static const value_string ReturnResultProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnResultProblem, 0, 2, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 2, NULL, FALSE);
    return offset;
 }
 
@@ -4368,9 +3586,9 @@ static const value_string ReturnErrorProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnErrorProblem, 0, 4, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 4, NULL, FALSE);
    return offset;
 }
 
@@ -4381,13 +3599,13 @@ static const value_string GeneralProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_GeneralProblem, 0, 2, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 2, NULL, FALSE);
    return offset;
 }
 static int
-dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    tvbuff_t *result_tvb = NULL;
 
@@ -4443,18 +3661,18 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x return result");
 }
 
 static int
-dissect_h4501_localOpcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_LocalOpcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localOpcode, &localOpcode);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, &localOpcode);
    is_globalcode = FALSE;
 	return offset;
 }
 
 
 static int
-dissect_h4501_globalCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_GlobalCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-	offset=dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_h4501_globalCode, &globalcode_oid_str);
+	offset=dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &globalcode_oid_str);
 	is_globalcode = TRUE;
    return offset;
 }
@@ -4466,38 +3684,38 @@ static const value_string opcode_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t opcode_choice[] = {
-	{ 0, "local", ASN1_NO_EXTENSIONS,
-		dissect_h4501_localOpcode },
-	{ 1, "global", ASN1_NO_EXTENSIONS,
-		dissect_h4501_globalCode },
+	{ 0, &hf_h4501_localOpcode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_LocalOpcode },
+	{ 1, &hf_h4501_globalCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_GlobalCode },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_opcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Opcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_opcode, opcode_choice, NULL);
    return offset;
 }
 
 static const per_sequence_t result_sequence[] = {
-	{ "opcode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
-		dissect_h4501_opcode },
-	{ "result", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "opcode", &hf_h4501_opcode, ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Opcode },
+	{ "result", &hf_h4501_dummy, ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_ReturnResult_result },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_result, ett_h4501_result, result_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_result, result_sequence);
    return offset;
 }
 
 static int
-dissect_h4501_parameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Parameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_h4501_parameter, NO_BOUND, NO_BOUND, NULL);
+   offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -4549,9 +3767,9 @@ static const value_string localErrorCode_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_localErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_LocalErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localErrorCode, &localErrorCode);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, &localErrorCode);
 	return offset;
 }
 
@@ -4562,16 +3780,16 @@ static const value_string errorCode_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t errorCode_choice[] = {
-	{ 0, "local", ASN1_NO_EXTENSIONS,
-		dissect_h4501_localErrorCode },
-	{ 1, "global", ASN1_NO_EXTENSIONS,
-		dissect_h4501_globalCode },
+	{ 0, &hf_h4501_localErrorCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_LocalErrorCode },
+	{ 1, &hf_h4501_globalCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_GlobalCode },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_errorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_errorCode, errorCode_choice, NULL);
    return offset;
 }
 
@@ -4583,96 +3801,96 @@ static const value_string problem_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t problem_choice[] = {
-	{ 0, "general", ASN1_NO_EXTENSIONS,
+	{ 0, &hf_h4501_GeneralProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_GeneralProblem },
-	{ 1, "invoke", ASN1_NO_EXTENSIONS,
+	{ 1, &hf_h4501_InvokeProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_InvokeProblem },
-	{ 2, "returnResult", ASN1_NO_EXTENSIONS,
+	{ 2, &hf_h4501_ReturnResultProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnResultProblem },
-	{ 3, "returnError", ASN1_NO_EXTENSIONS,
+	{ 3, &hf_h4501_ReturnErrorProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnErrorProblem },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_problem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Problem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_problem, problem_choice, NULL);
    return offset;
 }
 static int
-dissect_h4501_constrained_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Constrained_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_constrained_invokeId, 0, 65535, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 65535, NULL, FALSE);
 	return offset;
 }
 
 
 static int
-dissect_h4501_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_InvokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_invokeId, NULL);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
 	return offset;
 }
 
 static const per_sequence_t Reject_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "problem", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_problem },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "problem", &hf_h4501_problem, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Problem },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Reject, ett_h4501_Reject, Reject_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_Reject, Reject_sequence);
    return offset;
 }
 
 static const per_sequence_t ReturnError_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "errorCode", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_errorCode },
-	{ "parameter", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_parameter },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "errorCode", &hf_h4501_errorCode, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_ErrorCode },
+	{ "parameter", &hf_h4501_parameter, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Parameter },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnError, ett_h4501_ReturnError, ReturnError_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_ReturnError, ReturnError_sequence);
    return offset;
 }
 
 static const per_sequence_t ReturnResult_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "result", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_result },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "result", &hf_h4501_result, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Result },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnResult, ett_h4501_ReturnResult, ReturnResult_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_ReturnResult, ReturnResult_sequence);
    return offset;
 }
 
 static const per_sequence_t Invoke_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_constrained_invokeId },
-	{ "linkedId", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "opcode", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_opcode },
-	{ "argument", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_argument },
+	{ "invokeID", &hf_h4501_constrained_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Constrained_invokeId },
+	{ "linkedId", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "opcode", &hf_h4501_opcode, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Opcode },
+	{ "argument", &hf_h4501_dummy, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Argument },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Invoke, ett_h4501_Invoke, Invoke_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_Invoke, Invoke_sequence);
    return offset;
 }
 
@@ -4684,13 +3902,13 @@ static const value_string ROS_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t ROS_choice[] = {
-	{ 1, "invoke", ASN1_NO_EXTENSIONS,
+	{ 1, &hf_h4501_Invoke, ASN1_NO_EXTENSIONS,
 		dissect_h4501_Invoke },
-	{ 2, "returnResult", ASN1_NO_EXTENSIONS,
+	{ 2, &hf_h4501_ReturnResult, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnResult },
-	{ 3, "returnError", ASN1_NO_EXTENSIONS,
+	{ 3, &hf_h4501_ReturnError, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnError },
-	{ 4, "reject", ASN1_NO_EXTENSIONS,
+	{ 4, &hf_h4501_Reject, ASN1_NO_EXTENSIONS,
 		dissect_h4501_Reject },
 	{ 0, NULL, 0, NULL }
 };
@@ -4702,7 +3920,7 @@ dissect_h4501_ROS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 }
 
 static int
-dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    tvbuff_t *argument_tvb = NULL;
 
@@ -6153,7 +5371,7 @@ void proto_register_h450(void) {
         "Extension/extensionArgument", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 1035 "packet-h450-template.c"
+#line 1036 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -6295,7 +5513,7 @@ void proto_register_h450(void) {
     &ett_h450_Extension,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 1051 "packet-h450-template.c"
+#line 1052 "packet-h450-template.c"
   };
 
 

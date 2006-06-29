@@ -7,7 +7,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py nbap.asn packet-nbap-template.c packet-nbap-template.h nbap.cnf
-	python ../../tools/asn2wrs.py -e -p nbap -c nbap.cnf -s packet-nbap-template  nbap.asn
+	python ../../tools/asn2wrs.py -e -F -p nbap -c nbap.cnf -s packet-nbap-template  nbap.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

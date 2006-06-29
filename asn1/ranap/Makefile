@@ -7,7 +7,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py packet-ranap-template.c packet-ranap-template.h ranap.cnf
-	python ../../tools/asn2wrs.py -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn
+	python ../../tools/asn2wrs.py -e -F -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

@@ -436,6 +436,7 @@ class EthCtx:
   def Ber(self): return self.encoding == 'ber'
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
+  def Fld(self): return self.Ber() or self.fld_opt
   def NAPI(self): return False  # disable planned features
 
   def dbg(self, d):
@@ -1108,7 +1109,7 @@ class EthCtx:
         if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
         fx.write(''.join(map(lambda i: '/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]), self.dep_cycle_eth_type[t])))
         fx.write(self.eth_type_fn_h(t))
-        if (not self.NAPI()):
+        if (self.Fld()):
           fx.write('\n')
           for f in self.eth_hf_ord:
             if (self.eth_hf[f]['ethtype'] == t):
@@ -1116,7 +1117,7 @@ class EthCtx:
         fx.write('\n')
         i += 1
       fx.write('\n')
-    if (not self.NAPI()):  # fields for imported types
+    if (self.Fld()):  # fields for imported types
       fx.write('/*--- Fields for imported types ---*/\n\n')
       for f in self.eth_hf_ord:
         if (self.eth_type[self.eth_hf[f]['ethtype']]['import']):
@@ -1138,7 +1139,7 @@ class EthCtx:
         fx.write(self.eth_type_fn_h(t))
       else:
         fx.write(self.eth_type[t]['val'].eth_type_fn(self.eth_type[t]['proto'], t, self))
-      if (not self.NAPI() and not self.dep_cycle_eth_type.has_key(t)):
+      if (self.Fld() and not self.dep_cycle_eth_type.has_key(t)):
         for f in self.eth_hf_ord:
           if (self.eth_hf[f]['ethtype'] == t):
             fx.write(out_field(f))
@@ -2346,6 +2347,7 @@ class Type_Ref (Type):
 class SqType (Type):
   def out_item(self, f, val, optional, ext, ectx):
     ef = ectx.field[f]['ethname']
+    t = ectx.eth_hf[ef]['ethtype']
     efd = ef
     if (ectx.Ber() and ectx.field[f]['impl']):
       efd += '_impl'
@@ -2375,8 +2377,8 @@ class SqType (Type):
       out = '  { %-13s, %s, %s, dissect_%s },\n' \
             % (tc, tn, opt, efd)
     elif (ectx.Per()):
-      out = '  { %-30s, %-23s, %-17s, dissect_%s },\n' \
-            % ('"'+(val.name or '')+'"', ext, opt, efd)
+      out = '  { %-24s, %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
+            % ('"'+(val.name or '')+'"', '&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
     else:
       out = ''
     return out   
@@ -2765,6 +2767,7 @@ class ChoiceType (Type):
     def out_item(val, e, ext, ectx):
       f = fname + '/' + e.name
       ef = ectx.field[f]['ethname']
+      t = ectx.eth_hf[ef]['ethtype']
       efd = ef
       if (ectx.field[f]['impl']):
         efd += '_impl'
@@ -2781,8 +2784,8 @@ class ChoiceType (Type):
         out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
               % (val, tc, tn, opt, efd)
       elif (ectx.Per()):
-        out = '  { %3s, %-30s, %-23s, dissect_%s },\n' \
-              % (val, '"'+e.name+'"', ext, efd)
+        out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
+              % (val, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
       else:
         out = ''
       return out   
@@ -4743,6 +4746,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -u            : unaligned (default is aligned)
   -p proto      : protocol name (implies -S)
                   default is module-name from input_file (renamed by #.MODULE if present)
+  -F            : create 'field functions'
   -o name       : output files name core (default is <proto>)
   -O dir        : output directory
   -c conform_file : conformation file
@@ -4766,7 +4770,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 def eth_main():
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:o:O:c:eSs:k");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:Fo:O:c:eSs:k");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -4777,6 +4781,7 @@ def eth_main():
   ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
   ectx.proto_opt = None
+  ectx.fld_opt = False
   ectx.outnm_opt = None
   ectx.aligned = True
   ectx.dbgopt = ''
@@ -4793,6 +4798,8 @@ def eth_main():
     if o in ("-p",):
       ectx.proto_opt = a
       ectx.merge_modules = True
+    if o in ("-F",):
+      ectx.fld_opt = True
     if o in ("-c",):
       ectx.conform.read(a)
     if o in ("-u",):

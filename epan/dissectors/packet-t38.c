@@ -235,6 +235,8 @@ static guint32 T30ind_value;
 static guint32 Data_Field_item_num;
 
 static int proto_t38 = -1;
+static int hf_t38_null = -1;
+static int hf_t38_dummy = -1;
 static int hf_t38_IFPPacket = -1;
 static int hf_t38_Type_of_msg = -1;
 static int hf_t38_t30_indicator = -1;
@@ -1233,57 +1235,57 @@ dissect_t30_hdlc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 /* T38 Routines */
 
 static int
-dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, asn_ctx_t *actx _U_, proto_tree *tree _U_)
+dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, asn_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
 	return offset;
 }
 
 static const per_choice_t t30_indicator_choice[] = {
-	{ 0, "no-signal", ASN1_EXTENSION_ROOT,
+	{ 0, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 1, "cng", ASN1_EXTENSION_ROOT,
+	{ 1, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 2, "ced", ASN1_EXTENSION_ROOT,
+	{ 2, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 3, "v21-preamble", ASN1_EXTENSION_ROOT,
+	{ 3, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 4, "v27-2400-training", ASN1_EXTENSION_ROOT,
+	{ 4, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 5, "v27-4800-training", ASN1_EXTENSION_ROOT,
+	{ 5, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 6, "v29-7200-training", ASN1_EXTENSION_ROOT,
+	{ 6, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 7, "v29-9600-training", ASN1_EXTENSION_ROOT,
+	{ 7, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 8, "v17-7200-short-training", ASN1_EXTENSION_ROOT,
+	{ 8, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 9, "v17-7200-long-training", ASN1_EXTENSION_ROOT,
+	{ 9, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 10, "v17-9600-short-training", ASN1_EXTENSION_ROOT,
+	{ 10, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 11, "v17-9600-long-training", ASN1_EXTENSION_ROOT,
+	{ 11, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 12, "v17-12000-short-training", ASN1_EXTENSION_ROOT,
+	{ 12, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 13, "v17-12000-long-training", ASN1_EXTENSION_ROOT,
+	{ 13, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 14, "v17-14400-short-training", ASN1_EXTENSION_ROOT,
+	{ 14, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 15, "v17-14400-long-training", ASN1_EXTENSION_ROOT,
+	{ 15, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 16, "v8-ansam", ASN1_NOT_EXTENSION_ROOT,
+	{ 16, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 17, "v8-signal", ASN1_NOT_EXTENSION_ROOT,
+	{ 17, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 18, "v34-cntl-channel-1200", ASN1_NOT_EXTENSION_ROOT,
+	{ 18, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 19, "v34-pri-channel", ASN1_NOT_EXTENSION_ROOT,
+	{ 19, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 20, "v34-CC-retrain", ASN1_NOT_EXTENSION_ROOT,
+	{ 20, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 21, "v33-12000-training", ASN1_NOT_EXTENSION_ROOT,
+	{ 21, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 22, "v33-14400-training", ASN1_NOT_EXTENSION_ROOT,
+	{ 22, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -1316,10 +1318,10 @@ const value_string t30_indicator_vals[] = {
 };
 
 static int
-dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_T30_Indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     offset=dissect_per_choice(tvb, offset, actx,
-        tree, hf_t38_t30_indicator, ett_t38_t30_indicator,
+        tree, hf_index, ett_t38_t30_indicator,
         t30_indicator_choice, &T30ind_value);
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
@@ -1335,35 +1337,35 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 }
 
 static const per_choice_t data_choice[] = {
-	{ 0, "v21", ASN1_EXTENSION_ROOT,
+	{ 0, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 1, "v27-2400", ASN1_EXTENSION_ROOT,
+	{ 1, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 2, "v27-4800", ASN1_EXTENSION_ROOT,
+	{ 2, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 3, "v29-7200", ASN1_EXTENSION_ROOT,
+	{ 3, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 4, "v29-9600", ASN1_EXTENSION_ROOT,
+	{ 4, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 5, "v17-7200", ASN1_EXTENSION_ROOT,
+	{ 5, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 6, "v17-9600", ASN1_EXTENSION_ROOT,
+	{ 6, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 7, "v17-12000", ASN1_EXTENSION_ROOT,
+	{ 7, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 8, "v17-14400", ASN1_EXTENSION_ROOT,
+	{ 8, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 9, "v8", ASN1_NOT_EXTENSION_ROOT,
+	{ 9, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 10, "v34-pri-rate", ASN1_NOT_EXTENSION_ROOT,
+	{ 10, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 11, "v34-CC-1200", ASN1_NOT_EXTENSION_ROOT,
+	{ 11, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 12, "v34-pri-ch", ASN1_NOT_EXTENSION_ROOT,
+	{ 12, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 13, "v33-12000", ASN1_NOT_EXTENSION_ROOT,
+	{ 13, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 14, "v33-14400", ASN1_NOT_EXTENSION_ROOT,
+	{ 14, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -1388,10 +1390,10 @@ const value_string t30_data_vals[] = {
 };
 
 static int
-dissect_t38_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     offset=dissect_per_choice(tvb, offset, actx,
-        tree, hf_t38_data, ett_t38_data,
+        tree, hf_index, ett_t38_data,
         data_choice, &Data_value);
 
     if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
@@ -1408,10 +1410,10 @@ dissect_t38_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 }
 
 static const per_choice_t Type_of_msg_choice[] = {
-	{ 0, "t30-indicator", ASN1_NO_EXTENSIONS,
-		dissect_t38_t30_indicator},
-	{ 1, "data", ASN1_NO_EXTENSIONS,
-		dissect_t38_data},
+	{ 0, &hf_t38_t30_indicator, ASN1_NO_EXTENSIONS,
+		dissect_t38_T30_Indicator},
+	{ 1, &hf_t38_data, ASN1_NO_EXTENSIONS,
+		dissect_t38_Data},
 	{ 0, NULL, 0, NULL }
 };
 
@@ -1433,55 +1435,51 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
   return offset;
 }
 
-static int dissect_type_of_msg(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_t38_Type_of_msg(tvb, offset, actx, tree, hf_t38_Type_of_msg);
-}
-
 static const per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
-	{ 0, "hdlc-data", ASN1_NO_EXTENSIONS,
+	{ 0, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 1, "hdlc-sig-end", ASN1_NO_EXTENSIONS,
+	{ 1, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 2, "hdlc-fcs-OK", ASN1_NO_EXTENSIONS,
+	{ 2, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 3, "hdlc-fcs-BAD", ASN1_NO_EXTENSIONS,
+	{ 3, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 4, "hdlc-fcs-OK-sig-end", ASN1_NO_EXTENSIONS,
+	{ 4, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 5, "hdlc-fcs-BAD-sig-end", ASN1_NO_EXTENSIONS,
+	{ 5, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 6, "t4-non-ecm-data", ASN1_NO_EXTENSIONS,
+	{ 6, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 7, "t4-non-ecm-sig-end", ASN1_NO_EXTENSIONS,
+	{ 7, &hf_t38_null, ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
 
 
 static const per_choice_t Data_Field_field_type_choice[] = {
-	{ 0, "hdlc-data", ASN1_EXTENSION_ROOT,
+	{ 0, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 1, "hdlc-sig-end", ASN1_EXTENSION_ROOT,
+	{ 1, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 2, "hdlc-fcs-OK", ASN1_EXTENSION_ROOT,
+	{ 2, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 3, "hdlc-fcs-BAD", ASN1_EXTENSION_ROOT,
+	{ 3, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 4, "hdlc-fcs-OK-sig-end", ASN1_EXTENSION_ROOT,
+	{ 4, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 5, "hdlc-fcs-BAD-sig-end", ASN1_EXTENSION_ROOT,
+	{ 5, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 6, "t4-non-ecm-data", ASN1_EXTENSION_ROOT,
+	{ 6, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 7, "t4-non-ecm-sig-end", ASN1_EXTENSION_ROOT,
+	{ 7, &hf_t38_null, ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 8, "cm-message", ASN1_NOT_EXTENSION_ROOT,
+	{ 8, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 9, "jm-message", ASN1_NOT_EXTENSION_ROOT,
+	{ 9, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 10, "ci-message", ASN1_NOT_EXTENSION_ROOT,
+	{ 10, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 11, "v34-rate", ASN1_NOT_EXTENSION_ROOT,
+	{ 11, &hf_t38_null, ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -1606,16 +1604,16 @@ force_reassmeble_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 }
 
 static int
-dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	if(use_pre_corrigendum_asn1_specification){
 		offset=dissect_per_choice(tvb, offset, actx,
-			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
+			tree, hf_index, ett_t38_Data_Field_field_type,
 			Data_Field_field_type_PreCorrigendum_choice, &Data_Field_field_type_value);
 	}
 	else{
 		offset=dissect_per_choice(tvb, offset, actx,
-			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
+			tree, hf_index, ett_t38_Data_Field_field_type,
 			Data_Field_field_type_choice, &Data_Field_field_type_value);
 	}
 
@@ -1711,13 +1709,13 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 }
 
 static int
-dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	tvbuff_t *value_tvb = NULL;
 	guint32 value_len;
 
 	offset=dissect_per_octet_string(tvb, offset, actx,
-        tree, hf_t38_Data_Field_field_data, 1, 65535,
+        tree, hf_index, 1, 65535,
         &value_tvb);
 	value_len = tvb_length(value_tvb);
 
@@ -1786,18 +1784,18 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 }
 
 static const per_sequence_t Data_Field_item_sequence[] = {
-	{ "field-type", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "field-type", &hf_t38_Data_Field_field_type, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Data_Field_field_type },
-	{ "field-data", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+	{ "field-data", &hf_t38_Data_Field_field_data, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field_field_data },
 	{ NULL, 0, 0, NULL }
 };
 
 static int
-dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	offset=dissect_per_sequence(tvb, offset, actx,
-        tree, hf_t38_Data_Field_item, ett_t38_Data_Field_item,
+        tree, hf_index, ett_t38_Data_Field_item,
         Data_Field_item_sequence);
 
 	if (primary_part) Data_Field_item_num++;
@@ -1806,7 +1804,7 @@ dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 }
 
 static const per_sequence_t t38_Data_Field_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Data_Field_item },
+  { "", &hf_t38_Data_Field_item,  ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Data_Field_item },
 };
 
 static int
@@ -1816,13 +1814,10 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 
   return offset;
 }
-static int dissect_data_field(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {
-  return dissect_t38_Data_Field(tvb, offset, actx, tree, hf_t38_Data_Field);
-}
 
 static const per_sequence_t IFPPacket_sequence[] = {
-  { "type-of-msg"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_type_of_msg },
-  { "data-field"                  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_data_field },
+  { "type-of-msg", &hf_t38_Type_of_msg, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Type_of_msg },
+  { "data-field" , &hf_t38_Data_Field , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t38_Data_Field },
   { NULL, 0, 0, NULL }
 };
 
@@ -1836,10 +1831,10 @@ dissect_t38_IFPPacket(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tr
 }
 
 static int
-dissect_t38_seq_number(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Seq_number(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	offset=dissect_per_constrained_integer(tvb, offset, actx,
-		tree, hf_t38_seq_number, 0, 65535,
+		tree, hf_index, 0, 65535,
 		&seq_number, FALSE);
 	
 	/* info for tap */
@@ -1853,7 +1848,7 @@ dissect_t38_seq_number(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 }
 
 static int
-dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Primary_ifp_packet(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     guint32 length;
 
@@ -1873,7 +1868,7 @@ dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 }
 
 static int
-dissect_t38_secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     guint32 length;
 
@@ -1884,11 +1879,11 @@ dissect_t38_secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn_ctx_t *act
 }
 
 static const per_sequence_t SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_secondary_ifp_packets_item },
+  { "", &hf_t38_dummy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Secondary_ifp_packets_item },
 };
 
 static int
-dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Secondary_ifp_packets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     /* When the field-data is not present, we MUST offset 1 byte*/
     if((Data_Field_field_type_value != 0) &&
@@ -1899,60 +1894,60 @@ dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
     }
 
     offset=dissect_per_sequence_of(tvb, offset, actx,
-        tree, hf_t38_secondary_ifp_packets, ett_t38_secondary_ifp_packets,
+        tree, hf_index, ett_t38_secondary_ifp_packets,
         SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of);
 	return offset;
 }
 
 static int
-dissect_t38_fec_npackets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Fec_npackets(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-    offset=dissect_per_integer(tvb, offset, actx, tree, hf_t38_fec_npackets, NULL);
+    offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
 	return offset;
 }
 
 static int
-dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Fec_data_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     offset=dissect_per_octet_string(tvb, offset, actx,
-        tree, hf_t38_fec_data_item, NO_BOUND, NO_BOUND,
+        tree, hf_index, NO_BOUND, NO_BOUND,
         NULL);
 	return offset;
 }
 static const per_sequence_t T_t38_fec_data_sequence_of[1] = {
-  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_fec_data_item },
+  { "", &hf_t38_fec_data_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Fec_data_item },
 };
 static int
-dissect_t38_fec_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Fec_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     offset=dissect_per_sequence_of(tvb, offset, actx,
-        tree, hf_t38_fec_data, ett_t38_fec_data,
+        tree, hf_index, ett_t38_fec_data,
         T_t38_fec_data_sequence_of);
 	return offset;
 }
 
 static const per_sequence_t fec_info_sequence[] = {
-	{ "fec-npackets", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_fec_npackets },
-	{ "fec-data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_fec_data },
+	{ "fec-npackets", &hf_t38_fec_npackets, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_t38_Fec_npackets },
+	{ "fec-data", &hf_t38_fec_data, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_t38_Fec_data },
 	{ NULL, 0, 0, NULL }
 };
 
 static int
-dissect_t38_fec_info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Fec_info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	offset=dissect_per_sequence(tvb, offset, actx,
-        tree, hf_t38_fec_info, ett_t38_fec_info,
+        tree, hf_index, ett_t38_fec_info,
         fec_info_sequence);
 	return offset;
 }
 
 static const per_choice_t error_recovery_choice[] = {
-	{ 0, "secondary-ifp-packets", ASN1_NO_EXTENSIONS,
-		dissect_t38_secondary_ifp_packets},
-	{ 1, "fec-info", ASN1_NO_EXTENSIONS,
-		dissect_t38_fec_info},
+	{ 0, &hf_t38_secondary_ifp_packets, ASN1_NO_EXTENSIONS,
+		dissect_t38_Secondary_ifp_packets},
+	{ 1, &hf_t38_fec_info, ASN1_NO_EXTENSIONS,
+		dissect_t38_Fec_info},
 	{ 0, NULL, 0, NULL }
 };
 
@@ -1963,12 +1958,12 @@ static const value_string error_recovery_vals[] = {
 };
 
 static int
-dissect_t38_error_recovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_t38_Error_recovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	primary_part = FALSE;
 
     offset=dissect_per_choice(tvb, offset, actx,
-        tree, hf_t38_error_recovery, ett_t38_error_recovery,
+        tree, hf_index, ett_t38_error_recovery,
         error_recovery_choice, NULL);
 
 	primary_part = TRUE;
@@ -1977,12 +1972,12 @@ dissect_t38_error_recovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 }
 
 static const per_sequence_t UDPTLPacket_sequence[] = {
-	{ "seq-number", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_seq_number },
-	{ "primary-ifp-packet", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_primary_ifp_packet },
-	{ "error-recovery", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_error_recovery },
+	{ "seq-number", &hf_t38_seq_number, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_t38_Seq_number },
+	{ "primary-ifp-packet", &hf_t38_dummy, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_t38_Primary_ifp_packet },
+	{ "error-recovery", &hf_t38_error_recovery, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_t38_Error_recovery },
 	{ NULL, 0, 0, NULL }
 };
 

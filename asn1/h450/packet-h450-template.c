@@ -135,6 +135,7 @@ static dissector_handle_t h4501_handle=NULL;
 static int proto_h4501 = -1;
 
 static int hf_h4501 = -1;
+static int hf_h4501_dummy = -1;
 static int hf_h4501_constrained_invokeId = -1;
 static int hf_h4501_invokeId = -1;
 static int hf_h4501_localOpcode = -1;
@@ -298,7 +299,7 @@ static const value_string localOpcode_vals[] = {
 	{  0, NULL }
 };
 
-static int dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
 
 
@@ -317,9 +318,9 @@ static const value_string InvokeProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_InvokeProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_InvokeProblem, 0, 7, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 7, NULL, FALSE);
    return offset;
 }
 
@@ -331,9 +332,9 @@ static const value_string ReturnResultProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResultProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnResultProblem, 0, 2, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 2, NULL, FALSE);
    return offset;
 }
 
@@ -347,9 +348,9 @@ static const value_string ReturnErrorProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnErrorProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_ReturnErrorProblem, 0, 4, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 4, NULL, FALSE);
    return offset;
 }
 
@@ -360,13 +361,13 @@ static const value_string GeneralProblem_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_GeneralProblem, 0, 2, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 2, NULL, FALSE);
    return offset;
 }
 static int
-dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    tvbuff_t *result_tvb = NULL;
 
@@ -422,18 +423,18 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x return result");
 }
 
 static int
-dissect_h4501_localOpcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_LocalOpcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localOpcode, &localOpcode);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, &localOpcode);
    is_globalcode = FALSE;
 	return offset;
 }
 
 
 static int
-dissect_h4501_globalCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_GlobalCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-	offset=dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_h4501_globalCode, &globalcode_oid_str);
+	offset=dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &globalcode_oid_str);
 	is_globalcode = TRUE;
    return offset;
 }
@@ -445,38 +446,38 @@ static const value_string opcode_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t opcode_choice[] = {
-	{ 0, "local", ASN1_NO_EXTENSIONS,
-		dissect_h4501_localOpcode },
-	{ 1, "global", ASN1_NO_EXTENSIONS,
-		dissect_h4501_globalCode },
+	{ 0, &hf_h4501_localOpcode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_LocalOpcode },
+	{ 1, &hf_h4501_globalCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_GlobalCode },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_opcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Opcode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_opcode, opcode_choice, NULL);
    return offset;
 }
 
 static const per_sequence_t result_sequence[] = {
-	{ "opcode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
-		dissect_h4501_opcode },
-	{ "result", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "opcode", &hf_h4501_opcode, ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Opcode },
+	{ "result", &hf_h4501_dummy, ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_ReturnResult_result },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_result, ett_h4501_result, result_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_result, result_sequence);
    return offset;
 }
 
 static int
-dissect_h4501_parameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Parameter(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_h4501_parameter, NO_BOUND, NO_BOUND, NULL);
+   offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -528,9 +529,9 @@ static const value_string localErrorCode_vals[] = {
    {  0, NULL }
 };
 static int
-dissect_h4501_localErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_LocalErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_localErrorCode, &localErrorCode);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, &localErrorCode);
 	return offset;
 }
 
@@ -541,16 +542,16 @@ static const value_string errorCode_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t errorCode_choice[] = {
-	{ 0, "local", ASN1_NO_EXTENSIONS,
-		dissect_h4501_localErrorCode },
-	{ 1, "global", ASN1_NO_EXTENSIONS,
-		dissect_h4501_globalCode },
+	{ 0, &hf_h4501_localErrorCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_LocalErrorCode },
+	{ 1, &hf_h4501_globalCode, ASN1_NO_EXTENSIONS,
+		dissect_h4501_GlobalCode },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_errorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ErrorCode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_errorCode, errorCode_choice, NULL);
    return offset;
 }
 
@@ -562,96 +563,96 @@ static const value_string problem_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t problem_choice[] = {
-	{ 0, "general", ASN1_NO_EXTENSIONS,
+	{ 0, &hf_h4501_GeneralProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_GeneralProblem },
-	{ 1, "invoke", ASN1_NO_EXTENSIONS,
+	{ 1, &hf_h4501_InvokeProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_InvokeProblem },
-	{ 2, "returnResult", ASN1_NO_EXTENSIONS,
+	{ 2, &hf_h4501_ReturnResultProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnResultProblem },
-	{ 3, "returnError", ASN1_NO_EXTENSIONS,
+	{ 3, &hf_h4501_ReturnErrorProblem, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnErrorProblem },
 	{ 0, NULL, 0, NULL }
 };
 static int
-dissect_h4501_problem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Problem(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_choice(tvb, offset, actx, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, NULL);
+   offset=dissect_per_choice(tvb, offset, actx, tree, hf_index, ett_h4501_problem, problem_choice, NULL);
    return offset;
 }
 static int
-dissect_h4501_constrained_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Constrained_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_h4501_constrained_invokeId, 0, 65535, NULL, FALSE);
+   offset=dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index, 0, 65535, NULL, FALSE);
 	return offset;
 }
 
 
 static int
-dissect_h4501_invokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_InvokeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_integer(tvb, offset, actx, tree, hf_h4501_invokeId, NULL);
+   offset=dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
 	return offset;
 }
 
 static const per_sequence_t Reject_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "problem", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_problem },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "problem", &hf_h4501_problem, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Problem },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Reject, ett_h4501_Reject, Reject_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_Reject, Reject_sequence);
    return offset;
 }
 
 static const per_sequence_t ReturnError_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "errorCode", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_errorCode },
-	{ "parameter", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_parameter },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "errorCode", &hf_h4501_errorCode, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_ErrorCode },
+	{ "parameter", &hf_h4501_parameter, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Parameter },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnError, ett_h4501_ReturnError, ReturnError_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_ReturnError, ReturnError_sequence);
    return offset;
 }
 
 static const per_sequence_t ReturnResult_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "result", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_result },
+	{ "invokeID", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "result", &hf_h4501_result, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Result },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_ReturnResult, ett_h4501_ReturnResult, ReturnResult_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_ReturnResult, ReturnResult_sequence);
    return offset;
 }
 
 static const per_sequence_t Invoke_sequence[] = {
-	{ "invokeID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_constrained_invokeId },
-	{ "linkedId", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_invokeId },
-	{ "opcode", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h4501_opcode },
-	{ "argument", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_h4501_argument },
+	{ "invokeID", &hf_h4501_constrained_invokeId, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Constrained_invokeId },
+	{ "linkedId", &hf_h4501_invokeId, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_InvokeId },
+	{ "opcode", &hf_h4501_opcode, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h4501_Opcode },
+	{ "argument", &hf_h4501_dummy, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+		dissect_h4501_Argument },
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
-   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_h4501_Invoke, ett_h4501_Invoke, Invoke_sequence);
+   offset=dissect_per_sequence(tvb, offset, actx, tree, hf_index, ett_h4501_Invoke, Invoke_sequence);
    return offset;
 }
 
@@ -663,13 +664,13 @@ static const value_string ROS_vals[] = {
 	{ 0, NULL}
 };
 static const per_choice_t ROS_choice[] = {
-	{ 1, "invoke", ASN1_NO_EXTENSIONS,
+	{ 1, &hf_h4501_Invoke, ASN1_NO_EXTENSIONS,
 		dissect_h4501_Invoke },
-	{ 2, "returnResult", ASN1_NO_EXTENSIONS,
+	{ 2, &hf_h4501_ReturnResult, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnResult },
-	{ 3, "returnError", ASN1_NO_EXTENSIONS,
+	{ 3, &hf_h4501_ReturnError, ASN1_NO_EXTENSIONS,
 		dissect_h4501_ReturnError },
-	{ 4, "reject", ASN1_NO_EXTENSIONS,
+	{ 4, &hf_h4501_Reject, ASN1_NO_EXTENSIONS,
 		dissect_h4501_Reject },
 	{ 0, NULL, 0, NULL }
 };
@@ -681,7 +682,7 @@ dissect_h4501_ROS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
 }
 
 static int
-dissect_h4501_argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree)
+dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
 {
    tvbuff_t *argument_tvb = NULL;
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-nbap.h                                                            */
-/* ../../tools/asn2wrs.py -e -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
+/* ../../tools/asn2wrs.py -e -F -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
 
 /* Input file: packet-nbap-template.h */
 
