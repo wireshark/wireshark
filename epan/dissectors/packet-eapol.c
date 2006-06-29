@@ -119,7 +119,7 @@ static const true_false_string tfs_keyinfo_key_type =
 #define KEYDES_VER_TYPE2	0x02
 static const value_string keydes_ver[] = {
 	{ KEYDES_VER_TYPE1,	"HMAC-MD5 for MIC and RC4 for encryption" },
-	{ KEYDES_VER_TYPE2,	"AES-CBC-MAC for MIC and HMAC-SHA1 for encryption" },
+	{ KEYDES_VER_TYPE2,	"HMAC-SHA1 for MIC and AES-CCMP for encryption" },
 	{ 0, 		NULL }
 };
 
