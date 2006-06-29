@@ -379,7 +379,7 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
     e_uuid_t uuid;
     guint8 ClockStratum;
     gint16 ClockVariance;
-    gint8 ClockRole;
+    guint8 ClockRole;
 
     /* ClockVariance */
     offset = dissect_pn_int16(tvb, offset, pinfo, tree, hf_pn_ptcp_clockvariance, &ClockVariance);
