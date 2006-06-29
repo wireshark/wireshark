@@ -100,6 +100,7 @@ static int hf_tipc_name_dist_upper = -1;
 static int hf_tipc_name_dist_port = -1;
 static int hf_tipc_name_dist_key = -1;
 
+static int hf_tipcv2_srcdrop;
 static int hf_tipcv2_data_msg_type = -1;
 static int hf_tipcv2_bcast_mtype = -1;
 static int hf_tipcv2_link_mtype = -1;
@@ -1008,10 +1009,13 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, i
 	proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
 	/* Non-sequenced: 1 bit */
 	proto_tree_add_item(tipc_tree,hf_tipc_nonsequenced, tipc_tvb,offset,4, FALSE);
-	if (datatype_hdr)
-		/* Drop: 1 bit */
+	if (datatype_hdr){
+		/* Destination Droppable: 1 bit */
 		proto_tree_add_item(tipc_tree,hf_tipc_destdrop, tipc_tvb,offset,4, FALSE);
-	/* Reserved: 2 bits */
+		/* Source Droppable: 1 bit */
+		proto_tree_add_item(tipc_tree,hf_tipcv2_srcdrop, tipc_tvb,offset,4, FALSE);
+	}
+	/* Reserved: 1 bits */
 
 	/* Message Size: 17 bits */
 	proto_tree_add_item(tipc_tree, hf_tipc_msg_size, tipc_tvb, offset, 4, FALSE);
@@ -1431,7 +1435,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Set msg type in info col and find out if its a data hdr or not */
 		datatype_hdr = tipc_v2_set_col_msgtype(pinfo, user, msg_type);
 		if ( datatype_hdr ){
-			if (hdr_size > 5){
+			if (hdr_size > 6){
 				/* W6 Originating Processor */
 				src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
 				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
@@ -1440,8 +1444,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
 				SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
 			}else{
-				/* W2 Previous Processor */
-				src_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
+				/* W3 Previous Processor */
+				src_addr = tvb_get_ptr(tipc_tvb, offset + 12, 4);
 				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
 			}
 
@@ -1479,8 +1483,10 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree,hf_tipc_nonsequenced, tipc_tvb,offset,4, FALSE);
-	if (datatype_hdr)
+	if (datatype_hdr){
 		proto_tree_add_item(tipc_tree,hf_tipc_destdrop, tipc_tvb,offset,4, FALSE);
+		proto_tree_add_item(tipc_tree,hf_tipcv2_srcdrop, tipc_tvb,offset,4, FALSE);
+	}
 
 	proto_tree_add_item(tipc_tree, hf_tipc_msg_size, tipc_tvb, offset, 4, FALSE);
 	offset = offset + 4;
@@ -1534,7 +1540,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		can just be passed directly on to the destination port. Since this type of message statistically
 		should be by far the most frequent one this small optimization pays off.
 	*/
-	if ( hdr_size <= 5 ){
+	if ( hdr_size <= 6 ){
 		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 	}else{
 		switch (user){
@@ -1886,6 +1892,11 @@ proto_register_tipc(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"TIPC key", HFILL }
 		},
+		{ &hf_tipcv2_srcdrop,
+			{ "Source Droppable", "tipc.srcdrop",
+			FT_UINT32, BASE_DEC, NULL, 0x00040000,
+			"Destination Droppable Bit", HFILL }
+		},
 		{ &hf_tipcv2_data_msg_type ,
 			{ "Message type",           "tipc.data_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_data_msg_type_values), 0xe0000000,          
@@ -1937,14 +1948,14 @@ proto_register_tipc(void)
 			"Error code", HFILL }
 		},
 		{ &hf_tipcv2_rer_cnt,
-			{ "Lookup Scope",           "tipcv2.rer_cnt",
+			{ "Reroute Counter",           "tipcv2.rer_cnt",
 			FT_UINT32, BASE_DEC, NULL, 0x01e00000,          
-			"Lookup Scope", HFILL }
+			"Reroute Counter", HFILL }
 		},
 		{ &hf_tipcv2_lookup_scope,
-			{ "Reroute Counter",           "tipcv2.lookup_scope",
+			{ "Lookup Scope",           "tipcv2.lookup_scope",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_scope_strings), 0x00180000,          
-			"Reroute Counter", HFILL }
+			"Lookup Scope", HFILL }
 		},
 		{ &hf_tipcv2_opt_p,
 			{ "Options Position",           "tipcv2.opt_p",
