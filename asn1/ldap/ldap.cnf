@@ -274,6 +274,18 @@ ldap_conv_info_t *ldap_info;
      } else if (hf_index == hf_ldap_attributeDesc){
 	/* remember the attribute description */
 	attributedesc_string=ldapstring;
+     } else if (hf_index == hf_ldap_initial){
+	/* remember the substring item */
+	substring_item_init=ldapstring;
+     } else if (hf_index == hf_ldap_any){
+	/* remember the substring item */
+	substring_item_any=ldapstring;
+     } else if (hf_index == hf_ldap_final){
+	/* remember the substring item */
+	substring_item_final=ldapstring;
+     } else if (hf_index == hf_ldap_matchingRule){
+	/* remember the matching rule */
+	matching_rule_string=ldapstring;
      } else if (hf_index == hf_ldap_present){
 	/* remember the present name */
 	Filter_string=ldapstring;
@@ -454,11 +466,9 @@ ldap_conv_info_t *ldap_info;
 #.FN_FTR Filter/approxMatch
 	Filter_string=ep_strdup_printf("(%s~=%s)",attributedesc_string,assertionvalue_string);
 
-#.FN_BODY Filter/and/_item
-	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_and_item);
-
+#.FN_FTR Filter/and/_item
 	if(and_filter_string){
-		and_filter_string=ep_strdup_printf("(&%%s%%s)",and_filter_string,Filter_string);
+		and_filter_string=ep_strdup_printf("(&%s%s)",and_filter_string,Filter_string);
 	} else {
 		and_filter_string=Filter_string;
 	}
@@ -478,17 +488,15 @@ ldap_conv_info_t *ldap_info;
 	offset = dissect_ber_set_of(implicit_tag, pinfo, tr, tvb, offset,
                                  and_set_of, -1, ett_ldap_T_and);
 
-	proto_item_append_text(it, " %%s", and_filter_string);
+	proto_item_append_text(it, "%%s", and_filter_string);
 	Filter_string=ep_strdup_printf("%%s",and_filter_string);
 	and_filter_string=old_and_filter_string;
 
-#.FN_BODY Filter/or/_item
-	offset=dissect_ldap_Filter(FALSE, tvb, offset, pinfo, tree, hf_ldap_or_item);
-
-	if(and_filter_string){
-		and_filter_string=ep_strdup_printf("(|%%s%%s)",and_filter_string,Filter_string);
+#.FN_FTR Filter/or/_item
+	if(or_filter_string){
+		or_filter_string=ep_strdup_printf("(|%s%s)",or_filter_string,Filter_string);
 	} else {
-		and_filter_string=Filter_string;
+		or_filter_string=Filter_string;
 	}
 
 
@@ -497,9 +505,9 @@ ldap_conv_info_t *ldap_info;
 };
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
-	char *old_and_filter_string=and_filter_string;
+	char *old_or_filter_string=or_filter_string;
 
-	and_filter_string=NULL;
+	or_filter_string=NULL;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
@@ -507,9 +515,9 @@ ldap_conv_info_t *ldap_info;
 	offset = dissect_ber_set_of(implicit_tag, pinfo, tr, tvb, offset,
                                  or_set_of, -1, ett_ldap_T_or);
 
-	proto_item_append_text(it, " %%s", and_filter_string);
-	Filter_string=ep_strdup_printf("%%s",and_filter_string);
-	and_filter_string=old_and_filter_string;
+	proto_item_append_text(it, "%%s", or_filter_string);
+	Filter_string=ep_strdup_printf("%%s",or_filter_string);
+	or_filter_string=old_or_filter_string;
 
 #.FN_FTR Filter/present
 	Filter_string=ep_strdup_printf("(%s=*)",Filter_string);
@@ -517,11 +525,63 @@ ldap_conv_info_t *ldap_info;
 #.FN_FTR Filter/not
 	Filter_string=ep_strdup_printf("(!%s)",Filter_string);
 
-#.FN_FTR Filter/extensibleMatch
-	Filter_string="<extensibleMatch is not yet prettified>";
+#.FN_BODY BOOLEAN
+	gboolean val;
 
-#.FN_FTR Filter/substrings
-	Filter_string="<substrings are not yet prettified>";
+	offset = dissect_ber_boolean_value(implicit_tag, pinfo, tree, tvb, offset, hf_index, &val);
+
+	if (hf_index == hf_ldap_dnAttributes) {
+		matching_rule_dnattr = val;
+	}
+
+#.FN_HDR Filter/extensibleMatch
+	attr_type=NULL;
+	matching_rule_string=NULL;
+	assertionvalue_string=NULL;
+	matching_rule_dnattr=FALSE;
+
+#.FN_FTR Filter/extensibleMatch
+	Filter_string=ep_strdup_printf("(%s:%s%s%s=%s)",
+					(attr_type?attr_type:""),
+					(matching_rule_dnattr?"dn:":""),
+					(matching_rule_string?matching_rule_string:""),
+					(matching_rule_string?":":""),
+					assertionvalue_string);
+
+#.FN_FTR SubstringFilter/substrings/_item
+	if (substring_item_final) {
+		substring_value=ep_strdup_printf("%s%s",
+						 (substring_value?substring_value:"*"),
+						 substring_item_final);
+	} else if (substring_item_any) {
+		substring_value=ep_strdup_printf("%s%s*",
+						 (substring_value?substring_value:"*"),
+						 substring_item_any);
+	} else if (substring_item_init) {
+		substring_value=ep_strdup_printf("%s*",
+						 substring_item_init);
+	}
+
+#.FN_BODY SubstringFilter
+	proto_tree *tr=NULL;
+	proto_item *it=NULL;
+	char *old_substring_value=substring_value;
+
+	substring_value=NULL;
+	substring_item_init=NULL;
+	substring_item_any=NULL;
+	substring_item_final=NULL;
+	if(tree){
+		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "substring: ");
+		tr=proto_item_add_subtree(it, ett_ldap_SubstringFilter);
+	}
+	offset = dissect_ber_sequence(implicit_tag, pinfo, tr, tvb, offset,
+				      SubstringFilter_sequence, hf_index,
+				      ett_ldap_SubstringFilter);
+
+	Filter_string=ep_strdup_printf("(%%s=%%s)",attr_type,substring_value);
+	proto_item_append_text(it, "%%s", Filter_string);
+	substring_value=old_substring_value;
 
 #.FN_BODY Filter
 	proto_tree *tr=NULL;
@@ -530,7 +590,7 @@ ldap_conv_info_t *ldap_info;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
-	} 
+	}
 	offset = dissect_ber_choice(pinfo, tr, tvb, offset,
                                  Filter_choice, -1, ett_ldap_Filter,
                                  NULL);

@@ -315,7 +315,13 @@ static char *attributedesc_string=NULL;
 /* This string contains the last Filter item that was decoded */
 static char *Filter_string=NULL;
 static char *and_filter_string=NULL;
-
+static char *or_filter_string=NULL;
+static char *substring_value=NULL;
+static char *substring_item_init=NULL;
+static char *substring_item_any=NULL;
+static char *substring_item_final=NULL;
+static char *matching_rule_string=NULL;
+static gboolean matching_rule_dnattr=FALSE;
 
 /* Global variables */
 char *mechanism = NULL;

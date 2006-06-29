@@ -100,6 +100,7 @@ extern int dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_
 extern int dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
 extern int dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
+extern int dissect_ber_boolean_value(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value);
 
 
 #define BER_FLAGS_OPTIONAL	0x00000001

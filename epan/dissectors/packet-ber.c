@@ -933,7 +933,7 @@ dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree,
 
 
 int
-dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
+dissect_ber_boolean_value(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value)
 {
 	gint8 class;
 	gboolean pc;
@@ -963,9 +963,18 @@ dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree,
 			ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val?1:0);
 	}
 
+	if(value){
+		*value=(val?TRUE:FALSE);
+	}
+
 	return offset;
 }
 
+int
+dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
+{
+	return dissect_ber_boolean_value(implicit_tag, pinfo, tree, tvb, offset, hf_id, NULL);
+}
 
 
 
