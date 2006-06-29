@@ -178,6 +178,7 @@ proto_register_imap(void)
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol",
 				       "IMAP", "imap");
+  register_dissector("imap", dissect_imap, proto_imap);
   proto_register_field_array(proto_imap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

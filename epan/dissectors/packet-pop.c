@@ -248,6 +248,7 @@ proto_register_pop(void)
   };
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
+  register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
