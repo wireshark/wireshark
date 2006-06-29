@@ -136,7 +136,7 @@ int dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep, 
                            int hfindex, guint32 *pdata);
 int dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, char *drep,
+                           proto_tree *tree, guint8 *drep,
                            int hfindex, e_uuid_t *pdata);
 
 /*
