@@ -1129,6 +1129,7 @@ void proto_reg_handoff_ranap(void) {
 	* is or isn't enabled
 	*/
 	heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap); 
+	heur_dissector_add("sua", dissect_sccp_ranap_heur, proto_ranap); 
 
 
 }

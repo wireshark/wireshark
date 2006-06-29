@@ -10803,6 +10803,7 @@ void proto_reg_handoff_ranap(void) {
 	* is or isn't enabled
 	*/
 	heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap); 
+	heur_dissector_add("sua", dissect_sccp_ranap_heur, proto_ranap); 
 
 
 }
@@ -12888,7 +12889,7 @@ void proto_register_ranap(void) {
         "PrivateIE-Field/value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1149 "packet-ranap-template.c"
+#line 1150 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13157,7 +13158,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1156 "packet-ranap-template.c"
+#line 1157 "packet-ranap-template.c"
   };
 
   /* Register protocol */

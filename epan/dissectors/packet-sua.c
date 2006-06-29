@@ -329,6 +329,7 @@ static gint ett_sua_protcol_classes = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 /* stuff for supporting multiple versions */
 typedef enum {
@@ -1829,6 +1830,10 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
        && (source_ssn == INVALID_SSN ||
        !dissector_try_port(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
     {
+		/* try heuristic subdissector list to see if there are any takers */
+		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree)) {
+			return;
+		}
       /* No sub-dissection occured, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, sua_tree);
     }
@@ -2009,6 +2014,8 @@ proto_register_sua(void)
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
+
+  register_heur_dissector_list("sua", &heur_subdissector_list);
 
 }
 
