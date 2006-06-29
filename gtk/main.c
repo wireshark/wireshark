@@ -627,6 +627,32 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   cf_reftime_packets(&cfile);
 }
 
+
+GtkWidget *reftime_dialog = NULL;
+
+static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        timestamp_set_type(TS_RELATIVE);
+        recent.gui_time_format  = TS_RELATIVE;
+        cf_change_time_formats(&cfile);
+        break;
+    case(ESD_BTN_NO):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    if (cfile.current_frame) {
+      /* XXX hum, should better have a "cfile->current_row" here ... */
+      set_frame_reftime(!cfile.current_frame->flags.ref_time,
+	  	     cfile.current_frame,
+		     packet_list_find_row_from_data(cfile.current_frame));
+    }
+}
+
+
 void
 reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 {
@@ -634,10 +660,18 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
   switch(action){
   case REFTIME_TOGGLE:
     if (cfile.current_frame) {
+        if(recent.gui_time_format != TS_RELATIVE && cfile.current_frame->flags.ref_time==0) {
+            reftime_dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+                PRIMARY_TEXT_START "Switch to the appropriate Time Display Format?" PRIMARY_TEXT_END "\n\n"
+                "Time References don't work well with the currently selected Time Display Format.\n\n"
+                "Do you want to switch to \"Seconds Since Beginning of Capture\" now?");
+            simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
+        } else {
       /* XXX hum, should better have a "cfile->current_row" here ... */
       set_frame_reftime(!cfile.current_frame->flags.ref_time,
 	  	     cfile.current_frame,
 		     packet_list_find_row_from_data(cfile.current_frame));
+    }
     }
     break;
   case REFTIME_FIND_NEXT:
