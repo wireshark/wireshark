@@ -4023,6 +4023,7 @@ proto_register_ssl(void)
              "Reassemble SSL Application Data spanning multiple SSL records",
              "Whether the SSL dissector should reassemble SSL Application Data spanning multiple SSL records. ",
              &ssl_desegment_app_data);
+#ifdef HAVE_LIBGNUTLS
        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
              "comma separated list of private RSA keys used for SSL decryption; "
              "each list entry must be in the form of <ip>:<port>:<key_file_name>"
@@ -4037,6 +4038,7 @@ proto_register_ssl(void)
              "redirect ssl debug to file name; leave empty to disable debug, "
              "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
              (const char **)&ssl_debug_file_name);
+#endif
     }
 
     register_dissector("ssl", dissect_ssl, proto_ssl);
