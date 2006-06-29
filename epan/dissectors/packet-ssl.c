@@ -223,13 +223,11 @@ static gint ett_pct_exch_suites		  = -1;
 
 typedef struct {
     unsigned int ssl_port;
-    unsigned int decrypted_port;
     dissector_handle_t handle;
     char* info;
 } SslAssociation;
 
 static char* ssl_keys_list = NULL;
-static char* ssl_ports_list = NULL;
 static char* ssl_debug_file_name = NULL;
 
 typedef struct _SslService {
@@ -307,23 +305,24 @@ ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 
 /* handling of association between ssl ports and clear text protocol */
 static void 
-ssl_association_add(unsigned int port, unsigned int ctport, 
-        const char* info)
+ssl_association_add(unsigned int port, char *protocol)
 {
-    dissector_table_t tcp_dissectors = find_dissector_table( "tcp.port");
-    SslAssociation* assoc = g_malloc(sizeof(SslAssociation)+strlen(info)+1);
+    SslAssociation* assoc = g_malloc(sizeof(SslAssociation));
 
-    assoc->info = (char*) assoc+sizeof(SslAssociation);
-    strcpy(assoc->info, info);
+    assoc->info=g_malloc(strlen(protocol)+1);
+    strcpy(assoc->info, protocol);
     assoc->ssl_port = port;
-    assoc->decrypted_port = ctport;
-    assoc->handle = dissector_get_port_handle(tcp_dissectors, ctport);
+    assoc->handle = find_dissector(protocol);
     
-    ssl_debug_printf("ssl_association_add port %d ctport %d info %s handle %p\n",
-        port, ctport, info, assoc->handle);
+    ssl_debug_printf("ssl_association_add port %d protocol %s handle %p\n",
+        port, protocol, assoc->handle);
 
-    dissector_add("tcp.port", port, ssl_handle);    
-    g_tree_insert(ssl_associations, (gpointer)port, assoc);
+    if(!assoc->handle){
+        fprintf(stderr, "ssl_association_add() could not find handle for protocol:%s\n",protocol);
+    } else {
+        dissector_add("tcp.port", port, ssl_handle);    
+        g_tree_insert(ssl_associations, (gpointer)port, assoc);
+    }
 }
 
 static gint 
@@ -439,23 +438,23 @@ ssl_parse(void)
         
         ssl_debug_printf("ssl_init keys string %s\n", start);
         do {
-            char* addr, *port, *filename;
+            char* addr, *port, *protocol, *filename;
             unsigned char* ip;
             SslService* service;
             SSL_PRIVATE_KEY * private_key;
             FILE* fp;
             
             addr = start;
-            /* split ip/file couple with ',' separator*/
-            end = strchr(start, ',');
+            /* split ip/file couple with ';' separator*/
+            end = strchr(start, ';');
             if (end) {
                 *end = 0;
                 start = end+1;
             }
             
-            /* for each entry split ip, port, filename with ':' separator */
+            /* for each entry split ip, port, protocol, filename with ',' separator */
             ssl_debug_printf("ssl_init found host entry %s\n", addr);
-            port = strchr(addr, ':');
+            port = strchr(addr, ',');
             if (!port)
             {
                 ssl_debug_printf("ssl_init entry malformed can't find port in %s\n", addr);
@@ -464,7 +463,16 @@ ssl_parse(void)
             *port = 0;
             port++;
             
-            filename = strchr(port,':');
+            protocol = strchr(port,',');
+            if (!protocol)
+            {
+                ssl_debug_printf("ssl_init entry malformed can't find protocol in %s\n", port);
+                break;
+            }
+            *protocol=0;
+            protocol++;
+            
+            filename = strchr(protocol,',');
             if (!filename)
             {
                 ssl_debug_printf("ssl_init entry malformed can't find filename in %s\n", port);
@@ -501,64 +509,20 @@ ssl_parse(void)
             ssl_debug_printf("ssl_init private key file %s successfully loaded\n", 
                 filename);
             g_hash_table_insert(ssl_key_hash, service, private_key);
+
+            ssl_association_add(atoi(port), protocol);
                
         } while (end != NULL);
         free(tmp);
     }
 
-    /* parse ssl ports string and add ssl dissector to specifed port[s]*/    
-    if (ssl_ports_list && (ssl_ports_list[0] != 0)) 
-    {
-        char* end;
-        char* start = strdup(ssl_ports_list);
-        char* tmp = start;
-        
-        ssl_debug_printf("ssl_init ports string %s\n", start);
-        do {
-            char* port, *ctport, *info;
-            unsigned int portn, ctportn;
-            
-            port = start;
-            /* split ip/file couple with ',' separator*/
-            end = strchr(start, ',');
-            if (end) {
-                *end = 0;
-                start = end+1;
-            }
-            
-            /* for each entry split ip, port, filename with ':' separator */
-            ssl_debug_printf("ssl_init found port entry %s\n", port);
-            ctport = strchr(port, ':');
-            if (!ctport)
-                break;
-            *ctport = 0;
-            ctport++;
-            
-            info = strchr(ctport,':');
-            if (!info)
-                break;
-            *info=0;
-            info++;
-            
-            /* add dissector to this port */
-            portn = atoi(port);
-            ctportn = atoi(ctport);
-            if (!portn || !ctportn)
-                break;
-            
-            ssl_debug_printf("ssl_init adding dissector to port %d (ct port %d)\n", portn, ctportn);
-            ssl_association_add(portn, ctportn, info);
-        } while (end != NULL);
-        free(tmp);
-    }
-    
     ssl_set_debug(ssl_debug_file_name);
 
     /* [re] add ssl dissection to defaults ports */
-    ssl_association_add(443, 80, "Hypertext transfer protocol");
-    ssl_association_add(636, 389, "Lightweight directory access protocol");
-    ssl_association_add(993, 143, "Interactive mail access protocol");
-    ssl_association_add(995, 110, "Post office protocol");    
+    ssl_association_add(443, "http");
+    ssl_association_add(636, "ldap");
+    ssl_association_add(993, "imap");
+    ssl_association_add(995, "pop");    
 }
 
 /* store master secret into session data cache */
@@ -4025,15 +3989,10 @@ proto_register_ssl(void)
              &ssl_desegment_app_data);
 #ifdef HAVE_LIBGNUTLS
        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
-             "comma separated list of private RSA keys used for SSL decryption; "
-             "each list entry must be in the form of <ip>:<port>:<key_file_name>"
+             "semicolon separated list of private RSA keys used for SSL decryption; "
+             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
              "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
              (const char **)&ssl_keys_list);
-        prefs_register_string_preference(ssl_module, "ports_list", "SSL ports list",
-             "comma separated list of tcp ports numbers to be dissectes as SSL; "
-             "each list entry must be in the form of <port>:<clear-text-port>"
-             "<clear-text-port>   is the port numbert associated with the protocol tunneled over SSL for this port\n",
-             (const char **)&ssl_ports_list);
         prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
              "redirect ssl debug to file name; leave empty to disable debug, "
              "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
