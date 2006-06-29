@@ -117,6 +117,12 @@ static int hf_cba_acco_rtauto = -1;
 
 static int hf_cba_acco_prov_crid = -1;
 
+static int hf_cba_acco_diag_req = -1;
+static int hf_cba_acco_diag_in_length = -1;
+static int hf_cba_acco_diag_out_length = -1;
+static int hf_cba_acco_diag_data = -1;
+static int hf_cba_acco_dcom_call = -1;
+static int hf_cba_acco_srt_call = -1;
 
 gint ett_cba_connectincr = -1;
 gint ett_cba_connectoutcr = -1;
@@ -220,6 +226,20 @@ static const value_string cba_acco_serversrt_last_connect_vals[] = {
     { 0, NULL }
 };
 
+static const value_string cba_acco_diag_req_vals[] = {
+	{ 0x0000, "Function directory" },
+	{ 0x1000, "DevCat statistic" },
+	{ 0x2000, "Reset statistic" },
+	{ 0x3000, "Consumer Comm. Events" },
+	{ 0x4000, "Provider Comm. Events" },
+    { 0, NULL }
+};
+
+static const true_false_string cba_acco_call_flags[] = {
+	"Consumer calls Provider (TRUE)",
+	"Provider calls Consumer (FALSE)"
+};
+
 
 /* dissect a response containing an array of hresults (e.g: ICBAAccoMgt::RemoveConnections) */
 static int
@@ -234,6 +254,100 @@ dissect_HResultArray_resp(tvbuff_t *tvb, int offset,
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+                        &u32Pointer);
+
+	if (u32Pointer) {
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+							&u32ArraySize);
+
+		u32Idx = 1;
+		u32Tmp = u32ArraySize;
+		while (u32Tmp--) {
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+								&u32HResult, u32Idx);
+			u32Idx++;
+		}
+	}
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+						&u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+			u32ArraySize,
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoServer_HResultArray_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32	u32HResult;
+	guint32	u32Pointer;
+	guint32	u32ArraySize = 0;
+	guint32	u32Idx;
+	guint32 u32Tmp;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 1;
+
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+                        &u32Pointer);
+
+	if (u32Pointer) {
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+							&u32ArraySize);
+
+		u32Idx = 1;
+		u32Tmp = u32ArraySize;
+		while (u32Tmp--) {
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+								&u32HResult, u32Idx);
+			u32Idx++;
+		}
+	}
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+						&u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+			u32ArraySize,
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoServerSRT_HResultArray_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32	u32HResult;
+	guint32	u32Pointer;
+	guint32	u32ArraySize = 0;
+	guint32	u32Idx;
+	guint32 u32Tmp;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 3;
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
                         &u32Pointer);
@@ -286,9 +400,14 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 	gchar 	szCons[1000] = { 0 };
 	guint32 u32MaxConsLen = sizeof(szCons);
 	guint32 u32Idx;
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
 
 	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
@@ -350,7 +469,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
 	}
 
 	return u32VariableOffset;
@@ -382,9 +501,15 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	guint32	u32ArraySize2;
 	guint32	u32Idx2;
 	guint16 u16VarType2 = -1;
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
 
 	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
@@ -467,7 +592,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
 	}
 
 	return u32VariableOffset;
@@ -487,9 +612,14 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
+	proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 1;
 
 	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
@@ -537,16 +667,21 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_Server_ProvIDs_rqst(tvbuff_t *tvb, int offset,
+dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 u32Count;
 	guint32 u32ArraySize;
 	guint32 u32Idx;
 	guint32 u32ProvID;
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_count, &u32Count);
@@ -571,14 +706,58 @@ dissect_Server_ProvIDs_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_Server_Consumer_rqst(tvbuff_t *tvb, int offset,
+dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32Count;
+	guint32 u32ArraySize;
+	guint32 u32Idx;
+	guint32 u32ProvID;
+	proto_item *item;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_count, &u32Count);
+
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+                        &u32ArraySize);
+
+	u32Idx = 1;
+	while (u32ArraySize--) {
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+						hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
+		u32Idx++;
+	}
+
+	/* update column info now */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoServer_Consumer_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	gchar 	szStr[1000];
 	guint32 u32MaxStr = sizeof(szStr);
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
 
 	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -592,6 +771,84 @@ dissect_Server_Consumer_rqst(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	gchar 	szStr[1000];
+	guint32 u32MaxStr = sizeof(szStr);
+	proto_item *item;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
+
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
+
+	/* update column info now */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
+	}
+
+	return offset;
+}
+
+
+static int 
+dissect_ICBAAccoServer_simple_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32HResult;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 1;
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+                    &u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int 
+dissect_ICBAAccoServerSRT_simple_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32HResult;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 3;
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+                    &u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
 
 static int
 dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
@@ -602,9 +859,57 @@ dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32ArraySize;
 	guint32 u32Idx;
 	guint32 u32ProvID;
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
+
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_conn_state, &u8State);
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_count, &u32Count);
+
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+                        &u32ArraySize);
+
+	u32Idx = 1;
+	while (u32ArraySize--) {
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+					 hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
+		u32Idx++;
+	}
+
+	/* update column info now */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint8  u8State;
+	guint32 u32Count;
+	guint32 u32ArraySize;
+	guint32 u32Idx;
+	guint32 u32ProvID;
+	proto_item *item;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
 
 	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_conn_state, &u8State);
@@ -637,9 +942,14 @@ dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
 {
 	gchar 	szStr[1000];
 	guint32 u32MaxStr = sizeof(szStr);
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
 
 	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -677,6 +987,10 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
+
 	/* szCons */
 	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
@@ -696,7 +1010,9 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 	offset += 6;
 
     /* add flags subtree */
-	u32Flags = tvb_get_guint8(tvb, offset);
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
+                        0 /* hfindex */, &u32Flags);
+    offset -= 4;
 	item = proto_tree_add_uint_format_value(tree, hf_cba_acco_serversrt_cr_flags, 
 		tvb, offset, 4, u32Flags,
 		"0x%02x (%s, %s)", u32Flags,
@@ -759,9 +1075,14 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
+	proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 3;
 
 	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
@@ -826,9 +1147,14 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32ArraySize;
 	guint32 u32Idx;
 	guint32 u32ProvCRID;
-
+	proto_item *item;
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_count, &u32Count);
@@ -876,9 +1202,14 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 	guint16 u16VarType;
 	guint32 u32ConsID;
 	guint16	u16RecordLength;
+	proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
 						hf_cba_acco_prov_crid, &u32ProvCRID);
@@ -980,9 +1311,14 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 	guint32 u32ProvID;
 	guint32 u32HResult;
+	proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 3;
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
@@ -1026,7 +1362,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
+dissect_ICBAAccoMgt2_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32	u32Count;
@@ -1089,7 +1425,41 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
+dissect_ICBAAccoMgt2_GetProvConnections_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32Count;
+	guint32 u32ArraySize;
+	guint32 u32Idx;
+	guint32 u32ProvID;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_count, &u32Count);
+
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+                        &u32ArraySize);
+
+	u32Idx = 1;
+	while (u32ArraySize--) {
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+						hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
+		u32Idx++;
+	}
+
+	/* update column info now */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoMgt2_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32	u32Count;
@@ -1440,9 +1810,14 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32Length;
 	guint32	u32ArraySize;
 	tvbuff_t *next_tvb;
+	proto_item *item;
 	
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 1;
 
 	/* length */
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
@@ -1466,6 +1841,75 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
+dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32HResult;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 2;
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+                    &u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int 
+dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	proto_item *item;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 3;
+
+	return offset;
+}
+
+
+static int 
+dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32HResult;
+	proto_item *item;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 4;
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+                    &u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int
 dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -1474,9 +1918,14 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 	tvbuff_t *next_tvb;
 	guint32 u32Pointer;
 	guint32 u32HResult;
+	proto_item *item;
 	
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
+    pinfo->profinet_type = 1;
 
 	/* length */
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
@@ -2372,6 +2821,64 @@ dissect_ICBAAccoMgt_get_CDBCookie_resp(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32	u32Request;
+	guint32 u32InLength;
+	guint32 u32ArraySize;
+
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_diag_req, &u32Request);
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_diag_in_length, &u32InLength);
+
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+						&u32ArraySize);
+
+    if(u32ArraySize != 0) {
+	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32InLength, FALSE);
+    }
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s: %u bytes",
+			val_to_str(u32Request, cba_acco_diag_req_vals, "Unknown request (0x%08x)"),
+            u32InLength);
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32OutLength;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+                        hf_cba_acco_diag_out_length, &u32OutLength);
+
+    if(u32OutLength != 0) {
+	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32OutLength, FALSE);
+    }
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes", 
+            u32OutLength);
+	}
+
+	return offset;
+}
+
 
 static int
 dissect_ICBAAccoSync_ReadItems_rqst(tvbuff_t *tvb, int offset,
@@ -2641,9 +3148,9 @@ static dcerpc_sub_dissector ICBAAccoMgt_dissectors[] = {
     {14, "GetConsIDs", dissect_dcom_simple_rqst, dissect_ICBAAccoMgt2_GetConsIDs_resp },
     {15, "GetConsConnections", dissect_ICBAAccoMgt_GetConnections_rqst, dissect_ICBAAccoMgt2_GetConsConnections_resp },
     {16, "DiagConsConnections", dissect_ICBAAccoMgt_GetConnections_rqst, dissect_ICBAAccoMgt2_DiagConsConnections_resp },
-    {17, "GetProvIDs", dissect_dcom_simple_rqst, dissect_Server_GetProvIDs_resp },
-    {18, "GetProvConnections", dissect_Server_ProvIDs_rqst, dissect_Server_GetProvConnections_resp },
-    {19, "GetDiagnosis", NULL, NULL },
+    {17, "GetProvIDs", dissect_dcom_simple_rqst, dissect_ICBAAccoMgt2_GetProvIDs_resp },
+    {18, "GetProvConnections", dissect_ICBAAccoMgt2_GetProvConnections_rqst, dissect_ICBAAccoMgt2_GetProvConnections_resp },
+    {19, "GetDiagnosis", dissect_ICBAAccoMgt_GetDiagnosis_rqst, dissect_ICBAAccoMgt_GetDiagnosis_resp },
     { 0, NULL, NULL, NULL },
 };
 
@@ -2654,9 +3161,9 @@ static dcerpc_sub_dissector ICBAAccoCallback_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "OnDataChanged", dissect_ICBAAccoCallback_OnDataChanged_rqst, dissect_dcom_simple_resp },
+    { 3, "OnDataChanged", dissect_ICBAAccoCallback_OnDataChanged_rqst, dissect_ICBAAccoCallback_OnDataChanged_resp },
 	/* stage 2 */
-    { 4, "Gnip", dissect_dcom_simple_rqst, dissect_dcom_simple_resp },
+    { 4, "Gnip", dissect_ICBAAccoCallback_Gnip_rqst, dissect_ICBAAccoCallback_Gnip_resp },
     { 0, NULL, NULL, NULL },
 };
 
@@ -2668,13 +3175,13 @@ static dcerpc_sub_dissector ICBAAccoServer_dissectors[] = {
     { 2, "Release", NULL, NULL },
 
     { 3, "Connect", dissect_ICBAAccoServer_Connect_rqst, dissect_ICBAAccoServer_Connect_resp },
-    { 4, "Disconnect", dissect_Server_ProvIDs_rqst, dissect_HResultArray_resp },
-    { 5, "DisconnectMe", dissect_Server_Consumer_rqst, dissect_dcom_simple_resp },
-    { 6, "SetActivation", dissect_ICBAAccoServer_SetActivation_rqst, dissect_HResultArray_resp },
-    { 7, "Ping", dissect_ICBAAccoServer_Ping_rqst, dissect_dcom_simple_resp },
+    { 4, "Disconnect", dissect_ICBAAccoServer_Disconnect_rqst, dissect_ICBAAccoServer_HResultArray_resp },
+    { 5, "DisconnectMe", dissect_ICBAAccoServer_Consumer_rqst, dissect_ICBAAccoServer_simple_resp },
+    { 6, "SetActivation", dissect_ICBAAccoServer_SetActivation_rqst, dissect_ICBAAccoServer_HResultArray_resp },
+    { 7, "Ping", dissect_ICBAAccoServer_Ping_rqst, dissect_ICBAAccoServer_simple_resp },
 	/* stage 2 */
     { 8, "Connect2", dissect_ICBAAccoServer2_Connect2_rqst, dissect_ICBAAccoServer_Connect_resp },
-    { 9, "GetConnectionData", dissect_Server_Consumer_rqst, dissect_ICBAAccoServer2_GetConnectionData_resp },
+    { 9, "GetConnectionData", dissect_ICBAAccoServer_Consumer_rqst, dissect_ICBAAccoServer2_GetConnectionData_resp },
     { 0, NULL, NULL, NULL },
 };
 
@@ -2686,11 +3193,12 @@ static dcerpc_sub_dissector ICBAAccoServerSRT_dissectors[] = {
     { 2, "Release", NULL, NULL },
 
     { 3, "ConnectCR", dissect_ICBAAccoServerSRT_ConnectCR_rqst, dissect_ICBAAccoServerSRT_ConnectCR_resp },
-    { 4, "DisconnectCR", dissect_ICBAAccoServerSRT_DisconnectCR_rqst, dissect_HResultArray_resp },
+    { 4, "DisconnectCR", dissect_ICBAAccoServerSRT_DisconnectCR_rqst, dissect_ICBAAccoServerSRT_HResultArray_resp },
     { 5, "Connect", dissect_ICBAAccoServerSRT_Connect_rqst, dissect_ICBAAccoServerSRT_Connect_resp },
-    { 6, "Disconnect", dissect_Server_ProvIDs_rqst, dissect_HResultArray_resp },
-    { 7, "DisconnectMe", dissect_Server_Consumer_rqst, dissect_dcom_simple_resp },
-    { 8, "SetActivation", dissect_ICBAAccoServer_SetActivation_rqst, dissect_HResultArray_resp },
+    { 6, "Disconnect", dissect_ICBAAccoServerSRT_Disconnect_rqst, dissect_ICBAAccoServerSRT_HResultArray_resp },
+    { 7, "DisconnectMe", dissect_ICBAAccoServerSRT_DisconnectMe_rqst, dissect_ICBAAccoServerSRT_simple_resp },
+    { 8, "SetActivation", dissect_ICBAAccoServerSRT_SetActivation_rqst, dissect_ICBAAccoServerSRT_HResultArray_resp },
+
     { 0, NULL, NULL, NULL },
 };
 
@@ -2746,6 +3254,19 @@ proto_register_dcom_cba_acco (void)
 		{ "CDBCookie", "cba.acco.cdb_cookie", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_conn_error_state,
 		{ "ConnErrorState", "cba.acco.conn_error_state", FT_UINT32, BASE_HEX, VALS(dcom_hresult_vals), 0x0, "", HFILL }},
+		{ &hf_cba_acco_diag_req,
+		{ "Request", "cba.acco.diag_req", FT_UINT32, BASE_HEX, VALS(cba_acco_diag_req_vals), 0x0, "", HFILL }},
+		{ &hf_cba_acco_diag_in_length,
+		{ "InLength", "cba.acco.diag_in_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_cba_acco_diag_out_length,
+		{ "OutLength", "cba.acco.diag_out_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	    { &hf_cba_acco_diag_data,
+	    { "Data", "cba.acco.diag_data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+	    { &hf_cba_acco_dcom_call,
+	    { "DcomRuntime", "cba.acco.dcom", FT_BOOLEAN, BASE_NONE, TFS(&cba_acco_call_flags), 0x0, "This is a DCOM runtime context", HFILL }},
+	    { &hf_cba_acco_srt_call,
+	    { "SrtRuntime", "cba.acco.srt", FT_BOOLEAN, BASE_NONE, TFS(&cba_acco_call_flags), 0x0, "This is an SRT runtime context", HFILL }}
+
 	};
 
 	static hf_register_info hf_cba_acco_server[] = {

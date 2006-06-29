@@ -163,6 +163,7 @@ typedef struct _packet_info {
   GString *layer_names; 	/* layers of each protocol */
   guint16 link_number;
   gchar   annex_a_used;
+  guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */

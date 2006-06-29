@@ -311,6 +311,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.layer_names = NULL;
 	edt->pi.link_number = 0;
 	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
+	edt->pi.profinet_type = 0;
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
