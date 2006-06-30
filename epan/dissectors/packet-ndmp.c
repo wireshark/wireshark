@@ -654,6 +654,19 @@ dissect_auth_attr_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+dissect_ndmp_config_get_auth_attr_reply(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, guint32 seq)
+{
+    /* error */
+    offset = dissect_error(tvb, offset, pinfo, tree, seq);
+
+    /* auth_attr */
+    offset = dissect_auth_attr_msg(tvb, offset, pinfo, tree, seq);
+
+    return offset;
+}
+
+static int
 dissect_default_env(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree)
 {
@@ -2632,7 +2645,7 @@ static const ndmp_command ndmp_commands[] = {
 	{NDMP_CONFIG_GET_CONNECTION_TYPE,
 		NULL, dissect_ndmp_config_get_connection_type_reply},
 	{NDMP_CONFIG_GET_AUTH_ATTR,
-		dissect_get_auth_type_request, dissect_auth_attr_msg},
+		dissect_get_auth_type_request, dissect_ndmp_config_get_auth_attr_reply},
 	{NDMP_CONFIG_GET_BUTYPE_INFO,
 		NULL, dissect_get_butype_info_reply},
 	{NDMP_CONFIG_GET_FS_INFO,
