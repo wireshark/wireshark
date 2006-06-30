@@ -500,7 +500,7 @@ dissect_rrlp_Accuracy(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree
 
 static const per_sequence_t AccuracyOpt_sequence[] = {
   { "accuracy"              , &hf_rrlp_accuracy       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_Accuracy },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -604,7 +604,7 @@ static const per_sequence_t PositionInstruct_sequence[] = {
   { "measureResponseTime"   , &hf_rrlp_measureResponseTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MeasureResponseTime },
   { "useMultipleSets"       , &hf_rrlp_useMultipleSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_UseMultipleSets },
   { "environmentCharacter"  , &hf_rrlp_environmentCharacter, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_EnvironmentCharacter },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -666,7 +666,7 @@ static const per_sequence_t ReferenceAssistData_sequence[] = {
   { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
   { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
   { "btsPosition"           , &hf_rrlp_btsPosition    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_BTSPosition },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -732,7 +732,7 @@ static const per_sequence_t ReferenceWGS84_sequence[] = {
   { "relativeNorth"         , &hf_rrlp_relativeNorth  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RelDistance },
   { "relativeEast"          , &hf_rrlp_relativeEast   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RelDistance },
   { "relativeAlt"           , &hf_rrlp_relativeAlt    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_RelativeAlt },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -747,7 +747,7 @@ dissect_rrlp_ReferenceWGS84(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 static const per_sequence_t CalcAssistanceBTS_sequence[] = {
   { "fineRTD"               , &hf_rrlp_fineRTD        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FineRTD },
   { "referenceWGS84"        , &hf_rrlp_referenceWGS84 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ReferenceWGS84 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -766,7 +766,7 @@ static const per_sequence_t MsrAssistBTS_sequence[] = {
   { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
   { "roughRTD"              , &hf_rrlp_roughRTD       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RoughRTD },
   { "calcAssistanceBTS"     , &hf_rrlp_calcAssistanceBTS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_CalcAssistanceBTS },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -794,7 +794,7 @@ dissect_rrlp_SeqOfMsrAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 
 static const per_sequence_t MsrAssistData_sequence[] = {
   { "msrAssistList"         , &hf_rrlp_msrAssistList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfMsrAssistBTS },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -821,7 +821,7 @@ static const per_sequence_t AssistBTSData_sequence[] = {
   { "timeSlotScheme"        , &hf_rrlp_timeSlotScheme , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlotScheme },
   { "roughRTD"              , &hf_rrlp_roughRTD       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RoughRTD },
   { "calcAssistanceBTS"     , &hf_rrlp_calcAssistanceBTS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_CalcAssistanceBTS },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -871,7 +871,7 @@ dissect_rrlp_SeqOfSystemInfoAssistBTS(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 static const per_sequence_t SystemInfoAssistData_sequence[] = {
   { "systemInfoAssistList"  , &hf_rrlp_systemInfoAssistList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSystemInfoAssistBTS },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -906,7 +906,7 @@ dissect_rrlp_GPSWeek(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 static const per_sequence_t GPSTime_sequence[] = {
   { "gpsTOW23b"             , &hf_rrlp_gpsTOW23b      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
   { "gpsWeek"               , &hf_rrlp_gpsWeek        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSWeek },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -954,7 +954,7 @@ static const per_sequence_t GSMTime_sequence[] = {
   { "frameNumber"           , &hf_rrlp_frameNumber    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FrameNumber },
   { "timeSlot"              , &hf_rrlp_timeSlot       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlot },
   { "bitNumber"             , &hf_rrlp_bitNumber      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BitNumber },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1022,7 +1022,7 @@ static const per_sequence_t GPSTOWAssistElement_sequence[] = {
   { "antiSpoof"             , &hf_rrlp_antiSpoof      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AntiSpoofFlag },
   { "alert"                 , &hf_rrlp_alert          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_AlertFlag },
   { "tlmRsvdBits"           , &hf_rrlp_tlmRsvdBits    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TLMReservedBits },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1052,7 +1052,7 @@ static const per_sequence_t ReferenceTime_sequence[] = {
   { "gpsTime"               , &hf_rrlp_gpsTime        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTime },
   { "gsmTime"               , &hf_rrlp_gsmTime        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GSMTime },
   { "gpsTowAssist"          , &hf_rrlp_gpsTowAssist   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GPSTOWAssist },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1066,7 +1066,7 @@ dissect_rrlp_ReferenceTime(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 static const per_sequence_t RefLocation_sequence[] = {
   { "threeDLocation"        , &hf_rrlp_threeDLocation , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1148,7 +1148,7 @@ static const per_sequence_t SatElement_sequence[] = {
   { "deltaRangeRateCor2"    , &hf_rrlp_deltaRangeRateCor2, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M7_7 },
   { "deltaPseudoRangeCor3"  , &hf_rrlp_deltaPseudoRangeCor3, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M127_127 },
   { "deltaRangeRateCor3"    , &hf_rrlp_deltaRangeRateCor3, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M7_7 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1178,7 +1178,7 @@ static const per_sequence_t DGPSCorrections_sequence[] = {
   { "gpsTOW"                , &hf_rrlp_gpsTOW2        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_604799 },
   { "status"                , &hf_rrlp_status         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { "satList"               , &hf_rrlp_satList        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSatElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1265,7 +1265,7 @@ static const per_sequence_t EphemerisSubframe1Reserved_sequence[] = {
   { "reserved2"             , &hf_rrlp_reserved2      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_16777215 },
   { "reserved3"             , &hf_rrlp_reserved3      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_16777215 },
   { "reserved4"             , &hf_rrlp_reserved4      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1397,7 +1397,7 @@ static const per_sequence_t UncompressedEphemeris_sequence[] = {
   { "ephemW"                , &hf_rrlp_ephemW         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
   { "ephemOmegaADot"        , &hf_rrlp_ephemOmegaADot , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
   { "ephemIDot"             , &hf_rrlp_ephemIDot      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8192_8191 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1436,7 +1436,7 @@ dissect_rrlp_SatStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 static const per_sequence_t NavModelElement_sequence[] = {
   { "satelliteID"           , &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
   { "satStatus"             , &hf_rrlp_satStatus      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatStatus },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1464,7 +1464,7 @@ dissect_rrlp_SeqOfNavModelElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_
 
 static const per_sequence_t NavigationModel_sequence[] = {
   { "navModelList"          , &hf_rrlp_navModelList   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfNavModelElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1485,7 +1485,7 @@ static const per_sequence_t IonosphericModel_sequence[] = {
   { "beta1"                 , &hf_rrlp_beta1          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { "beta2"                 , &hf_rrlp_beta2          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { "beta3"                 , &hf_rrlp_beta3          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1516,7 +1516,7 @@ static const per_sequence_t UTCModel_sequence[] = {
   { "utcWNlsf"              , &hf_rrlp_utcWNlsf       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
   { "utcDN"                 , &hf_rrlp_utcDN          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { "utcDeltaTlsf"          , &hf_rrlp_utcDeltaTlsf   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1551,7 +1551,7 @@ static const per_sequence_t AlmanacElement_sequence[] = {
   { "almanacM0"             , &hf_rrlp_almanacM0      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
   { "almanacAF0"            , &hf_rrlp_almanacAF0     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
   { "almanacAF1"            , &hf_rrlp_almanacAF1     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1580,7 +1580,7 @@ dissect_rrlp_SeqOfAlmanacElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_,
 static const per_sequence_t Almanac_sequence[] = {
   { "alamanacWNa"           , &hf_rrlp_alamanacWNa    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
   { "almanacList"           , &hf_rrlp_almanacList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfAlmanacElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1595,7 +1595,7 @@ dissect_rrlp_Almanac(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree 
 static const per_sequence_t TimeRelation_sequence[] = {
   { "gpsTOW"                , &hf_rrlp_gpsTOW3        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
   { "gsmTime"               , &hf_rrlp_gsmTime        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GSMTime },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1620,7 +1620,7 @@ dissect_rrlp_INTEGER_M2048_2047(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 static const per_sequence_t AddionalDopplerFields_sequence[] = {
   { "doppler1"              , &hf_rrlp_doppler1       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { "dopplerUncertainty"    , &hf_rrlp_dopplerUncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1655,7 +1655,7 @@ dissect_rrlp_INTEGER_0_19(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 static const per_sequence_t AddionalAngleFields_sequence[] = {
   { "azimuth"               , &hf_rrlp_azimuth        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
   { "elevation"             , &hf_rrlp_elevation      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1676,7 +1676,7 @@ static const per_sequence_t AcquisElement_sequence[] = {
   { "gpsBitNumber"          , &hf_rrlp_gpsBitNumber   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_3 },
   { "codePhaseSearchWindow" , &hf_rrlp_codePhaseSearchWindow, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
   { "addionalAngle"         , &hf_rrlp_addionalAngle  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_AddionalAngleFields },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1705,7 +1705,7 @@ dissect_rrlp_SeqOfAcquisElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 static const per_sequence_t AcquisAssist_sequence[] = {
   { "timeRelation"          , &hf_rrlp_timeRelation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeRelation },
   { "acquisList"            , &hf_rrlp_acquisList     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfAcquisElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1741,7 +1741,7 @@ static const per_sequence_t ControlHeader_sequence[] = {
   { "almanac"               , &hf_rrlp_almanac        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_Almanac },
   { "acquisAssist"          , &hf_rrlp_acquisAssist   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_AcquisAssist },
   { "realTimeIntegrity"     , &hf_rrlp_realTimeIntegrity, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOf_BadSatelliteSet },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1755,7 +1755,7 @@ dissect_rrlp_ControlHeader(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 
 static const per_sequence_t GPS_AssistData_sequence[] = {
   { "controlHeader"         , &hf_rrlp_controlHeader  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ControlHeader },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1790,7 +1790,7 @@ dissect_rrlp_ExpOTDUncertainty(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 static const per_sequence_t MsrAssistBTS_R98_ExpOTD_sequence[] = {
   { "expectedOTD"           , &hf_rrlp_expectedOTD    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpectedOTD },
   { "expOTDUncertainty"     , &hf_rrlp_expOTDUncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpOTDUncertainty },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1818,7 +1818,7 @@ dissect_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 static const per_sequence_t MsrAssistData_R98_ExpOTD_sequence[] = {
   { "msrAssistList-R98-ExpOTD", &hf_rrlp_msrAssistList_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1833,7 +1833,7 @@ dissect_rrlp_MsrAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t AssistBTSData_R98_ExpOTD_sequence[] = {
   { "expectedOTD"           , &hf_rrlp_expectedOTD    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpectedOTD },
   { "expOTDuncertainty"     , &hf_rrlp_expOTDuncertainty, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ExpOTDUncertainty },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1883,7 +1883,7 @@ dissect_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_
 
 static const per_sequence_t SystemInfoAssistData_R98_ExpOTD_sequence[] = {
   { "systemInfoAssistListR98-ExpOTD", &hf_rrlp_systemInfoAssistListR98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1898,7 +1898,7 @@ dissect_rrlp_SystemInfoAssistData_R98_ExpOTD(tvbuff_t *tvb, int offset, asn_ctx_
 static const per_sequence_t Rel98_Ext_ExpOTD_sequence[] = {
   { "msrAssistData-R98-ExpOTD", &hf_rrlp_msrAssistData_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_MsrAssistData_R98_ExpOTD },
   { "systemInfoAssistData-R98-ExpOTD", &hf_rrlp_systemInfoAssistData_R98_ExpOTD, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SystemInfoAssistData_R98_ExpOTD },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1924,7 +1924,7 @@ static const per_sequence_t Rel98_MsrPosition_Req_Extension_sequence[] = {
   { "rel98-Ext-ExpOTD"      , &hf_rrlp_rel98_Ext_ExpOTD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Rel98_Ext_ExpOTD },
   { "gpsTimeAssistanceMeasurementRequest", &hf_rrlp_gpsTimeAssistanceMeasurementRequest, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_NULL },
   { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1949,7 +1949,7 @@ dissect_rrlp_INTEGER_0_262143(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 static const per_sequence_t Extended_reference_sequence[] = {
   { "smlc-code"             , &hf_rrlp_smlc_code      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { "transaction-ID"        , &hf_rrlp_transaction_ID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_262143 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1963,7 +1963,7 @@ dissect_rrlp_Extended_reference(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
 static const per_sequence_t Rel5_MsrPosition_Req_Extension_sequence[] = {
   { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_Extended_reference },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1984,7 +1984,7 @@ static const per_sequence_t MsrPosition_Req_sequence[] = {
   { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { "rel98-MsrPosition-Req-extension", &hf_rrlp_rel98_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_MsrPosition_Req_Extension },
   { "rel5-MsrPosition-Req-extension", &hf_rrlp_rel5_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_MsrPosition_Req_Extension },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2037,7 +2037,7 @@ static const per_sequence_t MultipleSets_sequence[] = {
   { "nbrOfSets"             , &hf_rrlp_nbrOfSets      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_2_3 },
   { "nbrOfReferenceBTSs"    , &hf_rrlp_nbrOfReferenceBTSs, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_1_3 },
   { "referenceRelation"     , &hf_rrlp_referenceRelation, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_ReferenceRelation },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2052,7 +2052,7 @@ dissect_rrlp_MultipleSets(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_
 static const per_sequence_t BSICAndCarrier_sequence[] = {
   { "carrier"               , &hf_rrlp_carrier        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
   { "bsic"                  , &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2107,7 +2107,7 @@ dissect_rrlp_LAC(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tre
 static const per_sequence_t CellIDAndLAC_sequence[] = {
   { "referenceLAC"          , &hf_rrlp_referenceLAC   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_LAC },
   { "referenceCI"           , &hf_rrlp_referenceCI    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_CellID },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2163,7 +2163,7 @@ dissect_rrlp_SeqOfReferenceIdentityType(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 static const per_sequence_t ReferenceIdentity_sequence[] = {
   { "refBTSList"            , &hf_rrlp_refBTSList     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfReferenceIdentityType },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2218,7 +2218,7 @@ dissect_rrlp_NumOfMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 static const per_sequence_t TOA_MeasurementsOfRef_sequence[] = {
   { "refQuality"            , &hf_rrlp_refQuality     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RefQuality },
   { "numOfMeasurements"     , &hf_rrlp_numOfMeasurements, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_NumOfMeasurements },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2253,7 +2253,7 @@ dissect_rrlp_INTEGER_0_960(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto
 static const per_sequence_t MultiFrameCarrier_sequence[] = {
   { "bcchCarrier"           , &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
   { "multiFrameOffset"      , &hf_rrlp_multiFrameOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MultiFrameOffset },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2298,7 +2298,7 @@ dissect_rrlp_NeighborIdentity(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pr
 static const per_sequence_t EOTDQuality_sequence[] = {
   { "nbrOfMeasurements"     , &hf_rrlp_nbrOfMeasurements, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { "stdOfEOTD"             , &hf_rrlp_stdOfEOTD      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2325,7 +2325,7 @@ static const per_sequence_t OTD_MeasurementWithID_sequence[] = {
   { "nborTimeSlot"          , &hf_rrlp_nborTimeSlot   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
   { "eotdQuality"           , &hf_rrlp_eotdQuality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_EOTDQuality },
   { "otdValue"              , &hf_rrlp_otdValue       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTDValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2367,7 +2367,7 @@ static const per_sequence_t OTD_MsrElementFirst_sequence[] = {
   { "stdResolution"         , &hf_rrlp_stdResolution  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_StdResolution },
   { "taCorrection"          , &hf_rrlp_taCorrection   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_960 },
   { "otd-FirstSetMsrs"      , &hf_rrlp_otd_FirstSetMsrs, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_FirstSetMsrs },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2383,7 +2383,7 @@ static const per_sequence_t OTD_Measurement_sequence[] = {
   { "nborTimeSlot"          , &hf_rrlp_nborTimeSlot   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_ModuloTimeSlot },
   { "eotdQuality"           , &hf_rrlp_eotdQuality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_EOTDQuality },
   { "otdValue"              , &hf_rrlp_otdValue       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTDValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2438,7 +2438,7 @@ static const per_sequence_t OTD_MsrElementRest_sequence[] = {
   { "stdResolution"         , &hf_rrlp_stdResolution  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_StdResolution },
   { "taCorrection"          , &hf_rrlp_taCorrection   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_960 },
   { "otd-MsrsOfOtherSets"   , &hf_rrlp_otd_MsrsOfOtherSets, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_MsrsOfOtherSets },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2467,7 +2467,7 @@ dissect_rrlp_SeqOfOTD_MsrElementRest(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 static const per_sequence_t OTD_MeasureInfo_sequence[] = {
   { "otdMsrFirstSets"       , &hf_rrlp_otdMsrFirstSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrElementFirst },
   { "otdMsrRestSets"        , &hf_rrlp_otdMsrRestSets , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_MsrElementRest },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2510,7 +2510,7 @@ static const per_sequence_t LocationInfo_sequence[] = {
   { "gpsTOW"                , &hf_rrlp_gpsTOW         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_14399999 },
   { "fixType"               , &hf_rrlp_fixType        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FixType },
   { "posEstimate"           , &hf_rrlp_posEstimate    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2568,7 +2568,7 @@ static const per_sequence_t GPS_MsrElement_sequence[] = {
   { "fracChips"             , &hf_rrlp_fracChips      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1024 },
   { "mpathIndic"            , &hf_rrlp_mpathIndic     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MpathIndic },
   { "pseuRangeRMSErr"       , &hf_rrlp_pseuRangeRMSErr, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2598,7 +2598,7 @@ static const per_sequence_t GPS_MsrSetElement_sequence[] = {
   { "refFrame"              , &hf_rrlp_refFrame       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_65535 },
   { "gpsTOW"                , &hf_rrlp_gpsTOW1        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW24b },
   { "gps-msrList"           , &hf_rrlp_gps_msrList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGPS_MsrElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2626,7 +2626,7 @@ dissect_rrlp_SeqOfGPS_MsrSetElement(tvbuff_t *tvb, int offset, asn_ctx_t *actx _
 
 static const per_sequence_t GPS_MeasureInfo_sequence[] = {
   { "gpsMsrSetList"         , &hf_rrlp_gpsMsrSetList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGPS_MsrSetElement },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2676,7 +2676,7 @@ dissect_rrlp_GPSAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, p
 static const per_sequence_t AdditionalAssistanceData_sequence[] = {
   { "gpsAssistanceData"     , &hf_rrlp_gpsAssistanceData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPSAssistanceData },
   { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2691,7 +2691,7 @@ dissect_rrlp_AdditionalAssistanceData(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t LocationError_sequence[] = {
   { "locErrorReason"        , &hf_rrlp_locErrorReason , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_LocErrorReason },
   { "additionalAssistanceData", &hf_rrlp_additionalAssistanceData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AdditionalAssistanceData },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2719,7 +2719,7 @@ dissect_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 static const per_sequence_t OTD_MsrElementFirst_R98_Ext_sequence[] = {
   { "otd-FirstSetMsrs-R98-Ext", &hf_rrlp_otd_FirstSetMsrs_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2733,7 +2733,7 @@ dissect_rrlp_OTD_MsrElementFirst_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 static const per_sequence_t OTD_MeasureInfo_R98_Ext_sequence[] = {
   { "otdMsrFirstSets-R98-Ext", &hf_rrlp_otdMsrFirstSets_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OTD_MsrElementFirst_R98_Ext },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2747,7 +2747,7 @@ dissect_rrlp_OTD_MeasureInfo_R98_Ext(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
 static const per_sequence_t T_rel_98_Ext_MeasureInfo_sequence[] = {
   { "otd-MeasureInfo-R98-Ext", &hf_rrlp_otd_MeasureInfo_R98_Ext, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_OTD_MeasureInfo_R98_Ext },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2784,7 +2784,7 @@ static const per_sequence_t GPSTimeAssistanceMeasurements_sequence[] = {
   { "gpsTowSubms"           , &hf_rrlp_gpsTowSubms    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_9999 },
   { "deltaTow"              , &hf_rrlp_deltaTow       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_127 },
   { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2799,7 +2799,7 @@ dissect_rrlp_GPSTimeAssistanceMeasurements(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t Rel_98_MsrPosition_Rsp_Extension_sequence[] = {
   { "rel-98-Ext-MeasureInfo", &hf_rrlp_rel_98_Ext_MeasureInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_T_rel_98_Ext_MeasureInfo },
   { "timeAssistanceMeasurements", &hf_rrlp_timeAssistanceMeasurements, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSTimeAssistanceMeasurements },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2840,7 +2840,7 @@ static const per_sequence_t Rel_5_MsrPosition_Rsp_Extension_sequence[] = {
   { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Extended_reference },
   { "otd-MeasureInfo-5-Ext" , &hf_rrlp_otd_MeasureInfo_5_Ext, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_OTD_MeasureInfo_5_Ext },
   { "ulPseudoSegInd"        , &hf_rrlp_ulPseudoSegInd , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_UlPseudoSegInd },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2862,7 +2862,7 @@ static const per_sequence_t MsrPosition_Rsp_sequence[] = {
   { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { "rel-98-MsrPosition-Rsp-Extension", &hf_rrlp_rel_98_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_98_MsrPosition_Rsp_Extension },
   { "rel-5-MsrPosition-Rsp-Extension", &hf_rrlp_rel_5_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2894,7 +2894,7 @@ static const per_sequence_t Rel98_AssistanceData_Extension_sequence[] = {
   { "rel98-Ext-ExpOTD"      , &hf_rrlp_rel98_Ext_ExpOTD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Rel98_Ext_ExpOTD },
   { "gpsTimeAssistanceMeasurementRequest", &hf_rrlp_gpsTimeAssistanceMeasurementRequest, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_NULL },
   { "gpsReferenceTimeUncertainty", &hf_rrlp_gpsReferenceTimeUncertainty, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTimeUncertainty },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2908,7 +2908,7 @@ dissect_rrlp_Rel98_AssistanceData_Extension(tvbuff_t *tvb, int offset, asn_ctx_t
 
 static const per_sequence_t Rel5_AssistanceData_Extension_sequence[] = {
   { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_Extended_reference },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2929,7 +2929,7 @@ static const per_sequence_t AssistanceData_sequence[] = {
   { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { "rel98-AssistanceData-Extension", &hf_rrlp_rel98_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_AssistanceData_Extension },
   { "rel5-AssistanceData-Extension", &hf_rrlp_rel5_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_AssistanceData_Extension },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2963,7 +2963,7 @@ dissect_rrlp_ErrorCodes(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tr
 
 static const per_sequence_t Rel_5_ProtocolError_Extension_sequence[] = {
   { "extended-reference"    , &hf_rrlp_extended_reference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_Extended_reference },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -2979,7 +2979,7 @@ static const per_sequence_t ProtocolError_sequence[] = {
   { "errorCause"            , &hf_rrlp_errorCause     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_ErrorCodes },
   { "extensionContainer"    , &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { "rel-5-ProtocolError-Extension", &hf_rrlp_rel_5_ProtocolError_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_5_ProtocolError_Extension },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -3022,7 +3022,7 @@ dissect_rrlp_RRLP_Component(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, prot
 static const per_sequence_t PDU_sequence[] = {
   { "referenceNumber"       , &hf_rrlp_referenceNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { "component"             , &hf_rrlp_component      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_RRLP_Component },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int

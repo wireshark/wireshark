@@ -464,7 +464,7 @@ static const per_sequence_t result_sequence[] = {
 		dissect_h4501_Opcode },
 	{ "result", &hf_h4501_dummy, ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_ReturnResult_result },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 static int
 dissect_h4501_Result(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
@@ -599,7 +599,7 @@ static const per_sequence_t Reject_sequence[] = {
 		dissect_h4501_InvokeId },
 	{ "problem", &hf_h4501_problem, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_Problem },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 static int
 dissect_h4501_Reject(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
@@ -615,7 +615,7 @@ static const per_sequence_t ReturnError_sequence[] = {
 		dissect_h4501_ErrorCode },
 	{ "parameter", &hf_h4501_parameter, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_Parameter },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 static int
 dissect_h4501_ReturnError(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
@@ -629,7 +629,7 @@ static const per_sequence_t ReturnResult_sequence[] = {
 		dissect_h4501_InvokeId },
 	{ "result", &hf_h4501_result, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_Result },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 static int
 dissect_h4501_ReturnResult(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
@@ -647,7 +647,7 @@ static const per_sequence_t Invoke_sequence[] = {
 		dissect_h4501_Opcode },
 	{ "argument", &hf_h4501_dummy, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_Argument },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 static int
 dissect_h4501_Invoke(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)

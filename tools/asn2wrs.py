@@ -2403,7 +2403,7 @@ class SeqType (SqType):
     if (ectx.Ber()):
       table += "  { 0, 0, 0, NULL }\n};\n"
     else:
-      table += "  { NULL, 0, 0, NULL }\n};\n"
+      table += "  { NULL, NULL, 0, 0, NULL }\n};\n"
     return table
 
 #--- SeqOfType -----------------------------------------------------------

@@ -3274,7 +3274,7 @@ static int dissect_ddMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 static const per_sequence_t ProcedureID_sequence[] = {
   { "procedureCode"         , &hf_rnsap_procedureCode , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProcedureCode },
   { "ddMode"                , &hf_rnsap_ddMode        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_T_ddMode },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -3417,7 +3417,7 @@ static const per_sequence_t InitiatingMessage_sequence[] = {
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "transactionID"         , &hf_rnsap_transactionID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_TransactionID },
   { "initiatingMessageValue", &hf_rnsap_initiatingMessageValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_InitiatingMessageValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -3453,7 +3453,7 @@ static const per_sequence_t SuccessfulOutcome_sequence[] = {
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "transactionID"         , &hf_rnsap_transactionID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_TransactionID },
   { "successfulOutcomeValue", &hf_rnsap_successfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_SuccessfulOutcomeValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -3489,7 +3489,7 @@ static const per_sequence_t UnsuccessfulOutcome_sequence[] = {
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "transactionID"         , &hf_rnsap_transactionID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_TransactionID },
   { "unsuccessfulOutcomeValue", &hf_rnsap_unsuccessfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_UnsuccessfulOutcomeValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -3529,7 +3529,7 @@ static const per_sequence_t Outcome_sequence[] = {
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "transactionID"         , &hf_rnsap_transactionID , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_TransactionID },
   { "outcomeValue"          , &hf_rnsap_outcomeValue  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_OutcomeValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4057,7 +4057,7 @@ static const per_sequence_t ProtocolIE_Field_sequence[] = {
   { "id"                    , &hf_rnsap_id            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_ID },
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "value"                 , &hf_rnsap_value         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIEValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4112,7 +4112,7 @@ static const per_sequence_t ProtocolExtensionField_sequence[] = {
   { "id"                    , &hf_rnsap_id            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_ID },
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "extensionValue"        , &hf_rnsap_extensionValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Extension },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4153,7 +4153,7 @@ static int dissect_iEe_Extensions(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 static const per_sequence_t CommonTransportChannelResourcesRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4171,7 +4171,7 @@ static int dissect_id_commonTransportChannelResourcesInitialisation(tvbuff_t *tv
 static const per_sequence_t CommonTransportChannelResourcesReleaseRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4189,7 +4189,7 @@ static int dissect_id_commonTransportChannelResourcesRelease(tvbuff_t *tvb, int 
 static const per_sequence_t CompressedModeCommand_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4207,7 +4207,7 @@ static int dissect_id_compressedModeCommand(tvbuff_t *tvb, int offset, asn_ctx_t
 static const per_sequence_t DL_PowerControlRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4225,7 +4225,7 @@ static int dissect_id_downlinkPowerControl(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t DL_PowerTimeslotControlRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4243,7 +4243,7 @@ static int dissect_id_downlinkPowerTimeslotControl(tvbuff_t *tvb, int offset, as
 static const per_sequence_t DownlinkSignallingTransferRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4261,7 +4261,7 @@ static int dissect_id_downlinkSignallingTransfer(tvbuff_t *tvb, int offset, asn_
 static const per_sequence_t ErrorIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4279,7 +4279,7 @@ static int dissect_id_errorIndication(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t DedicatedMeasurementFailureIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4297,7 +4297,7 @@ static int dissect_id_dedicatedMeasurementFailure(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t DedicatedMeasurementInitiationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4315,7 +4315,7 @@ static int dissect_id_dedicatedMeasurementInitiation(tvbuff_t *tvb, int offset, 
 static const per_sequence_t DedicatedMeasurementReport_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4333,7 +4333,7 @@ static int dissect_id_dedicatedMeasurementReporting(tvbuff_t *tvb, int offset, a
 static const per_sequence_t DedicatedMeasurementTerminationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4351,7 +4351,7 @@ static int dissect_id_dedicatedMeasurementTermination(tvbuff_t *tvb, int offset,
 static const per_sequence_t PagingRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4369,7 +4369,7 @@ static int dissect_id_paging(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static const per_sequence_t PhysicalChannelReconfigurationRequestTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4464,7 +4464,7 @@ static const per_sequence_t PrivateIE_Field_sequence[] = {
   { "privateIEid"           , &hf_rnsap_privateIEid   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_PrivateIE_ID },
   { "criticality"           , &hf_rnsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "privateIEvalue"        , &hf_rnsap_privateIEvalue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_PrivateIEvalue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4498,7 +4498,7 @@ static int dissect_privateIEs(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 static const per_sequence_t PrivateMessage_sequence[] = {
   { "privateIEs"            , &hf_rnsap_privateIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PrivateIE_Container },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4516,7 +4516,7 @@ static int dissect_id_privateMessage(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static const per_sequence_t RadioLinkAdditionRequestFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4534,7 +4534,7 @@ static int dissect_id_radioLinkAddition(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t RadioLinkAdditionRequestTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4552,7 +4552,7 @@ static int dissect_id_radioLinkAddition_TDD(tvbuff_t *tvb, int offset, asn_ctx_t
 static const per_sequence_t RadioLinkCongestionIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4570,7 +4570,7 @@ static int dissect_id_radioLinkCongestion(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t RadioLinkDeletionRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4588,7 +4588,7 @@ static int dissect_id_radioLinkDeletion(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t RadioLinkFailureIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4606,7 +4606,7 @@ static int dissect_id_radioLinkFailure(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t RadioLinkPreemptionRequiredIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4624,7 +4624,7 @@ static int dissect_id_radioLinkPreemption(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t RadioLinkRestoreIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4642,7 +4642,7 @@ static int dissect_id_radioLinkRestoration(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t RadioLinkSetupRequestFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4660,7 +4660,7 @@ static int dissect_id_radioLinkSetup(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static const per_sequence_t RadioLinkSetupRequestTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4678,7 +4678,7 @@ static int dissect_id_radioLinkSetupTdd(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t RelocationCommit_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4696,7 +4696,7 @@ static int dissect_id_relocationCommit(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t RadioLinkReconfigurationCancel_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4714,7 +4714,7 @@ static int dissect_id_synchronisedRadioLinkReconfigurationCancellation(tvbuff_t 
 static const per_sequence_t RadioLinkReconfigurationCommit_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4732,7 +4732,7 @@ static int dissect_id_synchronisedRadioLinkReconfigurationCommit(tvbuff_t *tvb, 
 static const per_sequence_t RadioLinkReconfigurationPrepareFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4750,7 +4750,7 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvbuff_t *
 static const per_sequence_t RadioLinkReconfigurationReadyTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4768,7 +4768,7 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvbuff
 static const per_sequence_t RadioLinkReconfigurationRequestFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4786,7 +4786,7 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration(tvbuff_t *tvb, int 
 static const per_sequence_t RadioLinkReconfigurationRequestTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4804,7 +4804,7 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD(tvbuff_t *tvb, 
 static const per_sequence_t UplinkSignallingTransferIndicationFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4822,7 +4822,7 @@ static int dissect_id_uplinkSignallingTransfer(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t UplinkSignallingTransferIndicationTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4840,7 +4840,7 @@ static int dissect_id_uplinkSignallingTransfer_TDD(tvbuff_t *tvb, int offset, as
 static const per_sequence_t CommonMeasurementFailureIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4858,7 +4858,7 @@ static int dissect_id_commonMeasurementFailure(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t CommonMeasurementInitiationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4876,7 +4876,7 @@ static int dissect_id_commonMeasurementInitiation(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t CommonMeasurementReport_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4894,7 +4894,7 @@ static int dissect_id_commonMeasurementReporting(tvbuff_t *tvb, int offset, asn_
 static const per_sequence_t CommonMeasurementTerminationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4912,7 +4912,7 @@ static int dissect_id_commonMeasurementTermination(tvbuff_t *tvb, int offset, as
 static const per_sequence_t InformationExchangeFailureIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4930,7 +4930,7 @@ static int dissect_id_informationExchangeFailure(tvbuff_t *tvb, int offset, asn_
 static const per_sequence_t InformationExchangeInitiationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4948,7 +4948,7 @@ static int dissect_id_informationExchangeInitiation(tvbuff_t *tvb, int offset, a
 static const per_sequence_t InformationReport_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4966,7 +4966,7 @@ static int dissect_id_informationReporting(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t InformationExchangeTerminationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -4984,7 +4984,7 @@ static int dissect_id_informationExchangeTermination(tvbuff_t *tvb, int offset, 
 static const per_sequence_t ResetRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5002,7 +5002,7 @@ static int dissect_id_reset(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static const per_sequence_t RadioLinkActivationCommandFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5020,7 +5020,7 @@ static int dissect_id_radioLinkActivation(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t RadioLinkActivationCommandTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5038,7 +5038,7 @@ static int dissect_id_radioLinkActivation_TDD(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t GERANUplinkSignallingTransferIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5056,7 +5056,7 @@ static int dissect_id_gERANuplinkSignallingTransfer(tvbuff_t *tvb, int offset, a
 static const per_sequence_t RadioLinkParameterUpdateIndicationFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5074,7 +5074,7 @@ static int dissect_id_radioLinkParameterUpdate(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t RadioLinkParameterUpdateIndicationTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5092,7 +5092,7 @@ static int dissect_id_radioLinkParameterUpdate_TDD(tvbuff_t *tvb, int offset, as
 static const per_sequence_t UEMeasurementFailureIndication_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5110,7 +5110,7 @@ static int dissect_id_uEMeasurementFailure(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t UEMeasurementInitiationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5128,7 +5128,7 @@ static int dissect_id_uEMeasurementInitiation(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t UEMeasurementReport_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5146,7 +5146,7 @@ static int dissect_id_uEMeasurementReporting(tvbuff_t *tvb, int offset, asn_ctx_
 static const per_sequence_t UEMeasurementTerminationRequest_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5164,7 +5164,7 @@ static int dissect_id_uEMeasurementTermination(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t IurDeactivateTrace_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5182,7 +5182,7 @@ static int dissect_id_iurDeactivateTrace(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t IurInvokeTrace_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5200,7 +5200,7 @@ static int dissect_id_iurInvokeTrace(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static const per_sequence_t MBMSAttachCommand_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5218,7 +5218,7 @@ static int dissect_id_mBMSAttach(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static const per_sequence_t MBMSDetachCommand_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5236,7 +5236,7 @@ static int dissect_id_mBMSDetach(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static const per_sequence_t DirectInformationTransfer_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5382,7 +5382,7 @@ dissect_rnsap_DummyInitiatingValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U
 static const per_sequence_t CommonTransportChannelResourcesResponseFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5400,7 +5400,7 @@ static int dissect_id_commonTransportChannelResourcesInitialisation1(tvbuff_t *t
 static const per_sequence_t CommonTransportChannelResourcesResponseTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5418,7 +5418,7 @@ static int dissect_id_commonTransportChannelResourcesInitialisation_TDD(tvbuff_t
 static const per_sequence_t DedicatedMeasurementInitiationResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5436,7 +5436,7 @@ static int dissect_id_dedicatedMeasurementInitiation1(tvbuff_t *tvb, int offset,
 static const per_sequence_t PhysicalChannelReconfigurationCommand_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5454,7 +5454,7 @@ static int dissect_id_physicalChannelReconfiguration1(tvbuff_t *tvb, int offset,
 static const per_sequence_t RadioLinkAdditionResponseFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5472,7 +5472,7 @@ static int dissect_id_radioLinkAddition1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RadioLinkAdditionResponseTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5490,7 +5490,7 @@ static int dissect_id_radioLinkAddition_TDD1(tvbuff_t *tvb, int offset, asn_ctx_
 static const per_sequence_t RadioLinkDeletionResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5508,7 +5508,7 @@ static int dissect_id_radioLinkDeletion1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RadioLinkSetupResponseFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5526,7 +5526,7 @@ static int dissect_id_radioLinkSetup1(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t RadioLinkSetupResponseTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5544,7 +5544,7 @@ static int dissect_id_radioLinkSetupTdd1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RadioLinkReconfigurationReadyFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5562,7 +5562,7 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvbuff_t 
 static const per_sequence_t RadioLinkReconfigurationResponseFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5580,7 +5580,7 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration1(tvbuff_t *tvb, int
 static const per_sequence_t RadioLinkReconfigurationResponseTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5598,7 +5598,7 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD1(tvbuff_t *tvb,
 static const per_sequence_t CommonMeasurementInitiationResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5616,7 +5616,7 @@ static int dissect_id_commonMeasurementInitiation1(tvbuff_t *tvb, int offset, as
 static const per_sequence_t InformationExchangeInitiationResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5634,7 +5634,7 @@ static int dissect_id_informationExchangeInitiation1(tvbuff_t *tvb, int offset, 
 static const per_sequence_t ResetResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5652,7 +5652,7 @@ static int dissect_id_reset1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static const per_sequence_t UEMeasurementInitiationResponse_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5722,7 +5722,7 @@ dissect_rnsap_DummySuccessfulOutcomeValue(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t CommonTransportChannelResourcesFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5740,7 +5740,7 @@ static int dissect_id_commonTransportChannelResourcesInitialisation2(tvbuff_t *t
 static const per_sequence_t DedicatedMeasurementInitiationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5758,7 +5758,7 @@ static int dissect_id_dedicatedMeasurementInitiation2(tvbuff_t *tvb, int offset,
 static const per_sequence_t PhysicalChannelReconfigurationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5776,7 +5776,7 @@ static int dissect_id_physicalChannelReconfiguration2(tvbuff_t *tvb, int offset,
 static const per_sequence_t RadioLinkAdditionFailureFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5794,7 +5794,7 @@ static int dissect_id_radioLinkAddition2(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RadioLinkAdditionFailureTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5812,7 +5812,7 @@ static int dissect_id_radioLinkAddition_TDD2(tvbuff_t *tvb, int offset, asn_ctx_
 static const per_sequence_t RadioLinkSetupFailureFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5830,7 +5830,7 @@ static int dissect_id_radioLinkSetup2(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t RadioLinkSetupFailureTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5848,7 +5848,7 @@ static int dissect_id_radioLinkSetupTdd2(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RadioLinkReconfigurationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5872,7 +5872,7 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD2(tvbuff_t *tvb,
 static const per_sequence_t CommonMeasurementInitiationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5890,7 +5890,7 @@ static int dissect_id_commonMeasurementInitiation2(tvbuff_t *tvb, int offset, as
 static const per_sequence_t InformationExchangeInitiationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -5908,7 +5908,7 @@ static int dissect_id_informationExchangeInitiation2(tvbuff_t *tvb, int offset, 
 static const per_sequence_t UEMeasurementInitiationFailure_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6000,7 +6000,7 @@ static const per_sequence_t Allowed_Rate_Information_sequence[] = {
   { "allowed-UL-Rate"       , &hf_rnsap_allowed_UL_Rate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Allowed_Rate },
   { "allowed-DL-Rate"       , &hf_rnsap_allowed_DL_Rate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Allowed_Rate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6103,7 +6103,7 @@ static int dissect_downlinkCellCapacityClassValue(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t Cell_Capacity_Class_Value_sequence[] = {
   { "uplinkCellCapacityClassValue", &hf_rnsap_uplinkCellCapacityClassValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_100_ },
   { "downlinkCellCapacityClassValue", &hf_rnsap_downlinkCellCapacityClassValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_100_ },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6179,7 +6179,7 @@ static const per_sequence_t CN_CS_DomainIdentifier_sequence[] = {
   { "pLMN-Identity"         , &hf_rnsap_pLMN_Identity , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_PLMN_Identity },
   { "lAC"                   , &hf_rnsap_lAC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_LAC },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6215,7 +6215,7 @@ static const per_sequence_t CN_PS_DomainIdentifier_sequence[] = {
   { "lAC"                   , &hf_rnsap_lAC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_LAC },
   { "rAC"                   , &hf_rnsap_rAC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_RAC },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6448,7 +6448,7 @@ static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
   { "iE-ID"                 , &hf_rnsap_iE_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_ID },
   { "repetitionNumber"      , &hf_rnsap_repetitionNumber, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RepetitionNumber0 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6487,7 +6487,7 @@ static const per_sequence_t CriticalityDiagnostics_sequence[] = {
   { "transactionID"         , &hf_rnsap_transactionID , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransactionID },
   { "iEsCriticalityDiagnostics", &hf_rnsap_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CriticalityDiagnostics_IE_List },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6568,7 +6568,7 @@ static int dissect_contextType_Reset(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static const per_sequence_t ContextInfoItem_Reset_sequence[] = {
   { "contextType-Reset"     , &hf_rnsap_contextType_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ContextType_Reset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6622,7 +6622,7 @@ static int dissect_sRNTI_BitMaskIndex(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t S_RNTI_Group_sequence[] = {
   { "sRNTI"                 , &hf_rnsap_sRNTI         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_S_RNTI },
   { "sRNTI-BitMaskIndex"    , &hf_rnsap_sRNTI_BitMaskIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_T_sRNTI_BitMaskIndex },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6640,7 +6640,7 @@ static int dissect_s_RNTI_Group(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 static const per_sequence_t ContextGroupInfoItem_Reset_sequence[] = {
   { "s-RNTI-Group"          , &hf_rnsap_s_RNTI_Group  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_S_RNTI_Group },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6827,7 +6827,7 @@ static int dissect_transmissionTimeInterval(tvbuff_t *tvb, int offset, asn_ctx_t
 static const per_sequence_t TransmissionTimeIntervalInformation_item_sequence[] = {
   { "transmissionTimeInterval", &hf_rnsap_transmissionTimeInterval, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransmissionTimeIntervalDynamic },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6862,7 +6862,7 @@ static int dissect_transmissionTimeIntervalInformation(tvbuff_t *tvb, int offset
 static const per_sequence_t TDD_TransportFormatSet_ModeDP_sequence[] = {
   { "transmissionTimeIntervalInformation", &hf_rnsap_transmissionTimeIntervalInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmissionTimeIntervalInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -6991,7 +6991,7 @@ static const per_sequence_t TransportFormatSet_DynamicPartList_item_sequence[] =
   { "transportBlockSize"    , &hf_rnsap_transportBlockSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportBlockSize },
   { "mode"                  , &hf_rnsap_mode          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet_ModeDP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7171,7 +7171,7 @@ static const per_sequence_t TransportFormatSet_Semi_staticPart_sequence[] = {
   { "cRC-Size"              , &hf_rnsap_cRC_Size      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CRC_Size },
   { "mode"                  , &hf_rnsap_mode1         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet_ModeSSP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7190,7 +7190,7 @@ static const per_sequence_t TransportFormatSet_sequence[] = {
   { "dynamicParts"          , &hf_rnsap_dynamicParts  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet_DynamicPartList },
   { "semi-staticPart"       , &hf_rnsap_semi_staticPart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet_Semi_staticPart },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7292,7 +7292,7 @@ static const per_sequence_t AllocationRetentionPriority_sequence[] = {
   { "pre-emptionCapability" , &hf_rnsap_pre_emptionCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Pre_emptionCapability },
   { "pre-emptionVulnerability", &hf_rnsap_pre_emptionVulnerability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Pre_emptionVulnerability },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7376,7 +7376,7 @@ static const per_sequence_t DCH_Specific_FDD_Item_sequence[] = {
   { "qE-Selector"           , &hf_rnsap_qE_Selector   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_QE_Selector },
   { "dRACControl"           , &hf_rnsap_dRACControl   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DRACControl },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7415,7 +7415,7 @@ static const per_sequence_t DCH_FDD_InformationItem_sequence[] = {
   { "toAWE"                 , &hf_rnsap_toAWE         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ToAWE },
   { "dCH-SpecificInformationList", &hf_rnsap_dCH_SpecificInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_Specific_FDD_InformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7494,7 +7494,7 @@ static const per_sequence_t DCH_Specific_TDD_Item_sequence[] = {
   { "frameHandlingPriority" , &hf_rnsap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FrameHandlingPriority },
   { "qE-Selector"           , &hf_rnsap_qE_Selector   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_QE_Selector },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7533,7 +7533,7 @@ static const per_sequence_t DCH_TDD_InformationItem_sequence[] = {
   { "toAWE"                 , &hf_rnsap_toAWE         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ToAWE },
   { "dCH-SpecificInformationList", &hf_rnsap_dCH_SpecificInformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_Specific_TDD_InformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7571,7 +7571,7 @@ static int dissect_id_DCH_TDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t DCH_DeleteItem_RL_ReconfPrepFDD_sequence[] = {
   { "dCH-ID"                , &hf_rnsap_dCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7606,7 +7606,7 @@ static int dissect_id_DCH_DeleteList_RL_ReconfPrepFDD(tvbuff_t *tvb, int offset,
 static const per_sequence_t DCH_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
   { "dCH-ID"                , &hf_rnsap_dCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7641,7 +7641,7 @@ static int dissect_id_DCH_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb, int offset,
 static const per_sequence_t DCH_DeleteItem_RL_ReconfRqstFDD_sequence[] = {
   { "dCH-ID"                , &hf_rnsap_dCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7676,7 +7676,7 @@ static int dissect_id_DCH_DeleteList_RL_ReconfRqstFDD(tvbuff_t *tvb, int offset,
 static const per_sequence_t DCH_DeleteItem_RL_ReconfRqstTDD_sequence[] = {
   { "dCH-ID"                , &hf_rnsap_dCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7738,7 +7738,7 @@ static const per_sequence_t FDD_DCHs_to_ModifySpecificItem_sequence[] = {
   { "frameHandlingPriority" , &hf_rnsap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_FrameHandlingPriority },
   { "not-Used-dRACControl"  , &hf_rnsap_not_Used_dRACControl, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7777,7 +7777,7 @@ static const per_sequence_t FDD_DCHs_to_ModifyItem_sequence[] = {
   { "transportBearerRequestIndicator", &hf_rnsap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportBearerRequestIndicator },
   { "dCH-SpecificInformationList", &hf_rnsap_dCH_SpecificInformationList2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FDD_DCHs_to_ModifySpecificInformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7818,7 +7818,7 @@ static const per_sequence_t TDD_DCHs_to_ModifySpecificItem_sequence[] = {
   { "allocationRetentionPriority", &hf_rnsap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_AllocationRetentionPriority },
   { "frameHandlingPriority" , &hf_rnsap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_FrameHandlingPriority },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7857,7 +7857,7 @@ static const per_sequence_t TDD_DCHs_to_ModifyItem_sequence[] = {
   { "transportBearerRequestIndicator", &hf_rnsap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportBearerRequestIndicator },
   { "dCH-SpecificInformationList", &hf_rnsap_dCH_SpecificInformationList3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DCHs_to_ModifySpecificInformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7910,7 +7910,7 @@ static const per_sequence_t DCH_InformationResponseItem_sequence[] = {
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -7949,7 +7949,7 @@ static const per_sequence_t DCH_Rate_InformationItem_RL_CongestInd_sequence[] = 
   { "dCH-ID"                , &hf_rnsap_dCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_ID },
   { "allowed-Rate-Information", &hf_rnsap_allowed_Rate_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Allowed_Rate_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8129,7 +8129,7 @@ static const per_sequence_t T_signalledGainFactors_sequence[] = {
   { "betaD"                 , &hf_rnsap_betaD         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BetaCD },
   { "refTFCNumber"          , &hf_rnsap_refTFCNumber  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RefTFCNumber },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8173,7 +8173,7 @@ static const per_sequence_t TFCS_TFCSList_item_sequence[] = {
   { "cTFC"                  , &hf_rnsap_cTFC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCS_CTFC },
   { "tFC-Beta"              , &hf_rnsap_tFC_Beta      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportFormatCombination_Beta },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8233,7 +8233,7 @@ static int dissect_tFCSvalues(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t TFCS_sequence[] = {
   { "tFCSvalues"            , &hf_rnsap_tFCSvalues    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_tFCSvalues },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8297,7 +8297,7 @@ static int dissect_punctureLimit(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static const per_sequence_t CCTrCH_TPCAddItem_RL_ReconfPrepTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8336,7 +8336,7 @@ static const per_sequence_t DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD_sequen
   { "punctureLimit"         , &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PunctureLimit },
   { "cCTrCH-TPCList"        , &hf_rnsap_cCTrCH_TPCList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CCTrCH_TPCAddList_RL_ReconfPrepTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8582,7 +8582,7 @@ static const per_sequence_t DL_CCTrCH_InformationItem_RL_ReconfReadyTDD_sequence
   { "dl-DPCH-ModifyInformation", &hf_rnsap_dl_DPCH_ModifyInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_InformationModifyList_RL_ReconfReadyTDD },
   { "dl-DPCH-DeleteInformation", &hf_rnsap_dl_DPCH_DeleteInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_InformationDeleteList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8617,7 +8617,7 @@ static int dissect_id_DL_CCTrCH_InformationListIE_RL_ReconfReadyTDD(tvbuff_t *tv
 static const per_sequence_t DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8664,7 +8664,7 @@ static int dissect_downlinkStepSize(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 static const per_sequence_t CCTrCH_TPCItem_RL_SetupRqstTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8704,7 +8704,7 @@ static const per_sequence_t DL_CCTrCH_InformationItem_RL_SetupRqstTDD_sequence[]
   { "tdd-TPC-DownlinkStepSize", &hf_rnsap_tdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_TPC_DownlinkStepSize },
   { "cCTrCH-TPCList"        , &hf_rnsap_cCTrCH_TPCList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CCTrCH_TPCList_RL_SetupRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8738,7 +8738,7 @@ static const per_sequence_t DL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequenc
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "dl-DPCH-Information"   , &hf_rnsap_dl_DPCH_Information2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_DPCH_InformationList_PhyChReconfRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8786,7 +8786,7 @@ static const per_sequence_t DL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence[
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "dl-DPCH-Information"   , &hf_rnsap_dl_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_InformationList_RL_AdditionRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -8931,7 +8931,7 @@ static const per_sequence_t FDD_DL_CodeInformationItem_sequence[] = {
   { "fDD-DL-ChannelisationCodeNumber", &hf_rnsap_fDD_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FDD_DL_ChannelisationCodeNumber },
   { "transmission-Gap-Pattern-Sequence-ScramblingCode-Information", &hf_rnsap_transmission_Gap_Pattern_Sequence_ScramblingCode_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Transmission_Gap_Pattern_Sequence_ScramblingCode_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9077,7 +9077,7 @@ static const per_sequence_t DL_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
   { "multiplexingPosition"  , &hf_rnsap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MultiplexingPosition },
   { "limitedPowerIncrease"  , &hf_rnsap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_LimitedPowerIncrease },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9125,7 +9125,7 @@ static const per_sequence_t PowerOffsetInformation_RL_SetupRqstFDD_sequence[] = 
   { "po2-ForTPC-Bits"       , &hf_rnsap_po2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "po3-ForPilotBits"      , &hf_rnsap_po3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9198,7 +9198,7 @@ static const per_sequence_t DL_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
   { "limitedPowerIncrease"  , &hf_rnsap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_LimitedPowerIncrease },
   { "innerLoopDLPCStatus"   , &hf_rnsap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_InnerLoopDLPCStatus },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9218,7 +9218,7 @@ static const per_sequence_t DL_DPCH_Information_RL_ReconfRqstFDD_sequence[] = {
   { "tFCI-SignallingMode"   , &hf_rnsap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_SignallingMode },
   { "limitedPowerIncrease"  , &hf_rnsap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_LimitedPowerIncrease },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9380,7 +9380,7 @@ static int dissect_midambleAllocationMode(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t T_type1_sequence[] = {
   { "midambleConfigurationBurstType1And3", &hf_rnsap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleConfigurationBurstType1And3 },
   { "midambleAllocationMode", &hf_rnsap_midambleAllocationMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_midambleAllocationMode },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9457,7 +9457,7 @@ static int dissect_midambleAllocationMode1(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t T_type2_sequence[] = {
   { "midambleConfigurationBurstType2", &hf_rnsap_midambleConfigurationBurstType2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleConfigurationBurstType2 },
   { "midambleAllocationMode", &hf_rnsap_midambleAllocationMode1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_midambleAllocationMode1 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9500,7 +9500,7 @@ static int dissect_midambleAllocationMode2(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t T_type3_sequence[] = {
   { "midambleConfigurationBurstType1And3", &hf_rnsap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleConfigurationBurstType1And3 },
   { "midambleAllocationMode", &hf_rnsap_midambleAllocationMode2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_midambleAllocationMode2 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9613,7 +9613,7 @@ static const per_sequence_t TDD_DL_Code_InformationItem_sequence[] = {
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9651,7 +9651,7 @@ static const per_sequence_t DL_Timeslot_InformationItem_PhyChReconfRqstTDD_seque
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "dL-Code-Information"   , &hf_rnsap_dL_Code_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DL_Code_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9689,7 +9689,7 @@ static const per_sequence_t DL_DPCH_InformationItem_PhyChReconfRqstTDD_sequence[
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DPCHOffset },
   { "dL-Timeslot-InformationList-PhyChReconfRqstTDD", &hf_rnsap_dL_Timeslot_InformationList_PhyChReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Timeslot_InformationList_PhyChReconfRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9710,7 +9710,7 @@ static const per_sequence_t DL_Timeslot_InformationItem_sequence[] = {
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Presence },
   { "dL-Code-Information"   , &hf_rnsap_dL_Code_Information1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DL_Code_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9748,7 +9748,7 @@ static const per_sequence_t DL_DPCH_InformationItem_RL_AdditionRspTDD_sequence[]
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "dL-Timeslot-Information", &hf_rnsap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9769,7 +9769,7 @@ static const per_sequence_t DL_DPCH_InformationItem_RL_SetupRspTDD_sequence[] = 
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "dL-Timeslot-Information", &hf_rnsap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9925,7 +9925,7 @@ static const per_sequence_t DL_ReferencePowerInformation_DL_PC_Rqst_sequence[] =
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "dl-Reference-Power"    , &hf_rnsap_dl_Reference_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -9992,7 +9992,7 @@ static int dissect_rL_unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t *tvb
 static const per_sequence_t RL_DM_Fail_Ind_sequence[] = {
   { "rL-unsuccessful-InformationRespList-DM-Fail-Ind", &hf_rnsap_rL_unsuccessful_InformationRespList_DM_Fail_Ind, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail_Ind },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10030,7 +10030,7 @@ static int dissect_rL_Set_unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t 
 static const per_sequence_t RL_Set_DM_Fail_Ind_sequence[] = {
   { "rL-Set-unsuccessful-InformationRespList-DM-Fail-Ind", &hf_rnsap_rL_Set_unsuccessful_InformationRespList_DM_Fail_Ind, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10115,7 +10115,7 @@ static const per_sequence_t RL_DM_Fail_sequence[] = {
   { "rL-unsuccessful-InformationRespList-DM-Fail", &hf_rnsap_rL_unsuccessful_InformationRespList_DM_Fail, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail },
   { "rL-successful-InformationRespList-DM-Fail", &hf_rnsap_rL_successful_InformationRespList_DM_Fail, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_Successful_InformationRespList_DM_Fail },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10171,7 +10171,7 @@ static const per_sequence_t RL_Set_DM_Fail_sequence[] = {
   { "rL-Set-unsuccessful-InformationRespList-DM-Fail", &hf_rnsap_rL_Set_unsuccessful_InformationRespList_DM_Fail, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail },
   { "rL-Set-successful-InformationRespList-DM-Fail", &hf_rnsap_rL_Set_successful_InformationRespList_DM_Fail, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_Set_Successful_InformationRespList_DM_Fail },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10238,7 +10238,7 @@ static int dissect_rL_InformationList_DM_Rprt(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t RL_DM_Rprt_sequence[] = {
   { "rL-InformationList-DM-Rprt", &hf_rnsap_rL_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_InformationList_DM_Rprt },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10276,7 +10276,7 @@ static int dissect_rL_Set_InformationList_DM_Rprt(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t RL_Set_DM_Rprt_sequence[] = {
   { "rL-Set-InformationList-DM-Rprt", &hf_rnsap_rL_Set_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_InformationList_DM_Rprt },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10343,7 +10343,7 @@ static int dissect_rL_InformationList_DM_Rqst(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t RL_DM_Rqst_sequence[] = {
   { "rL-InformationList-DM-Rqst", &hf_rnsap_rL_InformationList_DM_Rqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_InformationList_DM_Rqst },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10378,7 +10378,7 @@ static int dissect_rL_Set_InformationList_DM_Rqst(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t RL_Set_DM_Rqst_sequence[] = {
   { "rL-Set-InformationList-DM-Rqst", &hf_rnsap_rL_Set_InformationList_DM_Rqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_InformationList_DM_Rqst },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10466,7 +10466,7 @@ static int dissect_rL_InformationList_DM_Rsp(tvbuff_t *tvb, int offset, asn_ctx_
 static const per_sequence_t RL_DM_Rsp_sequence[] = {
   { "rL-InformationList-DM-Rsp", &hf_rnsap_rL_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_InformationList_DM_Rsp },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10504,7 +10504,7 @@ static int dissect_rL_Set_InformationList_DM_Rsp(tvbuff_t *tvb, int offset, asn_
 static const per_sequence_t RL_Set_DM_Rsp_sequence[] = {
   { "rL-Set-InformationList-DM-Rsp", &hf_rnsap_rL_Set_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_InformationList_DM_Rsp },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10592,7 +10592,7 @@ static int dissect_fACH_FlowControlInformation(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_sequence[] = {
   { "fACH-FlowControlInformation", &hf_rnsap_fACH_FlowControlInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspFDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10622,7 +10622,7 @@ static int dissect_fACH_FlowControlInformation1(tvbuff_t *tvb, int offset, asn_c
 static const per_sequence_t FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD_sequence[] = {
   { "fACH-FlowControlInformation", &hf_rnsap_fACH_FlowControlInformation1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10657,7 +10657,7 @@ static const per_sequence_t Guaranteed_Rate_Information_sequence[] = {
   { "guaranteed-UL-Rate"    , &hf_rnsap_guaranteed_UL_Rate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Guaranteed_Rate },
   { "guaranteed-DL-Rate"    , &hf_rnsap_guaranteed_DL_Rate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Guaranteed_Rate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -10795,7 +10795,7 @@ static const per_sequence_t MessageStructure_item_sequence[] = {
   { "iE-ID"                 , &hf_rnsap_iE_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_ID },
   { "repetitionNumber"      , &hf_rnsap_repetitionNumber1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RepetitionNumber1 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11039,7 +11039,7 @@ static const per_sequence_t Neighbouring_FDD_CellInformationItem_sequence[] = {
   { "closedLoopMode1-SupportIndicator", &hf_rnsap_closedLoopMode1_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ClosedLoopMode1_SupportIndicator },
   { "not-used-closedLoopMode2-SupportIndicator", &hf_rnsap_not_used_closedLoopMode2_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11168,7 +11168,7 @@ static const per_sequence_t Neighbouring_TDD_CellInformationItem_sequence[] = {
   { "dPCHConstantValue"     , &hf_rnsap_dPCHConstantValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DPCHConstantValue },
   { "pCCPCH-Power"          , &hf_rnsap_pCCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PCCPCH_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11207,7 +11207,7 @@ static const per_sequence_t Neighbouring_UMTS_CellInformationItem_sequence[] = {
   { "neighbouring-FDD-CellInformation", &hf_rnsap_neighbouring_FDD_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_FDD_CellInformation },
   { "neighbouring-TDD-CellInformation", &hf_rnsap_neighbouring_TDD_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_TDD_CellInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11273,7 +11273,7 @@ static int dissect_ura_id(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 static const per_sequence_t URA_PagingRqst_sequence[] = {
   { "uRA-ID"                , &hf_rnsap_uRA_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_URA_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11291,7 +11291,7 @@ static int dissect_uRA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 static const per_sequence_t Cell_PagingRqst_sequence[] = {
   { "c-ID"                  , &hf_rnsap_c_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_C_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11409,7 +11409,7 @@ static const per_sequence_t FACH_FlowControlInformationItem_sequence[] = {
   { "mAC-c-sh-SDU-Lengths"  , &hf_rnsap_mAC_c_sh_SDU_Lengths, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MAC_c_sh_SDU_LengthList },
   { "fACH-InitialWindowSize", &hf_rnsap_fACH_InitialWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FACH_InitialWindowSize },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11534,7 +11534,7 @@ static const per_sequence_t RL_Information_PhyChReconfRqstFDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "dl-CodeInformation"    , &hf_rnsap_dl_CodeInformation3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_CodeInformationList_PhyChReconfRqstFDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11578,7 +11578,7 @@ static const per_sequence_t RL_Information_PhyChReconfRqstTDD_sequence[] = {
   { "ul-CCTrCH-Information" , &hf_rnsap_ul_CCTrCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_CCTrCH_InformationList_PhyChReconfRqstTDD },
   { "dl-CCTrCH-Information" , &hf_rnsap_dl_CCTrCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_CCTrCH_InformationList_PhyChReconfRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11668,7 +11668,7 @@ static const per_sequence_t RL_Information_RL_AdditionRqstFDD_sequence[] = {
   { "not-Used-sSDT-CellID"  , &hf_rnsap_not_Used_sSDT_CellID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "transmitDiversityIndicator", &hf_rnsap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmitDiversityIndicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11719,7 +11719,7 @@ static const per_sequence_t DL_TimeSlot_ISCP_InfoItem_sequence[] = {
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "dL-TimeslotISCP"       , &hf_rnsap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotISCP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11768,7 +11768,7 @@ static const per_sequence_t RL_Information_RL_AdditionRqstTDD_sequence[] = {
   { "primaryCCPCH-RSCP"     , &hf_rnsap_primaryCCPCH_RSCP, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PrimaryCCPCH_RSCP },
   { "dL-TimeSlot-ISCP-Info" , &hf_rnsap_dL_TimeSlot_ISCP_Info, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_TimeSlot_ISCP_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11786,7 +11786,7 @@ static int dissect_id_RL_Information_RL_AdditionRqstTDD(tvbuff_t *tvb, int offse
 static const per_sequence_t RL_Information_RL_DeletionRqst_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11805,7 +11805,7 @@ static const per_sequence_t RL_Information_RL_FailureInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11826,7 +11826,7 @@ static const per_sequence_t RL_Information_RL_ReconfPrepFDD_sequence[] = {
   { "not-Used-sSDT-CellIdentity", &hf_rnsap_not_Used_sSDT_CellIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "transmitDiversityIndicator", &hf_rnsap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmitDiversityIndicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11844,7 +11844,7 @@ static int dissect_id_RL_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int offset,
 static const per_sequence_t RL_Information_RL_RestoreInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11897,7 +11897,7 @@ static const per_sequence_t RL_Information_RL_SetupRqstTDD_sequence[] = {
   { "primaryCCPCH-RSCP"     , &hf_rnsap_primaryCCPCH_RSCP, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PrimaryCCPCH_RSCP },
   { "dL-TimeSlot-ISCP"      , &hf_rnsap_dL_TimeSlot_ISCP, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_TimeSlot_ISCP_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -11933,7 +11933,7 @@ static const per_sequence_t RL_InformationItem_RL_CongestInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "dCH-Rate-Information"  , &hf_rnsap_dCH_Rate_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_Rate_Information_RL_CongestInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12098,7 +12098,7 @@ static const per_sequence_t DedicatedMeasurementAvailable_sequence[] = {
   { "dedicatedmeasurementValue", &hf_rnsap_dedicatedmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "cFN"                   , &hf_rnsap_cFN           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12155,7 +12155,7 @@ static const per_sequence_t RL_InformationItem_DM_Rprt_sequence[] = {
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DPCH_ID },
   { "dedicatedMeasurementValueInformation", &hf_rnsap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValueInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12174,7 +12174,7 @@ static const per_sequence_t RL_InformationItem_DM_Rqst_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DPCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12195,7 +12195,7 @@ static const per_sequence_t RL_InformationItem_DM_Rsp_sequence[] = {
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "cFN"                   , &hf_rnsap_cFN           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12213,7 +12213,7 @@ static int dissect_id_RL_InformationItem_DM_Rsp(tvbuff_t *tvb, int offset, asn_c
 static const per_sequence_t RL_InformationItem_RL_PreemptRequiredInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12282,7 +12282,7 @@ static const per_sequence_t RL_InformationItem_RL_SetupRqstFDD_sequence[] = {
   { "not-Used-sSDT-CellID"  , &hf_rnsap_not_Used_sSDT_CellID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "transmitDiversityIndicator", &hf_rnsap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmitDiversityIndicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12404,7 +12404,7 @@ static int dissect_multipleURAsIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t RNCsWithCellsInTheAccessedURA_Item_sequence[] = {
   { "rNC-ID"                , &hf_rnsap_rNC_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RNC_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12441,7 +12441,7 @@ static const per_sequence_t URA_Information_sequence[] = {
   { "multipleURAsIndicator" , &hf_rnsap_multipleURAsIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MultipleURAsIndicator },
   { "rNCsWithCellsInTheAccessedURA-List", &hf_rnsap_rNCsWithCellsInTheAccessedURA_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RNCsWithCellsInTheAccessedURA_List },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12477,7 +12477,7 @@ static const per_sequence_t SAI_sequence[] = {
   { "lAC"                   , &hf_rnsap_lAC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_LAC },
   { "sAC"                   , &hf_rnsap_sAC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_SAC },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12545,7 +12545,7 @@ static const per_sequence_t GeographicalCoordinate_sequence[] = {
   { "latitude"              , &hf_rnsap_latitude      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_8388607 },
   { "longitude"             , &hf_rnsap_longitude     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_M8388608_8388607 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12569,7 +12569,7 @@ static int dissect_geographicalCoordinate(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t GA_Cell_item_sequence[] = {
   { "cell-GAIgeographicalCoordinate", &hf_rnsap_cell_GAIgeographicalCoordinate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12607,7 +12607,7 @@ static int dissect_gA_Cell(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static const per_sequence_t GA_AccessPointPosition_sequence[] = {
   { "geographicalCoordinate", &hf_rnsap_geographicalCoordinate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12642,7 +12642,7 @@ static const per_sequence_t UL_TimeSlot_ISCP_InfoItem_sequence[] = {
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "uL-TimeslotISCP"       , &hf_rnsap_uL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_TimeslotISCP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12793,7 +12793,7 @@ static const per_sequence_t SynchronisationConfiguration_sequence[] = {
   { "n-OUTSYNC-IND"         , &hf_rnsap_n_OUTSYNC_IND , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_256 },
   { "t-RLFAILURE"           , &hf_rnsap_t_RLFAILURE   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_255 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12811,7 +12811,7 @@ static int dissect_synchronisationConfiguration(tvbuff_t *tvb, int offset, asn_c
 static const per_sequence_t Secondary_CCPCH_TDD_Code_InformationItem_sequence[] = {
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12865,7 +12865,7 @@ static const per_sequence_t Secondary_CCPCH_TDD_InformationItem_sequence[] = {
   { "repetitionLength"      , &hf_rnsap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RepetitionLength },
   { "repetitionPeriod"      , &hf_rnsap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RepetitionPeriod },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12900,7 +12900,7 @@ static int dissect_secondary_CCPCH_TDD_InformationList(tvbuff_t *tvb, int offset
 static const per_sequence_t FACH_InformationItem_sequence[] = {
   { "transportFormatSet"    , &hf_rnsap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12935,7 +12935,7 @@ static int dissect_fACH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t PCH_InformationItem_sequence[] = {
   { "transportFormatSet"    , &hf_rnsap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -12974,7 +12974,7 @@ static const per_sequence_t Secondary_CCPCH_Info_TDD_sequence[] = {
   { "fACH-InformationList"  , &hf_rnsap_fACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FACH_InformationList },
   { "pCH-InformationList"   , &hf_rnsap_pCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PCH_InformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13016,7 +13016,7 @@ static int dissect_dl_CCTrCHInformation1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t Combining_RL_AdditionRspTDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13034,7 +13034,7 @@ static int dissect_combining3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t NonCombining_RL_AdditionRspTDD_sequence[] = {
   { "dCH-InformationResponse", &hf_rnsap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_InformationResponse },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13077,7 +13077,7 @@ static int dissect_diversityIndication3(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t DCH_Information_RL_AdditionRspTDD_sequence[] = {
   { "diversityIndication"   , &hf_rnsap_diversityIndication3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DiversityIndication_RL_AdditionRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13159,7 +13159,7 @@ static const per_sequence_t RL_InformationResponse_RL_AdditionRspTDD_sequence[] 
   { "neighbouring-UMTS-CellInformation", &hf_rnsap_neighbouring_UMTS_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_UMTS_CellInformation },
   { "neighbouring-GSM-CellInformation", &hf_rnsap_neighbouring_GSM_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_GSM_CellInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13247,7 +13247,7 @@ static const per_sequence_t RL_InformationResponse_RL_ReconfReadyTDD_sequence[] 
   { "dSCHsToBeAddedOrModified", &hf_rnsap_dSCHsToBeAddedOrModified, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DSCHToBeAddedOrModified_RL_ReconfReadyTDD },
   { "uSCHsToBeAddedOrModified", &hf_rnsap_uSCHsToBeAddedOrModified, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_USCHToBeAddedOrModified_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13356,7 +13356,7 @@ static const per_sequence_t RL_InformationResponse_RL_SetupRspTDD_sequence[] = {
   { "neighbouring-UMTS-CellInformation", &hf_rnsap_neighbouring_UMTS_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_UMTS_CellInformation },
   { "neighbouring-GSM-CellInformation", &hf_rnsap_neighbouring_GSM_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_GSM_CellInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13415,7 +13415,7 @@ static int dissect_dl_CodeInformation1(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t Combining_RL_AdditionRspFDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13433,7 +13433,7 @@ static int dissect_combining2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t NonCombining_RL_AdditionRspFDD_sequence[] = {
   { "dCH-InformationResponse", &hf_rnsap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_InformationResponse },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13561,7 +13561,7 @@ static const per_sequence_t RL_InformationResponseItem_RL_AdditionRspFDD_sequenc
   { "sRB-Delay"             , &hf_rnsap_sRB_Delay     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SRB_Delay },
   { "primaryCPICH-Power"    , &hf_rnsap_primaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PrimaryCPICH_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13611,7 +13611,7 @@ static const per_sequence_t RL_InformationResponseItem_RL_ReconfReadyFDD_sequenc
   { "dCHInformationResponse", &hf_rnsap_dCHInformationResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DCH_InformationResponseList_RL_ReconfReadyFDD },
   { "not-Used-dSCHsToBeAddedOrModified", &hf_rnsap_not_Used_dSCHsToBeAddedOrModified, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13660,7 +13660,7 @@ static const per_sequence_t RL_InformationResponseItem_RL_ReconfRspFDD_sequence[
   { "dCHsInformationResponseList", &hf_rnsap_dCHsInformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspFDD },
   { "dL-CodeInformationList-RL-ReconfResp", &hf_rnsap_dL_CodeInformationList_RL_ReconfResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_CodeInformationList_RL_ReconfRspFDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13678,7 +13678,7 @@ static int dissect_id_RL_InformationResponseItem_RL_ReconfRspFDD(tvbuff_t *tvb, 
 static const per_sequence_t Combining_RL_SetupRspFDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13696,7 +13696,7 @@ static int dissect_combining(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupRspFDD_sequence[] = {
   { "dCH-InformationResponse", &hf_rnsap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_InformationResponse },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13764,7 +13764,7 @@ static const per_sequence_t RL_InformationResponseItem_RL_SetupRspFDD_sequence[]
   { "pC-Preamble"           , &hf_rnsap_pC_Preamble   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PC_Preamble },
   { "sRB-Delay"             , &hf_rnsap_sRB_Delay     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SRB_Delay },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13850,7 +13850,7 @@ static const per_sequence_t RL_InformationResponse_RL_ReconfRspTDD_sequence[] = 
   { "minimumDLTxPower"      , &hf_rnsap_minimumDLTxPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "dCHsInformationResponseList", &hf_rnsap_dCHsInformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13889,7 +13889,7 @@ static const per_sequence_t RL_ReconfigurationFailure_RL_ReconfFail_sequence[] =
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13908,7 +13908,7 @@ static const per_sequence_t RL_Set_InformationItem_DM_Rprt_sequence[] = {
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "dedicatedMeasurementValueInformation", &hf_rnsap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValueInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13926,7 +13926,7 @@ static int dissect_id_RL_Set_InformationItem_DM_Rprt(tvbuff_t *tvb, int offset, 
 static const per_sequence_t RL_Set_InformationItem_DM_Rqst_sequence[] = {
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13946,7 +13946,7 @@ static const per_sequence_t RL_Set_InformationItem_DM_Rsp_sequence[] = {
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "cFN"                   , &hf_rnsap_cFN           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13965,7 +13965,7 @@ static const per_sequence_t RL_Set_Information_RL_FailureInd_sequence[] = {
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -13983,7 +13983,7 @@ static int dissect_id_RL_Set_Information_RL_FailureInd(tvbuff_t *tvb, int offset
 static const per_sequence_t RL_Set_Information_RL_RestoreInd_sequence[] = {
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14003,7 +14003,7 @@ static const per_sequence_t RL_Set_Successful_InformationItem_DM_Fail_sequence[]
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "cFN"                   , &hf_rnsap_cFN           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14022,7 +14022,7 @@ static const per_sequence_t RL_Set_Unsuccessful_InformationItem_DM_Fail_sequence
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "individualcause"       , &hf_rnsap_individualcause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14041,7 +14041,7 @@ static const per_sequence_t RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind_sequ
   { "rL-Set-ID"             , &hf_rnsap_rL_Set_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_ID },
   { "individualcause"       , &hf_rnsap_individualcause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14062,7 +14062,7 @@ static const per_sequence_t RL_Successful_InformationItem_DM_Fail_sequence[] = {
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "cFN"                   , &hf_rnsap_cFN           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14081,7 +14081,7 @@ static const per_sequence_t RL_Unsuccessful_InformationItem_DM_Fail_sequence[] =
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "individualcause"       , &hf_rnsap_individualcause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14100,7 +14100,7 @@ static const per_sequence_t RL_Unsuccessful_InformationItem_DM_Fail_Ind_sequence
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "individualcause"       , &hf_rnsap_individualcause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14169,7 +14169,7 @@ static int dissect_reportPeriodicity(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 static const per_sequence_t Periodic_sequence[] = {
   { "reportPeriodicity"     , &hf_rnsap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ReportPeriodicity },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14257,7 +14257,7 @@ static const per_sequence_t EventA_sequence[] = {
   { "measurementTreshold"   , &hf_rnsap_measurementTreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementThreshold },
   { "measurementHysteresisTime", &hf_rnsap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MeasurementHysteresisTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14276,7 +14276,7 @@ static const per_sequence_t EventB_sequence[] = {
   { "measurementTreshold"   , &hf_rnsap_measurementTreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementThreshold },
   { "measurementHysteresisTime", &hf_rnsap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MeasurementHysteresisTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14418,7 +14418,7 @@ static const per_sequence_t EventC_sequence[] = {
   { "measurementIncreaseDecreaseThreshold", &hf_rnsap_measurementIncreaseDecreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementIncreaseDecreaseThreshold },
   { "measurementChangeTime" , &hf_rnsap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementChangeTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14437,7 +14437,7 @@ static const per_sequence_t EventD_sequence[] = {
   { "measurementIncreaseDecreaseThreshold", &hf_rnsap_measurementIncreaseDecreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementIncreaseDecreaseThreshold },
   { "measurementChangeTime" , &hf_rnsap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementChangeTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14458,7 +14458,7 @@ static const per_sequence_t EventE_sequence[] = {
   { "measurementHysteresisTime", &hf_rnsap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MeasurementHysteresisTime },
   { "reportPeriodicity"     , &hf_rnsap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ReportPeriodicity },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14479,7 +14479,7 @@ static const per_sequence_t EventF_sequence[] = {
   { "measurementHysteresisTime", &hf_rnsap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MeasurementHysteresisTime },
   { "reportPeriodicity"     , &hf_rnsap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ReportPeriodicity },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14565,7 +14565,7 @@ static int dissect_rL_InformationList_RL_FailureInd(tvbuff_t *tvb, int offset, a
 static const per_sequence_t RL_RL_FailureInd_sequence[] = {
   { "rL-InformationList-RL-FailureInd", &hf_rnsap_rL_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_InformationList_RL_FailureInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14600,7 +14600,7 @@ static int dissect_rL_Set_InformationList_RL_FailureInd(tvbuff_t *tvb, int offse
 static const per_sequence_t RL_Set_RL_FailureInd_sequence[] = {
   { "rL-Set-InformationList-RL-FailureInd", &hf_rnsap_rL_Set_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_InformationList_RL_FailureInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14636,7 +14636,7 @@ static const per_sequence_t CCTrCH_RL_FailureInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cCTrCH-InformationList-RL-FailureInd", &hf_rnsap_cCTrCH_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_InformationList_RL_FailureInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14698,7 +14698,7 @@ static int dissect_rL_InformationList_RL_RestoreInd(tvbuff_t *tvb, int offset, a
 static const per_sequence_t RL_RL_RestoreInd_sequence[] = {
   { "rL-InformationList-RL-RestoreInd", &hf_rnsap_rL_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_InformationList_RL_RestoreInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14733,7 +14733,7 @@ static int dissect_rL_Set_InformationList_RL_RestoreInd(tvbuff_t *tvb, int offse
 static const per_sequence_t RL_Set_RL_RestoreInd_sequence[] = {
   { "rL-Set-InformationList-RL-RestoreInd", &hf_rnsap_rL_Set_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_Set_InformationList_RL_RestoreInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14769,7 +14769,7 @@ static const per_sequence_t CCTrCH_RL_RestoreInd_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cCTrCH-InformationList-RL-RestoreInd", &hf_rnsap_cCTrCH_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_InformationList_RL_RestoreInd },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14857,7 +14857,7 @@ static int dissect_contextInfoList_Reset(tvbuff_t *tvb, int offset, asn_ctx_t *a
 static const per_sequence_t ContextList_Reset_sequence[] = {
   { "contextInfoList-Reset" , &hf_rnsap_contextInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ContextInfoList_Reset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14892,7 +14892,7 @@ static int dissect_contextGroupInfoList_Reset(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t ContextGroupList_Reset_sequence[] = {
   { "contextGroupInfoList-Reset", &hf_rnsap_contextGroupInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ContextGroupInfoList_Reset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14949,7 +14949,7 @@ static int dissect_dl_CodeInformation2(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t Combining_RL_AdditionFailureFDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -14967,7 +14967,7 @@ static int dissect_combining4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t NonCombining_RL_AdditionFailureFDD_sequence[] = {
   { "dCH-InformationResponse", &hf_rnsap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_InformationResponse },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15031,7 +15031,7 @@ static const per_sequence_t SuccessfulRL_InformationResponse_RL_AdditionFailureF
   { "pC-Preamble"           , &hf_rnsap_pC_Preamble   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PC_Preamble },
   { "sRB-Delay"             , &hf_rnsap_sRB_Delay     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SRB_Delay },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15049,7 +15049,7 @@ static int dissect_id_SuccessfulRL_InformationResponse_RL_AdditionFailureFDD(tvb
 static const per_sequence_t Combining_RL_SetupFailureFDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15067,7 +15067,7 @@ static int dissect_combining1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupFailureFDD_sequence[] = {
   { "dCH-InformationResponse", &hf_rnsap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DCH_InformationResponse },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15135,7 +15135,7 @@ static const per_sequence_t SuccessfulRL_InformationResponse_RL_SetupFailureFDD_
   { "pC-Preamble"           , &hf_rnsap_pC_Preamble   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PC_Preamble },
   { "sRB-Delay"             , &hf_rnsap_sRB_Delay     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SRB_Delay },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15186,7 +15186,7 @@ static const per_sequence_t UC_ID_sequence[] = {
   { "rNC-ID"                , &hf_rnsap_rNC_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RNC_ID },
   { "c-ID"                  , &hf_rnsap_c_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_C_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15210,7 +15210,7 @@ static const per_sequence_t UL_CCTrCH_AddInformation_RL_ReconfPrepTDD_sequence[]
   { "tFCI-Coding"           , &hf_rnsap_tFCI_Coding   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Coding },
   { "punctureLimit"         , &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PunctureLimit },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15248,7 +15248,7 @@ static const per_sequence_t UL_CCTrCH_InformationItem_RL_SetupRqstTDD_sequence[]
   { "tFCI-Coding"           , &hf_rnsap_tFCI_Coding   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Coding },
   { "ul-PunctureLimit"      , &hf_rnsap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PunctureLimit },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15296,7 +15296,7 @@ static const per_sequence_t UL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequenc
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "ul-DPCH-Information"   , &hf_rnsap_ul_DPCH_Information2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_DPCH_InformationList_PhyChReconfRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15344,7 +15344,7 @@ static const per_sequence_t UL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence[
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "ul-DPCH-Information"   , &hf_rnsap_ul_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_InformationList_RL_AdditionRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15418,7 +15418,7 @@ static const per_sequence_t UL_CCTrCH_InformationItem_RL_ReconfReadyTDD_sequence
   { "ul-DPCH-ModifyInformation", &hf_rnsap_ul_DPCH_ModifyInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_InformationModifyList_RL_ReconfReadyTDD },
   { "ul-DPCH-DeleteInformation", &hf_rnsap_ul_DPCH_DeleteInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_InformationDeleteList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15466,7 +15466,7 @@ static const per_sequence_t UL_CCTrCHInformationItem_RL_SetupRspTDD_sequence[] =
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "ul-DPCH-Information"   , &hf_rnsap_ul_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_InformationList_RL_SetupRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15534,7 +15534,7 @@ static const per_sequence_t UL_ScramblingCode_sequence[] = {
   { "ul-ScramblingCodeNumber", &hf_rnsap_ul_ScramblingCodeNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_ScramblingCodeNumber },
   { "ul-ScramblingCodeLength", &hf_rnsap_ul_ScramblingCodeLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_ScramblingCodeLength },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15635,7 +15635,7 @@ static const per_sequence_t UL_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
   { "not-Used-sSDT-CellIDLength", &hf_rnsap_not_Used_sSDT_CellIDLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "not-Used-s-FieldLength", &hf_rnsap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15653,7 +15653,7 @@ static int dissect_id_UL_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int of
 static const per_sequence_t UL_DPCH_Information_RL_ReconfRqstFDD_sequence[] = {
   { "tFCS"                  , &hf_rnsap_tFCS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCS },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15680,7 +15680,7 @@ static const per_sequence_t UL_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
   { "not-Used-sSDT-CellIdLength", &hf_rnsap_not_Used_sSDT_CellIdLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "not-Used-s-FieldLength", &hf_rnsap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NULL },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15699,7 +15699,7 @@ static const per_sequence_t TDD_UL_Code_InformationItem_sequence[] = {
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15737,7 +15737,7 @@ static const per_sequence_t UL_Timeslot_InformationItem_PhyChReconfRqstTDD_seque
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "uL-Code-Information"   , &hf_rnsap_uL_Code_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_UL_Code_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15775,7 +15775,7 @@ static const per_sequence_t UL_DPCH_InformationItem_PhyChReconfRqstTDD_sequence[
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DPCHOffset },
   { "uL-Timeslot-InformationList-PhyChReconfRqstTDD", &hf_rnsap_uL_Timeslot_InformationList_PhyChReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_Timeslot_InformationList_PhyChReconfRqstTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15796,7 +15796,7 @@ static const per_sequence_t UL_Timeslot_InformationItem_sequence[] = {
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Presence },
   { "uL-Code-Information"   , &hf_rnsap_uL_Code_Information1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_UL_Code_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15834,7 +15834,7 @@ static const per_sequence_t UL_DPCH_InformationItem_RL_AdditionRspTDD_sequence[]
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "uL-Timeslot-Information", &hf_rnsap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15855,7 +15855,7 @@ static const per_sequence_t UL_DPCH_InformationItem_RL_SetupRspTDD_sequence[] = 
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "uL-Timeslot-Information", &hf_rnsap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15893,7 +15893,7 @@ static const per_sequence_t UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD_seque
   { "rxTimingDeviationForTA", &hf_rnsap_rxTimingDeviationForTA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RxTimingDeviationForTA },
   { "uL-Timeslot-Information", &hf_rnsap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15912,7 +15912,7 @@ static const per_sequence_t UnsuccessfulRL_InformationResponse_RL_AdditionFailur
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15931,7 +15931,7 @@ static const per_sequence_t UnsuccessfulRL_InformationResponse_RL_SetupFailureFD
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15950,7 +15950,7 @@ static const per_sequence_t UnsuccessfulRL_InformationResponse_RL_SetupFailureTD
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -15996,7 +15996,7 @@ static const per_sequence_t Transmission_Gap_Pattern_Sequence_Status_List_item_s
   { "tGPRC"                 , &hf_rnsap_tGPRC         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TGPRC },
   { "tGCFN"                 , &hf_rnsap_tGCFN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CFN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16032,7 +16032,7 @@ static const per_sequence_t Active_Pattern_Sequence_Information_sequence[] = {
   { "cMConfigurationChangeCFN", &hf_rnsap_cMConfigurationChangeCFN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CFN },
   { "transmission-Gap-Pattern-Sequence-Status", &hf_rnsap_transmission_Gap_Pattern_Sequence_Status, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Transmission_Gap_Pattern_Sequence_Status_List },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16066,7 +16066,7 @@ static int dissect_adjustmentRatio(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureFDD_sequence[] = {
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16119,7 +16119,7 @@ static const per_sequence_t RLSpecificCauseList_RL_AdditionFailureFDD_sequence[]
   { "unsuccessful-RL-InformationRespList-RL-AdditionFailureFDD", &hf_rnsap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD },
   { "successful-RL-InformationRespList-RL-AdditionFailureFDD", &hf_rnsap_successful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16162,7 +16162,7 @@ static int dissect_id_CauseLevel_RL_AdditionFailureFDD(tvbuff_t *tvb, int offset
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureTDD_sequence[] = {
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16192,7 +16192,7 @@ static int dissect_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD(tvb
 static const per_sequence_t RLSpecificCauseList_RL_AdditionFailureTDD_sequence[] = {
   { "unsuccessful-RL-InformationRespItem-RL-AdditionFailureTDD", &hf_rnsap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16235,7 +16235,7 @@ static int dissect_id_CauseLevel_RL_AdditionFailureTDD(tvbuff_t *tvb, int offset
 static const per_sequence_t GeneralCauseList_RL_ReconfFailure_sequence[] = {
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16270,7 +16270,7 @@ static int dissect_rL_ReconfigurationFailureList_RL_ReconfFailure(tvbuff_t *tvb,
 static const per_sequence_t RLSpecificCauseList_RL_ReconfFailure_sequence[] = {
   { "rL-ReconfigurationFailureList-RL-ReconfFailure", &hf_rnsap_rL_ReconfigurationFailureList_RL_ReconfFailure, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_ReconfigurationFailureList_RL_ReconfFailure },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16313,7 +16313,7 @@ static int dissect_id_CauseLevel_RL_ReconfFailure(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t GeneralCauseList_RL_SetupFailureFDD_sequence[] = {
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16366,7 +16366,7 @@ static const per_sequence_t RLSpecificCauseList_RL_SetupFailureFDD_sequence[] = 
   { "unsuccessful-RL-InformationRespList-RL-SetupFailureFDD", &hf_rnsap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD },
   { "successful-RL-InformationRespList-RL-SetupFailureFDD", &hf_rnsap_successful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_SuccessfulRL_InformationResponseList_RL_SetupFailureFDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16409,7 +16409,7 @@ static int dissect_id_CauseLevel_RL_SetupFailureFDD(tvbuff_t *tvb, int offset, a
 static const per_sequence_t GeneralCauseList_RL_SetupFailureTDD_sequence[] = {
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16439,7 +16439,7 @@ static int dissect_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD(tvbuff
 static const per_sequence_t RLSpecificCauseList_RL_SetupFailureTDD_sequence[] = {
   { "unsuccessful-RL-InformationRespItem-RL-SetupFailureTDD", &hf_rnsap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16482,7 +16482,7 @@ static int dissect_id_CauseLevel_RL_SetupFailureTDD(tvbuff_t *tvb, int offset, a
 static const per_sequence_t DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16500,7 +16500,7 @@ static int dissect_id_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD(tvbuff_t 
 static const per_sequence_t CCTrCH_TPCModifyItem_RL_ReconfPrepTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16539,7 +16539,7 @@ static const per_sequence_t DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD_seq
   { "punctureLimit"         , &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PunctureLimit },
   { "cCTrCH-TPCList"        , &hf_rnsap_cCTrCH_TPCList2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16558,7 +16558,7 @@ static const per_sequence_t DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_seq
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "tFCS"                  , &hf_rnsap_tFCS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCS },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16630,7 +16630,7 @@ static const per_sequence_t DL_DPCH_InformationAddListIE_RL_ReconfReadyTDD_seque
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "dL-Timeslot-Information", &hf_rnsap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_Timeslot_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16648,7 +16648,7 @@ static int dissect_id_DL_DPCH_InformationAddListIE_RL_ReconfReadyTDD(tvbuff_t *t
 static const per_sequence_t DL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD_sequence[] = {
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16684,7 +16684,7 @@ static const per_sequence_t TDD_DL_Code_InformationModifyItem_RL_ReconfReadyTDD_
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16722,7 +16722,7 @@ static const per_sequence_t DL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD_
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "dL-Code-Information"   , &hf_rnsap_dL_Code_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16760,7 +16760,7 @@ static const per_sequence_t DL_DPCH_InformationModifyListIE_RL_ReconfReadyTDD_se
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DPCHOffset },
   { "dL-Timeslot-InformationModifyList-RL-ReconfReadyTDD", &hf_rnsap_dL_Timeslot_InformationModifyList_RL_ReconfReadyTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16800,7 +16800,7 @@ static const per_sequence_t DSCH_TDD_InformationItem_sequence[] = {
   { "schedulingPriorityIndicator", &hf_rnsap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SchedulingPriorityIndicator },
   { "bLER"                  , &hf_rnsap_bLER          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BLER },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16838,7 +16838,7 @@ static int dissect_id_DSCH_TDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t DSCH_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
   { "dSCH-ID"               , &hf_rnsap_dSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DSCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16893,7 +16893,7 @@ static const per_sequence_t DSCH_FlowControlItem_sequence[] = {
   { "dSCH-SchedulingPriority", &hf_rnsap_dSCH_SchedulingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SchedulingPriorityIndicator },
   { "mAC-c-sh-SDU-Lengths"  , &hf_rnsap_mAC_c_sh_SDU_Lengths, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MAC_c_sh_SDU_LengthList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16929,7 +16929,7 @@ static const per_sequence_t DiversityIndication_RL_AdditionRspTDD2_sequence[] = 
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16950,7 +16950,7 @@ static const per_sequence_t DSCHInformationItem_RL_AdditionRspTDD_sequence[] = {
   { "dSCH-FlowControlInformation", &hf_rnsap_dSCH_FlowControlInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DSCH_FlowControlInformation },
   { "diversityIndication"   , &hf_rnsap_diversityIndication4, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DiversityIndication_RL_AdditionRspTDD2 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -16989,7 +16989,7 @@ static const per_sequence_t DSCHInformationItem_RL_SetupRspTDD_sequence[] = {
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17031,7 +17031,7 @@ static const per_sequence_t DSCH_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
   { "bLER"                  , &hf_rnsap_bLER          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BLER },
   { "transportBearerRequestIndicator", &hf_rnsap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportBearerRequestIndicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17070,7 +17070,7 @@ static const per_sequence_t DSCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD_sequen
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17106,7 +17106,7 @@ static const per_sequence_t GA_PointWithUnCertainty_sequence[] = {
   { "geographicalCoordinates", &hf_rnsap_geographicalCoordinates, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "uncertaintyCode"       , &hf_rnsap_uncertaintyCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17144,7 +17144,7 @@ static const per_sequence_t GA_UncertaintyEllipse_sequence[] = {
   { "uncertaintySemi-major" , &hf_rnsap_uncertaintySemi_major, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "uncertaintySemi-minor" , &hf_rnsap_uncertaintySemi_minor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "orientationOfMajorAxis", &hf_rnsap_orientationOfMajorAxis, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_179 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17164,7 +17164,7 @@ static const per_sequence_t GA_PointWithUnCertaintyEllipse_sequence[] = {
   { "uncertaintyEllipse"    , &hf_rnsap_uncertaintyEllipse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GA_UncertaintyEllipse },
   { "confidence"            , &hf_rnsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17201,7 +17201,7 @@ static int dissect_directionOfAltitude(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t GA_AltitudeAndDirection_sequence[] = {
   { "directionOfAltitude"   , &hf_rnsap_directionOfAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_directionOfAltitude },
   { "altitude"              , &hf_rnsap_altitude      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_32767 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17220,7 +17220,7 @@ static const per_sequence_t GA_PointWithAltitude_sequence[] = {
   { "geographicalCoordinates", &hf_rnsap_geographicalCoordinates, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "altitudeAndDirection"  , &hf_rnsap_altitudeAndDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GA_AltitudeAndDirection },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17242,7 +17242,7 @@ static const per_sequence_t GA_PointWithAltitudeAndUncertaintyEllipsoid_sequence
   { "uncertaintyAltitude"   , &hf_rnsap_uncertaintyAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "confidence"            , &hf_rnsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17265,7 +17265,7 @@ static const per_sequence_t GA_EllipsoidArc_sequence[] = {
   { "includedAngle"         , &hf_rnsap_includedAngle , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_179 },
   { "confidence"            , &hf_rnsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17486,7 +17486,7 @@ static const per_sequence_t Transmission_Gap_Pattern_Sequence_Information_item_s
   { "delta-SIR2"            , &hf_rnsap_delta_SIR2    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DeltaSIR },
   { "delta-SIR-after2"      , &hf_rnsap_delta_SIR_after2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DeltaSIR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17521,7 +17521,7 @@ static int dissect_id_Transmission_Gap_Pattern_Sequence_Information(tvbuff_t *tv
 static const per_sequence_t UL_CCTrCH_DeleteInformation_RL_ReconfPrepTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17542,7 +17542,7 @@ static const per_sequence_t UL_CCTrCH_ModifyInformation_RL_ReconfPrepTDD_sequenc
   { "tFCI-Coding"           , &hf_rnsap_tFCI_Coding   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Coding },
   { "punctureLimit"         , &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PunctureLimit },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17561,7 +17561,7 @@ static const per_sequence_t UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_seq
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "tFCS"                  , &hf_rnsap_tFCS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCS },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17630,7 +17630,7 @@ static int dissect_id_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t 
 static const per_sequence_t UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17665,7 +17665,7 @@ static int dissect_id_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvbuff_t 
 static const per_sequence_t UL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD_sequence[] = {
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17701,7 +17701,7 @@ static const per_sequence_t TDD_UL_Code_InformationModifyItem_RL_ReconfReadyTDD_
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17739,7 +17739,7 @@ static const per_sequence_t UL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD_
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "uL-Code-Information"   , &hf_rnsap_uL_Code_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17777,7 +17777,7 @@ static const per_sequence_t UL_DPCH_InformationModifyListIE_RL_ReconfReadyTDD_se
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DPCHOffset },
   { "uL-Timeslot-InformationModifyList-RL-ReconfReadyTDD", &hf_rnsap_uL_Timeslot_InformationModifyList_RL_ReconfReadyTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17796,7 +17796,7 @@ static const per_sequence_t UnsuccessfulRL_InformationResponse_RL_AdditionFailur
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17866,7 +17866,7 @@ static const per_sequence_t USCH_InformationItem_sequence[] = {
   { "schedulingPriorityIndicator", &hf_rnsap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SchedulingPriorityIndicator },
   { "rb-Info"               , &hf_rnsap_rb_Info       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RB_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17904,7 +17904,7 @@ static int dissect_id_USCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t USCH_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
   { "uSCH-ID"               , &hf_rnsap_uSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_USCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17941,7 +17941,7 @@ static const per_sequence_t USCHInformationItem_RL_AdditionRspTDD_sequence[] = {
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "diversityIndication"   , &hf_rnsap_diversityIndication4, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DiversityIndication_RL_AdditionRspTDD2 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -17979,7 +17979,7 @@ static const per_sequence_t USCHInformationItem_RL_SetupRspTDD_sequence[] = {
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18022,7 +18022,7 @@ static const per_sequence_t USCH_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
   { "transportBearerRequestIndicator", &hf_rnsap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportBearerRequestIndicator },
   { "rb-Info"               , &hf_rnsap_rb_Info       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RB_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18060,7 +18060,7 @@ static const per_sequence_t USCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD_sequen
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18142,7 +18142,7 @@ static const per_sequence_t DL_Physical_Channel_Information_RL_SetupRqstTDD_sequ
   { "minimumSpreadingFactor-DL", &hf_rnsap_minimumSpreadingFactor_DL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MinimumSpreadingFactor },
   { "maxNrDLPhysicalchannels", &hf_rnsap_maxNrDLPhysicalchannels, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MaxNrDLPhysicalchannels },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18175,7 +18175,7 @@ static const per_sequence_t UL_Physical_Channel_Information_RL_SetupRqstTDD_sequ
   { "minimumSpreadingFactor-UL", &hf_rnsap_minimumSpreadingFactor_UL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MinimumSpreadingFactor },
   { "maxNrULPhysicalchannels", &hf_rnsap_maxNrULPhysicalchannels, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MaxNrULPhysicalchannels },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18283,7 +18283,7 @@ static const per_sequence_t CNOriginatedPage_PagingRqst_sequence[] = {
   { "cNDomainType"          , &hf_rnsap_cNDomainType  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CNDomainType },
   { "pagingRecordType"      , &hf_rnsap_pagingRecordType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PagingRecordType },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18302,7 +18302,7 @@ static const per_sequence_t CCTrCH_InformationItem_RL_FailureInd_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "cause"                 , &hf_rnsap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Cause },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18320,7 +18320,7 @@ static int dissect_id_CCTrCH_InformationItem_RL_FailureInd(tvbuff_t *tvb, int of
 static const per_sequence_t CCTrCH_InformationItem_RL_RestoreInd_sequence[] = {
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18407,7 +18407,7 @@ static int dissect_ls_part(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static const per_sequence_t TUTRANGPS_sequence[] = {
   { "ms-part"               , &hf_rnsap_ms_part       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_16383 },
   { "ls-part"               , &hf_rnsap_ls_part       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_4294967295 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18467,7 +18467,7 @@ static const per_sequence_t TUTRANGPSMeasurementValueInformation_sequence[] = {
   { "tUTRANGPSDriftRate"    , &hf_rnsap_tUTRANGPSDriftRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TUTRANGPSDriftRate },
   { "tUTRANGPSDriftRateQuality", &hf_rnsap_tUTRANGPSDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TUTRANGPSDriftRateQuality },
   { "iEe-Extensions"        , &hf_rnsap_iEe_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18595,7 +18595,7 @@ static const per_sequence_t SFNSFNTimeStamp_TDD_sequence[] = {
   { "sFN"                   , &hf_rnsap_sFN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SFN },
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18643,7 +18643,7 @@ static const per_sequence_t T_successfullNeighbouringCellSFNSFNObservedTimeDiffe
   { "sFNSFNDriftRateQuality", &hf_rnsap_sFNSFNDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_SFNSFNDriftRateQuality },
   { "sFNSFNTimeStampInformation", &hf_rnsap_sFNSFNTimeStampInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SFNSFNTimeStampInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18678,7 +18678,7 @@ static int dissect_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasur
 static const per_sequence_t T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item_sequence[] = {
   { "uC-ID"                 , &hf_rnsap_uC_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UC_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18714,7 +18714,7 @@ static const per_sequence_t SFNSFNMeasurementValueInformation_sequence[] = {
   { "successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation", &hf_rnsap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
   { "unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation", &hf_rnsap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18757,7 +18757,7 @@ static int dissect_downlinkRTLoadValue(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t LoadValue_sequence[] = {
   { "uplinkLoadValue"       , &hf_rnsap_uplinkLoadValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_100 },
   { "downlinkLoadValue"     , &hf_rnsap_downlinkLoadValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_100 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18835,7 +18835,7 @@ static int dissect_commonMeasurementValue(tvbuff_t *tvb, int offset, asn_ctx_t *
 static const per_sequence_t CommonMeasurementAvailable_sequence[] = {
   { "commonMeasurementValue", &hf_rnsap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CommonMeasurementValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18878,7 +18878,7 @@ static int dissect_commonMeasurementValueInformation(tvbuff_t *tvb, int offset, 
 static const per_sequence_t Cell_CM_Rprt_sequence[] = {
   { "commonMeasurementValueInformation", &hf_rnsap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CommonMeasurementValueInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18940,7 +18940,7 @@ static const per_sequence_t NeighbouringFDDCellMeasurementInformation_sequence[]
   { "uARFCN"                , &hf_rnsap_uARFCN        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UARFCN },
   { "primaryScramblingCode" , &hf_rnsap_primaryScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PrimaryScramblingCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -18962,7 +18962,7 @@ static const per_sequence_t NeighbouringTDDCellMeasurementInformation_sequence[]
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TimeSlot },
   { "midambleShiftAndBurstType", &hf_rnsap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MidambleShiftAndBurstType },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19039,7 +19039,7 @@ static const per_sequence_t Cell_CM_Rqst_sequence[] = {
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TimeSlotLCR },
   { "neighbouringCellMeasurementInformation", &hf_rnsap_neighbouringCellMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NeighbouringCellMeasurementInfo },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19080,7 +19080,7 @@ static int dissect_id_CommonMeasurementObjectType_CM_Rqst(tvbuff_t *tvb, int off
 static const per_sequence_t Cell_CM_Rsp_sequence[] = {
   { "commonMeasurementValue", &hf_rnsap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CommonMeasurementValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19180,7 +19180,7 @@ static const per_sequence_t GA_AccessPointPositionwithOptionalAltitude_sequence[
   { "geographicalCoordinate", &hf_rnsap_geographicalCoordinate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "altitudeAndDirection"  , &hf_rnsap_altitudeAndDirection, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GA_AltitudeAndDirection },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19299,7 +19299,7 @@ static const per_sequence_t BurstModeParameters_sequence[] = {
   { "burstLength"           , &hf_rnsap_burstLength   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_10_25 },
   { "burstFreq"             , &hf_rnsap_burstFreq     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_16 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19321,7 +19321,7 @@ static const per_sequence_t IPDL_FDD_Parameters_sequence[] = {
   { "seed"                  , &hf_rnsap_seed          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Seed },
   { "burstModeParameters"   , &hf_rnsap_burstModeParameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BurstModeParameters },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19410,7 +19410,7 @@ static const per_sequence_t IPDL_TDD_Parameters_sequence[] = {
   { "iP-P-CCPCH"            , &hf_rnsap_iP_P_CCPCH    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_IP_P_CCPCH },
   { "burstModeParameters"   , &hf_rnsap_burstModeParameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BurstModeParameters },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19644,7 +19644,7 @@ static const per_sequence_t T_satellite_DGPSCorrections_Information_item_sequenc
   { "pRC"                   , &hf_rnsap_pRC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PRC },
   { "range-Correction-Rate" , &hf_rnsap_range_Correction_Rate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Range_Correction_Rate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -19681,7 +19681,7 @@ static const per_sequence_t DGPSCorrections_sequence[] = {
   { "gPS-Status-Health"     , &hf_rnsap_gPS_Status_Health, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GPS_Status_Health },
   { "satellite-DGPSCorrections-Information", &hf_rnsap_satellite_DGPSCorrections_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_satellite_DGPSCorrections_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20000,7 +20000,7 @@ static const per_sequence_t GPS_NavigationModel_and_TimeRecovery_item_sequence[]
   { "idot-nav"              , &hf_rnsap_idot_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_14 },
   { "spare-zero-fill"       , &hf_rnsap_spare_zero_fill, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_20 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20042,7 +20042,7 @@ static const per_sequence_t GPS_Ionospheric_Model_sequence[] = {
   { "beta-two-ionos"        , &hf_rnsap_beta_two_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_8 },
   { "beta-three-ionos"      , &hf_rnsap_beta_three_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_8 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20067,7 +20067,7 @@ static const per_sequence_t GPS_UTC_Model_sequence[] = {
   { "dn-utc"                , &hf_rnsap_dn_utc        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_8 },
   { "delta-t-lsf-utc"       , &hf_rnsap_delta_t_lsf_utc, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_8 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20126,7 +20126,7 @@ static const per_sequence_t T_satellite_Almanac_Information_item_sequence[] = {
   { "gps-af-zero-alm"       , &hf_rnsap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_11 },
   { "gps-af-one-alm"        , &hf_rnsap_gps_af_one_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_11 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20176,7 +20176,7 @@ static const per_sequence_t GPS_Almanac_sequence[] = {
   { "satellite-Almanac-Information", &hf_rnsap_satellite_Almanac_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_satellite_Almanac_Information },
   { "sVGlobalHealth-alm"    , &hf_rnsap_sVGlobalHealth_alm, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BIT_STRING_SIZE_364 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20194,7 +20194,7 @@ static int dissect_gPS_Almanac(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 static const per_sequence_t T_badSatelliteInformation_item_sequence[] = {
   { "badSAT-ID"             , &hf_rnsap_badSAT_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SAT_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20229,7 +20229,7 @@ static int dissect_badSatelliteInformation(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t BadSatellites_sequence[] = {
   { "badSatelliteInformation", &hf_rnsap_badSatelliteInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_badSatelliteInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20273,7 +20273,7 @@ static const per_sequence_t GPS_RX_POS_sequence[] = {
   { "geographicalCoordinate", &hf_rnsap_geographicalCoordinate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GeographicalCoordinate },
   { "altitudeAndDirection"  , &hf_rnsap_altitudeAndDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GA_AltitudeAndDirection },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20300,7 +20300,7 @@ static const per_sequence_t RequestedDataValue_sequence[] = {
   { "gPS-RX-POS"            , &hf_rnsap_gPS_RX_POS    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GPS_RX_POS },
   { "sFNSFN-GA-AccessPointPosition", &hf_rnsap_sFNSFN_GA_AccessPointPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GA_AccessPointPositionwithOptionalAltitude },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20318,7 +20318,7 @@ static int dissect_requestedDataValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t InformationAvailable_sequence[] = {
   { "requestedDataValue"    , &hf_rnsap_requestedDataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RequestedDataValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20373,7 +20373,7 @@ static int dissect_requestedDataValueInformation(tvbuff_t *tvb, int offset, asn_
 static const per_sequence_t Cell_InfEx_Rprt_sequence[] = {
   { "requestedDataValueInformation", &hf_rnsap_requestedDataValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RequestedDataValueInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20414,7 +20414,7 @@ static int dissect_id_InformationExchangeObjectType_InfEx_Rprt(tvbuff_t *tvb, in
 static const per_sequence_t Cell_InfEx_Rqst_sequence[] = {
   { "c-ID"                  , &hf_rnsap_c_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_C_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20507,7 +20507,7 @@ static int dissect_informationReportPeriodicity(tvbuff_t *tvb, int offset, asn_c
 static const per_sequence_t PeriodicInformation_sequence[] = {
   { "informationReportPeriodicity", &hf_rnsap_informationReportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_InformationReportPeriodicity },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20546,7 +20546,7 @@ static int dissect_pRCDeviation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 static const per_sequence_t DGPSThreshold_sequence[] = {
   { "pRCDeviation"          , &hf_rnsap_pRCDeviation  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PRCDeviation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20587,7 +20587,7 @@ static int dissect_informationThreshold(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 static const per_sequence_t OnModificationInformation_sequence[] = {
   { "informationThreshold"  , &hf_rnsap_informationThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_InformationThreshold },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20684,7 +20684,7 @@ static int dissect_gPSInformationItem(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t GPSInformation_item_sequence[] = {
   { "gPSInformationItem"    , &hf_rnsap_gPSInformationItem, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_gPSInformationItem },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20720,7 +20720,7 @@ static const per_sequence_t InformationType_sequence[] = {
   { "informationTypeItem"   , &hf_rnsap_informationTypeItem, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_informationTypeItem },
   { "gPSInformation"        , &hf_rnsap_gPSInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GPSInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20768,7 +20768,7 @@ static const per_sequence_t Neighbouring_LCR_TDD_CellInformationItem_sequence[] 
   { "pCCPCH-Power"          , &hf_rnsap_pCCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PCCPCH_Power },
   { "restrictionStateIndicator", &hf_rnsap_restrictionStateIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RestrictionStateIndicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20804,7 +20804,7 @@ static const per_sequence_t DL_TimeSlot_ISCP_LCR_InfoItem_sequence[] = {
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "dL-TimeslotISCP"       , &hf_rnsap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotISCP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20867,7 +20867,7 @@ static const per_sequence_t UL_TimeSlot_ISCP_LCR_InfoItem_sequence[] = {
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "iSCP"                  , &hf_rnsap_iSCP          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Timeslot_ISCP_Value },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20949,7 +20949,7 @@ static const per_sequence_t MidambleShiftLCR_sequence[] = {
   { "midambleShift"         , &hf_rnsap_midambleShift , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MidambleShiftLong },
   { "midambleConfigurationLCR", &hf_rnsap_midambleConfigurationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleConfigurationLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -20986,7 +20986,7 @@ static int dissect_modulation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 static const per_sequence_t TDD_ChannelisationCodeLCR_sequence[] = {
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "modulation"            , &hf_rnsap_modulation    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Modulation },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21065,7 +21065,7 @@ static const per_sequence_t Secondary_LCR_CCPCH_TDD_Code_InformationItem_sequenc
   { "tDD-ChannelisationCodeLCR", &hf_rnsap_tDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "s-CCPCH-TimeSlotFormat-LCR", &hf_rnsap_s_CCPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21106,7 +21106,7 @@ static const per_sequence_t Secondary_LCR_CCPCH_TDD_InformationItem_sequence[] =
   { "repetitionLength"      , &hf_rnsap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RepetitionLength },
   { "repetitionPeriod"      , &hf_rnsap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RepetitionPeriod },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21145,7 +21145,7 @@ static const per_sequence_t Secondary_LCR_CCPCH_Info_TDD_sequence[] = {
   { "fACH-InformationList"  , &hf_rnsap_fACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FACH_InformationList },
   { "pCH-InformationList"   , &hf_rnsap_pCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PCH_InformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21236,7 +21236,7 @@ static const per_sequence_t RL_LCR_InformationResponse_RL_SetupRspTDD_sequence[]
   { "neighbouring-UMTS-CellInformation", &hf_rnsap_neighbouring_UMTS_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_UMTS_CellInformation },
   { "neighbouring-GSM-CellInformation", &hf_rnsap_neighbouring_GSM_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_GSM_CellInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21267,7 +21267,7 @@ static const per_sequence_t UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD_sequence
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "ul-DPCH-LCR-Information", &hf_rnsap_ul_DPCH_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_LCR_InformationList_RL_SetupRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21358,7 +21358,7 @@ static const per_sequence_t TDD_UL_Code_LCR_InformationItem_sequence[] = {
   { "tdd-ChannelisationCodeLCR", &hf_rnsap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "tdd-UL-DPCH-TimeSlotFormat-LCR", &hf_rnsap_tdd_UL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_UL_DPCH_TimeSlotFormat_LCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21399,7 +21399,7 @@ static const per_sequence_t UL_TimeslotLCR_InformationItem_sequence[] = {
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Presence },
   { "uL-Code-LCR-InformationList", &hf_rnsap_uL_Code_LCR_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_UL_Code_LCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21440,7 +21440,7 @@ static const per_sequence_t UL_DPCH_LCR_InformationItem_RL_SetupRspTDD_sequence[
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "uL-TimeslotLCR-Information", &hf_rnsap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_TimeslotLCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21471,7 +21471,7 @@ static const per_sequence_t DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD_sequenc
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "dl-DPCH-LCR-Information", &hf_rnsap_dl_DPCH_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_LCR_InformationList_RL_SetupRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21508,7 +21508,7 @@ static const per_sequence_t TDD_DL_Code_LCR_InformationItem_sequence[] = {
   { "tdd-ChannelisationCodeLCR", &hf_rnsap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "tdd-DL-DPCH-TimeSlotFormat-LCR", &hf_rnsap_tdd_DL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21546,7 +21546,7 @@ static const per_sequence_t DL_TimeslotLCR_InformationItem_sequence[] = {
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TFCI_Presence },
   { "dL-Code-LCR-Information", &hf_rnsap_dL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DL_Code_LCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21610,7 +21610,7 @@ static const per_sequence_t DL_DPCH_LCR_InformationItem_RL_SetupRspTDD_sequence[
   { "dL-Timeslot-LCR-Information", &hf_rnsap_dL_Timeslot_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotLCR_Information },
   { "tSTD-Indicator"        , &hf_rnsap_tSTD_Indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TSTD_Indicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21632,7 +21632,7 @@ static const per_sequence_t DSCH_LCR_InformationItem_RL_SetupRspTDD_sequence[] =
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21670,7 +21670,7 @@ static const per_sequence_t USCH_LCR_InformationItem_RL_SetupRspTDD_sequence[] =
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21787,7 +21787,7 @@ static const per_sequence_t RL_LCR_InformationResponse_RL_AdditionRspTDD_sequenc
   { "neighbouring-UMTS-CellInformation", &hf_rnsap_neighbouring_UMTS_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_UMTS_CellInformation },
   { "neighbouring-GSM-CellInformation", &hf_rnsap_neighbouring_GSM_CellInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Neighbouring_GSM_CellInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21818,7 +21818,7 @@ static const per_sequence_t UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequ
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "ul-DPCH-LCR-Information", &hf_rnsap_ul_DPCH_LCR_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UL_DPCH_LCR_InformationList_RL_AdditionRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21856,7 +21856,7 @@ static const per_sequence_t UL_DPCH_LCR_InformationItem_RL_AdditionRspTDD_sequen
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "uL-TimeslotLCR-Information", &hf_rnsap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_TimeslotLCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21887,7 +21887,7 @@ static const per_sequence_t DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequ
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "dl-DPCH-LCR-Information", &hf_rnsap_dl_DPCH_LCR_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_LCR_InformationList_RL_AdditionRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21926,7 +21926,7 @@ static const per_sequence_t DL_DPCH_LCR_InformationItem_RL_AdditionRspTDD_sequen
   { "dL-TimeslotLCR-Information", &hf_rnsap_dL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotLCR_Information },
   { "tSTD-Indicator"        , &hf_rnsap_tSTD_Indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TSTD_Indicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21948,7 +21948,7 @@ static const per_sequence_t DSCH_LCR_InformationItem_RL_AdditionRspTDD_sequence[
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -21985,7 +21985,7 @@ static const per_sequence_t USCH_LCR_InformationItem_RL_AdditionRspTDD_sequence[
   { "transportFormatManagement", &hf_rnsap_transportFormatManagement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatManagement },
   { "diversityIndication"   , &hf_rnsap_diversityIndication4, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DiversityIndication_RL_AdditionRspTDD2 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22023,7 +22023,7 @@ static const per_sequence_t UL_DPCH_LCR_InformationAddList_RL_ReconfReadyTDD_seq
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "uL-TimeslotLCR-Info"   , &hf_rnsap_uL_TimeslotLCR_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_TimeslotLCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22042,7 +22042,7 @@ static const per_sequence_t TDD_UL_Code_LCR_InformationModifyItem_RL_ReconfReady
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCodeLCR", &hf_rnsap_tDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22080,7 +22080,7 @@ static const per_sequence_t UL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyT
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "tDD-uL-Code-LCR-Information", &hf_rnsap_tDD_uL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22118,7 +22118,7 @@ static const per_sequence_t DL_DPCH_LCR_InformationAddList_RL_ReconfReadyTDD_seq
   { "tDD-DPCHOffset"        , &hf_rnsap_tDD_DPCHOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_DPCHOffset },
   { "dL-TimeslotLCR-Info"   , &hf_rnsap_dL_TimeslotLCR_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotLCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22137,7 +22137,7 @@ static const per_sequence_t TDD_DL_Code_LCR_InformationModifyItem_RL_ReconfReady
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "tDD-ChannelisationCodeLCR", &hf_rnsap_tDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22175,7 +22175,7 @@ static const per_sequence_t DL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyT
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "tDD-dL-Code-LCR-Information", &hf_rnsap_tDD_dL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22213,7 +22213,7 @@ static const per_sequence_t UL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD_se
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "uL-Code-LCR-Information", &hf_rnsap_uL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_UL_Code_LCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22251,7 +22251,7 @@ static const per_sequence_t DL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD_se
   { "tFCI-Presence"         , &hf_rnsap_tFCI_Presence , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TFCI_Presence },
   { "dL-Code-LCR-Information", &hf_rnsap_dL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_DL_Code_LCR_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22331,7 +22331,7 @@ static int dissect_id_Load_Value_IncrDecrThres(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t OnModification_sequence[] = {
   { "measurementThreshold"  , &hf_rnsap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MeasurementThreshold },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22388,7 +22388,7 @@ static const per_sequence_t SFNSFNMeasurementThresholdInformation_sequence[] = {
   { "sFNSFNChangeLimit"     , &hf_rnsap_sFNSFNChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_SFNSFNChangeLimit },
   { "predictedSFNSFNDeviationLimit", &hf_rnsap_predictedSFNSFNDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PredictedSFNSFNDeviationLimit },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22493,7 +22493,7 @@ static const per_sequence_t DL_ReferencePowerInformationItem_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "dl-Reference-Power"    , &hf_rnsap_dl_Reference_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22536,7 +22536,7 @@ static const per_sequence_t DL_PowerBalancing_Information_sequence[] = {
   { "adjustmentPeriod"      , &hf_rnsap_adjustmentPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_AdjustmentPeriod },
   { "adjustmentRatio"       , &hf_rnsap_adjustmentRatio, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ScaledAdjustmentRatio },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22591,7 +22591,7 @@ static const per_sequence_t DL_ReferencePowerInformation_sequence[] = {
   { "common-DL-ReferencePowerInformation", &hf_rnsap_common_DL_ReferencePowerInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "individual-DL-ReferencePowerInformation", &hf_rnsap_individual_DL_ReferencePowerInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_ReferencePowerInformationList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22645,7 +22645,7 @@ static const per_sequence_t IPDL_TDD_ParametersLCR_sequence[] = {
   { "iPSub"                 , &hf_rnsap_iPSub         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_IPSub },
   { "burstModeParameters"   , &hf_rnsap_burstModeParameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BurstModeParameters },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22704,7 +22704,7 @@ static const per_sequence_t RL_Specific_DCH_Info_Item_sequence[] = {
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22760,7 +22760,7 @@ static const per_sequence_t RL_ReconfigurationRequestFDD_RL_Information_IEs_sequ
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "rL-Specific-DCH-Info"  , &hf_rnsap_rL_Specific_DCH_Info, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_Specific_DCH_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22779,7 +22779,7 @@ static const per_sequence_t RL_ReconfigurationRequestTDD_RL_Information_sequence
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "rL-Specific-DCH-Info"  , &hf_rnsap_rL_Specific_DCH_Info, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_Specific_DCH_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22891,7 +22891,7 @@ static const per_sequence_t Activate_Info_sequence[] = {
   { "firstRLS-Indicator"    , &hf_rnsap_firstRLS_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_FirstRLS_Indicator },
   { "propagation-delay"     , &hf_rnsap_propagation_delay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PropagationDelay },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22909,7 +22909,7 @@ static int dissect_activate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 static const per_sequence_t Deactivate_Info_sequence[] = {
   { "deactivation-type"     , &hf_rnsap_deactivation_type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Execution_Type },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22953,7 +22953,7 @@ static const per_sequence_t DelayedActivationInformation_RL_ActivationCmdFDD_seq
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "delayed-activation-update", &hf_rnsap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DelayedActivationUpdate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -22989,7 +22989,7 @@ static const per_sequence_t DelayedActivationInformation_RL_ActivationCmdTDD_seq
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "delayed-activation-update", &hf_rnsap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DelayedActivationUpdate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23011,7 +23011,7 @@ static const per_sequence_t NeighbouringTDDCellMeasurementInformationLCR_sequenc
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TimeSlotLCR },
   { "midambleShiftLCR"      , &hf_rnsap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MidambleShiftLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23076,7 +23076,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_sequence[] = {
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23274,7 +23274,7 @@ static const per_sequence_t MACdPDU_Size_IndexItem_sequence[] = {
   { "sID"                   , &hf_rnsap_sID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SID },
   { "mACdPDU-Size"          , &hf_rnsap_mACdPDU_Size  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23336,7 +23336,7 @@ static const per_sequence_t PriorityQueue_InfoItem_sequence[] = {
   { "mACdPDU-Size-Index"    , &hf_rnsap_mACdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size_IndexList },
   { "rLC-Mode"              , &hf_rnsap_rLC_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RLC_Mode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23372,7 +23372,7 @@ static const per_sequence_t HSDSCH_MACdFlows_Information_sequence[] = {
   { "hSDSCH-MACdFlow-Specific-Info", &hf_rnsap_hSDSCH_MACdFlow_Specific_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList },
   { "priorityQueue-Info"    , &hf_rnsap_priorityQueue_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PriorityQueue_InfoList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23406,7 +23406,7 @@ static int dissect_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb, int offset, asn
 static const per_sequence_t UE_Capabilities_Info_sequence[] = {
   { "hSDSCH-Physical-Layer-Category", &hf_rnsap_hSDSCH_Physical_Layer_Category, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_64_ },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23550,7 +23550,7 @@ static const per_sequence_t HSDSCH_FDD_Information_sequence[] = {
   { "nackPowerOffset"       , &hf_rnsap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Nack_Power_Offset },
   { "hsscch-PowerOffset"    , &hf_rnsap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSSCCH_PowerOffset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23583,7 +23583,7 @@ static const per_sequence_t HSDSCH_Initial_Capacity_AllocationItem_sequence[] = 
   { "maximum-MACdPDU-Size"  , &hf_rnsap_maximum_MACdPDU_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size },
   { "hSDSCH-InitialWindowSize", &hf_rnsap_hSDSCH_InitialWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSDSCH_InitialWindowSize },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23621,7 +23621,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_Response_sequence[
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "hSDSCH-Initial-Capacity-Allocation", &hf_rnsap_hSDSCH_Initial_Capacity_Allocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSDSCH_Initial_Capacity_Allocation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23656,7 +23656,7 @@ static int dissect_hSDSCH_MACdFlow_Specific_InfoList_Response(tvbuff_t *tvb, int
 static const per_sequence_t HSSCCH_FDD_Specific_InfoItem_Response_sequence[] = {
   { "code-Number"           , &hf_rnsap_code_Number   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_127 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23717,7 +23717,7 @@ static int dissect_number_of_Processes(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t HARQ_MemoryPartitioning_Implicit_sequence[] = {
   { "number-of-Processes"   , &hf_rnsap_number_of_Processes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_8_ },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23813,7 +23813,7 @@ static int dissect_process_Memory_Size(tvbuff_t *tvb, int offset, asn_ctx_t *act
 static const per_sequence_t HARQ_MemoryPartitioningItem_sequence[] = {
   { "process-Memory-Size"   , &hf_rnsap_process_Memory_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_process_Memory_Size },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23848,7 +23848,7 @@ static int dissect_hARQ_MemoryPartitioningList(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t HARQ_MemoryPartitioning_Explicit_sequence[] = {
   { "hARQ-MemoryPartitioningList", &hf_rnsap_hARQ_MemoryPartitioningList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HARQ_MemoryPartitioningList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23895,7 +23895,7 @@ static const per_sequence_t HSDSCH_FDD_Information_Response_sequence[] = {
   { "measurement-Power-Offset", &hf_rnsap_measurement_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Measurement_Power_Offset },
   { "hARQ-MemoryPartitioning", &hf_rnsap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HARQ_MemoryPartitioning },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23937,7 +23937,7 @@ static const per_sequence_t HSDSCH_FDD_Update_Information_sequence[] = {
   { "ackPowerOffset"        , &hf_rnsap_ackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Ack_Power_Offset },
   { "nackPowerOffset"       , &hf_rnsap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Nack_Power_Offset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -23960,7 +23960,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24003,7 +24003,7 @@ static const per_sequence_t PriorityQueue_InfoItem_to_Add_sequence[] = {
   { "mACdPDU-Size-Index"    , &hf_rnsap_mACdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size_IndexList },
   { "rLC-Mode"              , &hf_rnsap_rLC_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RLC_Mode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24022,7 +24022,7 @@ static const per_sequence_t MACdPDU_Size_IndexItem_to_Modify_sequence[] = {
   { "sID"                   , &hf_rnsap_sID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SID },
   { "mACdPDU-Size"          , &hf_rnsap_mACdPDU_Size  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24063,7 +24063,7 @@ static const per_sequence_t PriorityQueue_InfoItem_to_Modify_sequence[] = {
   { "mAChsGuaranteedBitRate", &hf_rnsap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MAChsGuaranteedBitRate },
   { "mACdPDU-Size-Index-to-Modify", &hf_rnsap_mACdPDU_Size_Index_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MACdPDU_Size_IndexList_to_Modify },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24170,7 +24170,7 @@ static const per_sequence_t HSDSCH_Information_to_Modify_sequence[] = {
   { "hSSCCH-CodeChangeGrant", &hf_rnsap_hSSCCH_CodeChangeGrant, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSSCCH_Code_Change_Grant },
   { "tDDAckNackPowerOffset" , &hf_rnsap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_AckNack_Power_Offset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24205,7 +24205,7 @@ static int dissect_id_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredIn
 static const per_sequence_t HSDSCHMacdFlowSpecificInformationItem_RL_PreemptRequiredInd_sequence[] = {
   { "hSDSCH-MACdFlow-ID"    , &hf_rnsap_hSDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSDSCH_MACdFlow_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24239,7 +24239,7 @@ static const per_sequence_t HSDSCH_TDD_Information_sequence[] = {
   { "mAChs-Reordering-Buffer-Size-for-RLC-UM", &hf_rnsap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MAChsReorderingBufferSize_for_RLC_UM },
   { "tDD-AckNack-Power-Offset", &hf_rnsap_tDD_AckNack_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_AckNack_Power_Offset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24282,7 +24282,7 @@ static const per_sequence_t HSSICH_Info_sequence[] = {
   { "midambleShiftAndBurstType", &hf_rnsap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftAndBurstType },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24303,7 +24303,7 @@ static const per_sequence_t HSSCCH_TDD_Specific_InfoItem_Response_sequence[] = {
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "hSSICH-Info"           , &hf_rnsap_hSSICH_Info   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSSICH_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24341,7 +24341,7 @@ static const per_sequence_t HSSICH_InfoLCR_sequence[] = {
   { "midambleShiftLCR"      , &hf_rnsap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftLCR },
   { "tDD-ChannelisationCode", &hf_rnsap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24363,7 +24363,7 @@ static const per_sequence_t HSSCCH_TDD_Specific_InfoItem_Response_LCR_sequence[]
   { "second-TDD-ChannelisationCode", &hf_rnsap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCode },
   { "hSSICH-InfoLCR"        , &hf_rnsap_hSSICH_InfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSSICH_InfoLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24399,7 +24399,7 @@ static const per_sequence_t HSPDSCH_TDD_Specific_InfoItem_Response_sequence[] = 
   { "timeslot"              , &hf_rnsap_timeslot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "midambleShiftAndBurstType", &hf_rnsap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftAndBurstType },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24435,7 +24435,7 @@ static const per_sequence_t HSPDSCH_TDD_Specific_InfoItem_Response_LCR_sequence[
   { "timeslotLCR"           , &hf_rnsap_timeslotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "midambleShiftLCR"      , &hf_rnsap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24475,7 +24475,7 @@ static const per_sequence_t HSDSCH_TDD_Information_Response_sequence[] = {
   { "hSPDSCH-TDD-Specific-InfoList-Response-LCR", &hf_rnsap_hSPDSCH_TDD_Specific_InfoList_Response_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSPDSCH_TDD_Specific_InfoList_Response_LCR },
   { "hARQ-MemoryPartitioning", &hf_rnsap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HARQ_MemoryPartitioning },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24494,7 +24494,7 @@ static const per_sequence_t HSDSCH_TDD_Update_Information_sequence[] = {
   { "hsSCCHCodeChangeIndicator", &hf_rnsap_hsSCCHCodeChangeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSSCCH_CodeChangeIndicator },
   { "tDDAckNackPowerOffset" , &hf_rnsap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_AckNack_Power_Offset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24512,7 +24512,7 @@ static int dissect_id_HSDSCH_TDD_Update_Information(tvbuff_t *tvb, int offset, a
 static const per_sequence_t HSDSCH_MACdFlows_to_Delete_Item_sequence[] = {
   { "hsDSCH-MACdFlow-ID"    , &hf_rnsap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HSDSCH_MACdFlow_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24586,7 +24586,7 @@ static const per_sequence_t Angle_Of_Arrival_Value_LCR_sequence[] = {
   { "aOA-LCR"               , &hf_rnsap_aOA_LCR       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_AOA_LCR },
   { "aOA-LCR-Accuracy-Class", &hf_rnsap_aOA_LCR_Accuracy_Class, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_AOA_LCR_Accuracy_Class },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24670,7 +24670,7 @@ static const per_sequence_t UL_Synchronisation_Parameters_LCR_sequence[] = {
   { "uL-Synchronisation-StepSize", &hf_rnsap_uL_Synchronisation_StepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Synchronisation_StepSize },
   { "uL-Synchronisation-Frequency", &hf_rnsap_uL_Synchronisation_Frequency, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UL_Synchronisation_Frequency },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24719,7 +24719,7 @@ static const per_sequence_t SNA_Information_sequence[] = {
   { "pLMN-Identity"         , &hf_rnsap_pLMN_Identity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PLMN_Identity },
   { "listOfSNAs"            , &hf_rnsap_listOfSNAs    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ListOfSNAs },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24802,7 +24802,7 @@ static const per_sequence_t UL_CCTrCH_InformationItem_RL_AdditionRqstTDD_sequenc
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "uplinkStepSizeLCR"     , &hf_rnsap_uplinkStepSizeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_TPC_UplinkStepSize_LCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24838,7 +24838,7 @@ static const per_sequence_t DL_CCTrCH_InformationItem_RL_AdditionRqstTDD_sequenc
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "downlinkStepSize"      , &hf_rnsap_downlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_TPC_DownlinkStepSize },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24871,7 +24871,7 @@ static const per_sequence_t FPACH_Information_sequence[] = {
   { "tDD-ChannelisationCodeLCR", &hf_rnsap_tDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TDD_ChannelisationCodeLCR },
   { "midambleShiftLCR"      , &hf_rnsap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftLCR },
   { "wT"                    , &hf_rnsap_wT            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_4 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24936,7 +24936,7 @@ static int dissect_powerRampStep(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static const per_sequence_t SYNC_UL_ProcParameters_sequence[] = {
   { "maxSYNC-UL-transmissions", &hf_rnsap_maxSYNC_UL_transmissions, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_maxSYNC_UL_transmissions },
   { "powerRampStep"         , &hf_rnsap_powerRampStep , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_3_ },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24970,7 +24970,7 @@ static const per_sequence_t UL_TimingAdvanceCtrl_LCR_sequence[] = {
   { "prxUpPCHdes"           , &hf_rnsap_prxUpPCHdes   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_M120_M58_ },
   { "syncUL-procParameter"  , &hf_rnsap_syncUL_procParameter, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_SYNC_UL_ProcParameters },
   { "mMax"                  , &hf_rnsap_mMax          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_1_32 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -24989,7 +24989,7 @@ static const per_sequence_t HSPDSCH_Timeslot_InformationItem_PhyChReconfRqstTDD_
   { "timeslot"              , &hf_rnsap_timeslot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "midambleShiftAndBurstType", &hf_rnsap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftAndBurstType },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25025,7 +25025,7 @@ static const per_sequence_t HSPDSCH_Timeslot_InformationItemLCR_PhyChReconfRqstT
   { "timeslotLCR"           , &hf_rnsap_timeslotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "midambleShiftLCR"      , &hf_rnsap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MidambleShiftLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25101,7 +25101,7 @@ static const per_sequence_t HS_SICH_Reception_Quality_Value_sequence[] = {
   { "missed-HS-SICH"        , &hf_rnsap_missed_HS_SICH, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HS_SICH_missed },
   { "total-HS-SICH"         , &hf_rnsap_total_HS_SICH , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_HS_SICH_total },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25164,7 +25164,7 @@ static const per_sequence_t DL_CCTrCH_InformationItem_RL_ReconfRspTDD_sequence[]
   { "cCTrCH-Maximum-DL-Power", &hf_rnsap_cCTrCH_Maximum_DL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "cCTrCH-Minimum-DL-Power", &hf_rnsap_cCTrCH_Minimum_DL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25201,7 +25201,7 @@ static const per_sequence_t DL_Timeslot_LCR_InformationModifyItem_RL_ReconfRspTD
   { "maxPowerLCR"           , &hf_rnsap_maxPowerLCR   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "minPowerLCR"           , &hf_rnsap_minPowerLCR   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Power },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25236,7 +25236,7 @@ static int dissect_dL_Timeslot_LCR_InformationModifyList_RL_ReconfRqstTDD(tvbuff
 static const per_sequence_t DL_DPCH_InformationModifyItem_LCR_RL_ReconfRspTDD_sequence[] = {
   { "dL-Timeslot-LCR-InformationModifyList-RL-ReconfRqstTDD", &hf_rnsap_dL_Timeslot_LCR_InformationModifyList_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25335,7 +25335,7 @@ static const per_sequence_t Secondary_CPICH_Information_sequence[] = {
   { "dl-ScramblingCode"     , &hf_rnsap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_ScramblingCode },
   { "fDD-DL-ChannelisationCodeNumber", &hf_rnsap_fDD_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FDD_DL_ChannelisationCodeNumber },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25403,7 +25403,7 @@ static const per_sequence_t RL_ParameterUpdateIndicationFDD_RL_Information_Item_
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "phase-Reference-Update-Indicator", &hf_rnsap_phase_Reference_Update_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Phase_Reference_Update_Indicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25441,7 +25441,7 @@ static const per_sequence_t RL_InformationIE_RL_ReconfPrepTDD_sequence[] = {
   { "rL-ID"                 , &hf_rnsap_rL_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "rL-Specific-DCH-Info"  , &hf_rnsap_rL_Specific_DCH_Info, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_RL_Specific_DCH_Info },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25522,7 +25522,7 @@ static const per_sequence_t Satellite_Almanac_Information_ExtItem_item_sequence[
   { "gps-af-zero-alm"       , &hf_rnsap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_11 },
   { "gps-af-one-alm"        , &hf_rnsap_gps_af_one_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BIT_STRING_SIZE_11 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25560,7 +25560,7 @@ static const per_sequence_t PriorityQueue_InfoItem_to_Modify_Unsynchronised_sequ
   { "discardTimer"          , &hf_rnsap_discardTimer  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DiscardTimer },
   { "mAChsGuaranteedBitRate", &hf_rnsap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MAChsGuaranteedBitRate },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25601,7 +25601,7 @@ static const per_sequence_t HSDSCH_Information_to_Modify_Unsynchronised_sequence
   { "hsscch-PowerOffset"    , &hf_rnsap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSSCCH_PowerOffset },
   { "tDDAckNackPowerOffset" , &hf_rnsap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TDD_AckNack_Power_Offset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25673,7 +25673,7 @@ static int dissect_tnlQoS(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 static const per_sequence_t RTLoadValue_sequence[] = {
   { "uplinkRTLoadValue"     , &hf_rnsap_uplinkRTLoadValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_100 },
   { "downlinkRTLoadValue"   , &hf_rnsap_downlinkRTLoadValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_100 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25691,7 +25691,7 @@ static int dissect_id_RTLoadValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 static const per_sequence_t NRTLoadInformationValue_sequence[] = {
   { "uplinkNRTLoadInformationValue", &hf_rnsap_uplinkNRTLoadInformationValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_3 },
   { "downlinkNRTLoadInformationValue", &hf_rnsap_downlinkNRTLoadInformationValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_3 },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25792,7 +25792,7 @@ static const per_sequence_t UEMeasurementTimeslotInfoHCR_IEs_sequence[] = {
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "burstType"             , &hf_rnsap_burstType     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeslotInfoHCRBurstType },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25827,7 +25827,7 @@ static int dissect_id_UEMeasurementTimeslotInfoHCR(tvbuff_t *tvb, int offset, as
 static const per_sequence_t UEMeasurementTimeslotInfoLCR_IEs_sequence[] = {
   { "timeSlot"              , &hf_rnsap_timeSlot1     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -25920,7 +25920,7 @@ static const per_sequence_t UEMeasurementReportCharacteristicsPeriodic_sequence[
   { "amountofReporting"     , &hf_rnsap_amountofReporting, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicAmountofReporting },
   { "reportingInterval"     , &hf_rnsap_reportingInterval, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicReportingInterval },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26051,7 +26051,7 @@ static const per_sequence_t UEMeasurementReportCharacteristicsEvent1h_sequence[]
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "uEMeasurementHysteresisTime", &hf_rnsap_uEMeasurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementHysteresisTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26071,7 +26071,7 @@ static const per_sequence_t UEMeasurementReportCharacteristicsEvent1i_sequence[]
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "uEMeasurementHysteresisTime", &hf_rnsap_uEMeasurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementHysteresisTime },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26090,7 +26090,7 @@ static const per_sequence_t UEMeasurementReportCharacteristicsEvent6a_sequence[]
   { "uEMeasurementTreshold" , &hf_rnsap_uEMeasurementTreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementThreshold },
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26109,7 +26109,7 @@ static const per_sequence_t UEMeasurementReportCharacteristicsEvent6b_sequence[]
   { "uEMeasurementTreshold" , &hf_rnsap_uEMeasurementTreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementThreshold },
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26127,7 +26127,7 @@ static int dissect_event6b(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static const per_sequence_t UEMeasurementReportCharacteristicsEvent6c_sequence[] = {
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26145,7 +26145,7 @@ static int dissect_event6c(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 static const per_sequence_t UEMeasurementReportCharacteristicsEvent6d_sequence[] = {
   { "uEMeasurementTimeToTrigger", &hf_rnsap_uEMeasurementTimeToTrigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementTimeToTrigger },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26244,7 +26244,7 @@ static const per_sequence_t UEMeasurementValueTransmittedPowerListHCR_IEs_sequen
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "uETransmitPower"       , &hf_rnsap_uETransmitPower1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_104 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26280,7 +26280,7 @@ static const per_sequence_t UEMeasurementValueTransmittedPowerListLCR_IEs_sequen
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "uETransmitPower"       , &hf_rnsap_uETransmitPower1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_INTEGER_0_104 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26316,7 +26316,7 @@ static const per_sequence_t UE_MeasurementValue_UE_Transmitted_Power_sequence[] 
   { "uEMeasurementTransmittedPowerListHCR", &hf_rnsap_uEMeasurementTransmittedPowerListHCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UEMeasurementValueTransmittedPowerListHCR },
   { "uEMeasurementTransmittedPowerListLCR", &hf_rnsap_uEMeasurementTransmittedPowerListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UEMeasurementValueTransmittedPowerListLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26335,7 +26335,7 @@ static const per_sequence_t UE_MeasurementValue_Primary_CCPCH_RSCP_sequence[] = 
   { "primaryCCPCH-RSCP"     , &hf_rnsap_primaryCCPCH_RSCP, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PrimaryCCPCH_RSCP },
   { "primaryCCPCH-RSCP-Delta", &hf_rnsap_primaryCCPCH_RSCP_Delta, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PrimaryCCPCH_RSCP_Delta },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26354,7 +26354,7 @@ static const per_sequence_t UEMeasurementValueTimeslotISCPListHCR_IEs_sequence[]
   { "timeSlot"              , &hf_rnsap_timeSlot      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlot },
   { "dL-TimeslotISCP"       , &hf_rnsap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotISCP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26390,7 +26390,7 @@ static const per_sequence_t UEMeasurementValueTimeslotISCPListLCR_IEs_sequence[]
   { "timeSlotLCR"           , &hf_rnsap_timeSlotLCR   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TimeSlotLCR },
   { "dL-TimeslotISCP"       , &hf_rnsap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DL_TimeslotISCP },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26426,7 +26426,7 @@ static const per_sequence_t UE_MeasurementValue_DL_Timeslot_ISCP_sequence[] = {
   { "uEMeasurementTimeslotISCPListHCR", &hf_rnsap_uEMeasurementTimeslotISCPListHCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UEMeasurementValueTimeslotISCPListHCR },
   { "uEMeasurementTimeslotISCPListLCR", &hf_rnsap_uEMeasurementTimeslotISCPListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UEMeasurementValueTimeslotISCPListLCR },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26485,7 +26485,7 @@ static int dissect_uEmeasurementValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 static const per_sequence_t UEMeasurementValueInformationAvailable_sequence[] = {
   { "uEmeasurementValue"    , &hf_rnsap_uEmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UEMeasurementValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26559,7 +26559,7 @@ static int dissect_interface(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 static const per_sequence_t InterfacesToTraceItem_sequence[] = {
   { "interface"             , &hf_rnsap_interface     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_T_interface },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26706,7 +26706,7 @@ static int dissect_gERAN_SI_block(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 static const per_sequence_t GERAN_SystemInfo_item_sequence[] = {
   { "gERAN-SI-block"        , &hf_rnsap_gERAN_SI_block, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_OCTET_STRING_SIZE_1_23 },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26769,7 +26769,7 @@ static int dissect_gERAN_SI_Type(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 static const per_sequence_t NACC_Related_Data_sequence[] = {
   { "gERAN-SI-Type"         , &hf_rnsap_gERAN_SI_Type , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_GERAN_SI_Type },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26788,7 +26788,7 @@ static const per_sequence_t T_lAI_sequence[] = {
   { "pLMN-Identity"         , &hf_rnsap_pLMN_Identity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PLMN_Identity },
   { "lAC"                   , &hf_rnsap_lAC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_LAC },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26820,7 +26820,7 @@ static const per_sequence_t CGI_sequence[] = {
   { "lAI"                   , &hf_rnsap_lAI           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_T_lAI },
   { "cI"                    , &hf_rnsap_cI            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_CI },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26838,7 +26838,7 @@ static int dissect_cGI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 static const per_sequence_t GSM_Cell_InfEx_Rqst_sequence[] = {
   { "cGI"                   , &hf_rnsap_cGI           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CGI },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26894,7 +26894,7 @@ static const per_sequence_t PowerOffsetInformation_RL_ReconfPrepFDD_sequence[] =
   { "pO2-ForTPC-Bits"       , &hf_rnsap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "pO3-ForPilotBits"      , &hf_rnsap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26914,7 +26914,7 @@ static const per_sequence_t DL_DPCH_Power_Information_RL_ReconfPrepFDD_sequence[
   { "fdd-TPC-DownlinkStepSize", &hf_rnsap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_FDD_TPC_DownlinkStepSize },
   { "innerLoopDLPCStatus"   , &hf_rnsap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_InnerLoopDLPCStatus },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26932,7 +26932,7 @@ static int dissect_id_DL_DPCH_Power_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, 
 static const per_sequence_t PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD_sequence[] = {
   { "po2-ForTPC-Bits"       , &hf_rnsap_po2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26953,7 +26953,7 @@ static const per_sequence_t F_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
   { "limitedPowerIncrease"  , &hf_rnsap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_LimitedPowerIncrease },
   { "innerLoopDLPCStatus"   , &hf_rnsap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_InnerLoopDLPCStatus },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26971,7 +26971,7 @@ static int dissect_id_F_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int off
 static const per_sequence_t PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD_sequence[] = {
   { "po2-ForTPC-Bits"       , &hf_rnsap_po2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PowerOffset },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -26992,7 +26992,7 @@ static const per_sequence_t F_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
   { "limitedPowerIncrease"  , &hf_rnsap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_LimitedPowerIncrease },
   { "innerLoopDLPCStatus"   , &hf_rnsap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_InnerLoopDLPCStatus },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27024,7 +27024,7 @@ static const per_sequence_t TMGI_sequence[] = {
   { "plmn-id"               , &hf_rnsap_plmn_id       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PLMN_Identity },
   { "service-id"            , &hf_rnsap_service_id    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Service_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27066,7 +27066,7 @@ static const per_sequence_t MBMS_Bearer_ServiceItemIEs_InfEx_Rsp_sequence[] = {
   { "tmgi"                  , &hf_rnsap_tmgi          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TMGI },
   { "requestedDataValue"    , &hf_rnsap_requestedDataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RequestedDataValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27122,7 +27122,7 @@ static const per_sequence_t MBMS_Bearer_ServiceItemFDD_sequence[] = {
   { "tmgi"                  , &hf_rnsap_tmgi          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TMGI },
   { "transmissionMode"      , &hf_rnsap_transmissionMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransmissionMode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27158,7 +27158,7 @@ static const per_sequence_t MBMS_Bearer_ServiceItemTDD_sequence[] = {
   { "tmgi"                  , &hf_rnsap_tmgi          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TMGI },
   { "transmissionMode"      , &hf_rnsap_transmissionMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransmissionMode },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27193,7 +27193,7 @@ static int dissect_id_Active_MBMS_Bearer_ServiceTDD(tvbuff_t *tvb, int offset, a
 static const per_sequence_t Cell_Fach_Pch_State_sequence[] = {
   { "d-RNTI"                , &hf_rnsap_d_RNTI        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_D_RNTI },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27212,7 +27212,7 @@ static const per_sequence_t Ura_Pch_State_sequence[] = {
   { "srnc-id"               , &hf_rnsap_srnc_id       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RNC_ID },
   { "ura-id"                , &hf_rnsap_ura_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_URA_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27379,7 +27379,7 @@ static const per_sequence_t Reference_E_TFCI_Information_Item_sequence[] = {
   { "reference-E-TFCI"      , &hf_rnsap_reference_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_TFCI },
   { "reference-E-TFCI-PO"   , &hf_rnsap_reference_E_TFCI_PO, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Reference_E_TFCI_PO },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27416,7 +27416,7 @@ static const per_sequence_t E_TFCS_Information_sequence[] = {
   { "e-DCH-Min-Set-E-TFCI"  , &hf_rnsap_e_DCH_Min_Set_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_TFCI },
   { "reference-E-TFCI-Information", &hf_rnsap_reference_E_TFCI_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Reference_E_TFCI_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27470,7 +27470,7 @@ static const per_sequence_t EDPCH_Information_FDD_sequence[] = {
   { "e-TTI"                 , &hf_rnsap_e_TTI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_TTI },
   { "e-DPCCH-PO"            , &hf_rnsap_e_DPCCH_PO    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_DPCCH_PO },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27506,7 +27506,7 @@ static const per_sequence_t RL_Specific_EDCH_InfoItem_sequence[] = {
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27629,7 +27629,7 @@ static const per_sequence_t E_DCH_Non_Scheduled_Transmission_Grant_Items_sequenc
   { "maxBits-MACe-PDU-non-scheduled", &hf_rnsap_maxBits_MACe_PDU_non_scheduled, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Max_Bits_MACe_PDU_non_scheduled },
   { "hARQ-Process-Allocation-2ms", &hf_rnsap_hARQ_Process_Allocation_2ms, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HARQ_Process_Allocation_2ms_EDCH },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27730,7 +27730,7 @@ static int dissect_eDCH_DDI_Value(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 static const per_sequence_t E_DCH_MACdPDU_SizeListItem_sequence[] = {
   { "mACdPDU-Size"          , &hf_rnsap_mACdPDU_Size  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_MACdPDU_Size },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27772,7 +27772,7 @@ static const per_sequence_t E_DCH_LogicalChannelInformationItem_sequence[] = {
   { "eDCH-DDI-Value"        , &hf_rnsap_eDCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_DDI_Value },
   { "mACd-PDU-Size-List"    , &hf_rnsap_mACd_PDU_Size_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_DCH_MACdPDU_SizeList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27820,7 +27820,7 @@ static const per_sequence_t EDCH_MACdFlow_Specific_InfoItem_sequence[] = {
   { "bundlingModeIndicator" , &hf_rnsap_bundlingModeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BundlingModeIndicator },
   { "eDCHLogicalChannelInformation", &hf_rnsap_eDCHLogicalChannelInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_DCH_LogicalChannelInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27855,7 +27855,7 @@ static int dissect_eDCH_MACdFlow_Specific_Information1(tvbuff_t *tvb, int offset
 static const per_sequence_t EDCH_MACdFlows_Information_sequence[] = {
   { "eDCH-MACdFlow-Specific-Information", &hf_rnsap_eDCH_MACdFlow_Specific_Information1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlow_Specific_InfoList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27873,7 +27873,7 @@ static int dissect_eDCH_MACdFlows_Information(tvbuff_t *tvb, int offset, asn_ctx
 static const per_sequence_t EDCH_FDD_Information_sequence[] = {
   { "eDCH-MACdFlows-Information", &hf_rnsap_eDCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlows_Information },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -27891,7 +27891,7 @@ static int dissect_id_EDCH_FDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 static const per_sequence_t EDCH_Serving_RL_in_this_DRNS_sequence[] = {
   { "e-DCH-Serving-RL-Id"   , &hf_rnsap_e_DCH_Serving_RL_Id, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RL_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28035,7 +28035,7 @@ static const per_sequence_t EDCH_FDD_DL_ControlChannelInformation_sequence[] = {
   { "primary-Secondary-Grant-Selector", &hf_rnsap_primary_Secondary_Grant_Selector, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_Primary_Secondary_Grant_Selector },
   { "e-RGCH-Release-Indicator", &hf_rnsap_e_RGCH_Release_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_RGCH_Release_Indicator },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28058,7 +28058,7 @@ static const per_sequence_t EDCH_FDD_InformationResponseItem_sequence[] = {
   { "bindingID"             , &hf_rnsap_bindingID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BindingID },
   { "transportLayerAddress" , &hf_rnsap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransportLayerAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28114,7 +28114,7 @@ static const per_sequence_t E_DCH_LogicalChannelToModifyItem_sequence[] = {
   { "eDCH-DDI-Value"        , &hf_rnsap_eDCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_DDI_Value },
   { "mACd-PDU-Size-List"    , &hf_rnsap_mACd_PDU_Size_List1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_DCH_MACdPDU_SizeToModifyList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28149,7 +28149,7 @@ static int dissect_eDCH_LogicalChannelToModify(tvbuff_t *tvb, int offset, asn_ct
 static const per_sequence_t E_DCH_LogicalChannelToDeleteItem_sequence[] = {
   { "logicalChannelId"      , &hf_rnsap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_LogicalChannelID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28196,7 +28196,7 @@ static const per_sequence_t EDCH_MACdFlow_Specific_InfoToModifyItem_sequence[] =
   { "eDCH-LogicalChannelToModify", &hf_rnsap_eDCH_LogicalChannelToModify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_DCH_LogicalChannelToModify },
   { "eDCH-LogicalChannelToDelete", &hf_rnsap_eDCH_LogicalChannelToDelete, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_DCH_LogicalChannelToDelete },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28231,7 +28231,7 @@ static int dissect_eDCH_MACdFlow_Specific_Information(tvbuff_t *tvb, int offset,
 static const per_sequence_t EDCH_FDD_Information_To_Modify_sequence[] = {
   { "eDCH-MACdFlow-Specific-Information", &hf_rnsap_eDCH_MACdFlow_Specific_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlow_Specific_InfoToModifyList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28249,7 +28249,7 @@ static int dissect_id_EDCH_FDD_Information_To_Modify(tvbuff_t *tvb, int offset, 
 static const per_sequence_t EDCH_MACdFlows_To_Delete_Item_sequence[] = {
   { "eDSCH-MACdFlow-ID"     , &hf_rnsap_eDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlow_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28285,7 +28285,7 @@ static const per_sequence_t EDPCH_Information_RLReconfRequest_FDD_sequence[] = {
   { "e-TFCS-Information"    , &hf_rnsap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_TFCS_Information },
   { "e-DPCCH-PO"            , &hf_rnsap_e_DPCCH_PO    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_DPCCH_PO },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28320,7 +28320,7 @@ static int dissect_id_EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd
 static const per_sequence_t EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd_sequence[] = {
   { "eDCH-MACdFlow-ID"      , &hf_rnsap_eDCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlow_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28355,7 +28355,7 @@ static int dissect_id_EDCH_MacdFlowSpecificInformationList_RL_CongestInd(tvbuff_
 static const per_sequence_t EDCH_MacdFlowSpecificInformationItem_RL_CongestInd_sequence[] = {
   { "eDCH-MACdFlow-ID"      , &hf_rnsap_eDCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_EDCH_MACdFlow_ID },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28400,7 +28400,7 @@ static const per_sequence_t MBMS_Bearer_Service_Full_Address_sequence[] = {
   { "accessPointName"       , &hf_rnsap_accessPointName, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_AccessPointName },
   { "iPMulticastAddress"    , &hf_rnsap_iPMulticastAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_IPMulticastAddress },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28473,7 +28473,7 @@ static const per_sequence_t Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp_se
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28509,7 +28509,7 @@ static const per_sequence_t Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rs
   { "dPCH-ID"               , &hf_rnsap_dPCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DPCH_ID },
   { "dedicatedMeasurementValue", &hf_rnsap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_DedicatedMeasurementValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28562,7 +28562,7 @@ static const per_sequence_t MBMSChannelTypeCellList_sequence[] = {
   { "c-ID"                  , &hf_rnsap_c_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_C_ID },
   { "affectedUEInformationForMBMS", &hf_rnsap_affectedUEInformationForMBMS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_AffectedUEInformationForMBMS },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28640,7 +28640,7 @@ static const per_sequence_t MBMSChannelTypeInfo_sequence[] = {
   { "pTP-Cell-List"         , &hf_rnsap_pTP_Cell_List , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PTPCellList },
   { "not-Provided-Cell-List", &hf_rnsap_not_Provided_Cell_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_NotProvidedCellList },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28676,7 +28676,7 @@ static const per_sequence_t AdditionalPreferredFrequencyItem_sequence[] = {
   { "dL-UARFCN"             , &hf_rnsap_dL_UARFCN     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UARFCN },
   { "correspondingCells"    , &hf_rnsap_correspondingCells, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CorrespondingCells },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28712,7 +28712,7 @@ static const per_sequence_t PreferredFrequencyLayerInfo_sequence[] = {
   { "defaultPreferredFrequency", &hf_rnsap_defaultPreferredFrequency, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_UARFCN },
   { "additionalPreferredFrequency", &hf_rnsap_additionalPreferredFrequency, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_AdditionalPreferredFrequency },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28731,7 +28731,7 @@ static const per_sequence_t MBMSPreferredFreqLayerInfo_sequence[] = {
   { "tMGI"                  , &hf_rnsap_tMGI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TMGI },
   { "preferredFrequencyLayerInfo", &hf_rnsap_preferredFrequencyLayerInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_PreferredFrequencyLayerInfo },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28750,7 +28750,7 @@ static const per_sequence_t ProvidedInformation_sequence[] = {
   { "mBMSChannelTypeInfo"   , &hf_rnsap_mBMSChannelTypeInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MBMSChannelTypeInfo },
   { "mBMSPreferredFreqLayerInfo", &hf_rnsap_mBMSPreferredFreqLayerInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_MBMSPreferredFreqLayerInfo },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -28770,7 +28770,7 @@ static const per_sequence_t MBMS_Bearer_ServiceItemTDD_PFL_sequence[] = {
   { "transmissionMode"      , &hf_rnsap_transmissionMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmissionMode },
   { "preferredFrequencyLayer", &hf_rnsap_preferredFrequencyLayer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UARFCN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29736,7 +29736,7 @@ static const per_sequence_t DL_CCTrCHInformationItem_RL_SetupRspTDD_sequence[] =
   { "cCTrCH-ID"             , &hf_rnsap_cCTrCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_CCTrCH_ID },
   { "dl-DPCH-Information"   , &hf_rnsap_dl_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DL_DPCH_InformationList_RL_SetupRspTDD },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29768,7 +29768,7 @@ dissect_rnsap_DL_CCTrCHInformationListIE_RL_SetupRspTDD(tvbuff_t *tvb, int offse
 static const per_sequence_t RadioLinkReconfigurationPrepareTDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29797,7 +29797,7 @@ dissect_rnsap_Multiple_RL_ReconfigurationRequestTDD_RL_Information(tvbuff_t *tvb
 static const per_sequence_t PhysicalChannelReconfigurationRequestFDD_sequence[] = {
   { "protocolIEs"           , &hf_rnsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_Container },
   { "protocolExtensions"    , &hf_rnsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29812,7 +29812,7 @@ dissect_rnsap_PhysicalChannelReconfigurationRequestFDD(tvbuff_t *tvb, int offset
 static const per_sequence_t Cell_InfEx_Rsp_sequence[] = {
   { "requestedDataValue"    , &hf_rnsap_requestedDataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_RequestedDataValue },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29866,7 +29866,7 @@ static const per_sequence_t MBMS_Bearer_ServiceItemFDD_PFL_sequence[] = {
   { "transmissionMode"      , &hf_rnsap_transmissionMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TransmissionMode },
   { "preferredFrequencyLayer", &hf_rnsap_preferredFrequencyLayer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_UARFCN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29956,7 +29956,7 @@ static int dissect_nCC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 static const per_sequence_t BSIC_sequence[] = {
   { "nCC"                   , &hf_rnsap_nCC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_NCC },
   { "bCC"                   , &hf_rnsap_bCC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_BCC },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -29974,7 +29974,7 @@ static int dissect_bSIC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *
 static const per_sequence_t EDCH_FDD_Update_InfoItem_sequence[] = {
   { "eDCH-FDD-DL-ControlChannelInformation", &hf_rnsap_eDCH_FDD_DL_ControlChannelInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -30019,7 +30019,7 @@ static const per_sequence_t EDPCH_Information_RLReconfPrepare_FDD_sequence[] = {
   { "e-TTI"                 , &hf_rnsap_e_TTI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_TTI },
   { "e-DPCCH-PO"            , &hf_rnsap_e_DPCCH_PO    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_E_DPCCH_PO },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -30034,7 +30034,7 @@ dissect_rnsap_EDPCH_Information_RLReconfPrepare_FDD(tvbuff_t *tvb, int offset, a
 static const per_sequence_t FACH_PCH_InformationItem_sequence[] = {
   { "transportFormatSet"    , &hf_rnsap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_TransportFormatSet },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -30070,7 +30070,7 @@ static const per_sequence_t Neighbouring_GSM_CellInformationItem_sequence[] = {
   { "band-Indicator"        , &hf_rnsap_band_Indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_Band_Indicator },
   { "bCCH-ARFCN"            , &hf_rnsap_bCCH_ARFCN    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_BCCH_ARFCN },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -30139,7 +30139,7 @@ static const per_sequence_t TUTRANGPSMeasurementThresholdInformation_sequence[] 
   { "tUTRANGPSChangeLimit"  , &hf_rnsap_tUTRANGPSChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_TUTRANGPSChangeLimit },
   { "predictedTUTRANGPSDeviationLimit", &hf_rnsap_predictedTUTRANGPSDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PredictedTUTRANGPSDeviationLimit },
   { "iE-Extensions"         , &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -30215,7 +30215,7 @@ static const per_sequence_t ProtocolIE_FieldPair_sequence[] = {
   { "firstValue"            , &hf_rnsap_firstValue    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_FirstValue },
   { "secondCriticality"     , &hf_rnsap_secondCriticality, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Criticality },
   { "secondValue"           , &hf_rnsap_secondValue   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_SecondValue },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int

@@ -1788,7 +1788,7 @@ static const per_sequence_t Data_Field_item_sequence[] = {
 		dissect_t38_Data_Field_field_type },
 	{ "field-data", &hf_t38_Data_Field_field_data, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field_field_data },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1818,7 +1818,7 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 static const per_sequence_t IFPPacket_sequence[] = {
   { "type-of-msg", &hf_t38_Type_of_msg, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Type_of_msg },
   { "data-field" , &hf_t38_Data_Field , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t38_Data_Field },
-  { NULL, 0, 0, NULL }
+  { NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1931,7 +1931,7 @@ static const per_sequence_t fec_info_sequence[] = {
 		dissect_t38_Fec_npackets },
 	{ "fec-data", &hf_t38_fec_data, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Fec_data },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 
 static int
@@ -1978,7 +1978,7 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 		dissect_t38_Primary_ifp_packet },
 	{ "error-recovery", &hf_t38_error_recovery, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Error_recovery },
-	{ NULL, 0, 0, NULL }
+	{ NULL, NULL, 0, 0, NULL }
 };
 
 static int
