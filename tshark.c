@@ -660,6 +660,7 @@ output_file_description(const char *fname)
 int
 main(int argc, char *argv[])
 {
+  char                *init_progfile_dir_error;
   int                  opt, i;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
@@ -706,6 +707,15 @@ main(int argc, char *argv[])
 #endif  /* HAVE_LIBPCAP */
 
   static const char    optstring[] = OPTSTRING_INIT OPTSTRING_WIN32;
+
+  /*
+   * Attempt to get the pathname of the executable file.
+   */
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
+  if (init_progfile_dir_error != NULL) {
+    fprintf(stderr, "tshark: Can't get pathname of tshark program: %s.\n",
+            init_progfile_dir_error);
+  }
 
   /*
    * Get credential information for later use.
