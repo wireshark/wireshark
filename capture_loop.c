@@ -91,7 +91,8 @@
  * Standard secondary message for unexpected errors.
  */
 static const char please_report[] =
-    "Please report this to the Wireshark developers";
+    "Please report this to the Wireshark developers.  (This is not a crash;\n"
+    "please do not report it as such.)";
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
