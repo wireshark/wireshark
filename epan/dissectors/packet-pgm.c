@@ -4,6 +4,7 @@
  * $Id$
  *
  * Copyright (c) 2000 by Talarian Corp
+ * Rewritten by Jaap Keuter
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,7 +26,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+# include "config.h"
 #endif
 
 #include <stdio.h>
@@ -40,9 +41,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-
 #include <epan/proto.h>
 #include <epan/emem.h>
+#include <epan/ptvcursor.h>
 
 /*
  * Flag to control whether to check the PGM checksum.
@@ -52,123 +53,7 @@ static gboolean pgm_check_checksum = TRUE;
 void proto_reg_handoff_pgm(void);
 static void proto_rereg_pgm(void);
 
-typedef guint8 nchar_t;
-typedef guint16 nshort_t;
-typedef guint32 nlong_t;
-
-/* The PGM main header */
-typedef struct {
-	nshort_t sport;            /* source port */
-	nshort_t dport;            /* destination port */
-	nchar_t type;              /* PGM type */
-	nchar_t opts;              /* options */
-	nshort_t cksum;            /* checksum */
-	nchar_t gsi[6];            /* Global Source ID */
-	nshort_t tsdulen;          /* TSDU length */
-} pgm_type;
-#define pgmhdr_ntoh(_p) \
-	(_p)->sport = g_ntohs((_p)->sport); \
-	(_p)->dport = g_ntohs((_p)->dport); \
-	(_p)->type = g_ntohs((_p)->type); \
-	(_p)->opts = g_ntohs((_p)->opts); \
-	(_p)->cksum = g_ntohs((_p)->cksum); \
-	(_p)->tsdulen = g_ntohs((_p)->tsdulen)
-
-/* The PGM SPM header */
-typedef struct {
-	nlong_t sqn;              /* SPM's sequence number */
-	nlong_t trail;            /* Trailing edge sequence number */
-	nlong_t lead;             /* Leading edge sequence number */
-	nshort_t path_afi;        /* NLA AFI */
-	nshort_t res;             /* reserved */
-	nlong_t path;             /* Path NLA */
-} pgm_spm_t;
-#define spm_ntoh(_p) \
-	(_p)->sqn = g_ntohl((_p)->sqn); \
-	(_p)->trail = g_ntohl((_p)->trail); \
-	(_p)->lead = g_ntohl((_p)->lead); \
-	(_p)->path_afi = g_ntohs((_p)->path_afi); \
-	(_p)->res = g_ntohs((_p)->res);
-
-/* The PGM Data (ODATA/RDATA) header */
-typedef struct {
-	nlong_t sqn;              /* Data Packet sequence number */
-	nlong_t trail;            /* Trailing edge sequence number */
-} pgm_data_t;
-#define data_ntoh(_p) \
-	(_p)->sqn = g_ntohl((_p)->sqn); \
-	(_p)->trail = g_ntohl((_p)->trail)
-
-/* The PGM NAK (NAK/N-NAK/NCF) header */
-typedef struct {
-	nlong_t sqn;             /* Requested sequence number */
-	nshort_t src_afi;        /* NLA AFI for source (IPv4 is set to 1) */
-	nshort_t src_res;        /* reserved */
-	nlong_t src;             /* Source NLA  */
-	nshort_t grp_afi;        /* Multicast group AFI (IPv4 is set to 1) */
-	nshort_t grp_res;        /* reserved */
-	nlong_t grp;             /* Multicast group NLA */
-} pgm_nak_t;
-#define nak_ntoh(_p) \
-	(_p)->sqn = g_ntohl((_p)->sqn); \
-	(_p)->src_afi = g_ntohs((_p)->src_afi); \
-	(_p)->src_res = g_ntohs((_p)->src_res); \
-	(_p)->grp_afi = g_ntohs((_p)->grp_afi); \
-	(_p)->grp_res = g_ntohs((_p)->grp_res)
-
-/* The PGM POLL header */
-typedef struct {
-	nlong_t sqn;             /* POLL sequence number */
-	nshort_t round;          /* POLL Round */
-	nshort_t subtype;        /* POLL subtype */
-	nshort_t path_afi;       /* NLA AFI for last hop router (IPv4 is set to 1) */
-	nshort_t res;            /* reserved */
-	nlong_t path;            /* Last hop router NLA  */
-	nlong_t backoff_ivl;     /* POLL backoff interval */
-	nlong_t rand_str;        /* POLL random string */
-	nlong_t matching_bmask;  /* POLL matching bitmask */
-} pgm_poll_t;
-#define poll_ntoh(_p) \
-	(_p)->sqn = g_ntohl((_p)->sqn); \
-	(_p)->round = g_ntohs((_p)->round); \
-	(_p)->subtype = g_ntohs((_p)->subtype); \
-	(_p)->path_afi = g_ntohs((_p)->path_afi); \
-	(_p)->res = g_ntohs((_p)->res); \
-	(_p)->backoff_ivl = g_ntohl((_p)->backoff_ivl); \
-	(_p)->rand_str = g_ntohl((_p)->rand_str); \
-	(_p)->matching_bmask = g_ntohl((_p)->matching_bmask)
-
-/* The PGM POLR header */
-typedef struct {
-	nlong_t sqn;             /* POLR sequence number */
-	nshort_t round;          /* POLR Round */
-	nshort_t res;            /* reserved */
-} pgm_polr_t;
-#define polr_ntoh(_p) \
-	(_p)->sqn = g_ntohl((_p)->sqn); \
-	(_p)->round = g_ntohs((_p)->round); \
-	(_p)->res = g_ntohs((_p)->res)
-
-/* The PGM ACK header (PGMCC) */
-typedef struct {
-	nlong_t rx_max_sqn;      /* RX_MAX sequence number */
-	nlong_t bitmap;          /* Received Packet Bitmap */
-} pgm_ack_t;
-#define ack_ntoh(_p) \
-	(_p)->rx_max_sqn = g_ntohl((_p)->rx_max_sqn); \
-	(_p)->bitmap = g_ntohl((_p)->bitmap)
-
 /* constants for hdr types */
-#if defined(PGM_SPEC_01_PCKTS)
-/* old spec-01 types */
-#define PGM_SPM_PCKT  0x00
-#define PGM_ODATA_PCKT  0x10
-#define PGM_RDATA_PCKT  0x11
-#define PGM_NAK_PCKT  0x20
-#define PGM_NNAK_PCKT  0x21
-#define PGM_NCF_PCKT 0x30
-#else
-/* spec-02 types (as well as spec-04+) */
 #define PGM_SPM_PCKT  0x00
 #define PGM_ODATA_PCKT  0x04
 #define PGM_RDATA_PCKT  0x05
@@ -178,10 +63,6 @@ typedef struct {
 #define PGM_POLL_PCKT 0x01
 #define PGM_POLR_PCKT 0x02
 #define PGM_ACK_PCKT 0x0D
-#endif /* PGM_SPEC_01_PCKTS */
-
-/* port swapping on NAK and NNAKs or not (default is to swap) */
-/* PGM_NO_PORT_SWAP */
 
 /* option flags (main PGM header) */
 #define PGM_OPT 0x01
@@ -211,33 +92,12 @@ typedef struct {
 #define PGM_POLL_GENERAL 0x0
 #define PGM_POLL_DLR 0x1
 
-static const nchar_t PGM_OPT_INVALID = 0x7F;
-
 /* OPX bit values */
 #define PGM_OPX_IGNORE	0x00
 #define PGM_OPX_INVAL	0x01
 #define PGM_OPX_DISCARD	0x10
 
-/* option formats */
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-} pgm_opt_generic_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nshort_t total_len;
-} pgm_opt_length_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-} pgm_opt_nak_list_t;
+#define PGM_OPT_NAK_LIST_SIZE 4
 
 /*
  * To squeeze the whole option into 255 bytes, we
@@ -245,101 +105,21 @@ typedef struct {
  */
 #define PGM_MAX_NAK_LIST_SZ (62)
 
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t opt_join_min;
-} pgm_opt_join_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t po;
-	nlong_t prm_tgsz;
-} pgm_opt_parity_prm_t;
+#define PGM_OPT_JOIN_SIZE 8
+#define PGM_OPT_PARITY_PRM_SIZE 8
 
 /* OPT_PARITY_PRM P and O bits */
-static const nchar_t PGM_OPT_PARITY_PRM_PRO = 0x2;
-static const nchar_t PGM_OPT_PARITY_PRM_OND = 0x1;
+#define PGM_OPT_PARITY_PRM_PRO 0x2
+#define PGM_OPT_PARITY_PRM_OND 0x1
 
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t prm_grp;
-} pgm_opt_parity_grp_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t prm_atgsz;
-} pgm_opt_curr_tgsize_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t tsp;
-	nshort_t acker_afi;
-	nshort_t res2;
-	nlong_t acker;
-} pgm_opt_pgmcc_data_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t tsp;
-	nshort_t acker_afi;
-	nshort_t loss_rate;
-	nlong_t acker;
-} pgm_opt_pgmcc_feedback_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t bo_ivl;
-	nlong_t bo_ivl_sqn;
-} pgm_opt_nak_bo_ivl_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t min_bo_ivl;
-	nlong_t max_bo_ivl;
-} pgm_opt_nak_bo_rng_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nshort_t afi;
-	nshort_t res2;
-	nlong_t dlr;
-} pgm_opt_redirect_t;
-
-typedef struct {
-	nchar_t type;
-	nchar_t len;
-	nchar_t opx;
-	nchar_t res;
-	nlong_t first_sqn;
-	nlong_t offset;
-	nlong_t total_length;
-} pgm_opt_fragment_t;
+#define PGM_OPT_PARITY_GRP_SIZE 8
+#define PGM_OPT_CURR_TGSIZE_SIZE 8
+#define PGM_OPT_PGMCC_DATA_SIZE 16
+#define PGM_OPT_PGMCC_FEEDBACK_SIZE 16
+#define PGM_OPT_NAK_BO_IVL_SIZE 12
+#define PGM_OPT_NAK_BO_RNG_SIZE 12
+#define PGM_OPT_REDIRECT_SIZE 12
+#define PGM_OPT_FRAGMENT_SIZE 16
 
 /*
  * Udp port for UDP encapsulation
@@ -391,21 +171,25 @@ static int hf_pgm_spm_trail = -1;
 static int hf_pgm_spm_pathafi = -1;
 static int hf_pgm_spm_res = -1;
 static int hf_pgm_spm_path = -1;
+static int hf_pgm_spm_path6 = -1;
 static int hf_pgm_data_sqn = -1;
 static int hf_pgm_data_trail = -1;
 static int hf_pgm_nak_sqn = -1;
 static int hf_pgm_nak_srcafi = -1;
 static int hf_pgm_nak_srcres = -1;
 static int hf_pgm_nak_src = -1;
+static int hf_pgm_nak_src6 = -1;
 static int hf_pgm_nak_grpafi = -1;
 static int hf_pgm_nak_grpres = -1;
 static int hf_pgm_nak_grp = -1;
+static int hf_pgm_nak_grp6 = -1;
 static int hf_pgm_poll_sqn = -1;
 static int hf_pgm_poll_round = -1;
 static int hf_pgm_poll_subtype = -1;
 static int hf_pgm_poll_pathafi = -1;
 static int hf_pgm_poll_res = -1;
 static int hf_pgm_poll_path = -1;
+static int hf_pgm_poll_path6 = -1;
 static int hf_pgm_poll_backoff_ivl = -1;
 static int hf_pgm_poll_rand_str = -1;
 static int hf_pgm_poll_matching_bmask = -1;
@@ -432,14 +216,6 @@ static int hf_pgm_opt_parity_prm_prmtgsz = -1;
 static int hf_pgm_opt_parity_grp_res = -1;
 static int hf_pgm_opt_parity_grp_prmgrp = -1;
 
-#ifdef PGM_UNUSED_HANDLES
-static int hf_pgm_opt_curr_tgsize_type = -1;
-static int hf_pgm_opt_curr_tgsize_len = -1;
-static int hf_pgm_opt_curr_tgsize_opx = -1;
-static int hf_pgm_opt_curr_tgsize_res = -1;
-static int hf_pgm_opt_curr_tgsize_prmatgsz = -1;
-#endif
-
 static int hf_pgm_opt_nak_res = -1;
 static int hf_pgm_opt_nak_list = -1;
 
@@ -448,12 +224,14 @@ static int hf_pgm_opt_ccdata_tsp = -1;
 static int hf_pgm_opt_ccdata_afi = -1;
 static int hf_pgm_opt_ccdata_res2 = -1;
 static int hf_pgm_opt_ccdata_acker = -1;
+static int hf_pgm_opt_ccdata_acker6 = -1;
 
 static int hf_pgm_opt_ccfeedbk_res = -1;
 static int hf_pgm_opt_ccfeedbk_tsp = -1;
 static int hf_pgm_opt_ccfeedbk_afi = -1;
 static int hf_pgm_opt_ccfeedbk_lossrate = -1;
 static int hf_pgm_opt_ccfeedbk_acker = -1;
+static int hf_pgm_opt_ccfeedbk_acker6 = -1;
 
 static int hf_pgm_opt_nak_bo_ivl_res = -1;
 static int hf_pgm_opt_nak_bo_ivl_bo_ivl = -1;
@@ -467,6 +245,7 @@ static int hf_pgm_opt_redirect_res = -1;
 static int hf_pgm_opt_redirect_afi = -1;
 static int hf_pgm_opt_redirect_res2 = -1;
 static int hf_pgm_opt_redirect_dlr = -1;
+static int hf_pgm_opt_redirect_dlr6 = -1;
 
 static int hf_pgm_opt_fragment_res = -1;
 static int hf_pgm_opt_fragment_first_sqn = -1;
@@ -477,24 +256,18 @@ static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 
-/*
- * As of the time this comment was typed
- *
- *	http://search.ietf.org/internet-drafts/draft-speakman-pgm-spec-06.txt
- *
- * was the URL for the PGM draft.
- */
 
 static const char *
-optsstr(nchar_t opts)
+optsstr(guint8 opts)
 {
 	char *msg;
 	size_t returned_length, index = 0;
 	const int MAX_STR_LEN = 256;
-	msg=ep_alloc(MAX_STR_LEN);
+
 	if (opts == 0)
 		return("");
 
+	msg=ep_alloc(MAX_STR_LEN);
 	if (opts & PGM_OPT){
 		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Present");
 		index += MIN(returned_length, MAX_STR_LEN-index);
@@ -517,16 +290,16 @@ optsstr(nchar_t opts)
 	return(msg);
 }
 static const char *
-paritystr(nchar_t parity)
+paritystr(guint8 parity)
 {
 	char *msg;
 	size_t returned_length, index = 0;
 	const int MAX_STR_LEN = 256;
 
-	msg=ep_alloc(MAX_STR_LEN);
 	if (parity == 0)
 		return("");
 
+	msg=ep_alloc(MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
 		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Pro-active");
 		index += MIN(returned_length, MAX_STR_LEN-index);
@@ -569,210 +342,183 @@ static const value_string opx_vals[] = {
 	{ 0,               NULL }
 };
 
+static const true_false_string opts_present = {
+	"Present",
+	"Not Present"
+};
+
 static void
-dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
-    const char *pktname)
+dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 {
 	proto_item *tf;
 	proto_tree *opts_tree = NULL;
 	proto_tree *opt_tree = NULL;
-	pgm_opt_length_t opts;
-	pgm_opt_generic_t genopts;
-	gboolean theend = FALSE, firsttime = TRUE;
+	tvbuff_t *tvb = ptvcursor_tvbuff(cursor);
 
-	tvb_memcpy(tvb, (guint8 *)&opts, offset, sizeof(opts));
-	if (opts.type != PGM_OPT_LENGTH) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	gboolean theend = FALSE;
+
+	guint16 opts_total_len;
+	guint8 genopts_type;
+	guint8 genopts_len;
+	guint8 opts_type = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+
+	if (opts_type != PGM_OPT_LENGTH) {
+		proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), 1,
 		    "%s Options - initial option is %s, should be %s",
 		    pktname,
-		    val_to_str(opts.type, opt_vals, "Unknown (0x%02x)"),
+		    val_to_str(opts_type, opt_vals, "Unknown (0x%02x)"),
 		    val_to_str(PGM_OPT_LENGTH, opt_vals, "Unknown (0x%02x)"));
 		return;
 	}
-	opts.total_len = g_ntohs(opts.total_len);
 
-	if (opts.total_len < 4) {
-		proto_tree_add_text(opts_tree, tvb, offset, 4,
+	opts_total_len = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor)+2);
+	
+	if (opts_total_len < 4) {
+		proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor)+2, 2,
 			"%s Options (Total Length %u - invalid, must be >= 4)",
-			pktname, opts.total_len);
+			pktname, opts_total_len);
 		return;
 	}
-	tf = proto_tree_add_text(tree, tvb, offset,
-		opts.total_len,
-		"%s Options (Total Length %d)", pktname, opts.total_len);
+	
+	tf = proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), opts_total_len,
+		"%s Options (Total Length %d)", pktname, opts_total_len);
 	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_type, tvb,
-		offset, 1, opts.type);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_len, tvb,
-		offset+1, 1, opts.len);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_tlen, tvb,
-		offset+2, 2, opts.total_len);
+	ptvcursor_set_tree(cursor, opts_tree);
+	ptvcursor_add(cursor, hf_pgm_opt_type, 1, FALSE);
+	ptvcursor_add(cursor, hf_pgm_opt_len, 1, FALSE);
+	ptvcursor_add(cursor, hf_pgm_opt_tlen, 2, FALSE);
 
-	offset += 4;
-	for (opts.total_len -= 4; !theend && opts.total_len != 0;){
-		if (opts.total_len < 4) {
-			proto_tree_add_text(opts_tree, tvb, offset, opts.total_len,
+	for (opts_total_len -= 4; !theend && opts_total_len != 0;){
+		if (opts_total_len < 4) {
+			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), opts_total_len,
 			    "Remaining total options length doesn't have enough for an options header");
 			break;
 		}
-		tvb_memcpy(tvb, (guint8 *)&genopts, offset, sizeof(genopts));
-		if (genopts.type & PGM_OPT_END)  {
-			genopts.type &= ~PGM_OPT_END;
+
+		genopts_type = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+		genopts_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor)+1);
+
+		if (genopts_type & PGM_OPT_END)  {
+			genopts_type &= ~PGM_OPT_END;
 			theend = TRUE;
 		}
-		if (genopts.len < 4) {
-			proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+		if (genopts_len < 4) {
+			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
 				"Option: %s, Length: %u (invalid, must be >= 4)",
-				val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
-				genopts.len);
+				val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
+				genopts_len);
 			break;
 		}
-		if (opts.total_len < genopts.len) {
-			proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+		if (opts_total_len < genopts_len) {
+			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
 			    "Option: %s, Length: %u (> remaining total options length)",
-			    val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
-			    genopts.len);
+			    val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
+			    genopts_len);
 			break;
 		}
-		tf = proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+		tf = proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
 			"Option: %s, Length: %u",
-			val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
-			genopts.len);
+			val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
+			genopts_len);
 
-		switch(genopts.type) {
+		switch(genopts_type) {
 		case PGM_OPT_JOIN:{
-			pgm_opt_join_t optdata;
-
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_JOIN_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long)sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_JOIN_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
-				offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_minjoin, tvb,
-				offset+4, 4, g_ntohl(optdata.opt_join_min));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_join_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_join_minjoin, 4, FALSE);
 
 			break;
 		}
 		case PGM_OPT_PARITY_PRM:{
-			pgm_opt_parity_prm_t optdata;
+			guint8 optdata_po;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
-
-			if (genopts.len < sizeof optdata) {
-				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			
+			if (genopts_len < PGM_OPT_PARITY_PRM_SIZE) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, ptvcursor_tvbuff(cursor),
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_PARITY_PRM_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			optdata_po = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb,
-				offset+3, 1, optdata.po, "Parity Parameters: %s (0x%x)",
-				paritystr(optdata.po), optdata.po);
+				ptvcursor_current_offset(cursor), 1, optdata_po, "Parity Parameters: %s (0x%x)",
+				paritystr(optdata_po), optdata_po);
+			ptvcursor_advance(cursor, 1);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_prmtgsz,
-				tvb, offset+4, 4, g_ntohl(optdata.prm_tgsz));
+			ptvcursor_add(cursor, hf_pgm_opt_parity_prm_prmtgsz, 4, FALSE);
 
 			break;
 		}
 		case PGM_OPT_PARITY_GRP:{
-			pgm_opt_parity_grp_t optdata;
-
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_PARITY_GRP_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_PARITY_GRP_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_prmgrp,
-				tvb, offset+4, 4, g_ntohl(optdata.prm_grp));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_prmgrp, 4, FALSE);
 
 			break;
 		}
 		case PGM_OPT_NAK_LIST:{
-			pgm_opt_nak_list_t optdata;
-			nlong_t naklist[PGM_MAX_NAK_LIST_SZ+1];
-			char *nakbuf, *ptr;
-			int i, j, naks, soffset = 0;
+			guint8 optdata_len;
+			guint32 naklist[PGM_MAX_NAK_LIST_SZ+1];
+			unsigned char *nakbuf;
+			gboolean firsttime;
+			int i, j, naks, soffset;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb,
-				offset, 1, genopts.type);
-
-			if (genopts.len < sizeof optdata) {
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			
+			if (genopts_len < PGM_OPT_NAK_LIST_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_NAK_LIST_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb,
-				offset+3, 1, optdata.res);
-
-			optdata.len -= sizeof(pgm_opt_nak_list_t);
-			tvb_memcpy(tvb, (guint8 *)naklist, offset+4, optdata.len);
-			naks = (optdata.len/sizeof(nlong_t));
-			nakbuf=ep_alloc(8192);
-			nakbuf[0]=0;
-			ptr = nakbuf;
+			optdata_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_res, 1, FALSE);
+			
+			optdata_len -= PGM_OPT_NAK_LIST_SIZE;
+			tvb_memcpy(tvb, (guint8 *)naklist, ptvcursor_current_offset(cursor), optdata_len);
+			firsttime = TRUE;
+			soffset = 0;
+			naks = (optdata_len/sizeof(guint32));
+			nakbuf = ep_alloc(8192);
 			j = 0;
 			/*
 			 * Print out 8 per line
@@ -784,318 +530,225 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				if ((++j % 8) == 0) {
 					if (firsttime) {
 						proto_tree_add_bytes_format(opt_tree,
-							hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
+							hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
 							nakbuf, "List(%d): %s", naks, nakbuf);
-							soffset = 0;
+						soffset = 0;
+						firsttime = FALSE;
 					} else {
 						proto_tree_add_bytes_format(opt_tree,
-							hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
+							hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
 							nakbuf, "List: %s", nakbuf);
-							soffset = 0;
+						soffset = 0;
 					}
-					firsttime = FALSE;
+					ptvcursor_advance(cursor, j*4);
+					j = 0;
 				}
 			}
-			if (soffset) {
+			if (j) {
 				if (firsttime) {
 					proto_tree_add_bytes_format(opt_tree,
-						hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
+						hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
 						nakbuf, "List(%d): %s", naks, nakbuf);
-						soffset = 0;
 				} else {
 					proto_tree_add_bytes_format(opt_tree,
-						hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
+						hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
 						nakbuf, "List: %s", nakbuf);
-						soffset = 0;
 				}
+				ptvcursor_advance(cursor, j*4);
 			}
 			break;
 		}
 		case PGM_OPT_PGMCC_DATA:{
-			pgm_opt_pgmcc_data_t optdata;
+			guint16 optdata_afi;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_PGMCC_DATA_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_PGMCC_DATA_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_tsp, 4, FALSE);
+			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 1, FALSE);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_tsp, tvb,
-				offset+4, 4, optdata.tsp);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_afi, tvb,
-				offset+8, 2, g_ntohs(optdata.acker_afi));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res2, tvb,
-				offset+10, 2, g_ntohs(optdata.res2));
-
-			switch (g_ntohs(optdata.acker_afi)) {
+			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccdata_acker,
-				    tvb, offset+12, 4, optdata.acker);
+				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				break;
 			}
 
 			break;
 		}
 		case PGM_OPT_PGMCC_FEEDBACK:{
-			pgm_opt_pgmcc_feedback_t optdata;
+			guint16 optdata_afi;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_PGMCC_FEEDBACK_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_PGMCC_FEEDBACK_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_tsp, 4, FALSE);
+			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_afi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_lossrate, 2, FALSE);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_tsp, tvb,
-				offset+4, 4, optdata.tsp);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_afi, tvb,
-				offset+8, 2, g_ntohs(optdata.acker_afi));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_lossrate, tvb,
-				offset+10, 2, g_ntohs(optdata.loss_rate));
-
-			switch (g_ntohs(optdata.acker_afi)) {
+			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccfeedbk_acker,
-				    tvb, offset+12, 4, optdata.acker);
+				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
+				    "Can't handle this address format");
 				break;
 			}
 
 			break;
 		}
 		case PGM_OPT_NAK_BO_IVL:{
-			pgm_opt_nak_bo_ivl_t optdata;
-
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_NAK_BO_IVL_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_NAK_BO_IVL_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
-				offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_bo_ivl, tvb,
-				offset+4, 4, g_ntohl(optdata.bo_ivl));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, tvb,
-				offset+8, 4, g_ntohl(optdata.bo_ivl_sqn));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, 1, FALSE);
 
 			break;
 		}
 		case PGM_OPT_NAK_BO_RNG:{
-			pgm_opt_nak_bo_rng_t optdata;
-
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_NAK_BO_RNG_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_NAK_BO_RNG_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
-				offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_min_bo_ivl, tvb,
-				offset+4, 4, g_ntohl(optdata.min_bo_ivl));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_max_bo_ivl, tvb,
-				offset+8, 4, g_ntohl(optdata.max_bo_ivl));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_min_bo_ivl, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_max_bo_ivl, 4, FALSE);
 
 			break;
 		}
 		case PGM_OPT_REDIRECT:{
-			pgm_opt_redirect_t optdata;
+			guint16 optdata_afi;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_REDIRECT_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_REDIRECT_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_res, 1, FALSE);
+			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 1, FALSE);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
-				tvb, offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_afi, tvb,
-				offset+4, 2, g_ntohs(optdata.afi));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_res2, tvb,
-				offset+6, 2, g_ntohs(optdata.res2));
-
-			switch (g_ntohs(optdata.afi)) {
+			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_redirect_dlr,
-				    tvb, offset+8, 4, optdata.dlr);
+				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				break;
 			}
 
 			break;
 		}
 		case PGM_OPT_FRAGMENT:{
-			pgm_opt_fragment_t optdata;
-
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
+			ptvcursor_set_tree(cursor, opt_tree);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
-				tvb, offset, 1, genopts.type);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			if (genopts.len < sizeof optdata) {
+			if (genopts_len < PGM_OPT_FRAGMENT_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %lu)",
-					genopts.len,
-					(unsigned long) sizeof optdata);
+					ptvcursor_current_offset(cursor), 1, genopts_len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts_len, PGM_OPT_FRAGMENT_SIZE);
 				break;
 			}
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
-				offset+1, 1, genopts.len);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
-				offset+2, 1, genopts.opx);
-
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_res, tvb,
-				offset+3, 1, optdata.res);
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_first_sqn, tvb,
-				offset+4, 4, g_ntohl(optdata.first_sqn));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_offset, tvb,
-				offset+8, 4, g_ntohl(optdata.offset));
-
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_total_length, tvb,
-				offset+12, 4, g_ntohl(optdata.total_length));
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_first_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_offset, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_total_length, 4, FALSE);
 
 			break;
 		}
 		}
-		offset += genopts.len;
-		opts.total_len -= genopts.len;
 
+		opts_total_len -= genopts_len;
 	}
-	return ;
+	return;
 }
 
 static const value_string type_vals[] = {
@@ -1116,13 +769,14 @@ static const value_string poll_subtype_vals[] = {
 	{ PGM_POLL_DLR,       "DLR" },
 	{ 0,                  NULL }
 };
+
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
 static void
 decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, pgm_type *pgmhdr)
+	proto_tree *tree, guint16 pgmhdr_sport, guint16 pgmhdr_dport)
 {
   tvbuff_t *next_tvb;
   int found = 0;
@@ -1130,460 +784,312 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
   /* do lookup with the subdissector table */
-  found = dissector_try_port(subdissector_table, pgmhdr->sport,
+  found = dissector_try_port(subdissector_table, pgmhdr_sport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
 
-  found = dissector_try_port(subdissector_table, pgmhdr->dport,
+  found = dissector_try_port(subdissector_table, pgmhdr_dport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
 
   /* do lookup with the heuristic subdissector table */
   if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
-    return;
+	return;
 
   /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle,next_tvb, pinfo, tree);
-
 }
-static int
-total_size(tvbuff_t *tvb, pgm_type *hdr)
-{
-	int bytes = sizeof(pgm_type);
-	pgm_opt_length_t opts;
 
-	switch(hdr->type) {
-	case PGM_SPM_PCKT:
-		bytes += sizeof(pgm_spm_t);
-		break;
-
-	case PGM_RDATA_PCKT:
-	case PGM_ODATA_PCKT:
-		bytes += sizeof(pgm_data_t);
-		break;
-
-	case PGM_NAK_PCKT:
-	case PGM_NNAK_PCKT:
-	case PGM_NCF_PCKT:
-		bytes += sizeof(pgm_nak_t);
-		break;
-	case PGM_POLL_PCKT:
-		bytes += sizeof(pgm_poll_t);
-		break;
-	case PGM_POLR_PCKT:
-		bytes += sizeof(pgm_polr_t);
-		break;
-	case PGM_ACK_PCKT:
-		bytes += sizeof(pgm_ack_t);
-		break;
-	}
-	if ((hdr->opts & PGM_OPT)) {
-		tvb_memcpy(tvb, (guint8 *)&opts, bytes, sizeof(opts));
-		bytes += g_ntohs(opts.total_len);
-	}
-	return(bytes);
-}
 /*
  * dissect_pgm - The dissector for Pragmatic General Multicast
  */
 static void
 dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *pgm_tree = NULL;
-	proto_tree *opt_tree = NULL;
-	proto_tree *type_tree = NULL;
-	proto_item *tf;
-	pgm_type pgmhdr;
-	pgm_spm_t spm;
-	pgm_data_t data;
-	pgm_nak_t nak;
-	pgm_poll_t poll;
-	pgm_polr_t polr;
-	pgm_ack_t ack;
-	int offset = 0;
-	guint hlen, plen;
+	guint16 pgmhdr_sport;
+	guint16 pgmhdr_dport;
+	guint8 pgmhdr_type;
+	guint8 pgmhdr_opts;
+	guint16 pgmhdr_cksum;
+	guint16 pgmhdr_tsdulen;
+	guint32 sqn;
+	guint16 afi;
+
+	guint plen = 0;
 	proto_item *ti;
 	const char *pktname;
 	const char *pollstname;
 	char *gsi;
-	int isdata = 0;
+	gboolean isdata = FALSE;
 	guint pgmlen, reportedlen;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 
-	/* Clear out the Info column. */
-	if (check_col(pinfo->cinfo, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
+		if (tvb_reported_length_remaining(tvb, 0) < 18) {
+			col_set_str(pinfo->cinfo, COL_INFO,
+				"Packet too small");
+			return;
+		}
+	}
 
-	tvb_memcpy(tvb, (guint8 *)&pgmhdr, offset, sizeof(pgm_type));
-	hlen = sizeof(pgm_type);
-	pgmhdr.sport = g_ntohs(pgmhdr.sport);
-	pgmhdr.dport = g_ntohs(pgmhdr.dport);
-	pgmhdr.tsdulen = g_ntohs(pgmhdr.tsdulen);
-	pgmhdr.cksum = g_ntohs(pgmhdr.cksum);
+	pinfo->srcport = pgmhdr_sport = tvb_get_ntohs(tvb, 0);
+	pinfo->destport = pgmhdr_dport = tvb_get_ntohs(tvb, 2);
 
-	pktname = val_to_str(pgmhdr.type, type_vals, "Unknown (0x%02x)");
+	pgmhdr_type = tvb_get_guint8(tvb, 4);
+	pktname = val_to_str(pgmhdr_type, type_vals, "Unknown (0x%02x)");
 
-	gsi = bytes_to_str(pgmhdr.gsi, 6);
-	switch(pgmhdr.type) {
+	pgmhdr_opts = tvb_get_guint8(tvb, 5);
+	pgmhdr_cksum = tvb_get_ntohs(tvb, 6);
+	gsi = tvb_bytes_to_str(tvb, 8, 6);
+	pgmhdr_tsdulen = tvb_get_ntohs(tvb, 14);
+	sqn = tvb_get_ntohl(tvb, 16);
+
+	switch(pgmhdr_type) {
 	case PGM_SPM_PCKT:
-		plen = sizeof(pgm_spm_t);
-		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_type), plen);
-		spm_ntoh(&spm);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s", pktname, spm.sqn, gsi);
-		}
-		break;
-
-	case PGM_RDATA_PCKT:
-	case PGM_ODATA_PCKT:
-		plen = sizeof(pgm_data_t);
-		tvb_memcpy(tvb, (guint8 *)&data, sizeof(pgm_type), plen);
-		data_ntoh(&data);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, data.sqn, gsi,
-			    pgmhdr.tsdulen);
-		}
-		isdata = 1;
-		break;
-
 	case PGM_NAK_PCKT:
 	case PGM_NNAK_PCKT:
 	case PGM_NCF_PCKT:
-		plen = sizeof(pgm_nak_t);
-		tvb_memcpy(tvb, (guint8 *)&nak, sizeof(pgm_type), plen);
-		nak_ntoh(&nak);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s", pktname, nak.sqn, gsi);
-		}
-		break;
-	case PGM_POLL_PCKT:
-		plen = sizeof(pgm_poll_t);
-		tvb_memcpy(tvb, (guint8 *)&poll, sizeof(pgm_type), plen);
-		poll_ntoh(&poll);
-		pollstname = val_to_str(poll.subtype, poll_subtype_vals, "Unknown (0x%02x)");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s subtype %s", pktname, poll.sqn, gsi, pollstname);
-		}
-		break;
 	case PGM_POLR_PCKT:
-		plen = sizeof(pgm_polr_t);
-		tvb_memcpy(tvb, (guint8 *)&polr, sizeof(pgm_type), plen);
-		polr_ntoh(&polr);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s", pktname, polr.sqn, gsi);
-		}
-		break;
 	case PGM_ACK_PCKT:
-		plen = sizeof(pgm_ack_t);
-		tvb_memcpy(tvb, (guint8 *)&ack, sizeof(pgm_type), plen);
-		ack_ntoh(&ack);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "%-5s sqn 0x%x gsi %s", pktname, ack.rx_max_sqn, gsi);
+				"%-5s sqn 0x%x gsi %s", pktname, sqn, gsi);
 		}
 		break;
+	case PGM_RDATA_PCKT:
+	case PGM_ODATA_PCKT:
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, sqn, gsi,
+			    pgmhdr_tsdulen);
+		}
+		isdata = TRUE;
+		break;
+	case PGM_POLL_PCKT: {
+		guint16 poll_stype = tvb_get_ntohs(tvb, 22);
+		pollstname = val_to_str(poll_stype, poll_subtype_vals, "Unknown (0x%02x)");
 
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+				"%-5s sqn 0x%x gsi %s subtype %s", 
+					pktname, sqn, gsi, pollstname);
+		}
+		}
+		break;
 	default:
 		return;
 	}
 
-	if (tree) {
+	{
+		proto_tree *pgm_tree = NULL;
+		proto_tree *opt_tree = NULL;
+		proto_tree *type_tree = NULL;
+		proto_item *tf;
+		ptvcursor_t* cursor;
+
 		ti = proto_tree_add_protocol_format(tree, proto_pgm,
-			tvb, offset, total_size(tvb, &pgmhdr),
+			tvb, 0, -1,
 			"Pragmatic General Multicast: Type %s"
-			    " SrcPort %u, DstPort %u, GSI %s", pktname,
-			pgmhdr.sport, pgmhdr.dport,
-			bytes_to_str(pgmhdr.gsi, 6));
+			    " Src Port %u, Dst Port %u, GSI %s", pktname,
+			pgmhdr_sport, pgmhdr_dport, gsi);
 
 		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_sport, tvb, offset, 2,
-			pgmhdr.sport);
-		proto_tree_add_uint_hidden(pgm_tree, hf_pgm_port, tvb, offset, 2,
-			pgmhdr.sport);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_dport, tvb, offset+2,
-			2, pgmhdr.dport);
-		proto_tree_add_uint_hidden(pgm_tree, hf_pgm_port, tvb, offset+2,
-			2, pgmhdr.dport);
-		
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_type, tvb,
-			offset+4, 1, pgmhdr.type);
+
+		cursor = ptvcursor_new(pgm_tree, tvb, 0);
+
+		proto_tree_add_item_hidden(pgm_tree, hf_pgm_port, tvb, 0, 2, FALSE);
+		proto_tree_add_item_hidden(pgm_tree, hf_pgm_port, tvb, 2, 2, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_sport, 2, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_dport, 2, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_type, 1, FALSE);
 
 		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_opts, tvb,
-			offset+5, 1, pgmhdr.opts, "Options: %s (0x%x)",
-			optsstr(pgmhdr.opts), pgmhdr.opts);
+			ptvcursor_current_offset(cursor), 1, pgmhdr_opts, "Options: %s (0x%x)",
+			optsstr(pgmhdr_opts), pgmhdr_opts);
 		opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
+		ptvcursor_set_tree(cursor, opt_tree);
 
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_opt, tvb,
-			offset+5, 1, (pgmhdr.opts & PGM_OPT));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_netsig, tvb,
-			offset+5, 1, (pgmhdr.opts & PGM_OPT_NETSIG));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_varlen, tvb,
-			offset+5, 1, (pgmhdr.opts & PGM_OPT_VAR_PKTLEN));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_parity, tvb,
-			offset+5, 1, (pgmhdr.opts & PGM_OPT_PARITY));
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_opt, 1, FALSE);
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_netsig, 1, FALSE);
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_varlen, 1, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_opts_parity, 1, FALSE);
+		ptvcursor_set_tree(cursor, pgm_tree);
 
-		reportedlen = tvb_reported_length(tvb);
-		pgmlen = tvb_length(tvb);
-		if (pgm_check_checksum && pgmlen >= reportedlen) {
-			vec_t cksum_vec[1];
-			guint16 computed_cksum;
-
-			cksum_vec[0].ptr = tvb_get_ptr(tvb, offset, pgmlen);
-			cksum_vec[0].len = pgmlen;
-			computed_cksum = in_cksum(&cksum_vec[0], 1);
-			if (computed_cksum == 0) {
-				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
-					offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x [correct]", pgmhdr.cksum);
-			} else {
-				proto_tree_add_boolean_hidden(pgm_tree, hf_pgm_main_cksum_bad, tvb,
-				    offset+6, 2, TRUE);
-				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
-				    offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-					pgmhdr.cksum, in_cksum_shouldbe(pgmhdr.cksum, computed_cksum));
-			}
+		/* Checksum may be 0 (not available), but not for DATA packets */
+		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) && 
+		    (pgmhdr_cksum == 0))
+		{
+			proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
+				ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "Checksum: not available");
 		} else {
-			proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6,
-				2, pgmhdr.cksum);
+			reportedlen = tvb_reported_length(tvb);
+			pgmlen = tvb_length(tvb);
+			if (pgm_check_checksum && pgmlen >= reportedlen) {
+				vec_t cksum_vec[1];
+				guint16 computed_cksum;
+
+				cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pgmlen);
+				cksum_vec[0].len = pgmlen;
+				computed_cksum = in_cksum(&cksum_vec[0], 1);
+				if (computed_cksum == 0) {
+					proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
+						ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "Checksum: 0x%04x [correct]", pgmhdr_cksum);
+				} else {
+					proto_tree_add_boolean_hidden(pgm_tree, hf_pgm_main_cksum_bad, tvb,
+					    ptvcursor_current_offset(cursor), 2, TRUE);
+					proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
+					    ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+						pgmhdr_cksum, in_cksum_shouldbe(pgmhdr_cksum, computed_cksum));
+				}
+			} else {
+				ptvcursor_add_no_advance(cursor, hf_pgm_main_cksum, 2, FALSE);
+			}
 		}
+		ptvcursor_advance(cursor, 2);
 
-		proto_tree_add_bytes(pgm_tree, hf_pgm_main_gsi, tvb, offset+8,
-			6, pgmhdr.gsi);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_tsdulen, tvb,
-			offset+14, 2, pgmhdr.tsdulen);
+		ptvcursor_add(cursor, hf_pgm_main_gsi, 6, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_tsdulen, 2, FALSE);
 
-		offset = sizeof(pgm_type);
-		tf = proto_tree_add_text(pgm_tree, tvb, offset, plen, "%s Packet",
-			pktname);
-		switch(pgmhdr.type) {
+		tf = proto_tree_add_text(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen, "%s Packet", pktname);
+		switch(pgmhdr_type) {
 		case PGM_SPM_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_spm);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb,
-				offset, 4, spm.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb,
-				offset+4, 4, spm.trail);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_lead, tvb,
-				offset+8, 4, spm.lead);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_pathafi, tvb,
-				offset+12, 2, spm.path_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_res, tvb,
-				offset+14, 2, spm.res);
-			switch (spm.path_afi) {
+			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_lead, 4, FALSE);
+			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_res, 2, FALSE);
 
+			switch (afi) {
 			case AFNUM_INET:
-				proto_tree_add_ipv4(type_tree, hf_pgm_spm_path,
-				    tvb, offset+16, 4, spm.path);
+				ptvcursor_add(cursor, hf_pgm_spm_path, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_spm_path6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				return;
 			}
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
 			break;
-
 		case PGM_RDATA_PCKT:
-		case PGM_ODATA_PCKT: {
+		case PGM_ODATA_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb,
-				offset, 4, data.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb,
-				offset+4, 4, data.trail);
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
+			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, FALSE);
 			break;
-		}
-
-
 		case PGM_NAK_PCKT:
 		case PGM_NNAK_PCKT:
 		case PGM_NCF_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_nak);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_nak_sqn, tvb,
-				offset, 4, nak.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_srcafi, tvb,
-				offset+4, 2, nak.src_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_srcres, tvb,
-				offset+6, 2, nak.src_res);
+			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, FALSE);
+			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, FALSE);
 
-			switch (nak.src_afi) {
-
+			switch (afi) {
 			case AFNUM_INET:
-				proto_tree_add_ipv4(type_tree, hf_pgm_nak_src,
-				    tvb, offset+8, 4, nak.src);
+				ptvcursor_add(cursor, hf_pgm_nak_src, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_nak_src6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				break;
 			}
 
-			proto_tree_add_uint(type_tree, hf_pgm_nak_grpafi, tvb,
-				offset+12, 2, nak.grp_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_grpres, tvb,
-				offset+14, 2, nak.grp_res);
+			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, FALSE);
 
-			switch (nak.grp_afi) {
-
+			switch (afi) {
 			case AFNUM_INET:
-				proto_tree_add_ipv4(type_tree, hf_pgm_nak_grp,
-				    tvb, offset+16, 4, nak.grp);
+				ptvcursor_add(cursor, hf_pgm_nak_grp, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_nak_grp6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				return;
 			}
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
 			break;
 		case PGM_POLL_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_poll);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_poll_sqn, tvb,
-				offset, 4, poll.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_round, tvb,
-				offset+4, 2, poll.round);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_subtype, tvb,
-				offset+6, 2, poll.subtype);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_pathafi, tvb,
-				offset+8, 2, poll.path_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_res, tvb,
-				offset+10, 2, poll.res);
+			ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_round, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_subtype, 2, FALSE);
+			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+			ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_res, 2, FALSE);
 
-			switch (poll.path_afi) {
-
+			switch (afi) {
 			case AFNUM_INET:
-				proto_tree_add_ipv4(type_tree, hf_pgm_poll_path,
-				    tvb, offset+12, 4, poll.path);
+				ptvcursor_add(cursor, hf_pgm_poll_path, 4, FALSE);
+				break;
+
+			case AFNUM_INET6:
+				ptvcursor_add(cursor, hf_pgm_poll_path6, 16, FALSE);
 				break;
 
 			default:
-				/*
-				 * XXX - the header is variable-length,
-				 * as the length of the NLA depends on
-				 * its AFI.
-				 *
-				 * However, our structure for it is
-				 * fixed-length, and assumes it's a 4-byte
-				 * IPv4 address.
-				 */
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				    "Can't handle this address format");
 				break;
 			}
 
-			proto_tree_add_uint(type_tree, hf_pgm_poll_backoff_ivl, tvb,
-				offset+16, 4, poll.backoff_ivl);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_rand_str, tvb,
-				offset+20, 4, poll.rand_str);
-			proto_tree_add_uint(type_tree, hf_pgm_poll_matching_bmask, tvb,
-				offset+24, 4, poll.matching_bmask);
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
+			ptvcursor_add(cursor, hf_pgm_poll_backoff_ivl, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_rand_str, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, FALSE);
 			break;
 		case PGM_POLR_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_polr);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_polr_sqn, tvb,
-				offset, 4, polr.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_polr_round, tvb,
-				offset+4, 2, polr.round);
-			proto_tree_add_uint(type_tree, hf_pgm_polr_res, tvb,
-				offset+6, 2, polr.res);
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
+			ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_polr_round, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_polr_res, 2, FALSE);
 			break;
 		case PGM_ACK_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
+			ptvcursor_set_tree(cursor, type_tree);
 
-			proto_tree_add_uint(type_tree, hf_pgm_ack_sqn, tvb,
-				offset, 4, ack.rx_max_sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_ack_bitmap, tvb,
-				offset+4, 4, ack.bitmap);
-
-			if ((pgmhdr.opts & PGM_OPT) == FALSE)
-				break;
-			offset += plen;
-
-			dissect_pgmopts(tvb, offset, type_tree, pktname);
-
+			ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_ack_bitmap, 4, FALSE);
 			break;
 		}
 
+		if (pgmhdr_opts & PGM_OPT)
+			dissect_pgmopts(cursor, pktname);
+
+		if (isdata) 
+			decode_pgm_ports(tvb, ptvcursor_current_offset(cursor), pinfo, tree, pgmhdr_sport, pgmhdr_dport);
 	}
-	if (isdata) {
-		/*
-		 * Now see if there are any sub-dissectors, if so call them
-		 */
-		offset = total_size(tvb, &pgmhdr);
-		decode_pgm_ports(tvb, offset, pinfo, tree, &pgmhdr);
-	}
-	pktname = NULL;
 }
-static const true_false_string opts_present = {
-	"Present",
-	"Not Present"
-};
 
 /* Register all the bits needed with the filtering engine */
 void
@@ -1606,18 +1112,18 @@ proto_register_pgm(void)
       { "Options", "pgm.hdr.opts", FT_UINT8, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_opts_opt,
-      { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, BASE_NONE,
+      { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, 8,
 	  TFS(&opts_present), PGM_OPT, "", HFILL }},
     { &hf_pgm_main_opts_netsig,
       { "Network Significant Options", "pgm.hdr.opts.netsig",
-	  FT_BOOLEAN, BASE_NONE,
+	  FT_BOOLEAN, 8,
 	  TFS(&opts_present), PGM_OPT_NETSIG, "", HFILL }},
     { &hf_pgm_main_opts_varlen,
       { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen",
-	  FT_BOOLEAN, BASE_NONE,
+	  FT_BOOLEAN, 8,
 	  TFS(&opts_present), PGM_OPT_VAR_PKTLEN, "", HFILL }},
     { &hf_pgm_main_opts_parity,
-      { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, BASE_NONE,
+      { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, 8,
 	  TFS(&opts_present), PGM_OPT_PARITY, "", HFILL }},
     { &hf_pgm_main_cksum,
       { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
@@ -1649,6 +1155,9 @@ proto_register_pgm(void)
     { &hf_pgm_spm_path,
       { "Path NLA", "pgm.spm.path", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_spm_path6,
+      { "Path NLA", "pgm.spm.path", FT_IPv6, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_data_sqn,
       { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
@@ -1667,6 +1176,9 @@ proto_register_pgm(void)
     { &hf_pgm_nak_src,
       { "Source NLA", "pgm.nak.src", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_nak_src6,
+      { "Source NLA", "pgm.nak.src", FT_IPv6, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_grpafi,
       { "Multicast Group AFI", "pgm.nak.grpafi", FT_UINT16, BASE_DEC,
 	  VALS(afn_vals), 0x0, "", HFILL }},
@@ -1675,6 +1187,9 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_grp,
       { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_nak_grp6,
+      { "Multicast Group NLA", "pgm.nak.grp", FT_IPv6, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_poll_sqn,
       { "Sequence Number", "pgm.poll.sqn", FT_UINT32, BASE_HEX,
@@ -1693,6 +1208,9 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_poll_path,
       { "Path NLA", "pgm.poll.path", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_path6,
+      { "Path NLA", "pgm.poll.path", FT_IPv6, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_poll_backoff_ivl,
       { "Back-off Interval", "pgm.poll.backoff_ivl", FT_UINT32, BASE_DEC,
@@ -1777,6 +1295,9 @@ proto_register_pgm(void)
     { &hf_pgm_opt_ccdata_acker,
       { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_acker6,
+      { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_ccfeedbk_res,
       { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
@@ -1791,6 +1312,9 @@ proto_register_pgm(void)
           NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_ccfeedbk_acker,
       { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_acker6,
+      { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_nak_bo_ivl_res,
       { "Reserved", "pgm.opts.nak_bo_ivl.res", FT_UINT8, BASE_HEX,
@@ -1822,6 +1346,9 @@ proto_register_pgm(void)
     { &hf_pgm_opt_redirect_dlr,
       { "DLR", "pgm.opts.redirect.dlr", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_redirect_dlr6,
+      { "DLR", "pgm.opts.redirect.dlr", FT_IPv6, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_fragment_res,
       { "Reserved", "pgm.opts.fragment.res", FT_UINT8, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
@@ -1833,10 +1360,10 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_fragment_total_length,
       { "Total Length", "pgm.opts.fragment.total_length", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, "", HFILL }}
   };
   static gint *ett[] = {
-    &ett_pgm,
+	&ett_pgm,
 	&ett_pgm_optbits,
 	&ett_pgm_spm,
 	&ett_pgm_data,
@@ -1853,7 +1380,7 @@ proto_register_pgm(void)
 	&ett_pgm_opts_nak_bo_ivl,
 	&ett_pgm_opts_nak_bo_rng,
 	&ett_pgm_opts_redirect,
-	&ett_pgm_opts_fragment,
+	&ett_pgm_opts_fragment
   };
   module_t *pgm_module;
 
