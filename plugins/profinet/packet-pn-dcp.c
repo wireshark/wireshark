@@ -481,8 +481,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8 device_role;
     guint16 vendor_id;
     guint16 device_id;
-    guint8* typeofstation;
-    guint8* nameofstation;
+    char *typeofstation;
+    char *nameofstation;
     guint16 status=0;
     proto_item *item;
 

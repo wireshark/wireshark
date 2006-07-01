@@ -1659,13 +1659,13 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
     guint8 u8LengthOwnPortID;
-    guint8 *pu8OwnPortID;
+    char *pOwnPortID;
     guint8 u8NumberOfPeers;
     guint8 u8I;
     guint8 u8LengthPeerPortID;
-    guint8 *pu8PeerPortID;
+    guint8 *pPeerPortID;
     guint8 u8LengthPeerChassisID;
-    guint8 *pu8PeerChassisID;
+    char *pPeerChassisID;
     guint32 u32PropagationDelayFactor;
     guint8 mac[6];
     guint16 u16MAUType;
@@ -1689,10 +1689,10 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortID */
-    pu8OwnPortID = ep_alloc(u8LengthOwnPortID+1);
-    tvb_memcpy(tvb, pu8OwnPortID, offset, u8LengthOwnPortID);
-    pu8OwnPortID[u8LengthOwnPortID] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, pu8OwnPortID);
+    pOwnPortID = ep_alloc(u8LengthOwnPortID+1);
+    tvb_memcpy(tvb, pOwnPortID, offset, u8LengthOwnPortID);
+    pOwnPortID[u8LengthOwnPortID] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, pOwnPortID);
     offset += u8LengthOwnPortID;
 
     /* NumberOfPeers */
@@ -1716,20 +1716,20 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
-        pu8PeerPortID = ep_alloc(u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, pu8PeerPortID, offset, u8LengthPeerPortID);
-        pu8PeerPortID[u8LengthPeerPortID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pu8PeerPortID);
+        pPeerPortID = ep_alloc(u8LengthPeerPortID+1);
+        tvb_memcpy(tvb, pPeerPortID, offset, u8LengthPeerPortID);
+        pPeerPortID[u8LengthPeerPortID] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
         offset += u8LengthPeerPortID;
 
         /* LengthPeerChassisID */
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
-        pu8PeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, pu8PeerChassisID, offset, u8LengthPeerChassisID);
-        pu8PeerChassisID[u8LengthPeerChassisID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pu8PeerChassisID);
+        pPeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
+        tvb_memcpy(tvb, pPeerChassisID, offset, u8LengthPeerChassisID);
+        pPeerChassisID[u8LengthPeerChassisID] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
         offset += u8LengthPeerChassisID;
 
         /* Padding */
@@ -1808,7 +1808,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_media_type, &u32MediaType);
 
     proto_item_append_text(item, ": Slot:0x%x/0x%x, OwnPortID:%s, Peers:%u PortState:%s MediaType:%s", 
-        u16SlotNr, u16SubslotNr, pu8OwnPortID, u8NumberOfPeers,
+        u16SlotNr, u16SubslotNr, pOwnPortID, u8NumberOfPeers,
         val_to_str(u16PortState, pn_io_port_state, "0x%x"),
         val_to_str(u32MediaType, pn_io_media_type, "0x%x"));
 
@@ -1940,9 +1940,9 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
     guint8 u8NumberOfPeers;
     guint8 u8I;
     guint8 u8LengthPeerPortID;
-    guint8 *pu8PeerPortID;
+    char *pPeerPortID;
     guint8 u8LengthPeerChassisID;
-    guint8 *pu8PeerChassisID;
+    char *pPeerChassisID;
 
 
     /* NumberOfPeers */
@@ -1955,20 +1955,20 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
-        pu8PeerPortID = ep_alloc(u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, pu8PeerPortID, offset, u8LengthPeerPortID);
-        pu8PeerPortID[u8LengthPeerPortID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pu8PeerPortID);
+        pPeerPortID = ep_alloc(u8LengthPeerPortID+1);
+        tvb_memcpy(tvb, pPeerPortID, offset, u8LengthPeerPortID);
+        pPeerPortID[u8LengthPeerPortID] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
         offset += u8LengthPeerPortID;
 
         /* LengthPeerChassisID */
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
-        pu8PeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, pu8PeerChassisID, offset, u8LengthPeerChassisID);
-        pu8PeerChassisID[u8LengthPeerChassisID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pu8PeerChassisID);
+        pPeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
+        tvb_memcpy(tvb, pPeerChassisID, offset, u8LengthPeerChassisID);
+        pPeerChassisID[u8LengthPeerChassisID] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
         offset += u8LengthPeerChassisID;
     }
 
@@ -2200,7 +2200,7 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
     guint16 u16TimeoutFactor;
     guint16 u16UDPRTPort;
     guint16 u16NameLength;
-    guint8 *pu8StationName;
+    char *pStationName;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
@@ -2244,10 +2244,10 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pu8StationName = ep_alloc(u16NameLength+1);
-    tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
-    pu8StationName[u16NameLength] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pu8StationName);
+    pStationName = ep_alloc(u16NameLength+1);
+    tvb_memcpy(tvb, pStationName, offset, u16NameLength);
+    pStationName[u16NameLength] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ": %s, Session:%u, MAC:%02x:%02x:%02x:%02x:%02x:%02x, Port:0x%x, Station:%s",
@@ -2255,7 +2255,7 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
         u16SessionKey,
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5],
         u16UDPRTPort,
-        pu8StationName);
+        pStationName);
 
     return offset;
 }
@@ -2564,7 +2564,7 @@ dissect_MCRBlockReq(tvbuff_t *tvb, int offset,
     guint32 u32AddressResolutionProperties;
     guint16 u16MCITimeoutFactor;
     guint16 u16NameLength;
-    guint8 *pu8StationName;
+    char *pStationName;
 
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -2577,14 +2577,14 @@ dissect_MCRBlockReq(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pu8StationName = ep_alloc(u16NameLength+1);
-    tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
-    pu8StationName[u16NameLength] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pu8StationName);
+    pStationName = ep_alloc(u16NameLength+1);
+    tvb_memcpy(tvb, pStationName, offset, u16NameLength);
+    pStationName[u16NameLength] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pStationName);
     offset += u16NameLength;    
 
     proto_item_append_text(item, ", CRRef:%u, Properties:0x%x, TFactor:%u, Station:%s",
-        u16IOCRReference, u32AddressResolutionProperties, u16MCITimeoutFactor, pu8StationName);
+        u16IOCRReference, u32AddressResolutionProperties, u16MCITimeoutFactor, pStationName);
 
     return offset;
 }
