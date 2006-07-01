@@ -235,7 +235,7 @@ static const value_string cba_acco_diag_req_vals[] = {
     { 0, NULL }
 };
 
-static const true_false_string cba_acco_call_flags[] = {
+static const true_false_string cba_acco_call_flags = {
 	"Consumer calls Provider (TRUE)",
 	"Provider calls Consumer (FALSE)"
 };
