@@ -135,7 +135,6 @@ static int hf_ssl_record_content_type        = -1;
 static int hf_ssl_record_version             = -1;
 static int hf_ssl_record_length              = -1;
 static int hf_ssl_record_appdata             = -1;
-static int hf_ssl_record_appdata_decrypted   = -1;
 static int hf_ssl2_record                    = -1;
 static int hf_ssl2_record_is_escape          = -1;
 static int hf_ssl2_record_padding_length     = -1;
@@ -1150,6 +1149,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     SslPacketInfo* pi;
     SslAssociation* association;
 
+
     available_bytes = tvb_length_remaining(tvb, offset);
 
    /*
@@ -1358,14 +1358,14 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     }
     case SSL_ID_APP_DATA:
-      if (ssl){
-	decrypt_ssl3_record(tvb, pinfo, offset, 
+        if (ssl){
+	    decrypt_ssl3_record(tvb, pinfo, offset, 
 			    record_length, content_type, ssl, TRUE);
-	/* if application data desegmentation is allowed */
-	if(ssl_desegment_app_data)
+	    /* if application data desegmentation is allowed */
+	    if(ssl_desegment_app_data)
 		ssl_desegment_ssl_app_data(ssl,pinfo);	 
  
-      }
+        }
 	
         
         /* show on info colum what we are decoding */
@@ -1386,6 +1386,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_version_short_names[*conv_version],
             val_to_str(content_type, ssl_31_content_type, "unknown"),
             association?association->info:"Application Data");
+
+
+        proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb, 
+                       offset, record_length, 0);
     
         /* show decrypted data info, if available */         
         pi = p_get_proto_data(pinfo->fd, proto_ssl);
@@ -1397,7 +1401,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", 
                 pi->app_data.data_len);
             
-             /* create new tvbuff for the decrypted data */
+            /* create new tvbuff for the decrypted data */
             new_tvb = tvb_new_real_data(pi->app_data.data, 
                 pi->app_data.data_len, pi->app_data.data_len);
       
@@ -1412,17 +1416,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
                 ssl_print_text_data("decrypted app data",pi->app_data.data, 
                     pi->app_data.data_len);
-			call_dissector(association->handle, new_tvb, pinfo, top_tree);
+
+                call_dissector(association->handle, new_tvb, pinfo, top_tree);
             }
-            /* add raw decrypted data only if a decoder is not found*/
-            else 
-                proto_tree_add_string(ssl_record_tree, hf_ssl_record_appdata_decrypted, tvb,
-                        offset, pi->app_data.data_len, (char*) pi->app_data.data);
-        }
-        else {
-            tvb_ensure_bytes_exist(tvb, offset, record_length);
-            proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
-                       offset, record_length, 0);
         }     
         break;
 
@@ -3605,14 +3601,9 @@ proto_register_ssl(void)
             "Length of SSL record data", HFILL }
         },
         { &hf_ssl_record_appdata,
-          { "Application Data", "ssl.app_data",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "Payload is application data", HFILL }
-        },
-        { &hf_ssl_record_appdata_decrypted,
-          { "Application Data decrypted", "ssl.app_data_decrypted",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            "Payload is decrypted application data", HFILL }
+          { "Encrypted Application Data", "ssl.app_data",
+            FT_BYTES, BASE_HEX, NULL, 0x0,
+            "Payload is encrypted application data", HFILL }
         },
 
         { & hf_ssl2_record,
