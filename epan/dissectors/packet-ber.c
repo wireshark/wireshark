@@ -501,7 +501,6 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 	guint32 tmp_len;
 	guint32 tmp_length;
 	gboolean tmp_ind;
-	int old_offset=offset;
 	int tmp_offset,s_offset;
 	gint8 tclass;
 	gboolean tpc;
