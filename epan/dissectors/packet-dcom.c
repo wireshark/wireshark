@@ -1600,13 +1600,11 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	switch(u32Flags) {
 		case(0x1):	/* standard */
-/* XXX: which hfindex to use here? */
 			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex);
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep,
 								hf_dcom_objref_resolver_address);
 		break;
 		case(0x2):	/* handler (untested) */
-/* XXX: which hfindex to use here? */
 			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex);
 			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_objref_clsid, &clsid);
