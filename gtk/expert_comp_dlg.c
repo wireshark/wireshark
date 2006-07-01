@@ -87,7 +87,7 @@ error_reset(void *pss)
 }
 
 static int
-error_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *prv)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
     const expert_info_t *error_pkt=prv;
@@ -175,7 +175,7 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-expert_comp_init(const char *optarg, void* userdata _U_)
+expert_comp_init(const char *optarg _U_, void* userdata _U_)
 {
     expert_comp_dlg_t *ss;
     const char *filter=NULL;

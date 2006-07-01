@@ -42,7 +42,7 @@
 
 
 static int
-ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
 {
         hostlist_table *hosts=(hostlist_table *)pit;
         /*const ncp_common_header *ncphdr=vip;*/
