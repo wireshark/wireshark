@@ -3978,7 +3978,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if(pinfo->dcectxid != 0) {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU */
-		expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple DCE/RPC fragments/PDU's in one packet");
+		expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_CHAT, "Multiple DCE/RPC fragments/PDU's in one packet");
 	}
 
     offset = start_offset;
