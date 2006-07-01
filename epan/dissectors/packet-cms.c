@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-cms.c                                                             */
+/* ./packet-cms.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -147,7 +148,7 @@ static int hf_cms_signature = -1;                 /* Signature */
 static int hf_cms_attributes = -1;                /* UnauthAttributes */
 
 /*--- End of included file: packet-cms-hf.c ---*/
-#line 53 "packet-cms-template.c"
+#line 54 "packet-cms-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -196,7 +197,7 @@ static gint ett_cms_ExtendedCertificate = -1;
 static gint ett_cms_ExtendedCertificateInfo = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
-#line 56 "packet-cms-template.c"
+#line 57 "packet-cms-template.c"
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -1590,7 +1591,7 @@ static void dissect_Countersignature_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 133 "packet-cms-template.c"
+#line 134 "packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -1946,7 +1947,7 @@ void proto_register_cms(void) {
         "ExtendedCertificateInfo/attributes", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 144 "packet-cms-template.c"
+#line 145 "packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -1997,7 +1998,7 @@ void proto_register_cms(void) {
     &ett_cms_ExtendedCertificateInfo,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 149 "packet-cms-template.c"
+#line 150 "packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -2029,6 +2030,6 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 164 "packet-cms-template.c"
+#line 165 "packet-cms-template.c"
 }
 

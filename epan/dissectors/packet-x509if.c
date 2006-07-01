@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x509if.c                                                          */
+/* ./packet-x509if.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -203,7 +204,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 52 "packet-x509if-template.c"
+#line 53 "packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -280,7 +281,7 @@ static gint ett_x509if_Mapping = -1;
 static gint ett_x509if_MRSubstitution = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 55 "packet-x509if-template.c"
+#line 56 "packet-x509if-template.c"
 
 static const char *object_identifier_id;
 static proto_tree *top_of_dn = NULL;
@@ -2242,7 +2243,7 @@ static void dissect_DistinguishedName_PDU(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 77 "packet-x509if-template.c"
+#line 78 "packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2856,7 +2857,7 @@ void proto_register_x509if(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 122 "packet-x509if-template.c"
+#line 123 "packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2935,7 +2936,7 @@ void proto_register_x509if(void) {
     &ett_x509if_MRSubstitution,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 127 "packet-x509if-template.c"
+#line 128 "packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2988,6 +2989,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 146 "packet-x509if-template.c"
+#line 147 "packet-x509if-template.c"
 }
 

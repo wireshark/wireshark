@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x509af.c                                                          */
+/* ./packet-x509af.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -136,7 +137,7 @@ static int hf_x509af_q = -1;                      /* INTEGER */
 static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
-#line 53 "packet-x509af-template.c"
+#line 54 "packet-x509af-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
@@ -177,7 +178,7 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
-#line 57 "packet-x509af-template.c"
+#line 58 "packet-x509af-template.c"
 
 static const char *algorithm_id;
 static const char *extension_id;
@@ -1093,7 +1094,7 @@ static void dissect_DSS_Params_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 62 "packet-x509af-template.c"
+#line 63 "packet-x509af-template.c"
 
 const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;
@@ -1438,7 +1439,7 @@ void proto_register_x509af(void) {
         "DSS-Params/g", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 106 "packet-x509af-template.c"
+#line 107 "packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1481,7 +1482,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 112 "packet-x509af-template.c"
+#line 113 "packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1515,7 +1516,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 132 "packet-x509af-template.c"
+#line 133 "packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

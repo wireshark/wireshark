@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x420.c                                                            */
+/* ./packet-x420.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
 
 /* Input file: packet-x420-template.c */
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -295,7 +296,7 @@ static int hf_x420_NotificationRequests_an_supported = -1;
 static int hf_x420_NotificationRequests_suppress_an = -1;
 
 /*--- End of included file: packet-x420-hf.c ---*/
-#line 86 "packet-x420-template.c"
+#line 87 "packet-x420-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x420 = -1;
@@ -375,7 +376,7 @@ static gint ett_x420_ForwardedContentParameters = -1;
 static gint ett_x420_SubmissionProof = -1;
 
 /*--- End of included file: packet-x420-ett.c ---*/
-#line 90 "packet-x420-template.c"
+#line 91 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-fn.c ---*/
@@ -2910,7 +2911,7 @@ static void dissect_ForwardedContentParameters_PDU(tvbuff_t *tvb, packet_info *p
 
 
 /*--- End of included file: packet-x420-fn.c ---*/
-#line 92 "packet-x420-template.c"
+#line 93 "packet-x420-template.c"
 
 /*
 * Dissect X420 PDUs inside a PPDU.
@@ -3743,7 +3744,7 @@ void proto_register_x420(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x420-hfarr.c ---*/
-#line 124 "packet-x420-template.c"
+#line 125 "packet-x420-template.c"
   };
 
   /* List of subtrees */
@@ -3825,7 +3826,7 @@ void proto_register_x420(void) {
     &ett_x420_SubmissionProof,
 
 /*--- End of included file: packet-x420-ettarr.c ---*/
-#line 130 "packet-x420-template.c"
+#line 131 "packet-x420-template.c"
   };
 
   /* Register protocol */
@@ -3892,7 +3893,7 @@ void proto_reg_handoff_x420(void) {
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
-#line 146 "packet-x420-template.c"
+#line 147 "packet-x420-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");
