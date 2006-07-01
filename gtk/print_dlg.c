@@ -859,6 +859,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gboolean          win_printer = FALSE;
   int               tmp_fd;
   char              tmp_namebuf[128+1];    /* XXX - length was used elsewhere too, why? */
+  char              *tmp_oldfile;
 #endif
   cf_print_status_t status;
 
@@ -906,7 +907,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
             "Couldn't create a temporary file for printing.");
         return;
     }
-    g_free(args->file);
+    /* remember to restore these values later! */
+    tmp_oldfile = args->file;
     args->file = g_strdup(tmp_namebuf);
     eth_unlink(args->file);
     args->to_file = TRUE;
@@ -1038,6 +1040,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
     /* trash temp file */
     eth_remove(args->file);
+
+    /* restore old settings */
+    args->to_file = FALSE;
+    args->file = tmp_oldfile;
   }
 #endif
 }
