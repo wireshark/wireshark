@@ -1013,7 +1013,8 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     return(0);
 }
  
-/*static int 
+#if 0
+static int 
 dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
         guint32 datalen, guint8* mac)
 {
@@ -1028,25 +1029,25 @@ dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
     
     ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md);
     ssl_debug_printf("dtls_check_mac seq: %d epoch: %d\n",decoder->seq,decoder->epoch);
-    /* hash sequence number *
-   fmt_seq(decoder->seq,buf);
-   buf[0]=decoder->epoch>>8;
-   buf[1]=decoder->epoch;
+    /* hash sequence number */
+    fmt_seq(decoder->seq,buf);
+    buf[0]=decoder->epoch>>8;
+    buf[1]=decoder->epoch;
 
     ssl_hmac_update(&hm,buf,8);
    
-    /* hash content type *
+    /* hash content type */
     buf[0]=ct;
     ssl_hmac_update(&hm,buf,1);
 
-    /* hash version,data lenght and data*
+    /* hash version,data lenght and data */
     *((gint16*)buf) = g_htons(ver);
     ssl_hmac_update(&hm,buf,2); 
     
     *((gint16*)buf) = g_htons(datalen);
     ssl_hmac_update(&hm,buf,2);
     ssl_hmac_update(&hm,data,datalen);
-    /* get digest and digest len*
+    /* get digest and digest len */
     ssl_hmac_final(&hm,buf,&len);
     ssl_print_data("Mac", buf, len);
     if(memcmp(mac,buf,len))
@@ -1054,7 +1055,8 @@ dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
 
     ssl_hmac_cleanup(&hm);
     return(0);
-}*/
+}
+#endif
 
  
 int 
