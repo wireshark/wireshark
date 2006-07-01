@@ -1663,7 +1663,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     guint8 u8NumberOfPeers;
     guint8 u8I;
     guint8 u8LengthPeerPortID;
-    guint8 *pPeerPortID;
+    char *pPeerPortID;
     guint8 u8LengthPeerChassisID;
     char *pPeerChassisID;
     guint32 u32PropagationDelayFactor;
@@ -1690,7 +1690,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortID */
     pOwnPortID = ep_alloc(u8LengthOwnPortID+1);
-    tvb_memcpy(tvb, pOwnPortID, offset, u8LengthOwnPortID);
+    tvb_memcpy(tvb, (guint8 *) pOwnPortID, offset, u8LengthOwnPortID);
     pOwnPortID[u8LengthOwnPortID] = '\0';
     proto_tree_add_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, pOwnPortID);
     offset += u8LengthOwnPortID;
@@ -1717,7 +1717,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
         pPeerPortID = ep_alloc(u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, pPeerPortID, offset, u8LengthPeerPortID);
+        tvb_memcpy(tvb, (guint8 *) pPeerPortID, offset, u8LengthPeerPortID);
         pPeerPortID[u8LengthPeerPortID] = '\0';
         proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
         offset += u8LengthPeerPortID;
@@ -1727,7 +1727,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
         pPeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, pPeerChassisID, offset, u8LengthPeerChassisID);
+        tvb_memcpy(tvb, (guint8 *) pPeerChassisID, offset, u8LengthPeerChassisID);
         pPeerChassisID[u8LengthPeerChassisID] = '\0';
         proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
         offset += u8LengthPeerChassisID;
@@ -1956,7 +1956,7 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
         pPeerPortID = ep_alloc(u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, pPeerPortID, offset, u8LengthPeerPortID);
+        tvb_memcpy(tvb, (guint8 *) pPeerPortID, offset, u8LengthPeerPortID);
         pPeerPortID[u8LengthPeerPortID] = '\0';
         proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
         offset += u8LengthPeerPortID;
@@ -1966,7 +1966,7 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
         pPeerChassisID = ep_alloc(u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, pPeerChassisID, offset, u8LengthPeerChassisID);
+        tvb_memcpy(tvb, (guint8 *) pPeerChassisID, offset, u8LengthPeerChassisID);
         pPeerChassisID[u8LengthPeerChassisID] = '\0';
         proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
         offset += u8LengthPeerChassisID;
@@ -2245,7 +2245,7 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
                         hf_pn_io_station_name_length, &u16NameLength);
 
     pStationName = ep_alloc(u16NameLength+1);
-    tvb_memcpy(tvb, pStationName, offset, u16NameLength);
+    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
     pStationName[u16NameLength] = '\0';
     proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
     offset += u16NameLength;
@@ -2578,7 +2578,7 @@ dissect_MCRBlockReq(tvbuff_t *tvb, int offset,
                         hf_pn_io_station_name_length, &u16NameLength);
 
     pStationName = ep_alloc(u16NameLength+1);
-    tvb_memcpy(tvb, pStationName, offset, u16NameLength);
+    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
     pStationName[u16NameLength] = '\0';
     proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pStationName);
     offset += u16NameLength;    

@@ -496,7 +496,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch(suboption) {
     case(PNDCP_SUBOPTION_DEVICE_MANUF):
         typeofstation = ep_alloc(block_length+1);
-        tvb_memcpy(tvb, typeofstation, offset, block_length);
+        tvb_memcpy(tvb, (guint8 *) typeofstation, offset, block_length);
         typeofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
         pn_append_info(pinfo, dcp_item, ", TypeOfStation");
@@ -508,7 +508,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
     case(PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION):
         nameofstation = ep_alloc(block_length+1);
-        tvb_memcpy(tvb, nameofstation, offset, block_length);
+        tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
         nameofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
         pn_append_info(pinfo, dcp_item, ", NameOfStation");
