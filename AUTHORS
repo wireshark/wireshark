@@ -2494,6 +2494,11 @@ Authesserre Samuel	<sauthess [AT] gmail.com> {
 Balint Reczey		<balint.reczey [AT] ericsson.com> {
 	Lua fixes
 }
+
+Stephen Fisher		<stephentfisher [AT] yahoo.com> {
+	REXEC support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2619,7 +2624,6 @@ Kirby Files		<kfiles [AT] masergy.com>
 Ravi Valmikam           <rvalmikam [AT] airvananet.com>
 Diego Pettenò		<flameeyes [AT] gentoo.org>
 Daniel Black		<dragonheart [AT] gentoo.org>
-Stephen Fisher		<stephentfisher [AT] yahoo.com>
 Christoph Werle		<Christoph.Werle [AT] ira.uka.de>
 Aaron Christensen	<aaronmf [AT] gmail.com>
 
