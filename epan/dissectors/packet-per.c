@@ -1153,11 +1153,13 @@ static const char *
 index_get_optional_name(const per_sequence_t *sequence, int index)
 {
 	int i;
+	header_field_info *hfi;
 
-	for(i=0;sequence[i].name;i++){
+	for(i=0;sequence[i].p_id;i++){
 		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
-			if(index==0){
-				return sequence[i].name;
+			if (index == 0) {
+				hfi = proto_registrar_get_nth(*sequence[i].p_id);
+				return (hfi) ? hfi->name : "<unknown filed>";
 			}
 			index--;
 		}
@@ -1169,16 +1171,27 @@ static const char *
 index_get_extension_name(const per_sequence_t *sequence, int index)
 {
 	int i;
+	header_field_info *hfi;
 
-	for(i=0;sequence[i].name;i++){
+	for(i=0;sequence[i].p_id;i++){
 		if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
-			if(index==0){
-				return sequence[i].name;
+			if (index == 0) {
+				hfi = proto_registrar_get_nth(*sequence[i].p_id);
+				return (hfi) ? hfi->name : "<unknown filed>";
 			}
 			index--;
 		}
 	}
 	return "<unknown type>";
+}
+
+static const char *
+index_get_field_name(const per_sequence_t *sequence, int index)
+{
+	header_field_info *hfi;
+
+	hfi = proto_registrar_get_nth(*sequence[index].p_id);
+	return (hfi) ? hfi->name : "<unknown filed>";
 }
 
 /* this functions decodes a SEQUENCE
@@ -1223,7 +1236,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	}
 	/* 18.2 */
 	num_opts=0;
-	for(i=0;sequence[i].name;i++){
+	for(i=0;sequence[i].p_id;i++){
 		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			num_opts++;
 		}
@@ -1232,10 +1245,10 @@ DEBUG_ENTRY("dissect_per_sequence");
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
-		proto_item_append_text(actx->created_item, " (%s %s present)",
-			index_get_optional_name(sequence, i),
-			optional_field_flag?"is":"is NOT"
-		);
+		if (tree) {
+			proto_item_append_text(actx->created_item, " (%s %s present)",
+				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
+		}
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		optional_mask<<=1;
 		if(optional_field_flag){
@@ -1245,7 +1258,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 
 	/* 18.4 */
-	for(i=0;sequence[i].name;i++){
+	for(i=0;sequence[i].p_id;i++){
 		if( (sequence[i].extension==ASN1_NO_EXTENSIONS)
 		||  (sequence[i].extension==ASN1_EXTENSION_ROOT) ){
 			if(sequence[i].optional==ASN1_OPTIONAL){
@@ -1259,7 +1272,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[i].func){
 				offset=sequence[i].func(tvb, offset, actx, tree, *sequence[i].p_id);
 			} else {
-				PER_NOT_DECODED_YET(sequence[i].name);
+				PER_NOT_DECODED_YET(index_get_field_name(sequence, i));
 			}
 		}
 	}
@@ -1293,11 +1306,10 @@ DEBUG_ENTRY("dissect_per_sequence");
 		extension_mask=0;
 		for(i=0;i<num_extensions;i++){
 			offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_bit);
-			proto_item_append_text(actx->created_item, " (%s %s present)",
-				index_get_extension_name(sequence, i),
-				extension_bit?"is":"is NOT"
-			);
-
+			if (tree) {
+				proto_item_append_text(actx->created_item, " (%s %s present)",
+					index_get_extension_name(sequence, i), extension_bit?"is":"is NOT");
+			}
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 
 			extension_mask=(extension_mask<<1)|extension_bit;
@@ -1305,7 +1317,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 		/* find how many extensions we know about */
 		num_known_extensions=0;
-		for(i=0;sequence[i].name;i++){
+		for(i=0;sequence[i].p_id;i++){
 			if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
 				num_known_extensions++;
 			}
@@ -1333,7 +1345,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			}
 
 			extension_index=0;
-			for(j=0,k=0;sequence[j].name;j++){
+			for(j=0,k=0;sequence[j].p_id;j++){
 				if(sequence[j].extension==ASN1_NOT_EXTENSION_ROOT){
 					if(k==i){
 						extension_index=j;
@@ -1346,15 +1358,15 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
 			} else {
-				PER_NOT_DECODED_YET(sequence[extension_index].name);
+				PER_NOT_DECODED_YET(index_get_field_name(sequence, extension_index));
 			}
 			offset+=length*8;
 
 		}
 	}
 
-
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
+	actx->created_item = item;
 	return offset;
 }
 

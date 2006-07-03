@@ -2377,8 +2377,8 @@ class SqType (Type):
       out = '  { %-13s, %s, %s, dissect_%s },\n' \
             % (tc, tn, opt, efd)
     elif (ectx.Per()):
-      out = '  { %-24s, %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
-            % ('"'+(val.name or '')+'"', '&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
+      out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
+            % ('&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
     else:
       out = ''
     return out   
@@ -2403,7 +2403,7 @@ class SeqType (SqType):
     if (ectx.Ber()):
       table += "  { 0, 0, 0, NULL }\n};\n"
     else:
-      table += "  { NULL, NULL, 0, 0, NULL }\n};\n"
+      table += "  { NULL, 0, 0, NULL }\n};\n"
     return table
 
 #--- SeqOfType -----------------------------------------------------------

@@ -83,7 +83,6 @@ typedef struct _per_choice_t {
 } per_choice_t;
 
 typedef struct _per_sequence_t {
-	const char *name;
 	const int *p_id;
 	int extension;
 	int optional;

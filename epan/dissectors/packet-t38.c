@@ -1784,11 +1784,11 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 }
 
 static const per_sequence_t Data_Field_item_sequence[] = {
-	{ "field-type", &hf_t38_Data_Field_field_type, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_Data_Field_field_type, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Data_Field_field_type },
-	{ "field-data", &hf_t38_Data_Field_field_data, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
+	{ &hf_t38_Data_Field_field_data, ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field_field_data },
-	{ NULL, NULL, 0, 0, NULL }
+	{ NULL, 0, 0, NULL }
 };
 
 static int
@@ -1804,7 +1804,7 @@ dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 }
 
 static const per_sequence_t t38_Data_Field_sequence_of[1] = {
-  { "", &hf_t38_Data_Field_item,  ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Data_Field_item },
+  { &hf_t38_Data_Field_item,  ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Data_Field_item },
 };
 
 static int
@@ -1816,9 +1816,9 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tre
 }
 
 static const per_sequence_t IFPPacket_sequence[] = {
-  { "type-of-msg", &hf_t38_Type_of_msg, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Type_of_msg },
-  { "data-field" , &hf_t38_Data_Field , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t38_Data_Field },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_t38_Type_of_msg, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Type_of_msg },
+  { &hf_t38_Data_Field , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t38_Data_Field },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -1879,7 +1879,7 @@ dissect_t38_Secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn_ctx_t *act
 }
 
 static const per_sequence_t SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of[1] = {
-  { "", &hf_t38_dummy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Secondary_ifp_packets_item },
+  { &hf_t38_dummy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Secondary_ifp_packets_item },
 };
 
 static int
@@ -1915,7 +1915,7 @@ dissect_t38_Fec_data_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 	return offset;
 }
 static const per_sequence_t T_t38_fec_data_sequence_of[1] = {
-  { "", &hf_t38_fec_data_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Fec_data_item },
+  { &hf_t38_fec_data_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Fec_data_item },
 };
 static int
 dissect_t38_Fec_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
@@ -1927,11 +1927,11 @@ dissect_t38_Fec_data(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tre
 }
 
 static const per_sequence_t fec_info_sequence[] = {
-	{ "fec-npackets", &hf_t38_fec_npackets, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_fec_npackets, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Fec_npackets },
-	{ "fec-data", &hf_t38_fec_data, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_fec_data, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Fec_data },
-	{ NULL, NULL, 0, 0, NULL }
+	{ NULL, 0, 0, NULL }
 };
 
 static int
@@ -1972,13 +1972,13 @@ dissect_t38_Error_recovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 }
 
 static const per_sequence_t UDPTLPacket_sequence[] = {
-	{ "seq-number", &hf_t38_seq_number, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_seq_number, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Seq_number },
-	{ "primary-ifp-packet", &hf_t38_dummy, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_dummy, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Primary_ifp_packet },
-	{ "error-recovery", &hf_t38_error_recovery, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ &hf_t38_error_recovery, ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Error_recovery },
-	{ NULL, NULL, 0, 0, NULL }
+	{ NULL, 0, 0, NULL }
 };
 
 static int

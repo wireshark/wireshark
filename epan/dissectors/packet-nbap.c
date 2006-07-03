@@ -3863,9 +3863,9 @@ static int dissect_ddMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 
 
 static const per_sequence_t ProcedureID_sequence[] = {
-  { "procedureCode"         , &hf_nbap_procedureCode  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureCode },
-  { "ddMode"                , &hf_nbap_ddMode         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_ddMode },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureCode  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureCode },
+  { &hf_nbap_ddMode         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_ddMode },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4005,12 +4005,12 @@ static int dissect_initiatingMessageValue(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t InitiatingMessage_sequence[] = {
-  { "procedureID"           , &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "messageDiscriminator"  , &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
-  { "transactionID"         , &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { "initiatingMessageValue", &hf_nbap_initiatingMessageValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_InitiatingMessageValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
+  { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
+  { &hf_nbap_initiatingMessageValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_InitiatingMessageValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4042,12 +4042,12 @@ static int dissect_successfulOutcomeValue(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t SuccessfulOutcome_sequence[] = {
-  { "procedureID"           , &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "messageDiscriminator"  , &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
-  { "transactionID"         , &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { "successfulOutcomeValue", &hf_nbap_successfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SuccessfulOutcomeValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
+  { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
+  { &hf_nbap_successfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SuccessfulOutcomeValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4079,12 +4079,12 @@ static int dissect_unsuccessfulOutcomeValue(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t UnsuccessfulOutcome_sequence[] = {
-  { "procedureID"           , &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "messageDiscriminator"  , &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
-  { "transactionID"         , &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { "unsuccessfulOutcomeValue", &hf_nbap_unsuccessfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UnsuccessfulOutcomeValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
+  { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
+  { &hf_nbap_unsuccessfulOutcomeValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UnsuccessfulOutcomeValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4120,12 +4120,12 @@ static int dissect_outcomeValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t Outcome_sequence[] = {
-  { "procedureID"           , &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "messageDiscriminator"  , &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
-  { "transactionID"         , &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { "outcomeValue"          , &hf_nbap_outcomeValue   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_OutcomeValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProcedureID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
+  { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
+  { &hf_nbap_outcomeValue   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_OutcomeValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4797,10 +4797,10 @@ static int dissect_value(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 
 
 static const per_sequence_t ProtocolIE_Field_sequence[] = {
-  { "id"                    , &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "value"                 , &hf_nbap_value          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIEValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_value          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIEValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4816,7 +4816,7 @@ static int dissect_ProtocolIE_Container_item(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t ProtocolIE_Container_sequence_of[1] = {
-  { ""                      , &hf_nbap_ProtocolIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Field },
+  { &hf_nbap_ProtocolIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Field },
 };
 
 static int
@@ -4856,10 +4856,10 @@ static int dissect_extensionValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t ProtocolExtensionField_sequence[] = {
-  { "id"                    , &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "extensionValue"        , &hf_nbap_extensionValue , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Extension },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_extensionValue , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Extension },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4875,7 +4875,7 @@ static int dissect_ProtocolExtensionContainer_item(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t ProtocolExtensionContainer_sequence_of[1] = {
-  { ""                      , &hf_nbap_ProtocolExtensionContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolExtensionField },
+  { &hf_nbap_ProtocolExtensionContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolExtensionField },
 };
 
 static int
@@ -4898,9 +4898,9 @@ static int dissect_ie_Extensions(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t AuditRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4916,9 +4916,9 @@ static int dissect_id_audit(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t AuditRequiredIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4934,9 +4934,9 @@ static int dissect_id_auditRequired(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t BlockResourceRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4952,9 +4952,9 @@ static int dissect_id_blockResource(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t CellDeletionRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4970,9 +4970,9 @@ static int dissect_id_cellDeletion(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t CellReconfigurationRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -4988,9 +4988,9 @@ static int dissect_id_cellReconfiguration(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t CellReconfigurationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5006,9 +5006,9 @@ static int dissect_id_cellReconfiguration_tdd(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t CellSetupRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5024,9 +5024,9 @@ static int dissect_id_cellSetup(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t CellSetupRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5042,9 +5042,9 @@ static int dissect_id_cellSetup_tdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t CommonMeasurementFailureIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5060,9 +5060,9 @@ static int dissect_id_commonMeasurementFailure(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t CommonMeasurementInitiationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5078,9 +5078,9 @@ static int dissect_id_commonMeasurementInitiation(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t CommonMeasurementReport_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5096,9 +5096,9 @@ static int dissect_id_commonMeasurementReport(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t CommonMeasurementTerminationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5114,9 +5114,9 @@ static int dissect_id_commonMeasurementTermination(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CommonTransportChannelDeletionRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5132,9 +5132,9 @@ static int dissect_id_commonTransportChannelDelete(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CommonTransportChannelReconfigurationRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5150,9 +5150,9 @@ static int dissect_id_commonTransportChannelReconfigure(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t CommonTransportChannelReconfigurationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5168,9 +5168,9 @@ static int dissect_id_commonTransportChannelReconfigure_tdd(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t CommonTransportChannelSetupRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5186,9 +5186,9 @@ static int dissect_id_commonTransportChannelSetup(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t CommonTransportChannelSetupRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5204,9 +5204,9 @@ static int dissect_id_commonTransportChannelSetup_tdd(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t ResetRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5222,9 +5222,9 @@ static int dissect_id_reset(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t CompressedModeCommand_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5240,9 +5240,9 @@ static int dissect_id_compressedModeCommand(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t DedicatedMeasurementFailureIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5258,9 +5258,9 @@ static int dissect_id_dedicatedMeasurementFailure(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t DedicatedMeasurementInitiationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5276,9 +5276,9 @@ static int dissect_id_dedicatedMeasurementInitiation(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t DedicatedMeasurementReport_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5294,9 +5294,9 @@ static int dissect_id_dedicatedMeasurementReport(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t DedicatedMeasurementTerminationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5312,9 +5312,9 @@ static int dissect_id_dedicatedMeasurementTermination(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t DL_PowerControlRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5330,9 +5330,9 @@ static int dissect_id_downlinkPowerControl(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t ErrorIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5441,10 +5441,10 @@ static int dissect_privateIEvalue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t PrivateIE_Field_sequence[] = {
-  { "privateIEid"           , &hf_nbap_privateIEid    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_ID },
-  { "criticality"           , &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "privateIEvalue"        , &hf_nbap_privateIEvalue , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIEvalue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_privateIEid    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_ID },
+  { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_privateIEvalue , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIEvalue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5460,7 +5460,7 @@ static int dissect_PrivateIE_Container_item(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t PrivateIE_Container_sequence_of[1] = {
-  { ""                      , &hf_nbap_PrivateIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Field },
+  { &hf_nbap_PrivateIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Field },
 };
 
 static int
@@ -5477,8 +5477,8 @@ static int dissect_privateIEs(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t PrivateMessage_sequence[] = {
-  { "privateIEs"            , &hf_nbap_privateIEs     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Container },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_privateIEs     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Container },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5497,9 +5497,9 @@ static int dissect_id_privateMessageForCommon(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t RadioLinkAdditionRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5515,9 +5515,9 @@ static int dissect_id_radioLinkAddition(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t RadioLinkDeletionRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5533,9 +5533,9 @@ static int dissect_id_radioLinkDeletion(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t RadioLinkFailureIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5551,9 +5551,9 @@ static int dissect_id_radioLinkFailure(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t RadioLinkRestoreIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5569,9 +5569,9 @@ static int dissect_id_radioLinkRestoration(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t RadioLinkSetupRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5587,9 +5587,9 @@ static int dissect_id_radioLinkSetup(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t RadioLinkSetupRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5605,9 +5605,9 @@ static int dissect_id_radioLinkSetup_tdd(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t ResourceStatusIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5623,9 +5623,9 @@ static int dissect_id_resourceStatusIndication(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t RadioLinkReconfigurationCancel_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5641,9 +5641,9 @@ static int dissect_id_synchronisedRadioLinkReconfigurationCancellation(tvbuff_t 
 
 
 static const per_sequence_t RadioLinkReconfigurationCommit_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5659,9 +5659,9 @@ static int dissect_id_synchronisedRadioLinkReconfigurationCommit(tvbuff_t *tvb, 
 
 
 static const per_sequence_t RadioLinkReconfigurationPrepareFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5677,9 +5677,9 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvbuff_t *
 
 
 static const per_sequence_t RadioLinkReconfigurationPrepareTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5695,9 +5695,9 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation_tdd(tvbuff
 
 
 static const per_sequence_t SystemInformationUpdateRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5713,9 +5713,9 @@ static int dissect_id_systemInformationUpdate(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t UnblockResourceIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5731,9 +5731,9 @@ static int dissect_id_unblockResource(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t RadioLinkReconfigurationRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5749,9 +5749,9 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t RadioLinkReconfigurationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5767,9 +5767,9 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration_tdd(tvbuff_t *tvb, 
 
 
 static const per_sequence_t DL_PowerTimeslotControlRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5785,9 +5785,9 @@ static int dissect_id_downlinkPowerTimeslotControl(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t PhysicalSharedChannelReconfigurationRequestFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5803,9 +5803,9 @@ static int dissect_id_physicalSharedChannelReconfiguration(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PhysicalSharedChannelReconfigurationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5821,9 +5821,9 @@ static int dissect_id_physicalSharedChannelReconfiguration_tdd(tvbuff_t *tvb, in
 
 
 static const per_sequence_t RadioLinkPreemptionRequiredIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5839,9 +5839,9 @@ static int dissect_id_radioLinkPreemption(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t InformationExchangeFailureIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5857,9 +5857,9 @@ static int dissect_id_informationExchangeFailure(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t InformationExchangeInitiationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5875,9 +5875,9 @@ static int dissect_id_informationExchangeInitiation(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t InformationExchangeTerminationRequest_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5893,9 +5893,9 @@ static int dissect_id_informationExchangeTermination(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t InformationReport_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5911,9 +5911,9 @@ static int dissect_id_informationReporting(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t CellSynchronisationAdjustmentRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5929,9 +5929,9 @@ static int dissect_id_cellSynchronisationAdjustment(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t CellSynchronisationInitiationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5947,9 +5947,9 @@ static int dissect_id_cellSynchronisationInitiation(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t CellSynchronisationReconfigurationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5965,9 +5965,9 @@ static int dissect_id_cellSynchronisationReconfiguration(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CellSynchronisationReportTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -5983,9 +5983,9 @@ static int dissect_id_cellSynchronisationReporting(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CellSynchronisationTerminationRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6001,9 +6001,9 @@ static int dissect_id_cellSynchronisationTermination(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationFailureIndicationTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6019,9 +6019,9 @@ static int dissect_id_cellSynchronisationFailure(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t BearerRearrangementIndication_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6037,9 +6037,9 @@ static int dissect_id_BearerRearrangement(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RadioLinkActivationCommandFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6055,9 +6055,9 @@ static int dissect_id_radioLinkActivation(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RadioLinkActivationCommandTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6073,9 +6073,9 @@ static int dissect_id_radioLinkActivation_tdd(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t RadioLinkParameterUpdateIndicationFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6091,9 +6091,9 @@ static int dissect_id_radioLinkParameterUpdate(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t RadioLinkParameterUpdateIndicationTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6109,9 +6109,9 @@ static int dissect_id_radioLinkParameterUpdate_tdd(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t MBMSNotificationUpdateCommand_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6271,9 +6271,9 @@ dissect_nbap_DummyInitiatingmessages(tvbuff_t *tvb, int offset, asn_ctx_t *actx 
 
 
 static const per_sequence_t AuditResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6289,9 +6289,9 @@ static int dissect_id_audit1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t BlockResourceResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6307,9 +6307,9 @@ static int dissect_id_blockResource1(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t CellDeletionResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6325,9 +6325,9 @@ static int dissect_id_cellDeletion1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t CellReconfigurationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6343,9 +6343,9 @@ static int dissect_id_cellReconfiguration1(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t CellSetupResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6361,9 +6361,9 @@ static int dissect_id_cellSetup1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t CommonMeasurementInitiationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6379,9 +6379,9 @@ static int dissect_id_commonMeasurementInitiation1(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CommonTransportChannelDeletionResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6397,9 +6397,9 @@ static int dissect_id_commonTransportChannelDelete1(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t CommonTransportChannelReconfigurationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6415,9 +6415,9 @@ static int dissect_id_commonTransportChannelReconfigure1(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CommonTransportChannelSetupResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6433,9 +6433,9 @@ static int dissect_id_commonTransportChannelSetup1(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t ResetResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6451,9 +6451,9 @@ static int dissect_id_reset1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t DedicatedMeasurementInitiationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6469,9 +6469,9 @@ static int dissect_id_dedicatedMeasurementInitiation1(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t RadioLinkAdditionResponseFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6487,9 +6487,9 @@ static int dissect_id_radioLinkAddition1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t RadioLinkAdditionResponseTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6505,9 +6505,9 @@ static int dissect_id_radioLinkAddition_tdd(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t RadioLinkDeletionResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6523,9 +6523,9 @@ static int dissect_id_radioLinkDeletion1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t RadioLinkSetupResponseFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6541,9 +6541,9 @@ static int dissect_id_radioLinkSetup1(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t RadioLinkSetupResponseTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6559,9 +6559,9 @@ static int dissect_id_radioLinkSetup_tdd1(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RadioLinkReconfigurationReady_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6577,9 +6577,9 @@ static int dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvbuff_t 
 
 
 static const per_sequence_t SystemInformationUpdateResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6595,9 +6595,9 @@ static int dissect_id_systemInformationUpdate1(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t RadioLinkReconfigurationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6613,9 +6613,9 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration1(tvbuff_t *tvb, int
 
 
 static const per_sequence_t PhysicalSharedChannelReconfigurationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6631,9 +6631,9 @@ static int dissect_id_physicalSharedChannelReconfiguration1(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t InformationExchangeInitiationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6649,9 +6649,9 @@ static int dissect_id_informationExchangeInitiation1(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationAdjustmentResponseTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6667,9 +6667,9 @@ static int dissect_id_cellSynchronisationAdjustment1(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationInitiationResponseTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6685,9 +6685,9 @@ static int dissect_id_cellSynchronisationInitiation1(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationReconfigurationResponseTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6769,9 +6769,9 @@ dissect_nbap_DummySuccessfullOutcomemessages(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t AuditFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6787,9 +6787,9 @@ static int dissect_id_audit2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t BlockResourceFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6805,9 +6805,9 @@ static int dissect_id_blockResource2(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t CellReconfigurationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6823,9 +6823,9 @@ static int dissect_id_cellReconfiguration2(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t CellSetupFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6841,9 +6841,9 @@ static int dissect_id_cellSetup2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t CommonMeasurementInitiationResponse_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6859,9 +6859,9 @@ static int dissect_id_commonMeasurementInitiation2(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CommonTransportChannelReconfigurationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6877,9 +6877,9 @@ static int dissect_id_commonTransportChannelReconfigure2(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CommonTransportChannelSetupFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6895,9 +6895,9 @@ static int dissect_id_commonTransportChannelSetup2(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t DedicatedMeasurementInitiationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6913,9 +6913,9 @@ static int dissect_id_dedicatedMeasurementInitiation2(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t RadioLinkAdditionFailureFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6931,9 +6931,9 @@ static int dissect_id_radioLinkAddition2(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t RadioLinkAdditionFailureTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6949,9 +6949,9 @@ static int dissect_id_radioLinkAddition_tdd1(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t RadioLinkSetupFailureFDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6967,9 +6967,9 @@ static int dissect_id_radioLinkSetup2(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t RadioLinkSetupFailureTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -6985,9 +6985,9 @@ static int dissect_id_radioLinkSetup_tdd2(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RadioLinkReconfigurationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7006,9 +7006,9 @@ static int dissect_id_unSynchronisedRadioLinkReconfiguration2(tvbuff_t *tvb, int
 
 
 static const per_sequence_t SystemInformationUpdateFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7024,9 +7024,9 @@ static int dissect_id_systemInformationUpdate2(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t PhysicalSharedChannelReconfigurationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7042,9 +7042,9 @@ static int dissect_id_physicalSharedChannelReconfiguration2(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t InformationExchangeInitiationFailure_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7060,9 +7060,9 @@ static int dissect_id_informationExchangeInitiation2(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationAdjustmentFailureTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7078,9 +7078,9 @@ static int dissect_id_cellSynchronisationAdjustment2(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationInitiationFailureTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7096,9 +7096,9 @@ static int dissect_id_cellSynchronisationInitiation2(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CellSynchronisationReconfigurationFailureTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7246,11 +7246,11 @@ static int dissect_availabilityStatus(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t Common_PhysicalChannel_Status_Information_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7324,11 +7324,11 @@ static int dissect_commonTransportChannelID(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t Common_TransportChannel_Status_Information_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7568,11 +7568,11 @@ static int dissect_communicationControlPortID(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t CCP_InformationItem_AuditRsp_sequence[] = {
-  { "communicationControlPortID", &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7825,7 +7825,7 @@ static int dissect_DelayedActivationInformationList_RL_ActivationCmdTDD_item(tvb
 
 
 static const per_sequence_t CCP_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCP_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CCP_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -7842,11 +7842,11 @@ static int dissect_id_CCP_InformationList_AuditRsp(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CCP_InformationItem_ResourceStatusInd_sequence[] = {
-  { "communicationControlPortID", &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -7961,7 +7961,7 @@ static int dissect_primary_CPICH_Information(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t S_CPICH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CPICH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CPICH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8002,7 +8002,7 @@ static int dissect_bCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t S_CCPCH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8043,7 +8043,7 @@ static int dissect_pICH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t FACH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_FACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8060,7 +8060,7 @@ static int dissect_fACH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t PRACH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_PRACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_PRACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8077,7 +8077,7 @@ static int dissect_pRACH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t RACH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_RACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RACH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8094,7 +8094,7 @@ static int dissect_rACH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t AICH_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_AICH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_AICH_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8249,31 +8249,31 @@ static int dissect_sCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t Cell_InformationItem_AuditRsp_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "configurationGenerationID", &hf_nbap_configurationGenerationID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ConfigurationGenerationID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "local-Cell-ID"         , &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "primary-SCH-Information", &hf_nbap_primary_SCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_SCH_Information_AuditRsp },
-  { "secondary-SCH-Information", &hf_nbap_secondary_SCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_SCH_Information_AuditRsp },
-  { "primary-CPICH-Information", &hf_nbap_primary_CPICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CPICH_Information_AuditRsp },
-  { "secondary-CPICH-InformationList", &hf_nbap_secondary_CPICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CPICH_InformationList_AuditRsp },
-  { "primary-CCPCH-Information", &hf_nbap_primary_CCPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CCPCH_Information_AuditRsp },
-  { "bCH-Information"       , &hf_nbap_bCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BCH_Information_AuditRsp },
-  { "secondary-CCPCH-InformationList", &hf_nbap_secondary_CCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CCPCH_InformationList_AuditRsp },
-  { "pCH-Information"       , &hf_nbap_pCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Information_AuditRsp },
-  { "pICH-Information"      , &hf_nbap_pICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Information_AuditRsp },
-  { "fACH-InformationList"  , &hf_nbap_fACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_InformationList_AuditRsp },
-  { "pRACH-InformationList" , &hf_nbap_pRACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_InformationList_AuditRsp },
-  { "rACH-InformationList"  , &hf_nbap_rACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_InformationList_AuditRsp },
-  { "aICH-InformationList"  , &hf_nbap_aICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_InformationList_AuditRsp },
-  { "notUsed-1-pCPCH-InformationList", &hf_nbap_notUsed_1_pCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-2-cPCH-InformationList", &hf_nbap_notUsed_2_cPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-3-aP-AICH-InformationList", &hf_nbap_notUsed_3_aP_AICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-4-cDCA-ICH-InformationList", &hf_nbap_notUsed_4_cDCA_ICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "sCH-Information"       , &hf_nbap_sCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SCH_Information_AuditRsp },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_configurationGenerationID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ConfigurationGenerationID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_primary_SCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_SCH_Information_AuditRsp },
+  { &hf_nbap_secondary_SCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_SCH_Information_AuditRsp },
+  { &hf_nbap_primary_CPICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CPICH_Information_AuditRsp },
+  { &hf_nbap_secondary_CPICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CPICH_InformationList_AuditRsp },
+  { &hf_nbap_primary_CCPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CCPCH_Information_AuditRsp },
+  { &hf_nbap_bCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BCH_Information_AuditRsp },
+  { &hf_nbap_secondary_CCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CCPCH_InformationList_AuditRsp },
+  { &hf_nbap_pCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Information_AuditRsp },
+  { &hf_nbap_pICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Information_AuditRsp },
+  { &hf_nbap_fACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_InformationList_AuditRsp },
+  { &hf_nbap_pRACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_InformationList_AuditRsp },
+  { &hf_nbap_rACH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_InformationList_AuditRsp },
+  { &hf_nbap_aICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_InformationList_AuditRsp },
+  { &hf_nbap_notUsed_1_pCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_2_cPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_3_aP_AICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_4_cDCA_ICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_sCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SCH_Information_AuditRsp },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8325,7 +8325,7 @@ static int dissect_primary_CPICH_Information1(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t S_CPICH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CPICH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CPICH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8366,7 +8366,7 @@ static int dissect_bCH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t S_CCPCH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8407,7 +8407,7 @@ static int dissect_pICH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t FACH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_FACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8424,7 +8424,7 @@ static int dissect_fACH_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t PRACH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_PRACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_PRACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8441,7 +8441,7 @@ static int dissect_pRACH_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RACH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RACH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8458,7 +8458,7 @@ static int dissect_rACH_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t AICH_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_AICH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_AICH_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8487,29 +8487,29 @@ static int dissect_sCH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t Cell_InformationItem_ResourceStatusInd_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AvailabilityStatus },
-  { "primary-SCH-Information", &hf_nbap_primary_SCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_SCH_Information_ResourceStatusInd },
-  { "secondary-SCH-Information", &hf_nbap_secondary_SCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_SCH_Information_ResourceStatusInd },
-  { "primary-CPICH-Information", &hf_nbap_primary_CPICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CPICH_Information_ResourceStatusInd },
-  { "secondary-CPICH-Information", &hf_nbap_secondary_CPICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CPICH_InformationList_ResourceStatusInd },
-  { "primary-CCPCH-Information", &hf_nbap_primary_CCPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CCPCH_Information_ResourceStatusInd },
-  { "bCH-Information"       , &hf_nbap_bCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BCH_Information_ResourceStatusInd },
-  { "secondary-CCPCH-InformationList", &hf_nbap_secondary_CCPCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CCPCH_InformationList_ResourceStatusInd },
-  { "pCH-Information"       , &hf_nbap_pCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Information_ResourceStatusInd },
-  { "pICH-Information"      , &hf_nbap_pICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Information_ResourceStatusInd },
-  { "fACH-InformationList"  , &hf_nbap_fACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_InformationList_ResourceStatusInd },
-  { "pRACH-InformationList" , &hf_nbap_pRACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_InformationList_ResourceStatusInd },
-  { "rACH-InformationList"  , &hf_nbap_rACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_InformationList_ResourceStatusInd },
-  { "aICH-InformationList"  , &hf_nbap_aICH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_InformationList_ResourceStatusInd },
-  { "notUsed-1-pCPCH-InformationList", &hf_nbap_notUsed_1_pCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-2-cPCH-InformationList", &hf_nbap_notUsed_2_cPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-3-aP-AICH-InformationList", &hf_nbap_notUsed_3_aP_AICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "notUsed-4-cDCA-ICH-InformationList", &hf_nbap_notUsed_4_cDCA_ICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "sCH-Information"       , &hf_nbap_sCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SCH_Information_ResourceStatusInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_primary_SCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_SCH_Information_ResourceStatusInd },
+  { &hf_nbap_secondary_SCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_SCH_Information_ResourceStatusInd },
+  { &hf_nbap_primary_CPICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CPICH_Information_ResourceStatusInd },
+  { &hf_nbap_secondary_CPICH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CPICH_InformationList_ResourceStatusInd },
+  { &hf_nbap_primary_CCPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_P_CCPCH_Information_ResourceStatusInd },
+  { &hf_nbap_bCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BCH_Information_ResourceStatusInd },
+  { &hf_nbap_secondary_CCPCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_S_CCPCH_InformationList_ResourceStatusInd },
+  { &hf_nbap_pCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Information_ResourceStatusInd },
+  { &hf_nbap_pICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Information_ResourceStatusInd },
+  { &hf_nbap_fACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_InformationList_ResourceStatusInd },
+  { &hf_nbap_pRACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_InformationList_ResourceStatusInd },
+  { &hf_nbap_rACH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_InformationList_ResourceStatusInd },
+  { &hf_nbap_aICH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_InformationList_ResourceStatusInd },
+  { &hf_nbap_notUsed_1_pCPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_2_cPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_3_aP_AICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_notUsed_4_cDCA_ICH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_sCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SCH_Information_ResourceStatusInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8525,7 +8525,7 @@ static int dissect_id_Cell_InformationItem_ResourceStatusInd(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t Cell_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Cell_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Cell_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -8743,9 +8743,9 @@ static int dissect_commonmeasurementValue(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t CommonMeasurementAvailable_sequence[] = {
-  { "commonmeasurementValue", &hf_nbap_commonmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8798,9 +8798,9 @@ static int dissect_commonMeasurementValueInformation(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t Cell_CM_Rprt_sequence[] = {
-  { "commonMeasurementValueInformation", &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8816,9 +8816,9 @@ static int dissect_cell5(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 
 
 static const per_sequence_t RACH_CM_Rprt_sequence[] = {
-  { "commonMeasurementValueInformation", &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8897,10 +8897,10 @@ static int dissect_TimeslotInfo_CellSyncInitiationRqstTDD_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t Cell_CM_Rqst_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8916,10 +8916,10 @@ static int dissect_cell(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *
 
 
 static const per_sequence_t RACH_CM_Rqst_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8976,9 +8976,9 @@ static int dissect_id_CommonMeasurementObjectType_CM_Rqst(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t Cell_CM_Rsp_sequence[] = {
-  { "commonMeasurementValue", &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -8994,9 +8994,9 @@ static int dissect_cell1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 
 
 static const per_sequence_t RACH_CM_Rsp_sequence[] = {
-  { "commonMeasurementValue", &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9308,10 +9308,10 @@ static int dissect_tdd(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 
 
 static const per_sequence_t T_fdd_sequence[] = {
-  { "betaC"                 , &hf_nbap_betaC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BetaCD },
-  { "betaD"                 , &hf_nbap_betaD          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BetaCD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_betaC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BetaCD },
+  { &hf_nbap_betaD          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BetaCD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9368,10 +9368,10 @@ static int dissect_computedGainFactors(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t T_signalledGainFactors_sequence[] = {
-  { "gainFactor"            , &hf_nbap_gainFactor     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_gainFactor },
-  { "refTFCNumber"          , &hf_nbap_refTFCNumber   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RefTFCNumber },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_gainFactor     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_gainFactor },
+  { &hf_nbap_refTFCNumber   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RefTFCNumber },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9412,10 +9412,10 @@ static int dissect_tFC_Beta(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t TFCS_TFCSList_item_sequence[] = {
-  { "cTFC"                  , &hf_nbap_cTFC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS_CTFC },
-  { "tFC-Beta"              , &hf_nbap_tFC_Beta       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatCombination_Beta },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cTFC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS_CTFC },
+  { &hf_nbap_tFC_Beta       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatCombination_Beta },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9431,7 +9431,7 @@ static int dissect_TFCS_TFCSList_item(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t TFCS_TFCSList_sequence_of[1] = {
-  { ""                      , &hf_nbap_TFCS_TFCSList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS_TFCSList_item },
+  { &hf_nbap_TFCS_TFCSList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS_TFCSList_item },
 };
 
 static int
@@ -9473,9 +9473,9 @@ static int dissect_tFCSvalues(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t TFCS_sequence[] = {
-  { "tFCSvalues"            , &hf_nbap_tFCSvalues     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_tFCSvalues },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tFCSvalues     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_tFCSvalues },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9567,10 +9567,10 @@ static int dissect_pO2_ForTPC_Bits(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t PowerOffsetInformation_CTCH_SetupRqstFDD_sequence[] = {
-  { "pO1-ForTFCI-Bits"      , &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "pO3-ForPilotBits"      , &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9629,20 +9629,20 @@ static int dissect_pCH_Parameters(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t Secondary_CCPCH_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "fdd-S-CCPCH-Offset"    , &hf_nbap_fdd_S_CCPCH_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_S_CCPCH_Offset },
-  { "dl-ScramblingCode"     , &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
-  { "fdd-DL-ChannelisationCodeNumber", &hf_nbap_fdd_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "secondary-CCPCH-SlotFormat", &hf_nbap_secondary_CCPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SecondaryCCPCH_SlotFormat },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "multiplexingPosition"  , &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MultiplexingPosition },
-  { "powerOffsetInformation", &hf_nbap_powerOffsetInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_CTCH_SetupRqstFDD },
-  { "sTTD-Indicator"        , &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
-  { "fACH-Parameters"       , &hf_nbap_fACH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_SetupRqstFDD },
-  { "pCH-Parameters"        , &hf_nbap_pCH_Parameters , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_SetupRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_fdd_S_CCPCH_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_S_CCPCH_Offset },
+  { &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
+  { &hf_nbap_fdd_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_secondary_CCPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SecondaryCCPCH_SlotFormat },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MultiplexingPosition },
+  { &hf_nbap_powerOffsetInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_CTCH_SetupRqstFDD },
+  { &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
+  { &hf_nbap_fACH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_SetupRqstFDD },
+  { &hf_nbap_pCH_Parameters , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_SetupRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9727,9 +9727,9 @@ static int dissect_rACH_SlotFormat(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD_sequence[] = {
-  { "rACHSlotFormat"        , &hf_nbap_rACHSlotFormat , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SlotFormat },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rACHSlotFormat , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SlotFormat },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9745,7 +9745,7 @@ static int dissect_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_item(tvbuf
 
 
 static const per_sequence_t AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD },
+  { &hf_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD },
 };
 
 static int
@@ -9866,13 +9866,13 @@ static int dissect_aICH_Power(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t AICH_Parameters_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "aICH-TransmissionTiming", &hf_nbap_aICH_TransmissionTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_TransmissionTiming },
-  { "fdd-dl-ChannelisationCodeNumber", &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "aICH-Power"            , &hf_nbap_aICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_Power },
-  { "sTTD-Indicator"        , &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_aICH_TransmissionTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_TransmissionTiming },
+  { &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_aICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_Power },
+  { &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -9888,18 +9888,18 @@ static int dissect_aICH_Parameters(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t PRACH_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "scramblingCodeNumber"  , &hf_nbap_scramblingCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ScramblingCodeNumber },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "preambleSignatures"    , &hf_nbap_preambleSignatures, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PreambleSignatures },
-  { "allowedSlotFormatInformation", &hf_nbap_allowedSlotFormatInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD },
-  { "rACH-SubChannelNumbers", &hf_nbap_rACH_SubChannelNumbers, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SubChannelNumbers },
-  { "ul-punctureLimit"      , &hf_nbap_ul_punctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "preambleThreshold"     , &hf_nbap_preambleThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PreambleThreshold },
-  { "rACH-Parameters"       , &hf_nbap_rACH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameters_CTCH_SetupRqstFDD },
-  { "aICH-Parameters"       , &hf_nbap_aICH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_Parameters_CTCH_SetupRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_scramblingCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ScramblingCodeNumber },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_preambleSignatures, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PreambleSignatures },
+  { &hf_nbap_allowedSlotFormatInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD },
+  { &hf_nbap_rACH_SubChannelNumbers, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SubChannelNumbers },
+  { &hf_nbap_ul_punctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_preambleThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PreambleThreshold },
+  { &hf_nbap_rACH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameters_CTCH_SetupRqstFDD },
+  { &hf_nbap_aICH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_Parameters_CTCH_SetupRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10027,15 +10027,15 @@ static int dissect_pCH_Parameters1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t Secondary_CCPCH_CTCH_SetupRqstTDD_sequence[] = {
-  { "sCCPCH-CCTrCH-ID"      , &hf_nbap_sCCPCH_CCTrCH_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "secondaryCCPCH-parameterList", &hf_nbap_secondaryCCPCH_parameterList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterList_CTCH_SetupRqstTDD },
-  { "fACH-ParametersList"   , &hf_nbap_fACH_ParametersList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_SetupRqstTDD },
-  { "pCH-Parameters"        , &hf_nbap_pCH_Parameters1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sCCPCH_CCTrCH_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_secondaryCCPCH_parameterList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterList_CTCH_SetupRqstTDD },
+  { &hf_nbap_fACH_ParametersList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_SetupRqstTDD },
+  { &hf_nbap_pCH_Parameters1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10063,9 +10063,9 @@ static int dissect_pRACH_Parameters_CTCH_SetupRqstTDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t PRACH_CTCH_SetupRqstTDD_sequence[] = {
-  { "pRACH-Parameters-CTCH-SetupRqstTDD", &hf_nbap_pRACH_Parameters_CTCH_SetupRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_Parameters_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pRACH_Parameters_CTCH_SetupRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_Parameters_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10156,11 +10156,11 @@ static int dissect_repetitionNumber(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
-  { "iECriticality"         , &hf_nbap_iECriticality  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "iE-ID"                 , &hf_nbap_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
-  { "repetitionNumber"      , &hf_nbap_repetitionNumber, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionNumber0 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iECriticality  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
+  { &hf_nbap_repetitionNumber, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionNumber0 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10176,7 +10176,7 @@ static int dissect_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t CriticalityDiagnostics_IE_List_sequence_of[1] = {
-  { ""                      , &hf_nbap_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CriticalityDiagnostics_IE_List_item },
+  { &hf_nbap_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CriticalityDiagnostics_IE_List_item },
 };
 
 static int
@@ -10193,13 +10193,13 @@ static int dissect_iEsCriticalityDiagnostics(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t CriticalityDiagnostics_sequence[] = {
-  { "procedureID"           , &hf_nbap_procedureID    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProcedureID },
-  { "triggeringMessage"     , &hf_nbap_triggeringMessage, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TriggeringMessage },
-  { "procedureCriticality"  , &hf_nbap_procedureCriticality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Criticality },
-  { "transactionID"         , &hf_nbap_transactionID  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransactionID },
-  { "iEsCriticalityDiagnostics", &hf_nbap_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CriticalityDiagnostics_IE_List },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_procedureID    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProcedureID },
+  { &hf_nbap_triggeringMessage, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TriggeringMessage },
+  { &hf_nbap_procedureCriticality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Criticality },
+  { &hf_nbap_transactionID  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransactionID },
+  { &hf_nbap_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CriticalityDiagnostics_IE_List },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10342,9 +10342,9 @@ static int dissect_transmissionTimeInterval(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t TransmissionTimeIntervalInformation_item_sequence[] = {
-  { "transmissionTimeInterval", &hf_nbap_transmissionTimeInterval, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_TransmissionTimeIntervalDynamic },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_transmissionTimeInterval, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_TransmissionTimeIntervalDynamic },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10360,7 +10360,7 @@ static int dissect_TransmissionTimeIntervalInformation_item(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t TransmissionTimeIntervalInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_TransmissionTimeIntervalInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransmissionTimeIntervalInformation_item },
+  { &hf_nbap_TransmissionTimeIntervalInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransmissionTimeIntervalInformation_item },
 };
 
 static int
@@ -10377,9 +10377,9 @@ static int dissect_transmissionTimeIntervalInformation(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t TDD_TransportFormatSet_ModeDP_sequence[] = {
-  { "transmissionTimeIntervalInformation", &hf_nbap_transmissionTimeIntervalInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmissionTimeIntervalInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_transmissionTimeIntervalInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmissionTimeIntervalInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10420,11 +10420,11 @@ static int dissect_mode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *
 
 
 static const per_sequence_t TransportFormatSet_DynamicPartList_item_sequence[] = {
-  { "nrOfTransportBlocks"   , &hf_nbap_nrOfTransportBlocks, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_NrOfTransportBlocks },
-  { "transportBlockSize"    , &hf_nbap_transportBlockSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet_TransportBlockSize },
-  { "mode"                  , &hf_nbap_mode           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ModeDP },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_nrOfTransportBlocks, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_NrOfTransportBlocks },
+  { &hf_nbap_transportBlockSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet_TransportBlockSize },
+  { &hf_nbap_mode           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ModeDP },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10440,7 +10440,7 @@ static int dissect_TransportFormatSet_DynamicPartList_item(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t TransportFormatSet_DynamicPartList_sequence_of[1] = {
-  { ""                      , &hf_nbap_TransportFormatSet_DynamicPartList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_DynamicPartList_item },
+  { &hf_nbap_TransportFormatSet_DynamicPartList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_DynamicPartList_item },
 };
 
 static int
@@ -10598,14 +10598,14 @@ static int dissect_mode1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 
 
 static const per_sequence_t TransportFormatSet_Semi_staticPart_sequence[] = {
-  { "transmissionTimeInterval", &hf_nbap_transmissionTimeInterval1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_TransmissionTimeIntervalSemiStatic },
-  { "channelCoding"         , &hf_nbap_channelCoding  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ChannelCodingType },
-  { "codingRate"            , &hf_nbap_codingRate     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet_CodingRate },
-  { "rateMatchingAttribute" , &hf_nbap_rateMatchingAttribute, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_RateMatchingAttribute },
-  { "cRC-Size"              , &hf_nbap_cRC_Size       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_CRC_Size },
-  { "mode"                  , &hf_nbap_mode1          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ModeSSP },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_transmissionTimeInterval1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_TransmissionTimeIntervalSemiStatic },
+  { &hf_nbap_channelCoding  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ChannelCodingType },
+  { &hf_nbap_codingRate     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet_CodingRate },
+  { &hf_nbap_rateMatchingAttribute, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_RateMatchingAttribute },
+  { &hf_nbap_cRC_Size       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_CRC_Size },
+  { &hf_nbap_mode1          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_ModeSSP },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10621,10 +10621,10 @@ static int dissect_semi_staticPart(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t TransportFormatSet_sequence[] = {
-  { "dynamicParts"          , &hf_nbap_dynamicParts   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_DynamicPartList },
-  { "semi-staticPart"       , &hf_nbap_semi_staticPart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_Semi_staticPart },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dynamicParts   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_DynamicPartList },
+  { &hf_nbap_semi_staticPart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet_Semi_staticPart },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10700,11 +10700,11 @@ static int dissect_pre_emptionVulnerability(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t AllocationRetentionPriority_sequence[] = {
-  { "priorityLevel"         , &hf_nbap_priorityLevel  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityLevel },
-  { "pre-emptionCapability" , &hf_nbap_pre_emptionCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Pre_emptionCapability },
-  { "pre-emptionVulnerability", &hf_nbap_pre_emptionVulnerability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Pre_emptionVulnerability },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_priorityLevel  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityLevel },
+  { &hf_nbap_pre_emptionCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Pre_emptionCapability },
+  { &hf_nbap_pre_emptionVulnerability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Pre_emptionVulnerability },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10752,14 +10752,14 @@ static int dissect_qE_Selector(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t DCH_Specific_FDD_Item_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "ul-TransportFormatSet" , &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
-  { "qE-Selector"           , &hf_nbap_qE_Selector    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_QE_Selector },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_qE_Selector    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_QE_Selector },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10775,7 +10775,7 @@ static int dissect_DCH_Specific_FDD_InformationList_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t DCH_Specific_FDD_InformationList_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_Specific_FDD_InformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_FDD_Item },
+  { &hf_nbap_DCH_Specific_FDD_InformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_FDD_Item },
 };
 
 static int
@@ -10792,13 +10792,13 @@ static int dissect_dCH_SpecificInformationList(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t DCH_FDD_InformationItem_sequence[] = {
-  { "payloadCRC-PresenceIndicator", &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
-  { "ul-FP-Mode"            , &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_FP_Mode },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "dCH-SpecificInformationList", &hf_nbap_dCH_SpecificInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_FDD_InformationList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
+  { &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_FP_Mode },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_dCH_SpecificInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_FDD_InformationList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10814,7 +10814,7 @@ static int dissect_DCH_FDD_Information_item(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t DCH_FDD_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_FDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_FDD_InformationItem },
+  { &hf_nbap_DCH_FDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_FDD_InformationItem },
 };
 
 static int
@@ -10834,16 +10834,16 @@ static int dissect_id_DCH_FDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t DCH_Specific_TDD_Item_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "ul-CCTrCH-ID"          , &hf_nbap_ul_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "dl-CCTrCH-ID"          , &hf_nbap_dl_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "ul-TransportFormatSet" , &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
-  { "qE-Selector"           , &hf_nbap_qE_Selector    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_QE_Selector },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_ul_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_dl_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_qE_Selector    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_QE_Selector },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10859,7 +10859,7 @@ static int dissect_DCH_Specific_TDD_InformationList_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t DCH_Specific_TDD_InformationList_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_Specific_TDD_InformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_TDD_Item },
+  { &hf_nbap_DCH_Specific_TDD_InformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_TDD_Item },
 };
 
 static int
@@ -10876,13 +10876,13 @@ static int dissect_dCH_SpecificInformationList1(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t DCH_TDD_InformationItem_sequence[] = {
-  { "payloadCRC-PresenceIndicator", &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
-  { "ul-FP-Mode"            , &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_FP_Mode },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "dCH-SpecificInformationList", &hf_nbap_dCH_SpecificInformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_TDD_InformationList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
+  { &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_FP_Mode },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_dCH_SpecificInformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_Specific_TDD_InformationList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10898,7 +10898,7 @@ static int dissect_DCH_TDD_Information_item(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t DCH_TDD_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_TDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_TDD_InformationItem },
+  { &hf_nbap_DCH_TDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_TDD_InformationItem },
 };
 
 static int
@@ -10918,9 +10918,9 @@ static int dissect_id_DCH_TDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t DCH_DeleteItem_RL_ReconfPrepFDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10936,7 +10936,7 @@ static int dissect_DCH_DeleteList_RL_ReconfPrepFDD_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfPrepFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfPrepFDD },
+  { &hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfPrepFDD },
 };
 
 static int
@@ -10953,9 +10953,9 @@ static int dissect_id_DCH_DeleteList_RL_ReconfPrepFDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t DCH_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -10971,7 +10971,7 @@ static int dissect_DCH_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -10988,9 +10988,9 @@ static int dissect_id_DCH_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t DCH_DeleteItem_RL_ReconfRqstFDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11006,7 +11006,7 @@ static int dissect_DCH_DeleteList_RL_ReconfRqstFDD_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfRqstFDD },
+  { &hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfRqstFDD },
 };
 
 static int
@@ -11023,9 +11023,9 @@ static int dissect_id_DCH_DeleteList_RL_ReconfRqstFDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t DCH_DeleteItem_RL_ReconfRqstTDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11041,7 +11041,7 @@ static int dissect_DCH_DeleteList_RL_ReconfRqstTDD_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfRqstTDD },
+  { &hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_DeleteItem_RL_ReconfRqstTDD },
 };
 
 static int
@@ -11093,11 +11093,11 @@ static int dissect_transportlayeraddress(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t DCH_InformationResponseItem_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11113,7 +11113,7 @@ static int dissect_DCH_InformationResponse_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t DCH_InformationResponse_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponseItem },
+  { &hf_nbap_DCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponseItem },
 };
 
 static int
@@ -11152,13 +11152,13 @@ static int dissect_transportBearerRequestIndicator(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t DCH_ModifySpecificItem_FDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "ul-TransportFormatSet" , &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11174,7 +11174,7 @@ static int dissect_DCH_ModifySpecificInformation_FDD_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t DCH_ModifySpecificInformation_FDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_ModifySpecificInformation_FDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificItem_FDD },
+  { &hf_nbap_DCH_ModifySpecificInformation_FDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificItem_FDD },
 };
 
 static int
@@ -11191,13 +11191,13 @@ static int dissect_dCH_SpecificInformationList2(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t FDD_DCHs_to_ModifyItem_sequence[] = {
-  { "ul-FP-Mode"            , &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_FP_Mode },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "dCH-SpecificInformationList", &hf_nbap_dCH_SpecificInformationList2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificInformation_FDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_FP_Mode },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_dCH_SpecificInformationList2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificInformation_FDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11213,7 +11213,7 @@ static int dissect_FDD_DCHs_to_Modify_item(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t FDD_DCHs_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_FDD_DCHs_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DCHs_to_ModifyItem },
+  { &hf_nbap_FDD_DCHs_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DCHs_to_ModifyItem },
 };
 
 static int
@@ -11230,15 +11230,15 @@ static int dissect_id_FDD_DCHs_to_Modify(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t DCH_ModifySpecificItem_TDD_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "ul-CCTrCH-ID"          , &hf_nbap_ul_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
-  { "dl-CCTrCH-ID"          , &hf_nbap_dl_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
-  { "ul-TransportFormatSet" , &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_ul_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_dl_CCTrCH_ID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_ul_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11254,7 +11254,7 @@ static int dissect_DCH_ModifySpecificInformation_TDD_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t DCH_ModifySpecificInformation_TDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_ModifySpecificInformation_TDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificItem_TDD },
+  { &hf_nbap_DCH_ModifySpecificInformation_TDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificItem_TDD },
 };
 
 static int
@@ -11271,13 +11271,13 @@ static int dissect_dCH_SpecificInformationList3(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t DCH_ModifyItem_TDD_sequence[] = {
-  { "ul-FP-Mode"            , &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_FP_Mode },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "dCH-SpecificInformationList", &hf_nbap_dCH_SpecificInformationList3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificInformation_TDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_FP_Mode     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_FP_Mode },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_dCH_SpecificInformationList3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifySpecificInformation_TDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11293,7 +11293,7 @@ static int dissect_TDD_DCHs_to_Modify_item(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t TDD_DCHs_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_TDD_DCHs_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifyItem_TDD },
+  { &hf_nbap_TDD_DCHs_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ModifyItem_TDD },
 };
 
 static int
@@ -11310,9 +11310,9 @@ static int dissect_id_TDD_DCHs_to_Modify(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t DCH_RearrangeItem_Bearer_RearrangeInd_sequence[] = {
-  { "dCH-ID"                , &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11328,7 +11328,7 @@ static int dissect_DCH_RearrangeList_Bearer_RearrangeInd_item(tvbuff_t *tvb, int
 
 
 static const per_sequence_t DCH_RearrangeList_Bearer_RearrangeInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_RearrangeItem_Bearer_RearrangeInd },
+  { &hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_RearrangeItem_Bearer_RearrangeInd },
 };
 
 static int
@@ -11345,7 +11345,7 @@ static int dissect_id_DCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t RL_InformationList_DM_Rprt_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -11362,9 +11362,9 @@ static int dissect_rL_InformationList_DM_Rprt(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t RL_DM_Rprt_sequence[] = {
-  { "rL-InformationList-DM-Rprt", &hf_nbap_rL_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rprt },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rprt },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11383,7 +11383,7 @@ static int dissect_all_RL2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rprt_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Set_InformationList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_Set_InformationList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -11400,9 +11400,9 @@ static int dissect_rL_Set_InformationList_DM_Rprt(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t RL_Set_DM_Rprt_sequence[] = {
-  { "rL-Set-InformationList-DM-Rprt", &hf_nbap_rL_Set_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rprt },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_InformationList_DM_Rprt, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rprt },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11450,7 +11450,7 @@ static int dissect_id_DedicatedMeasurementObjectType_DM_Rprt(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t RL_InformationList_DM_Rqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -11467,9 +11467,9 @@ static int dissect_rL_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t RL_DM_Rqst_sequence[] = {
-  { "rL-InformationList"    , &hf_nbap_rL_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11501,9 +11501,9 @@ static int dissect_rL_Set_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t RL_Set_InformationItem_DM_Rqst_sequence[] = {
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11519,7 +11519,7 @@ static int dissect_RL_Set_InformationList_DM_Rqst_item(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Set_InformationList_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationItem_DM_Rqst },
+  { &hf_nbap_RL_Set_InformationList_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationItem_DM_Rqst },
 };
 
 static int
@@ -11536,9 +11536,9 @@ static int dissect_rL_Set_InformationList_DM_Rqst(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t RL_Set_DM_Rqst_sequence[] = {
-  { "rL-Set-InformationList-DM-Rqst", &hf_nbap_rL_Set_InformationList_DM_Rqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_InformationList_DM_Rqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11607,7 +11607,7 @@ static int dissect_id_DedicatedMeasurementObjectType_DM_Rqst(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t RL_InformationList_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -11624,9 +11624,9 @@ static int dissect_rL_InformationList_DM_Rsp(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t RL_DM_Rsp_sequence[] = {
-  { "rL-InformationList-DM-Rsp", &hf_nbap_rL_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rsp },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_DM_Rsp },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11645,7 +11645,7 @@ static int dissect_all_RL1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Set_InformationList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_Set_InformationList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -11662,9 +11662,9 @@ static int dissect_rL_Set_InformationList_DM_Rsp(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t RL_Set_DM_Rsp_sequence[] = {
-  { "rL-Set-InformationList-DM-Rsp", &hf_nbap_rL_Set_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rsp },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_InformationList_DM_Rsp, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_DM_Rsp },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11774,9 +11774,9 @@ static int dissect_tDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD(t
 
 
 static const per_sequence_t CCTrCH_TPCItem_RL_SetupRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11792,7 +11792,7 @@ static int dissect_CCTrCH_TPCList_RL_SetupRqstTDD_item(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t CCTrCH_TPCList_RL_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCTrCH_TPCList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCItem_RL_SetupRqstTDD },
+  { &hf_nbap_CCTrCH_TPCList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCItem_RL_SetupRqstTDD },
 };
 
 static int
@@ -11821,15 +11821,15 @@ static int dissect_dL_DPCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t DL_CCTrCH_InformationItem_RL_SetupRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "tdd-TPC-DownlinkStepSize", &hf_nbap_tdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_TPC_DownlinkStepSize },
-  { "cCTrCH-TPCList"        , &hf_nbap_cCTrCH_TPCList , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCList_RL_SetupRqstTDD },
-  { "dL-DPCH-Information"   , &hf_nbap_dL_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_Information_RL_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_tdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_TPC_DownlinkStepSize },
+  { &hf_nbap_cCTrCH_TPCList , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCList_RL_SetupRqstTDD },
+  { &hf_nbap_dL_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_Information_RL_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11857,10 +11857,10 @@ static int dissect_dL_DPCH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t DL_CCTrCH_InformationItem_RL_AdditionRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "dL-DPCH-Information"   , &hf_nbap_dL_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationList_RL_AdditionRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_dL_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationList_RL_AdditionRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -11876,7 +11876,7 @@ static int dissect_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t DL_CCTrCH_InformationList_RL_AdditionRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationItem_RL_AdditionRqstTDD },
+  { &hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationItem_RL_AdditionRqstTDD },
 };
 
 static int
@@ -11893,7 +11893,7 @@ static int dissect_id_DL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t DL_CCTrCH_InformationList_RL_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -12035,9 +12035,9 @@ static int dissect_midambleAllocationMode(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t T_type1_sequence[] = {
-  { "midambleConfigurationBurstType1And3", &hf_nbap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType1And3 },
-  { "midambleAllocationMode", &hf_nbap_midambleAllocationMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType1And3 },
+  { &hf_nbap_midambleAllocationMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12112,9 +12112,9 @@ static int dissect_midambleAllocationMode1(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t T_type2_sequence[] = {
-  { "midambleConfigurationBurstType2", &hf_nbap_midambleConfigurationBurstType2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType2 },
-  { "midambleAllocationMode", &hf_nbap_midambleAllocationMode1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode1 },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_midambleConfigurationBurstType2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType2 },
+  { &hf_nbap_midambleAllocationMode1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode1 },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12155,9 +12155,9 @@ static int dissect_midambleAllocationMode2(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t T_type3_sequence[] = {
-  { "midambleConfigurationBurstType1And3", &hf_nbap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType1And3 },
-  { "midambleAllocationMode", &hf_nbap_midambleAllocationMode2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode2 },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_midambleConfigurationBurstType1And3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationBurstType1And3 },
+  { &hf_nbap_midambleAllocationMode2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_midambleAllocationMode2 },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12282,10 +12282,10 @@ static int dissect_tDD_ChannelisationCode(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t TDD_DL_Code_InformationItem_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12301,7 +12301,7 @@ static int dissect_TDD_DL_Code_Information_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t TDD_DL_Code_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_TDD_DL_Code_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_InformationItem },
+  { &hf_nbap_TDD_DL_Code_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_InformationItem },
 };
 
 static int
@@ -12318,12 +12318,12 @@ static int dissect_dL_Code_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t DL_Timeslot_InformationItem_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "dL-Code-Information"   , &hf_nbap_dL_Code_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12339,7 +12339,7 @@ static int dissect_DL_Timeslot_Information_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t DL_Timeslot_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationItem },
+  { &hf_nbap_DL_Timeslot_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationItem },
 };
 
 static int
@@ -12356,12 +12356,12 @@ static int dissect_dL_Timeslot_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t DL_DPCH_InformationItem_RL_AdditionRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-Information", &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12377,12 +12377,12 @@ static int dissect_id_DL_DPCH_InformationItem_RL_AdditionRqstTDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t DL_DPCH_InformationItem_RL_SetupRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-Information", &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12430,11 +12430,11 @@ static int dissect_tFCI_SignallingOption(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t TFCI_SignallingMode_sequence[] = {
-  { "tFCI-SignallingOption" , &hf_nbap_tFCI_SignallingOption, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_SignallingMode_TFCI_SignallingOption },
-  { "not-Used-splitType"    , &hf_nbap_not_Used_splitType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-lengthOfTFCI2", &hf_nbap_not_Used_lengthOfTFCI2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tFCI_SignallingOption, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_SignallingMode_TFCI_SignallingOption },
+  { &hf_nbap_not_Used_splitType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_lengthOfTFCI2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12469,16 +12469,16 @@ static int dissect_limitedPowerIncrease(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t DL_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "dl-DPCH-SlotFormat"    , &hf_nbap_dl_DPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_SlotFormat },
-  { "tFCI-SignallingMode"   , &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_SignallingMode },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "multiplexingPosition"  , &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MultiplexingPosition },
-  { "not-Used-pDSCH-CodeMapping", &hf_nbap_not_Used_pDSCH_CodeMapping, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-pDSCH-RL-ID"  , &hf_nbap_not_Used_pDSCH_RL_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "limitedPowerIncrease"  , &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_LimitedPowerIncrease },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_dl_DPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_SlotFormat },
+  { &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_SignallingMode },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MultiplexingPosition },
+  { &hf_nbap_not_Used_pDSCH_CodeMapping, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_pDSCH_RL_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_LimitedPowerIncrease },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12494,11 +12494,11 @@ static int dissect_id_DL_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t DL_DPCH_Information_RL_ReconfRqstFDD_sequence[] = {
-  { "dl-TFCS"               , &hf_nbap_dl_TFCS        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "tFCI-SignallingMode"   , &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_SignallingMode },
-  { "limitedPowerIncrease"  , &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_LimitedPowerIncrease },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_TFCS        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_SignallingMode },
+  { &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_LimitedPowerIncrease },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12514,11 +12514,11 @@ static int dissect_id_DL_DPCH_Information_RL_ReconfRqstFDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PowerOffsetInformation_RL_SetupRqstFDD_sequence[] = {
-  { "pO1-ForTFCI-Bits"      , &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "pO2-ForTPC-Bits"       , &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "pO3-ForPilotBits"      , &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12577,19 +12577,19 @@ static int dissect_innerLoopDLPCStatus(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t DL_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "dl-DPCH-SlotFormat"    , &hf_nbap_dl_DPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_DPCH_SlotFormat },
-  { "tFCI-SignallingMode"   , &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_SignallingMode },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "multiplexingPosition"  , &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MultiplexingPosition },
-  { "not-Used-pDSCH-RL-ID"  , &hf_nbap_not_Used_pDSCH_RL_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-pDSCH-CodeMapping", &hf_nbap_not_Used_pDSCH_CodeMapping, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "powerOffsetInformation", &hf_nbap_powerOffsetInformation1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_RL_SetupRqstFDD },
-  { "fdd-TPC-DownlinkStepSize", &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
-  { "limitedPowerIncrease"  , &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
-  { "innerLoopDLPCStatus"   , &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_dl_DPCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_DPCH_SlotFormat },
+  { &hf_nbap_tFCI_SignallingMode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_SignallingMode },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_multiplexingPosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MultiplexingPosition },
+  { &hf_nbap_not_Used_pDSCH_RL_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_pDSCH_CodeMapping, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_powerOffsetInformation1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_RL_SetupRqstFDD },
+  { &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
+  { &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
+  { &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12836,10 +12836,10 @@ static int dissect_dl_Reference_Power(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t DL_ReferencePowerInformationItem_DL_PC_Rqst_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dl-ReferencePower"     , &hf_nbap_dl_ReferencePower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dl_ReferencePower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12855,7 +12855,7 @@ static int dissect_id_DL_ReferencePowerInformationItem_DL_PC_Rqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t DL_ReferencePowerInformationList_DL_PC_Rqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -12885,15 +12885,15 @@ static int dissect_dSCH_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t DSCH_TDD_InformationItem_sequence[] = {
-  { "dSCH-ID"               , &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12909,7 +12909,7 @@ static int dissect_DSCH_TDD_Information_item(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t DSCH_TDD_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_DSCH_TDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_TDD_InformationItem },
+  { &hf_nbap_DSCH_TDD_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_TDD_InformationItem },
 };
 
 static int
@@ -12929,9 +12929,9 @@ static int dissect_id_DSCH_TDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t DSCH_Information_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dSCH-ID"               , &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12947,7 +12947,7 @@ static int dissect_DSCH_Information_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t DSCH_Information_DeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_Information_DeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_Information_DeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -12964,16 +12964,16 @@ static int dissect_id_DSCH_Information_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t DSCH_Information_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dSCH-ID"               , &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "frameHandlingPriority" , &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_frameHandlingPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameHandlingPriority },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -12989,7 +12989,7 @@ static int dissect_DSCH_Information_ModifyList_RL_ReconfPrepTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t DSCH_Information_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_Information_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_Information_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -13006,11 +13006,11 @@ static int dissect_id_DSCH_Information_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t DSCH_InformationResponseItem_sequence[] = {
-  { "dSCH-ID"               , &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13026,7 +13026,7 @@ static int dissect_DSCH_InformationResponse_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t DSCH_InformationResponse_sequence_of[1] = {
-  { ""                      , &hf_nbap_DSCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_InformationResponseItem },
+  { &hf_nbap_DSCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_InformationResponseItem },
 };
 
 static int
@@ -13043,9 +13043,9 @@ static int dissect_id_DSCH_InformationResponse(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t DSCH_RearrangeItem_Bearer_RearrangeInd_sequence[] = {
-  { "dSCH-ID"               , &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13061,7 +13061,7 @@ static int dissect_DSCH_RearrangeList_Bearer_RearrangeInd_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t DSCH_RearrangeList_Bearer_RearrangeInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_RearrangeItem_Bearer_RearrangeInd },
+  { &hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DSCH_RearrangeItem_Bearer_RearrangeInd },
 };
 
 static int
@@ -13097,11 +13097,11 @@ static int dissect_id_End_Of_Audit_Sequence_Indicator(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t FACH_ParametersItem_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13117,7 +13117,7 @@ static int dissect_FACH_ParametersList_CTCH_ReconfRqstTDD_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t FACH_ParametersList_CTCH_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_ReconfRqstTDD },
+  { &hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_ReconfRqstTDD },
 };
 
 static int
@@ -13134,13 +13134,13 @@ static int dissect_id_FACH_ParametersList_CTCH_ReconfRqstTDD(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t FACH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "maxFACH-Power"         , &hf_nbap_maxFACH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_maxFACH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13156,7 +13156,7 @@ static int dissect_FACH_ParametersListIE_CTCH_SetupRqstFDD_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t FACH_ParametersListIE_CTCH_SetupRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD },
+  { &hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD },
 };
 
 static int
@@ -13173,13 +13173,13 @@ static int dissect_id_FACH_ParametersListIE_CTCH_SetupRqstFDD(tvbuff_t *tvb, int
 
 
 static const per_sequence_t FACH_ParametersItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "fACH-CCTrCH-ID"        , &hf_nbap_fACH_CCTrCH_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_fACH_CCTrCH_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13195,7 +13195,7 @@ static int dissect_FACH_ParametersListIE_CTCH_SetupRqstTDD_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t FACH_ParametersListIE_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -13212,7 +13212,7 @@ static int dissect_id_FACH_ParametersListIE_CTCH_SetupRqstTDD(tvbuff_t *tvb, int
 
 
 static const per_sequence_t Local_Cell_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13229,7 +13229,7 @@ static int dissect_local_Cell_InformationList(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t Local_Cell_Group_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_Group_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_Group_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13246,10 +13246,10 @@ static int dissect_local_Cell_Group_InformationList(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t No_Failure_ResourceStatusInd_sequence[] = {
-  { "local-Cell-InformationList", &hf_nbap_local_Cell_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_InformationList_ResourceStatusInd },
-  { "local-Cell-Group-InformationList", &hf_nbap_local_Cell_Group_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_Group_InformationList_ResourceStatusInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_InformationList_ResourceStatusInd },
+  { &hf_nbap_local_Cell_Group_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_Group_InformationList_ResourceStatusInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13265,7 +13265,7 @@ static int dissect_no_Failure(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t Local_Cell_InformationList2_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13282,7 +13282,7 @@ static int dissect_local_Cell_InformationList1(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t Local_Cell_Group_InformationList2_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13299,7 +13299,7 @@ static int dissect_local_Cell_Group_InformationList1(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t CCP_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCP_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CCP_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13316,7 +13316,7 @@ static int dissect_cCP_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t Cell_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Cell_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Cell_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13333,12 +13333,12 @@ static int dissect_cell_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t ServiceImpacting_ResourceStatusInd_sequence[] = {
-  { "local-Cell-InformationList", &hf_nbap_local_Cell_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_InformationList2_ResourceStatusInd },
-  { "local-Cell-Group-InformationList", &hf_nbap_local_Cell_Group_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd },
-  { "cCP-InformationList"   , &hf_nbap_cCP_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCP_InformationList_ResourceStatusInd },
-  { "cell-InformationList"  , &hf_nbap_cell_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Cell_InformationList_ResourceStatusInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_InformationList2_ResourceStatusInd },
+  { &hf_nbap_local_Cell_Group_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd },
+  { &hf_nbap_cCP_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCP_InformationList_ResourceStatusInd },
+  { &hf_nbap_cell_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Cell_InformationList_ResourceStatusInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13405,10 +13405,10 @@ static int dissect_ul_capacityCredit(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t CommonChannelsCapacityConsumptionLaw_item_sequence[] = {
-  { "dl-Cost"               , &hf_nbap_dl_Cost        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "ul-Cost"               , &hf_nbap_ul_Cost        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_Cost        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_ul_Cost        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13424,7 +13424,7 @@ static int dissect_CommonChannelsCapacityConsumptionLaw_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t CommonChannelsCapacityConsumptionLaw_sequence_of[1] = {
-  { ""                      , &hf_nbap_CommonChannelsCapacityConsumptionLaw_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw_item },
+  { &hf_nbap_CommonChannelsCapacityConsumptionLaw_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw_item },
 };
 
 static int
@@ -13441,12 +13441,12 @@ static int dissect_commonChannelsCapacityConsumptionLaw(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DedicatedChannelsCapacityConsumptionLaw_item_sequence[] = {
-  { "dl-Cost-1"             , &hf_nbap_dl_Cost_1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "dl-Cost-2"             , &hf_nbap_dl_Cost_2      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "ul-Cost-1"             , &hf_nbap_ul_Cost_1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "ul-Cost-2"             , &hf_nbap_ul_Cost_2      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_Cost_1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_dl_Cost_2      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_ul_Cost_1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_ul_Cost_2      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_65535 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13462,7 +13462,7 @@ static int dissect_DedicatedChannelsCapacityConsumptionLaw_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t DedicatedChannelsCapacityConsumptionLaw_sequence_of[1] = {
-  { ""                      , &hf_nbap_DedicatedChannelsCapacityConsumptionLaw_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw_item },
+  { &hf_nbap_DedicatedChannelsCapacityConsumptionLaw_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw_item },
 };
 
 static int
@@ -13482,13 +13482,13 @@ static int dissect_dedicatedChannelsCapacityConsumptionLaw(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t Local_Cell_Group_InformationItem_AuditRsp_sequence[] = {
-  { "local-Cell-Group-ID"   , &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13504,13 +13504,13 @@ static int dissect_id_Local_Cell_Group_InformationItem_AuditRsp(tvbuff_t *tvb, i
 
 
 static const per_sequence_t Local_Cell_Group_InformationItem_ResourceStatusInd_sequence[] = {
-  { "local-Cell-Group-ID"   , &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13526,13 +13526,13 @@ static int dissect_id_Local_Cell_Group_InformationItem_ResourceStatusInd(tvbuff_
 
 
 static const per_sequence_t Local_Cell_Group_InformationItem2_ResourceStatusInd_sequence[] = {
-  { "local-Cell-Group-ID"   , &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13548,7 +13548,7 @@ static int dissect_id_Local_Cell_Group_InformationItem2_ResourceStatusInd(tvbuff
 
 
 static const per_sequence_t Local_Cell_Group_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_Group_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_Group_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13619,17 +13619,17 @@ static int dissect_minimumDL_PowerCapability(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t Local_Cell_InformationItem_AuditRsp_sequence[] = {
-  { "local-Cell-ID"         , &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "maximumDL-PowerCapability", &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
-  { "minSpreadingFactor"    , &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
-  { "minimumDL-PowerCapability", &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
-  { "local-Cell-Group-ID"   , &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
+  { &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
+  { &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13664,18 +13664,18 @@ static int dissect_addorDeleteIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t Local_Cell_InformationItem_ResourceStatusInd_sequence[] = {
-  { "local-CellID"          , &hf_nbap_local_CellID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "addorDeleteIndicator"  , &hf_nbap_addorDeleteIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AddorDeleteIndicator },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "maximumDL-PowerCapability", &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
-  { "minSpreadingFactor"    , &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
-  { "minimumDL-PowerCapability", &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
-  { "local-Cell-Group-ID"   , &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_CellID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_addorDeleteIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AddorDeleteIndicator },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
+  { &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
+  { &hf_nbap_local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13691,16 +13691,16 @@ static int dissect_id_Local_Cell_InformationItem_ResourceStatusInd(tvbuff_t *tvb
 
 
 static const per_sequence_t Local_Cell_InformationItem2_ResourceStatusInd_sequence[] = {
-  { "local-Cell-ID"         , &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "dl-or-global-capacityCredit", &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
-  { "ul-capacityCredit"     , &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
-  { "commonChannelsCapacityConsumptionLaw", &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
-  { "dedicatedChannelsCapacityConsumptionLaw", &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
-  { "maximum-DL-PowerCapability", &hf_nbap_maximum_DL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
-  { "minSpreadingFactor"    , &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
-  { "minimumDL-PowerCapability", &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_local_Cell_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_dl_or_global_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_or_Global_CapacityCredit },
+  { &hf_nbap_ul_capacityCredit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_CapacityCredit },
+  { &hf_nbap_commonChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CommonChannelsCapacityConsumptionLaw },
+  { &hf_nbap_dedicatedChannelsCapacityConsumptionLaw, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedChannelsCapacityConsumptionLaw },
+  { &hf_nbap_maximum_DL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_minSpreadingFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinSpreadingFactor },
+  { &hf_nbap_minimumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinimumDL_PowerCapability },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13716,7 +13716,7 @@ static int dissect_id_Local_Cell_InformationItem2_ResourceStatusInd(tvbuff_t *tv
 
 
 static const per_sequence_t Local_Cell_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Local_Cell_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Local_Cell_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -13848,10 +13848,10 @@ static int dissect_repetitionNumber1(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t MessageStructure_item_sequence[] = {
-  { "iE-ID"                 , &hf_nbap_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
-  { "repetitionNumber"      , &hf_nbap_repetitionNumber1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionNumber1 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
+  { &hf_nbap_repetitionNumber1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionNumber1 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -13867,7 +13867,7 @@ static int dissect_MessageStructure_item(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t MessageStructure_sequence_of[1] = {
-  { ""                      , &hf_nbap_MessageStructure_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageStructure_item },
+  { &hf_nbap_MessageStructure_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageStructure_item },
 };
 
 static int
@@ -14004,11 +14004,11 @@ static int dissect_segmentInformationList(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t No_Deletion_SystemInfoUpdate_sequence[] = {
-  { "sIB-Originator"        , &hf_nbap_sIB_Originator , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SIB_Originator },
-  { "iB-SG-REP"             , &hf_nbap_iB_SG_REP      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_REP },
-  { "segmentInformationList", &hf_nbap_segmentInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SegmentInformationList_SystemInfoUpdate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sIB_Originator , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SIB_Originator },
+  { &hf_nbap_iB_SG_REP      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_REP },
+  { &hf_nbap_segmentInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SegmentInformationList_SystemInfoUpdate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14049,11 +14049,11 @@ static int dissect_deletionIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst_sequence[] = {
-  { "iB-Type"               , &hf_nbap_iB_Type        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IB_Type },
-  { "iB-OC-ID"              , &hf_nbap_iB_OC_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IB_OC_ID },
-  { "deletionIndicator"     , &hf_nbap_deletionIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeletionIndicator_SystemInfoUpdate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iB_Type        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IB_Type },
+  { &hf_nbap_iB_OC_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IB_OC_ID },
+  { &hf_nbap_deletionIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeletionIndicator_SystemInfoUpdate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14069,7 +14069,7 @@ static int dissect_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_item(tvbuff_t
 
 
 static const per_sequence_t MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst },
+  { &hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst },
 };
 
 static int
@@ -14115,10 +14115,10 @@ static int dissect_rNC_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 
 
 static const per_sequence_t UC_Id_sequence[] = {
-  { "rNC-ID"                , &hf_nbap_rNC_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RNC_ID },
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rNC_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RNC_ID },
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14172,11 +14172,11 @@ static int dissect_primaryScramblingCode(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t NeighbouringFDDCellMeasurementInformation_sequence[] = {
-  { "uC-Id"                 , &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "primaryScramblingCode" , &hf_nbap_primaryScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryScramblingCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_primaryScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryScramblingCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14192,13 +14192,13 @@ static int dissect_neighbouringFDDCellMeasurementInformation(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t NeighbouringTDDCellMeasurementInformation_sequence[] = {
-  { "uC-Id"                 , &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "cellParameterID"       , &hf_nbap_cellParameterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellParameterID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_cellParameterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellParameterID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14253,7 +14253,7 @@ static int dissect_NeighbouringCellMeasurementInformation_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t NeighbouringCellMeasurementInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_NeighbouringCellMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_NeighbouringCellMeasurementInformation_item },
+  { &hf_nbap_NeighbouringCellMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_NeighbouringCellMeasurementInformation_item },
 };
 
 static int
@@ -14283,10 +14283,10 @@ static int dissect_pCCPCH_Power(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t PCCPCH_Information_Cell_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "pCCPCH-Power"          , &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14334,14 +14334,14 @@ static int dissect_sCTD_Indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t PCCPCH_Information_Cell_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "pCCPCH-Power"          , &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
-  { "sCTD-Indicator"        , &hf_nbap_sCTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
+  { &hf_nbap_sCTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14357,11 +14357,11 @@ static int dissect_id_PCCPCH_Information_Cell_SetupRqstTDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PCH_Parameters_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14414,13 +14414,13 @@ static int dissect_pICH_Mode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t PICH_Parameters_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "fdd-dl-ChannelisationCodeNumber", &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "pICH-Power"            , &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
-  { "pICH-Mode"             , &hf_nbap_pICH_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Mode },
-  { "sTTD-Indicator"        , &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
+  { &hf_nbap_pICH_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Mode },
+  { &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14436,14 +14436,14 @@ static int dissect_pICH_Parameters(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t PCH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "pCH-Power"             , &hf_nbap_pCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "pICH-Parameters"       , &hf_nbap_pICH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Parameters_CTCH_SetupRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_pCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_pICH_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Parameters_CTCH_SetupRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14471,14 +14471,14 @@ static int dissect_pICH_Parameters1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t PCH_ParametersItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "pCH-CCTrCH-ID"         , &hf_nbap_pCH_CCTrCH_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "dl-TransportFormatSet" , &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
-  { "pICH-Parameters"       , &hf_nbap_pICH_Parameters1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Parameters_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_pCH_CCTrCH_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_dl_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ToAWE },
+  { &hf_nbap_pICH_Parameters1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Parameters_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14507,10 +14507,10 @@ static int dissect_pDSCH_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t DL_Code_InformationAddItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCH-ID"              , &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14526,7 +14526,7 @@ static int dissect_DL_Code_InformationAddList_PSCH_ReconfRqst_item(tvbuff_t *tvb
 
 
 static const per_sequence_t DL_Code_InformationAddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14543,12 +14543,12 @@ static int dissect_dL_Code_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb, int
 
 
 static const per_sequence_t DL_Timeslot_InformationAddItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "dL-Code-InformationAddList-PSCH-ReconfRqst", &hf_nbap_dL_Code_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14564,7 +14564,7 @@ static int dissect_DL_Timeslot_InformationAddList_PSCH_ReconfRqst_item(tvbuff_t 
 
 
 static const per_sequence_t DL_Timeslot_InformationAddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14581,12 +14581,12 @@ static int dissect_dL_Timeslot_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t PDSCH_Information_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "dL-Timeslot-InformationAddList-PSCH-ReconfRqst", &hf_nbap_dL_Timeslot_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_dL_Timeslot_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14602,10 +14602,10 @@ static int dissect_id_PDSCH_Information_AddListIE_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t DL_Code_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCH-ID"              , &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14621,7 +14621,7 @@ static int dissect_DL_Code_InformationModifyList_PSCH_ReconfRqst_item(tvbuff_t *
 
 
 static const per_sequence_t DL_Code_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14638,12 +14638,12 @@ static int dissect_dL_Code_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb, 
 
 
 static const per_sequence_t DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "dL-Code-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_dL_Code_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14659,7 +14659,7 @@ static int dissect_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item(tvbuff
 
 
 static const per_sequence_t DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14676,12 +14676,12 @@ static int dissect_dL_Timeslot_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *t
 
 
 static const per_sequence_t PDSCH_Information_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
-  { "dL-Timeslot-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_dL_Timeslot_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_dL_Timeslot_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14722,10 +14722,10 @@ static int dissect_pDSCH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t PDSCHSets_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCHSet-ID"           , &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
-  { "pDSCH-InformationList" , &hf_nbap_pDSCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PDSCH_Information_AddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
+  { &hf_nbap_pDSCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PDSCH_Information_AddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14741,7 +14741,7 @@ static int dissect_PDSCHSets_AddList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t PDSCHSets_AddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_AddItem_PSCH_ReconfRqst },
+  { &hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_AddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14758,9 +14758,9 @@ static int dissect_id_PDSCHSets_AddList_PSCH_ReconfRqst(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t PDSCHSets_DeleteItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCHSet-ID"           , &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14776,7 +14776,7 @@ static int dissect_PDSCHSets_DeleteList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t PDSCHSets_DeleteList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_DeleteItem_PSCH_ReconfRqst },
+  { &hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_DeleteItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14805,10 +14805,10 @@ static int dissect_pDSCH_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t PDSCHSets_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCHSet-ID"           , &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
-  { "pDSCH-InformationList" , &hf_nbap_pDSCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_Information_ModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
+  { &hf_nbap_pDSCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_Information_ModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14824,7 +14824,7 @@ static int dissect_PDSCHSets_ModifyList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t PDSCHSets_ModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_ModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSets_ModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -14841,10 +14841,10 @@ static int dissect_id_PDSCHSets_ModifyList_PSCH_ReconfRqst(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PICH_Parameters_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "pICH-Power"            , &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14883,10 +14883,10 @@ static int dissect_powerAdjustmentType(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t BCH_information_Cell_ReconfRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "bCH-Power"             , &hf_nbap_bCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_bCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14902,9 +14902,9 @@ static int dissect_bCH_information1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t PrimaryCCPCH_Information_Cell_ReconfRqstFDD_sequence[] = {
-  { "bCH-information"       , &hf_nbap_bCH_information1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BCH_information_Cell_ReconfRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_bCH_information1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BCH_information_Cell_ReconfRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14920,10 +14920,10 @@ static int dissect_id_PrimaryCCPCH_Information_Cell_ReconfRqstFDD(tvbuff_t *tvb,
 
 
 static const per_sequence_t BCH_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "bCH-Power"             , &hf_nbap_bCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_bCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14939,11 +14939,11 @@ static int dissect_bCH_information(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t PrimaryCCPCH_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "bCH-information"       , &hf_nbap_bCH_information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BCH_Information_Cell_SetupRqstFDD },
-  { "sTTD-Indicator"        , &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_bCH_information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BCH_Information_Cell_SetupRqstFDD },
+  { &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -14972,10 +14972,10 @@ static int dissect_primaryCPICH_Power(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t PrimaryCPICH_Information_Cell_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "primaryCPICH-Power"    , &hf_nbap_primaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryCPICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_primaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryCPICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15010,11 +15010,11 @@ static int dissect_transmitDiversityIndicator(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t PrimaryCPICH_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "primaryCPICH-Power"    , &hf_nbap_primaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryCPICH_Power },
-  { "transmitDiversityIndicator", &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmitDiversityIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_primaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PrimaryCPICH_Power },
+  { &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmitDiversityIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15030,10 +15030,10 @@ static int dissect_id_PrimaryCPICH_Information_Cell_SetupRqstFDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t PrimarySCH_Information_Cell_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "primarySCH-Power"      , &hf_nbap_primarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_primarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15074,11 +15074,11 @@ static int dissect_tstdIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t PrimarySCH_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "primarySCH-Power"      , &hf_nbap_primarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_primarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15094,10 +15094,10 @@ static int dissect_id_PrimarySCH_Information_Cell_SetupRqstFDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t SCH_Information_Cell_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "sCH-Power"             , &hf_nbap_sCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_sCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15125,12 +15125,12 @@ static int dissect_syncCaseIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t SCH_Information_Cell_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "syncCaseIndicator"     , &hf_nbap_syncCaseIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncCaseIndicator_Cell_SetupRqstTDD_PSCH },
-  { "sCH-Power"             , &hf_nbap_sCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_syncCaseIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncCaseIndicator_Cell_SetupRqstTDD_PSCH },
+  { &hf_nbap_sCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15168,10 +15168,10 @@ static int dissect_PUSCH_Info_DM_Rprt_item(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t UL_Code_InformationAddItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15187,7 +15187,7 @@ static int dissect_UL_Code_InformationAddList_PSCH_ReconfRqst_item(tvbuff_t *tvb
 
 
 static const per_sequence_t UL_Code_InformationAddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15204,12 +15204,12 @@ static int dissect_uL_Code_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb, int
 
 
 static const per_sequence_t UL_Timeslot_InformationAddItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationAddList-PSCH-ReconfRqst", &hf_nbap_uL_Code_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15225,7 +15225,7 @@ static int dissect_UL_Timeslot_InformationAddList_PSCH_ReconfRqst_item(tvbuff_t 
 
 
 static const per_sequence_t UL_Timeslot_InformationAddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15242,12 +15242,12 @@ static int dissect_uL_Timeslot_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t PUSCH_Information_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "uL-Timeslot-InformationAddList-PSCH-ReconfRqst", &hf_nbap_uL_Timeslot_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_uL_Timeslot_InformationAddList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15263,10 +15263,10 @@ static int dissect_id_PUSCH_Information_AddListIE_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t UL_Code_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15282,7 +15282,7 @@ static int dissect_UL_Code_InformationModifyList_PSCH_ReconfRqst_item(tvbuff_t *
 
 
 static const per_sequence_t UL_Code_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15299,12 +15299,12 @@ static int dissect_uL_Code_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb, 
 
 
 static const per_sequence_t UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_uL_Code_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15320,7 +15320,7 @@ static int dissect_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item(tvbuff
 
 
 static const per_sequence_t UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15337,12 +15337,12 @@ static int dissect_uL_Timeslot_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *t
 
 
 static const per_sequence_t PUSCH_Information_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
-  { "uL-Timeslot-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_uL_Timeslot_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_uL_Timeslot_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15383,10 +15383,10 @@ static int dissect_pUSCH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t PUSCHSets_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCHSet-ID"           , &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
-  { "pUSCH-InformationList" , &hf_nbap_pUSCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_Information_AddList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
+  { &hf_nbap_pUSCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_Information_AddList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15402,7 +15402,7 @@ static int dissect_PUSCHSets_AddList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t PUSCHSets_AddList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_AddItem_PSCH_ReconfRqst },
+  { &hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_AddItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15419,9 +15419,9 @@ static int dissect_id_PUSCHSets_AddList_PSCH_ReconfRqst(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t PUSCHSets_DeleteItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCHSet-ID"           , &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15437,7 +15437,7 @@ static int dissect_PUSCHSets_DeleteList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t PUSCHSets_DeleteList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_DeleteItem_PSCH_ReconfRqst },
+  { &hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_DeleteItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15466,10 +15466,10 @@ static int dissect_pUSCH_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t PUSCHSets_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCHSet-ID"           , &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
-  { "pUSCH-InformationList" , &hf_nbap_pUSCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_Information_ModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
+  { &hf_nbap_pUSCH_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_Information_ModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15485,7 +15485,7 @@ static int dissect_PUSCHSets_ModifyList_PSCH_ReconfRqst_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t PUSCHSets_ModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_ModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSets_ModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -15502,10 +15502,10 @@ static int dissect_id_PUSCHSets_ModifyList_PSCH_ReconfRqst(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t RACH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15521,10 +15521,10 @@ static int dissect_id_RACH_ParametersItem_CTCH_SetupRqstFDD(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t RACH_ParameterItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "uL-TransportFormatSet" , &hf_nbap_uL_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_uL_TransportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15794,10 +15794,10 @@ static int dissect_measurementHysteresisTime(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t ReportCharacteristicsType_EventA_sequence[] = {
-  { "measurementThreshold"  , &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementHysteresisTime", &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -15813,10 +15813,10 @@ static int dissect_event_a(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t ReportCharacteristicsType_EventB_sequence[] = {
-  { "measurementThreshold"  , &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementHysteresisTime", &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16022,10 +16022,10 @@ static int dissect_measurementChangeTime(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t ReportCharacteristicsType_EventC_sequence[] = {
-  { "measurementIncreaseThreshold", &hf_nbap_measurementIncreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold },
-  { "measurementChangeTime" , &hf_nbap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementIncreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold },
+  { &hf_nbap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16041,10 +16041,10 @@ static int dissect_event_c(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t ReportCharacteristicsType_EventD_sequence[] = {
-  { "measurementDecreaseThreshold", &hf_nbap_measurementDecreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold },
-  { "measurementChangeTime" , &hf_nbap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementDecreaseThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold },
+  { &hf_nbap_measurementChangeTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16060,12 +16060,12 @@ static int dissect_event_d(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t ReportCharacteristicsType_EventE_sequence[] = {
-  { "measurementThreshold1" , &hf_nbap_measurementThreshold1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementThreshold2" , &hf_nbap_measurementThreshold2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementHysteresisTime", &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
-  { "reportPeriodicity"     , &hf_nbap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ReportPeriodicity },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementThreshold1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementThreshold2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
+  { &hf_nbap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ReportPeriodicity },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16081,12 +16081,12 @@ static int dissect_event_e(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t ReportCharacteristicsType_EventF_sequence[] = {
-  { "measurementThreshold1" , &hf_nbap_measurementThreshold1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementThreshold2" , &hf_nbap_measurementThreshold2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "measurementHysteresisTime", &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
-  { "reportPeriodicity"     , &hf_nbap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ReportPeriodicity },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementThreshold1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementThreshold2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_measurementHysteresisTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime },
+  { &hf_nbap_reportPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ReportCharacteristicsType_ReportPeriodicity },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16153,7 +16153,7 @@ static int dissect_id_ReportCharacteristics(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t RL_InformationList_RL_FailureInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16170,9 +16170,9 @@ static int dissect_rL_InformationList_RL_FailureInd(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t RL_RL_FailureInd_sequence[] = {
-  { "rL-InformationList-RL-FailureInd", &hf_nbap_rL_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_RL_FailureInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_RL_FailureInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16188,7 +16188,7 @@ static int dissect_rL3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 
 
 static const per_sequence_t RL_Set_InformationList_RL_FailureInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Set_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_Set_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16205,9 +16205,9 @@ static int dissect_rL_Set_InformationList_RL_FailureInd(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t RL_Set_RL_FailureInd_sequence[] = {
-  { "rL-Set-InformationList-RL-FailureInd", &hf_nbap_rL_Set_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_RL_FailureInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_RL_FailureInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16223,7 +16223,7 @@ static int dissect_rL_Set(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 
 
 static const per_sequence_t CCTrCH_InformationList_RL_FailureInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCTrCH_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CCTrCH_InformationList_RL_FailureInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16240,10 +16240,10 @@ static int dissect_cCTrCH_InformationList_RL_FailureInd(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t CCTrCH_RL_FailureInd_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cCTrCH-InformationList-RL-FailureInd", &hf_nbap_cCTrCH_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_InformationList_RL_FailureInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cCTrCH_InformationList_RL_FailureInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_InformationList_RL_FailureInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16286,7 +16286,7 @@ static int dissect_id_Reporting_Object_RL_FailureInd(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t RL_InformationList_RL_RestoreInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16303,9 +16303,9 @@ static int dissect_rL_InformationList_RL_RestoreInd(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t RL_RL_RestoreInd_sequence[] = {
-  { "rL-InformationList-RL-RestoreInd", &hf_nbap_rL_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_RL_RestoreInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_InformationList_RL_RestoreInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16321,7 +16321,7 @@ static int dissect_rL4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *t
 
 
 static const per_sequence_t RL_Set_InformationList_RL_RestoreInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Set_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_Set_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16338,9 +16338,9 @@ static int dissect_rL_Set_InformationList_RL_RestoreInd(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t RL_Set_RL_RestoreInd_sequence[] = {
-  { "rL-Set-InformationList-RL-RestoreInd", &hf_nbap_rL_Set_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_RL_RestoreInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_InformationList_RL_RestoreInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16356,7 +16356,7 @@ static int dissect_rL_Set1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t CCTrCH_InformationList_RL_RestoreInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCTrCH_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CCTrCH_InformationList_RL_RestoreInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16373,10 +16373,10 @@ static int dissect_cCTrCH_InformationList_RL_RestoreInd(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t CCTrCH_RL_RestoreInd_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cCTrCH-InformationList-RL-RestoreInd", &hf_nbap_cCTrCH_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_InformationList_RL_RestoreInd },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cCTrCH_InformationList_RL_RestoreInd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_InformationList_RL_RestoreInd },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16469,10 +16469,10 @@ static int dissect_dedicatedmeasurementValue(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t DedicatedMeasurementAvailable_sequence[] = {
-  { "dedicatedmeasurementValue", &hf_nbap_dedicatedmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
-  { "cFN"                   , &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dedicatedmeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16525,11 +16525,11 @@ static int dissect_dedicatedMeasurementValueInformation(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t RL_InformationItem_DM_Rprt_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
-  { "dedicatedMeasurementValueInformation", &hf_nbap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
+  { &hf_nbap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16545,10 +16545,10 @@ static int dissect_id_RL_InformationItem_DM_Rprt(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t RL_InformationItem_DM_Rqst_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16564,12 +16564,12 @@ static int dissect_id_RL_InformationItem_DM_Rqst(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t RL_InformationItem_DM_Rsp_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
-  { "cFN"                   , &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DPCH_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16650,11 +16650,11 @@ static int dissect_transmissionGapPatternSequenceCodeInformation(tvbuff_t *tvb, 
 
 
 static const per_sequence_t FDD_DL_CodeInformationItem_sequence[] = {
-  { "dl-ScramblingCode"     , &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ScramblingCode },
-  { "fdd-DL-ChannelisationCodeNumber", &hf_nbap_fdd_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "transmissionGapPatternSequenceCodeInformation", &hf_nbap_transmissionGapPatternSequenceCodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmissionGapPatternSequenceCodeInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ScramblingCode },
+  { &hf_nbap_fdd_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_transmissionGapPatternSequenceCodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmissionGapPatternSequenceCodeInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16670,7 +16670,7 @@ static int dissect_FDD_DL_CodeInformation_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t FDD_DL_CodeInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_FDD_DL_CodeInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformationItem },
+  { &hf_nbap_FDD_DL_CodeInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformationItem },
 };
 
 static int
@@ -16687,19 +16687,19 @@ static int dissect_dl_CodeInformation(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t RL_InformationItem_RL_AdditionRqstFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "frameOffset"           , &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
-  { "chipOffset"            , &hf_nbap_chipOffset     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ChipOffset },
-  { "diversityControlField" , &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityControlField },
-  { "dl-CodeInformation"    , &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformation },
-  { "initialDL-TransmissionPower", &hf_nbap_initialDL_TransmissionPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "maximumDL-Power"       , &hf_nbap_maximumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minimumDL-Power"       , &hf_nbap_minimumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "not-Used-sSDT-CellIdentity", &hf_nbap_not_Used_sSDT_CellIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "transmitDiversityIndicator", &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
+  { &hf_nbap_chipOffset     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ChipOffset },
+  { &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityControlField },
+  { &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformation },
+  { &hf_nbap_initialDL_TransmissionPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_maximumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minimumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_not_Used_sSDT_CellIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16715,9 +16715,9 @@ static int dissect_id_RL_InformationItem_RL_AdditionRqstFDD(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t RL_informationItem_RL_DeletionRqst_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16733,10 +16733,10 @@ static int dissect_id_RL_informationItem_RL_DeletionRqst(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t RL_InformationItem_RL_FailureInd_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16752,9 +16752,9 @@ static int dissect_id_RL_InformationItem_RL_FailureInd(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t RL_InformationItem_RL_PreemptRequiredInd_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16770,15 +16770,15 @@ static int dissect_id_RL_InformationItem_RL_PreemptRequiredInd(tvbuff_t *tvb, in
 
 
 static const per_sequence_t RL_InformationItem_RL_ReconfPrepFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dl-CodeInformation"    , &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_CodeInformation },
-  { "maxDL-Power"           , &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minDL-Power"           , &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "not-Used-sSDT-Indication", &hf_nbap_not_Used_sSDT_Indication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-sSDT-Cell-Identity", &hf_nbap_not_Used_sSDT_Cell_Identity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "transmitDiversityIndicator", &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_CodeInformation },
+  { &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_not_Used_sSDT_Indication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_sSDT_Cell_Identity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16797,9 +16797,9 @@ static int dissect_id_RL_InformationItem_RL_ReconfRqstFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t RL_InformationItem_RL_RestoreInd_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16853,21 +16853,21 @@ static int dissect_propagation_delay(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t RL_InformationItem_RL_SetupRqstFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "firstRLS-indicator"    , &hf_nbap_firstRLS_indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FirstRLS_Indicator },
-  { "frameOffset"           , &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
-  { "chipOffset"            , &hf_nbap_chipOffset     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ChipOffset },
-  { "propagationDelay"      , &hf_nbap_propagationDelay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PropagationDelay },
-  { "diversityControlField" , &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiversityControlField },
-  { "dl-CodeInformation"    , &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformation },
-  { "initialDL-transmissionPower", &hf_nbap_initialDL_transmissionPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "maximumDL-power"       , &hf_nbap_maximumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "minimumDL-power"       , &hf_nbap_minimumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "not-Used-sSDT-Cell-Identity", &hf_nbap_not_Used_sSDT_Cell_Identity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "transmitDiversityIndicator", &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_firstRLS_indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FirstRLS_Indicator },
+  { &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
+  { &hf_nbap_chipOffset     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ChipOffset },
+  { &hf_nbap_propagationDelay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PropagationDelay },
+  { &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiversityControlField },
+  { &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_CodeInformation },
+  { &hf_nbap_initialDL_transmissionPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_maximumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_minimumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_not_Used_sSDT_Cell_Identity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransmitDiversityIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -16883,7 +16883,7 @@ static int dissect_id_RL_InformationItem_RL_SetupRqstFDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t RL_InformationList_RL_AdditionRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_AdditionRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_AdditionRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16900,7 +16900,7 @@ static int dissect_id_RL_InformationList_RL_AdditionRqstFDD(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t RL_informationList_RL_DeletionRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_informationList_RL_DeletionRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_informationList_RL_DeletionRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16917,7 +16917,7 @@ static int dissect_id_RL_informationList_RL_DeletionRqst(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t RL_InformationList_RL_PreemptRequiredInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_PreemptRequiredInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_PreemptRequiredInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16934,7 +16934,7 @@ static int dissect_id_RL_InformationList_RL_PreemptRequiredInd(tvbuff_t *tvb, in
 
 
 static const per_sequence_t RL_InformationList_RL_ReconfPrepFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_ReconfPrepFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_ReconfPrepFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16951,7 +16951,7 @@ static int dissect_id_RL_InformationList_RL_ReconfPrepFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t RL_InformationList_RL_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16968,7 +16968,7 @@ static int dissect_id_RL_InformationList_RL_ReconfRqstFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t RL_InformationList_RL_SetupRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationList_RL_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationList_RL_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -16985,9 +16985,9 @@ static int dissect_id_RL_InformationList_RL_SetupRqstFDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t Combining_RL_AdditionRspFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17003,9 +17003,9 @@ static int dissect_combining2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t Non_Combining_RL_AdditionRspFDD_sequence[] = {
-  { "dCH-InformationResponse", &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17065,13 +17065,13 @@ static int dissect_sSDT_SupportIndicator(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t RL_InformationResponseItem_RL_AdditionRspFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "received-total-wide-band-power", &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
-  { "diversityIndication"   , &hf_nbap_diversityIndication2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionRspFDD },
-  { "sSDT-SupportIndicator" , &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
+  { &hf_nbap_diversityIndication2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionRspFDD },
+  { &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17123,13 +17123,13 @@ static int dissect_uSCH_InformationResponseList_RL_ReconfReady(tvbuff_t *tvb, in
 
 
 static const per_sequence_t RL_InformationResponseItem_RL_ReconfReady_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dCH-InformationResponseList-RL-ReconfReady", &hf_nbap_dCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_ReconfReady },
-  { "dSCH-InformationResponseList-RL-ReconfReady", &hf_nbap_dSCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_ReconfReady },
-  { "uSCH-InformationResponseList-RL-ReconfReady", &hf_nbap_uSCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_ReconfReady },
-  { "not-Used-tFCI2-BearerInformationResponse", &hf_nbap_not_Used_tFCI2_BearerInformationResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_ReconfReady },
+  { &hf_nbap_dSCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_ReconfReady },
+  { &hf_nbap_uSCH_InformationResponseList_RL_ReconfReady, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_ReconfReady },
+  { &hf_nbap_not_Used_tFCI2_BearerInformationResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17157,10 +17157,10 @@ static int dissect_dCH_InformationResponseList_RL_ReconfRsp(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t RL_InformationResponseItem_RL_ReconfRsp_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dCH-InformationResponseList-RL-ReconfRsp", &hf_nbap_dCH_InformationResponseList_RL_ReconfRsp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_ReconfRsp },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dCH_InformationResponseList_RL_ReconfRsp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_ReconfRsp },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17176,9 +17176,9 @@ static int dissect_id_RL_InformationResponseItem_RL_ReconfRsp(tvbuff_t *tvb, int
 
 
 static const per_sequence_t Combining_RL_SetupRspFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17194,9 +17194,9 @@ static int dissect_combining(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupRspFDD_sequence[] = {
-  { "dCH-InformationResponse", &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17237,14 +17237,14 @@ static int dissect_diversityIndication(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t RL_InformationResponseItem_RL_SetupRspFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "received-total-wide-band-power", &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
-  { "diversityIndication"   , &hf_nbap_diversityIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_SetupRspFDD },
-  { "not-Used-dSCH-InformationResponseList", &hf_nbap_not_Used_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "sSDT-SupportIndicator" , &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
+  { &hf_nbap_diversityIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_SetupRspFDD },
+  { &hf_nbap_not_Used_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17260,7 +17260,7 @@ static int dissect_id_RL_InformationResponseItem_RL_SetupRspFDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t RL_InformationResponseList_RL_AdditionRspFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -17277,7 +17277,7 @@ static int dissect_id_RL_InformationResponseList_RL_AdditionRspFDD(tvbuff_t *tvb
 
 
 static const per_sequence_t RL_InformationResponseList_RL_ReconfReady_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationResponseList_RL_ReconfReady_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationResponseList_RL_ReconfReady_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -17294,7 +17294,7 @@ static int dissect_id_RL_InformationResponseList_RL_ReconfReady(tvbuff_t *tvb, i
 
 
 static const per_sequence_t RL_InformationResponseList_RL_ReconfRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationResponseList_RL_ReconfRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationResponseList_RL_ReconfRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -17311,7 +17311,7 @@ static int dissect_id_RL_InformationResponseList_RL_ReconfRsp(tvbuff_t *tvb, int
 
 
 static const per_sequence_t RL_InformationResponseList_RL_SetupRspFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -17328,10 +17328,10 @@ static int dissect_id_RL_InformationResponseList_RL_SetupRspFDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_InfoItem_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "iSCP"                  , &hf_nbap_iSCP           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotISCP_Value },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_iSCP           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotISCP_Value },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17347,7 +17347,7 @@ static int dissect_UL_TimeSlot_ISCP_Info_item(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_Info_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_TimeSlot_ISCP_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_InfoItem },
+  { &hf_nbap_UL_TimeSlot_ISCP_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_InfoItem },
 };
 
 static int
@@ -17383,9 +17383,9 @@ static int dissect_ul_PhysCH_SF_Variation(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t Combining_RL_AdditionRspTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17401,9 +17401,9 @@ static int dissect_combining3(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t Non_Combining_RL_AdditionRspTDD_sequence[] = {
-  { "dCH-InformationResponse", &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17444,9 +17444,9 @@ static int dissect_diversityIndication3(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t DCH_Information_RL_AdditionRspTDD_sequence[] = {
-  { "diversityIndication"   , &hf_nbap_diversityIndication3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionRspTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_diversityIndication3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionRspTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17486,14 +17486,14 @@ static int dissect_uSCH_InformationResponseList1(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t RL_InformationResponse_RL_AdditionRspTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "uL-TimeSlot-ISCP-Info" , &hf_nbap_uL_TimeSlot_ISCP_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_Info },
-  { "ul-PhysCH-SF-Variation", &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
-  { "dCH-Information"       , &hf_nbap_dCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_Information_RL_AdditionRspTDD },
-  { "dSCH-InformationResponseList", &hf_nbap_dSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_AdditionRspTDD },
-  { "uSCH-InformationResponseList", &hf_nbap_uSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_AdditionRspTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_uL_TimeSlot_ISCP_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_Info },
+  { &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
+  { &hf_nbap_dCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_Information_RL_AdditionRspTDD },
+  { &hf_nbap_dSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_AdditionRspTDD },
+  { &hf_nbap_uSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_AdditionRspTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17545,14 +17545,14 @@ static int dissect_uSCH_InformationResponseList(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t RL_InformationResponse_RL_SetupRspTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "uL-TimeSlot-ISCP-Info" , &hf_nbap_uL_TimeSlot_ISCP_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_Info },
-  { "ul-PhysCH-SF-Variation", &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
-  { "dCH-InformationResponseList", &hf_nbap_dCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_SetupRspTDD },
-  { "dSCH-InformationResponseList", &hf_nbap_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_SetupRspTDD },
-  { "uSCH-InformationResponseList", &hf_nbap_uSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_SetupRspTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_uL_TimeSlot_ISCP_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_Info },
+  { &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
+  { &hf_nbap_dCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_uSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17581,10 +17581,10 @@ static int dissect_dL_TimeslotISCP(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t DL_TimeslotISCPInfoItem_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "dL-TimeslotISCP"       , &hf_nbap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCP },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCP },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17600,7 +17600,7 @@ static int dissect_DL_TimeslotISCPInfo_item(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t DL_TimeslotISCPInfo_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_TimeslotISCPInfo_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCPInfoItem },
+  { &hf_nbap_DL_TimeslotISCPInfo_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCPInfoItem },
 };
 
 static int
@@ -17620,16 +17620,16 @@ static int dissect_dL_TimeSlotISCPInfo(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t RL_Information_RL_AdditionRqstTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "frameOffset"           , &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
-  { "diversityControlField" , &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityControlField },
-  { "initial-DL-Transmission-Power", &hf_nbap_initial_DL_Transmission_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "maximumDL-Power"       , &hf_nbap_maximumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minimumDL-Power"       , &hf_nbap_minimumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "dL-TimeSlotISCPInfo"   , &hf_nbap_dL_TimeSlotISCPInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_TimeslotISCPInfo },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
+  { &hf_nbap_diversityControlField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityControlField },
+  { &hf_nbap_initial_DL_Transmission_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_maximumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minimumDL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_dL_TimeSlotISCPInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_TimeslotISCPInfo },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17645,11 +17645,11 @@ static int dissect_id_RL_Information_RL_AdditionRqstTDD(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t RL_Information_RL_ReconfRqstTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "maxDL-Power"           , &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minDL-Power"           , &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17668,11 +17668,11 @@ static int dissect_Multiple_RL_Information_RL_ReconfRqstTDD_item(tvbuff_t *tvb, 
 
 
 static const per_sequence_t RL_Information_RL_ReconfPrepTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "maxDL-Power"           , &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minDL-Power"           , &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17704,16 +17704,16 @@ static int dissect_specialBurstScheduling(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t RL_Information_RL_SetupRqstTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "frameOffset"           , &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
-  { "specialBurstScheduling", &hf_nbap_specialBurstScheduling, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SpecialBurstScheduling },
-  { "initialDL-transmissionPower", &hf_nbap_initialDL_transmissionPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "maximumDL-power"       , &hf_nbap_maximumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "minimumDL-power"       , &hf_nbap_minimumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "dL-TimeSlotISCPInfo"   , &hf_nbap_dL_TimeSlotISCPInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_TimeslotISCPInfo },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_frameOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FrameOffset },
+  { &hf_nbap_specialBurstScheduling, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SpecialBurstScheduling },
+  { &hf_nbap_initialDL_transmissionPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_maximumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_minimumDL_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_dL_TimeSlotISCPInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_TimeslotISCPInfo },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17729,10 +17729,10 @@ static int dissect_id_RL_Information_RL_SetupRqstTDD(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t RL_ReconfigurationFailureItem_RL_ReconfFailure_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17748,10 +17748,10 @@ static int dissect_id_RL_ReconfigurationFailureItem_RL_ReconfFailure(tvbuff_t *t
 
 
 static const per_sequence_t RL_Set_InformationItem_DM_Rprt_sequence[] = {
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "dedicatedMeasurementValueInformation", &hf_nbap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_dedicatedMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17767,11 +17767,11 @@ static int dissect_id_RL_Set_InformationItem_DM_Rprt(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t RL_Set_InformationItem_DM_Rsp_sequence[] = {
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
-  { "cFN"                   , &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_cFN            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CFN },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17787,10 +17787,10 @@ static int dissect_id_RL_Set_InformationItem_DM_Rsp(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t RL_Set_InformationItem_RL_FailureInd_sequence[] = {
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17806,9 +17806,9 @@ static int dissect_id_RL_Set_InformationItem_RL_FailureInd(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t RL_Set_InformationItem_RL_RestoreInd_sequence[] = {
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17824,10 +17824,10 @@ static int dissect_id_RL_Set_InformationItem_RL_RestoreInd(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t Secondary_CCPCHItem_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "sCCPCH-Power"          , &hf_nbap_sCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_sCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17849,7 +17849,7 @@ static int dissect_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_
 
 
 static const per_sequence_t Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
+  { &hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
 };
 
 static int
@@ -17866,16 +17866,16 @@ static int dissect_id_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "timeslot"              , &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftandBurstType", &hf_nbap_midambleShiftandBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "s-CCPCH-Power"         , &hf_nbap_s_CCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftandBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_s_CCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17894,7 +17894,7 @@ static int dissect_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_item(
 
 
 static const per_sequence_t Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -17923,10 +17923,10 @@ static int dissect_secondaryCCPCHList(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "secondaryCCPCHList"    , &hf_nbap_secondaryCCPCHList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Secondary_CCPCHList_CTCH_ReconfRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_secondaryCCPCHList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Secondary_CCPCHList_CTCH_ReconfRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17942,10 +17942,10 @@ static int dissect_id_Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD(tvbuff_t *tv
 
 
 static const per_sequence_t SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "secondaryCPICH-Power"  , &hf_nbap_secondaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_secondaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17961,13 +17961,13 @@ static int dissect_id_SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD(tvbuff_t
 
 
 static const per_sequence_t SecondaryCPICH_InformationItem_Cell_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "dl-ScramblingCode"     , &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ScramblingCode },
-  { "fDD-DL-ChannelisationCodeNumber", &hf_nbap_fDD_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "secondaryCPICH-Power"  , &hf_nbap_secondaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "transmitDiversityIndicator", &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmitDiversityIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_dl_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ScramblingCode },
+  { &hf_nbap_fDD_DL_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_secondaryCPICH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_transmitDiversityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmitDiversityIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -17983,7 +17983,7 @@ static int dissect_id_SecondaryCPICH_InformationItem_Cell_SetupRqstFDD(tvbuff_t 
 
 
 static const per_sequence_t SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -18000,7 +18000,7 @@ static int dissect_id_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD(tvbuff_t
 
 
 static const per_sequence_t SecondaryCPICH_InformationList_Cell_SetupRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -18017,10 +18017,10 @@ static int dissect_id_SecondaryCPICH_InformationList_Cell_SetupRqstFDD(tvbuff_t 
 
 
 static const per_sequence_t SecondarySCH_Information_Cell_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "secondarySCH-Power"    , &hf_nbap_secondarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_secondarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18036,11 +18036,11 @@ static int dissect_id_SecondarySCH_Information_Cell_ReconfRqstFDD(tvbuff_t *tvb,
 
 
 static const per_sequence_t SecondarySCH_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "secondarySCH-Power"    , &hf_nbap_secondarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_secondarySCH_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18106,11 +18106,11 @@ static int dissect_iB_SG_DATA(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t SegmentInformationItem_SystemInfoUpdate_sequence[] = {
-  { "iB-SG-POS"             , &hf_nbap_iB_SG_POS      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_POS },
-  { "segment-Type"          , &hf_nbap_segment_Type   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Segment_Type },
-  { "iB-SG-DATA"            , &hf_nbap_iB_SG_DATA     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_DATA },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iB_SG_POS      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_POS },
+  { &hf_nbap_segment_Type   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Segment_Type },
+  { &hf_nbap_iB_SG_DATA     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IB_SG_DATA },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18126,7 +18126,7 @@ static int dissect_SegmentInformationListIE_SystemInfoUpdate_item(tvbuff_t *tvb,
 
 
 static const per_sequence_t SegmentInformationListIE_SystemInfoUpdate_sequence_of[1] = {
-  { ""                      , &hf_nbap_SegmentInformationListIE_SystemInfoUpdate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SegmentInformationItem_SystemInfoUpdate },
+  { &hf_nbap_SegmentInformationListIE_SystemInfoUpdate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SegmentInformationItem_SystemInfoUpdate },
 };
 
 static int
@@ -18215,9 +18215,9 @@ static int dissect_id_Start_Of_Audit_Sequence_Indicator(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t Combining_RL_AdditionFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18233,9 +18233,9 @@ static int dissect_combining4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t Non_Combining_RL_AdditionFailureFDD_sequence[] = {
-  { "dCH-InformationResponse", &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18276,13 +18276,13 @@ static int dissect_diversityIndication4(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t Successful_RL_InformationRespItem_RL_AdditionFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "received-total-wide-band-power", &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
-  { "diversityIndication"   , &hf_nbap_diversityIndication4, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionFailureFDD },
-  { "sSDT-SupportIndicator" , &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
+  { &hf_nbap_diversityIndication4, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_AdditionFailureFDD },
+  { &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18298,9 +18298,9 @@ static int dissect_id_Successful_RL_InformationRespItem_RL_AdditionFailureFDD(tv
 
 
 static const per_sequence_t Combining_RL_SetupFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18316,9 +18316,9 @@ static int dissect_combining1(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupFailureFDD_sequence[] = {
-  { "dCH-InformationResponse", &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_InformationResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_InformationResponse },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18359,15 +18359,15 @@ static int dissect_diversityIndication1(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t Successful_RL_InformationRespItem_RL_SetupFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "rL-Set-ID"             , &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
-  { "received-total-wide-band-power", &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
-  { "diversityIndication"   , &hf_nbap_diversityIndication1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_SetupFailureFDD },
-  { "not-Used-dSCH-InformationResponseList", &hf_nbap_not_Used_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-tFCI2-BearerInformationResponse", &hf_nbap_not_Used_tFCI2_BearerInformationResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "sSDT-SupportIndicator" , &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_rL_Set_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Set_ID },
+  { &hf_nbap_received_total_wide_band_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
+  { &hf_nbap_diversityIndication1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityIndication_RL_SetupFailureFDD },
+  { &hf_nbap_not_Used_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_tFCI2_BearerInformationResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_sSDT_SupportIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SSDT_SupportIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18396,9 +18396,9 @@ static int dissect_id_SyncCase(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t Case1_Cell_SetupRqstTDD_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18427,9 +18427,9 @@ static int dissect_sCH_TimeSlot(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t Case2_Cell_SetupRqstTDD_sequence[] = {
-  { "sCH-TimeSlot"          , &hf_nbap_sCH_TimeSlot   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCH_TimeSlot },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sCH_TimeSlot   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCH_TimeSlot },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18535,11 +18535,11 @@ static int dissect_timeSlotDirection(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t TimeSlotConfigurationItem_Cell_ReconfRqstTDD_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "timeSlotStatus"        , &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
-  { "timeSlotDirection"     , &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
+  { &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18555,7 +18555,7 @@ static int dissect_TimeSlotConfigurationList_Cell_ReconfRqstTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t TimeSlotConfigurationList_Cell_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_Cell_ReconfRqstTDD },
+  { &hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_Cell_ReconfRqstTDD },
 };
 
 static int
@@ -18572,11 +18572,11 @@ static int dissect_id_TimeSlotConfigurationList_Cell_ReconfRqstTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t TimeSlotConfigurationItem_Cell_SetupRqstTDD_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "timeSlotStatus"        , &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
-  { "timeSlotDirection"     , &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
+  { &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18592,7 +18592,7 @@ static int dissect_TimeSlotConfigurationList_Cell_SetupRqstTDD_item(tvbuff_t *tv
 
 
 static const per_sequence_t TimeSlotConfigurationList_Cell_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_Cell_SetupRqstTDD },
+  { &hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_Cell_SetupRqstTDD },
 };
 
 static int
@@ -18652,13 +18652,13 @@ static int dissect_uL_DPCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t UL_CCTrCH_InformationItem_RL_SetupRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "uL-DPCH-Information"   , &hf_nbap_uL_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_Information_RL_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_uL_DPCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_Information_RL_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18674,7 +18674,7 @@ static int dissect_id_UL_CCTrCH_InformationItem_RL_SetupRqstTDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t UL_CCTrCH_InformationList_RL_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -18694,10 +18694,10 @@ static int dissect_id_UL_CCTrCH_InformationList_RL_SetupRqstTDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t TDD_UL_Code_InformationItem_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18713,7 +18713,7 @@ static int dissect_TDD_UL_Code_Information_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t TDD_UL_Code_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_TDD_UL_Code_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_InformationItem },
+  { &hf_nbap_TDD_UL_Code_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_InformationItem },
 };
 
 static int
@@ -18730,12 +18730,12 @@ static int dissect_uL_Code_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t UL_Timeslot_InformationItem_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationList", &hf_nbap_uL_Code_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18751,7 +18751,7 @@ static int dissect_UL_Timeslot_Information_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t UL_Timeslot_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationItem },
+  { &hf_nbap_UL_Timeslot_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationItem },
 };
 
 static int
@@ -18768,12 +18768,12 @@ static int dissect_uL_Timeslot_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t UL_DPCH_InformationItem_RL_AdditionRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-Information", &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18789,12 +18789,12 @@ static int dissect_id_UL_DPCH_InformationItem_RL_AdditionRqstTDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t UL_DPCH_InformationItem_RL_SetupRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-Information", &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18842,10 +18842,10 @@ static int dissect_uL_ScramblingCodeLength(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t UL_ScramblingCode_sequence[] = {
-  { "uL-ScramblingCodeNumber", &hf_nbap_uL_ScramblingCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCodeNumber },
-  { "uL-ScramblingCodeLength", &hf_nbap_uL_ScramblingCodeLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCodeLength },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uL_ScramblingCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCodeNumber },
+  { &hf_nbap_uL_ScramblingCodeLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCodeLength },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18951,18 +18951,18 @@ static int dissect_diversityMode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t UL_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
-  { "ul-ScramblingCode"     , &hf_nbap_ul_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_ScramblingCode },
-  { "ul-SIR-Target"         , &hf_nbap_ul_SIR_Target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
-  { "minUL-ChannelisationCodeLength", &hf_nbap_minUL_ChannelisationCodeLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinUL_ChannelisationCodeLength },
-  { "maxNrOfUL-DPDCHs"      , &hf_nbap_maxNrOfUL_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxNrOfUL_DPDCHs },
-  { "ul-PunctureLimit"      , &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "ul-DPCCH-SlotFormat"   , &hf_nbap_ul_DPCCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCCH_SlotFormat },
-  { "diversityMode"         , &hf_nbap_diversityMode  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiversityMode },
-  { "not-Used-sSDT-CellIDLength", &hf_nbap_not_Used_sSDT_CellIDLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-s-FieldLength", &hf_nbap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_ScramblingCode },
+  { &hf_nbap_ul_SIR_Target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
+  { &hf_nbap_minUL_ChannelisationCodeLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MinUL_ChannelisationCodeLength },
+  { &hf_nbap_maxNrOfUL_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxNrOfUL_DPDCHs },
+  { &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_ul_DPCCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCCH_SlotFormat },
+  { &hf_nbap_diversityMode  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiversityMode },
+  { &hf_nbap_not_Used_sSDT_CellIDLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18978,9 +18978,9 @@ static int dissect_id_UL_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t UL_DPCH_Information_RL_ReconfRqstFDD_sequence[] = {
-  { "ul-TFCS"               , &hf_nbap_ul_TFCS        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_TFCS        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -18996,18 +18996,18 @@ static int dissect_id_UL_DPCH_Information_RL_ReconfRqstFDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t UL_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
-  { "ul-ScramblingCode"     , &hf_nbap_ul_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCode },
-  { "minUL-ChannelisationCodeLength", &hf_nbap_minUL_ChannelisationCodeLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MinUL_ChannelisationCodeLength },
-  { "maxNrOfUL-DPDCHs"      , &hf_nbap_maxNrOfUL_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxNrOfUL_DPDCHs },
-  { "ul-PunctureLimit"      , &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "ul-DPCCH-SlotFormat"   , &hf_nbap_ul_DPCCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DPCCH_SlotFormat },
-  { "ul-SIR-Target"         , &hf_nbap_ul_SIR_Target  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_SIR },
-  { "diversityMode"         , &hf_nbap_diversityMode  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityMode },
-  { "not-Used-sSDT-CellID-Length", &hf_nbap_not_Used_sSDT_CellID_Length, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "not-Used-s-FieldLength", &hf_nbap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_ScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_ScramblingCode },
+  { &hf_nbap_minUL_ChannelisationCodeLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MinUL_ChannelisationCodeLength },
+  { &hf_nbap_maxNrOfUL_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxNrOfUL_DPDCHs },
+  { &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_ul_DPCCH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DPCCH_SlotFormat },
+  { &hf_nbap_ul_SIR_Target  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_SIR },
+  { &hf_nbap_diversityMode  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DiversityMode },
+  { &hf_nbap_not_Used_sSDT_CellID_Length, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_not_Used_s_FieldLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_NULL },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19023,10 +19023,10 @@ static int dissect_id_UL_DPCH_Information_RL_SetupRqstFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19042,10 +19042,10 @@ static int dissect_id_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD(
 
 
 static const per_sequence_t Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19061,10 +19061,10 @@ static int dissect_id_Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD(tvb
 
 
 static const per_sequence_t Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19080,10 +19080,10 @@ static int dissect_id_Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD(tvbu
 
 
 static const per_sequence_t Unsuccessful_RL_InformationResp_RL_SetupFailureTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19112,12 +19112,12 @@ static int dissect_uSCH_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t USCH_InformationItem_sequence[] = {
-  { "uSCH-ID"               , &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19133,7 +19133,7 @@ static int dissect_USCH_Information_item(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t USCH_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_USCH_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_InformationItem },
+  { &hf_nbap_USCH_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_InformationItem },
 };
 
 static int
@@ -19153,9 +19153,9 @@ static int dissect_id_USCH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t USCH_Information_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "uSCH-ID"               , &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19171,7 +19171,7 @@ static int dissect_USCH_Information_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t USCH_Information_DeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_Information_DeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_Information_DeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -19188,13 +19188,13 @@ static int dissect_id_USCH_Information_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t USCH_Information_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "uSCH-ID"               , &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
-  { "transportFormatSet"    , &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
+  { &hf_nbap_transportFormatSet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportFormatSet },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19210,7 +19210,7 @@ static int dissect_USCH_Information_ModifyList_RL_ReconfPrepTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t USCH_Information_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_Information_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_Information_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -19227,11 +19227,11 @@ static int dissect_id_USCH_Information_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t USCH_InformationResponseItem_sequence[] = {
-  { "uSCH-ID"               , &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19247,7 +19247,7 @@ static int dissect_USCH_InformationResponse_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t USCH_InformationResponse_sequence_of[1] = {
-  { ""                      , &hf_nbap_USCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_InformationResponseItem },
+  { &hf_nbap_USCH_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_InformationResponseItem },
 };
 
 static int
@@ -19264,9 +19264,9 @@ static int dissect_id_USCH_InformationResponse(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t USCH_RearrangeItem_Bearer_RearrangeInd_sequence[] = {
-  { "uSCH-ID"               , &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uSCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19282,7 +19282,7 @@ static int dissect_USCH_RearrangeList_Bearer_RearrangeInd_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t USCH_RearrangeList_Bearer_RearrangeInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_RearrangeItem_Bearer_RearrangeInd },
+  { &hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_USCH_RearrangeItem_Bearer_RearrangeInd },
 };
 
 static int
@@ -19325,11 +19325,11 @@ static int dissect_tGPRC(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree 
 
 
 static const per_sequence_t Transmission_Gap_Pattern_Sequence_Status_List_item_sequence[] = {
-  { "tGPSID"                , &hf_nbap_tGPSID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPSID },
-  { "tGPRC"                 , &hf_nbap_tGPRC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPRC },
-  { "tGCFN"                 , &hf_nbap_tGCFN          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CFN },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tGPSID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPSID },
+  { &hf_nbap_tGPRC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPRC },
+  { &hf_nbap_tGCFN          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CFN },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19345,7 +19345,7 @@ static int dissect_Transmission_Gap_Pattern_Sequence_Status_List_item(tvbuff_t *
 
 
 static const per_sequence_t Transmission_Gap_Pattern_Sequence_Status_List_sequence_of[1] = {
-  { ""                      , &hf_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item },
+  { &hf_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item },
 };
 
 static int
@@ -19362,10 +19362,10 @@ static int dissect_transmission_Gap_Pattern_Sequence_Status(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t Active_Pattern_Sequence_Information_sequence[] = {
-  { "cMConfigurationChangeCFN", &hf_nbap_cMConfigurationChangeCFN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CFN },
-  { "transmission-Gap-Pattern-Sequence-Status", &hf_nbap_transmission_Gap_Pattern_Sequence_Status, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Transmission_Gap_Pattern_Sequence_Status_List },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cMConfigurationChangeCFN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CFN },
+  { &hf_nbap_transmission_Gap_Pattern_Sequence_Status, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Transmission_Gap_Pattern_Sequence_Status_List },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19381,10 +19381,10 @@ static int dissect_id_Active_Pattern_Sequence_Information(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t AICH_ParametersItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "aICH-Power"            , &hf_nbap_aICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_aICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19400,7 +19400,7 @@ static int dissect_AICH_ParametersListIE_CTCH_ReconfRqstFDD_item(tvbuff_t *tvb, 
 
 
 static const per_sequence_t AICH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_ParametersItem_CTCH_ReconfRqstFDD },
+  { &hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AICH_ParametersItem_CTCH_ReconfRqstFDD },
 };
 
 static int
@@ -19433,12 +19433,12 @@ static int dissect_adjustmentRatio(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t FACH_ParametersItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "maxFACH-Power"         , &hf_nbap_maxFACH_Power  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_maxFACH_Power  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19454,7 +19454,7 @@ static int dissect_FACH_ParametersListIE_CTCH_ReconfRqstFDD_item(tvbuff_t *tvb, 
 
 
 static const per_sequence_t FACH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_ReconfRqstFDD },
+  { &hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FACH_ParametersItem_CTCH_ReconfRqstFDD },
 };
 
 static int
@@ -19471,9 +19471,9 @@ static int dissect_id_FACH_ParametersListIE_CTCH_ReconfRqstFDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t GeneralCauseList_PSCH_ReconfFailure_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19489,7 +19489,7 @@ static int dissect_generalCause5(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19506,7 +19506,7 @@ static int dissect_unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19523,10 +19523,10 @@ static int dissect_unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t SetSpecificCauseList_PSCH_ReconfFailureTDD_sequence[] = {
-  { "unsuccessful-PDSCHSetList-PSCH-ReconfFailureTDD", &hf_nbap_unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD },
-  { "unsuccessful-PUSCHSetList-PSCH-ReconfFailureTDD", &hf_nbap_unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD },
+  { &hf_nbap_unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19567,9 +19567,9 @@ static int dissect_id_CauseLevel_PSCH_ReconfFailure(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureFDD_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19585,7 +19585,7 @@ static int dissect_generalCause2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19602,7 +19602,7 @@ static int dissect_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD(tvb
 
 
 static const per_sequence_t Successful_RL_InformationRespList_RL_AdditionFailureFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19619,10 +19619,10 @@ static int dissect_successful_RL_InformationRespList_RL_AdditionFailureFDD(tvbuf
 
 
 static const per_sequence_t RLSpecificCauseList_RL_AdditionFailureFDD_sequence[] = {
-  { "unsuccessful-RL-InformationRespList-RL-AdditionFailureFDD", &hf_nbap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD },
-  { "successful-RL-InformationRespList-RL-AdditionFailureFDD", &hf_nbap_successful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD },
+  { &hf_nbap_successful_RL_InformationRespList_RL_AdditionFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19663,9 +19663,9 @@ static int dissect_id_CauseLevel_RL_AdditionFailureFDD(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureTDD_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19693,9 +19693,9 @@ static int dissect_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD(tvb
 
 
 static const per_sequence_t RLSpecificCauseList_RL_AdditionFailureTDD_sequence[] = {
-  { "unsuccessful-RL-InformationRespItem-RL-AdditionFailureTDD", &hf_nbap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19736,9 +19736,9 @@ static int dissect_id_CauseLevel_RL_AdditionFailureTDD(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t GeneralCauseList_RL_ReconfFailure_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19754,7 +19754,7 @@ static int dissect_generalCause4(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t RL_ReconfigurationFailureList_RL_ReconfFailure_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19771,9 +19771,9 @@ static int dissect_rL_ReconfigurationFailureList_RL_ReconfFailure(tvbuff_t *tvb,
 
 
 static const per_sequence_t RLSpecificCauseList_RL_ReconfFailure_sequence[] = {
-  { "rL-ReconfigurationFailureList-RL-ReconfFailure", &hf_nbap_rL_ReconfigurationFailureList_RL_ReconfFailure, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ReconfigurationFailureList_RL_ReconfFailure, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19814,9 +19814,9 @@ static int dissect_id_CauseLevel_RL_ReconfFailure(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t GeneralCauseList_RL_SetupFailureFDD_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19832,7 +19832,7 @@ static int dissect_generalCause(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19849,7 +19849,7 @@ static int dissect_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff
 
 
 static const per_sequence_t Successful_RL_InformationRespList_RL_SetupFailureFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -19866,10 +19866,10 @@ static int dissect_successful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff_t
 
 
 static const per_sequence_t RLSpecificCauseList_RL_SetupFailureFDD_sequence[] = {
-  { "unsuccessful-RL-InformationRespList-RL-SetupFailureFDD", &hf_nbap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD },
-  { "successful-RL-InformationRespList-RL-SetupFailureFDD", &hf_nbap_successful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD },
+  { &hf_nbap_successful_RL_InformationRespList_RL_SetupFailureFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19910,9 +19910,9 @@ static int dissect_id_CauseLevel_RL_SetupFailureFDD(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t GeneralCauseList_RL_SetupFailureTDD_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -19940,9 +19940,9 @@ static int dissect_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD(tvbuff
 
 
 static const per_sequence_t RLSpecificCauseList_RL_SetupFailureTDD_sequence[] = {
-  { "unsuccessful-RL-InformationRespItem-RL-SetupFailureTDD", &hf_nbap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20038,11 +20038,11 @@ static int dissect_pICH_Parameters_CTCH_ReconfRqstFDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t Secondary_CCPCHList_CTCH_ReconfRqstFDD_sequence[] = {
-  { "fACH-ParametersList-CTCH-ReconfRqstFDD", &hf_nbap_fACH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_ReconfRqstFDD },
-  { "pCH-Parameters-CTCH-ReconfRqstFDD", &hf_nbap_pCH_Parameters_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_ReconfRqstFDD },
-  { "pICH-Parameters-CTCH-ReconfRqstFDD", &hf_nbap_pICH_Parameters_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Parameters_CTCH_ReconfRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_fACH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FACH_ParametersList_CTCH_ReconfRqstFDD },
+  { &hf_nbap_pCH_Parameters_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PCH_Parameters_CTCH_ReconfRqstFDD },
+  { &hf_nbap_pICH_Parameters_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Parameters_CTCH_ReconfRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20082,10 +20082,10 @@ static int dissect_aICH_ParametersList_CTCH_ReconfRqstFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t PRACHList_CTCH_ReconfRqstFDD_sequence[] = {
-  { "pRACH-ParametersList-CTCH-ReconfRqstFDD", &hf_nbap_pRACH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_ParametersList_CTCH_ReconfRqstFDD },
-  { "aICH-ParametersList-CTCH-ReconfRqstFDD", &hf_nbap_aICH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_ParametersList_CTCH_ReconfRqstFDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pRACH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PRACH_ParametersList_CTCH_ReconfRqstFDD },
+  { &hf_nbap_aICH_ParametersList_CTCH_ReconfRqstFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AICH_ParametersList_CTCH_ReconfRqstFDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20147,9 +20147,9 @@ static int dissect_id_Compressed_Mode_Deactivation_Flag(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t CCTrCH_TPCAddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20165,7 +20165,7 @@ static int dissect_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t CCTrCH_TPCAddList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD },
+  { &hf_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20194,14 +20194,14 @@ static int dissect_dl_DPCH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "cCTrCH-TPCList"        , &hf_nbap_cCTrCH_TPCList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationList", &hf_nbap_dl_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationAddList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_cCTrCH_TPCList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20217,7 +20217,7 @@ static int dissect_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item(tvbuff_t *
 
 
 static const per_sequence_t DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20234,9 +20234,9 @@ static int dissect_id_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tv
 
 
 static const per_sequence_t DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20252,9 +20252,9 @@ static int dissect_id_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20270,7 +20270,7 @@ static int dissect_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item(tvbuff_
 
 
 static const per_sequence_t DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20287,7 +20287,7 @@ static int dissect_id_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -20304,11 +20304,11 @@ static int dissect_id_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20324,9 +20324,9 @@ static int dissect_id_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t CCTrCH_TPCModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20342,7 +20342,7 @@ static int dissect_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb, int
 
 
 static const per_sequence_t CCTrCH_TPCModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20395,16 +20395,16 @@ static int dissect_dl_DPCH_InformationDeleteList(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "cCTrCH-TPCList"        , &hf_nbap_cCTrCH_TPCList2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationAddList", &hf_nbap_dl_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationModifyList", &hf_nbap_dl_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationDeleteList", &hf_nbap_dl_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_cCTrCH_TPCList2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20420,7 +20420,7 @@ static int dissect_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item(tvbuff_
 
 
 static const per_sequence_t DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20437,7 +20437,7 @@ static int dissect_id_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -20454,12 +20454,12 @@ static int dissect_id_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_DPCH_InformationAddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-Information", &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20475,12 +20475,12 @@ static int dissect_id_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD(tvbuff_t *tv
 
 
 static const per_sequence_t DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-Information", &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20496,9 +20496,9 @@ static int dissect_id_DL_DPCH_InformationModify_AddListIE_RL_ReconfPrepTDD(tvbuf
 
 
 static const per_sequence_t DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20517,10 +20517,10 @@ static int dissect_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item(
 
 
 static const per_sequence_t DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20536,7 +20536,7 @@ static int dissect_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item(tv
 
 
 static const per_sequence_t DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20553,12 +20553,12 @@ static int dissect_dL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_
 
 
 static const per_sequence_t DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "dL-Code-InformationModify-ModifyList-RL-ReconfPrepTDD", &hf_nbap_dL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20574,7 +20574,7 @@ static int dissect_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_ite
 
 
 static const per_sequence_t DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -20591,12 +20591,12 @@ static int dissect_dL_Timeslot_InformationAddModify_ModifyList_RL_ReconfPrepTDD(
 
 
 static const per_sequence_t DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-InformationAddModify-ModifyList-RL-ReconfPrepTDD", &hf_nbap_dL_Timeslot_InformationAddModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_InformationAddModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20663,11 +20663,11 @@ static int dissect_id_PUSCHConstant(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t CommonTransportChannel_InformationResponse_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20689,7 +20689,7 @@ static int dissect_FACH_CommonTransportChannel_InformationResponse_item(tvbuff_t
 
 
 static const per_sequence_t FACH_CommonTransportChannel_InformationResponse_sequence_of[1] = {
-  { ""                      , &hf_nbap_FACH_CommonTransportChannel_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannel_InformationResponse },
+  { &hf_nbap_FACH_CommonTransportChannel_InformationResponse_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannel_InformationResponse },
 };
 
 static int
@@ -20732,10 +20732,10 @@ static int dissect_dLPowerAveragingWindowSize(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t Limited_power_increase_information_Cell_SetupRqstFDD_sequence[] = {
-  { "powerRaiseLimit"       , &hf_nbap_powerRaiseLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerRaiseLimit },
-  { "dLPowerAveragingWindowSize", &hf_nbap_dLPowerAveragingWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DLPowerAveragingWindowSize },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerRaiseLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerRaiseLimit },
+  { &hf_nbap_dLPowerAveragingWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DLPowerAveragingWindowSize },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20751,12 +20751,12 @@ static int dissect_id_Limited_power_increase_information_Cell_SetupRqstFDD(tvbuf
 
 
 static const per_sequence_t PCH_ParametersItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonTransportChannelID", &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
-  { "pCH-Power"             , &hf_nbap_pCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "toAWS"                 , &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
-  { "toAWE"                 , &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonTransportChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonTransportChannelID },
+  { &hf_nbap_pCH_Power      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_toAWS          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWS },
+  { &hf_nbap_toAWE          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ToAWE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20772,10 +20772,10 @@ static int dissect_id_PCH_ParametersItem_CTCH_ReconfRqstFDD(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t PICH_ParametersItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "pICH-Power"            , &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20791,9 +20791,9 @@ static int dissect_id_PICH_ParametersItem_CTCH_ReconfRqstFDD(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "rACH-SlotFormat"       , &hf_nbap_rACH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SlotFormat },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rACH_SlotFormat, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_SlotFormat },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20809,7 +20809,7 @@ static int dissect_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_item(tvbu
 
 
 static const per_sequence_t AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD },
+  { &hf_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD },
 };
 
 static int
@@ -20826,12 +20826,12 @@ static int dissect_allowedSlotFormatInformation1(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t PRACH_ParametersItem_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "preambleSignatures"    , &hf_nbap_preambleSignatures, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PreambleSignatures },
-  { "allowedSlotFormatInformation", &hf_nbap_allowedSlotFormatInformation1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD },
-  { "rACH-SubChannelNumbers", &hf_nbap_rACH_SubChannelNumbers, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_SubChannelNumbers },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_preambleSignatures, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PreambleSignatures },
+  { &hf_nbap_allowedSlotFormatInformation1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD },
+  { &hf_nbap_rACH_SubChannelNumbers, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RACH_SubChannelNumbers },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20847,7 +20847,7 @@ static int dissect_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_item(tvbuff_t *tvb,
 
 
 static const per_sequence_t PRACH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_ParametersItem_CTCH_ReconfRqstFDD },
+  { &hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_ParametersItem_CTCH_ReconfRqstFDD },
 };
 
 static int
@@ -20903,11 +20903,11 @@ static int dissect_t_RLFAILURE(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t Synchronisation_Configuration_Cell_ReconfRqst_sequence[] = {
-  { "n-INSYNC-IND"          , &hf_nbap_n_INSYNC_IND   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_INSYNC_IND },
-  { "n-OUTSYNC-IND"         , &hf_nbap_n_OUTSYNC_IND  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_OUTSYNC_IND },
-  { "t-RLFAILURE"           , &hf_nbap_t_RLFAILURE    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_RLFAILURE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_n_INSYNC_IND   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_INSYNC_IND },
+  { &hf_nbap_n_OUTSYNC_IND  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_OUTSYNC_IND },
+  { &hf_nbap_t_RLFAILURE    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_RLFAILURE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -20923,11 +20923,11 @@ static int dissect_id_Synchronisation_Configuration_Cell_ReconfRqst(tvbuff_t *tv
 
 
 static const per_sequence_t Synchronisation_Configuration_Cell_SetupRqst_sequence[] = {
-  { "n-INSYNC-IND"          , &hf_nbap_n_INSYNC_IND   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_INSYNC_IND },
-  { "n-OUTSYNC-IND"         , &hf_nbap_n_OUTSYNC_IND  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_OUTSYNC_IND },
-  { "t-RLFAILURE"           , &hf_nbap_t_RLFAILURE    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_RLFAILURE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_n_INSYNC_IND   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_INSYNC_IND },
+  { &hf_nbap_n_OUTSYNC_IND  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_N_OUTSYNC_IND },
+  { &hf_nbap_t_RLFAILURE    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_RLFAILURE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21101,23 +21101,23 @@ static int dissect_delta_SIR_after2(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t Transmission_Gap_Pattern_Sequence_Information_item_sequence[] = {
-  { "tGPSID"                , &hf_nbap_tGPSID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPSID },
-  { "tGSN"                  , &hf_nbap_tGSN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGSN },
-  { "tGL1"                  , &hf_nbap_tGL1           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GapLength },
-  { "tGL2"                  , &hf_nbap_tGL2           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GapLength },
-  { "tGD"                   , &hf_nbap_tGD            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGD },
-  { "tGPL1"                 , &hf_nbap_tGPL1          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GapDuration },
-  { "not-to-be-used-1"      , &hf_nbap_not_to_be_used_1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GapDuration },
-  { "uL-DL-mode"            , &hf_nbap_uL_DL_mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DL_mode },
-  { "downlink-Compressed-Mode-Method", &hf_nbap_downlink_Compressed_Mode_Method, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Downlink_Compressed_Mode_Method },
-  { "uplink-Compressed-Mode-Method", &hf_nbap_uplink_Compressed_Mode_Method, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Uplink_Compressed_Mode_Method },
-  { "dL-FrameType"          , &hf_nbap_dL_FrameType   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_FrameType },
-  { "delta-SIR1"            , &hf_nbap_delta_SIR1     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeltaSIR },
-  { "delta-SIR-after1"      , &hf_nbap_delta_SIR_after1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeltaSIR },
-  { "delta-SIR2"            , &hf_nbap_delta_SIR2     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DeltaSIR },
-  { "delta-SIR-after2"      , &hf_nbap_delta_SIR_after2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DeltaSIR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tGPSID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGPSID },
+  { &hf_nbap_tGSN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGSN },
+  { &hf_nbap_tGL1           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GapLength },
+  { &hf_nbap_tGL2           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GapLength },
+  { &hf_nbap_tGD            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TGD },
+  { &hf_nbap_tGPL1          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GapDuration },
+  { &hf_nbap_not_to_be_used_1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GapDuration },
+  { &hf_nbap_uL_DL_mode     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DL_mode },
+  { &hf_nbap_downlink_Compressed_Mode_Method, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Downlink_Compressed_Mode_Method },
+  { &hf_nbap_uplink_Compressed_Mode_Method, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Uplink_Compressed_Mode_Method },
+  { &hf_nbap_dL_FrameType   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_FrameType },
+  { &hf_nbap_delta_SIR1     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeltaSIR },
+  { &hf_nbap_delta_SIR_after1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DeltaSIR },
+  { &hf_nbap_delta_SIR2     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DeltaSIR },
+  { &hf_nbap_delta_SIR_after2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DeltaSIR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21133,7 +21133,7 @@ static int dissect_Transmission_Gap_Pattern_Sequence_Information_item(tvbuff_t *
 
 
 static const per_sequence_t Transmission_Gap_Pattern_Sequence_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_Transmission_Gap_Pattern_Sequence_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmission_Gap_Pattern_Sequence_Information_item },
+  { &hf_nbap_Transmission_Gap_Pattern_Sequence_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmission_Gap_Pattern_Sequence_Information_item },
 };
 
 static int
@@ -21162,13 +21162,13 @@ static int dissect_ul_DPCH_InformationList(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "ul-DPCH-InformationList", &hf_nbap_ul_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationAddList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_ul_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21184,7 +21184,7 @@ static int dissect_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item(tvbuff_t *
 
 
 static const per_sequence_t UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21201,9 +21201,9 @@ static int dissect_id_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tv
 
 
 static const per_sequence_t UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21219,9 +21219,9 @@ static int dissect_id_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21237,7 +21237,7 @@ static int dissect_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item(tvbuff_
 
 
 static const per_sequence_t UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21254,7 +21254,7 @@ static int dissect_id_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvbuff_t 
 
 
 static const per_sequence_t UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -21271,11 +21271,11 @@ static int dissect_id_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21327,15 +21327,15 @@ static int dissect_ul_DPCH_InformationDeleteList(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
-  { "tFCI-Coding"           , &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Coding },
-  { "punctureLimit"         , &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "ul-DPCH-InformationAddList", &hf_nbap_ul_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationModifyList", &hf_nbap_ul_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationDeleteList", &hf_nbap_ul_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCS },
+  { &hf_nbap_tFCI_Coding    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Coding },
+  { &hf_nbap_punctureLimit  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_ul_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21351,7 +21351,7 @@ static int dissect_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item(tvbuff_
 
 
 static const per_sequence_t UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21368,7 +21368,7 @@ static int dissect_id_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t 
 
 
 static const per_sequence_t UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -21385,12 +21385,12 @@ static int dissect_id_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t UL_DPCH_InformationAddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-Information", &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21406,12 +21406,12 @@ static int dissect_id_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD(tvbuff_t *tv
 
 
 static const per_sequence_t UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-Information", &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21427,9 +21427,9 @@ static int dissect_id_UL_DPCH_InformationModify_AddListIE_RL_ReconfPrepTDD(tvbuf
 
 
 static const per_sequence_t UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21445,7 +21445,7 @@ static int dissect_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item(
 
 
 static const per_sequence_t UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21462,10 +21462,10 @@ static int dissect_id_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD(tv
 
 
 static const per_sequence_t UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21481,7 +21481,7 @@ static int dissect_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item(tv
 
 
 static const per_sequence_t UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21498,12 +21498,12 @@ static int dissect_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_
 
 
 static const per_sequence_t UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationModify-ModifyList-RL-ReconfPrepTDD", &hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21519,7 +21519,7 @@ static int dissect_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_ite
 
 
 static const per_sequence_t UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -21536,12 +21536,12 @@ static int dissect_uL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD(tvb
 
 
 static const per_sequence_t UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-InformationModify-ModifyList-RL-ReconfPrepTDD", &hf_nbap_uL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21557,10 +21557,10 @@ static int dissect_id_UL_DPCH_InformationModify_ModifyListIE_RL_ReconfPrepTDD(tv
 
 
 static const per_sequence_t Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD_sequence[] = {
-  { "pDSCHSet-ID"           , &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCHSet_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21576,10 +21576,10 @@ static int dissect_id_Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD(tvbuff_t *
 
 
 static const per_sequence_t Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD_sequence[] = {
-  { "pUSCHSet-ID"           , &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCHSet_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCHSet_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21620,9 +21620,9 @@ static int dissect_communicationContextType_Reset(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t CommunicationContextInfoItem_Reset_sequence[] = {
-  { "communicationContextType-Reset", &hf_nbap_communicationContextType_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationContextType_Reset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationContextType_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationContextType_Reset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21638,9 +21638,9 @@ static int dissect_id_CommunicationContextInfoItem_Reset(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CommunicationControlPortInfoItem_Reset_sequence[] = {
-  { "communicationControlPortID", &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationControlPortID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21656,7 +21656,7 @@ static int dissect_id_CommunicationControlPortInfoItem_Reset(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t CommunicationContextInfoList_Reset_sequence_of[1] = {
-  { ""                      , &hf_nbap_CommunicationContextInfoList_Reset_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CommunicationContextInfoList_Reset_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -21673,9 +21673,9 @@ static int dissect_communicationContextInfoList_Reset(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t CommunicationContextList_Reset_sequence[] = {
-  { "communicationContextInfoList-Reset", &hf_nbap_communicationContextInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationContextInfoList_Reset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationContextInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationContextInfoList_Reset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21691,7 +21691,7 @@ static int dissect_communicationContext(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t CommunicationControlPortInfoList_Reset_sequence_of[1] = {
-  { ""                      , &hf_nbap_CommunicationControlPortInfoList_Reset_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CommunicationControlPortInfoList_Reset_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -21708,9 +21708,9 @@ static int dissect_communicationControlPortInfoList_Reset(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t CommunicationControlPortList_Reset_sequence[] = {
-  { "communicationControlPortInfoList-Reset", &hf_nbap_communicationControlPortInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortInfoList_Reset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_communicationControlPortInfoList_Reset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommunicationControlPortInfoList_Reset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21814,17 +21814,17 @@ static int dissect_pagingIndicatorLength(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t PICH_ParametersItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleshiftAndBurstType", &hf_nbap_midambleshiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "pagingIndicatorLength" , &hf_nbap_pagingIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PagingIndicatorLength },
-  { "pICH-Power"            , &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleshiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_pagingIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PagingIndicatorLength },
+  { &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21890,15 +21890,15 @@ static int dissect_rACH(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *
 
 
 static const per_sequence_t PRACH_ParametersItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "timeslot"              , &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "maxPRACH-MidambleShifts", &hf_nbap_maxPRACH_MidambleShifts, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaxPRACH_MidambleShifts },
-  { "pRACH-Midamble"        , &hf_nbap_pRACH_Midamble , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_Midamble },
-  { "rACH"                  , &hf_nbap_rACH           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameter_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_maxPRACH_MidambleShifts, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaxPRACH_MidambleShifts },
+  { &hf_nbap_pRACH_Midamble , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_Midamble },
+  { &hf_nbap_rACH           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameter_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21914,10 +21914,10 @@ static int dissect_id_PRACH_ParametersItem_CTCH_SetupRqstTDD(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t CCTrCH_InformationItem_RL_FailureInd_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21933,9 +21933,9 @@ static int dissect_id_CCTrCH_InformationItem_RL_FailureInd(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t CCTrCH_InformationItem_RL_RestoreInd_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21951,9 +21951,9 @@ static int dissect_id_CCTrCH_InformationItem_RL_RestoreInd(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t GeneralCauseList_SyncAdjustmntFailureTDD_sequence[] = {
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -21969,7 +21969,7 @@ static int dissect_generalCause6(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -21986,9 +21986,9 @@ static int dissect_unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD
 
 
 static const per_sequence_t CellSpecificCauseList_SyncAdjustmntFailureTDD_sequence[] = {
-  { "unsuccessful-cell-InformationRespList-SyncAdjustmntFailureTDD", &hf_nbap_unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22029,7 +22029,7 @@ static int dissect_id_CauseLevel_SyncAdjustmntFailureTDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CellAdjustmentInfo_SyncAdjustmentRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -22116,13 +22116,13 @@ static int dissect_timingAdjustmentValue(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t CellAdjustmentInfoItem_SyncAdjustmentRqstTDD_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "frameAdjustmentValue"  , &hf_nbap_frameAdjustmentValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameAdjustmentValue },
-  { "timingAdjustmentValue" , &hf_nbap_timingAdjustmentValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimingAdjustmentValue },
-  { "dLTransPower"          , &hf_nbap_dLTransPower   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "sfn"                   , &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_frameAdjustmentValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FrameAdjustmentValue },
+  { &hf_nbap_timingAdjustmentValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimingAdjustmentValue },
+  { &hf_nbap_dLTransPower   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22180,11 +22180,11 @@ static int dissect_cellSyncBurstCodeShift(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t CellSyncBurstInfoItem_CellSyncReconfRqstTDD_sequence[] = {
-  { "cSBMeasurementID"      , &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
-  { "cellSyncBurstCode"     , &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
-  { "cellSyncBurstCodeShift", &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
+  { &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
+  { &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22200,7 +22200,7 @@ static int dissect_CellSyncBurstInfoList_CellSyncReconfRqstTDD_item(tvbuff_t *tv
 
 
 static const per_sequence_t CellSyncBurstInfoList_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfoItem_CellSyncReconfRqstTDD },
+  { &hf_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfoItem_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -22236,13 +22236,13 @@ static int dissect_cSBTransmissionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t CellSyncBurstTransInit_CellSyncInitiationRqstTDD_sequence[] = {
-  { "cSBTransmissionID"     , &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
-  { "sfn"                   , &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
-  { "cellSyncBurstCode"     , &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
-  { "cellSyncBurstCodeShift", &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
-  { "initialDLTransPower"   , &hf_nbap_initialDLTransPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
+  { &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
+  { &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
+  { &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
+  { &hf_nbap_initialDLTransPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22373,12 +22373,12 @@ static int dissect_syncDLCodeIdTimingThre(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t SynchronisationReportCharactCellSyncBurstInfoItem_sequence[] = {
-  { "cellSyncBurstCode"     , &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
-  { "cellSyncBurstCodeShift", &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
-  { "cellSyncBurstTiming"   , &hf_nbap_cellSyncBurstTiming, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTiming },
-  { "cellSyncBurstTimingThreshold", &hf_nbap_cellSyncBurstTimingThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingThreshold },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
+  { &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
+  { &hf_nbap_cellSyncBurstTiming, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTiming },
+  { &hf_nbap_cellSyncBurstTimingThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingThreshold },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22394,7 +22394,7 @@ static int dissect_cellSyncBurstInformation_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_16_OF_SynchronisationReportCharactCellSyncBurstInfoItem_sequence_of[1] = {
-  { ""                      , &hf_nbap_cellSyncBurstInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharactCellSyncBurstInfoItem },
+  { &hf_nbap_cellSyncBurstInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharactCellSyncBurstInfoItem },
 };
 
 static int
@@ -22411,10 +22411,10 @@ static int dissect_cellSyncBurstInformation(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t SynchronisationReportCharactThreInfoItem_sequence[] = {
-  { "syncFrameNumber"       , &hf_nbap_syncFrameNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "cellSyncBurstInformation", &hf_nbap_cellSyncBurstInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SEQUENCE_SIZE_1_16_OF_SynchronisationReportCharactCellSyncBurstInfoItem },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncFrameNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_cellSyncBurstInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SEQUENCE_SIZE_1_16_OF_SynchronisationReportCharactCellSyncBurstInfoItem },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22430,7 +22430,7 @@ static int dissect_SynchronisationReportCharactThreExc_item(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t SynchronisationReportCharactThreExc_sequence_of[1] = {
-  { ""                      , &hf_nbap_SynchronisationReportCharactThreExc_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharactThreInfoItem },
+  { &hf_nbap_SynchronisationReportCharactThreExc_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharactThreInfoItem },
 };
 
 static int
@@ -22447,10 +22447,10 @@ static int dissect_synchronisationReportCharactThreExc(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t SynchronisationReportCharacteristics_sequence[] = {
-  { "synchronisationReportCharacteristicsType", &hf_nbap_synchronisationReportCharacteristicsType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristicsType },
-  { "synchronisationReportCharactThreExc", &hf_nbap_synchronisationReportCharactThreExc, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharactThreExc },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_synchronisationReportCharacteristicsType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristicsType },
+  { &hf_nbap_synchronisationReportCharactThreExc, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharactThreExc },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22469,14 +22469,14 @@ static int dissect_synchronisationReportCharacteristics(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD_sequence[] = {
-  { "cSBMeasurementID"      , &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
-  { "cellSyncBurstCode"     , &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
-  { "cellSyncBurstCodeShift", &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
-  { "synchronisationReportType", &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportType },
-  { "sfn"                   , &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
-  { "synchronisationReportCharacteristics", &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristics },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
+  { &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCode },
+  { &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstCodeShift },
+  { &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportType },
+  { &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
+  { &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristics },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22531,11 +22531,11 @@ static int dissect_synchronisationReportCharacteristics1(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t CellSyncBurstMeasInfo_CellSyncReconfRqstTDD_sequence[] = {
-  { "cellSyncBurstMeasInfoList-CellSyncReconfRqstTDD", &hf_nbap_cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoList_CellSyncReconfRqstTDD },
-  { "synchronisationReportType", &hf_nbap_synchronisationReportType1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportTypeIE },
-  { "synchronisationReportCharacteristics", &hf_nbap_synchronisationReportCharacteristics1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharacteristicsIE },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoList_CellSyncReconfRqstTDD },
+  { &hf_nbap_synchronisationReportType1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportTypeIE },
+  { &hf_nbap_synchronisationReportCharacteristics1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharacteristicsIE },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22551,13 +22551,13 @@ static int dissect_id_CellSyncBurstMeasReconfiguration_CellSyncReconfRqstTDD(tvb
 
 
 static const per_sequence_t CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD_sequence[] = {
-  { "cSBTransmissionID"     , &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
-  { "syncFrameNumberToTransmit", &hf_nbap_syncFrameNumberToTransmit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "cellSyncBurstCode"     , &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstCode },
-  { "cellSyncBurstCodeShift", &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstCodeShift },
-  { "dlTransPower"          , &hf_nbap_dlTransPower   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
+  { &hf_nbap_syncFrameNumberToTransmit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_cellSyncBurstCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstCode },
+  { &hf_nbap_cellSyncBurstCodeShift, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstCodeShift },
+  { &hf_nbap_dlTransPower   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22573,7 +22573,7 @@ static int dissect_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_item(tvbuf
 
 
 static const per_sequence_t CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD },
+  { &hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -22614,9 +22614,9 @@ static int dissect_syncReportType_CellSyncReprtTDD(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CellSyncInfoItemIE_CellSyncReprtTDD_sequence[] = {
-  { "c-ID-CellSyncReprtTDD" , &hf_nbap_c_ID_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID_IE_CellSyncReprtTDD },
-  { "syncReportType-CellSyncReprtTDD", &hf_nbap_syncReportType_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SyncReportTypeIE_CellSyncReprtTDD },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID_IE_CellSyncReprtTDD },
+  { &hf_nbap_syncReportType_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SyncReportTypeIE_CellSyncReprtTDD },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22632,7 +22632,7 @@ static int dissect_CellSyncInfo_CellSyncReprtTDD_item(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t CellSyncInfo_CellSyncReprtTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellSyncInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncInfoItemIE_CellSyncReprtTDD },
+  { &hf_nbap_CellSyncInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncInfoItemIE_CellSyncReprtTDD },
 };
 
 static int
@@ -22686,10 +22686,10 @@ static int dissect_id_NRepetitionsPerCyclePeriod(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "cause"                 , &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Cause },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22750,9 +22750,9 @@ static int dissect_id_InformationExchangeID(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t Cell_InfEx_Rqst_sequence[] = {
-  { "c-ID"                  , &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_c_ID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_C_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22850,9 +22850,9 @@ static int dissect_prcdeviation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t DGPSThresholds_sequence[] = {
-  { "prcdeviation"          , &hf_nbap_prcdeviation   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRCDeviation },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_prcdeviation   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRCDeviation },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -22891,9 +22891,9 @@ static int dissect_information_thresholds(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t InformationReportCharacteristicsType_OnModification_sequence[] = {
-  { "information-thresholds", &hf_nbap_information_thresholds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_InformationThresholds },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_information_thresholds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_InformationThresholds },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23112,13 +23112,13 @@ static int dissect_range_correction_rate(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t SAT_Info_DGPSCorrections_Item_sequence[] = {
-  { "sat-id"                , &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
-  { "iode-dgps"             , &hf_nbap_iode_dgps      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "udre"                  , &hf_nbap_udre           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UDRE },
-  { "prc"                   , &hf_nbap_prc            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRC },
-  { "range-correction-rate" , &hf_nbap_range_correction_rate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Range_Correction_Rate },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
+  { &hf_nbap_iode_dgps      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_udre           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UDRE },
+  { &hf_nbap_prc            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PRC },
+  { &hf_nbap_range_correction_rate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Range_Correction_Rate },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23134,7 +23134,7 @@ static int dissect_SAT_Info_DGPSCorrections_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t SAT_Info_DGPSCorrections_sequence_of[1] = {
-  { ""                      , &hf_nbap_SAT_Info_DGPSCorrections_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_DGPSCorrections_Item },
+  { &hf_nbap_SAT_Info_DGPSCorrections_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_DGPSCorrections_Item },
 };
 
 static int
@@ -23151,11 +23151,11 @@ static int dissect_satelliteinfo(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t DGPSCorrections_sequence[] = {
-  { "gpstow"                , &hf_nbap_gpstow         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GPSTOW },
-  { "status-health"         , &hf_nbap_status_health  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_Status_Health },
-  { "satelliteinfo"         , &hf_nbap_satelliteinfo  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_DGPSCorrections },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_gpstow         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GPSTOW },
+  { &hf_nbap_status_health  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_Status_Health },
+  { &hf_nbap_satelliteinfo  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_DGPSCorrections },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23437,44 +23437,44 @@ static int dissect_spare_zero_fill(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t GPS_NavandRecovery_Item_sequence[] = {
-  { "tx-tow-nav"            , &hf_nbap_tx_tow_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_1048575 },
-  { "sat-id-nav"            , &hf_nbap_sat_id_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
-  { "tlm-message-nav"       , &hf_nbap_tlm_message_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_14 },
-  { "tlm-revd-c-nav"        , &hf_nbap_tlm_revd_c_nav , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_2 },
-  { "ho-word-nav"           , &hf_nbap_ho_word_nav    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_22 },
-  { "w-n-nav"               , &hf_nbap_w_n_nav        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_10 },
-  { "ca-or-p-on-l2-nav"     , &hf_nbap_ca_or_p_on_l2_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_2 },
-  { "user-range-accuracy-index-nav", &hf_nbap_user_range_accuracy_index_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_4 },
-  { "sv-health-nav"         , &hf_nbap_sv_health_nav  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_6 },
-  { "iodc-nav"              , &hf_nbap_iodc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_10 },
-  { "l2-p-dataflag-nav"     , &hf_nbap_l2_p_dataflag_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_1 },
-  { "sf1-reserved-nav"      , &hf_nbap_sf1_reserved_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_87 },
-  { "t-gd-nav"              , &hf_nbap_t_gd_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "t-oc-nav"              , &hf_nbap_t_oc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "a-f-2-nav"             , &hf_nbap_a_f_2_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "a-f-1-nav"             , &hf_nbap_a_f_1_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "a-f-zero-nav"          , &hf_nbap_a_f_zero_nav   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_22 },
-  { "c-rs-nav"              , &hf_nbap_c_rs_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "delta-n-nav"           , &hf_nbap_delta_n_nav    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "m-zero-nav"            , &hf_nbap_m_zero_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "c-uc-nav"              , &hf_nbap_c_uc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "gps-e-nav"             , &hf_nbap_gps_e_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "c-us-nav"              , &hf_nbap_c_us_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "a-sqrt-nav"            , &hf_nbap_a_sqrt_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "t-oe-nav"              , &hf_nbap_t_oe_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "fit-interval-flag-nav" , &hf_nbap_fit_interval_flag_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_1 },
-  { "aodo-nav"              , &hf_nbap_aodo_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_5 },
-  { "c-ic-nav"              , &hf_nbap_c_ic_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "omega-zero-nav"        , &hf_nbap_omega_zero_nav , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "c-is-nav"              , &hf_nbap_c_is_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "i-zero-nav"            , &hf_nbap_i_zero_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "c-rc-nav"              , &hf_nbap_c_rc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "gps-omega-nav"         , &hf_nbap_gps_omega_nav  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "omegadot-nav"          , &hf_nbap_omegadot_nav   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "idot-nav"              , &hf_nbap_idot_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_14 },
-  { "spare-zero-fill"       , &hf_nbap_spare_zero_fill, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_20 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tx_tow_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_1048575 },
+  { &hf_nbap_sat_id_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
+  { &hf_nbap_tlm_message_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_14 },
+  { &hf_nbap_tlm_revd_c_nav , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_2 },
+  { &hf_nbap_ho_word_nav    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_22 },
+  { &hf_nbap_w_n_nav        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_10 },
+  { &hf_nbap_ca_or_p_on_l2_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_2 },
+  { &hf_nbap_user_range_accuracy_index_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_4 },
+  { &hf_nbap_sv_health_nav  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_6 },
+  { &hf_nbap_iodc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_10 },
+  { &hf_nbap_l2_p_dataflag_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_1 },
+  { &hf_nbap_sf1_reserved_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_87 },
+  { &hf_nbap_t_gd_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_t_oc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_a_f_2_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_a_f_1_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_a_f_zero_nav   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_22 },
+  { &hf_nbap_c_rs_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_delta_n_nav    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_m_zero_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_c_uc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_gps_e_nav      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_c_us_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_a_sqrt_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_t_oe_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_fit_interval_flag_nav, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_1 },
+  { &hf_nbap_aodo_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_5 },
+  { &hf_nbap_c_ic_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_omega_zero_nav , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_c_is_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_i_zero_nav     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_c_rc_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_gps_omega_nav  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_omegadot_nav   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_idot_nav       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_14 },
+  { &hf_nbap_spare_zero_fill, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_20 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23490,7 +23490,7 @@ static int dissect_GPS_NavigationModel_and_TimeRecovery_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t GPS_NavigationModel_and_TimeRecovery_sequence_of[1] = {
-  { ""                      , &hf_nbap_GPS_NavigationModel_and_TimeRecovery_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_NavandRecovery_Item },
+  { &hf_nbap_GPS_NavigationModel_and_TimeRecovery_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_NavandRecovery_Item },
 };
 
 static int
@@ -23507,16 +23507,16 @@ static int dissect_gps_navandrecovery(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t GPS_Ionospheric_Model_sequence[] = {
-  { "alpha-zero-ionos"      , &hf_nbap_alpha_zero_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "alpha-one-ionos"       , &hf_nbap_alpha_one_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "alpha-two-ionos"       , &hf_nbap_alpha_two_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "alpha-three-ionos"     , &hf_nbap_alpha_three_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "beta-zero-ionos"       , &hf_nbap_beta_zero_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "beta-one-ionos"        , &hf_nbap_beta_one_ionos , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "beta-two-ionos"        , &hf_nbap_beta_two_ionos , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "beta-three-ionos"      , &hf_nbap_beta_three_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_alpha_zero_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_alpha_one_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_alpha_two_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_alpha_three_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_beta_zero_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_beta_one_ionos , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_beta_two_ionos , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_beta_three_ionos, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23532,16 +23532,16 @@ static int dissect_gps_ionos_model(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t GPS_UTC_Model_sequence[] = {
-  { "a-one-utc"             , &hf_nbap_a_one_utc      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "a-zero-utc"            , &hf_nbap_a_zero_utc     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
-  { "t-ot-utc"              , &hf_nbap_t_ot_utc       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "delta-t-ls-utc"        , &hf_nbap_delta_t_ls_utc , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "w-n-t-utc"             , &hf_nbap_w_n_t_utc      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "w-n-lsf-utc"           , &hf_nbap_w_n_lsf_utc    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "dn-utc"                , &hf_nbap_dn_utc         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "delta-t-lsf-utc"       , &hf_nbap_delta_t_lsf_utc, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_a_one_utc      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_a_zero_utc     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_32 },
+  { &hf_nbap_t_ot_utc       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_delta_t_ls_utc , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_w_n_t_utc      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_w_n_lsf_utc    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_dn_utc         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_delta_t_lsf_utc, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23586,21 +23586,21 @@ static int dissect_gps_af_one_alm(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t SAT_Info_Almanac_Item_sequence[] = {
-  { "data-id"               , &hf_nbap_data_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DATA_ID },
-  { "sat-id"                , &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
-  { "gps-e-alm"             , &hf_nbap_gps_e_alm      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "gps-toa-alm"           , &hf_nbap_gps_toa_alm    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "gps-delta-I-alm"       , &hf_nbap_gps_delta_I_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "omegadot-alm"          , &hf_nbap_omegadot_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "svhealth-alm"          , &hf_nbap_svhealth_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "gps-a-sqrt-alm"        , &hf_nbap_gps_a_sqrt_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "omegazero-alm"         , &hf_nbap_omegazero_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "m-zero-alm"            , &hf_nbap_m_zero_alm     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "gps-omega-alm"         , &hf_nbap_gps_omega_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "gps-af-zero-alm"       , &hf_nbap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
-  { "gps-af-one-alm"        , &hf_nbap_gps_af_one_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_data_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DATA_ID },
+  { &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
+  { &hf_nbap_gps_e_alm      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_gps_toa_alm    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_gps_delta_I_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_omegadot_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_svhealth_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_gps_a_sqrt_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_omegazero_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_m_zero_alm     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_gps_omega_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
+  { &hf_nbap_gps_af_one_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23616,7 +23616,7 @@ static int dissect_SAT_Info_Almanac_item(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t SAT_Info_Almanac_sequence_of[1] = {
-  { ""                      , &hf_nbap_SAT_Info_Almanac_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac_Item },
+  { &hf_nbap_SAT_Info_Almanac_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac_Item },
 };
 
 static int
@@ -23646,11 +23646,11 @@ static int dissect_sVGlobalHealth_alm(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t GPS_Almanac_sequence[] = {
-  { "wna-alm"               , &hf_nbap_wna_alm        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "sat-info-almanac"      , &hf_nbap_sat_info_almanac, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac },
-  { "sVGlobalHealth-alm"    , &hf_nbap_sVGlobalHealth_alm, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BIT_STRING_SIZE_364 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_wna_alm        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_sat_info_almanac, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac },
+  { &hf_nbap_sVGlobalHealth_alm, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BIT_STRING_SIZE_364 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23666,9 +23666,9 @@ static int dissect_gps_almanac(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t SAT_Info_RealTime_Integrity_Item_sequence[] = {
-  { "bad-sat-id"            , &hf_nbap_bad_sat_id     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_bad_sat_id     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23684,7 +23684,7 @@ static int dissect_SATInfo_RealTime_Integrity_item(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t SATInfo_RealTime_Integrity_sequence_of[1] = {
-  { ""                      , &hf_nbap_SATInfo_RealTime_Integrity_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_RealTime_Integrity_Item },
+  { &hf_nbap_SATInfo_RealTime_Integrity_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_RealTime_Integrity_Item },
 };
 
 static int
@@ -23701,9 +23701,9 @@ static int dissect_sat_info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t GPSBadSat_Info_RealTime_Integrity_sequence[] = {
-  { "sat-info"              , &hf_nbap_sat_info       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SATInfo_RealTime_Integrity },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sat_info       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SATInfo_RealTime_Integrity },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23808,13 +23808,13 @@ static int dissect_directionOfAltitude(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t GPS_RX_POS_sequence[] = {
-  { "latitudeSign"          , &hf_nbap_latitudeSign   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_latitudeSign },
-  { "latitude"              , &hf_nbap_latitude       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_8388607 },
-  { "longitude"             , &hf_nbap_longitude      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_M8388608_8388607 },
-  { "directionOfAltitude"   , &hf_nbap_directionOfAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_directionOfAltitude },
-  { "altitude"              , &hf_nbap_altitude       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_32767 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_latitudeSign   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_latitudeSign },
+  { &hf_nbap_latitude       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_8388607 },
+  { &hf_nbap_longitude      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_M8388608_8388607 },
+  { &hf_nbap_directionOfAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_directionOfAltitude },
+  { &hf_nbap_altitude       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_32767 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23830,15 +23830,15 @@ static int dissect_gpsrxpos(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t RequestedDataValue_sequence[] = {
-  { "dgps-corrections"      , &hf_nbap_dgps_corrections, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DGPSCorrections },
-  { "gps-navandrecovery"    , &hf_nbap_gps_navandrecovery, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_NavigationModel_and_TimeRecovery },
-  { "gps-ionos-model"       , &hf_nbap_gps_ionos_model, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Ionospheric_Model },
-  { "gps-utc-model"         , &hf_nbap_gps_utc_model  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_UTC_Model },
-  { "gps-almanac"           , &hf_nbap_gps_almanac    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Almanac },
-  { "gps-rt-integrity"      , &hf_nbap_gps_rt_integrity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_RealTime_Integrity },
-  { "gpsrxpos"              , &hf_nbap_gpsrxpos       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_RX_POS },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dgps_corrections, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DGPSCorrections },
+  { &hf_nbap_gps_navandrecovery, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_NavigationModel_and_TimeRecovery },
+  { &hf_nbap_gps_ionos_model, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Ionospheric_Model },
+  { &hf_nbap_gps_utc_model  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_UTC_Model },
+  { &hf_nbap_gps_almanac    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Almanac },
+  { &hf_nbap_gps_rt_integrity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_RealTime_Integrity },
+  { &hf_nbap_gpsrxpos       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_RX_POS },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23857,9 +23857,9 @@ static int dissect_requesteddataValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t Cell_InfEx_Rsp_sequence[] = {
-  { "requestedDataValue"    , &hf_nbap_requestedDataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_requestedDataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23898,9 +23898,9 @@ static int dissect_id_InformationExchangeObjectType_InfEx_Rsp(tvbuff_t *tvb, int
 
 
 static const per_sequence_t InformationAvailable_sequence[] = {
-  { "requesteddataValue"    , &hf_nbap_requesteddataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValue },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_requesteddataValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValue },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -23953,9 +23953,9 @@ static int dissect_requestedDataValueInformation(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t Cell_Inf_Rprt_sequence[] = {
-  { "requestedDataValueInformation", &hf_nbap_requestedDataValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_requestedDataValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RequestedDataValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24064,10 +24064,10 @@ static int dissect_burstFreq(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t BurstModeParams_sequence[] = {
-  { "burstStart"            , &hf_nbap_burstStart     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_15 },
-  { "burstLength"           , &hf_nbap_burstLength    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_10_25 },
-  { "burstFreq"             , &hf_nbap_burstFreq      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_16 },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_burstStart     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_15 },
+  { &hf_nbap_burstLength    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_10_25 },
+  { &hf_nbap_burstFreq      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_16 },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24096,13 +24096,13 @@ static int dissect_iP_Offset(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t IPDL_FDD_Parameters_sequence[] = {
-  { "iP-SpacingFDD"         , &hf_nbap_iP_SpacingFDD  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingFDD },
-  { "iP-Length"             , &hf_nbap_iP_Length      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_Length },
-  { "seed"                  , &hf_nbap_seed           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_63 },
-  { "burstModeParams"       , &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
-  { "iP-Offset"             , &hf_nbap_iP_Offset      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_9 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iP_SpacingFDD  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingFDD },
+  { &hf_nbap_iP_Length      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_Length },
+  { &hf_nbap_seed           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_63 },
+  { &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
+  { &hf_nbap_iP_Offset      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_9 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24137,10 +24137,10 @@ static int dissect_iPDL_Indicator(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t IPDLParameter_Information_Cell_ReconfRqstFDD_sequence[] = {
-  { "iPDL-FDD-Parameters"   , &hf_nbap_iPDL_FDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_FDD_Parameters },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_FDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_FDD_Parameters },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24156,10 +24156,10 @@ static int dissect_id_IPDLParameter_Information_Cell_ReconfRqstFDD(tvbuff_t *tvb
 
 
 static const per_sequence_t IPDLParameter_Information_Cell_SetupRqstFDD_sequence[] = {
-  { "iPDL-FDD-Parameters"   , &hf_nbap_iPDL_FDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_FDD_Parameters },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_FDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_FDD_Parameters },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24229,13 +24229,13 @@ static int dissect_iP_PCCPCH(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t IPDL_TDD_Parameters_sequence[] = {
-  { "iP-SpacingTDD"         , &hf_nbap_iP_SpacingTDD  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingTDD },
-  { "iP-Start"              , &hf_nbap_iP_Start       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4095 },
-  { "iP-Slot"               , &hf_nbap_iP_Slot        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_14 },
-  { "iP-PCCPCH"             , &hf_nbap_iP_PCCPCH      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_PCCPCH },
-  { "burstModeParams"       , &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iP_SpacingTDD  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingTDD },
+  { &hf_nbap_iP_Start       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4095 },
+  { &hf_nbap_iP_Slot        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_14 },
+  { &hf_nbap_iP_PCCPCH      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_PCCPCH },
+  { &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24251,10 +24251,10 @@ static int dissect_iPDL_TDD_Parameters(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t IPDLParameter_Information_Cell_SetupRqstTDD_sequence[] = {
-  { "iPDL-TDD-Parameters"   , &hf_nbap_iPDL_TDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_TDD_Parameters },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_TDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_TDD_Parameters },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24340,11 +24340,11 @@ static int dissect_midambleConfigurationLCR(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t MidambleShiftLCR_sequence[] = {
-  { "midambleAllocationMode", &hf_nbap_midambleAllocationMode3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleAllocationMode },
-  { "midambleShift"         , &hf_nbap_midambleShift  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLong },
-  { "midambleConfigurationLCR", &hf_nbap_midambleConfigurationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_midambleAllocationMode3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleAllocationMode },
+  { &hf_nbap_midambleShift  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLong },
+  { &hf_nbap_midambleConfigurationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleConfigurationLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24382,10 +24382,10 @@ static int dissect_modulation(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t TDD_ChannelisationCodeLCR_sequence[] = {
-  { "tDD-ChannelisationCode", &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "modulation"            , &hf_nbap_modulation     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Modulation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_modulation     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Modulation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24461,11 +24461,11 @@ static int dissect_tdd_DL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t TDD_DL_Code_LCR_InformationItem_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "tdd-DL-DPCH-TimeSlotFormat-LCR", &hf_nbap_tdd_DL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_tdd_DL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24481,7 +24481,7 @@ static int dissect_TDD_DL_Code_LCR_Information_item(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t TDD_DL_Code_LCR_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_TDD_DL_Code_LCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_LCR_InformationItem },
+  { &hf_nbap_TDD_DL_Code_LCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_LCR_InformationItem },
 };
 
 static int
@@ -24498,12 +24498,12 @@ static int dissect_dL_Code_LCR_Information(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t DL_TimeslotLCR_InformationItem_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "dL-Code-LCR-Information", &hf_nbap_dL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_LCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_LCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_Code_LCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24519,7 +24519,7 @@ static int dissect_DL_TimeslotLCR_Information_item(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t DL_TimeslotLCR_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_TimeslotLCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_InformationItem },
+  { &hf_nbap_DL_TimeslotLCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_InformationItem },
 };
 
 static int
@@ -24539,13 +24539,13 @@ static int dissect_dL_Timeslot_InformationLCR(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t DL_DPCH_LCR_Information_RL_SetupRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-TimeslotLCR-Information", &hf_nbap_dL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
-  { "tstdIndicator"         , &hf_nbap_tstdIndicator  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
+  { &hf_nbap_tstdIndicator  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24577,11 +24577,11 @@ static int dissect_dwPCH_Power(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t DwPCH_LCR_Information_Cell_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelId", &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "dwPCH-Power"           , &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24597,10 +24597,10 @@ static int dissect_id_DwPCH_LCR_Information_Cell_SetupRqstTDD(tvbuff_t *tvb, int
 
 
 static const per_sequence_t DwPCH_LCR_Information_Cell_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelId", &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "dwPCH-Power"           , &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24628,7 +24628,7 @@ static int dissect_id_DwPCH_LCR_Information_ResourceStatusInd(tvbuff_t *tvb, int
 
 
 static const per_sequence_t FPACH_LCR_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_FPACH_LCR_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_FPACH_LCR_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -24645,7 +24645,7 @@ static int dissect_id_FPACH_LCR_InformationList_AuditRsp(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t FPACH_LCR_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -24678,13 +24678,13 @@ static int dissect_fPACHPower(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t FPACH_LCR_Parameters_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "timeslotLCR"           , &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "fPACH-Power"           , &hf_nbap_fPACH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FPACH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_fPACH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FPACH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24700,10 +24700,10 @@ static int dissect_id_FPACH_LCR_Parameters_CTCH_SetupRqstTDD(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t FPACH_LCR_Parameters_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelId", &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "fPACHPower"            , &hf_nbap_fPACHPower     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FPACH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_fPACHPower     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FPACH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24719,15 +24719,15 @@ static int dissect_id_FPACH_LCR_Parameters_CTCH_ReconfRqstTDD(tvbuff_t *tvb, int
 
 
 static const per_sequence_t PCCPCH_LCR_Information_Cell_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "pCCPCH-Power"          , &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
-  { "sCTD-Indicator"        , &hf_nbap_sCTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCTD_Indicator },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_pCCPCH_Power   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PCCPCH_Power },
+  { &hf_nbap_sCTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SCTD_Indicator },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24743,18 +24743,18 @@ static int dissect_id_PCCPCH_LCR_Information_Cell_SetupRqstTDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t PICH_LCR_Parameters_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "pagingIndicatorLength" , &hf_nbap_pagingIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PagingIndicatorLength },
-  { "pICH-Power"            , &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
-  { "second-TDD-ChannelisationCodeLCR", &hf_nbap_second_TDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_pagingIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PagingIndicatorLength },
+  { &hf_nbap_pICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
+  { &hf_nbap_second_TDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24770,14 +24770,14 @@ static int dissect_id_PICH_LCR_Parameters_CTCH_SetupRqstTDD(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tFCS"                  , &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
-  { "timeslotLCR"           , &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "rACH"                  , &hf_nbap_rACH           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameter_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tFCS           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCS },
+  { &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_rACH           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RACH_Parameter_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24793,7 +24793,7 @@ static int dissect_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_item(tvbuff_t *tvb
 
 
 static const per_sequence_t PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -24810,10 +24810,10 @@ static int dissect_id_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_LCR_InfoItem_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "iSCP"                  , &hf_nbap_iSCP           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotISCP_Value },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_iSCP           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotISCP_Value },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24829,7 +24829,7 @@ static int dissect_UL_TimeSlot_ISCP_LCR_Info_item(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_LCR_Info_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_TimeSlot_ISCP_LCR_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_InfoItem },
+  { &hf_nbap_UL_TimeSlot_ISCP_LCR_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_InfoItem },
 };
 
 static int
@@ -24849,14 +24849,14 @@ static int dissect_uL_TimeSlot_ISCP_InfoLCR(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t RL_InformationResponse_LCR_RL_SetupRspTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "uL-TimeSlot-ISCP-LCR-Info", &hf_nbap_uL_TimeSlot_ISCP_LCR_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_Info },
-  { "ul-PhysCH-SF-Variation", &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
-  { "dCH-InformationResponseList", &hf_nbap_dCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_SetupRspTDD },
-  { "dSCH-InformationResponseList", &hf_nbap_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_SetupRspTDD },
-  { "uSCH-InformationResponseList", &hf_nbap_uSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_SetupRspTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_uL_TimeSlot_ISCP_LCR_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_Info },
+  { &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
+  { &hf_nbap_dCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_dSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_uSCH_InformationResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_SetupRspTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24872,17 +24872,17 @@ static int dissect_id_RL_InformationResponse_LCR_RL_SetupRspTDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "timeslotLCR"           , &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "s-CCPCH-Power"         , &hf_nbap_s_CCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "s-CCPCH-TimeSlotFormat-LCR", &hf_nbap_s_CCPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_s_CCPCH_Power  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_s_CCPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24901,7 +24901,7 @@ static int dissect_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_i
 
 
 static const per_sequence_t Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -24918,11 +24918,11 @@ static int dissect_id_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD(tvbuff
 
 
 static const per_sequence_t TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "timeSlotStatus"        , &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
-  { "timeSlotDirection"     , &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
+  { &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24938,7 +24938,7 @@ static int dissect_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_item(tvbuff_
 
 
 static const per_sequence_t TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD },
+  { &hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD },
 };
 
 static int
@@ -24955,11 +24955,11 @@ static int dissect_id_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "timeSlotStatus"        , &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
-  { "timeSlotDirection"     , &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_timeSlotStatus , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotStatus },
+  { &hf_nbap_timeSlotDirection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotDirection },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -24975,7 +24975,7 @@ static int dissect_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_item(tvbuff_t
 
 
 static const per_sequence_t TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD },
+  { &hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD },
 };
 
 static int
@@ -24992,10 +24992,10 @@ static int dissect_id_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD(tvbuff_t *
 
 
 static const per_sequence_t DL_TimeslotISCPInfoItemLCR_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "dL-TimeslotISCP"       , &hf_nbap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCP },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_dL_TimeslotISCP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCP },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25011,7 +25011,7 @@ static int dissect_DL_TimeslotISCPInfoLCR_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t DL_TimeslotISCPInfoLCR_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_TimeslotISCPInfoLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCPInfoItemLCR },
+  { &hf_nbap_DL_TimeslotISCPInfoLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotISCPInfoItemLCR },
 };
 
 static int
@@ -25091,11 +25091,11 @@ static int dissect_tdd_UL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t TDD_UL_Code_LCR_InformationItem_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "tdd-UL-DPCH-TimeSlotFormat-LCR", &hf_nbap_tdd_UL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_tdd_UL_DPCH_TimeSlotFormat_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25111,7 +25111,7 @@ static int dissect_TDD_UL_Code_LCR_Information_item(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t TDD_UL_Code_LCR_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_TDD_UL_Code_LCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_LCR_InformationItem },
+  { &hf_nbap_TDD_UL_Code_LCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_LCR_InformationItem },
 };
 
 static int
@@ -25128,12 +25128,12 @@ static int dissect_uL_Code_InformationList1(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t UL_TimeslotLCR_InformationItem_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationList", &hf_nbap_uL_Code_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_LCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationList1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_UL_Code_LCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25149,7 +25149,7 @@ static int dissect_UL_TimeslotLCR_Information_item(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t UL_TimeslotLCR_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_TimeslotLCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_InformationItem },
+  { &hf_nbap_UL_TimeslotLCR_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_InformationItem },
 };
 
 static int
@@ -25169,12 +25169,12 @@ static int dissect_uL_Timeslot_InformationLCR(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t UL_DPCH_LCR_Information_RL_SetupRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-TimeslotLCR-Information", &hf_nbap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25190,12 +25190,12 @@ static int dissect_id_UL_DPCH_LCR_Information_RL_SetupRqstTDD(tvbuff_t *tvb, int
 
 
 static const per_sequence_t DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-TimeslotLCR-Information", &hf_nbap_dL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25211,12 +25211,12 @@ static int dissect_id_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD(tvbuff_t *t
 
 
 static const per_sequence_t UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-TimeslotLCR-Information", &hf_nbap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_TimeslotLCR_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25232,12 +25232,12 @@ static int dissect_id_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD(tvbuff_t *t
 
 
 static const per_sequence_t DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-InformationLCR", &hf_nbap_dL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25256,12 +25256,12 @@ static int dissect_dl_DPCH_InformationListLCR(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "dL-Timeslot-InformationLCR", &hf_nbap_dL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_dL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25280,10 +25280,10 @@ static int dissect_dl_DPCH_InformationAddListLCR(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25299,7 +25299,7 @@ static int dissect_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_ite
 
 
 static const per_sequence_t DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -25316,12 +25316,12 @@ static int dissect_dL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD(tvb
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "dL-Code-LCR-InformationModify-ModifyList-RL-ReconfPrepTDD", &hf_nbap_dL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25337,7 +25337,7 @@ static int dissect_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -25354,12 +25354,12 @@ static int dissect_id_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrep
 
 
 static const per_sequence_t UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-InformationLCR", &hf_nbap_uL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25378,12 +25378,12 @@ static int dissect_ul_DPCH_InformationListLCR(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-DPCHOffset"        , &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
-  { "uL-Timeslot-InformationLCR", &hf_nbap_uL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_DPCHOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_DPCHOffset },
+  { &hf_nbap_uL_Timeslot_InformationLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeslotLCR_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25402,10 +25402,10 @@ static int dissect_ul_DPCH_InformationAddListLCR(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25421,7 +25421,7 @@ static int dissect_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_item
 
 
 static const per_sequence_t UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR },
+  { &hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR },
 };
 
 static int
@@ -25438,12 +25438,12 @@ static int dissect_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR(tvbu
 
 
 static const per_sequence_t UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationModify-ModifyList-RL-ReconfPrepTDDLCR", &hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25459,7 +25459,7 @@ static int dissect_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_
 
 
 static const per_sequence_t UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
+  { &hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -25476,10 +25476,10 @@ static int dissect_id_UL_TimeslotLCR_Information_RL_ReconfPrepTDD(tvbuff_t *tvb,
 
 
 static const per_sequence_t DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCH-ID"              , &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25495,7 +25495,7 @@ static int dissect_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item(tvbuff_t 
 
 
 static const per_sequence_t DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -25512,12 +25512,12 @@ static int dissect_dL_Code_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "dL-Code-InformationAddList-LCR-PSCH-ReconfRqst", &hf_nbap_dL_Code_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25533,7 +25533,7 @@ static int dissect_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item(tvbuf
 
 
 static const per_sequence_t DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -25550,12 +25550,12 @@ static int dissect_dL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *
 
 
 static const per_sequence_t PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "dL-Timeslot-InformationAddList-LCR-PSCH-ReconfRqst", &hf_nbap_dL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_dL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25571,10 +25571,10 @@ static int dissect_id_PDSCH_AddInformation_LCR_PSCH_ReconfRqst(tvbuff_t *tvb, in
 
 
 static const per_sequence_t DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pDSCH-ID"              , &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pDSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PDSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25590,7 +25590,7 @@ static int dissect_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item(tvbuff
 
 
 static const per_sequence_t DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -25607,12 +25607,12 @@ static int dissect_dL_Code_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *t
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "dL-Code-LCR-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_dL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_dL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25628,7 +25628,7 @@ static int dissect_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item(tv
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -25645,12 +25645,12 @@ static int dissect_dL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_
 
 
 static const per_sequence_t PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
-  { "dL-Timeslot-LCR-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_dL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_dL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25666,10 +25666,10 @@ static int dissect_id_PDSCH_ModifyInformation_LCR_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25685,7 +25685,7 @@ static int dissect_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item(tvbuff_t 
 
 
 static const per_sequence_t UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -25702,12 +25702,12 @@ static int dissect_uL_Code_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
-  { "uL-Code-InformationAddList-LCR-PSCH-ReconfRqst", &hf_nbap_uL_Code_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25723,7 +25723,7 @@ static int dissect_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item(tvbuf
 
 
 static const per_sequence_t UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -25740,12 +25740,12 @@ static int dissect_uL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *
 
 
 static const per_sequence_t PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "uL-Timeslot-InformationAddList-LCR-PSCH-ReconfRqst", &hf_nbap_uL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_uL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25761,10 +25761,10 @@ static int dissect_id_PUSCH_AddInformation_LCR_PSCH_ReconfRqst(tvbuff_t *tvb, in
 
 
 static const per_sequence_t UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25780,7 +25780,7 @@ static int dissect_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item(tvbuff
 
 
 static const per_sequence_t UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -25797,12 +25797,12 @@ static int dissect_uL_Code_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *t
 
 
 static const per_sequence_t UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "tFCI-Presence"         , &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
-  { "uL-Code-LCR-InformationModifyList-PSCH-ReconfRqst", &hf_nbap_uL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tFCI_Presence  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TFCI_Presence },
+  { &hf_nbap_uL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25818,7 +25818,7 @@ static int dissect_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item(tv
 
 
 static const per_sequence_t UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -25835,12 +25835,12 @@ static int dissect_uL_Timeslot_InformationModifyList_LCR_PSCH_ReconfRqst(tvbuff_
 
 
 static const per_sequence_t PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
-  { "uL-Timeslot-InformationModifyList-LCR-PSCH-ReconfRqst", &hf_nbap_uL_Timeslot_InformationModifyList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RepetitionLength },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_uL_Timeslot_InformationModifyList_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25856,7 +25856,7 @@ static int dissect_id_PUSCH_ModifyInformation_LCR_PSCH_ReconfRqst(tvbuff_t *tvb,
 
 
 static const per_sequence_t TimeslotInfo_CellSyncInitiationRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
 };
 
 static int
@@ -25889,10 +25889,10 @@ static int dissect_syncDLCodeIdSIR(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t CellSyncBurstAvailable_CellSyncReprtTDD_sequence[] = {
-  { "cellSyncBurstTiming"   , &hf_nbap_cellSyncBurstTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTiming },
-  { "cellSyncBurstSIR"      , &hf_nbap_cellSyncBurstSIR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstSIR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellSyncBurstTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTiming },
+  { &hf_nbap_cellSyncBurstSIR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstSIR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25933,7 +25933,7 @@ static int dissect_cellSyncBurstInfo_CellSyncReprtTDD_item(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_16_OF_CellSyncBurstInfo_CellSyncReprtTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfo_CellSyncReprtTDD },
+  { &hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfo_CellSyncReprtTDD },
 };
 
 static int
@@ -25950,10 +25950,10 @@ static int dissect_cellSyncBurstInfo_CellSyncReprtTDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t CellSyncBurstMeasInfoItem_CellSyncReprtTDD_sequence[] = {
-  { "sFN"                   , &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
-  { "cellSyncBurstInfo-CellSyncReprtTDD", &hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SEQUENCE_SIZE_1_16_OF_CellSyncBurstInfo_CellSyncReprtTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
+  { &hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SEQUENCE_SIZE_1_16_OF_CellSyncBurstInfo_CellSyncReprtTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -25969,7 +25969,7 @@ static int dissect_CellSyncBurstMeasInfoList_CellSyncReprtTDD_item(tvbuff_t *tvb
 
 
 static const per_sequence_t CellSyncBurstMeasInfoList_CellSyncReprtTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoItem_CellSyncReprtTDD },
+  { &hf_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoItem_CellSyncReprtTDD },
 };
 
 static int
@@ -25986,9 +25986,9 @@ static int dissect_cellSyncBurstMeasuredInfo(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t IntStdPhCellSyncInfo_CellSyncReprtTDD_sequence[] = {
-  { "cellSyncBurstMeasuredInfo", &hf_nbap_cellSyncBurstMeasuredInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellSyncBurstMeasuredInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26031,10 +26031,10 @@ static int dissect_id_SyncReportType_CellSyncReprtTDD(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationItem_AuditRsp_sequence[] = {
-  { "power-Local-Cell-Group-ID", &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "maximumDL-PowerCapability", &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26050,10 +26050,10 @@ static int dissect_id_Power_Local_Cell_Group_InformationItem_AuditRsp(tvbuff_t *
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationItem_ResourceStatusInd_sequence[] = {
-  { "power-Local-Cell-Group-ID", &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "maximumDL-PowerCapability", &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26069,10 +26069,10 @@ static int dissect_id_Power_Local_Cell_Group_InformationItem_ResourceStatusInd(t
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationItem2_ResourceStatusInd_sequence[] = {
-  { "power-Local-Cell-Group-ID", &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "maximumDL-PowerCapability", &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_power_Local_Cell_Group_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_maximumDL_PowerCapability, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumDL_PowerCapability },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26088,7 +26088,7 @@ static int dissect_id_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd(
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationList_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -26105,7 +26105,7 @@ static int dissect_id_Power_Local_Cell_Group_InformationList_AuditRsp(tvbuff_t *
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationList_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -26122,7 +26122,7 @@ static int dissect_id_Power_Local_Cell_Group_InformationList_ResourceStatusInd(t
 
 
 static const per_sequence_t Power_Local_Cell_Group_InformationList2_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -26139,7 +26139,7 @@ static int dissect_id_Power_Local_Cell_Group_InformationList2_ResourceStatusInd(
 
 
 static const per_sequence_t PUSCH_Info_DM_Rqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCH_Info_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_PUSCH_Info_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
 };
 
 static int
@@ -26156,7 +26156,7 @@ static int dissect_id_PUSCH_Info_DM_Rqst(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t PUSCH_Info_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCH_Info_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_PUSCH_Info_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
 };
 
 static int
@@ -26173,7 +26173,7 @@ static int dissect_id_PUSCH_Info_DM_Rsp(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t PUSCH_Info_DM_Rprt_sequence_of[1] = {
-  { ""                      , &hf_nbap_PUSCH_Info_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
+  { &hf_nbap_PUSCH_Info_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PUSCH_ID },
 };
 
 static int
@@ -26203,9 +26203,9 @@ static int dissect_id_cellSyncBurstRepetitionPeriod(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t ReportCharacteristicsType_OnModification_sequence[] = {
-  { "measurementThreshold"  , &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_measurementThreshold, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ReportCharacteristicsType_MeasurementThreshold },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26311,10 +26311,10 @@ static int dissect_sFNSFNDriftRateQuality(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t SFNSFNTimeStamp_TDD_sequence[] = {
-  { "sFN"                   , &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26355,14 +26355,14 @@ static int dissect_sFNSFNTimeStampInformation(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item_sequence[] = {
-  { "uC-Id"                 , &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
-  { "sFNSFNValue"           , &hf_nbap_sFNSFNValue    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNValue },
-  { "sFNSFNQuality"         , &hf_nbap_sFNSFNQuality  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNQuality },
-  { "sFNSFNDriftRate"       , &hf_nbap_sFNSFNDriftRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNDriftRate },
-  { "sFNSFNDriftRateQuality", &hf_nbap_sFNSFNDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNDriftRateQuality },
-  { "sFNSFNTimeStampInformation", &hf_nbap_sFNSFNTimeStampInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNTimeStampInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
+  { &hf_nbap_sFNSFNValue    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNValue },
+  { &hf_nbap_sFNSFNQuality  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNQuality },
+  { &hf_nbap_sFNSFNDriftRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNDriftRate },
+  { &hf_nbap_sFNSFNDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNDriftRateQuality },
+  { &hf_nbap_sFNSFNTimeStampInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFNSFNTimeStampInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26378,7 +26378,7 @@ static int dissect_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasur
 
 
 static const per_sequence_t T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item },
+  { &hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item },
 };
 
 static int
@@ -26395,9 +26395,9 @@ static int dissect_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasur
 
 
 static const per_sequence_t T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item_sequence[] = {
-  { "uC-Id"                 , &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26413,7 +26413,7 @@ static int dissect_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeas
 
 
 static const per_sequence_t T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item },
+  { &hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item },
 };
 
 static int
@@ -26430,10 +26430,10 @@ static int dissect_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeas
 
 
 static const per_sequence_t SFNSFNMeasurementValueInformation_sequence[] = {
-  { "successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation", &hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
-  { "unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation", &hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
+  { &hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26475,10 +26475,10 @@ static int dissect_predictedSFNSFNDeviationLimit(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t SFNSFNMeasurementThresholdInformation_sequence[] = {
-  { "sFNSFNChangeLimit"     , &hf_nbap_sFNSFNChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNChangeLimit },
-  { "predictedSFNSFNDeviationLimit", &hf_nbap_predictedSFNSFNDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PredictedSFNSFNDeviationLimit },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sFNSFNChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFNSFNChangeLimit },
+  { &hf_nbap_predictedSFNSFNDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PredictedSFNSFNDeviationLimit },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26520,9 +26520,9 @@ static int dissect_ls_part(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t TUTRANGPS_sequence[] = {
-  { "ms-part"               , &hf_nbap_ms_part        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_16383 },
-  { "ls-part"               , &hf_nbap_ls_part        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4294967295 },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ms_part        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_16383 },
+  { &hf_nbap_ls_part        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4294967295 },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26577,12 +26577,12 @@ static int dissect_tUTRANGPSDriftRateQuality(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t TUTRANGPSMeasurementValueInformation_sequence[] = {
-  { "tUTRANGPS"             , &hf_nbap_tUTRANGPS      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TUTRANGPS },
-  { "tUTRANGPSQuality"      , &hf_nbap_tUTRANGPSQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSQuality },
-  { "tUTRANGPSDriftRate"    , &hf_nbap_tUTRANGPSDriftRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TUTRANGPSDriftRate },
-  { "tUTRANGPSDriftRateQuality", &hf_nbap_tUTRANGPSDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSDriftRateQuality },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tUTRANGPS      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TUTRANGPS },
+  { &hf_nbap_tUTRANGPSQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSQuality },
+  { &hf_nbap_tUTRANGPSDriftRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TUTRANGPSDriftRate },
+  { &hf_nbap_tUTRANGPSDriftRateQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSDriftRateQuality },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26624,10 +26624,10 @@ static int dissect_predictedTUTRANGPSDeviationLimit(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t TUTRANGPSMeasurementThresholdInformation_sequence[] = {
-  { "tUTRANGPSChangeLimit"  , &hf_nbap_tUTRANGPSChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSChangeLimit },
-  { "predictedTUTRANGPSDeviationLimit", &hf_nbap_predictedTUTRANGPSDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PredictedTUTRANGPSDeviationLimit },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tUTRANGPSChangeLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TUTRANGPSChangeLimit },
+  { &hf_nbap_predictedTUTRANGPSDeviationLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PredictedTUTRANGPSDeviationLimit },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26656,14 +26656,14 @@ static int dissect_id_Rx_Timing_Deviation_Value_LCR(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t RL_InformationResponse_LCR_RL_AdditionRspTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "uL-TimeSlot-ISCP-InfoLCR", &hf_nbap_uL_TimeSlot_ISCP_InfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_Info },
-  { "ul-PhysCH-SF-Variation", &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
-  { "dCH-Information"       , &hf_nbap_dCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_Information_RL_AdditionRspTDD },
-  { "dSCH-InformationResponseList", &hf_nbap_dSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_AdditionRspTDD },
-  { "uSCH-InformationResponseList", &hf_nbap_uSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_AdditionRspTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_uL_TimeSlot_ISCP_InfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_TimeSlot_ISCP_LCR_Info },
+  { &hf_nbap_ul_PhysCH_SF_Variation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_PhysCH_SF_Variation },
+  { &hf_nbap_dCH_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DCH_Information_RL_AdditionRspTDD },
+  { &hf_nbap_dSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DSCH_InformationResponseList_RL_AdditionRspTDD },
+  { &hf_nbap_uSCH_InformationResponseList1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_USCH_InformationResponseList_RL_AdditionRspTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26679,10 +26679,10 @@ static int dissect_id_RL_InformationResponse_LCR_RL_AdditionRspTDD(tvbuff_t *tvb
 
 
 static const per_sequence_t DL_ReferencePowerInformationItem_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "dl-Reference-Power"    , &hf_nbap_dl_Reference_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_dl_Reference_Power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26698,7 +26698,7 @@ static int dissect_DL_ReferencePowerInformationList_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t DL_ReferencePowerInformationList_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_ReferencePowerInformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ReferencePowerInformationItem },
+  { &hf_nbap_DL_ReferencePowerInformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_ReferencePowerInformationItem },
 };
 
 static int
@@ -26715,14 +26715,14 @@ static int dissect_dLReferencePowerList_DL_PC_Rqst(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t DL_PowerBalancing_Information_sequence[] = {
-  { "powerAdjustmentType"   , &hf_nbap_powerAdjustmentType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerAdjustmentType },
-  { "dLReferencePower"      , &hf_nbap_dLReferencePower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "dLReferencePowerList-DL-PC-Rqst", &hf_nbap_dLReferencePowerList_DL_PC_Rqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ReferencePowerInformationList },
-  { "maxAdjustmentStep"     , &hf_nbap_maxAdjustmentStep, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxAdjustmentStep },
-  { "adjustmentPeriod"      , &hf_nbap_adjustmentPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AdjustmentPeriod },
-  { "adjustmentRatio"       , &hf_nbap_adjustmentRatio, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ScaledAdjustmentRatio },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerAdjustmentType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerAdjustmentType },
+  { &hf_nbap_dLReferencePower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_dLReferencePowerList_DL_PC_Rqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ReferencePowerInformationList },
+  { &hf_nbap_maxAdjustmentStep, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaxAdjustmentStep },
+  { &hf_nbap_adjustmentPeriod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AdjustmentPeriod },
+  { &hf_nbap_adjustmentRatio, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ScaledAdjustmentRatio },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26816,12 +26816,12 @@ static int dissect_iP_Sub(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 
 
 static const per_sequence_t IPDL_TDD_Parameters_LCR_sequence[] = {
-  { "iP-SpacingTDD"         , &hf_nbap_iP_SpacingTDD1 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingTDD1 },
-  { "iP-Start"              , &hf_nbap_iP_Start       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4095 },
-  { "iP-Sub"                , &hf_nbap_iP_Sub         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_Sub },
-  { "burstModeParams"       , &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iP_SpacingTDD1 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_SpacingTDD1 },
+  { &hf_nbap_iP_Start       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_4095 },
+  { &hf_nbap_iP_Sub         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_iP_Sub },
+  { &hf_nbap_burstModeParams, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BurstModeParams },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26837,10 +26837,10 @@ static int dissect_iPDL_TDD_Parameters_LCR(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t IPDLParameter_Information_LCR_Cell_SetupRqstTDD_sequence[] = {
-  { "iPDL-TDD-Parameters-LCR", &hf_nbap_iPDL_TDD_Parameters_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_TDD_Parameters_LCR },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_TDD_Parameters_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_TDD_Parameters_LCR },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26856,10 +26856,10 @@ static int dissect_id_IPDLParameter_Information_LCR_Cell_SetupRqstTDD(tvbuff_t *
 
 
 static const per_sequence_t IPDLParameter_Information_LCR_Cell_ReconfRqstTDD_sequence[] = {
-  { "iPDL-TDD-Parameters-LCR", &hf_nbap_iPDL_TDD_Parameters_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_TDD_Parameters_LCR },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_TDD_Parameters_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_TDD_Parameters_LCR },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26888,10 +26888,10 @@ static int dissect_hS_PDSCH_Start_code_number(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t HS_PDSCH_FDD_Code_Information_sequence[] = {
-  { "number-of-HS-PDSCH-codes", &hf_nbap_number_of_HS_PDSCH_codes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_15 },
-  { "hS-PDSCH-Start-code-number", &hf_nbap_hS_PDSCH_Start_code_number, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_PDSCH_Start_code_number },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_number_of_HS_PDSCH_codes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_15 },
+  { &hf_nbap_hS_PDSCH_Start_code_number, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_PDSCH_Start_code_number },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -26923,7 +26923,7 @@ static int dissect_HS_SCCH_FDD_Code_List_item(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t HS_SCCH_FDD_Code_List_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_SCCH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_FDD_Code_Information_Item },
+  { &hf_nbap_HS_SCCH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_FDD_Code_Information_Item },
 };
 
 static int
@@ -26968,7 +26968,7 @@ static int dissect_hS_SCCH_FDD_Code_Information_PSCH_ReconfRqst(tvbuff_t *tvb, i
 
 
 static const per_sequence_t DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
 };
 
 static int
@@ -26985,12 +26985,12 @@ static int dissect_dl_HS_PDSCH_Codelist_PSCH_ReconfRqst(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "dl-HS-PDSCH-Codelist-PSCH-ReconfRqst", &hf_nbap_dl_HS_PDSCH_Codelist_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst },
-  { "maxHSDSCH-HSSCCH-Power", &hf_nbap_maxHSDSCH_HSSCCH_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_dl_HS_PDSCH_Codelist_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst },
+  { &hf_nbap_maxHSDSCH_HSSCCH_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27006,7 +27006,7 @@ static int dissect_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_item(tvbuff_
 
 
 static const per_sequence_t DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst },
+  { &hf_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -27023,7 +27023,7 @@ static int dissect_dL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst(tvbuff_t *tv
 
 
 static const per_sequence_t DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
 };
 
 static int
@@ -27040,12 +27040,12 @@ static int dissect_dl_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "timeSlot"              , &hf_nbap_timeSlot1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "dl-HS-PDSCH-Codelist-LCR-PSCH-ReconfRqst", &hf_nbap_dl_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst },
-  { "maxHSDSCH-HSSCCH-Power", &hf_nbap_maxHSDSCH_HSSCCH_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlot1      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftAndBurstType1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_dl_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_maxHSDSCH_HSSCCH_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27061,7 +27061,7 @@ static int dissect_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item(tvb
 
 
 static const per_sequence_t DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -27078,10 +27078,10 @@ static int dissect_dL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst(tvbuff_t
 
 
 static const per_sequence_t HS_PDSCH_TDD_Information_PSCH_ReconfRqst_sequence[] = {
-  { "dL-HS-PDSCH-Timeslot-Information-PSCH-ReconfRqst", &hf_nbap_dL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst },
-  { "dL-HS-PDSCH-Timeslot-Information-LCR-PSCH-ReconfRqst", &hf_nbap_dL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst },
+  { &hf_nbap_dL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27132,12 +27132,12 @@ static int dissect_hsSICH_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t HS_SICH_Information_PSCH_ReconfRqst_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27153,14 +27153,14 @@ static int dissect_hS_SICH_Information(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t HS_SCCH_InformationItem_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-ID"            , &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "hS-SCCH-MaxPower"      , &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "hS-SICH-Information"   , &hf_nbap_hS_SICH_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_Information_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_hS_SICH_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_Information_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27176,7 +27176,7 @@ static int dissect_HS_SCCH_Information_PSCH_ReconfRqst_item(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t HS_SCCH_Information_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_SCCH_Information_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationItem_PSCH_ReconfRqst },
+  { &hf_nbap_HS_SCCH_Information_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -27193,12 +27193,12 @@ static int dissect_hS_SCCH_Information_PSCH_ReconfRqst(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t HS_SICH_Information_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27214,15 +27214,15 @@ static int dissect_hS_SICH_Information_LCR(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-ID"            , &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "first-TDD-ChannelisationCode", &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "second-TDD-ChannelisationCode", &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "hS-SCCH-MaxPower"      , &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "hS-SICH-Information-LCR", &hf_nbap_hS_SICH_Information_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_Information_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_hS_SICH_Information_LCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_Information_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27238,7 +27238,7 @@ static int dissect_HS_SCCH_Information_LCR_PSCH_ReconfRqst_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t HS_SCCH_Information_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -27255,10 +27255,10 @@ static int dissect_hS_SCCH_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-Information-PSCH-ReconfRqst", &hf_nbap_hS_SCCH_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_Information_PSCH_ReconfRqst },
-  { "hS-SCCH-Information-LCR-PSCH-ReconfRqst", &hf_nbap_hS_SCCH_Information_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_Information_PSCH_ReconfRqst },
+  { &hf_nbap_hS_SCCH_Information_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27274,12 +27274,12 @@ static int dissect_id_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t *tvb
 
 
 static const per_sequence_t HS_SICH_InformationModify_PSCH_ReconfRqst_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27295,14 +27295,14 @@ static int dissect_hS_SICH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t HS_SCCH_InformationModifyItem_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-ID"            , &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "hS-SCCH-MaxPower"      , &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "hS-SICH-Information"   , &hf_nbap_hS_SICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SICH_InformationModify_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_hS_SICH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SICH_InformationModify_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27318,7 +27318,7 @@ static int dissect_HS_SCCH_InformationModify_PSCH_ReconfRqst_item(tvbuff_t *tvb,
 
 
 static const per_sequence_t HS_SCCH_InformationModify_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationModifyItem_PSCH_ReconfRqst },
+  { &hf_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationModifyItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -27335,12 +27335,12 @@ static int dissect_hS_SCCH_InformationModify_PSCH_ReconfRqst(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t HS_SICH_InformationModify_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27356,15 +27356,15 @@ static int dissect_hS_SICH_Information_LCR1(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-ID"            , &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "first-TDD-ChannelisationCode", &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "second-TDD-ChannelisationCode", &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
-  { "hS-SCCH-MaxPower"      , &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "hS-SICH-Information-LCR", &hf_nbap_hS_SICH_Information_LCR1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SICH_InformationModify_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hS_SCCH_MaxPower, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_hS_SICH_Information_LCR1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SICH_InformationModify_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27380,7 +27380,7 @@ static int dissect_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_item(tvbuff_t *
 
 
 static const per_sequence_t HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst },
 };
 
 static int
@@ -27397,10 +27397,10 @@ static int dissect_hS_SCCH_InformationModify_LCR_PSCH_ReconfRqst(tvbuff_t *tvb, 
 
 
 static const per_sequence_t Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-InformationModify-PSCH-ReconfRqst", &hf_nbap_hS_SCCH_InformationModify_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst },
-  { "hS-SCCH-InformationModify-LCR-PSCH-ReconfRqst", &hf_nbap_hS_SCCH_InformationModify_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_InformationModify_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst },
+  { &hf_nbap_hS_SCCH_InformationModify_LCR_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27416,9 +27416,9 @@ static int dissect_id_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t *tvb
 
 
 static const per_sequence_t Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst_sequence[] = {
-  { "hS-SCCH-ID"            , &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hS_SCCH_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SCCH_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27434,7 +27434,7 @@ static int dissect_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_item(tvbuff
 
 
 static const per_sequence_t Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst },
+  { &hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -27451,11 +27451,11 @@ static int dissect_id_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t
 
 
 static const per_sequence_t RL_Specific_DCH_Info_Item_sequence[] = {
-  { "dCH-id"                , &hf_nbap_dCH_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportlayeraddress" , &hf_nbap_transportlayeraddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dCH_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DCH_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportlayeraddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27471,7 +27471,7 @@ static int dissect_RL_Specific_DCH_Info_item(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t RL_Specific_DCH_Info_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Specific_DCH_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Specific_DCH_Info_Item },
+  { &hf_nbap_RL_Specific_DCH_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Specific_DCH_Info_Item },
 };
 
 static int
@@ -27513,7 +27513,7 @@ static int dissect_id_DelayedActivation(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t DelayedActivationInformationList_RL_ActivationCmdFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -27558,12 +27558,12 @@ static int dissect_deactivation_type(tvbuff_t *tvb, int offset, asn_ctx_t *actx,
 
 
 static const per_sequence_t Activate_Info_sequence[] = {
-  { "activation-type"       , &hf_nbap_activation_type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Execution_Type },
-  { "initial-dl-tx-power"   , &hf_nbap_initial_dl_tx_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
-  { "firstRLS-Indicator"    , &hf_nbap_firstRLS_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FirstRLS_Indicator },
-  { "propagation-delay"     , &hf_nbap_propagation_delay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PropagationDelay },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_activation_type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Execution_Type },
+  { &hf_nbap_initial_dl_tx_power, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Power },
+  { &hf_nbap_firstRLS_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FirstRLS_Indicator },
+  { &hf_nbap_propagation_delay, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PropagationDelay },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27579,9 +27579,9 @@ static int dissect_activate(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t Deactivate_Info_sequence[] = {
-  { "deactivation-type"     , &hf_nbap_deactivation_type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Execution_Type },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_deactivation_type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Execution_Type },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27622,10 +27622,10 @@ static int dissect_delayed_activation_update(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t DelayedActivationInformation_RL_ActivationCmdFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "delayed-activation-update", &hf_nbap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DelayedActivationUpdate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DelayedActivationUpdate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27641,7 +27641,7 @@ static int dissect_id_DelayedActivationInformation_RL_ActivationCmdFDD(tvbuff_t 
 
 
 static const per_sequence_t DelayedActivationInformationList_RL_ActivationCmdTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -27658,10 +27658,10 @@ static int dissect_id_DelayedActivationList_RL_ActivationCmdTDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t DelayedActivationInformation_RL_ActivationCmdTDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "delayed-activation-update", &hf_nbap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DelayedActivationUpdate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_delayed_activation_update, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DelayedActivationUpdate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27677,13 +27677,13 @@ static int dissect_id_DelayedActivationInformation_RL_ActivationCmdTDD(tvbuff_t 
 
 
 static const per_sequence_t NeighbouringTDDCellMeasurementInformationLCR_sequence[] = {
-  { "uC-Id"                 , &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "cellParameterID"       , &hf_nbap_cellParameterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellParameterID },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uC_Id          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UC_Id },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_cellParameterID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellParameterID },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27715,13 +27715,13 @@ static int dissect_syncDLCodeId(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD_sequence[] = {
-  { "cSBTransmissionID"     , &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
-  { "sfn"                   , &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "sYNCDlCodeId"          , &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
-  { "dwPCH-Power"           , &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
+  { &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
+  { &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DwPCH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27737,14 +27737,14 @@ static int dissect_id_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD(tvbuff
 
 
 static const per_sequence_t SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD_sequence[] = {
-  { "cSBMeasurementID"      , &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
-  { "sfn"                   , &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "sYNCDlCodeId"          , &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
-  { "synchronisationReportType", &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportType },
-  { "synchronisationReportCharacteristics", &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristics },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
+  { &hf_nbap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SFN },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
+  { &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportType },
+  { &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SynchronisationReportCharacteristics },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27760,13 +27760,13 @@ static int dissect_id_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD(tvbu
 
 
 static const per_sequence_t SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD_sequence[] = {
-  { "cSBTransmissionID"     , &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
-  { "syncFrameNumberforTransmit", &hf_nbap_syncFrameNumberforTransmit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "sYNCDlCodeId"          , &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SYNCDlCodeId },
-  { "dwPCH-Power"           , &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DwPCH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBTransmissionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBTransmissionID },
+  { &hf_nbap_syncFrameNumberforTransmit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SYNCDlCodeId },
+  { &hf_nbap_dwPCH_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DwPCH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27782,7 +27782,7 @@ static int dissect_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_item(tvb
 
 
 static const per_sequence_t SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD },
+  { &hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -27853,12 +27853,12 @@ static int dissect_propagationDelayCompensation(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD_sequence[] = {
-  { "cSBMeasurementID"      , &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
-  { "sYNCDlCodeId"          , &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
-  { "uARFCN"                , &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
-  { "propagationDelayCompensation", &hf_nbap_propagationDelayCompensation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimingAdjustmentValueLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cSBMeasurementID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CSBMeasurementID },
+  { &hf_nbap_sYNCDlCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
+  { &hf_nbap_uARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UARFCN },
+  { &hf_nbap_propagationDelayCompensation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TimingAdjustmentValueLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27874,7 +27874,7 @@ static int dissect_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_item(tvbuff_t *
 
 
 static const per_sequence_t SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD },
+  { &hf_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -27891,10 +27891,10 @@ static int dissect_sYNCDlCodeIdInfoLCR(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD_sequence[] = {
-  { "syncFrameNrToReceive"  , &hf_nbap_syncFrameNrToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "sYNCDlCodeIdInfoLCR"   , &hf_nbap_sYNCDlCodeIdInfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncFrameNrToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_sYNCDlCodeIdInfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27910,7 +27910,7 @@ static int dissect_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_item(tvbuff_t 
 
 
 static const per_sequence_t SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD },
+  { &hf_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -27930,11 +27930,11 @@ static int dissect_sYNCDlCodeIdMeasInfoList(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD_sequence[] = {
-  { "sYNCDlCodeIdMeasInfoList", &hf_nbap_sYNCDlCodeIdMeasInfoList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD },
-  { "synchronisationReportType", &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportType },
-  { "synchronisationReportCharacteristics", &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharacteristics },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sYNCDlCodeIdMeasInfoList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD },
+  { &hf_nbap_synchronisationReportType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportType },
+  { &hf_nbap_synchronisationReportCharacteristics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SynchronisationReportCharacteristics },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -27978,10 +27978,10 @@ static int dissect_syncDLCodeIdArrivTime(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t SyncDLCodeIdAvailable_CellSyncReprtTDD_sequence[] = {
-  { "syncDLCodeIdTiming"    , &hf_nbap_syncDLCodeIdTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTimingLCR },
-  { "syncDLCodeIdSIR"       , &hf_nbap_syncDLCodeIdSIR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstSIR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncDLCodeIdTiming, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstTimingLCR },
+  { &hf_nbap_syncDLCodeIdSIR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstSIR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28022,7 +28022,7 @@ static int dissect_SyncDLCodeIdInfo_CellSyncReprtTDD_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t SyncDLCodeIdInfo_CellSyncReprtTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdItem_CellSyncReprtTDD },
+  { &hf_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdItem_CellSyncReprtTDD },
 };
 
 static int
@@ -28039,10 +28039,10 @@ static int dissect_syncDLCodeIdInfo_CellSyncReprtTDD(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD_sequence[] = {
-  { "sFN"                   , &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
-  { "syncDLCodeIdInfo-CellSyncReprtTDD", &hf_nbap_syncDLCodeIdInfo_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sFN            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SFN },
+  { &hf_nbap_syncDLCodeIdInfo_CellSyncReprtTDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28058,7 +28058,7 @@ static int dissect_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_item(tvbuff_t *tvb
 
 
 static const per_sequence_t SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD },
+  { &hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD },
 };
 
 static int
@@ -28075,11 +28075,11 @@ static int dissect_id_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t SyncDLCodeInfoItemLCR_sequence[] = {
-  { "syncDLCodeId"          , &hf_nbap_syncDLCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
-  { "syncDLCodeIdArrivTime" , &hf_nbap_syncDLCodeIdArrivTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingLCR },
-  { "syncDLCodeIdTimingThre", &hf_nbap_syncDLCodeIdTimingThre, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingThreshold },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncDLCodeId   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SYNCDlCodeId },
+  { &hf_nbap_syncDLCodeIdArrivTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingLCR },
+  { &hf_nbap_syncDLCodeIdTimingThre, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CellSyncBurstTimingThreshold },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28095,7 +28095,7 @@ static int dissect_SyncDLCodeInfoListLCR_item(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t SyncDLCodeInfoListLCR_sequence_of[1] = {
-  { ""                      , &hf_nbap_SyncDLCodeInfoListLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeInfoItemLCR },
+  { &hf_nbap_SyncDLCodeInfoListLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeInfoItemLCR },
 };
 
 static int
@@ -28112,10 +28112,10 @@ static int dissect_syncDLCodeIdInfoLCR(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t SyncDLCodeIdThreInfoList_sequence[] = {
-  { "syncFrameNoToReceive"  , &hf_nbap_syncFrameNoToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "syncDLCodeIdInfoLCR"   , &hf_nbap_syncDLCodeIdInfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeInfoListLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncFrameNoToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_syncDLCodeIdInfoLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeInfoListLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28131,7 +28131,7 @@ static int dissect_SyncDLCodeIdThreInfoLCR_item(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t SyncDLCodeIdThreInfoLCR_sequence_of[1] = {
-  { ""                      , &hf_nbap_SyncDLCodeIdThreInfoLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdThreInfoList },
+  { &hf_nbap_SyncDLCodeIdThreInfoLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SyncDLCodeIdThreInfoList },
 };
 
 static int
@@ -28199,10 +28199,10 @@ static int dissect_aOA_LCR_Accuracy_Class(tvbuff_t *tvb, int offset, asn_ctx_t *
 
 
 static const per_sequence_t Angle_Of_Arrival_Value_LCR_sequence[] = {
-  { "aOA-LCR"               , &hf_nbap_aOA_LCR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AOA_LCR },
-  { "aOA-LCR-Accuracy-Class", &hf_nbap_aOA_LCR_Accuracy_Class, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AOA_LCR_Accuracy_Class },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_aOA_LCR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AOA_LCR },
+  { &hf_nbap_aOA_LCR_Accuracy_Class, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AOA_LCR_Accuracy_Class },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28237,12 +28237,12 @@ static int dissect_associatedHSDSCH_MACdFlow(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_sequence[] = {
-  { "hsDSCH-MACdFlow-ID"    , &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28258,7 +28258,7 @@ static int dissect_HSDSCH_MACdFlow_Specific_InfoList_item(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoList_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem },
+  { &hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem },
 };
 
 static int
@@ -28450,10 +28450,10 @@ static int dissect_macdPDU_Size(tvbuff_t *tvb, int offset, asn_ctx_t *actx, prot
 
 
 static const per_sequence_t MACdPDU_Size_IndexItem_sequence[] = {
-  { "sID"                   , &hf_nbap_sID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SID },
-  { "macdPDU-Size"          , &hf_nbap_macdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SID },
+  { &hf_nbap_macdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28469,7 +28469,7 @@ static int dissect_MACdPDU_Size_Indexlist_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t MACdPDU_Size_Indexlist_sequence_of[1] = {
-  { ""                      , &hf_nbap_MACdPDU_Size_Indexlist_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_IndexItem },
+  { &hf_nbap_MACdPDU_Size_Indexlist_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_IndexItem },
 };
 
 static int
@@ -28505,17 +28505,17 @@ static int dissect_rLC_Mode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tr
 
 
 static const per_sequence_t PriorityQueue_InfoItem_sequence[] = {
-  { "priorityQueueId"       , &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
-  { "associatedHSDSCH-MACdFlow", &hf_nbap_associatedHSDSCH_MACdFlow, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "t1"                    , &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T1 },
-  { "discardTimer"          , &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
-  { "mAC-hsWindowSize"      , &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAC_hsWindowSize },
-  { "mAChsGuaranteedBitRate", &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
-  { "macdPDU-Size-Index"    , &hf_nbap_macdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_Indexlist },
-  { "rLC-Mode"              , &hf_nbap_rLC_Mode       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RLC_Mode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
+  { &hf_nbap_associatedHSDSCH_MACdFlow, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T1 },
+  { &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
+  { &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAC_hsWindowSize },
+  { &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
+  { &hf_nbap_macdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_Indexlist },
+  { &hf_nbap_rLC_Mode       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RLC_Mode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28531,7 +28531,7 @@ static int dissect_PriorityQueue_InfoList_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t PriorityQueue_InfoList_sequence_of[1] = {
-  { ""                      , &hf_nbap_PriorityQueue_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoItem },
+  { &hf_nbap_PriorityQueue_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoItem },
 };
 
 static int
@@ -28548,10 +28548,10 @@ static int dissect_priorityQueue_Info(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t HSDSCH_MACdFlows_Information_sequence[] = {
-  { "hSDSCH-MACdFlow-Specific-Info", &hf_nbap_hSDSCH_MACdFlow_Specific_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList },
-  { "priorityQueue-Info"    , &hf_nbap_priorityQueue_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hSDSCH_MACdFlow_Specific_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList },
+  { &hf_nbap_priorityQueue_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28583,9 +28583,9 @@ static int dissect_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t UE_Capability_Information_sequence[] = {
-  { "hSDSCH-Physical-Layer-Category", &hf_nbap_hSDSCH_Physical_Layer_Category, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_64_ },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hSDSCH_Physical_Layer_Category, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_64_ },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28731,19 +28731,19 @@ static int dissect_measurement_Power_Offset(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t HSDSCH_FDD_Information_sequence[] = {
-  { "hSDSCH-MACdFlows-Information", &hf_nbap_hSDSCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_Information },
-  { "ueCapability-Info"     , &hf_nbap_ueCapability_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UE_Capability_Information },
-  { "mAChs-Reordering-Buffer-Size-for-RLC-UM", &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
-  { "cqiFeedback-CycleK"    , &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CQI_Feedback_Cycle },
-  { "cqiRepetitionFactor"   , &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
-  { "ackNackRepetitionFactor", &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AckNack_RepetitionFactor },
-  { "cqiPowerOffset"        , &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CQI_Power_Offset },
-  { "ackPowerOffset"        , &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Ack_Power_Offset },
-  { "nackPowerOffset"       , &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Nack_Power_Offset },
-  { "hsscch-PowerOffset"    , &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
-  { "measurement-Power-Offset", &hf_nbap_measurement_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Measurement_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hSDSCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_Information },
+  { &hf_nbap_ueCapability_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UE_Capability_Information },
+  { &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
+  { &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CQI_Feedback_Cycle },
+  { &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
+  { &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AckNack_RepetitionFactor },
+  { &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CQI_Power_Offset },
+  { &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Ack_Power_Offset },
+  { &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Nack_Power_Offset },
+  { &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
+  { &hf_nbap_measurement_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Measurement_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28772,11 +28772,11 @@ static int dissect_hSDSCH_InitialWindowSize(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t HSDSCH_Initial_Capacity_AllocationItem_sequence[] = {
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "maximum-MACdPDU-Size"  , &hf_nbap_maximum_MACdPDU_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
-  { "hSDSCH-InitialWindowSize", &hf_nbap_hSDSCH_InitialWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_InitialWindowSize },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_maximum_MACdPDU_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
+  { &hf_nbap_hSDSCH_InitialWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_InitialWindowSize },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28792,7 +28792,7 @@ static int dissect_HSDSCH_Initial_Capacity_Allocation_item(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t HSDSCH_Initial_Capacity_Allocation_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_Initial_Capacity_Allocation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_Initial_Capacity_AllocationItem },
+  { &hf_nbap_HSDSCH_Initial_Capacity_Allocation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_Initial_Capacity_AllocationItem },
 };
 
 static int
@@ -28809,12 +28809,12 @@ static int dissect_hSDSCH_Initial_Capacity_Allocation(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InformationResp_Item_sequence[] = {
-  { "hsDSCHMacdFlow-Id"     , &hf_nbap_hsDSCHMacdFlow_Id, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "hSDSCH-Initial-Capacity-Allocation", &hf_nbap_hSDSCH_Initial_Capacity_Allocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_Initial_Capacity_Allocation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCHMacdFlow_Id, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_hSDSCH_Initial_Capacity_Allocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_Initial_Capacity_Allocation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28830,7 +28830,7 @@ static int dissect_HSDSCH_MACdFlow_Specific_InformationResp_item(tvbuff_t *tvb, 
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InformationResp_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_MACdFlow_Specific_InformationResp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item },
+  { &hf_nbap_HSDSCH_MACdFlow_Specific_InformationResp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item },
 };
 
 static int
@@ -28847,9 +28847,9 @@ static int dissect_hsDSCH_MACdFlow_Specific_InformationResp(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t HSSCCH_Codes_sequence[] = {
-  { "codeNumber"            , &hf_nbap_codeNumber     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_127 },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_codeNumber     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_0_127 },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28865,7 +28865,7 @@ static int dissect_HSSCCH_Specific_InformationRespListFDD_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t HSSCCH_Specific_InformationRespListFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSSCCH_Specific_InformationRespListFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Codes },
+  { &hf_nbap_HSSCCH_Specific_InformationRespListFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Codes },
 };
 
 static int
@@ -28895,9 +28895,9 @@ static int dissect_number_of_Processes(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t HARQ_MemoryPartitioning_Implicit_sequence[] = {
-  { "number-of-Processes"   , &hf_nbap_number_of_Processes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_8_ },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_number_of_Processes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_INTEGER_1_8_ },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -28991,9 +28991,9 @@ static int dissect_process_Memory_Size(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t HARQ_MemoryPartitioningItem_sequence[] = {
-  { "process-Memory-Size"   , &hf_nbap_process_Memory_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_process_Memory_Size },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_process_Memory_Size, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T_process_Memory_Size },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29009,7 +29009,7 @@ static int dissect_HARQ_MemoryPartitioningList_item(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t HARQ_MemoryPartitioningList_sequence_of[1] = {
-  { ""                      , &hf_nbap_HARQ_MemoryPartitioningList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HARQ_MemoryPartitioningItem },
+  { &hf_nbap_HARQ_MemoryPartitioningList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HARQ_MemoryPartitioningItem },
 };
 
 static int
@@ -29026,9 +29026,9 @@ static int dissect_hARQ_MemoryPartitioningList(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t HARQ_MemoryPartitioning_Explicit_sequence[] = {
-  { "hARQ-MemoryPartitioningList", &hf_nbap_hARQ_MemoryPartitioningList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HARQ_MemoryPartitioningList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hARQ_MemoryPartitioningList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HARQ_MemoryPartitioningList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29069,11 +29069,11 @@ static int dissect_hARQ_MemoryPartitioning(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t HSDSCH_FDD_Information_Response_sequence[] = {
-  { "hsDSCH-MACdFlow-Specific-InformationResp", &hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp },
-  { "hsSCCH-Specific-Information-ResponseFDD", &hf_nbap_hsSCCH_Specific_Information_ResponseFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListFDD },
-  { "hARQ-MemoryPartitioning", &hf_nbap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_MemoryPartitioning },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp },
+  { &hf_nbap_hsSCCH_Specific_Information_ResponseFDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListFDD },
+  { &hf_nbap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_MemoryPartitioning },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29089,13 +29089,13 @@ static int dissect_id_HSDSCH_FDD_Information_Response(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence[] = {
-  { "hsDSCH-MACdFlow-ID"    , &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29111,7 +29111,7 @@ static int dissect_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item(tvbuff_t *tv
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoList_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify },
+  { &hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify },
 };
 
 static int
@@ -29128,17 +29128,17 @@ static int dissect_hsDSCH_MACdFlow_Specific_Info_to_Modify(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PriorityQueue_InfoItem_to_Add_sequence[] = {
-  { "priorityQueueId"       , &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
-  { "associatedHSDSCH-MACdFlow", &hf_nbap_associatedHSDSCH_MACdFlow, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "t1"                    , &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T1 },
-  { "discardTimer"          , &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
-  { "mAC-hsWindowSize"      , &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAC_hsWindowSize },
-  { "mAChsGuaranteedBitRate", &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
-  { "macdPDU-Size-Index"    , &hf_nbap_macdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_Indexlist },
-  { "rLC-Mode"              , &hf_nbap_rLC_Mode       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RLC_Mode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
+  { &hf_nbap_associatedHSDSCH_MACdFlow, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_T1 },
+  { &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
+  { &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAC_hsWindowSize },
+  { &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
+  { &hf_nbap_macdPDU_Size_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_Indexlist },
+  { &hf_nbap_rLC_Mode       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RLC_Mode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29154,10 +29154,10 @@ static int dissect_addPriorityQueue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, 
 
 
 static const per_sequence_t MACdPDU_Size_IndexItem_to_Modify_sequence[] = {
-  { "sID"                   , &hf_nbap_sID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SID },
-  { "macdPDU-Size"          , &hf_nbap_macdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_sID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SID },
+  { &hf_nbap_macdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29173,7 +29173,7 @@ static int dissect_MACdPDU_Size_Indexlist_to_Modify_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t MACdPDU_Size_Indexlist_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_MACdPDU_Size_Indexlist_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_IndexItem_to_Modify },
+  { &hf_nbap_MACdPDU_Size_Indexlist_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size_IndexItem_to_Modify },
 };
 
 static int
@@ -29190,15 +29190,15 @@ static int dissect_macdPDU_Size_Index_to_Modify(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t PriorityQueue_InfoItem_to_Modify_sequence[] = {
-  { "priorityQueueId"       , &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
-  { "t1"                    , &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_T1 },
-  { "discardTimer"          , &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
-  { "mAC-hsWindowSize"      , &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAC_hsWindowSize },
-  { "mAChsGuaranteedBitRate", &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
-  { "macdPDU-Size-Index-to-Modify", &hf_nbap_macdPDU_Size_Index_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACdPDU_Size_Indexlist_to_Modify },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_t1             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_T1 },
+  { &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
+  { &hf_nbap_mAC_hsWindowSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAC_hsWindowSize },
+  { &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
+  { &hf_nbap_macdPDU_Size_Index_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACdPDU_Size_Indexlist_to_Modify },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29241,7 +29241,7 @@ static int dissect_PriorityQueue_InfoList_to_Modify_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t PriorityQueue_InfoList_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_PriorityQueue_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ModifyPriorityQueue },
+  { &hf_nbap_PriorityQueue_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ModifyPriorityQueue },
 };
 
 static int
@@ -29292,21 +29292,21 @@ static int dissect_tDDAckNackPowerOffset(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t HSDSCH_Information_to_Modify_sequence[] = {
-  { "hsDSCH-MACdFlow-Specific-Info-to-Modify", &hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify },
-  { "priorityQueueInfotoModify", &hf_nbap_priorityQueueInfotoModify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PriorityQueue_InfoList_to_Modify },
-  { "mAChs-Reordering-Buffer-Size-for-RLC-UM", &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
-  { "cqiFeedback-CycleK"    , &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Feedback_Cycle },
-  { "cqiRepetitionFactor"   , &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
-  { "ackNackRepetitionFactor", &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AckNack_RepetitionFactor },
-  { "cqiPowerOffset"        , &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
-  { "ackPowerOffset"        , &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
-  { "nackPowerOffset"       , &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
-  { "hsscch-PowerOffset"    , &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
-  { "measurement-Power-Offset", &hf_nbap_measurement_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Measurement_Power_Offset },
-  { "hSSCCHCodeChangeGrant" , &hf_nbap_hSSCCHCodeChangeGrant, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Code_Change_Grant },
-  { "tDDAckNackPowerOffset" , &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify },
+  { &hf_nbap_priorityQueueInfotoModify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PriorityQueue_InfoList_to_Modify },
+  { &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
+  { &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Feedback_Cycle },
+  { &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
+  { &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AckNack_RepetitionFactor },
+  { &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
+  { &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
+  { &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
+  { &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
+  { &hf_nbap_measurement_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Measurement_Power_Offset },
+  { &hf_nbap_hSSCCHCodeChangeGrant, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Code_Change_Grant },
+  { &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29335,12 +29335,12 @@ static int dissect_id_HSDSCH_RNTI(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t HSDSCH_TDD_Information_sequence[] = {
-  { "hSDSCH-MACdFlows-Information", &hf_nbap_hSDSCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_Information },
-  { "ueCapability-Info"     , &hf_nbap_ueCapability_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UE_Capability_Information },
-  { "mAChs-Reordering-Buffer-Size-for-RLC-UM", &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
-  { "tDD-AckNack-Power-Offset", &hf_nbap_tDD_AckNack_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_AckNack_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hSDSCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_Information },
+  { &hf_nbap_ueCapability_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UE_Capability_Information },
+  { &hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MAChsReorderingBufferSize_for_RLC_UM },
+  { &hf_nbap_tDD_AckNack_Power_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_AckNack_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29356,12 +29356,12 @@ static int dissect_id_HSDSCH_TDD_Information(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t HSSICH_Info_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeslot"              , &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tDD-ChannelisationCode", &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29377,12 +29377,12 @@ static int dissect_hSSICH_Info(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t HSSCCH_Specific_InformationRespItemTDD_sequence[] = {
-  { "timeslot"              , &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleShiftAndBurstType", &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "tDD-ChannelisationCode", &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "hSSICH-Info"           , &hf_nbap_hSSICH_Info    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSSICH_Info },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeslot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleShiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hSSICH_Info    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSSICH_Info },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29398,7 +29398,7 @@ static int dissect_HSSCCH_Specific_InformationRespListTDD_item(tvbuff_t *tvb, in
 
 
 static const per_sequence_t HSSCCH_Specific_InformationRespListTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSSCCH_Specific_InformationRespListTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Specific_InformationRespItemTDD },
+  { &hf_nbap_HSSCCH_Specific_InformationRespListTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Specific_InformationRespItemTDD },
 };
 
 static int
@@ -29415,12 +29415,12 @@ static int dissect_hsSCCH_Specific_Information_ResponseTDD(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t HSSICH_InfoLCR_sequence[] = {
-  { "hsSICH-ID"             , &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
-  { "timeslotLCR"           , &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "tDD-ChannelisationCode", &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSICH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_tDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29436,13 +29436,13 @@ static int dissect_hSSICH_InfoLCR(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pr
 
 
 static const per_sequence_t HSSCCH_Specific_InformationRespItemTDDLCR_sequence[] = {
-  { "timeslotLCR"           , &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "first-TDD-ChannelisationCode", &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "second-TDD-ChannelisationCode", &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "hSSICH-InfoLCR"        , &hf_nbap_hSSICH_InfoLCR , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSSICH_InfoLCR },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeslotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_first_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_second_TDD_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_hSSICH_InfoLCR , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSSICH_InfoLCR },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29458,7 +29458,7 @@ static int dissect_HSSCCH_Specific_InformationRespListTDDLCR_item(tvbuff_t *tvb,
 
 
 static const per_sequence_t HSSCCH_Specific_InformationRespListTDDLCR_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSSCCH_Specific_InformationRespListTDDLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Specific_InformationRespItemTDDLCR },
+  { &hf_nbap_HSSCCH_Specific_InformationRespListTDDLCR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSSCCH_Specific_InformationRespItemTDDLCR },
 };
 
 static int
@@ -29475,12 +29475,12 @@ static int dissect_hsSCCH_Specific_Information_ResponseTDDLCR(tvbuff_t *tvb, int
 
 
 static const per_sequence_t HSDSCH_TDD_Information_Response_sequence[] = {
-  { "hsDSCH-MACdFlow-Specific-InformationResp", &hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp },
-  { "hsSCCH-Specific-Information-ResponseTDD", &hf_nbap_hsSCCH_Specific_Information_ResponseTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListTDD },
-  { "hsSCCH-Specific-Information-ResponseTDDLCR", &hf_nbap_hsSCCH_Specific_Information_ResponseTDDLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListTDDLCR },
-  { "hARQ-MemoryPartitioning", &hf_nbap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_MemoryPartitioning },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp },
+  { &hf_nbap_hsSCCH_Specific_Information_ResponseTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListTDD },
+  { &hf_nbap_hsSCCH_Specific_Information_ResponseTDDLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_Specific_InformationRespListTDDLCR },
+  { &hf_nbap_hARQ_MemoryPartitioning, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_MemoryPartitioning },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29509,9 +29509,9 @@ static int dissect_id_PrimCCPCH_RSCP_DL_PC_RqstTDD(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t HSDSCH_RearrangeItem_Bearer_RearrangeInd_sequence[] = {
-  { "hsDSCH-MACdFlow-ID"    , &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29527,7 +29527,7 @@ static int dissect_HSDSCH_RearrangeList_Bearer_RearrangeInd_item(tvbuff_t *tvb, 
 
 
 static const per_sequence_t HSDSCH_RearrangeList_Bearer_RearrangeInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_RearrangeItem_Bearer_RearrangeInd },
+  { &hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_RearrangeItem_Bearer_RearrangeInd },
 };
 
 static int
@@ -29570,10 +29570,10 @@ static int dissect_uL_Synchronisation_Frequency(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t UL_Synchronisation_Parameters_LCR_sequence[] = {
-  { "uL-Synchronisation-StepSize", &hf_nbap_uL_Synchronisation_StepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Synchronisation_StepSize },
-  { "uL-Synchronisation-Frequency", &hf_nbap_uL_Synchronisation_Frequency, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Synchronisation_Frequency },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_uL_Synchronisation_StepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Synchronisation_StepSize },
+  { &hf_nbap_uL_Synchronisation_Frequency, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_UL_Synchronisation_Frequency },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29607,15 +29607,15 @@ static int dissect_hsSCCHCodeChangeIndicator(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t HSDSCH_FDD_Update_Information_sequence[] = {
-  { "hsSCCHCodeChangeIndicator", &hf_nbap_hsSCCHCodeChangeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_CodeChangeIndicator },
-  { "cqiFeedback-CycleK"    , &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Feedback_Cycle },
-  { "cqiRepetitionFactor"   , &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
-  { "ackNackRepetitionFactor", &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AckNack_RepetitionFactor },
-  { "cqiPowerOffset"        , &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
-  { "ackPowerOffset"        , &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
-  { "nackPowerOffset"       , &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSCCHCodeChangeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_CodeChangeIndicator },
+  { &hf_nbap_cqiFeedback_CycleK, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Feedback_Cycle },
+  { &hf_nbap_cqiRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_RepetitionFactor },
+  { &hf_nbap_ackNackRepetitionFactor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AckNack_RepetitionFactor },
+  { &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
+  { &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
+  { &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29631,10 +29631,10 @@ static int dissect_id_HSDSCH_FDD_Update_Information(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t HSDSCH_TDD_Update_Information_sequence[] = {
-  { "hsSCCHCodeChangeIndicator", &hf_nbap_hsSCCHCodeChangeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_CodeChangeIndicator },
-  { "tDDAckNackPowerOffset" , &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsSCCHCodeChangeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_CodeChangeIndicator },
+  { &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29682,11 +29682,11 @@ static int dissect_tDD_TPC_UplinkStepSize_LCR(tvbuff_t *tvb, int offset, asn_ctx
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD_sequence[] = {
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "maxPowerLCR"           , &hf_nbap_maxPowerLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minPowerLCR"           , &hf_nbap_minPowerLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_maxPowerLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minPowerLCR    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29702,7 +29702,7 @@ static int dissect_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD },
+  { &hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD },
 };
 
 static int
@@ -29719,9 +29719,9 @@ static int dissect_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD
 
 
 static const per_sequence_t DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_sequence[] = {
-  { "dL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD", &hf_nbap_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29753,10 +29753,10 @@ static int dissect_hS_DSCHProvidedBitRateValue(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t HS_DSCHProvidedBitRate_Item_sequence[] = {
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "hS-DSCHProvidedBitRateValue", &hf_nbap_hS_DSCHProvidedBitRateValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRateValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_hS_DSCHProvidedBitRateValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRateValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29772,7 +29772,7 @@ static int dissect_HS_DSCHProvidedBitRate_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t HS_DSCHProvidedBitRate_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_DSCHProvidedBitRate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRate_Item },
+  { &hf_nbap_HS_DSCHProvidedBitRate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRate_Item },
 };
 
 static int
@@ -29824,10 +29824,10 @@ static int dissect_hS_DSCHRequiredPowerPerUEWeight(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t HS_DSCHRequiredPowerPerUEInformation_Item_sequence[] = {
-  { "cRNC-CommunicationContextID", &hf_nbap_cRNC_CommunicationContextID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CRNC_CommunicationContextID },
-  { "hS-DSCHRequiredPowerPerUEWeight", &hf_nbap_hS_DSCHRequiredPowerPerUEWeight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_DSCHRequiredPowerPerUEWeight },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cRNC_CommunicationContextID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CRNC_CommunicationContextID },
+  { &hf_nbap_hS_DSCHRequiredPowerPerUEWeight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_DSCHRequiredPowerPerUEWeight },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29843,7 +29843,7 @@ static int dissect_HS_DSCHRequiredPowerPerUEInformation_item(tvbuff_t *tvb, int 
 
 
 static const per_sequence_t HS_DSCHRequiredPowerPerUEInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_DSCHRequiredPowerPerUEInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerPerUEInformation_Item },
+  { &hf_nbap_HS_DSCHRequiredPowerPerUEInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerPerUEInformation_Item },
 };
 
 static int
@@ -29860,11 +29860,11 @@ static int dissect_hS_DSCHRequiredPowerPerUEInformation(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t HS_DSCHRequiredPower_Item_sequence[] = {
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "hS-DSCHRequiredPowerValue", &hf_nbap_hS_DSCHRequiredPowerValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerValue },
-  { "hS-DSCHRequiredPowerPerUEInformation", &hf_nbap_hS_DSCHRequiredPowerPerUEInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_DSCHRequiredPowerPerUEInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_hS_DSCHRequiredPowerValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerValue },
+  { &hf_nbap_hS_DSCHRequiredPowerPerUEInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_DSCHRequiredPowerPerUEInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29880,7 +29880,7 @@ static int dissect_HS_DSCHRequiredPower_item(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t HS_DSCHRequiredPower_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_DSCHRequiredPower_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPower_Item },
+  { &hf_nbap_HS_DSCHRequiredPower_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPower_Item },
 };
 
 static int
@@ -29958,11 +29958,11 @@ static int dissect_total_HS_SICH(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t HS_SICH_Reception_Quality_Value_sequence[] = {
-  { "failed-HS-SICH"        , &hf_nbap_failed_HS_SICH , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_failed },
-  { "missed-HS-SICH"        , &hf_nbap_missed_HS_SICH , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_missed },
-  { "total-HS-SICH"         , &hf_nbap_total_HS_SICH  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_total },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_failed_HS_SICH , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_failed },
+  { &hf_nbap_missed_HS_SICH , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_missed },
+  { &hf_nbap_total_HS_SICH  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_total },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -29991,7 +29991,7 @@ static int dissect_id_HS_SICH_Reception_Quality_Measurement_Value(tvbuff_t *tvb,
 
 
 static const per_sequence_t HSSICH_Info_DM_Rqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSSICH_Info_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
+  { &hf_nbap_HSSICH_Info_DM_Rqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_SICH_ID },
 };
 
 static int
@@ -30021,10 +30021,10 @@ static int dissect_cellPortionID(tvbuff_t *tvb, int offset, asn_ctx_t *actx, pro
 
 
 static const per_sequence_t Best_Cell_Portions_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "sIRValue"              , &hf_nbap_sIRValue       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SIR_Value },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_sIRValue       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SIR_Value },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30040,7 +30040,7 @@ static int dissect_Best_Cell_Portions_Value_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t Best_Cell_Portions_Value_sequence_of[1] = {
-  { ""                      , &hf_nbap_Best_Cell_Portions_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Best_Cell_Portions_Item },
+  { &hf_nbap_Best_Cell_Portions_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Best_Cell_Portions_Item },
 };
 
 static int
@@ -30114,11 +30114,11 @@ static int dissect_id_NumberOfReportedCellPortions(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t CellPortion_InformationItem_Cell_SetupRqstFDD_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "associatedSecondaryCPICH", &hf_nbap_associatedSecondaryCPICH, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "maximumTransmissionPowerforCellPortion", &hf_nbap_maximumTransmissionPowerforCellPortion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumTransmissionPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_associatedSecondaryCPICH, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_maximumTransmissionPowerforCellPortion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumTransmissionPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30134,7 +30134,7 @@ static int dissect_id_CellPortion_InformationItem_Cell_SetupRqstFDD(tvbuff_t *tv
 
 
 static const per_sequence_t CellPortion_InformationList_Cell_SetupRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -30170,13 +30170,13 @@ static int dissect_id_Unidirectional_DCH_Indicator(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD_sequence[] = {
-  { "ul-DPCH-InformationList", &hf_nbap_ul_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationAddList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationListLCR", &hf_nbap_ul_DPCH_InformationListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD },
-  { "ul-sir-target"         , &hf_nbap_ul_sir_target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
-  { "tDD-TPC-UplinkStepSize-LCR", &hf_nbap_tDD_TPC_UplinkStepSize_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_UplinkStepSize_LCR },
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_sir_target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
+  { &hf_nbap_tDD_TPC_UplinkStepSize_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_UplinkStepSize_LCR },
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30192,7 +30192,7 @@ static int dissect_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_item(t
 
 
 static const per_sequence_t MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD },
+  { &hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD },
 };
 
 static int
@@ -30209,15 +30209,15 @@ static int dissect_id_multipleRL_ul_DPCH_InformationList(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD_sequence[] = {
-  { "ul-DPCH-InformationAddList", &hf_nbap_ul_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationModifyList", &hf_nbap_ul_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationDeleteList", &hf_nbap_ul_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
-  { "ul-DPCH-InformationAddListLCR", &hf_nbap_ul_DPCH_InformationAddListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "ul-sir-target"         , &hf_nbap_ul_sir_target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
-  { "tDD-TPC-UplinkStepSize-LCR", &hf_nbap_tDD_TPC_UplinkStepSize_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_UplinkStepSize_LCR },
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_ul_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_DPCH_InformationAddListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_ul_sir_target  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_SIR },
+  { &hf_nbap_tDD_TPC_UplinkStepSize_LCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_UplinkStepSize_LCR },
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30233,7 +30233,7 @@ static int dissect_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_ite
 
 
 static const per_sequence_t MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD },
+  { &hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD },
 };
 
 static int
@@ -30250,21 +30250,21 @@ static int dissect_id_multipleRL_ul_DPCH_InformationModifyList(tvbuff_t *tvb, in
 
 
 static const per_sequence_t SAT_Info_Almanac_ExtItem_sequence[] = {
-  { "data-id"               , &hf_nbap_data_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DATA_ID },
-  { "sat-id"                , &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
-  { "gps-e-alm"             , &hf_nbap_gps_e_alm      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "gps-toa-alm"           , &hf_nbap_gps_toa_alm    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "gps-delta-I-alm"       , &hf_nbap_gps_delta_I_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "omegadot-alm"          , &hf_nbap_omegadot_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
-  { "svhealth-alm"          , &hf_nbap_svhealth_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
-  { "gps-a-sqrt-alm"        , &hf_nbap_gps_a_sqrt_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "omegazero-alm"         , &hf_nbap_omegazero_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "m-zero-alm"            , &hf_nbap_m_zero_alm     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "gps-omega-alm"         , &hf_nbap_gps_omega_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
-  { "gps-af-zero-alm"       , &hf_nbap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
-  { "gps-af-one-alm"        , &hf_nbap_gps_af_one_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
-  { "ie-Extensions"         , &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_data_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DATA_ID },
+  { &hf_nbap_sat_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_ID },
+  { &hf_nbap_gps_e_alm      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_gps_toa_alm    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_gps_delta_I_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_omegadot_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_16 },
+  { &hf_nbap_svhealth_alm   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_8 },
+  { &hf_nbap_gps_a_sqrt_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_omegazero_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_m_zero_alm     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_gps_omega_alm  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_24 },
+  { &hf_nbap_gps_af_zero_alm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
+  { &hf_nbap_gps_af_one_alm , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_BIT_STRING_SIZE_11 },
+  { &hf_nbap_ie_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30302,10 +30302,10 @@ static int dissect_id_HSDPA_Capability(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t HS_DSCH_Resources_Information_AuditRsp_sequence[] = {
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30321,10 +30321,10 @@ static int dissect_id_HSDSCH_Resources_Information_AuditRsp(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t HS_DSCH_Resources_Information_ResourceStatusInd_sequence[] = {
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30340,9 +30340,9 @@ static int dissect_id_HSDSCH_Resources_Information_ResourceStatusInd(tvbuff_t *t
 
 
 static const per_sequence_t HSDSCH_MACdFlows_to_Delete_Item_sequence[] = {
-  { "hsDSCH-MACdFlow-ID"    , &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlow_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30358,7 +30358,7 @@ static int dissect_HSDSCH_MACdFlows_to_Delete_item(tvbuff_t *tvb, int offset, as
 
 
 static const per_sequence_t HSDSCH_MACdFlows_to_Delete_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDSCH_MACdFlows_to_Delete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_to_Delete_Item },
+  { &hf_nbap_HSDSCH_MACdFlows_to_Delete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDSCH_MACdFlows_to_Delete_Item },
 };
 
 static int
@@ -30375,12 +30375,12 @@ static int dissect_id_HSDSCH_MACdFlows_to_Delete(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t PriorityQueue_InfoItem_to_Modify_Unsynchronised_sequence[] = {
-  { "priorityQueueId"       , &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
-  { "discardTimer"          , &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
-  { "mAChsGuaranteedBitRate", &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_priorityQueueId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_Id },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DiscardTimer },
+  { &hf_nbap_mAChsGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MAChsGuaranteedBitRate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30396,7 +30396,7 @@ static int dissect_PriorityQueue_InfoList_to_Modify_Unsynchronised_item(tvbuff_t
 
 
 static const per_sequence_t PriorityQueue_InfoList_to_Modify_Unsynchronised_sequence_of[1] = {
-  { ""                      , &hf_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoItem_to_Modify_Unsynchronised },
+  { &hf_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PriorityQueue_InfoItem_to_Modify_Unsynchronised },
 };
 
 static int
@@ -30413,15 +30413,15 @@ static int dissect_priorityQueueInfotoModifyUnsynchronised(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t HSDSCH_Information_to_Modify_Unsynchronised_sequence[] = {
-  { "hsDSCH-MACdFlow-Specific-Info-to-Modify", &hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify },
-  { "priorityQueueInfotoModifyUnsynchronised", &hf_nbap_priorityQueueInfotoModifyUnsynchronised, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised },
-  { "cqiPowerOffset"        , &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
-  { "ackPowerOffset"        , &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
-  { "nackPowerOffset"       , &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
-  { "hsscch-PowerOffset"    , &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
-  { "tDDAckNackPowerOffset" , &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify },
+  { &hf_nbap_priorityQueueInfotoModifyUnsynchronised, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised },
+  { &hf_nbap_cqiPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_CQI_Power_Offset },
+  { &hf_nbap_ackPowerOffset , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Ack_Power_Offset },
+  { &hf_nbap_nackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Nack_Power_Offset },
+  { &hf_nbap_hsscch_PowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HSSCCH_PowerOffset },
+  { &hf_nbap_tDDAckNackPowerOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_AckNack_Power_Offset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30491,10 +30491,10 @@ static int dissect_tnlQos(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree
 
 
 static const per_sequence_t Received_total_wide_band_power_For_CellPortion_Value_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "received-total-wide-band-power-value", &hf_nbap_received_total_wide_band_power_value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_received_total_wide_band_power_value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_Value },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30510,7 +30510,7 @@ static int dissect_Received_total_wide_band_power_For_CellPortion_Value_item(tvb
 
 
 static const per_sequence_t Received_total_wide_band_power_For_CellPortion_Value_sequence_of[1] = {
-  { ""                      , &hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_For_CellPortion_Value_Item },
+  { &hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Received_total_wide_band_power_For_CellPortion_Value_Item },
 };
 
 static int
@@ -30527,10 +30527,10 @@ static int dissect_id_Received_total_wide_band_power_For_CellPortion_Value(tvbuf
 
 
 static const per_sequence_t Transmitted_Carrier_Power_For_CellPortion_Value_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "transmitted-Carrier-Power-Value", &hf_nbap_transmitted_Carrier_Power_Value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Transmitted_Carrier_Power_Value },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_transmitted_Carrier_Power_Value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Transmitted_Carrier_Power_Value },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30546,7 +30546,7 @@ static int dissect_Transmitted_Carrier_Power_For_CellPortion_Value_item(tvbuff_t
 
 
 static const per_sequence_t Transmitted_Carrier_Power_For_CellPortion_Value_sequence_of[1] = {
-  { ""                      , &hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_Item },
+  { &hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_Item },
 };
 
 static int
@@ -30563,10 +30563,10 @@ static int dissect_id_Transmitted_Carrier_Power_For_CellPortion_Value(tvbuff_t *
 
 
 static const per_sequence_t TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "transmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue", &hf_nbap_transmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_transmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30582,7 +30582,7 @@ static int dissect_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E
 
 
 static const per_sequence_t TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_sequence_of[1] = {
-  { ""                      , &hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item },
+  { &hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item },
 };
 
 static int
@@ -30661,7 +30661,7 @@ static int dissect_id_MeasurementRecoverySupportIndicator(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t MultipleRL_Information_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Information_RL_ReconfPrepTDD },
+  { &hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Information_RL_ReconfPrepTDD },
 };
 
 static int
@@ -30678,7 +30678,7 @@ static int dissect_id_multiple_RL_Information_RL_ReconfPrepTDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t Multiple_RL_Information_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Information_RL_ReconfRqstTDD },
+  { &hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Information_RL_ReconfRqstTDD },
 };
 
 static int
@@ -30695,11 +30695,11 @@ static int dissect_id_multiple_RL_Information_RL_ReconfRqstTDD(tvbuff_t *tvb, in
 
 
 static const per_sequence_t PowerOffsetInformation_RL_ReconfPrepFDD_sequence[] = {
-  { "pO1-ForTFCI-Bits"      , &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "pO2-ForTPC-Bits"       , &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "pO3-ForPilotBits"      , &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pO1_ForTFCI_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_pO3_ForPilotBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30715,11 +30715,11 @@ static int dissect_powerOffsetInformation3(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t DL_DPCH_Power_Information_RL_ReconfPrepFDD_sequence[] = {
-  { "powerOffsetInformation", &hf_nbap_powerOffsetInformation3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_RL_ReconfPrepFDD },
-  { "fdd-TPC-DownlinkStepSize", &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
-  { "innerLoopDLPCStatus"   , &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerOffsetInformation3, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_RL_ReconfPrepFDD },
+  { &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
+  { &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30735,9 +30735,9 @@ static int dissect_id_DL_DPCH_Power_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, 
 
 
 static const per_sequence_t PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD_sequence[] = {
-  { "pO2-ForTPC-Bits"       , &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30753,12 +30753,12 @@ static int dissect_powerOffsetInformation4(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t F_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
-  { "powerOffsetInformation", &hf_nbap_powerOffsetInformation4, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD },
-  { "fdd-TPC-DownlinkStepSize", &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
-  { "limitedPowerIncrease"  , &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
-  { "innerLoopDLPCStatus"   , &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerOffsetInformation4, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD },
+  { &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
+  { &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
+  { &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30774,9 +30774,9 @@ static int dissect_id_F_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD_sequence[] = {
-  { "pO2-ForTPC-Bits"       , &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pO2_ForTPC_Bits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffset },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30792,12 +30792,12 @@ static int dissect_powerOffsetInformation2(tvbuff_t *tvb, int offset, asn_ctx_t 
 
 
 static const per_sequence_t F_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
-  { "powerOffsetInformation", &hf_nbap_powerOffsetInformation2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD },
-  { "fdd-TPC-DownlinkStepSize", &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
-  { "limitedPowerIncrease"  , &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
-  { "innerLoopDLPCStatus"   , &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerOffsetInformation2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD },
+  { &hf_nbap_fdd_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_TPC_DownlinkStepSize },
+  { &hf_nbap_limitedPowerIncrease, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LimitedPowerIncrease },
+  { &hf_nbap_innerLoopDLPCStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_InnerLoopDLPCStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30813,7 +30813,7 @@ static int dissect_id_F_DPCH_Information_RL_SetupRqstFDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
 };
 
 static int
@@ -30830,7 +30830,7 @@ static int dissect_id_Additional_S_CCPCH_Parameters_CTCH_ReconfRqstTDD(tvbuff_t 
 
 
 static const per_sequence_t Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -30847,7 +30847,7 @@ static int dissect_id_Additional_S_CCPCH_Parameters_CTCH_SetupRqstTDD(tvbuff_t *
 
 
 static const per_sequence_t Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD },
 };
 
 static int
@@ -30864,7 +30864,7 @@ static int dissect_id_Additional_S_CCPCH_LCR_Parameters_CTCH_ReconfRqstTDD(tvbuf
 
 
 static const per_sequence_t Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD },
+  { &hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD },
 };
 
 static int
@@ -30894,10 +30894,10 @@ static int dissect_id_MICH_CFN(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t MICH_Parameters_CTCH_ReconfRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "mICH-Power"            , &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30913,10 +30913,10 @@ static int dissect_id_MICH_Parameters_CTCH_ReconfRqstFDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t MICH_Parameters_CTCH_ReconfRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "mICH-Power"            , &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PICH_Power },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30953,13 +30953,13 @@ static int dissect_mICH_Mode(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 
 
 static const per_sequence_t MICH_Parameters_CTCH_SetupRqstFDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "fdd-dl-ChannelisationCodeNumber", &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "mICH-Power"            , &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
-  { "mICH-Mode"             , &hf_nbap_mICH_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MICH_Mode },
-  { "sTTD-Indicator"        , &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_fdd_dl_ChannelisationCodeNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
+  { &hf_nbap_mICH_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MICH_Mode },
+  { &hf_nbap_sTTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_STTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -30995,11 +30995,11 @@ static int dissect_notificationIndicatorLength(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t MICH_HCR_Parameters_CTCH_SetupRqstTDD_sequence[] = {
-  { "tdd-ChannelisationCode", &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
-  { "timeSlot"              , &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
-  { "midambleshiftAndBurstType", &hf_nbap_midambleshiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tdd_ChannelisationCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCode },
+  { &hf_nbap_timeSlot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlot },
+  { &hf_nbap_midambleshiftAndBurstType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftAndBurstType },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31015,13 +31015,13 @@ static int dissect_hCR_TDD(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tre
 
 
 static const per_sequence_t MICH_LCR_Parameters_CTCH_SetupRqstTDD_sequence[] = {
-  { "tdd-ChannelisationCodeLCR", &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "timeSlotLCR"           , &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
-  { "midambleShiftLCR"      , &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
-  { "second-TDD-ChannelisationCodeLCR", &hf_nbap_second_TDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
-  { "tSTD-Indicator"        , &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_tdd_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_timeSlotLCR    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TimeSlotLCR },
+  { &hf_nbap_midambleShiftLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MidambleShiftLCR },
+  { &hf_nbap_second_TDD_ChannelisationCodeLCR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_ChannelisationCodeLCR },
+  { &hf_nbap_tSTD_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TSTD_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31062,15 +31062,15 @@ static int dissect_mICH_TDDOption_Specific_Parameters(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t MICH_Parameters_CTCH_SetupRqstTDD_sequence[] = {
-  { "commonPhysicalChannelID", &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
-  { "tdd-PhysicalChannelOffset", &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
-  { "repetitionPeriod"      , &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
-  { "repetitionLength"      , &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
-  { "notificationIndicatorLength", &hf_nbap_notificationIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_NotificationIndicatorLength },
-  { "mICH-Power"            , &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
-  { "mICH-TDDOption-Specific-Parameters", &hf_nbap_mICH_TDDOption_Specific_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonPhysicalChannelID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonPhysicalChannelID },
+  { &hf_nbap_tdd_PhysicalChannelOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TDD_PhysicalChannelOffset },
+  { &hf_nbap_repetitionPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionPeriod },
+  { &hf_nbap_repetitionLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RepetitionLength },
+  { &hf_nbap_notificationIndicatorLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_NotificationIndicatorLength },
+  { &hf_nbap_mICH_Power     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PICH_Power },
+  { &hf_nbap_mICH_TDDOption_Specific_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31118,7 +31118,7 @@ static int dissect_NI_Information_item(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t NI_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_NI_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Notification_Indicator },
+  { &hf_nbap_NI_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Notification_Indicator },
 };
 
 static int
@@ -31135,7 +31135,7 @@ static int dissect_id_NI_Information_NotifUpdateCmd(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t S_CCPCH_InformationListExt_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_InformationListExt_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_InformationListExt_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -31152,7 +31152,7 @@ static int dissect_id_S_CCPCH_InformationListExt_AuditRsp(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t S_CCPCH_InformationListExt_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -31169,7 +31169,7 @@ static int dissect_id_S_CCPCH_InformationListExt_ResourceStatusInd(tvbuff_t *tvb
 
 
 static const per_sequence_t S_CCPCH_LCR_InformationListExt_AuditRsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -31186,7 +31186,7 @@ static int dissect_id_S_CCPCH_LCR_InformationListExt_AuditRsp(tvbuff_t *tvb, int
 
 
 static const per_sequence_t S_CCPCH_LCR_InformationListExt_ResourceStatusInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -31253,9 +31253,9 @@ static int dissect_id_DLTransmissionBranchLoadValue(tvbuff_t *tvb, int offset, a
 
 
 static const per_sequence_t PowerLocalCellGroup_CM_Rqst_sequence[] = {
-  { "powerLocalCellGroupID" , &hf_nbap_powerLocalCellGroupID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_powerLocalCellGroupID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Local_Cell_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31271,9 +31271,9 @@ static int dissect_id_Power_Local_Cell_Group_choice_CM_Rqst(tvbuff_t *tvb, int o
 
 
 static const per_sequence_t PowerLocalCellGroup_CM_Rsp_sequence[] = {
-  { "commonMeasurementValue", &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31289,9 +31289,9 @@ static int dissect_id_Power_Local_Cell_Group_choice_CM_Rsp(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t PowerLocalCellGroup_CM_Rprt_sequence[] = {
-  { "commonMeasurementValueInformation", &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_commonMeasurementValueInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CommonMeasurementValueInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31337,13 +31337,13 @@ static int dissect_id_HSDPA_And_EDCH_CellPortion_Information_PSCH_ReconfRqst(tvb
 
 
 static const per_sequence_t HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "hS-PDSCH-HS-SCCH-ScramblingCode-PSCH-ReconfRqst", &hf_nbap_hS_PDSCH_HS_SCCH_ScramblingCode_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
-  { "hS-PDSCH-FDD-Code-Information-PSCH-ReconfRqst", &hf_nbap_hS_PDSCH_FDD_Code_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_PDSCH_FDD_Code_Information },
-  { "hS-SCCH-FDD-Code-Information-PSCH-ReconfRqst", &hf_nbap_hS_SCCH_FDD_Code_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_FDD_Code_Information },
-  { "hS-PDSCH-HS-SCCH-E-AGCH-E-RGCH-E-HICH-MaxPower-PSCH-ReconfRqst", &hf_nbap_hS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MaxPower_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_hS_PDSCH_HS_SCCH_ScramblingCode_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
+  { &hf_nbap_hS_PDSCH_FDD_Code_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_PDSCH_FDD_Code_Information },
+  { &hf_nbap_hS_SCCH_FDD_Code_Information_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HS_SCCH_FDD_Code_Information },
+  { &hf_nbap_hS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MaxPower_PSCH_ReconfRqst, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MaximumTransmissionPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31359,7 +31359,7 @@ static int dissect_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_it
 
 
 static const per_sequence_t HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_sequence_of[1] = {
-  { ""                      , &hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst },
+  { &hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst },
 };
 
 static int
@@ -31376,10 +31376,10 @@ static int dissect_id_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst
 
 
 static const per_sequence_t HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "hS-DSCHRequiredPowerValue", &hf_nbap_hS_DSCHRequiredPowerValue1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_hS_DSCHRequiredPowerValue1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31395,7 +31395,7 @@ static int dissect_HS_DSCHRequiredPowerValueInformation_For_CellPortion_item(tvb
 
 
 static const per_sequence_t HS_DSCHRequiredPowerValueInformation_For_CellPortion_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item },
+  { &hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item },
 };
 
 static int
@@ -31412,10 +31412,10 @@ static int dissect_id_HS_DSCHRequiredPowerValueInformation_For_CellPortion(tvbuf
 
 
 static const per_sequence_t HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "hS-DSCHProvidedBitRateValue", &hf_nbap_hS_DSCHProvidedBitRateValue1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRate },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_hS_DSCHProvidedBitRateValue1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRate },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31431,7 +31431,7 @@ static int dissect_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_item(t
 
 
 static const per_sequence_t HS_DSCHProvidedBitRateValueInformation_For_CellPortion_sequence_of[1] = {
-  { ""                      , &hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item },
+  { &hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item },
 };
 
 static int
@@ -31448,7 +31448,7 @@ static int dissect_id_HS_DSCHProvidedBitRateValueInformation_For_CellPortion(tvb
 
 
 static const per_sequence_t E_AGCH_FDD_Code_List_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_AGCH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_E_AGCH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
 };
 
 static int
@@ -31601,18 +31601,18 @@ static int dissect_e_RGCH_Release_Indicator(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t E_DCH_FDD_DL_Control_Channel_Information_sequence[] = {
-  { "e-AGCH-And-E-RGCH-E-HICH-FDD-Scrambling-Code", &hf_nbap_e_AGCH_And_E_RGCH_E_HICH_FDD_Scrambling_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
-  { "e-AGCH-Channelisation-Code", &hf_nbap_e_AGCH_Channelisation_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "primary-e-RNTI"        , &hf_nbap_primary_e_RNTI , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RNTI },
-  { "secondary-e-RNTI"      , &hf_nbap_secondary_e_RNTI, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RNTI },
-  { "e-RGCH-E-HICH-Channelisation-Code", &hf_nbap_e_RGCH_E_HICH_Channelisation_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_ChannelisationCodeNumber },
-  { "e-RGCH-Signature-Sequence", &hf_nbap_e_RGCH_Signature_Sequence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RGCH_Signature_Sequence },
-  { "e-HICH-Signature-Sequence", &hf_nbap_e_HICH_Signature_Sequence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_HICH_Signature_Sequence },
-  { "serving-Grant-Value"   , &hf_nbap_serving_Grant_Value, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_Serving_Grant_Value },
-  { "primary-Secondary-Grant-Selector", &hf_nbap_primary_Secondary_Grant_Selector, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_Primary_Secondary_Grant_Selector },
-  { "e-RGCH-Release-Indicator", &hf_nbap_e_RGCH_Release_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RGCH_Release_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_AGCH_And_E_RGCH_E_HICH_FDD_Scrambling_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_ScramblingCode },
+  { &hf_nbap_e_AGCH_Channelisation_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_primary_e_RNTI , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RNTI },
+  { &hf_nbap_secondary_e_RNTI, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RNTI },
+  { &hf_nbap_e_RGCH_E_HICH_Channelisation_Code, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_e_RGCH_Signature_Sequence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RGCH_Signature_Sequence },
+  { &hf_nbap_e_HICH_Signature_Sequence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_HICH_Signature_Sequence },
+  { &hf_nbap_serving_Grant_Value, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_Serving_Grant_Value },
+  { &hf_nbap_primary_Secondary_Grant_Selector, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_Primary_Secondary_Grant_Selector },
+  { &hf_nbap_e_RGCH_Release_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_RGCH_Release_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31706,10 +31706,10 @@ static int dissect_hARQ_Process_Allocation_2ms(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t E_DCH_Non_Scheduled_Transmission_Grant_Items_sequence[] = {
-  { "maxBits-MACe-PDU-non-scheduled", &hf_nbap_maxBits_MACe_PDU_non_scheduled, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Max_Bits_MACe_PDU_non_scheduled },
-  { "hARQ-Process-Allocation-2ms", &hf_nbap_hARQ_Process_Allocation_2ms, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_Process_Allocation_2ms_EDCH },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_maxBits_MACe_PDU_non_scheduled, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Max_Bits_MACe_PDU_non_scheduled },
+  { &hf_nbap_hARQ_Process_Allocation_2ms, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_HARQ_Process_Allocation_2ms_EDCH },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31808,9 +31808,9 @@ static int dissect_e_DCH_DDI_Value(tvbuff_t *tvb, int offset, asn_ctx_t *actx, p
 
 
 static const per_sequence_t E_DCH_MACdPDU_SizeListItem_sequence[] = {
-  { "mACdPDU-Size"          , &hf_nbap_mACdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_mACdPDU_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MACdPDU_Size },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31829,7 +31829,7 @@ static int dissect_E_DCH_MACdPDU_SizeToModifyList_item(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t E_DCH_MACdPDU_SizeList_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdPDU_SizeList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeListItem },
+  { &hf_nbap_E_DCH_MACdPDU_SizeList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeListItem },
 };
 
 static int
@@ -31846,13 +31846,13 @@ static int dissect_mACd_PDU_Size_List(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t E_DCH_LogicalChannelInformationItem_sequence[] = {
-  { "logicalChannelId"      , &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "mACesGuaranteedBitRate", &hf_nbap_mACesGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACesGuaranteedBitRate },
-  { "e-DCH-DDI-Value"       , &hf_nbap_e_DCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_DDI_Value },
-  { "mACd-PDU-Size-List"    , &hf_nbap_mACd_PDU_Size_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_mACesGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACesGuaranteedBitRate },
+  { &hf_nbap_e_DCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_DDI_Value },
+  { &hf_nbap_mACd_PDU_Size_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31868,7 +31868,7 @@ static int dissect_E_DCH_LogicalChannelInformation_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t E_DCH_LogicalChannelInformation_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_LogicalChannelInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelInformationItem },
+  { &hf_nbap_E_DCH_LogicalChannelInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelInformationItem },
 };
 
 static int
@@ -31888,20 +31888,20 @@ static int dissect_eDCH_LogicalChannelToAdd(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InfoItem_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
-  { "tnlQos"                , &hf_nbap_tnlQos         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TnlQos },
-  { "payloadCRC-PresenceIndicator", &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
-  { "maximum-Number-of-Retransmissions-For-E-DCH", &hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Maximum_Number_of_Retransmissions_For_E_DCH },
-  { "eDCH-HARQ-PO-FDD"      , &hf_nbap_eDCH_HARQ_PO_FDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_HARQ_PO_FDD },
-  { "eDCH-MACdFlow-Multiplexing-List", &hf_nbap_eDCH_MACdFlow_Multiplexing_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Multiplexing_List },
-  { "eDCH-Grant-Type-Information", &hf_nbap_eDCH_Grant_Type_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_Grant_Type_Information },
-  { "bundlingModeIndicator" , &hf_nbap_bundlingModeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BundlingModeIndicator },
-  { "eDCHLogicalChannelInformation", &hf_nbap_eDCHLogicalChannelInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_tnlQos         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TnlQos },
+  { &hf_nbap_payloadCRC_PresenceIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PayloadCRC_PresenceIndicator },
+  { &hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Maximum_Number_of_Retransmissions_For_E_DCH },
+  { &hf_nbap_eDCH_HARQ_PO_FDD, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_HARQ_PO_FDD },
+  { &hf_nbap_eDCH_MACdFlow_Multiplexing_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Multiplexing_List },
+  { &hf_nbap_eDCH_Grant_Type_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_Grant_Type_Information },
+  { &hf_nbap_bundlingModeIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BundlingModeIndicator },
+  { &hf_nbap_eDCHLogicalChannelInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31917,7 +31917,7 @@ static int dissect_E_DCH_MACdFlow_Specific_InfoList_item(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InfoList_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdFlow_Specific_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem },
+  { &hf_nbap_E_DCH_MACdFlow_Specific_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem },
 };
 
 static int
@@ -31934,9 +31934,9 @@ static int dissect_e_DCH_MACdFlow_Specific_Info(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t E_DCH_MACdFlows_Information_sequence[] = {
-  { "e-DCH-MACdFlow-Specific-Info", &hf_nbap_e_DCH_MACdFlow_Specific_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_Specific_Info, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31955,9 +31955,9 @@ static int dissect_e_DCH_MACdFlows_Information(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t E_DCH_FDD_Information_sequence[] = {
-  { "e-DCH-MACdFlows-Information", &hf_nbap_e_DCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlows_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlows_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlows_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31973,11 +31973,11 @@ static int dissect_id_E_DCH_FDD_Information(tvbuff_t *tvb, int offset, asn_ctx_t
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InformationResp_Item_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -31993,7 +31993,7 @@ static int dissect_E_DCH_MACdFlow_Specific_InformationResp_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InformationResp_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdFlow_Specific_InformationResp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InformationResp_Item },
+  { &hf_nbap_E_DCH_MACdFlow_Specific_InformationResp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InformationResp_Item },
 };
 
 static int
@@ -32010,9 +32010,9 @@ static int dissect_e_DCH_MACdFlow_Specific_InformationResp(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t E_DCH_FDD_Information_Response_sequence[] = {
-  { "e-DCH-MACdFlow-Specific-InformationResp", &hf_nbap_e_DCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Specific_InformationResp },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_Specific_InformationResp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Specific_InformationResp },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32028,7 +32028,7 @@ static int dissect_id_E_DCH_FDD_Information_Response(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t E_DCH_MACdPDU_SizeToModifyList_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdPDU_SizeToModifyList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeListItem },
+  { &hf_nbap_E_DCH_MACdPDU_SizeToModifyList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeListItem },
 };
 
 static int
@@ -32045,13 +32045,13 @@ static int dissect_mACd_PDU_Size_List1(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t E_DCH_LogicalChannelToModifyItem_sequence[] = {
-  { "logicalChannelId"      , &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
-  { "mACesGuaranteedBitRate", &hf_nbap_mACesGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACesGuaranteedBitRate },
-  { "e-DCH-DDI-Value"       , &hf_nbap_e_DCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_DDI_Value },
-  { "mACd-PDU-Size-List"    , &hf_nbap_mACd_PDU_Size_List1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeToModifyList },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_mACesGuaranteedBitRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_MACesGuaranteedBitRate },
+  { &hf_nbap_e_DCH_DDI_Value, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_DDI_Value },
+  { &hf_nbap_mACd_PDU_Size_List1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdPDU_SizeToModifyList },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32067,7 +32067,7 @@ static int dissect_E_DCH_LogicalChannelToModify_item(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t E_DCH_LogicalChannelToModify_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_LogicalChannelToModify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelToModifyItem },
+  { &hf_nbap_E_DCH_LogicalChannelToModify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelToModifyItem },
 };
 
 static int
@@ -32084,9 +32084,9 @@ static int dissect_eDCH_LogicalChannelToModify(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t E_DCH_LogicalChannelToDeleteItem_sequence[] = {
-  { "logicalChannelId"      , &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_logicalChannelId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_LogicalChannelID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32102,7 +32102,7 @@ static int dissect_E_DCH_LogicalChannelToDelete_item(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t E_DCH_LogicalChannelToDelete_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_LogicalChannelToDelete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelToDeleteItem },
+  { &hf_nbap_E_DCH_LogicalChannelToDelete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_LogicalChannelToDeleteItem },
 };
 
 static int
@@ -32119,21 +32119,21 @@ static int dissect_eDCH_LogicalChannelToDelete(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InfoItem_to_Modify_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "allocationRetentionPriority", &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
-  { "transportBearerRequestIndicator", &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportLayerAddress" , &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "tnlQos"                , &hf_nbap_tnlQos         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TnlQos },
-  { "maximum-Number-of-Retransmissions-For-E-DCH", &hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Maximum_Number_of_Retransmissions_For_E_DCH },
-  { "eDCH-HARQ-PO-FDD"      , &hf_nbap_eDCH_HARQ_PO_FDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_HARQ_PO_FDD },
-  { "eDCH-MACdFlow-Multiplexing-List", &hf_nbap_eDCH_MACdFlow_Multiplexing_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Multiplexing_List },
-  { "eDCH-Grant-Type-Information", &hf_nbap_eDCH_Grant_Type_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_Grant_Type_Information },
-  { "eDCH-LogicalChannelToAdd", &hf_nbap_eDCH_LogicalChannelToAdd, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelInformation },
-  { "eDCH-LogicalChannelToModify", &hf_nbap_eDCH_LogicalChannelToModify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelToModify },
-  { "eDCH-LogicalChannelToDelete", &hf_nbap_eDCH_LogicalChannelToDelete, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelToDelete },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_allocationRetentionPriority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_AllocationRetentionPriority },
+  { &hf_nbap_transportBearerRequestIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_TransportBearerRequestIndicator },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_tnlQos         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TnlQos },
+  { &hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Maximum_Number_of_Retransmissions_For_E_DCH },
+  { &hf_nbap_eDCH_HARQ_PO_FDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_HARQ_PO_FDD },
+  { &hf_nbap_eDCH_MACdFlow_Multiplexing_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Multiplexing_List },
+  { &hf_nbap_eDCH_Grant_Type_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_Grant_Type_Information },
+  { &hf_nbap_eDCH_LogicalChannelToAdd, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelInformation },
+  { &hf_nbap_eDCH_LogicalChannelToModify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelToModify },
+  { &hf_nbap_eDCH_LogicalChannelToDelete, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_LogicalChannelToDelete },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32149,7 +32149,7 @@ static int dissect_E_DCH_MACdFlow_Specific_InfoList_to_Modify_item(tvbuff_t *tvb
 
 
 static const per_sequence_t E_DCH_MACdFlow_Specific_InfoList_to_Modify_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify },
+  { &hf_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify },
 };
 
 static int
@@ -32166,9 +32166,9 @@ static int dissect_e_DCH_MACdFlow_Specific_Info_to_Modify(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t E_DCH_FDD_Information_to_Modify_sequence[] = {
-  { "e-DCH-MACdFlow-Specific-Info-to-Modify", &hf_nbap_e_DCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_Specific_Info_to_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32184,9 +32184,9 @@ static int dissect_id_E_DCH_FDD_Information_to_Modify(tvbuff_t *tvb, int offset,
 
 
 static const per_sequence_t E_DCH_MACdFlow_to_Delete_Item_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32202,7 +32202,7 @@ static int dissect_E_DCH_MACdFlows_to_Delete_item(tvbuff_t *tvb, int offset, asn
 
 
 static const per_sequence_t E_DCH_MACdFlows_to_Delete_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_MACdFlows_to_Delete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_to_Delete_Item },
+  { &hf_nbap_E_DCH_MACdFlows_to_Delete_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_to_Delete_Item },
 };
 
 static int
@@ -32219,10 +32219,10 @@ static int dissect_id_E_DCH_MACdFlows_to_Delete(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t E_DCH_Resources_Information_AuditRsp_sequence[] = {
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32238,10 +32238,10 @@ static int dissect_id_E_DCH_Resources_Information_AuditRsp(tvbuff_t *tvb, int of
 
 
 static const per_sequence_t E_DCH_Resources_Information_ResourceStatusInd_sequence[] = {
-  { "resourceOperationalState", &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
-  { "availabilityStatus"    , &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_resourceOperationalState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ResourceOperationalState },
+  { &hf_nbap_availabilityStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_AvailabilityStatus },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32343,10 +32343,10 @@ static int dissect_reference_E_TFCI_PO(tvbuff_t *tvb, int offset, asn_ctx_t *act
 
 
 static const per_sequence_t Reference_E_TFCI_Information_Item_sequence[] = {
-  { "reference-E-TFCI"      , &hf_nbap_reference_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCI },
-  { "reference-E-TFCI-PO"   , &hf_nbap_reference_E_TFCI_PO, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_PO },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_reference_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCI },
+  { &hf_nbap_reference_E_TFCI_PO, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_PO },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32362,7 +32362,7 @@ static int dissect_Reference_E_TFCI_Information_item(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t Reference_E_TFCI_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_Reference_E_TFCI_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_Information_Item },
+  { &hf_nbap_Reference_E_TFCI_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_Information_Item },
 };
 
 static int
@@ -32379,11 +32379,11 @@ static int dissect_reference_E_TFCI_Information(tvbuff_t *tvb, int offset, asn_c
 
 
 static const per_sequence_t E_TFCS_Information_sequence[] = {
-  { "e-DCH-TFCI-Table-Index", &hf_nbap_e_DCH_TFCI_Table_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_TFCI_Table_Index },
-  { "e-DCH-Min-Set-E-TFCI"  , &hf_nbap_e_DCH_Min_Set_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCI },
-  { "reference-E-TFCI-Information", &hf_nbap_reference_E_TFCI_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_TFCI_Table_Index, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_TFCI_Table_Index },
+  { &hf_nbap_e_DCH_Min_Set_E_TFCI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCI },
+  { &hf_nbap_reference_E_TFCI_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Reference_E_TFCI_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32431,13 +32431,13 @@ static int dissect_e_DPCCH_PO(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_
 
 
 static const per_sequence_t E_DPCH_Information_RL_ReconfPrepFDD_sequence[] = {
-  { "maxSet-E-DPDCHs"       , &hf_nbap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Max_Set_E_DPDCHs },
-  { "ul-PunctureLimit"      , &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
-  { "e-TFCS-Information"    , &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TFCS_Information },
-  { "e-TTI"                 , &hf_nbap_e_TTI          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TTI },
-  { "e-DPCCH-PO"            , &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DPCCH_PO },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_Max_Set_E_DPDCHs },
+  { &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PunctureLimit },
+  { &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TFCS_Information },
+  { &hf_nbap_e_TTI          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TTI },
+  { &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DPCCH_PO },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32453,13 +32453,13 @@ static int dissect_id_E_DPCH_Information_RL_ReconfPrepFDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t E_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
-  { "maxSet-E-DPDCHs"       , &hf_nbap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Max_Set_E_DPDCHs },
-  { "ul-PunctureLimit"      , &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
-  { "e-TFCS-Information"    , &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCS_Information },
-  { "e-TTI"                 , &hf_nbap_e_TTI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TTI },
-  { "e-DPCCH-PO"            , &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DPCCH_PO },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Max_Set_E_DPDCHs },
+  { &hf_nbap_ul_PunctureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_PunctureLimit },
+  { &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TFCS_Information },
+  { &hf_nbap_e_TTI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_TTI },
+  { &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DPCCH_PO },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32475,7 +32475,7 @@ static int dissect_id_E_DPCH_Information_RL_SetupRqstFDD(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t E_RGCH_E_HICH_FDD_Code_List_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_RGCH_E_HICH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
+  { &hf_nbap_E_RGCH_E_HICH_FDD_Code_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FDD_DL_ChannelisationCodeNumber },
 };
 
 static int
@@ -32517,9 +32517,9 @@ static int dissect_id_E_RGCH_E_HICH_FDD_Code_Information(tvbuff_t *tvb, int offs
 
 
 static const per_sequence_t Serving_E_DCH_RL_in_this_NodeB_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32599,10 +32599,10 @@ static int dissect_id_FDD_S_CCPCH_FrameOffset_CTCH_SetupRqstFDD(tvbuff_t *tvb, i
 
 
 static const per_sequence_t E_DPCH_Information_RL_ReconfRqstFDD_sequence[] = {
-  { "e-TFCS-Information"    , &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TFCS_Information },
-  { "e-DPCCH-PO"            , &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DPCCH_PO },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_TFCS_Information },
+  { &hf_nbap_e_DPCCH_PO     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_E_DPCCH_PO },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32644,10 +32644,10 @@ static int dissect_e_DCHProvidedBitRateValue(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t E_DCHProvidedBitRate_Item_sequence[] = {
-  { "schedulingPriorityIndicator", &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
-  { "e-DCHProvidedBitRateValue", &hf_nbap_e_DCHProvidedBitRateValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCHProvidedBitRateValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_schedulingPriorityIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SchedulingPriorityIndicator },
+  { &hf_nbap_e_DCHProvidedBitRateValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCHProvidedBitRateValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32663,7 +32663,7 @@ static int dissect_E_DCHProvidedBitRate_item(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t E_DCHProvidedBitRate_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCHProvidedBitRate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCHProvidedBitRate_Item },
+  { &hf_nbap_E_DCHProvidedBitRate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCHProvidedBitRate_Item },
 };
 
 static int
@@ -32698,11 +32698,11 @@ static int dissect_id_HARQ_Preamble_Mode_Activation_Indicator(tvbuff_t *tvb, int
 
 
 static const per_sequence_t RL_Specific_E_DCH_Info_Item_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "bindingID"             , &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
-  { "transportlayeraddress" , &hf_nbap_transportlayeraddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_bindingID      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_BindingID },
+  { &hf_nbap_transportlayeraddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TransportLayerAddress },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32718,7 +32718,7 @@ static int dissect_RL_Specific_E_DCH_Info_item(tvbuff_t *tvb, int offset, asn_ct
 
 
 static const per_sequence_t RL_Specific_E_DCH_Info_sequence_of[1] = {
-  { ""                      , &hf_nbap_RL_Specific_E_DCH_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Specific_E_DCH_Info_Item },
+  { &hf_nbap_RL_Specific_E_DCH_Info_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_RL_Specific_E_DCH_Info_Item },
 };
 
 static int
@@ -32735,10 +32735,10 @@ static int dissect_id_RL_Specific_E_DCH_Info(tvbuff_t *tvb, int offset, asn_ctx_
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32754,7 +32754,7 @@ static int dissect_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item(tvbuff
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp },
+  { &hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp },
 };
 
 static int
@@ -32771,10 +32771,10 @@ static int dissect_id_multiple_DedicatedMeasurementValueList_TDD_DM_Rsp(tvbuff_t
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp_sequence[] = {
-  { "dPCH-ID"               , &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dPCH_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DPCH_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32790,7 +32790,7 @@ static int dissect_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item(tv
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp },
+  { &hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp },
 };
 
 static int
@@ -32807,9 +32807,9 @@ static int dissect_id_multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp(tvbu
 
 
 static const per_sequence_t E_DCH_RearrangeItem_Bearer_RearrangeInd_sequence[] = {
-  { "e-DCH-MACdFlow-ID"     , &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_e_DCH_MACdFlow_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_MACdFlow_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32825,7 +32825,7 @@ static int dissect_E_DCH_RearrangeList_Bearer_RearrangeInd_item(tvbuff_t *tvb, i
 
 
 static const per_sequence_t E_DCH_RearrangeList_Bearer_RearrangeInd_sequence_of[1] = {
-  { ""                      , &hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_RearrangeItem_Bearer_RearrangeInd },
+  { &hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_E_DCH_RearrangeItem_Bearer_RearrangeInd },
 };
 
 static int
@@ -32842,11 +32842,11 @@ static int dissect_id_E_DCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb, int
 
 
 static const per_sequence_t MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD_sequence[] = {
-  { "dl-DPCH-LCR-InformationModifyList", &hf_nbap_dl_DPCH_LCR_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD },
-  { "cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD", &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD", &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_DPCH_LCR_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD },
+  { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32862,7 +32862,7 @@ static int dissect_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_i
 
 
 static const per_sequence_t MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD },
+  { &hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD },
 };
 
 static int
@@ -32892,10 +32892,10 @@ static int dissect_id_Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio(tvbuff_t 
 
 
 static const per_sequence_t CellPortion_InformationItem_Cell_ReconfRqstFDD_sequence[] = {
-  { "cellPortionID"         , &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
-  { "maximumTransmissionPowerforCellPortion", &hf_nbap_maximumTransmissionPowerforCellPortion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumTransmissionPower },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cellPortionID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellPortionID },
+  { &hf_nbap_maximumTransmissionPowerforCellPortion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_MaximumTransmissionPower },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32911,7 +32911,7 @@ static int dissect_id_CellPortion_InformationItem_Cell_ReconfRqstFDD(tvbuff_t *t
 
 
 static const per_sequence_t CellPortion_InformationList_Cell_ReconfRqstFDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
+  { &hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Single_Container },
 };
 
 static int
@@ -32928,10 +32928,10 @@ static int dissect_id_CellPortion_InformationList_Cell_ReconfRqstFDD(tvbuff_t *t
 
 
 static const per_sequence_t Multiple_PUSCH_InfoListIE_DM_Rsp_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32947,7 +32947,7 @@ static int dissect_Multiple_PUSCH_InfoList_DM_Rsp_item(tvbuff_t *tvb, int offset
 
 
 static const per_sequence_t Multiple_PUSCH_InfoList_DM_Rsp_sequence_of[1] = {
-  { ""                      , &hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_PUSCH_InfoListIE_DM_Rsp },
+  { &hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_PUSCH_InfoListIE_DM_Rsp },
 };
 
 static int
@@ -32964,10 +32964,10 @@ static int dissect_id_multiple_PUSCH_InfoList_DM_Rsp(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t Multiple_PUSCH_InfoListIE_DM_Rprt_sequence[] = {
-  { "pUSCH-ID"              , &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_ID },
-  { "dedicatedMeasurementValue", &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedMeasurementValue },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_pUSCH_ID       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_PUSCH_ID },
+  { &hf_nbap_dedicatedMeasurementValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DedicatedMeasurementValue },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -32983,7 +32983,7 @@ static int dissect_Multiple_PUSCH_InfoList_DM_Rprt_item(tvbuff_t *tvb, int offse
 
 
 static const per_sequence_t Multiple_PUSCH_InfoList_DM_Rprt_sequence_of[1] = {
-  { ""                      , &hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_PUSCH_InfoListIE_DM_Rprt },
+  { &hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Multiple_PUSCH_InfoListIE_DM_Rprt },
 };
 
 static int
@@ -34131,10 +34131,10 @@ dissect_nbap_DymmyProtocolIE_ID(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, 
 
 
 static const per_sequence_t IPDLParameter_Information_Cell_ReconfRqstTDD_sequence[] = {
-  { "iPDL-TDD-Parameters"   , &hf_nbap_iPDL_TDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_TDD_Parameters },
-  { "iPDL-Indicator"        , &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_iPDL_TDD_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_IPDL_TDD_Parameters },
+  { &hf_nbap_iPDL_Indicator , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_IPDL_Indicator },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34147,9 +34147,9 @@ dissect_nbap_IPDLParameter_Information_Cell_ReconfRqstTDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t RadioLinkAdditionRequestTDD_sequence[] = {
-  { "protocolIEs"           , &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
-  { "protocolExtensions"    , &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34174,10 +34174,10 @@ static int dissect_uL_DPCH_Information1(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t UL_CCTrCH_InformationItem_RL_AdditionRqstTDD_sequence[] = {
-  { "cCTrCH-ID"             , &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
-  { "uL-DPCH-Information"   , &hf_nbap_uL_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationList_RL_AdditionRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_cCTrCH_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CCTrCH_ID },
+  { &hf_nbap_uL_DPCH_Information1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_UL_DPCH_InformationList_RL_AdditionRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34193,7 +34193,7 @@ static int dissect_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item(tvbuff_t *t
 
 
 static const per_sequence_t UL_CCTrCH_InformationList_RL_AdditionRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationItem_RL_AdditionRqstTDD },
+  { &hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UL_CCTrCH_InformationItem_RL_AdditionRqstTDD },
 };
 
 static int
@@ -34207,15 +34207,15 @@ dissect_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvbuff_t *tvb, int off
 
 
 static const per_sequence_t MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD_sequence[] = {
-  { "dl-DPCH-InformationList", &hf_nbap_dl_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationAddList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationListLCR", &hf_nbap_dl_DPCH_InformationListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD },
-  { "cCTrCH-Initial-DL-Power", &hf_nbap_cCTrCH_Initial_DL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "tDD-TPC-DownlinkStepSize", &hf_nbap_tDD_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_DownlinkStepSize },
-  { "cCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD", &hf_nbap_cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "cCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD", &hf_nbap_cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_DPCH_InformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD },
+  { &hf_nbap_cCTrCH_Initial_DL_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_tDD_TPC_DownlinkStepSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_DownlinkStepSize },
+  { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34231,7 +34231,7 @@ static int dissect_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_item(t
 
 
 static const per_sequence_t MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD },
+  { &hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD },
 };
 
 static int
@@ -34245,16 +34245,16 @@ dissect_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tv
 
 
 static const per_sequence_t MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD_sequence[] = {
-  { "dl-DPCH-InformationAddList", &hf_nbap_dl_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationModifyList", &hf_nbap_dl_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationDeleteList", &hf_nbap_dl_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
-  { "dl-DPCH-InformationAddListLCR", &hf_nbap_dl_DPCH_InformationAddListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD },
-  { "tDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD", &hf_nbap_tDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_DownlinkStepSize },
-  { "cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD", &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD", &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_dl_DPCH_InformationAddList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationDeleteList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD },
+  { &hf_nbap_dl_DPCH_InformationAddListLCR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD },
+  { &hf_nbap_tDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_TDD_TPC_DownlinkStepSize },
+  { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_RL_ID },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34270,7 +34270,7 @@ static int dissect_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_ite
 
 
 static const per_sequence_t MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD },
+  { &hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD },
 };
 
 static int
@@ -34284,7 +34284,7 @@ dissect_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t 
 
 
 static const per_sequence_t DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD },
+  { &hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD },
 };
 
 static int
@@ -34298,12 +34298,12 @@ dissect_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD(tvbuff_t *t
 
 
 static const per_sequence_t RL_InformationItem_RL_ReconfRqstFDD_sequence[] = {
-  { "rL-ID"                 , &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
-  { "maxDL-Power"           , &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "minDL-Power"           , &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
-  { "dl-CodeInformation"    , &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_CodeInformation },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_rL_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_RL_ID },
+  { &hf_nbap_maxDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_minDL_Power    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_DL_Power },
+  { &hf_nbap_dl_CodeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_FDD_DL_CodeInformation },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34316,10 +34316,10 @@ dissect_nbap_RL_InformationItem_RL_ReconfRqstFDD(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD_sequence[] = {
-  { "syncFrameNrToReceive"  , &hf_nbap_syncFrameNrToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
-  { "syncBurstInfo"         , &hf_nbap_syncBurstInfo  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_syncFrameNrToReceive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_SyncFrameNumber },
+  { &hf_nbap_syncBurstInfo  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34335,7 +34335,7 @@ static int dissect_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_item(tvbuff
 
 
 static const per_sequence_t CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_sequence_of[1] = {
-  { ""                      , &hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD },
+  { &hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD },
 };
 
 static int
@@ -34371,7 +34371,7 @@ static int dissect_GPS_Information_item(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 
 
 static const per_sequence_t GPS_Information_sequence_of[1] = {
-  { ""                      , &hf_nbap_GPS_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_Information_Item },
+  { &hf_nbap_GPS_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_GPS_Information_Item },
 };
 
 static int
@@ -34408,10 +34408,10 @@ static int dissect_information_Type_Item(tvbuff_t *tvb, int offset, asn_ctx_t *a
 
 
 static const per_sequence_t InformationType_sequence[] = {
-  { "information-Type-Item" , &hf_nbap_information_Type_Item, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Information_Type_Item },
-  { "gPSInformation"        , &hf_nbap_gPSInformation , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Information },
-  { "iE-Extensions"         , &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_information_Type_Item, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nbap_Information_Type_Item },
+  { &hf_nbap_gPSInformation , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_GPS_Information },
+  { &hf_nbap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34424,7 +34424,7 @@ dissect_nbap_InformationType(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, pro
 
 
 static const per_sequence_t SAT_Info_Almanac_ExtList_sequence_of[1] = {
-  { ""                      , &hf_nbap_SAT_Info_Almanac_ExtList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac_ExtItem },
+  { &hf_nbap_SAT_Info_Almanac_ExtList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SAT_Info_Almanac_ExtItem },
 };
 
 static int
@@ -34496,12 +34496,12 @@ static int dissect_secondValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto
 
 
 static const per_sequence_t ProtocolIE_FieldPair_sequence[] = {
-  { "id"                    , &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
-  { "firstCriticality"      , &hf_nbap_firstCriticality, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "firstValue"            , &hf_nbap_firstValue     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FirstValue },
-  { "secondCriticality"     , &hf_nbap_secondCriticality, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { "secondValue"           , &hf_nbap_secondValue    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SecondValue },
-  { NULL, NULL, 0, 0, NULL }
+  { &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
+  { &hf_nbap_firstCriticality, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_firstValue     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_FirstValue },
+  { &hf_nbap_secondCriticality, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
+  { &hf_nbap_secondValue    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SecondValue },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -34517,7 +34517,7 @@ static int dissect_ProtocolIE_ContainerPair_item(tvbuff_t *tvb, int offset, asn_
 
 
 static const per_sequence_t ProtocolIE_ContainerPair_sequence_of[1] = {
-  { ""                      , &hf_nbap_ProtocolIE_ContainerPair_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_FieldPair },
+  { &hf_nbap_ProtocolIE_ContainerPair_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_FieldPair },
 };
 
 static int
@@ -34534,7 +34534,7 @@ static int dissect_ProtocolIE_ContainerPairList_item(tvbuff_t *tvb, int offset, 
 
 
 static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
-  { ""                      , &hf_nbap_ProtocolIE_ContainerList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
+  { &hf_nbap_ProtocolIE_ContainerList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Container },
 };
 
 static int
@@ -34548,7 +34548,7 @@ dissect_nbap_ProtocolIE_ContainerList(tvbuff_t *tvb, int offset, asn_ctx_t *actx
 
 
 static const per_sequence_t ProtocolIE_ContainerPairList_sequence_of[1] = {
-  { ""                      , &hf_nbap_ProtocolIE_ContainerPairList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ContainerPair },
+  { &hf_nbap_ProtocolIE_ContainerPairList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ContainerPair },
 };
 
 static int
