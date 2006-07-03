@@ -55,6 +55,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 #include "packet-sip.h"
 
@@ -1134,11 +1135,12 @@ diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
 
 /* return an avp name from the code */
 static gchar *
-diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
+diameter_avp_get_name(guint32 avpCode, guint32 vendorId, gboolean *AVPFound)
 {
   gchar *buffer;
   avpInfo *probe;
   gchar *vendorName=NULL;
+  *AVPFound = TRUE;    /* will set to FALSE only if fail to match */
 
   if (vendorId)
 	vendorName = diameter_vendor_to_str(vendorId, FALSE);
@@ -1167,9 +1169,11 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 
   /* If we don't find it, build a name string */
   buffer=ep_alloc(64);
-  g_snprintf(buffer, 64, "Unknown AVP:0x%08x", avpCode);
+  g_snprintf(buffer, 64, "Unknown AVP:0x%08x (%d)", avpCode, avpCode);
+  *AVPFound = FALSE;
   return buffer;
 } /* diameter_avp_get_name */
+
 static const gchar *
 diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 {
@@ -1625,486 +1629,498 @@ safe_dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 {
-  /* adds the attribute value pairs to the tree */
-  e_avphdr avph;
-  const gchar *avpTypeString;
-  const gchar *avpNameString;
-  const gchar *valstr;
-  guint32 vendorId=0;
-  gchar    *vendorName;
-  int hdrLength;
-  int fixAmt;
-  proto_tree *avpi_tree;
-  size_t offset = 0;
-  tvbuff_t        *group_tvb;
-  proto_tree *group_tree;
-  proto_item *grouptf;
-  proto_item *avptf;
-  char *buffer;
-  int BadPacket = FALSE;
-  guint32 avpLength;
-  guint8 flags;
-  proto_item      *tf;
-  proto_tree      *flags_tree;
+	/* adds the attribute value pairs to the tree */
+	e_avphdr avph;
+	const gchar *avpTypeString;
+	const gchar *avpNameString;
+	const gchar *valstr;
+	guint32 vendorId=0;
+	gchar    *vendorName;
+	int hdrLength;
+	int fixAmt;
+	proto_tree *avpi_tree;
+	size_t offset = 0;
+	tvbuff_t        *group_tvb;
+	proto_tree *group_tree;
+	proto_item *grouptf;
+	proto_item *avptf;
+	char *buffer;
+	int BadPacket = FALSE;
+	guint32 avpLength;
+	guint8 flags;
+	proto_item      *tf;
+	proto_tree      *flags_tree;
 
-  gint32 packetLength;
-  size_t avpDataLength;
-  int avpType;
-  gchar *flagstr="<None>";
-  const gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
-  gint        i;
-  guint      bpos;
+	gint32 packetLength;
+	size_t avpDataLength;
+	int avpType;
+	gchar *flagstr="<None>";
+	const gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
+	gint       i;
+	guint      bpos;
 
-  packetLength = tvb_length(tvb);
-
-  /* Check for invalid packet lengths */
-  if (packetLength <= 0) {
-	proto_tree_add_text(avp_tree, tvb, offset, tvb_length(tvb),
-						"No Attribute Value Pairs Found");
-	return;
-  }
-
-  /* Spin around until we run out of packet */
-  while (packetLength > 0 ) {
-
-	/* Check for short packet */
-	if (packetLength < (long)MIN_AVP_SIZE) {
-		if ( suppress_console_output == FALSE )
-			g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%ld bytes))",
-				packetLength, (long)MIN_AVP_SIZE);
-		BadPacket = TRUE;
-	  /* Don't even bother trying to parse a short packet. */
-	  return;
+	packetLength = tvb_length(tvb);
+	
+	/* Check for invalid packet lengths */
+	if (packetLength <= 0) {
+		proto_tree_add_text(avp_tree, tvb, offset, tvb_length(tvb),
+		                    "No Attribute Value Pairs Found");
+		return;
 	}
 
-	/* Copy our header */
-	tvb_memcpy(tvb, (guint8*) &avph, offset, MIN((long)sizeof(avph),packetLength));
+	/* Spin around until we run out of packet */
+	while (packetLength > 0 )
+	{
+		gboolean AVP_code_found;
+		
+		/* Check for short packet */
+		if (packetLength < (long)MIN_AVP_SIZE) {
+			if ( suppress_console_output == FALSE )
+				g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%ld bytes))",
+				          packetLength, (long)MIN_AVP_SIZE);
+			BadPacket = TRUE;
+			/* Don't even bother trying to parse a short packet. */
+			return;
+		}
 
-	/* Fix the byte ordering */
-	avph.avp_code = g_ntohl(avph.avp_code);
-	avph.avp_flagsLength = g_ntohl(avph.avp_flagsLength);
-
-	flags = (avph.avp_flagsLength & 0xff000000) >> 24;
-	avpLength = avph.avp_flagsLength & 0x00ffffff;
-
-	/* Set up our flags string */
-	if (check_col(pinfo->cinfo, COL_INFO) || avp_tree) {
-	  int fslen;
+		/* Copy our header */
+		tvb_memcpy(tvb, (guint8*) &avph, offset, MIN((long)sizeof(avph),packetLength));
+	
+		/* Fix the byte ordering */
+		avph.avp_code = g_ntohl(avph.avp_code);
+		avph.avp_flagsLength = g_ntohl(avph.avp_flagsLength);
+	
+		flags = (avph.avp_flagsLength & 0xff000000) >> 24;
+		avpLength = avph.avp_flagsLength & 0x00ffffff;
+	
+		/* Set up our flags string */
+		if (check_col(pinfo->cinfo, COL_INFO) || avp_tree) {
+			int fslen;
 
 #define FLAG_STR_LEN 64
-	  flagstr=ep_alloc(FLAG_STR_LEN);
-	  flagstr[0]=0;
-	  fslen=0;
-	  for (i = 0; i < 8; i++) {
-		bpos = 1 << i;
-		if (flags & bpos) {
-		  if (flagstr[0]) {
-			fslen+=MIN(FLAG_STR_LEN-fslen,
-				   g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
-		  }
-		  fslen+=MIN(FLAG_STR_LEN-fslen,
-			     g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
-		}
-	  }
-	  if (flagstr[0] == 0) {
-		flagstr="<None>";
-	  }
-	}
-
-	/* Dissect our vendor id if it exists  and set hdr length */
-	if (flags & AVP_FLAGS_V) {
-	  vendorId = g_ntohl(avph.avp_vendorId);
-	  /* Vendor id */
-	  hdrLength = sizeof(e_avphdr);
-	} else {
-	  /* No vendor */
-	  hdrLength = sizeof(e_avphdr) -
-		sizeof(guint32);
-	  vendorId = 0;
-	}
-
-	if (vendorId) {
-	  vendorName=diameter_vendor_to_str(vendorId, TRUE);
-	} else {
-	  vendorName="";
-	}
-
-	/* Check for bad length */
-	if (avpLength < MIN_AVP_SIZE ||
-		((long)avpLength > packetLength)) {
-		if ( suppress_console_output == FALSE )
-			g_warning("Diameter: AVP payload size invalid: avp_length: %ld bytes,  "
-				"min: %ld bytes,    packetLen: %d",
-				(long)avpLength, (long)MIN_AVP_SIZE,
-				packetLength);
-		BadPacket = TRUE;
-	}
-
-	/* Check for bad flags */
-	if (flags & AVP_FLAGS_RESERVED) {
-		if ( suppress_console_output == FALSE )
-			g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
-				" resFl=0x%x",
-				flags, AVP_FLAGS_RESERVED);
-	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit 
-	   BadPacket = TRUE; 
-	   */
-	}
-
-	/*
-	 * Compute amount of byte-alignment fix (Diameter AVPs are sent on 4 byte
-	 * boundries)
-	 */
-	fixAmt = 4 - (avpLength % 4);
-	if (fixAmt == 4) fixAmt = 0;
-
-	/* shrink our packetLength */
-	packetLength = packetLength - (avpLength + fixAmt);
-
-	/* Check for out of bounds */
-	if (packetLength < 0) {
-		if ( suppress_console_output == FALSE )
-			g_warning("Diameter: Bad AVP: Bad new length (%d bytes) ",
-				packetLength);
-		BadPacket = TRUE;
-	}
-
-	/* Make avp Name & type */
-	avpTypeString=val_to_str(diameter_avp_get_type(avph.avp_code,vendorId),
-									 TypeValues,
-									 "Unknown-Type: 0x%08x");
-	avpNameString=diameter_avp_get_name(avph.avp_code, vendorId);
-
-	avptf = proto_tree_add_text(avp_tree, tvb,
-								offset, avpLength + fixAmt,
-								"%s (%s) l:0x%x (%d bytes) (%d padded bytes)",
-								avpNameString, avpTypeString, avpLength,
-								avpLength, avpLength+fixAmt);
-	avpi_tree = proto_item_add_subtree(avptf,
-									   ett_diameter_avpinfo);
-
-	if (avpi_tree !=NULL) {
-	  /* Command Code */
-	  proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_code,
-					   tvb, offset, 4, avph.avp_code, "%s (%u)", avpNameString,avph.avp_code);
-	  offset += 4;
-
-	  tf = proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_flags, tvb,
-						offset, 1, flags, "0x%02x (%s)", flags,
-						flagstr);
-	  flags_tree = proto_item_add_subtree(tf, ett_diameter_avp_flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_vendor_specific, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_mandatory, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_protected, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved3,  tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved4,  tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved5,  tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved6,  tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved7,  tvb, offset, 1, flags);
-	  offset += 1;
-
-	  proto_tree_add_uint(avpi_tree, hf_diameter_avp_length,
-						  tvb, offset, 3, avpLength);
-	  offset += 3;
-
-	  if (flags & AVP_FLAGS_V) {
-		proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_vendor_id,
-						 tvb, offset, 4, vendorId, "%s", vendorName);
-		offset += 4;
-	  }
-
-	  avpDataLength = avpLength - hdrLength;
-
-	  /*
-	   * If we've got a bad packet, just highlight the data.  Don't try
-	   * to parse it, and, don't move to next AVP.
-	   */
-	  if (BadPacket) {
-		offset -= hdrLength;
-		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					tvb, offset, tvb_length(tvb) - offset,
-					tvb_get_ptr(tvb, offset, tvb_length(tvb) - offset),
-					"Bad AVP (Suspect Data Not Dissected)");
-		return;
-	  }
-
-	  avpType=diameter_avp_get_type(avph.avp_code,vendorId);
-
-	  switch(avpType) {
-	  case DIAMETER_GROUPED:
-		buffer=ep_alloc(256);
-		g_snprintf(buffer, 256, "%s Grouped AVPs", avpNameString);
-		/* Recursively call ourselves */
-		grouptf = proto_tree_add_text(avpi_tree,
-									  tvb, offset, tvb_length(tvb),
-									  buffer);
-
-		group_tree = proto_item_add_subtree(grouptf,
-											ett_diameter_avp);
-
-		group_tvb = tvb_new_subset(tvb, offset,
-								   MIN(avpDataLength, tvb_length(tvb)-offset), avpDataLength);
-		if (group_tree != NULL) {
-		  dissect_avps( group_tvb, pinfo, group_tree);
-		}
-		break;
-
-	  case DIAMETER_IDENTITY:
-		{
-		  const guint8 *data;
-
-		  data = tvb_get_ptr(tvb, offset, avpDataLength);
-		  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-				               tvb, offset, avpDataLength, data,
-					       "Identity: %*.*s",
-					       (int)avpDataLength,
-					       (int)avpDataLength, data);
-		}
-		break;
-	  case DIAMETER_UTF8STRING:
-		{
-		  const guint8 *data;
-
-		  data = tvb_get_ptr(tvb, offset, avpDataLength);
-		  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-					       tvb, offset, avpDataLength, data,
-					       "UTF8String: %*.*s",
-					       (int)avpDataLength,
-					       (int)avpDataLength, data);
-		}
-		break;
-	  case DIAMETER_IP_ADDRESS:
-    {
-      switch(gbl_version) {
-        case DIAMETER_V16:
-		if (avpDataLength == 4) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
-				      tvb, offset, avpDataLength, FALSE);
-		} else if (avpDataLength == 16) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
-				      tvb, offset, avpDataLength, FALSE);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-                  "Error! Bad Address Length (Address in RFC3588 format?)");
-          }
-          break;
-        case DIAMETER_RFC:
-          /* Indicate the address family */
-          proto_tree_add_item(avpi_tree, hf_diameter_avp_data_addrfamily,
-              tvb, offset, 2, FALSE);
-          if (tvb_get_ntohs(tvb, offset) == 0x0001) {
-            proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
-                    tvb, offset+2, avpDataLength-2, FALSE);
-          } else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
-            proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
-                    tvb, offset+2, avpDataLength-2, FALSE);
-          } else {
-            proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-                    tvb, offset, avpDataLength,
-                    tvb_get_ptr(tvb, offset, avpDataLength),
-                    "Error! Can't Parse Address Family %d (Address in draft v16 format?)",
-                    (int)tvb_get_ntohs(tvb, offset));
-          }
-          break;
-      }
-		}
-		break;
-
-	  case DIAMETER_INTEGER32:
-		if (avpDataLength == 4) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int32,
-				      tvb, offset, avpDataLength, FALSE);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Integer32 Length");
-		}
-		break;
-
-	  case DIAMETER_UNSIGNED32:
-		if (avpDataLength == 4) {
-		  guint32 data;
-
-		  data = tvb_get_ntohl(tvb, offset);
-		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-					     tvb, offset, avpDataLength, data,
-					     "Value: 0x%08x (%u)", data, data);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Unsigned32 Length");
-		}
-		break;
-
-	  case DIAMETER_UNSIGNED32ENUM:
-		if (avpDataLength == 4) {
-		  guint32 data;
-
-		  data = tvb_get_ntohl(tvb, offset);
-		  valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
-		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-					     tvb, offset, avpDataLength, data,
-					     "Value: 0x%08x (%u): %s", data,
-					     data, valstr);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Enumerated Length");
-		}
-		break;
-
-	  case DIAMETER_INTEGER64:
-		if (avpDataLength == 8) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int64,
-				      tvb, offset, 8, FALSE);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Integer64 Length");
-		}
-		break;
-
-	  case DIAMETER_UNSIGNED64:
-		if (avpDataLength == 8) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64,
-				      tvb, offset, 8, FALSE);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Unsigned64 Length");
-		}
-		break;
-
-	  case DIAMETER_TIME:
-		if (avpDataLength == 4) {
-		  nstime_t data;
-		  struct tm *gmtp;
-
-		  data.secs = tvb_get_ntohl(tvb, offset);
-		  /* Present the time as UTC, Time before 00:00:00 UTC, January 1, 1970 can't be presented correctly  */
-			if ( data.secs >= NTP_TIME_DIFF){
-				data.secs -= NTP_TIME_DIFF;
-				data.nsecs = 0;
-
-				gmtp = gmtime(&data.secs);
-				buffer=ep_alloc(64);
-				strftime(buffer, 64,
-				"%a, %d %b %Y %H:%M:%S UTC", gmtp);
-
-				proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
-						tvb, offset, avpDataLength, &data,
-						"Time: %s", buffer);
-			}else{
-				proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						tvb, offset, avpDataLength,
-						tvb_get_ptr(tvb, offset, avpDataLength),
-						"Error!  Time before 00:00:00 UTC, January 1, 1970");
+			flagstr=ep_alloc(FLAG_STR_LEN);
+			flagstr[0]=0;
+			fslen=0;
+			for (i = 0; i < 8; i++) {
+				bpos = 1 << i;
+				if (flags & bpos) {
+					if (flagstr[0]) {
+						fslen+=MIN(FLAG_STR_LEN-fslen,
+						           g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
+					}
+					fslen+=MIN(FLAG_STR_LEN-fslen,
+					               g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
+				}
 			}
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Time Length");
+			if (flagstr[0] == 0) {
+				flagstr="<None>";
+			}
 		}
-		break;
 
-	  case DIAMETER_ENUMERATED:
-		if (avpDataLength == 4) {
-		  guint32 data;
-
-		  data = tvb_get_ntohl(tvb, offset);
-		  valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
-		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-					     tvb, offset, avpDataLength, data,
-					     "Value: 0x%08x (%u): %s", data,
-					     data, valstr);
+		/* Dissect our vendor id if it exists  and set hdr length */
+		if (flags & AVP_FLAGS_V) {
+			vendorId = g_ntohl(avph.avp_vendorId);
+			/* Vendor id */
+			hdrLength = sizeof(e_avphdr);
 		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Enumerated Length");
+			/* No vendor */
+			hdrLength = sizeof(e_avphdr) - sizeof(guint32);
+			vendorId = 0;
 		}
-		break;
 
-	  case DIAMETER_VENDOR_ID:
-		if (avpDataLength == 4) {
-		  proto_tree_add_item(avpi_tree, hf_diameter_vendor_id, tvb, offset, avpDataLength, FALSE);
+		if (vendorId) {
+			vendorName=diameter_vendor_to_str(vendorId, TRUE);
 		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Vendor ID Length");
+			vendorName="";
 		}
-		break;
 
-	  case DIAMETER_APPLICATION_ID:
-		if (avpDataLength == 4) {
-		  guint32 data;
-
-		  data = tvb_get_ntohl(tvb, offset);
-		  valstr = diameter_app_to_str(data);
-		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-					     tvb, offset, avpDataLength, data,
-					     "Application ID: %s %d (0x%08x)",
-					     valstr, data, data);
-		} else {
-		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					      tvb, offset, avpDataLength,
-					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Application ID Length");
+		/* Check for bad length */
+		if (avpLength < MIN_AVP_SIZE ||
+		    ((long)avpLength > packetLength))
+		{
+			if ( suppress_console_output == FALSE )
+				g_warning("Diameter: AVP payload size invalid: avp_length: %ld bytes,  "
+				          "min: %ld bytes,    packetLen: %d",
+				          (long)avpLength, (long)MIN_AVP_SIZE, packetLength);
+			BadPacket = TRUE;
 		}
-		break;
 
-	  case DIAMETER_MIP_REG_REQ:
-		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
-		break;
+		/* Check for bad flags */
+		if (flags & AVP_FLAGS_RESERVED) {
+			if ( suppress_console_output == FALSE )
+				g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
+				          " resFl=0x%x",
+				          flags, AVP_FLAGS_RESERVED);
+				/* For now, don't set bad packet, since I'm accidentally setting a wrong bit 
+				BadPacket = TRUE; 
+				*/
+		}
 
-	  case DIAMETER_URI:
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_diameter_uri,
-				    tvb, offset, avpDataLength, FALSE);
-		  break;
+		/*
+		 * Compute amount of byte-alignment fix (Diameter AVPs are sent on 4 byte
+		 * boundries)
+		 */
+		fixAmt = 4 - (avpLength % 4);
+		if (fixAmt == 4)
+			fixAmt = 0;
 
-	  case DIAMETER_SESSION_ID:
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_session_id,
-				    tvb, offset, avpDataLength, FALSE);
-		break;
+		/* shrink our packetLength */
+		packetLength = packetLength - (avpLength + fixAmt);
 
-	  case DIAMETER_PUBLIC_ID:
-		  {
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_public_id,
-				    tvb, offset, avpDataLength, FALSE);
-		  /* This is a SIP address, to be able to filter the SIP messages
-		   * belonging to this Diameter session add this to the SIP filter.
-		   */
-		dfilter_store_sip_from_addr(tvb, avpi_tree, offset, avpDataLength);
-		  }
-		break;
-	  case DIAMETER_PRIVATE_ID:
-		  {
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_private_id,
-				    tvb, offset, avpDataLength, FALSE);
-		  }
+		/* Check for out of bounds */
+		if (packetLength < 0) {
+			if ( suppress_console_output == FALSE )
+				g_warning("Diameter: Bad AVP: Bad new length (%d bytes) ",
+				          packetLength);
+			BadPacket = TRUE;
+		}
 
-	  default:
-	  case DIAMETER_OCTET_STRING:
-		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-					    tvb, offset, avpDataLength,
-					    tvb_get_ptr(tvb, offset, avpDataLength),
-					   "Hex Data Highlighted Below");
-		break;
+		/* Make avp Name & type */
+		avpTypeString=val_to_str(diameter_avp_get_type(avph.avp_code,vendorId),
+		                         TypeValues,
+		                         "Unknown-Type: 0x%08x");
+		avpNameString=diameter_avp_get_name(avph.avp_code, vendorId, &AVP_code_found);
 
-	  } /* switch type */
-	} /* avpi_tree != null */
-	offset += (avpLength - hdrLength);
-	offset += fixAmt; /* fix byte alignment */
-  } /* loop */
+		avptf = proto_tree_add_text(avp_tree, tvb,
+		                            offset, avpLength + fixAmt,
+		                            "%s (%s) l:0x%x (%d bytes) (%d padded bytes)",
+		                            avpNameString, avpTypeString, avpLength,
+		                            avpLength, avpLength+fixAmt);
+		avpi_tree = proto_item_add_subtree(avptf, ett_diameter_avpinfo);
+
+		if (avpi_tree !=NULL)
+		{
+			/* Command Code */
+			proto_item *ti;
+			ti = proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_code,
+			                                      tvb, offset, 4, avph.avp_code, "%s (%u)",
+			                                      avpNameString,avph.avp_code);
+			if (!AVP_code_found)
+			{
+				printf("adding expert info!\n");
+				expert_add_info_format(pinfo, ti,
+				                       PI_UNDECODED, PI_NOTE,
+				                       "AVP info not available (code %u)",
+				                       avph.avp_code);
+			}
+			offset += 4;
+
+			tf = proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_flags, tvb,
+			                                      offset, 1, flags, "0x%02x (%s)", flags,
+			                                      flagstr);
+			flags_tree = proto_item_add_subtree(tf, ett_diameter_avp_flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_vendor_specific, tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_mandatory, tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_protected, tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved3,  tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved4,  tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved5,  tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved6,  tvb, offset, 1, flags);
+			proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_reserved7,  tvb, offset, 1, flags);
+			offset += 1;
+
+			proto_tree_add_uint(avpi_tree, hf_diameter_avp_length,
+			                    tvb, offset, 3, avpLength);
+			offset += 3;
+
+			if (flags & AVP_FLAGS_V) {
+				proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_vendor_id,
+				                                 tvb, offset, 4, vendorId, "%s", vendorName);
+				offset += 4;
+			}
+
+			avpDataLength = avpLength - hdrLength;
+
+			/*
+			* If we've got a bad packet, just highlight the data.  Don't try
+			* to parse it, and, don't move to next AVP.
+			*/
+			if (BadPacket) {
+				offset -= hdrLength;
+				proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+				                            tvb, offset, tvb_length(tvb) - offset,
+				                            tvb_get_ptr(tvb, offset, tvb_length(tvb) - offset),
+				                            "Bad AVP (Suspect Data Not Dissected)");
+				return;
+			}
+
+			avpType=diameter_avp_get_type(avph.avp_code,vendorId);
+
+			switch(avpType)
+			{
+				case DIAMETER_GROUPED:
+					buffer=ep_alloc(256);
+					g_snprintf(buffer, 256, "%s Grouped AVPs", avpNameString);
+					/* Recursively call ourselves */
+					grouptf = proto_tree_add_text(avpi_tree,
+					                              tvb, offset, tvb_length(tvb),
+					                              buffer);
+
+					group_tree = proto_item_add_subtree(grouptf, ett_diameter_avp);
+
+					group_tvb = tvb_new_subset(tvb, offset,
+					                           MIN(avpDataLength, tvb_length(tvb)-offset),
+					                           avpDataLength);
+					if (group_tree != NULL) {
+						dissect_avps( group_tvb, pinfo, group_tree);
+					}
+					break;
+	
+				case DIAMETER_IDENTITY:
+				{
+					const guint8 *data;
+
+					data = tvb_get_ptr(tvb, offset, avpDataLength);
+					proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
+					                             tvb, offset, avpDataLength, data,
+					                             "Identity: %*.*s",
+					                             (int)avpDataLength,
+					                             (int)avpDataLength, data);
+				}
+				break;
+				case DIAMETER_UTF8STRING:
+				{
+					const guint8 *data;
+		
+					data = tvb_get_ptr(tvb, offset, avpDataLength);
+					proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
+					                             tvb, offset, avpDataLength, data,
+					                             "UTF8String: %*.*s",
+					                             (int)avpDataLength,
+					                             (int)avpDataLength, data);
+				}
+					break;
+				case DIAMETER_IP_ADDRESS:
+				{
+					switch(gbl_version)
+					{
+						case DIAMETER_V16:
+							if (avpDataLength == 4) {
+								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
+								                    tvb, offset, avpDataLength, FALSE);
+							} else if (avpDataLength == 16) {
+								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
+								                    tvb, offset, avpDataLength, FALSE);
+							} else {
+								proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+								                            tvb, offset, avpDataLength,
+								                            tvb_get_ptr(tvb, offset, avpDataLength),
+								                            "Error! Bad Address Length (Address in RFC3588 format?)");
+							}
+							break;
+						case DIAMETER_RFC:
+							/* Indicate the address family */
+							proto_tree_add_item(avpi_tree, hf_diameter_avp_data_addrfamily,
+							                    tvb, offset, 2, FALSE);
+							if (tvb_get_ntohs(tvb, offset) == 0x0001) {
+								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
+								                    tvb, offset+2, avpDataLength-2, FALSE);
+							} else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
+								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
+								                    tvb, offset+2, avpDataLength-2, FALSE);
+							} else {
+								proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+								                            tvb, offset, avpDataLength,
+								                            tvb_get_ptr(tvb, offset, avpDataLength),
+								                            "Error! Can't Parse Address Family %d (Address in draft v16 format?)",
+								                            (int)tvb_get_ntohs(tvb, offset));
+							}
+							break;
+					}
+				}
+					break;
+
+				case DIAMETER_INTEGER32:
+					if (avpDataLength == 4) {
+						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int32,
+						                    tvb, offset, avpDataLength, FALSE);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Integer32 Length");
+					}
+					break;
+
+				case DIAMETER_UNSIGNED32:
+					if (avpDataLength == 4) {
+						guint32 data;
+		
+						data = tvb_get_ntohl(tvb, offset);
+						proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+						                           tvb, offset, avpDataLength, data,
+						                           "Value: 0x%08x (%u)", data, data);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Unsigned32 Length");
+					}
+					break;
+
+				case DIAMETER_UNSIGNED32ENUM:
+					if (avpDataLength == 4) {
+						guint32 data;
+			
+						data = tvb_get_ntohl(tvb, offset);
+						valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
+						proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+						                           tvb, offset, avpDataLength, data,
+						                           "Value: 0x%08x (%u): %s", data,
+						                           data, valstr);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Enumerated Length");
+					}
+					break;
+
+				case DIAMETER_INTEGER64:
+					if (avpDataLength == 8) {
+						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int64,
+						                    tvb, offset, 8, FALSE);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Integer64 Length");
+					}
+					break;
+
+				case DIAMETER_UNSIGNED64:
+					if (avpDataLength == 8) {
+						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64,
+						                    tvb, offset, 8, FALSE);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Unsigned64 Length");
+					}
+					break;
+
+				case DIAMETER_TIME:
+					if (avpDataLength == 4) {
+						nstime_t data;
+						struct tm *gmtp;
+		
+						data.secs = tvb_get_ntohl(tvb, offset);
+						/* Present the time as UTC, Time before 00:00:00 UTC, January 1, 1970 can't be presented correctly  */
+						if ( data.secs >= NTP_TIME_DIFF){
+							data.secs -= NTP_TIME_DIFF;
+							data.nsecs = 0;
+		
+							gmtp = gmtime(&data.secs);
+							buffer=ep_alloc(64);
+							strftime(buffer, 64, "%a, %d %b %Y %H:%M:%S UTC", gmtp);
+		
+							proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
+							                           tvb, offset, avpDataLength, &data,
+							                           "Time: %s", buffer);
+						}else{
+							proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+							                            tvb, offset, avpDataLength,
+							                            tvb_get_ptr(tvb, offset, avpDataLength),
+							                            "Error!  Time before 00:00:00 UTC, January 1, 1970");
+						}
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Time Length");
+					}
+					break;
+
+				case DIAMETER_ENUMERATED:
+					if (avpDataLength == 4) {
+						guint32 data;
+		
+						data = tvb_get_ntohl(tvb, offset);
+						valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
+						proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+						                           tvb, offset, avpDataLength, data,
+						                           "Value: 0x%08x (%u): %s", data,
+						                           data, valstr);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Enumerated Length");
+					}
+					break;
+
+				case DIAMETER_VENDOR_ID:
+					if (avpDataLength == 4) {
+						proto_tree_add_item(avpi_tree, hf_diameter_vendor_id, tvb, offset, avpDataLength, FALSE);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Vendor ID Length");
+					}
+					break;
+
+				case DIAMETER_APPLICATION_ID:
+					if (avpDataLength == 4) {
+						guint32 data;
+
+						data = tvb_get_ntohl(tvb, offset);
+						valstr = diameter_app_to_str(data);
+						proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+						                           tvb, offset, avpDataLength, data,
+						                           "Application ID: %s %d (0x%08x)",
+						                           valstr, data, data);
+					} else {
+						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                            tvb, offset, avpDataLength,
+						                            tvb_get_ptr(tvb, offset, avpDataLength),
+						                            "Error!  Bad Application ID Length");
+					}
+					break;
+
+				case DIAMETER_MIP_REG_REQ:
+					safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
+					break;
+
+				case DIAMETER_URI:
+					proto_tree_add_item(avpi_tree, hf_diameter_avp_diameter_uri,
+					                    tvb, offset, avpDataLength, FALSE);
+					break;
+
+				case DIAMETER_SESSION_ID:
+					proto_tree_add_item(avpi_tree, hf_diameter_avp_session_id,
+					                    tvb, offset, avpDataLength, FALSE);
+					break;
+
+				case DIAMETER_PUBLIC_ID:
+				{
+					proto_tree_add_item(avpi_tree, hf_diameter_avp_public_id,
+					                    tvb, offset, avpDataLength, FALSE);
+					/* This is a SIP address, to be able to filter the SIP messages
+					* belonging to this Diameter session add this to the SIP filter.
+					*/
+					dfilter_store_sip_from_addr(tvb, avpi_tree, offset, avpDataLength);
+				}
+					break;
+				case DIAMETER_PRIVATE_ID:
+				{
+					proto_tree_add_item(avpi_tree, hf_diameter_avp_private_id,
+					                    tvb, offset, avpDataLength, FALSE);
+				}
+
+				default:
+				case DIAMETER_OCTET_STRING:
+					proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					                            tvb, offset, avpDataLength,
+					                            tvb_get_ptr(tvb, offset, avpDataLength),
+					                            "Hex Data Highlighted Below");
+					break;
+			} /* switch type */
+		} /* avpi_tree != null */
+		offset += (avpLength - hdrLength);
+		offset += fixAmt; /* fix byte alignment */
+	} /* loop */
 } /* dissect_avps */
 
 

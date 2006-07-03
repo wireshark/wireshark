@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id:$ -->
+<!-- $Id$ -->
 
 	<application id="16777215" name="IMS_Cx_Dx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
 
@@ -277,26 +277,32 @@
                         <enum name="Unregistered-Profile" code="2"/>
 		</avp>
 		<!-- GROUPED -->
-		<avp name="Supported-Features" code="628" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Supported-Features" code="628" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
                         <grouped>
                                 <gavp name="Vendor-ID"/>
                                 <gavp name="Feature-List-ID"/>
                                 <gavp name="Feature-List"/>
                         </grouped>
 		</avp>
-		<avp name="Feature-List-ID" code="629" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Feature-List-ID" code="629" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Feature-List" code="630" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Feature-List" code="630" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<!-- GROUPED -->
-		<avp name="Supported-Applications" code="631" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Supported-Applications" code="631" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
                         <grouped>
                                 <gavp name="Auth-Application-Id"/>
                                 <gavp name="Acct-Application-Id"/>
                                 <gavp name="Vendor-Specific-Application-Id"/>
                                 <gavp name="Secondary-Charging-Collection-Function-Name"/>
+                        </grouped>
+		</avp>
+		<!-- GROUPED -->
+		<avp name="Associated-Identities" code="632" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+                        <grouped>
+                                <gavp name="User-Name"/>
                         </grouped>
 		</avp>
 
