@@ -14,6 +14,7 @@
  * Added Dissection of Radio Resource Management Information Elements
  * and othere enhancements and fixes.
  * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
+ * Small bugfixes, mainly in Qos and TFT by Nils Ljungberg and Stefan Boman [AT] ericsson.com
  *
  * Title		3GPP			Other
  *
@@ -104,6 +105,7 @@
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_a.h"
+#include "packet-ipv6.h"
 
 #include "packet-ppp.h"
 
@@ -1195,6 +1197,24 @@ static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1 = -1;
 static int hf_gsm_a_extension = -1;
 static int hf_gsm_a_type_of_number = -1;
 static int hf_gsm_a_numbering_plan_id = -1;
+
+static int hf_gsm_a_ptmsi_sig =-1;
+static int hf_gsm_a_ptmsi_sig2 =-1;
+
+static int hf_gsm_a_tft_op_code = -1;
+static int hf_gsm_a_tft_e_bit = -1;
+static int hf_gsm_a_tft_pkt_flt = -1;
+static int hf_gsm_a_tft_ip4_address = -1;
+static int hf_gsm_a_tft_ip4_mask = -1;
+static int hf_gsm_a_tft_ip6_address = -1;
+static int hf_gsm_a_tft_ip6_mask = -1;
+static int hf_gsm_a_tft_protocol_header = -1;
+static int hf_gsm_a_tft_port = -1;
+static int hf_gsm_a_tft_port_low = -1;
+static int hf_gsm_a_tft_port_high = -1;
+static int hf_gsm_a_tft_security = -1;
+static int hf_gsm_a_tft_traffic_mask = -1;
+static int hf_gsm_a_tft_flow = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -8871,23 +8891,11 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 static guint8
 de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	val;
     guint32	curr_offset;
-    
-    len = len;
+    proto_item 	*curr_item;
     curr_offset = offset;
-
-    val = tvb_get_guint8(tvb, curr_offset);
-    val <<= 8;
-    val |= tvb_get_guint8(tvb, curr_offset+1);
-    val <<= 8;
-    val |= tvb_get_guint8(tvb, curr_offset+2);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 3,
-	"P-TMSI Signature: 0x%08x (%u)",
-	val,
-	val);
+    curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig,tvb,curr_offset,3,FALSE);
+    proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 
     curr_offset+=3;
 
@@ -8902,22 +8910,12 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 static guint8
 de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
 {
-    guint32	val;
     guint32	curr_offset;
-
+    proto_item	*curr_item;
     curr_offset = offset;
 
-    val = tvb_get_guint8(tvb, curr_offset);
-    val <<= 8;
-    val |= tvb_get_guint8(tvb, curr_offset+1);
-    val <<= 8;
-    val |= tvb_get_guint8(tvb, curr_offset+2);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 3,
-	"P-TMSI Signature 2: 0x%08x (%u) %s",
-	val, val , add_string ? add_string : "");
-
+    curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig2,tvb,curr_offset,3,FALSE);
+    proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
     curr_offset+=3;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -11679,7 +11677,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 {
     guint32	curr_offset;
     guint	curr_len;
-    guchar       oct;
+    guchar       oct, tmp_oct;
     const gchar	*str;
     
     curr_len = len;
@@ -11816,9 +11814,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    return(curr_offset - offset);
     }
 
-    proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, curr_offset, 1, FALSE);
 
     curr_offset+= 1;	   
     curr_len-= 1;
@@ -11842,10 +11840,10 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     	default: str="Unspecified";
     }
 
-    if (( oct >= 1 ) && ( oct <= 96 ))
+    if (( oct >= 1 ) && ( oct <= 0x96 ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-	    	"Maximum SDU size: (%u) %u octets",oct,oct);
+	    	"Maximum SDU size: (%u) %u octets",oct,oct*10);
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
@@ -11933,8 +11931,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    return(curr_offset - offset);
     }
 
-    proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, FALSE);
 
     curr_offset+= 1;	   
     curr_len-= 1;
@@ -11955,18 +11953,20 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     	default: str="This should not happen - BUG";
     }
 
-    if (( oct >= 1 ) && ( oct <= 0x0f ))
+    tmp_oct = oct>>2;
+
+    if (( tmp_oct >= 1 ) && ( tmp_oct <= 0x0f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
     		"Transfer Delay: (%u) %ums",oct>>2,(oct>>2)*10);
-    else if (( oct >= 0x10 ) && ( oct <= 0x1f ))
+    else if (( tmp_oct >= 0x10 ) && ( tmp_oct <= 0x1f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x10)*50);
-    else if (( oct >= 0x20 ) && ( oct <= 0x3e ))
+    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x10)*50+200);
+    else if (( tmp_oct >= 0x20 ) && ( tmp_oct <= 0x3e ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x20)*100);
+    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x20)*100+1000);
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
@@ -12211,7 +12211,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"LLC SAPI: (%u) %s %s",
+	"Cause: (%u) %s %s",
 	oct, str,add_string ? add_string : "");
 
     curr_offset++;
@@ -12357,8 +12357,27 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 /*
- * [7] 10.5.6.12
+ * [7] 10.5.6.12     TFT - Traffic Flow Template
  */
+/* TFT operation code (octet 3) */
+static const value_string gsm_a_tft_op_code_vals[] = {
+	{ 0,		"Spare"},
+	{ 1,		"Create new TFT"},
+	{ 2,		"Delete existing TFT"},
+	{ 3,		"Add packet filters to existing TFT"},
+	{ 4,		"Replace packet filters in existing TFT"},
+	{ 5,		"Delete packet filters from existing TFT"},
+	{ 6,		"No TFT operation"},
+	{ 7,		"Reserved"},
+	{ 0,	NULL }
+};
+
+static const true_false_string gsm_a_tft_e_bit  = {
+  "parameters list is included",
+  "parameters list is not included"
+};
+
+
 static guint8
 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -12366,56 +12385,37 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     guint	curr_len;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
+    proto_tree 	*comp_tree = NULL;
     guchar	op_code;
     guchar	pkt_fil_count;
     guchar      e_bit;
     const gchar *str;
     guchar      count;
     guchar	oct;
+    gint pf_length;
+    gint pf_identifier;
+    gint pack_component_type;
     
     curr_len = len;
     curr_offset = offset;
 
     /*
-     * parse first byte
+     * parse first octet. It contain TFT operation code, E bit and Number of packet filters
      */
     oct = tvb_get_guint8(tvb, curr_offset);
-    curr_offset++;
-    curr_len--;
 
     op_code = oct>>5;
     pkt_fil_count = oct&0x0f;
     e_bit = (oct>>4)&1;
 
-    switch ( op_code )
-    {
-    	case 0x00: str="Spare"; break;
-    	case 0x01: str="Create new TFT"; break;
-    	case 0x02: str="Delete existing TFT"; break;
-    	case 0x03: str="Add packet filters to existing TFT"; break;
-    	case 0x04: str="Replace packet filters in existing TFT"; break;
-    	case 0x05: str="Delete packet filters from existing TFT"; break;
-    	case 0x06: str="No TFT operation"; break;
-    	case 0x07: str="Reserved"; break;
-    	default: str="dissector bug";
-    }
-    proto_tree_add_text(tree,
-    	tvb, curr_offset-1, 1,
-    	"Operation code: (%u) %s",op_code,str);
+	proto_tree_add_item(tree,hf_gsm_a_tft_op_code,tvb,curr_offset,1,FALSE);
+	proto_tree_add_item(tree,hf_gsm_a_tft_e_bit,tvb,curr_offset,1,FALSE);
+	proto_tree_add_item(tree,hf_gsm_a_tft_pkt_flt,tvb,curr_offset,1,FALSE);
 
-    switch ( e_bit )
-    {
-    	case 0x00: str="parameters list is not included"; break;
-    	case 0x01: str="parameters list is included"; break;
-    	default: str="dissector bug";
-    }
-    proto_tree_add_text(tree,
-    	tvb, curr_offset-1, 1,
-    	"E bit: (%u) %s",e_bit,str);
+    curr_offset++;
+    curr_len--;
 
-    proto_tree_add_text(tree,
-    	tvb, curr_offset-1, 1,
-    	"Number of packet filters: 0x%02x (%u)",pkt_fil_count,pkt_fil_count);
+    /* Packet filter list dissect */
 
     count = 0;
     if ( op_code == 2 )			/* delete TFT contains no packet filters. so we will jump over it */
@@ -12424,13 +12424,17 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     {
 	tf = proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-    		"Packet filter %d",count+1);
+    		"Packet filter %d",count);   /* 0-> 7 */
 
     	tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
 
-	if ( op_code == 5 )
+	if ( op_code == 5 )  /* Delete packet filters from existing TFT - just a list of identifiers */
+
 	{
-		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		if ((curr_offset-offset)<1) { 
+			proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
+			return(curr_offset-offset);
+		}
 		oct = tvb_get_guint8(tvb, curr_offset);
 		curr_offset++;
 		curr_len--;
@@ -12439,37 +12443,25 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			tvb, curr_offset-1, 1,
 			"Packet filter identifier: 0x%02x (%u)",oct,oct );		
 	}
-	else
+	else				/* create new, Add packet filters or Replace packet filters */
 	{
-		gint pf_length;
-		gint pf_identifier;
-		guchar *pchar;
 		
-		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		if ((curr_offset-offset)<1) { 
+			proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data"); 
+			return(curr_offset-offset);
+		}
 		pf_identifier = tvb_get_guint8(tvb, curr_offset);
 		curr_offset++;
 		curr_len--;
 
-		switch ( pf_identifier )
-		{
-			case 0x10: str="IPv4 source address type"; break;
-			case 0x20: str="IPv6 source address type"; break;
-			case 0x30: str="Protocol identifier/Next header type"; break;
-			case 0x40: str="Single destination port type"; break;
-			case 0x41: str="Destination port range type"; break;
-			case 0x50: str="Single source port type"; break;
-			case 0x51: str="Source port range type"; break;
-			case 0x60: str="Security parameter index type"; break;
-			case 0x70: str="Type of service/Traffic class type"; break;
-			case 0x80: str="Flow label type"; break;
-			default: str="not specified";
-		}
-
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1, 1,
-			"Packet filter identifier: (%u) %s",pf_identifier,str );		
+			"Packet filter identifier: %u (%u)",pf_identifier, pf_identifier);		
 
-		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		if ((curr_offset-offset)<1) { 
+			proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data"); 
+			return(curr_offset-offset);
+		}
 		oct = tvb_get_guint8(tvb, curr_offset);
 		curr_offset++;
 		curr_len--;
@@ -12478,7 +12470,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			tvb, curr_offset-1, 1,
 			"Packet evaluation precedence: 0x%02x (%u)",oct,oct );		
 
-		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data"); return(curr_offset-offset);}
 		pf_length = tvb_get_guint8(tvb, curr_offset);
 		curr_offset++;
 		curr_len--;
@@ -12486,194 +12478,124 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1, 1,
 			"Packet filter length: 0x%02x (%u)",pf_length,pf_length );		
+		/* New tree for component */
 
-		if (( pf_identifier == 0x10 ) && ( pf_length == 4 ))
-		{
-	                proto_tree_add_text(tree,
-    		            tvb, curr_offset, pf_length,
-    	        	    "Packet filter content: IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
-		}
-		else if (( pf_identifier == 0x20 ) && ( pf_length == 16 ))
-		{
-			struct e_in6_addr ipv6_addr;
+        /* Dissect Packet filter Component */
+		/* while ( filter_len > 1 ) */
+		/* packet filter component type identifier: */
 
-			tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-			proto_tree_add_text(tree,
-				tvb, curr_offset+2, len-2,
-				"Packet filter content: IPv6 %s", ip6_to_str(&ipv6_addr));
+		if (pf_length > 0 ){
+			if ((curr_offset-offset)<1) {
+				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data"); 
+				return(curr_offset-offset);
+			}
+			pack_component_type = tvb_get_guint8(tvb, curr_offset);
+			curr_offset++;
+			curr_len--;
 
-		}
-		else if (( pf_identifier == 0x30 ) && ( pf_length == 1 ))
-		{
-			oct = tvb_get_guint8(tvb, curr_offset);
+			tf=proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Packet filter component type identifier: ");
+	    	comp_tree = proto_item_add_subtree(tf, ett_sm_tft );
 			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: Protocol identifier/Next header %u",
-				oct );
-		}
-		else if (( pf_identifier == 0x40 ) && ( pf_length == 2 ))
-		{
-			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: Single destination port %u",
-				(pchar[0]<<8)|pchar[1] );
-		}
-		else if (( pf_identifier == 0x50 ) && ( pf_length == 2 ))
-		{
-			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: Single source port %u",
-				(pchar[0]<<8)|pchar[1] );
-		}
-		else if (( pf_identifier == 0x41 ) && ( pf_length == 4 ))
-		{
-			pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content:  Destination port range %u - %u", 
-				(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
-		}
-		else if (( pf_identifier == 0x51 ) && ( pf_length == 4 ))
-		{
-			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content:  Source port range %u - %u", 
-				(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
-		}
-		else if (( pf_identifier == 0x70 ) && ( pf_length == 1 ))
-		{
-			oct = tvb_get_guint8(tvb, curr_offset);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: Type of service/Traffic class %u",
-				oct );
-		}
-		else if (( pf_identifier == 0x80 ) && ( pf_length == 3 ))
-		{
-			guint32 fl;
-			oct = tvb_get_guint8(tvb, curr_offset);
-			fl = oct;
-			fl <<=8;
-			oct = tvb_get_guint8(tvb, curr_offset+1);
-			fl |= oct;
-			fl <<=8;
-			oct = tvb_get_guint8(tvb, curr_offset+2);
-			fl |= oct;
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: Flow label type %u",
-				fl );
-		}
-		else if (( pf_identifier == 0x60 ) && ( pf_length == 4 ))
-		{
-			pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content:  Security parameter index 0x%08x", 
-				(pchar[0]<<24)|(pchar[1]<<16)|(pchar[2]<<8)|pchar[3] );
-		}
-		else
-		{
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content" );		
-		}
-		curr_offset+= pf_length;
-	}
-    }
+			switch ( pack_component_type ){
+				
+				case 0x10: 
+					str="IPv4 source address type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip4_address,tvb,curr_offset,4,FALSE);
+	                curr_offset+=4;
+	                curr_len-=4;
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip4_mask,tvb,curr_offset,4,FALSE);
+	                curr_offset+=4;
+	                curr_len-=4;
+					break;
+ 
+	
+				case 0x20: 
+					str="IPv6 source address type"; 
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip6_address,tvb,curr_offset,16,FALSE);
+					curr_offset+=16;
+					curr_len-=16;
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip6_mask,tvb,curr_offset,16,FALSE);
+					curr_offset+=16;
+					curr_len-=16;
+					break;
 
-    if ( e_bit == 0 )
-    {
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, curr_len ,
-		"Too much data" );		
-	curr_offset+= curr_len;	   
-	   	   
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+				case 0x30: 
+					str="Protocol identifier/Next header type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_protocol_header,tvb,curr_offset,1,FALSE);
+					curr_offset+=1;
+					curr_len-=1;
+					break;
 
-	return(curr_offset - offset);
+				case 0x40: 
+					str="Single destination port type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
+					curr_offset+=2;
+					curr_len-=2;
 
-    }
-    
-    count = 0;
-    while ((curr_offset-offset)>=2)
-    {
-	gint p_length;
-	gint p_identifier;
-	guchar *pchar;
+				case 0x41: 
+					str="Destination port range type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
+					curr_offset+=4;
+					curr_len-=4;
+					break;
 
-	tf = proto_tree_add_text(tree,
-    		tvb, curr_offset, 1,
-    		"Parameters list %d",count+1);
+				case 0x50: 
+					str="Single source port type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
+					curr_offset+=2;
+					curr_len-=2;
+					break;
 
-    	tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
+				case 0x51: 
+					str="Source port range type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
+					curr_offset+=4;
+					curr_len-=4;
+					break;
 
-	if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
-	p_identifier = tvb_get_guint8(tvb, curr_offset);
-	curr_offset++;
-	curr_len--;
+				case 0x60: 
+					str="Security parameter index type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_security,tvb,curr_offset,4,FALSE);
+					curr_offset+=4;
+					curr_len-=4;
+					break;
 
-	switch ( p_identifier )
-	{
-		case 0x01: str="Authorization Token";
-		case 0x02: str="Flow Identifier";
-		default: str="not specified";
+
+				case 0x70: 
+					str="Type of service/Traffic class type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_qos_traffic_cls,tvb,curr_offset,1,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,FALSE);
+					curr_offset+=2;
+					curr_len-=2;
+					break;
+
+				case 0x80: 
+					str="Flow label type";
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,FALSE);
+					curr_offset+=3;
+					curr_len-=3;
+					break;
+
+				default: 
+					str="not specified";
+			}
+			proto_item_append_text(tf, "(%u) %s", pack_component_type, str );
+            count++;
+			}
+		}
 	}
 
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset-1, 1,
-		"Parameter identifier: (%u) %s",p_identifier,str );		
 
-	if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
-	p_length = tvb_get_guint8(tvb, curr_offset);
-	curr_offset++;
-	curr_len--;
-
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset-1, 1,
-		"Parameter length: 0x%02x (%u)",p_length,p_length );		
-
-	if (( p_identifier == 0x01 ) && ( p_length == 4 ))
-	{
-		pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, p_length);
-		
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset, p_length ,
-			"Parameter content: Media component %u IP Flow %u",
-			(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
-	}
-	else if ( p_identifier == 0x02 )
-	{
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset, p_length ,
-			"Parameter content: Authentication Token" );		
-	}
-	else
-	{
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset, p_length ,
-			"Parameter content" );		
-	}
-	curr_offset+= p_length;
-    
-    }
-    
-    curr_offset+= curr_len;	   
-	   	   
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-    return(curr_offset - offset);
+	/* The parameters list contains a variable number of parameters that might need to be
+	 * transferred in addition to the packet filters. If the parameters list is included, the E
+	 * bit is set to 1; otherwise, the E bit is set to 0.
+	 */
+	 if (e_bit == 1){
+		 proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Note: Possible Authorizaton Token/Flow Identifier not decoded yet");
+	 }
+ return(curr_offset - offset);
 }
 
 static guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -16715,10 +16637,10 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     
     ELEM_OPT_TV( 0x25 , BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE , "" );
     
-    ELEM_OPT_TV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI" );
-    
-    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI Signature" );
+    ELEM_OPT_TLV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI" );
 
+    ELEM_OPT_TLV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_P_TMSI_SIG , "" );
+    
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -16942,7 +16864,6 @@ static void
 dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32	curr_offset;
-    guint32	consumed;
     guint	curr_len;
 
     curr_offset = offset;
@@ -16951,11 +16872,17 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     is_uplink = IS_UPLINK_FALSE;
     g_pinfo->p2p_dir = P2P_DIR_SENT;
 
-    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+/*  If the half octect that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
+/*    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_ID_TYPE_2 );
     curr_offset--;
     curr_len++;
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );*/
     
-    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_ID_TYPE_2 );
+    elem_v(tvb, tree, BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H, curr_offset);
+    elem_v(tvb, tree, BSSAP_PDU_TYPE_DTAP, DE_ID_TYPE_2, curr_offset);
+
+    curr_offset+=1;
+    curr_len-=1;
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -17409,6 +17336,8 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
 
     ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Negotiated QoS" );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAD_PRIO);
 
 #if 0	
     /* This is done automatically */
@@ -19111,18 +19040,75 @@ proto_register_gsm_a(void)
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,          
 		"6,60 kbit/s codec rate", HFILL }
 	},
-    { &hf_gsm_a_extension,
+       { &hf_gsm_a_extension,
       { "Extension", "gsm_a.extension",
         FT_BOOLEAN, 8, TFS(&gsm_a_extension_value), 0x80,
         "Extension", HFILL }},
-    { &hf_gsm_a_type_of_number,
+       { &hf_gsm_a_type_of_number,
       { "Type of number", "gsm_a.type_of_number",
         FT_UINT8, BASE_HEX, VALS(gsm_a_type_of_number_values), 0x70,
         "Type of number", HFILL }},
-    { &hf_gsm_a_numbering_plan_id,
+       { &hf_gsm_a_numbering_plan_id,
       { "Numbering plan identification", "gsm_a.numbering_plan_id",
         FT_UINT8, BASE_HEX, VALS(gsm_a_numbering_plan_id_values), 0x0f,
         "Numbering plan identification", HFILL }},
+	{ &hf_gsm_a_tft_op_code,
+		{ "TFT operation code", "gsm_a.tft.op_code", 
+		FT_UINT8, BASE_DEC, VALS(gsm_a_tft_op_code_vals), 0xe0,
+		"TFT operation code", HFILL }
+	},
+	{ &hf_gsm_a_tft_e_bit,
+		{ "E bit","gsm_a.tft.e_bit",
+		FT_BOOLEAN,8,  TFS(&gsm_a_tft_e_bit), 0x10,          
+		"E bit", HFILL }
+	},
+	{ &hf_gsm_a_tft_pkt_flt,
+		{ "Number of packet filters", "gsm_a.tft.pkt_flt", 
+		FT_UINT8, BASE_DEC, NULL, 0x0f,
+		"Number of packet filters", HFILL }
+	},
+
+       { &hf_gsm_a_tft_ip4_address,
+      { "IPv4 adress", "gsm_a.tft.ip4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
+		"IPv4 address", HFILL }},
+	{ &hf_gsm_a_tft_ip4_mask,
+      { "IPv4 address mask", "gsm_a.tft.ip4_mask", FT_IPv4, BASE_NONE, NULL, 0x0,
+		"IPv4 address mask", HFILL }},
+	{ &hf_gsm_a_tft_ip6_address,
+      { "IPv6 adress", "gsm_a.tft.ip6_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+		"IPv6 address", HFILL }},
+	{ &hf_gsm_a_tft_ip6_mask,
+	{ "IPv6 adress mask", "gsm_a.tft.ip6_mask", FT_IPv6, BASE_NONE, NULL, 0x0,
+		"IPv6 address mask", HFILL }},
+	{ &hf_gsm_a_tft_protocol_header,
+	{ "Protocol/header", "gsm_a.tft.protocol_header", FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Protocol/header", HFILL }},
+	{ &hf_gsm_a_tft_port,
+	{ "Port", "gsm_a.tft.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+		"Port", HFILL }},
+	{ &hf_gsm_a_tft_port_low,
+	{ "Low limit port", "gsm_a.tft.port_low", FT_UINT16, BASE_DEC, NULL, 0x0,
+		"Low limit port", HFILL }},
+	{ &hf_gsm_a_tft_port_high,
+	{ "High limit port", "gsm_a.tft.port_high", FT_UINT16, BASE_DEC, NULL, 0x0,
+		"High limit port", HFILL }},
+	{ &hf_gsm_a_tft_security,
+	{ "IPSec security parameter index", "gsm_a.tft.security", FT_UINT32, BASE_HEX, NULL, 0x0,
+		"IPSec security parameter index", HFILL }},
+	{ &hf_gsm_a_tft_traffic_mask,
+	{ "Mask field", "gsm_a.tft.traffic_mask", FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Mask field", HFILL }},
+	{ &hf_gsm_a_tft_flow,
+	{ "IPv6 flow label", "gsm_a.tft.flow", FT_UINT24, BASE_HEX, NULL, 0x0FFFFF,
+		"IPv6 flow label", HFILL }},
+
+	{ &hf_gsm_a_ptmsi_sig,
+	{ "P-TMSI Signature", "gsm_a.ptmsi_sig", FT_UINT24, BASE_HEX, NULL, 0x0,
+		"P-TMSI Signature", HFILL }},
+	{ &hf_gsm_a_ptmsi_sig2,
+	{ "P-TMSI Signature 2", "gsm_a.ptmsi_sig2", FT_UINT24, BASE_HEX, NULL, 0x0,
+		"P-TMSI Signature 2", HFILL }},
+
     };
 
     /* Setup protocol subtree array */
