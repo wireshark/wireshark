@@ -1918,7 +1918,7 @@ The final implication of this is that display filters work the way you'd
 naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
 Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
-before Wireshark 0.7.6.
+in the past.
 
 proto_tree_add_item_hidden()
 ----------------------------
@@ -3161,17 +3161,16 @@ The three steps for a simple protocol are:
     2. Add fields with multiple calls of ptvcursor_add()
     3. Delete the ptvcursor with ptvcursor_free()
 
-To use the ptvcursor API, include the "ptvcursor.h" file. The NCP dissector
-is an overly-complicated example of how to use it. I don't recommend
-looking at it as a guide; instead, the API description here should be good
-enough.
+To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
+is an example of how to use it. You don't need to look at it as a guide; 
+instead, the API description here should be good enough.
 
 2.8.1 API
 
 ptvcursor_t*
 ptvcursor_new(proto_tree*, tvbuff_t*, gint offset)
     This creates a new ptvcursor_t object for iterating over a tvbuff.
-You must call this and use this ptvbcursor_t object so you can use the
+You must call this and use this ptvcursor_t object so you can use the
 ptvcursor API.
 
 proto_item*
@@ -3197,11 +3196,22 @@ ptvcursor_free(ptvcursor_t*)
 after your dissection with the ptvcursor API is completed.
 
 2.8.2 Miscellaneous functions
-    ptvcursor_tvbuff - returns the tvbuff associated with the ptvcursor
-    ptvcursor_current_offset - returns the current offset
-    ptvcursor_tree - returns the proto_tree associated with the ptvcursor
-    ptvcursor_set_tree - sets a new proto_tree for the ptvcursor
 
+tvbuff_t*
+ptvcursor_tvbuff(ptvcursor_t*)
+    returns the tvbuff associated with the ptvcursor
+
+gint
+ptvcursor_current_offset(ptvcursor_t*)
+    returns the current offset
+
+proto_tree*
+ptvcursor_tree(ptvcursor_t*)
+    returns the proto_tree associated with the ptvcursor
+
+void
+ptvcursor_set_tree(ptvcursor_t*, proto_tree *)
+    sets a new proto_tree for the ptvcursor
 
 3. Plugins
 
