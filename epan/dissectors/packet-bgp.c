@@ -652,7 +652,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     guint               plen;               /* length of the prefix address, in bits */
     guint               labnum;             /* number of labels             */
     guint16		tnl_id;		    /* Tunnel Identifier */
-    int                 ce_id,labblk_off;
+    int                 ce_id,labblk_off,labblk_size;
     union {
        guint8 addr_bytes[4];
        guint32 addr;
@@ -1022,7 +1022,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             rd_type=tvb_get_ntohs(tvb,offset+2);
             ce_id=tvb_get_ntohs(tvb,offset+10);
             labblk_off=tvb_get_ntohs(tvb,offset+12);
-            labnum = decode_MPLS_stack(tvb, offset + 14, lab_stk, sizeof(lab_stk));
+            labblk_size=tvb_get_ntohs(tvb,offset+14);
+            labnum = decode_MPLS_stack(tvb, offset + 16, lab_stk, sizeof(lab_stk));
 
             switch (rd_type) {
 
@@ -1030,10 +1031,12 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 6, 4);
                 proto_tree_add_text(tree, tvb, start_offset,
                         (offset + plen + 1) - start_offset,
-                        "RD: %u:%s, CE-ID: %u, Label-Block Offset: %u, Label Base %s",
+                        "RD: %u:%s, CE-ID: %u, Label-Block Offset: %u, "
+                        "Label-Block Size: %u Label Base %s",
                         tvb_get_ntohs(tvb, offset + 4),
                         ip_to_str(ip4addr.addr_bytes),
                         ce_id,
+                        labblk_size,
                         labblk_off,
                         lab_stk);
                 break;
@@ -1042,11 +1045,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 4, 4);
                 proto_tree_add_text(tree, tvb, offset,
                         (offset + plen + 1) - start_offset,
-                        "RD: %s:%u, CE-ID: %u, Label-Block Offset: %u, Label Base %s",
+                        "RD: %s:%u, CE-ID: %u, Label-Block Offset: %u, "
+                        "Label-Block Size: %u, Label Base %s",
                         ip_to_str(ip4addr.addr_bytes),
                         tvb_get_ntohs(tvb, offset + 8),
                         ce_id,
                         labblk_off,
+                        labblk_size,
                         lab_stk);
                 break;
 
