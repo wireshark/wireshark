@@ -1,6 +1,10 @@
 /* packet-fddi.c
  * Routines for FDDI packet disassembly
  *
+ * ANSI Standard X3T9.5/88-139, Rev 4.0
+ *
+ * ISO Standards 9314-N (N = 1 for PHY, N = 2 for MAC, N = 6 for SMT, etc.)
+ *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
  * $Id$
