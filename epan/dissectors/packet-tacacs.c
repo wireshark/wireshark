@@ -878,15 +878,8 @@ parse_tuple( char *key_from_option )
 	*/
 	mkipv4_address( &tacplus_data->s, key_from_option );
 	mkipv4_address( &tacplus_data->c, client );
-	tacplus_data->k=strdup( key );
+	tacplus_data->k=se_strdup(key);
 	tacplus_keys = g_slist_prepend( tacplus_keys, tacplus_data );
-}
-
-static
-void
-free_tacplus_keys( gpointer data, gpointer user_data _U_ )
-{
-	g_free( ((tacplus_key_entry *)data)->k );
 }
 
 static 
@@ -897,7 +890,6 @@ parse_tacplus_keys( const char *keys_from_option )
 
 	/* Drop old keys */
 	if( tacplus_keys ) {
-		g_slist_foreach( tacplus_keys, free_tacplus_keys, NULL );
 		g_slist_free( tacplus_keys );
 		tacplus_keys=NULL;
 	}
