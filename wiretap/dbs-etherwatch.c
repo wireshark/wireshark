@@ -199,7 +199,7 @@ int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->snapshot_length = 0;	/* not known */
 	wth->subtype_read = dbs_etherwatch_read;
 	wth->subtype_seek_read = dbs_etherwatch_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+	wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
 
 	return 1;
 }
@@ -482,7 +482,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	}
 
 	/* Parse the hex dump */
-    count = 0;
+	count = 0;
 	while (count < pkt_len) {
 		if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
 			*err = file_error(fh);
@@ -551,24 +551,24 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 	int		value;
 
 
-    /* Check that the record is as least as long as the check offset */
+	/* Check that the record is as least as long as the check offset */
 	for(i = 0; i < TYPE_CHECK_POS; i++)
 	{
 		if(rec[i] == '\0') {
 			return 0;
 		}
 	}
-    /* determine the format and thus the counter offset and hex dump length */
-    if(rec[TYPE_CHECK_POS] == TYPE_CHECK_BOTH)
-    {
-        pos = COUNT_POS_BOTH;
-    }
-    else
-    {
-        pos = COUNT_POS_HEX;
-    }    
+	/* determine the format and thus the counter offset and hex dump length */
+	if(rec[TYPE_CHECK_POS] == TYPE_CHECK_BOTH)
+	{
+		pos = COUNT_POS_BOTH;
+	}
+	else
+	{
+		pos = COUNT_POS_HEX;
+	}	
 
-    /* Check that the record is as least as long as the start position */
+	/* Check that the record is as least as long as the start position */
 	while(i < pos)
 	{
 		if(rec[i] == '\0') {
@@ -634,7 +634,7 @@ parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
 		}
 		pos++;
 		count++;
-	    /* Skip the seperator characters */
+		/* Skip the seperator characters */
 		while(dump[pos] == seperator) {
 			pos++;
 		}
