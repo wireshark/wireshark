@@ -501,13 +501,6 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 			
-			if (genopts_len < PGM_OPT_NAK_LIST_SIZE) {
-				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
-					ptvcursor_current_offset(cursor), 1, genopts_len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts_len, PGM_OPT_NAK_LIST_SIZE);
-				break;
-			}
 			optdata_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
