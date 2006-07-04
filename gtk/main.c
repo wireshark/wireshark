@@ -1227,12 +1227,12 @@ print_usage(gboolean print_ver) {
 
   fprintf(output, "\n");
   fprintf(output, "Output:\n");
-  fprintf(stderr, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+  fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
 
   fprintf(output, "\n");
-  fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h                       display this help and exit\n");
-  fprintf(stderr, "  -v                       display version info and exit\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h                       display this help and exit\n");
+  fprintf(output, "  -v                       display version info and exit\n");
   fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
 
 #ifdef _WIN32
