@@ -50,7 +50,7 @@ int proto_h235 = -1;
 /* Initialize the subtree pointers */
 #include "packet-h235-ett.c"
 
-static guint32
+static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 PER_NOT_DECODED_YET("ToBeSigned");
   return offset;

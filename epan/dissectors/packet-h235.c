@@ -210,7 +210,7 @@ static gint ett_h235_FecOrder = -1;
 /*--- End of included file: packet-h235-ett.c ---*/
 #line 52 "packet-h235-template.c"
 
-static guint32
+static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 PER_NOT_DECODED_YET("ToBeSigned");
   return offset;
