@@ -55,9 +55,6 @@
 
    Support for other commands will be added on an ongoing basis. */
 
-/* How far into the file we should look for packet headers */
-#define ASCEND_MAX_SEEK 100000
-
 typedef struct _ascend_magic_string {
   guint        type;
   const gchar   *strptr; 
@@ -91,16 +88,16 @@ static void ascend_close(wtap *wth);
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static long ascend_seek(wtap *wth, int max_seek, int *err)
+static long ascend_seek(wtap *wth, int *err)
 {
-  int byte, bytes_read = 0;
+  int byte;
   long date_off = -1, cur_off, packet_off;
   guint string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
 
   memset(&string_level, 0, sizeof(string_level));
 
-  while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
+  while (((byte = file_getc(wth->fh)) != EOF)) {
 
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
@@ -174,7 +171,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
      fill it in. */
   wth->capture.ascend = NULL;
 
-  offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
+  offset = ascend_seek(wth, err);
   if (offset == -1) {
     if (*err == 0)
       return 0;
@@ -264,7 +261,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
                 SEEK_SET, err) == -1)
     return FALSE;
 
-    offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
+    offset = ascend_seek(wth, err);
     if (offset == -1)
       return FALSE;
   if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, &(wth->capture.ascend->next_packet_seek_start))) {
