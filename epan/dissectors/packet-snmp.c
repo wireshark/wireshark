@@ -720,16 +720,16 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 
-	/*
-	 * XXX - if we convert this to ep_alloc(), make sure the fourth
-	 * argument to sprint_realloc_objid() is FALSE.
-	 */
-	buf_len = 256;
-	buf = malloc(buf_len);
+	buf_len = 1024;
+	buf = ep_alloc(buf_len);
 	if (buf != NULL) {
 		*buf = '\0';
 		out_len = 0;
-		sprint_realloc_value(&buf, &buf_len, &out_len, TRUE,
+		/* We pass an ep allocated block here, NOT a malloced block
+		 * so we MUST NOT allow reallocation, hence the fourth 
+		 * parameter MUST be 0/FALSE
+		 */
+		sprint_realloc_value(&buf, &buf_len, &out_len, FALSE,
 		    variable_oid, variable_oid_length, variable);
 	}
 	return buf;
@@ -972,7 +972,6 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
-				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree,tvb,
 				    vb_value_start, length,
@@ -1001,7 +1000,6 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
-				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
@@ -1035,7 +1033,6 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
-				free(vb_display_string);
 			} else {
 				/*
 				 * If some characters are not printable,
@@ -1103,7 +1100,6 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
-				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
@@ -2699,7 +2695,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1038 "packet-snmp-template.c"
+#line 1034 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3391,7 +3387,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1393 "packet-snmp-template.c"
+#line 1389 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3429,7 +3425,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1402 "packet-snmp-template.c"
+#line 1398 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
