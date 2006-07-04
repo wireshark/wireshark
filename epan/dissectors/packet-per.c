@@ -98,7 +98,7 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
-void asn_ctx_init(asn_ctx_t *actx, asn_enc_e encoding, gboolean aligned, packet_info *pinfo) {
+void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo) {
   actx->encoding = encoding;
   actx->aligned = aligned;
   actx->pinfo = pinfo;
@@ -116,7 +116,7 @@ void asn_ctx_init(asn_ctx_t *actx, asn_enc_e encoding, gboolean aligned, packet_
 
 /* 10.2 Open type fields --------------------------------------------------- */
 guint32 
-dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type)
+dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type)
 {
 	guint32 type_length, end_offset;
 
@@ -135,7 +135,7 @@ dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree
 
 /* 10.9 General rules for encoding a length determinant -------------------- */
 guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
 {
 	guint8 byte;
 	guint32 len;
@@ -177,7 +177,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U
 
 /* 10.6   normally small non-negative whole number */
 static guint32
-dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
+dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
 {
 	gboolean small_number;
 	guint32 len;
@@ -229,7 +229,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
    there is a 1 byte general string encoded
 */
 guint32
-dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)
+dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
 {
 	guint32 length;
 
@@ -244,7 +244,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_
 
 /* 17 Encoding the null type */
 guint32
-dissect_per_null(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   proto_item *ti_tmp;
 
   ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
@@ -255,7 +255,7 @@ dissect_per_null(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree 
 
 /* 19 this function dissects a sequence of */
 static guint32
-dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, per_type_fn func, int hf_index, guint32 length)
+dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, per_type_fn func, int hf_index, guint32 length)
 {
 	guint32 i;
 
@@ -275,7 +275,7 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 	return offset;
 }
 guint32
-dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
+dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -311,7 +311,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
    i.e. no FROM stuff limiting the alphabet
 */
 guint32
-dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, NULL);
 
@@ -320,7 +320,7 @@ dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree
 
 /* XXX we dont do >64k length strings   yet */
 static guint32
-dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
 	guint32 length;
 	gboolean byte_aligned;
@@ -470,7 +470,7 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 }
 
 guint32
-dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
   const char *alphabet_ptr;
   char sorted_alphabet[128];
@@ -484,7 +484,7 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t
 }
 
 guint32
-dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
 		" 0123456789", 11, NULL);
@@ -492,21 +492,21 @@ dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_
 	return offset;
 }
 guint32
-dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
 		" '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
 	return offset;
 }
 guint32
-dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
 		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL);
 	return offset;
 }
 guint32
-dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	guint32 length;
 	static char *str;
@@ -552,7 +552,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree
 
 /* this function dissects a constrained sequence of */
 guint32
-dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -602,7 +602,7 @@ call_sohelper:
 
 /* this function dissects a constrained set of */
 guint32
-dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_constrained_set_of");
@@ -617,7 +617,7 @@ DEBUG_ENTRY("dissect_per_constrained_set_of");
 
 /* this function dissects a set of */
 guint32
-dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
+dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_set_of");
@@ -630,7 +630,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* 23 Encoding the object identifier type */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
   guint length;
   char *str;
@@ -660,7 +660,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 }
 
 guint32
-dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string)
+dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string)
 {
   tvbuff_t *value_tvb = NULL;
   guint length;
@@ -682,7 +682,7 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx
 
 /* this function reads a single bit */
 guint32
-dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool)
+dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool)
 {
 	guint8 ch, mask;
 	gboolean value;
@@ -729,7 +729,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 
 /* we currently only handle integers up to 32 bits in length. */
 guint32
-dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
+dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
 {
 	guint32 i, length;
 	gint32 val;
@@ -804,7 +804,7 @@ PER_NOT_DECODED_YET("too long integer");
 	10.5.7.4
 */
 guint32
-dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension)
+dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension)
 {
 	proto_item *it=NULL;
 	guint32 range, val;
@@ -1000,7 +1000,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 /* 13 Enemerated */
 guint32
-dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map)
+dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map)
 {
 
 	proto_item *it=NULL;
@@ -1054,7 +1054,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tre
 
 /* 22 Encoding the choice type */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
@@ -1207,7 +1207,7 @@ index_get_field_name(const per_sequence_t *sequence, int index)
 	   18.9
 */
 guint32
-dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
+dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
 {
 	gboolean extension_present, extension_flag, optional_field_flag;
 	proto_item *item;
@@ -1378,7 +1378,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 */
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
 	gint val_start, val_length;
 	guint32 length;
@@ -1482,7 +1482,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
    hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
-dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
+dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
 {
 	proto_item *it = NULL;
 	gint val_start, val_length;

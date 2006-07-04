@@ -4038,8 +4038,8 @@ decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	proto_item	*target_id_item;
 	proto_tree	*ext_tree;
 	tvbuff_t	*next_tvb;
-	asn_ctx_t asn_ctx;
-	asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 	
 	length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -4049,7 +4049,7 @@ decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 	next_tvb = tvb_new_subset (tvb, offset, length, length);
-	dissect_ranap_TargetID(next_tvb, 0, &asn_ctx, ext_tree, hf_gtp_TargetID);
+	dissect_ranap_TargetID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_TargetID);
 
 	return 3 + length;
 }

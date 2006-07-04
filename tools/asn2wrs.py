@@ -855,7 +855,7 @@ class EthCtx:
     if (self.Ber()):
       out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
     out += ";\n"
     return out
 
@@ -885,7 +885,7 @@ class EthCtx:
     if (self.Ber()):
       out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn_ctx_t *actx _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
     if self.conform.get_fn_presence(tname):
       out += self.conform.get_fn_text(tname, 'FN_HDR')
     elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
@@ -1060,7 +1060,7 @@ class EthCtx:
           out += 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
           par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         else:
-          out += 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree) {\n'
+          out += 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree) {\n'
           par=(('tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
         out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
                                 par=par)
@@ -1085,12 +1085,12 @@ class EthCtx:
           aligned = 'TRUE'
         else:
           aligned = 'FALSE'
-        out += "  asn_ctx_t asn_ctx;\n"
-        out += self.eth_fn_call('asn_ctx_init', par=(('&asn_ctx', 'ASN_ENC_PER', aligned, 'pinfo'),))
+        out += "  asn1_ctx_t asn1_ctx;\n"
+        out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
       if (self.Ber()):
         par=((impl, 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       elif (self.Per()):
-        par=(('tvb', '0', '&asn_ctx', 'tree', self.eth_hf[f]['fullname']),)
+        par=(('tvb', '0', '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=((),)
       ret = None

@@ -585,14 +585,14 @@ static guint32 ddMode;
 
 
 
-static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
 #include "packet-rnsap-fn.c"
 
 
-static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -786,7 +786,7 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 	return offset;
 }
 
-static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -863,7 +863,7 @@ static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, 
 	return offset;
 }
 
-static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -927,7 +927,7 @@ static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset
 	return offset;
 }
 
-static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;

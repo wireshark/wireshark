@@ -77,15 +77,15 @@ static guint type_of_message;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 
-static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_ranap_messages(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_ranap_messages(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
 #include "packet-ranap-fn.c"
 
 
 
-static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 
 	guint length;
 	
@@ -559,7 +559,7 @@ static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_t
 	return offset;
 }
 
-static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 
 	guint length;
 	int start_offset;
@@ -579,7 +579,7 @@ static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *ac
 	return offset;
 }
 
-static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 
 	guint length;
 	
@@ -599,7 +599,7 @@ static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, asn_ctx_t *a
 }
 
 
-static int dissect_ranap_messages(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_ranap_messages(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_ranap_pdu_length, &length);
@@ -1082,11 +1082,11 @@ static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 temp;
-	asn_ctx_t asn_ctx;
+	asn1_ctx_t asn1_ctx;
 	guint length;
 	int offset;
 
-	asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
     /* Is it a ranap packet?
      *
@@ -1102,7 +1102,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length(tvb) < 4) { return FALSE; }
     /*if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }*/
 	/* Read the length NOTE offset in bits */
-	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn_ctx, tree, -1, &length);
+	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
 	offset = offset>>3;
 	if (length!= (tvb_length(tvb) - offset)){
 		return FALSE; 

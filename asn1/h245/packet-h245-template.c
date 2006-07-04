@@ -303,7 +303,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
-	asn_ctx_t asn_ctx;
+	asn1_ctx_t asn1_ctx;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -317,8 +317,8 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		init_h245_packet_info(h245_pi);
-		asn_ctx_init(&asn_ctx, ASN_ENC_PER, TRUE, pinfo);
-		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn_ctx, tr, hf_h245_pdu_type);
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
 		CLEANUP_CALL_AND_POP;

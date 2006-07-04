@@ -730,14 +730,14 @@ static guint32 ddMode;
 #define NBAP_IE_ID_REFERENCE_RECEIVEDTOTALWIDEBANDPOWER								698
 
 
-static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
-static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree);
+static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
 #include "packet-nbap-fn.c"
 
 
-static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -956,7 +956,7 @@ static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, a
 	return offset;
 }
 
-static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -1052,7 +1052,7 @@ static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, a
 	return offset;
 }
 
-static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;
@@ -1135,7 +1135,7 @@ static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn_ctx_t *actx, proto_tree *tree){
+static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item	*value_item = NULL;
 	proto_tree	*value_tree = NULL;
 	guint length;

@@ -29,22 +29,32 @@
 /*--- ASN.1 Context, will be moved to common ASN.1 header when created --- */
 
 typedef enum {
-  ASN_ENC_BER,  /* X.690 - BER, CER, DER */
-  ASN_ENC_PER,  /* X.691 - PER */
-  ASN_ENC_ECN,  /* X.692 - ECN */
-  ASN_ENC_XER   /* X.693 - XER */
-} asn_enc_e;
+  ASN1_ENC_BER,  /* X.690 - BER, CER, DER */
+  ASN1_ENC_PER,  /* X.691 - PER */
+  ASN1_ENC_ECN,  /* X.692 - ECN */
+  ASN1_ENC_XER   /* X.693 - XER */
+} asn1_enc_e;
 
-typedef struct _asn_ctx_t {
-  asn_enc_e encoding;
+typedef struct _asn1_ctx_t {
+  asn1_enc_e encoding;
   gboolean aligned;
   packet_info *pinfo;
   proto_item *created_item;
   void *private_data;
-} asn_ctx_t;
+} asn1_ctx_t;
 
-void asn_ctx_init(asn_ctx_t *actx, asn_enc_e encoding, gboolean aligned, packet_info *pinfo);
+void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
 
+/* flags */
+#define ASN1_EXT_ROOT 0x01
+#define ASN1_EXT_EXT  0x02
+#define ASN1_OPT      0x04
+#define ASN1_DFLT     0x08
+
+#define ASN1_HAS_EXT(f) ((f)&(ASN1_EXT_ROOT|ASN1_EXT_EXT))
+
+
+/*----------------------------------*/
 
 
 #define PER_NOT_DECODED_YET(x) \
@@ -55,8 +65,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO)){ \
 } \
 tvb_get_guint8(tvb, 9999);
 
-typedef int (*per_callback)(tvbuff_t *, int, asn_ctx_t *, proto_tree *);
-typedef int (*per_type_fn)(tvbuff_t*, int, asn_ctx_t*, proto_tree*, int);
+typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
 
 /* in all functions here, offset is guint32 and is
    byteposition<<3 + bitposition
@@ -68,12 +77,12 @@ typedef int (*per_type_fn)(tvbuff_t*, int, asn_ctx_t*, proto_tree*, int);
 
 /* values for extensions */
 #define ASN1_NO_EXTENSIONS	0
-#define ASN1_EXTENSION_ROOT	1
-#define ASN1_NOT_EXTENSION_ROOT	2
+#define ASN1_EXTENSION_ROOT	    ASN1_EXT_ROOT
+#define ASN1_NOT_EXTENSION_ROOT	ASN1_EXT_EXT
 
 /* value for optional */
 #define ASN1_NOT_OPTIONAL	0
-#define ASN1_OPTIONAL		1
+#define ASN1_OPTIONAL		ASN1_OPT
 
 typedef struct _per_choice_t {
 	int value;
@@ -89,51 +98,51 @@ typedef struct _per_sequence_t {
 	per_type_fn func;
 } per_sequence_t;
 
-extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length);
+extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length);
 
-extern guint32 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+extern guint32 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-extern guint32 dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index);
+extern guint32 dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-extern guint32 dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
+extern guint32 dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
 
-extern guint32 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
+extern guint32 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
+extern guint32 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
+extern guint32 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
+extern guint32 dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
+extern guint32 dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
+extern guint32 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
 
-extern guint32 dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
+extern guint32 dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
 
-extern guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
+extern guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
 
-extern guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
-extern guint32 dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string);
+extern guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
+extern guint32 dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string);
 
-extern guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool);
+extern guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool);
 
-extern guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
+extern guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
 
-extern guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension);
+extern guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension);
 
-extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value);
+extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value);
 
-extern guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence);
+extern guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence);
 
-extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb);
+extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb);
 
-extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb);
+extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb);
 
-extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb);
+extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb);
 
-extern guint32 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
+extern guint32 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
 
-extern guint32 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type);
+extern guint32 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type);
 
 #endif  /* __PACKET_PER_H__ */
