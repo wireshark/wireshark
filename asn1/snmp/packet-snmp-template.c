@@ -406,16 +406,16 @@ format_oid(subid_t *oid, guint oid_length)
 	 * length of the result string.
 	 *
 	 * XXX - check for "sprint_realloc_objid()" failure.
-	 * XXX - if we convert this to ep_alloc(), make sure the fourth
-	 * argument to sprint_realloc_objid() is FALSE.
 	 */
-	oid_string_len = 256;
-	oid_string = malloc(oid_string_len);
-	if (oid_string == NULL)
-		return NULL;
+	oid_string_len = 1024;
+	oid_string = ep_alloc(oid_string_len);
 	*oid_string = '\0';
 	oid_out_len = 0;
-	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, TRUE,
+	/* We pass an ep allocated block here, NOT a malloced block
+	 * so we MUST NOT allow reallocation, hence the fourth 
+	 * parameter MUST be 0/FALSE
+	 */
+	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, FALSE,
 	    oid, oid_length);
 	result_len += strlen(oid_string) + 3;
 #endif
@@ -434,7 +434,6 @@ format_oid(subid_t *oid, guint oid_length)
 	 * Append the decoded form of the OID.
 	 */
 	g_snprintf(buf, result_len + 1 -(buf-result), " (%s)", oid_string);
-	free(oid_string);
 #endif
 
 	return result;
