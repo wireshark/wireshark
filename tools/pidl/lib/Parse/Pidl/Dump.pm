@@ -36,7 +36,7 @@ my($res);
 sub DumpProperties($)
 {
     my($props) = shift;
-    my($res);
+    my $res = "";
 
     foreach my $d ($props) {
 	foreach my $k (keys %{$d}) {
@@ -63,7 +63,7 @@ sub DumpProperties($)
 sub DumpElement($)
 {
     my($element) = shift;
-    my($res);
+    my $res = "";
 
     (defined $element->{PROPERTIES}) && 
 	($res .= DumpProperties($element->{PROPERTIES}));
@@ -89,10 +89,9 @@ sub DumpStruct($)
 
     $res .= "struct {\n";
     if (defined $struct->{ELEMENTS}) {
-	foreach my $e (@{$struct->{ELEMENTS}}) {
-	    $res .= "\t" . DumpElement($e);
-	    $res .= ";\n";
-	}
+		foreach (@{$struct->{ELEMENTS}}) {
+		    $res .= "\t" . DumpElement($_) . ";\n";
+		}
     }
     $res .= "}";
     

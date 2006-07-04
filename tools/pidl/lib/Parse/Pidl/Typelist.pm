@@ -7,7 +7,7 @@ package Parse::Pidl::Typelist;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(hasType getType mapType scalar_is_reference);
+@EXPORT_OK = qw(hasType getType mapType scalar_is_reference expandAlias);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -23,54 +23,56 @@ my @reference_scalars = (
 
 # a list of known scalar types
 my %scalars = (
-	# 0 byte types
 	"void"		=> "void",
-
-	# 1 byte types
 	"char"		=> "char",
 	"int8"		=> "int8_t",
 	"uint8"		=> "uint8_t",
-
-	# 2 byte types
 	"int16"		=> "int16_t",
 	"uint16"	=> "uint16_t",
-
-	# 4 byte types
 	"int32"		=> "int32_t",
 	"uint32"	=> "uint32_t",
-
-	# 8 byte types
 	"hyper"		=> "uint64_t",
 	"dlong"		=> "int64_t",
 	"udlong"	=> "uint64_t",
 	"udlongr"	=> "uint64_t",
-
-	# assume its a 8 byte type, but cope with either
 	"pointer"	=> "void*",
-
-	# DATA_BLOB types
 	"DATA_BLOB"	=> "DATA_BLOB",
-
-	# string types
 	"string"	=> "const char *",
 	"string_array"	=> "const char **",
-
-	# time types
 	"time_t"	=> "time_t",
 	"NTTIME"	=> "NTTIME",
 	"NTTIME_1sec"	=> "NTTIME",
 	"NTTIME_hyper"	=> "NTTIME",
-
-	# error code types
 	"WERROR"	=> "WERROR",
 	"NTSTATUS"	=> "NTSTATUS",
 	"COMRESULT" => "COMRESULT",
-
-	# special types
 	"nbt_string"	=> "const char *",
 	"wrepl_nbt_name"=> "struct nbt_name *",
 	"ipv4address"	=> "const char *",
 );
+
+my %aliases = (
+	"error_status_t" => "uint32",
+	"boolean8" => "uint8",
+	"boolean32" => "uint32",
+	"DWORD" => "uint32",
+	"int" => "int32",
+	"WORD" => "uint16",
+	"char" => "uint8",
+	"long" => "int32",
+	"short" => "int16",
+	"HYPER_T" => "hyper",
+	"HRESULT" => "COMRESULT",
+);
+
+sub expandAlias($)
+{
+	my $name = shift;
+
+	return $aliases{$name} if defined($aliases{$name});
+
+	return $name;
+}
 
 # map from a IDL type to a C header type
 sub mapScalarType($)
@@ -148,24 +150,6 @@ sub RegisterScalars()
 	}
 }
 
-my %aliases = (
-	"DWORD" => "uint32",
-	"int" => "int32",
-	"WORD" => "uint16",
-	"char" => "uint8",
-	"long" => "int32",
-	"short" => "int16",
-	"HYPER_T" => "hyper",
-	"HRESULT" => "COMRESULT",
-);
-
-sub RegisterAliases()
-{
-	foreach (keys %aliases) {
-		$typedefs{$_} = $typedefs{$aliases{$_}};
-	}
-}
-
 sub enum_type_fn($)
 {
 	my $enum = shift;
@@ -196,6 +180,7 @@ sub mapType($)
 	my $t = shift;
 	return "void" unless defined($t);
 	my $dt;
+	$t = expandAlias($t);
 
 	unless ($dt or ($dt = getType($t))) {
 		# Best guess
@@ -237,6 +222,5 @@ sub LoadIdl($)
 }
 
 RegisterScalars();
-RegisterAliases();
 
 1;

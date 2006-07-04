@@ -1,5 +1,5 @@
 ###################################################
-# parse an wireshark conformance file
+# parse an Wireshark conformance file
 # Copyright jelmer@samba.org 2005
 # released under the GNU GPL
 
@@ -15,7 +15,7 @@ This module supports parsing Wireshark conformance files (*.cnf).
 
 =head1 FILE FORMAT
 
-Pidl needs additional data for wireshark output. This data is read from 
+Pidl needs additional data for Wireshark output. This data is read from 
 so-called conformance files. This section describes the format of these 
 files.
 
@@ -49,7 +49,7 @@ Generate a custom header field with specified properties.
 Force the use of new_hf_name when the parser generator was going to 
 use old_hf_name.
 
-This can be used in conjunction with HF_FIELD in order to make more then 
+This can be used in conjunction with HF_FIELD in order to make more than 
 one element use the same filter name.
 
 =item I<STRIP_PREFIX> prefix
@@ -73,6 +73,13 @@ Code to insert when generating the specified dissector. @HF@ and
 =item I<TFS> hf_name "true string" "false string"
 
 Override the text shown when a bitmap boolean value is enabled or disabled.
+
+=item I<MANUAL> fn_name
+
+Force pidl to not generate a particular function but allow the user 
+to write a function manually. This can be used to remove the function 
+for only one level for a particular element rather than all the functions and 
+ett/hf variables for a particular element as the NOEMIT command does.
 
 =back
 
@@ -232,15 +239,20 @@ sub handle_strip_prefix($$$)
 
 sub handle_noemit($$$)
 {
-	my $pos = shift;
-	my $data = shift;
-	my $type = shift;
+	my ($pos,$data,$type) = @_;
 
 	if (defined($type)) {
 	    $data->{noemit}->{$type} = 1;
 	} else {
 	    $data->{noemit_dissector} = 1;
 	}
+}
+
+sub handle_manual($$$)
+{
+	my ($pos,$data,$fn) = @_;
+
+    $data->{manual}->{$fn} = 1;
 }
 
 sub handle_protocol($$$$$$)
@@ -287,6 +299,7 @@ sub handle_import
 my %field_handlers = (
 	TYPE => \&handle_type,
 	NOEMIT => \&handle_noemit, 
+	MANUAL => \&handle_manual,
 	PARAM_VALUE => \&handle_param_value, 
 	HF_FIELD => \&handle_hf_field, 
 	HF_RENAME => \&handle_hf_rename, 

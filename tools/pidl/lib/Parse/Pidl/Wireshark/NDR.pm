@@ -3,7 +3,7 @@
 # Copyright tridge@samba.org 2000-2003
 # Copyright tpot@samba.org 2001,2005
 # Copyright jelmer@samba.org 2004-2005
-# Portions based on idl2wrs.c by Ronnie Sahlberg
+# Portions based on idl2eth.c by Ronnie Sahlberg
 # released under the GNU GPL
 
 =pod
@@ -72,9 +72,24 @@ sub field2name($)
 
 my %res = ();
 my $tabs = "";
+my $cur_fn = undef;
+sub pidl_fn_start($)
+{
+	my $fn = shift;
+	$cur_fn = $fn;
+}
+sub pidl_fn_end($)
+{
+	my $fn = shift;
+	die("Inconsistent state: $fn != $cur_fn") if ($fn ne $cur_fn);
+	$cur_fn = undef;
+}
+
 sub pidl_code($)
 {
 	my $d = shift;
+	return if (defined($cur_fn) and defined($conformance->{manual}->{$cur_fn}));
+ 
 	if ($d) {
 		$res{code} .= $tabs;
 		$res{code} .= $d;
@@ -124,7 +139,7 @@ sub Enum($$$)
 
 	return if (defined($conformance->{noemit}->{StripPrefixes($name)}));
 
-    	foreach (@{$e->{ELEMENTS}}) {
+   	foreach (@{$e->{ELEMENTS}}) {
 		if (/([^=]*)=(.*)/) {
 			pidl_hdr "#define $1 ($2)";
 		}
@@ -142,6 +157,7 @@ sub Enum($$$)
 	pidl_def "{ 0, NULL }";
 	pidl_def "};";
 
+	pidl_fn_start $dissectorname;
 	pidl_code "int";
 	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)";
 	pidl_code "{";
@@ -150,6 +166,7 @@ sub Enum($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end $dissectorname;
 
 	my $enum_size = $e->{BASE_TYPE};
 	$enum_size =~ s/uint//g;
@@ -165,6 +182,7 @@ sub Bitmap($$$)
 
 	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);";
 
+	pidl_fn_start $dissectorname;
 	pidl_code "int";
 	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
 	pidl_code "{";
@@ -230,6 +248,7 @@ sub Bitmap($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end $dissectorname;
 
 	my $size = $e->{BASE_TYPE};
 	$size =~ s/uint//g;
@@ -376,6 +395,7 @@ sub Element($$$)
 	foreach (@{$e->{LEVELS}}) {
 		next if ($_->{TYPE} eq "SWITCH");
 		pidl_def "static int $dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);";
+		pidl_fn_start "$dissectorname$add";
 		pidl_code "static int";
 		pidl_code "$dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)";
 		pidl_code "{";
@@ -387,6 +407,7 @@ sub Element($$$)
 		pidl_code "return offset;";
 		deindent;
 		pidl_code "}\n";
+		pidl_fn_end "$dissectorname$add";
 		$add.="_";
 		last if ($_->{TYPE} eq "ARRAY" and $_->{IS_ZERO_TERMINATED});
 	}
@@ -408,6 +429,7 @@ sub Function($$$)
 	$fn_name =~ s/^${ifname}_//;
 
 	PrintIdl DumpFunction($fn->{ORIGINAL});
+	pidl_fn_start "$ifname\_dissect\_$fn_name\_response";
 	pidl_code "static int";
 	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
@@ -441,7 +463,9 @@ sub Function($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end "$ifname\_dissect\_$fn_name\_response";
 
+	pidl_fn_start "$ifname\_dissect\_$fn_name\_request";
 	pidl_code "static int";
 	pidl_code "$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
@@ -457,6 +481,7 @@ sub Function($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end "$ifname\_dissect\_$fn_name\_request";
 }
 
 sub Struct($$$)
@@ -473,6 +498,7 @@ sub Struct($$$)
 
 	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);";
 
+	pidl_fn_start $dissectorname;
 	pidl_code "int";
 	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
 	pidl_code "{";
@@ -502,6 +528,7 @@ sub Struct($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end $dissectorname;
 
 	register_type($name, "offset = $dissectorname(tvb,offset,pinfo,tree,drep,\@HF\@,\@PARAM\@);", "FT_NONE", "BASE_NONE", 0, "NULL", 0);
 }
@@ -536,6 +563,7 @@ sub Union($$$)
 		$switch_dissect = "dissect_ndr_$e->{SWITCH_TYPE}";
 	}
 
+	pidl_fn_start $dissectorname;
 	pidl_code "static int";
 	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
 	pidl_code "{";
@@ -569,6 +597,7 @@ sub Union($$$)
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}";
+	pidl_fn_end $dissectorname;
 
 	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_NONE", "BASE_NONE", 0, "NULL", 0);
 }
@@ -602,6 +631,7 @@ sub RegisterInterface($)
 {
 	my ($x) = @_;
 
+	pidl_fn_start "proto_register_dcerpc_$x->{NAME}";
 	pidl_code "void proto_register_dcerpc_$x->{NAME}(void)";
 	pidl_code "{";
 	indent;
@@ -639,6 +669,7 @@ sub RegisterInterface($)
 	    
 	deindent;
 	pidl_code "}\n";
+	pidl_fn_end "proto_register_dcerpc_$x->{NAME}";
 }
 
 sub RegisterInterfaceHandoff($)
@@ -646,6 +677,7 @@ sub RegisterInterfaceHandoff($)
 	my $x = shift;
 
 	if (defined($x->{UUID})) {
+		pidl_fn_start "proto_reg_handoff_dcerpc_$x->{NAME}";
 	    pidl_code "void proto_reg_handoff_dcerpc_$x->{NAME}(void)";
 	    pidl_code "{";
 	    indent;
@@ -654,6 +686,7 @@ sub RegisterInterfaceHandoff($)
 	    pidl_code "\t$x->{NAME}_dissectors, hf_$x->{NAME}_opnum);";
 	    deindent;
 	    pidl_code "}";
+		pidl_fn_end "proto_reg_handoff_dcerpc_$x->{NAME}";
 
 		$hf_used{"hf_$x->{NAME}_opnum"} = 1;
 	}
@@ -789,7 +822,7 @@ sub Initialize($)
 }
 
 #####################################################################
-# Generate wireshark parser and header code
+# Generate Wireshark parser and header code
 sub Parse($$$$)
 {
 	my($ndr,$idl_file,$h_filename,$cnf_file) = @_;

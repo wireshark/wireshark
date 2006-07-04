@@ -7,6 +7,13 @@ tests/ndr_simple.pl
 tests/ndr_align.pl
 tests/ndr_alloc.pl
 tests/ndr_array.pl
+lib/Parse/Pidl/Samba3/Client.pm
+lib/Parse/Pidl/Samba3/ClientNDR.pm
+lib/Parse/Pidl/Samba3/Header.pm
+lib/Parse/Pidl/Samba3/Parser.pm
+lib/Parse/Pidl/Samba3/Server.pm
+lib/Parse/Pidl/Samba3/Template.pm
+lib/Parse/Pidl/Samba3/Types.pm
 lib/Parse/Pidl/Samba4/NDR/Server.pm
 lib/Parse/Pidl/Samba4/NDR/Parser.pm
 lib/Parse/Pidl/Samba4/NDR/Client.pm
@@ -18,6 +25,7 @@ lib/Parse/Pidl/Samba4/SWIG.pm
 lib/Parse/Pidl/Samba4/TDR.pm
 lib/Parse/Pidl/Samba4/Template.pm
 lib/Parse/Pidl/Samba4/EJS.pm
+lib/Parse/Pidl/Samba4.pm
 lib/Parse/Pidl/Wireshark/Conformance.pm
 lib/Parse/Pidl/Wireshark/NDR.pm
 lib/Parse/Pidl/Typelist.pm

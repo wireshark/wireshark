@@ -26,13 +26,13 @@ compatible with the midl compiler. IDL is short for
 "Interface Definition Language".
 
 pidl can generate stubs for DCE/RPC server code, DCE/RPC 
-client code and wireshark dissectors for DCE/RPC traffic.
+client code and Wireshark dissectors for DCE/RPC traffic.
 
 IDL compilers like pidl take a description 
 of an interface as their input and use it to generate C 
 (though support for other languages may be added later) code that 
 can use these interfaces, pretty print data sent 
-using these interfaces, or even generate wireshark 
+using these interfaces, or even generate Wireshark 
 dissectors that can parse data sent over the 
 wire by these interfaces. 
 
@@ -61,7 +61,7 @@ directory.
 =item I<--parse-idl-tree>
 
 Read internal tree structure from input files rather 
-then assuming they contain IDL.
+than assuming they contain IDL.
 
 =item I<--dump-idl>
 
@@ -99,9 +99,9 @@ Generate an Wireshark dissector (in C) and header file. The dissector filename
 defaults to packet-dcerpc-OUTNAME.c while the header filename defaults to 
 packet-dcerpc-OUTNAME.h.
 	
-Pidl will read additional data from an wireshark conformance file if present. 
+Pidl will read additional data from an Wireshark conformance file if present. 
 Such a file should have the same location as the IDL file but with the 
-extension I<cnf> rather then I<idl>. See L<Parse::Pidl::Wireshark::Conformance>
+extension I<cnf> rather than I<idl>. See L<Parse::Pidl::Wireshark::Conformance>
 for details on the format of this file.
 
 =item I<--diff>
@@ -369,7 +369,7 @@ usesgetlasterror, vararg, vi_progid, wire_marshal.
 
 =head1 EXAMPLES
 
-	# Generating an wireshark parser
+	# Generating an Wireshark parser
 	$ ./pidl --ws-parser -- atsvc.idl
 	
 	# Generating a TDR parser and header
@@ -534,7 +534,7 @@ Samba 3 output:
                             using Samba4's NDR code [cli_BASENAME.c]
 
 Wireshark parsers:
- --ws-parser[=OUTFILE]  create wireshark parser and header
+ --ws-parser[=OUTFILE]  create Wireshark parser and header
 \n";
     exit(0);
 }

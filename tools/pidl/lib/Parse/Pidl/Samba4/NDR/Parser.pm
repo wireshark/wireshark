@@ -103,7 +103,7 @@ sub get_value_of($)
 }
 
 my $res;
-my $deferred = "";
+my $deferred = [];
 my $tabs = "";
 
 ####################################
@@ -128,14 +128,16 @@ sub pidl_hdr ($) { my $d = shift; $res_hdr .= "$d\n"; }
 # output buffer at the end of the structure/union/function
 # This is needed to cope with code that must be pushed back
 # to the end of a block of elements
+my $defer_tabs = "";
+sub defer_indent() { $defer_tabs.="\t"; }
+sub defer_deindent() { $defer_tabs=substr($defer_tabs, 0, -1); }
+
 sub defer($)
 {
 	my $d = shift;
 	if ($d) {
-		$deferred .= $tabs;
-		$deferred .= $d;
+		push(@$deferred, $defer_tabs.$d);
 	}
-	$deferred .="\n";
 }
 
 ########################################
@@ -143,8 +145,9 @@ sub defer($)
 # output
 sub add_deferred()
 {
-	$res .= $deferred;
-	$deferred = "";
+	pidl $_ foreach (@$deferred);
+	$deferred = [];
+	$defer_tabs = "";
 }
 
 sub indent()
@@ -370,16 +373,20 @@ sub ParseArrayPullHeader($$$$$)
 	if ($l->{IS_CONFORMANT} and not $l->{IS_ZERO_TERMINATED}) {
 		my $size = ParseExpr($l->{SIZE_IS}, $env);
 		defer "if ($var_name) {";
+		defer_indent;
 		check_null_pointer_deferred($size);
 		defer "NDR_CHECK(ndr_check_array_size(ndr, (void*)" . get_pointer_to($var_name) . ", $size));";
+		defer_deindent;
 		defer "}";
 	}
 
 	if ($l->{IS_VARYING} and not $l->{IS_ZERO_TERMINATED}) {
 		my $length = ParseExpr($l->{LENGTH_IS}, $env);
 		defer "if ($var_name) {";
+		defer_indent;
 		check_null_pointer_deferred($length);
 		defer "NDR_CHECK(ndr_check_array_length(ndr, (void*)" . get_pointer_to($var_name) . ", $length));";
+		defer_deindent;
 		defer "}"
 	}
 
@@ -582,7 +589,9 @@ sub ParseElementPushLevel
 				pidl "NDR_CHECK(ndr_push_relative_ptr2(ndr, $var_name));";
 			}
 		}
-		$var_name = get_value_of($var_name);
+		if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
+			$var_name = get_value_of($var_name);
+		}
 		ParseElementPushLevel($e, GetNextLevel($e, $l), $ndr, $var_name, $env, 1, 1);
 
 		if ($l->{POINTER_TYPE} ne "ref") {
@@ -662,10 +671,11 @@ sub ParsePtrPush($$$)
 	my ($e,$l,$var_name) = @_;
 
 	if ($l->{POINTER_TYPE} eq "ref") {
-		if ($l->{LEVEL} eq "EMBEDDED") {
-			pidl "NDR_CHECK(ndr_push_ref_ptr(ndr, $var_name));";
-		} else {
+		if (has_property($e, "keepref")) {
 			check_null_pointer(get_value_of($var_name));
+		}
+		if ($l->{LEVEL} eq "EMBEDDED") {
+			pidl "NDR_CHECK(ndr_push_ref_ptr(ndr));";
 		}
 	} elsif ($l->{POINTER_TYPE} eq "relative") {
 		pidl "NDR_CHECK(ndr_push_relative_ptr1(ndr, $var_name));";
@@ -699,13 +709,15 @@ sub ParseElementPrint($$$)
 
 	foreach my $l (@{$e->{LEVELS}}) {
 		if ($l->{TYPE} eq "POINTER") {
+			if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
 			pidl "ndr_print_ptr(ndr, \"$e->{NAME}\", $var_name);";
 			pidl "ndr->depth++;";
-			if ($l->{POINTER_TYPE} ne "ref") {
-				pidl "if ($var_name) {";
-				indent;
+				if ($l->{POINTER_TYPE} ne "ref") {
+					pidl "if ($var_name) {";
+					indent;
+				}
+				$var_name = get_value_of($var_name);
 			}
-			$var_name = get_value_of($var_name);
 		} elsif ($l->{TYPE} eq "ARRAY") {
 			my $length;
 
@@ -754,11 +766,13 @@ sub ParseElementPrint($$$)
 
 	foreach my $l (reverse @{$e->{LEVELS}}) {
 		if ($l->{TYPE} eq "POINTER") {
-			if ($l->{POINTER_TYPE} ne "ref") {
-				deindent;
-				pidl "}";
+			if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
+				if ($l->{POINTER_TYPE} ne "ref") {
+					deindent;
+					pidl "}";
+				}
+				pidl "ndr->depth--;";
 			}
-			pidl "ndr->depth--;";
 		} elsif (($l->{TYPE} eq "ARRAY")
 			and not is_charset_array($e,$l)
 			and not has_fast_array($e,$l)) {
@@ -822,7 +836,7 @@ sub ParseDataPush($$$$$)
 {
 	my ($e,$l,$ndr,$var_name,$ndr_flags) = @_;
 
-	# strings are passed by value rather then reference
+	# strings are passed by value rather than reference
 	if (not Parse::Pidl::Typelist::is_scalar($l->{DATA_TYPE}) or Parse::Pidl::Typelist::scalar_is_reference($l->{DATA_TYPE})) {
 		$var_name = get_pointer_to($var_name);
 	}
@@ -872,7 +886,7 @@ sub ParseMemCtxPullStart($$$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		if ($next_is_array or $next_is_string) {
+		if ($next_is_array or $next_is_string or not has_property($e, "keepref")) {
 			return;
 		} else {
 			$mem_c_flags = "LIBNDR_FLAG_REF_ALLOC";
@@ -898,7 +912,7 @@ sub ParseMemCtxPullEnd($$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		if ($next_is_array or $next_is_string) {
+		if ($next_is_array or $next_is_string or not has_property($e, "keepref")) {
 			return;
 		} else {
 			$mem_r_flags = "LIBNDR_FLAG_REF_ALLOC";
@@ -975,7 +989,9 @@ sub ParseElementPullLevel
 
 		ParseMemCtxPullStart($e,$l, $var_name);
 
-		$var_name = get_value_of($var_name);
+		if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
+			$var_name = get_value_of($var_name);
+		}
 		ParseElementPullLevel($e,GetNextLevel($e,$l), $ndr, $var_name, $env, 1, 1);
 
 		ParseMemCtxPullEnd($e,$l);
@@ -1075,11 +1091,12 @@ sub ParsePtrPull($$$$)
 						 ($nl->{DATA_TYPE} eq "string"));
 
 	if ($l->{POINTER_TYPE} eq "ref") {
-		unless ($l->{LEVEL} eq "TOP") {
+		if ($l->{LEVEL} eq "EMBEDDED") {
 			pidl "NDR_CHECK(ndr_pull_ref_ptr($ndr, &_ptr_$e->{NAME}));";
 		}
 
-		unless ($next_is_array or $next_is_string) {
+		if (!$next_is_array and !$next_is_string and 
+			has_property($e, "keepref")) {
 			pidl "if (ndr->flags & LIBNDR_FLAG_REF_ALLOC) {";
 			pidl "\tNDR_PULL_ALLOC($ndr, $var_name);"; 
 			pidl "}";
@@ -1413,8 +1430,7 @@ sub DeclareArrayVariables($)
 
 sub need_decl_mem_ctx($$)
 {
-	my $e = shift;
-	my $l = shift;
+	my ($e,$l) = @_;
 
 	return 0 if has_fast_array($e,$l);
 	return 0 if is_charset_array($e,$l);
@@ -1425,7 +1441,7 @@ sub need_decl_mem_ctx($$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		return 0 if ($next_is_array or $next_is_string);
+		return 0 if ($next_is_array or $next_is_string or not has_property($e, "keepref"));
 	}
 	return 1 if ($l->{TYPE} eq "POINTER");
 
@@ -2085,12 +2101,13 @@ sub ParseFunctionPull($)
 	}
 
 	# allocate the "simple" out ref variables. FIXME: Shouldn't this have it's
-	# own flag rather then be in NDR_IN ?
+	# own flag rather than be in NDR_IN ?
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and 
 		             $e->{LEVELS}[0]->{POINTER_TYPE} eq "ref");
+		next unless has_property($e, "keepref");
 		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and 
 				 ($e->{LEVELS}[1]->{DATA_TYPE} eq "string"));
 		next if (($e->{LEVELS}[1]->{TYPE} eq "ARRAY") 

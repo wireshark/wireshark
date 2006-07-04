@@ -47,7 +47,7 @@ Parse::Pidl::Samba4::COM::Stub - Generates stub call handler for DCOM (server-si
 Parse::Pidl::Samba4::COM::Header - Generates headers for COM
 
 -- Wireshark --
-Parse::Pidl::Wireshark::NDR - Generates a parser for the wireshark network sniffer
+Parse::Pidl::Wireshark::NDR - Generates a parser for the Wireshark network sniffer
 Parse::Pidl::Wireshark::Conformance - Reads conformance files containing additional data for generating Wireshark parsers
 
 -- Utility modules --

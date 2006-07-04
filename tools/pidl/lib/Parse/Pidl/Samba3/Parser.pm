@@ -35,7 +35,7 @@ sub Align($$)
 {
 	my ($a,$b) = @_;
 
-	# Only align if previous element was smaller then current one
+	# Only align if previous element was smaller than current one
 	if ($$a < $b) {
 		pidl "if (!prs_align_custom(ps, $b))";
 		pidl "\treturn False;";
