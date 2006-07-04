@@ -826,7 +826,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	if (oid_tvb){
 		oid_len = tvb_length_remaining(oid_tvb,0);
 		var_oid_buf = tvb_get_ptr(oid_tvb, 0, oid_len);
-		variable_oid = g_malloc((oid_len+1) * sizeof(gulong));
+		variable_oid = ep_alloc((oid_len+1) * sizeof(gulong));
 		variable_oid_length = oid_to_subid_buf(var_oid_buf, oid_len, variable_oid, ((oid_len+1) * sizeof(gulong)));
 	}
 	/* parse the value */
@@ -962,7 +962,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		/* XXX Redo this using dissect_ber_object_identifier when
 		   it returns tvb or some other binary form of an OID */
 		oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
-		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
+		vb_oid = ep_alloc((vb_length+1) * sizeof(gulong));
 		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
 
 		offset = offset + vb_length;
@@ -996,7 +996,6 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 			}
 #endif /* HAVE_SOME_SNMP */
 		}
-		g_free(vb_oid);
 		break;
 
 	case SNMP_NOSUCHOBJECT:
