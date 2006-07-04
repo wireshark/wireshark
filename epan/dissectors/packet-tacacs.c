@@ -878,7 +878,7 @@ parse_tuple( char *key_from_option )
 	*/
 	mkipv4_address( &tacplus_data->s, key_from_option );
 	mkipv4_address( &tacplus_data->c, client );
-	tacplus_data->k=se_strdup(key);
+	tacplus_data->k=g_strdup(key);
 	tacplus_keys = g_slist_prepend( tacplus_keys, tacplus_data );
 }
 
