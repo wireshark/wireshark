@@ -595,6 +595,16 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
 !insertmacro SERVICE "stop" "NPF" ""
 SecRequired_done_WinpcapService:
 
+; If no user profile exists for Wireshark but for Ethereal, copy it over
+SetShellVarContext current
+IfFileExists $APPDATA\Wireshark profile_done
+IfFileExists $APPDATA\Ethereal 0 profile_done
+;MessageBox MB_YESNO "This seems to be the first time you use Wireshark. Copy over the personal settings from Ethereal?" /SD IDYES IDNO profile_done
+CreateDirectory $APPDATA\Wireshark
+CopyFiles $APPDATA\Ethereal\*.* $APPDATA\Wireshark
+profile_done:
+SetShellVarContext all
+
 SectionEnd ; "Required"
 
 
@@ -644,6 +654,7 @@ SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules
 File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
 File "${GTK2_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
+
 SectionEnd
  
 !ifdef GTK_WIMP_DIR
