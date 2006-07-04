@@ -194,20 +194,20 @@
 	      <row>
 		<entry><command>manuf</command></entry>
 		<entry>Ethernet name resolution.</entry>
-		<entry>/etc/manuf</entry>
-		<entry>%WIRESHARK%\manuf</entry>
+		<entry>/etc/manuf, $HOME/.wireshark/manuf</entry>
+		<entry>%WIRESHARK%\manuf, %APPDATA%\Wireshark\manuf</entry>
 	      </row>
 	      <row>
 		<entry><command>hosts</command></entry>
 		<entry>IPv4 and IPv6 name resolution.</entry>
-		<entry>$HOME/.wireshark/hosts</entry>
-		<entry>%APPDATA%\hosts</entry>
+		<entry>/etc/hosts, $HOME/.wireshark/hosts</entry>
+		<entry>%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts</entry>
 	      </row>
 	      <row>
 		<entry><command>ipxnets</command></entry>
 		<entry>IPX name resolution.</entry>
-		<entry>$HOME/.wireshark/ipxnets</entry>
-		<entry>%WIRESHARK%\ipxnets</entry>
+		<entry>/etc/ipxnets, $HOME/.wireshark/ipxnets</entry>
+		<entry>%WIRESHARK%\ipxnets, %APPDATA%\Wireshark\ipxnets</entry>
 	      </row>
 	      <row>
 		<entry><command>plugins</command></entry>
