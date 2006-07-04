@@ -439,8 +439,7 @@ format_oid(subid_t *oid, guint oid_length)
 	return result;
 }
 
-/* returns the decoded (can be NULL) and non_decoded OID strings,
-   returned pointers shall be freed by the caller */
+/* returns the decoded (can be NULL) and non_decoded OID strings */
 void
 new_format_oid(subid_t *oid, guint oid_length,
 	       gchar **non_decoded, gchar **decoded)
@@ -465,12 +464,16 @@ new_format_oid(subid_t *oid, guint oid_length,
 	 * argument to sprint_realloc_objid() is FALSE.
 	 */
 
-	oid_string_len = 256;
-	oid_string = malloc(oid_string_len);
+	oid_string_len = 1024;
+	oid_string = ep_alloc(oid_string_len);
 	if (oid_string != NULL) {
 		*oid_string = '\0';
 		oid_out_len = 0;
-		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, TRUE,
+		/* We pass an ep allocated block here, NOT a malloced block
+		 * so we MUST NOT allow reallocation, hence the fourth 
+		 * parameter MUST be 0/FALSE
+		 */
+		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, FALSE,
 				     oid, oid_length);
 	}
 	*decoded = oid_string;
