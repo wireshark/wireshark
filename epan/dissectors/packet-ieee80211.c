@@ -1854,6 +1854,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
+      /* A cisco AP transmits the first 15 bytes of the AP name, probably
+         followed by '\0' for ASCII termination */
       g_snprintf (out_buff, SHORT_STR, "%.16s",
                 tvb_format_stringzpad(tvb, offset + 12, 16));
       out_buff[SHORT_STR-1] = '\0';
