@@ -53,6 +53,10 @@
 #include "epan/packet.h"
 #include <epan/prefs.h>
 
+#if GLIB_MAJOR_VERSION >= 2
+#include <glib.h>
+#endif
+
 #include "packet-gsm_sms.h"
 
 
@@ -223,6 +227,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint32		numdigocts;
     guint32		length;
     guint32		i, j;
+    char                addrbuf[20];
 
     offset = *offset_p;
 
@@ -314,9 +319,9 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     switch ((oct & 0x70) >> 4)
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
-	i = gsm_sms_char_7bit_unpack(0, numdigocts, sizeof(bigbuf), tvb_get_ptr(tvb, offset, numdigocts), bigbuf);
-	bigbuf[i] = '\0';
-	gsm_sms_char_ascii_decode(bigbuf, bigbuf, i);
+	i = gsm_sms_char_7bit_unpack(0, numdigocts, sizeof(addrbuf), tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
+	addrbuf[i] = '\0';
+	gsm_sms_char_ascii_decode(bigbuf, addrbuf, i);
 	break;
     default:
 	for (i = 0; i < numdigocts; i++)
@@ -1444,18 +1449,28 @@ gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned i
 #define GN_CHAR_ALPHABET_SIZE 128
 
 #define GN_CHAR_ESCAPE 0x1b
+#if GLIB_MAJOR_VERSION < 2
+typedef unsigned int gunichar;
 
-static unsigned char gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+int g_unichar_to_utf8(gunichar c, char * outbuf) {
+	*outbuf = (unsigned char) c;
+	return 1;
+}
+
+#endif
+
+static gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+    /* Fixed to use unicode */
     /* Characters in hex position 10, [12 to 1a] and 24 are not present on
        latin1 charset, so we cannot reproduce on the screen, however they are
        greek symbol not present even on my Nokia */
 
-    '@',  0xa3, '$',  0xa5, 0xe8, 0xe9, 0xf9, 0xec,
+    '@',  0xa3, '$' , 0xa5, 0xe8, 0xe9, 0xf9, 0xec,
     0xf2, 0xc7, '\n', 0xd8, 0xf8, '\r', 0xc5, 0xe5,
-    '?',  '_',  '?',  '?',  '?',  '?',  '?',  '?',
-    '?',  '?',  '?',  '?',  0xc6, 0xe6, 0xdf, 0xc9,
+   0x394, '_', 0x3a6,0x393,0x39b,0x3a9,0x3a0,0x3a8,
+   0x3a3,0x398,0x39e, 0xa0, 0xc6, 0xe6, 0xdf, 0xc9,
     ' ',  '!',  '\"', '#',  0xa4,  '%',  '&',  '\'',
     '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
     '0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',
@@ -1476,7 +1491,6 @@ char_is_escape(unsigned char value)
     return (value == GN_CHAR_ESCAPE);
 }
 
-static unsigned char
 char_def_alphabet_ext_decode(unsigned char value)
 {
     switch (value)
@@ -1490,12 +1504,12 @@ char_def_alphabet_ext_decode(unsigned char value)
     case 0x3d: return '~';  break;
     case 0x3e: return ']';  break;
     case 0x40: return '|';  break;
-    case 0x65: return 0xa4; break; /* euro */
+    case 0x65: return 0x20ac; break; /* euro */
     default: return '?';    break; /* invalid character */
     }
 }
 
-static unsigned char
+static gunichar 
 char_def_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -1509,18 +1523,24 @@ char_def_alphabet_decode(unsigned char value)
 }
 
 void
-gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len)
+gsm_sms_char_ascii_decode(unsigned char * dest, const unsigned char* src, int len)
 {
     int i, j;
+    gunichar buf;
 
-    for (i = 0, j = 0; j < len; i++, j++)
+
+    for (i = 0, j = 0; j < len;  j++)
     {
-	if (char_is_escape(src[j]))
-	    dest[i] = char_def_alphabet_ext_decode(src[++j]);
-	else
-	    dest[i] = char_def_alphabet_decode(src[j]);
+	if (char_is_escape(src[j])) {
+	    buf = char_def_alphabet_ext_decode(src[++j]);
+	    i += g_unichar_to_utf8(buf,&(dest[i]));
+	}
+	else {
+	    buf = char_def_alphabet_decode(src[j]);
+	    i += g_unichar_to_utf8(buf,&(dest[i]));
+	}
     }
-    dest[i] = 0;
+    dest[i]=0;
     return;
 }
 
@@ -1771,6 +1791,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint	fill_bits;
     guint32	out_len;
     char	*ustr;
+    char        messagebuf[160];
 
     fill_bits = 0;
 
@@ -1839,11 +1860,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		if (seven_bit)
 		{
 		    out_len =
-			gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
-		    tvb_get_ptr(tvb, offset, length), bigbuf);
-		    bigbuf[out_len] = '\0';
-		    gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-			bigbuf[udl] = '\0';
+			gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(messagebuf),
+		    tvb_get_ptr(tvb, offset, length), messagebuf);
+		    messagebuf[out_len] = '\0';
+		    gsm_sms_char_ascii_decode(bigbuf, messagebuf, out_len);
 
 			proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
 		}
