@@ -58,11 +58,9 @@
 #include <epan/emem.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
+#include <packet-mtp3.h>
 
-#define ITU_ISUP	0
-#define ANSI_ISUP	1
-
-static gint isup_type = ITU_ISUP;
+static gint isup_standard = ITU_STANDARD;
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -5577,9 +5575,7 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
 
   /* Do stuff for first mandatory fixed parameter: CVR Repsonse Indicator */
   parameter_type = ANSI_ISUP_PARAM_TYPE_CVR_RESP_IND;
-  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
-									   CVR_RESP_IND_LENGTH,
-								       "CVR Reponse Indicator");
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset, CVR_RESP_IND_LENGTH, "CVR Reponse Indicator");
   
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"CVR Reponse Indicator"));
@@ -5604,7 +5600,31 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
 
   return offset;
 }
+/* ------------------------------------------------------------------
+  Dissector Message Type Circuit Reservation
+ */
+static gint
+dissect_ansi_isup_circuit_reservation_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{ proto_item* parameter_item;
+  proto_tree* parameter_tree;
+  tvbuff_t *parameter_tvb;
+  gint offset = 0;
+  gint parameter_type, actual_length;
 
+  /* Do stuff for mandatory fixed parameter: Nature of Connection Indicators */
+  parameter_type = PARAM_TYPE_NATURE_OF_CONN_IND;
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
+				       NATURE_OF_CONNECTION_IND_LENGTH,
+				       "Nature of Connection Indicators");
+  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+  parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(NATURE_OF_CONNECTION_IND_LENGTH, actual_length), NATURE_OF_CONNECTION_IND_LENGTH);
+  dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  offset += NATURE_OF_CONNECTION_IND_LENGTH;
+
+  return offset;
+}
 /* ------------------------------------------------------------------
   Dissector Message Type Initial address message
  */
@@ -5864,11 +5884,11 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  switch (isup_type){
-  case ITU_ISUP:
+  switch (isup_standard){
+  case ITU_STANDARD:
 	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
-  case ANSI_ISUP:
+  case ANSI_STANDARD:
 	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
   }
@@ -6040,11 +6060,11 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  switch (isup_type){
-  case ITU_ISUP:
+  switch (isup_standard){
+  case ITU_STANDARD:
 	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
-  case ANSI_ISUP:
+  case ANSI_STANDARD:
 	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
   }
@@ -6219,11 +6239,11 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
 
-  switch (isup_type){
-  case ITU_ISUP:
+  switch (isup_standard){
+  case ITU_STANDARD:
 	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
-  case ANSI_ISUP:
+  case ANSI_STANDARD:
 	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
   }
@@ -6250,11 +6270,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* Extract message type field */
   message_type = tvb_get_guint8(message_tvb,0);
 
-  switch (isup_type){
-  case ITU_ISUP:
+  switch (isup_standard){
+  case ITU_STANDARD:
 	  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, isup_message_type_value, "reserved"), message_type);
 	  break;
-  case ANSI_ISUP:
+  case ANSI_STANDARD:
 	  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, ansi_isup_message_type_value, "reserved"), message_type);
 	  break;
   }
@@ -6267,8 +6287,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1);
 
    /* distinguish between message types:*/
-	switch (isup_type){
-		case ITU_ISUP:
+	switch (isup_standard){
+		case ITU_STANDARD:
 			switch (message_type) {
 			case MESSAGE_TYPE_INITIAL_ADDR:
 				offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
@@ -6464,7 +6484,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				break;
 			}
 			break;
-		case ANSI_ISUP:
+		case ANSI_STANDARD:
 			/* TODO if neccessary make new "dissect_ansi_isup_xxx() routines or add branches in the current ones.
 			 */
 			switch (message_type) {
@@ -6517,7 +6537,6 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				break;
 			case MESSAGE_TYPE_REL_CMPL:
 				/* no dissector necessary since no mandatory parameters included */
-				opt_part_possible = TRUE;
 				break;
 			case MESSAGE_TYPE_CONT_CHECK_REQ:
 				/* no dissector necessary since no mandatory parameters included */
@@ -6659,11 +6678,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				/* no dissector necessary since no mandatory parameters included */
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES:
-				/* dissect_ansi_isup_circuit_reservation_message( parameter_tvb, isup_tree ); */
+				offset += dissect_ansi_isup_circuit_reservation_message( parameter_tvb, isup_tree );
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP:
 				opt_part_possible = TRUE;
-				dissect_ansi_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
+				offset += dissect_ansi_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST:
 				/* no dissector necessary since no mandatory parameters included */
@@ -6684,11 +6703,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
        optional_parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1 );
-	   switch(isup_type){
-	   case ITU_ISUP:
+	   switch(isup_standard){
+	   case ITU_STANDARD:
 		   dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
 		   break;
-	   case ANSI_ISUP:
+	   case ANSI_STANDARD:
 		   dissect_ansi_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
 		   break;
 	   }
@@ -6718,13 +6737,21 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 cic;
 	guint8 message_type;
 
+	switch(mtp3_standard){
+	case ANSI_STANDARD:
+		isup_standard = ANSI_STANDARD;
+		break;
+	default:
+		isup_standard = ITU_STANDARD;
+	}
+
 /* Make entries in Protocol column and Info column on summary display */
-	switch (isup_type){
-	case ITU_ISUP:
+	switch (isup_standard){
+	case ITU_STANDARD:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
 		break;
-	case ANSI_ISUP:
+	case ANSI_STANDARD:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
 		break;
@@ -6743,20 +6770,20 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		if (isup_show_cic_in_info){
-			switch (isup_type){
-			case ITU_ISUP:
+			switch (isup_standard){
+			case ITU_STANDARD:
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), cic);
 				break;
-			case ANSI_ISUP:
+			case ANSI_STANDARD:
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"), cic);
 				break;
 			}
 		}else{
-			switch (isup_type){
-			case ITU_ISUP:
+			switch (isup_standard){
+			case ITU_STANDARD:
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 				break;
-			case ANSI_ISUP:
+			case ANSI_STANDARD:
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"));
 				break;
 			}
@@ -7820,12 +7847,6 @@ proto_register_isup(void)
 		&ett_isup_apm_msg_fragments,
 	};
 
-	static enum_val_t options[] = {
-		{ "ITU ISUP",	"ITU ISUP",						ITU_ISUP  },
-		{ "ANSI ISUP",	"ANSI ISUP, most still decoded as ITU",		ANSI_ISUP  },
-    { NULL, NULL, 0 }
-  };
-
 /* Register the protocol name and description */
 	proto_isup = proto_register_protocol("ISDN User Part",
 	    "ISUP", "isup");
@@ -7839,8 +7860,6 @@ proto_register_isup(void)
 	isup_tap = register_tap("isup");
 
 	isup_module = prefs_register_protocol(proto_isup, NULL);
-
-	prefs_register_enum_preference(isup_module, "type", "ISUP type", "Type of ISUP", &isup_type, options, FALSE);
 
 
 	prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
