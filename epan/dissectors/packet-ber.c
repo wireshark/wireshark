@@ -187,7 +187,7 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 	add_oid_str_name(oid, name);
 }
 
-int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type) 
+int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type)
 {
  gint8 tmp_cls;
  gint32 tmp_tag;
@@ -202,7 +202,7 @@ int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tre
  offset = get_ber_identifier(tvb, offset, &tmp_cls, NULL, &tmp_tag);
  offset = get_ber_length(tree, tvb, offset, &tmp_len, NULL);
  if ((tmp_cls != tag_cls) || (tmp_tag != tag_tag)) {
-	proto_tree_add_text(tree, tvb, offset, tmp_len, 
+	proto_tree_add_text(tree, tvb, offset, tmp_len,
 		"BER Error: Wrong tag in tagged type - expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",
 		tag_cls, val_to_str(tag_cls, ber_class_codes, "Unknown"), tag_tag, val_to_str(tag_tag, ber_uni_tag_codes,"Unknown"),
 		tmp_cls, val_to_str(tmp_cls, ber_class_codes,"Unknown"), tmp_tag);
@@ -538,6 +538,8 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 				offset= get_ber_length(tree,tvb,offset, &tmp_len, NULL);
 				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
 				offset += tmp_len;
+                                /* Make sure we've moved forward in the packet */
+                                DISSECTOR_ASSERT(offset > s_offset);
 				}
 			tmp_length += 2;
 			tmp_ind = TRUE;
@@ -2171,7 +2173,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	     set so the APPLICATION tag was still present.
 	     So here we relax it for APPLICATION tags. CONTEXT tags may
 	     still cause a problem. */
-	     
+
 	  if(!implicit_tag && (class!=BER_CLASS_APP)) {
 		if( (class!=BER_CLASS_UNI)
 		  ||(tag!=BER_UNI_TAG_BITSTRING) ){
