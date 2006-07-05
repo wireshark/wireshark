@@ -2289,11 +2289,15 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 				if (pi->endpointId != NULL){
 					if (g_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0){
 						/*
-						   check first if it is an ended call. We consider an ended call after 1sec we don't 
-						   get a packet in this Endpoint and the call has been released
+						   check first if it is an ended call. We can still match packets to this Endpoint 2 seconds
+						   after the call has been released
 						*/
 						diff_time = nstime_to_sec(&pinfo->fd->rel_ts) - tmp_listinfo->stop_sec - (double)tmp_listinfo->stop_usec/1000000;
-						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) || (tmp_listinfo->call_state == VOIP_COMPLETED)  || (tmp_listinfo->call_state == VOIP_REJECTED)) && (diff_time > 1) ){
+						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) ||
+						     (tmp_listinfo->call_state == VOIP_COMPLETED)  ||
+						     (tmp_listinfo->call_state == VOIP_REJECTED)) &&
+						       (diff_time > 2) )
+						{
 							tmp_listinfo->call_active_state = VOIP_INACTIVE;
 						} else {
 							strinfo = (voip_calls_info_t*)(list->data);
