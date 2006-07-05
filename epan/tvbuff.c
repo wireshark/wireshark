@@ -232,6 +232,7 @@ tvb_free_chain(tvbuff_t* tvb)
 void
 tvb_set_free_cb(tvbuff_t* tvb, tvbuff_free_cb_t func)
 {
+	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
 	tvb->free_cb = func;
 }
@@ -246,6 +247,7 @@ add_to_used_in_list(tvbuff_t *tvb, tvbuff_t *used_in)
 void
 tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 {
+	DISSECTOR_ASSERT(parent && child);
 	DISSECTOR_ASSERT(parent->initialized);
 	DISSECTOR_ASSERT(child->initialized);
 	DISSECTOR_ASSERT(child->type == TVBUFF_REAL_DATA);
@@ -255,6 +257,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 void
 tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
+	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
 	DISSECTOR_ASSERT(!tvb->initialized);
 
@@ -381,8 +384,7 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 {
 	guint	end_offset;
 
-	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (!compute_offset_length(tvb, offset, length, offset_ptr, length_ptr, exception)) {
 		return FALSE;
@@ -448,6 +450,7 @@ void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 		gint backing_offset, gint backing_length, gint reported_length)
 {
+	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
 	DISSECTOR_ASSERT(!tvb->initialized);
 
@@ -514,7 +517,7 @@ tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 {
 	tvb_comp_t	*composite;
 
-	DISSECTOR_ASSERT(!tvb->initialized);
+	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append( composite->tvbs, member );
 	add_to_used_in_list(member, tvb);
@@ -525,7 +528,7 @@ tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
 {
 	tvb_comp_t	*composite;
 
-	DISSECTOR_ASSERT(!tvb->initialized);
+	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend( composite->tvbs, member );
 	add_to_used_in_list(member, tvb);
@@ -546,7 +549,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 	tvb_comp_t	*composite;
 	int		i = 0;
 
-	DISSECTOR_ASSERT(!tvb->initialized);
+	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->length == 0);
 
 	composite = &tvb->tvbuffs.composite;
@@ -572,7 +575,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 guint
 tvb_length(tvbuff_t* tvb)
 {
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	return tvb->length;
 }
@@ -582,7 +585,7 @@ tvb_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
 		return abs_length;
@@ -598,7 +601,7 @@ tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 	guint	abs_offset, abs_length;
 	int	exception;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, &exception)) {
 		THROW(exception);
@@ -627,7 +630,7 @@ tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint		abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (!compute_offset_length(tvb, offset, length, &abs_offset, &abs_length, NULL))
 		return FALSE;
@@ -647,7 +650,7 @@ tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint		abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	/*
 	 * -1 doesn't mean "until end of buffer", as that's pointless
@@ -670,7 +673,7 @@ tvb_offset_exists(tvbuff_t *tvb, gint offset)
 {
 	guint		abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL))
 		return FALSE;
 
@@ -685,7 +688,7 @@ tvb_offset_exists(tvbuff_t *tvb, gint offset)
 guint
 tvb_reported_length(tvbuff_t* tvb)
 {
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	return tvb->reported_length;
 }
@@ -695,7 +698,7 @@ tvb_reported_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
 		if (tvb->reported_length >= abs_offset)
@@ -717,7 +720,7 @@ tvb_reported_length_remaining(tvbuff_t *tvb, gint offset)
 void
 tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
 {
-	DISSECTOR_ASSERT(tvb->initialized);
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (reported_length > tvb->reported_length)
 		THROW(ReportedBoundsError);
@@ -1003,9 +1006,9 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
 	guint8	*duped;
-	
+
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
-	
+
 	duped = g_malloc(abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
 }
@@ -1019,7 +1022,7 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
  * "composite_ensure_contiguous_no_exception()" depends on -1 not being
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
- * 
+ *
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
  * when wireshark starts decoding the next packet.
@@ -1031,9 +1034,9 @@ ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
 	guint8	*duped;
-	
+
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
-	
+
 	duped = ep_alloc(abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
 }
@@ -1740,7 +1743,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 }
 
 /* Convert a string from Unicode to ASCII.  At the moment we fake it by
- * replacing all non-ASCII characters with a '.' )-:   The len parameter is 
+ * replacing all non-ASCII characters with a '.' )-:   The len parameter is
  * the number of guint16's to convert from Unicode.
  *
  * This function allocates memory from a buffer with packet lifetime.
@@ -2398,7 +2401,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 tvbuff_t *
 tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 {
-	
+
 
 	gint err = Z_OK;
 	guint bytes_out = 0;
@@ -2433,7 +2436,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 		return NULL;
 	}
 
-	/* 
+	/*
 	 * Assume that the uncompressed data is at least twice as big as
 	 * the compressed size.
 	 */
@@ -2505,10 +2508,10 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 					if (uncompr != NULL) {
 						g_free(uncompr);
 					}
-					
+
 					return NULL;
 				}
-				
+
 				g_memmove(new_data, uncompr, bytes_out);
 				g_memmove((new_data + bytes_out), strmbuf,
 				    bytes_pass);
@@ -2541,7 +2544,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				g_free(compr);
 				return NULL;
 			}
-			
+
 		} else if (err == Z_DATA_ERROR && inits_done == 1
 		    && uncompr == NULL && (*compr  == 0x1f) &&
 		    (*(compr + 1) == 0x8b)) {
@@ -2597,7 +2600,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 			if (flags & (1 << 4)) {
 				/* A null terminated comment */
-				
+
 				while (*c != '\0') {
 					c++;
 				}
@@ -2617,14 +2620,14 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				return NULL;
 			}
 			comprlen -= (c - compr);
-			
+
 			inflateEnd(strm);
 			err = inflateInit2(strm, wbits);
 			inits_done++;
 		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
 		    inits_done <= 3) {
-			
-			/* 
+
+			/*
 			 * Re-init the stream with a negative
 			 * MAX_WBITS. This is necessary due to
 			 * some servers (Apache) not sending
@@ -2643,9 +2646,9 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			strm->avail_out = bufsiz;
 
 			err = inflateInit2(strm, wbits);
-				
+
 			inits_done++;
-			
+
 			if (err != Z_OK) {
 				g_free(strm);
 				g_free(strmbuf);
@@ -2672,7 +2675,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 	printf("inflate() total passes: %u\n", inflate_passes);
 	printf("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
 #endif
-	
+
 	if (uncompr != NULL) {
 		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out,
 		    bytes_out);
