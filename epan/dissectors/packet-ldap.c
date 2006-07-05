@@ -1894,7 +1894,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  
     pi = get_ber_last_created_item();
      
-    proto_item_set_text(pi, string);
+    proto_item_set_text(pi, "%s", string);
 
   }
   

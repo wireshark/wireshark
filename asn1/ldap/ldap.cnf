@@ -405,7 +405,7 @@ ldap_conv_info_t *ldap_info;
  
     pi = get_ber_last_created_item();
      
-    proto_item_set_text(pi, string);
+    proto_item_set_text(pi, "%%s", string);
 
   }
   
