@@ -480,7 +480,7 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
 
   value=0; out_len = 0; byte =0; is_first = TRUE;
   for (i=0; i<oid_len; i++){
-    if (out_len >= buf_len) 
+    if (out_len >= buf_len)
       break;
     byte = oid[i];
     value = (value << 7) | (byte & 0x7F);
@@ -537,7 +537,7 @@ format_oid(subid_t *oid, guint oid_length)
 	*oid_string = '\0';
 	oid_out_len = 0;
 	/* We pass an ep allocated block here, NOT a malloced block
-	 * so we MUST NOT allow reallocation, hence the fourth 
+	 * so we MUST NOT allow reallocation, hence the fourth
 	 * parameter MUST be 0/FALSE
 	 */
 	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, FALSE,
@@ -595,7 +595,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 		*oid_string = '\0';
 		oid_out_len = 0;
 		/* We pass an ep allocated block here, NOT a malloced block
-		 * so we MUST NOT allow reallocation, hence the fourth 
+		 * so we MUST NOT allow reallocation, hence the fourth
 		 * parameter MUST be 0/FALSE
 		 */
 		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, FALSE,
@@ -646,6 +646,9 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	guchar *buf;
 	size_t buf_len;
 	size_t out_len;
+
+        if (variable_oid == NULL || variable_oid_length == 0)
+                return NULL;
 
 	switch (vb_type) {
 
@@ -728,7 +731,7 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 		*buf = '\0';
 		out_len = 0;
 		/* We pass an ep allocated block here, NOT a malloced block
-		 * so we MUST NOT allow reallocation, hence the fourth 
+		 * so we MUST NOT allow reallocation, hence the fourth
 		 * parameter MUST be 0/FALSE
 		 */
 		sprint_realloc_value(&buf, &buf_len, &out_len, FALSE,
@@ -885,7 +888,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 }
 
 /* This code is copied from the original SNMP dissector with minor changes to adapt it to use packet-ber.c routines
- * TODO: 
+ * TODO:
  * - Rewrite it completly as OID as subid_t could be returned from dissect_ber_objectidentifier
  * - vb_type_name is known when calling this routine(?)
  * - All branches not needed(?)
@@ -2696,7 +2699,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1035 "packet-snmp-template.c"
+#line 1038 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3388,7 +3391,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1390 "packet-snmp-template.c"
+#line 1393 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3426,7 +3429,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1399 "packet-snmp-template.c"
+#line 1402 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
