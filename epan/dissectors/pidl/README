@@ -18,7 +18,7 @@ This will build and install the binaries and the manpage (pidl.1).
 
 run  pidl with:
 
-pidl --eth-parser -- <idl-file>  (don't forget the "--")
+pidl --ws-parser -- <idl-file>  (don't forget the "--")
 
 If you run outside the dissectors/pidl directory, this *will* result in a
 warning like:
