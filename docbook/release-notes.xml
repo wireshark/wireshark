@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.1.0pre1">
+  <!ENTITY WiresharkCurrentVersion "0.99.2pre1">
 
 ]>
 
