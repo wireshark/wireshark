@@ -700,7 +700,7 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk help
+DIST_SUBDIRS = asn1 doc epan gtk help packaging plugins tools wiretap
 
 if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
