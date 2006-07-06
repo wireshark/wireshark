@@ -1068,6 +1068,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
+		DISSECTOR_ASSERT(eoffset > offset);
 
 		if(ind_field && (len == 2)){
     			/* disgusting indefinite length zero length field, what are these people doing */
