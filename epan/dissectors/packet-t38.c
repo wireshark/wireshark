@@ -62,7 +62,6 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include "packet-per.h"
-#include <epan/prefs.h>
 #include "packet-tpkt.h"
 #include <epan/emem.h>
 
