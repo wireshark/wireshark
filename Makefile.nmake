@@ -495,7 +495,7 @@ setup: verify_tools
 		gettext-runtime-0.13.1 gettext-runtime-0.13.1.zip
 !IFDEF NET_SNMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. net-snmp-5.2.2.zip
+		. net-snmp-5.3.0.1.zip
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \

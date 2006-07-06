@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2006-04-12/packages"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2006-07-06/packages"
 
 err_exit () {
 	echo ""
