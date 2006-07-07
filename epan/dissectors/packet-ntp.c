@@ -563,7 +563,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		int buffpos;
 		buff = ep_alloc(NTP_TS_SIZE);
 		refid_addr = tvb_get_ipv4(tvb, 12);
-		buffpos = g_snprintf(buff, NTP_TS_SIZE, get_hostname (refid_addr));
+		buffpos = g_snprintf(buff, NTP_TS_SIZE, "%s", get_hostname (refid_addr));
 		if (buffpos >= NTP_TS_SIZE) {
 			buff[NTP_TS_SIZE-4]='.';
 			buff[NTP_TS_SIZE-3]='.';

@@ -204,11 +204,11 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
 {
         int     foffset = offset;
         guint32 str_length;
-        char    buffer[1024];
+        char    buffer[ITEM_LABEL_LENGTH];
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
-        
+
         if (little) {
             str_length = tvb_get_letohl(tvb, foffset);
         }
@@ -217,7 +217,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
             str_length = tvb_get_ntohl(tvb, foffset);
         }
         foffset += 4;
-        if(str_length > 1024)
+        if(str_length >= ITEM_LABEL_LENGTH)
         {
                 proto_tree_add_string(nmas_tree, hfinfo, tvb, foffset,
                     length_remaining + 4, "<String too long to process>");
@@ -244,7 +244,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
                 if (c_char<0x20 || c_char>0x7e)
                 {
                         if (c_char != 0x00)
-                        { 
+                        {
                                 c_char = 0x2e;
                                 buffer[i] = c_char & 0xff;
                         }
@@ -260,15 +260,15 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
                 }
                 foffset++;
                 length_remaining--;
-                
+
                 if(length_remaining==1)
                 {
                 	i++;
                 	break;
-                }        
+                }
         }
         buffer[i] = '\0';
-        
+
         if (little) {
             str_length = tvb_get_letohl(tvb, offset);
         }
@@ -292,13 +292,13 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     guint8              msgverb=0;
     proto_tree          *atree;
     proto_item          *aitem;
-    
+
     foffset = 6;
     func = tvb_get_guint8(tvb, foffset);
     foffset += 1;
     subfunc = tvb_get_guint8(tvb, foffset);
     foffset += 1;
-    
+
     /* Fill in the INFO column. */
     if (check_col(pinfo->cinfo, COL_INFO)) {
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMAS");
@@ -357,7 +357,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         case 8:             /* Login Store Management */
             proto_tree_add_item(atree, hf_reply_buffer_size, tvb, foffset, 1, TRUE);
             foffset += 4;
-            msgverb = tvb_get_guint8(tvb, foffset); 
+            msgverb = tvb_get_guint8(tvb, foffset);
             if (request_value) {
                 request_value->nds_request_verb=msgverb; /* Use nds_request_verb for passed subverb */
             }
@@ -385,7 +385,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             break;
         case 10:            /* Writable Object Check */
             /* The first GUINT32 value is the len of the header? */
-            foffset += 4; 
+            foffset += 4;
             /* The next two GUINT32 values are reserved and always 0 */
             foffset += 8;
             foffset = nmas_string(tvb, hf_tree, atree, foffset, TRUE);
@@ -485,7 +485,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     guint32             return_code=0, encrypt_error=0;
     proto_tree          *atree;
     proto_item          *aitem;
-    
+
     foffset = 8;
     if (request_value) {
         subverb = request_value->req_nds_flags;
@@ -497,7 +497,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     if (tvb_reported_length_remaining(tvb, foffset)<4) {
         return;
     }
-        
+
     aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Packet Type: %s",
                                 val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
     atree = proto_item_add_subtree(aitem, ett_nmas);
@@ -622,7 +622,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 break;
             }
         }
-        if (match_strval(return_code, nmas_errors_enum)!=NULL) 
+        if (match_strval(return_code, nmas_errors_enum)!=NULL)
         {
             expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
             expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, match_strval(return_code, nmas_errors_enum));
@@ -711,7 +711,7 @@ proto_register_nmas(void)
         { &hf_msg_verb,
         { "Message Verb",        "nmas.msg_verb", FT_UINT8, BASE_HEX, VALS(nmas_msgverb_enum), 0x0,
             "Message Verb", HFILL }},
-        
+
         { &hf_attribute,
         { "Attribute Type",        "nmas.attribute", FT_UINT32, BASE_DEC, VALS(nmas_attribute_enum), 0x0,
             "Attribute Type", HFILL }},
@@ -735,11 +735,11 @@ proto_register_nmas(void)
         { "Data",    "nmas.data",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Data", HFILL }},
-        
+
         { &hf_return_code,
         { "Return Code",        "nmas.return_code", FT_UINT32, BASE_HEX, VALS(nmas_errors_enum), 0x0,
             "Return Code", HFILL }},
-       
+
         { &hf_lsm_verb,
         { "Login Store Message Verb",        "nmas.lsm_verb", FT_UINT8, BASE_HEX, VALS(nmas_lsmverb_enum), 0x0,
             "Login Store Message Verb", HFILL }},
@@ -759,7 +759,7 @@ proto_register_nmas(void)
         { &hf_cred_type,
         { "Credential Type",        "nmas.cred_type", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Credential Type", HFILL }},
-        
+
         { &hf_login_state,
         { "Login State",        "nmas.login_state", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Login State", HFILL }},
@@ -773,21 +773,21 @@ proto_register_nmas(void)
         { "Encrypted Data",    "nmas.enc_data",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Encrypted Data", HFILL }},
-    
+
         { &hf_reply_buffer_size,
         { "Reply Buffer Size",        "nmas.buf_size", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Reply Buffer Size", HFILL }},
-    
+
         { &hf_encrypt_error,
         { "Payload Error",        "nmas.encrypt_error", FT_UINT32, BASE_HEX, VALS(nmas_errors_enum), 0x0,
             "Payload/Encryption Return Code", HFILL }},
-        
+
     };
 
     static gint *ett[] = {
         &ett_nmas,
     };
-    
+
     proto_nmas = proto_register_protocol("Novell Modular Authentication Service", "NMAS", "nmas");
     proto_register_field_array(proto_nmas, hf_nmas, array_length(hf_nmas));
     proto_register_subtree_array(ett, array_length(ett));

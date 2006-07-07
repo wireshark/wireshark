@@ -172,6 +172,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			host=ip_to_str(pinfo->dst.data);
 			len=tvb_get_ntohl(tvb, offset);
+                        DISSECTOR_ASSERT(len < ITEM_LABEL_LENGTH);
 
 			dir=tvb_get_ptr(tvb, offset+4, len);
 			if(dir){
@@ -855,11 +856,11 @@ static const value_string mount3_proc_vals[] = {
 
 static const vsff sgi_mount1_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",      
+    { MOUNTPROC_MNT,        "MNT",
 		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
 		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",        
+    { MOUNTPROC_UMNT,      "UMNT",
 		dissect_mount_dirpath_call, NULL },
     { MOUNTPROC_UMNTALL,   "UMNTALL",
 		NULL, NULL },
