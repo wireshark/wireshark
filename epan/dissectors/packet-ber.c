@@ -2037,14 +2037,8 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-		if(ind_field){
-			/* if the length is indefinite we dont really know (yet) where the
-			 * object ends so assume it spans the rest of the tvb for now.
-        		 */
-	  		eoffset = offset + len;
-		} else {
-			eoffset = offset + len;
-		}
+		eoffset = offset + len;
+		DISSECTOR_ASSERT(eoffset > offset);
 
 		/* verify that this one is the one we want */
 		/* ahup if we are implicit then we return to the uper layer how much we have used */
@@ -2072,16 +2066,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
 		cnt++; /* rubbish*/
-		if(ind_field){
-			/* previous field was of indefinite length so we have
-			 * no choice but use whatever the subdissector told us
-			 * as size for the field.
-			 * not any more the length should be correct
-			 */
-			offset = eoffset;
-		} else {
-			offset = eoffset;
-		}
+		offset = eoffset;
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
