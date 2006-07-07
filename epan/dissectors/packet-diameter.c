@@ -1825,7 +1825,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 			if (flags & AVP_FLAGS_V) {
 				proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_vendor_id,
-				                                 tvb, offset, 4, vendorId, "%s", vendorName);
+				                                 tvb, offset, 4, vendorId, "%s (%u)", vendorName, vendorId);
 				offset += 4;
 			}
 

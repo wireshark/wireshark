@@ -20,6 +20,9 @@
 		<avp name="CC-Input-Octets" code="412" mandatory="must">
 			<type type-name="Unsigned64"/>
 		</avp>
+		<avp name="CC-Output-Octets" code="414" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned64"/>
+		</avp>
 		<avp name="CC-Request-Number" code="415" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -112,6 +115,12 @@
 			<enum name="SIP_URI" code="3"/>
 			<enum name="URL" code="2"/>
 			<enum name="IPV4_ADDRESS" code="0"/>
+		</avp>
+		<avp name="Redirect-Server" code="434" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Redirect-Address-Type"/>
+				<gavp name="Redirect-Server-Address"/>
+			</grouped>
 		</avp>
 		<avp name="Redirect-Server-Address" code="435" mandatory="must">
 			<type type-name="UTF8String"/>
@@ -207,6 +216,9 @@
 			<enum name="UNIT_INDETERMINATE" code="2"/>
 			<enum name="UNIT_BEFORE_TARIFF_CHANGE" code="0"/>
 		</avp>
+		<avp name="G-S-U-Pool-Identifier" code="453" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="CC-Unit-Type" code="454" mandatory="must">
 			<type type-name="Enumerated"/>
 			<enum name="TIME" code="0"/>
@@ -259,6 +271,179 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Service-Context-Id" code="461" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<!-- Definition from SH specs -->
+		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="Time-Quota-Threshold" code="868" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Volume-Quota-Threshold" code="869" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Trigger-Type" code="870" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Enumerated"/>
+			<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
+			<enum name="CHANGE_IN_QOS" code="2"/>
+			<enum name="CHANGE_IN_LOCATION" code="3"/>
+			<enum name="CHANGE_IN_RAT" code="4"/>
+			<enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
+			<enum name="CHANGEINQOS_RELIABILITY_CLASS" code="11"/>
+			<enum name="CHANGEINQOS_DELAY_CLASS" code="12"/>
+			<enum name="CHANGEINQOS_PEAK_THROUGHPUT" code="13"/>
+			<enum name="CHANGEINQOS_PRECEDENCE_CLASS" code="14"/>
+			<enum name="CHANGEINQOS_MEAN_THROUGHPUT" code="15"/>
+			<enum name="CHANGEINQOS_MAXIMUM_BIT_RATE_FOR_UPLINK" code="16"/>
+			<enum name="CHANGEINQOS_MAXIMUM_BIT_RATE_FOR_DOWNLINK" code="17"/>
+			<enum name="CHANGEINQOS_RESIDUAL_BER" code="18"/>
+			<enum name="CHANGEINQOS_SDU_ERROR_RATIO" code="19"/>
+			<enum name="CHANGEINQOS_TRANSFER_DELAY" code="20"/>
+			<enum name="CHANGEINQOS_TRAFFIC_HANDLING_PRIORITY" code="21"/>
+			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
+			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
+			<enum name="CHANGEINLOCATION_MCC" code="30"/>
+			<enum name="CHANGEINLOCATION_MNC" code="31"/>
+			<enum name="CHANGEINLOCATION_RAC" code="32"/>
+			<enum name="CHANGEINLOCATION_LAC" code="33"/>
+			<enum name="CHANGEINLOCATION_CellId" code="34"/>
+			<enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
+		</avp>
+		<avp name="Quota-Holding-Time" code="871" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Reason" code="872" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Enumerated"/>
+			<enum name="THRESHOLD" code="0"/>
+			<enum name="QHT" code="1"/>
+			<enum name="FINAL" code="2"/>
+			<enum name="QUOTA_EXHAUSTED" code="3"/>
+			<enum name="VALIDITY_TIME" code="4"/>
+			<enum name="OTHER_QUOTA_TYPE" code="5"/>
+			<enum name="RATING_CONDITION_CHANGE" code="6"/>
+			<enum name="FORCED_REAUTHORISATION" code="7"/>
+			<enum name="POOL_EXHAUSTED" code="8"/>
+		</avp>
+		<avp name="Service-Information" code="873" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<grouped>
+				<gavp name="PS-Information"/>
+				<gavp name="WLAN-Information"/>
+				<gavp name="IMS-Information"/>
+				<gavp name="MMS-Information"/>
+				<gavp name="LCS-Information"/>
+				<gavp name="PoC-Information"/>
+				<gavp name="MBMS-Information"/>
+			</grouped>
+		</avp>
+		<avp name="PS-Information" code="874" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="IMS-Information" code="876" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MMS-Information" code="877" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Information" code="878" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<grouped>
+				<gavp name="LCS-Client-ID"/>
+				<gavp name="Location-Type"/>
+				<gavp name="Location-Estimate"/>
+				<gavp name="Positioning-Data"/>
+				<gavp name="IMSI"/>
+				<gavp name="MSISDN"/>
+			</grouped>
+		</avp>
+		<avp name="PoC-Information" code="879" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-Information" code="880" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Quota-Consumption-Time" code="881" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<avp name="LCS-Client-Name" code="1231" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Client-ID" code="1232" mandatory="may">
+			<grouped>
+				<gavp name="LCS-Client-Type"/>
+				<gavp name="LCS-Client-External-ID"/>
+				<gavp name="LCS-Client-Dialed-By-MS"/>
+				<gavp name="LCS-Client-Name"/>
+				<gavp name="LCS-APN"/>
+				<gavp name="LCS-Requestor-ID"/>
+			</grouped>
+		</avp>
+		<avp name="LCS-Client-Dialed-By-MS" code="1233" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Client-External-ID" code="1234" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Client-Name" code="1235" mandatory="may">
+			<grouped>
+				<gavp name="LCS-Data-Coding-Scheme"/>
+				<gavp name="LCS-Name-String"/>
+				<gavp name="LCS-Format-Indicator"/>
+			</grouped>
+		</avp>
+		<avp name="LCS-Data-Coding-Scheme" code="1236" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Format-Indicator" code="1237" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="LOGICAL_NAME" code="0"/>
+			<enum name="EMAIL_ADDRESS" code="1"/>
+			<enum name="MSISDN" code="2"/>
+			<enum name="URL" code="3"/>
+			<enum name="SIP_URL" code="4"/>
+		</avp>
+		<avp name="LCS-Name-String" code="1238" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Requestor-ID" code="1239" mandatory="may">
+			<grouped>
+				<gavp name="LCS-Data-Coding-Scheme"/>
+				<gavp name="LCS-Requestor-ID-String"/>
+			</grouped>
+		</avp>
+		<avp name="LCS-Requestor-ID-String" code="1240" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="LCS-Client-Type" code="1241" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="EMERGENCY_SERVICES" code="0"/>
+			<enum name="VALUE_ADDED_SERVICES" code="1"/>
+			<enum name="PLMN_OPERATOR_SERVICES" code="2"/>
+			<enum name="LAWFUL_INTERCEPT_SERVICES" code="3"/>
+		</avp>
+		<avp name="Location-Estimate" code="1242" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Location-Estimate-Type" code="1243" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="CURRENT_LOCATION" code="0"/>
+			<enum name="CURRENT_LAST_KNOWN_LOCATION" code="1"/>
+			<enum name="INITIAL_LOCATION" code="2"/>
+			<enum name="ACTIVATE_DEFERRED_LOCATION" code="3"/>
+			<enum name="CANCEL_DEFERRED_LOCATION" code="4"/>
+		</avp>
+		<avp name="Location-Type" code="1244" mandatory="may">
+			<grouped>
+				<gavp name="Location-Estimate-Type"/>
+				<gavp name="Deferred-Location-Event-Type"/>
+			</grouped>
+		</avp>
+		<avp name="Positioning-Data" code="1245" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 	</application>
