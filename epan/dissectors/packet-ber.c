@@ -1068,7 +1068,8 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
-		DISSECTOR_ASSERT(eoffset > offset);
+                /* Make sure we move forward */
+		DISSECTOR_ASSERT(eoffset > hoffset);
 
 		if(ind_field && (len == 2)){
     			/* disgusting indefinite length zero length field, what are these people doing */
@@ -2038,7 +2039,8 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
-		DISSECTOR_ASSERT(eoffset > offset);
+                /* Make sure we move forward */
+		DISSECTOR_ASSERT(eoffset > hoffset);
 
 		/* verify that this one is the one we want */
 		/* ahup if we are implicit then we return to the uper layer how much we have used */
