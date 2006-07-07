@@ -2204,7 +2204,10 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									/* Dissect the generic part of the other pre-defined headers */
 									/* We assume that only one such header is present */
 									gint iSizeHeader = 0;
-									iSizeHeader = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+									iSizeHeader = (gint) tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+                  /* XXX - 32 is inferred from the code below.  What's the
+                   * correct minimum? */
+                  DISSECTOR_ASSERT(iSizeHeader > 32);
 
 								 	if (tvb_length_remaining(tvb, offset) >= iSizeHeader)
 								 	{

@@ -9,7 +9,7 @@
  *       draft-nguyen-ospf-oob-resync-05.txt
  *       draft-nguyen-ospf-restart-05.txt
  *   - (c) 2005 Michael Rozhavsky <mrozhavsky@fortinet.com>
- * 
+ *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types
@@ -892,7 +892,7 @@ static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble
 
 static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *);
 
-static int 
+static int
 ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type)
 {
     guint8 flags;
@@ -1136,27 +1136,27 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (packet_type){
 
 	case OSPF_HELLO:
-	    dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version, 
+	    dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version,
 			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_DB_DESC:
-	    dissect_ospf_db_desc(tvb, ospf_header_length, ospf_tree, version, 
+	    dissect_ospf_db_desc(tvb, ospf_header_length, ospf_tree, version,
 			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_REQ:
-	    dissect_ospf_ls_req(tvb, ospf_header_length, ospf_tree, version, 
+	    dissect_ospf_ls_req(tvb, ospf_header_length, ospf_tree, version,
 			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_UPD:
-	    dissect_ospf_ls_upd(tvb, ospf_header_length, ospf_tree, version, 
+	    dissect_ospf_ls_upd(tvb, ospf_header_length, ospf_tree, version,
 			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_ACK:
-	    dissect_ospf_ls_ack(tvb, ospf_header_length, ospf_tree, version, 
+	    dissect_ospf_ls_ack(tvb, ospf_header_length, ospf_tree, version,
 			    ospflen - ospf_header_length);
 	    break;
 
@@ -1168,7 +1168,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* take care of the LLS data block */
 	if (ospf_has_lls_block(tvb, ospf_header_length, packet_type))
-	    dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree, 
+	    dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree,
 			    version);
     }
 }
@@ -1184,25 +1184,25 @@ dissect_ospf_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, length + 4, 
+    ti = proto_tree_add_text(tree, tvb, offset, length + 4,
 		    val_to_str(type, lls_tlv_type_vals, "Unknown TLV"));
     ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
-    
+
     proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 2,
 		    "Type: %d", type);
     proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 2, 2,
 		    "Length: %d", length);
-      
+
     switch(type) {
 	case 1:
 	    dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 4, &bfinfo_lls_ext_options);
 	    break;
 	case 2:
-	    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 4, 4, 
-			    "Sequence number 0x%08x", 
+	    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 4, 4,
+			    "Sequence number 0x%08x",
 			    tvb_get_ntohl(tvb, offset + 4));
 	    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 8, length - 4,
-			    "Auth Data: %s", 
+			    "Auth Data: %s",
 			    tvb_bytes_to_str(tvb, offset + 8, length - 4));
 	    break;
     }
@@ -1211,7 +1211,7 @@ dissect_ospf_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree, 
+dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
 		guint8 version)
 {
     proto_tree *ospf_lls_data_block_tree;
@@ -1221,25 +1221,25 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     ospf_lls_len = tvb_get_ntohs(tvb, offset + 2);
     ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF LLS Data Block");
-    ospf_lls_data_block_tree = proto_item_add_subtree(ti, 
+    ospf_lls_data_block_tree = proto_item_add_subtree(ti,
 		    ett_ospf_lls_data_block);
 
     if (version != OSPF_VERSION_2)
 	    return;
 
     /* TODO: verify checksum */
-    proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset, 2, 
+    proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset, 2,
 		    "Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
     proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset + 2, 2,
 		    "LLS Data Length: %d bytes", ospf_lls_len * 4);
-    
+
     offset += 4;
     while (orig_offset + ospf_lls_len * 4 > offset)
 	offset = dissect_ospf_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
 }
 
 static void
-dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version, 
+dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 		guint16 length)
 {
     proto_tree *ospf_hello_tree;
@@ -1303,7 +1303,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 }
 
 static void
-dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, 
+dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree,
 		guint8 version, guint16 length)
 {
     proto_tree *ospf_db_desc_tree=NULL;
@@ -1434,9 +1434,12 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
     while (lsa_counter < lsa_nr) {
         if ( version == OSPF_VERSION_2)
 	    offset = dissect_ospf_v2_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE);
-        else
-            if ( version == OSPF_VERSION_3)
+        else if ( version == OSPF_VERSION_3)
 	        offset = dissect_ospf_v3_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE);
+        else
+            /* We could potentially waste CPU cycles looping */
+            lsa_counter = lsa_nr;
+
         lsa_counter += 1;
     }
 }
@@ -1595,7 +1598,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 				     "%s: %u - %s", stlv_name,
 				     tvb_get_guint8(tvb, stlv_offset + 4),
-				     val_to_str(tvb_get_guint8(tvb, stlv_offset + 4), 
+				     val_to_str(tvb_get_guint8(tvb, stlv_offset + 4),
 					mpls_link_stlv_ltype_str, "Unknown Link Type"));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
@@ -1716,11 +1719,11 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                              tvb_get_ntohl(tvb, stlv_offset + 8),
                                              tvb_get_ntohl(tvb, stlv_offset + 8));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
-		    
+
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
-					stlv_len);			
+					stlv_len);
                     proto_tree_add_item(stlv_tree,
                                         ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID],
                                         tvb, stlv_offset+4, 4, FALSE);
@@ -1781,7 +1784,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Protection Capability: %s (0x%x)",
 					val_to_str(tvb_get_guint8(tvb,stlv_offset+4), gmpls_protection_cap_str, "Unknown (%d)"),tvb_get_guint8(tvb,stlv_offset+4));
 		    break;
-    		
+
 		case MPLS_LINK_SHARED_RISK_GROUP:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s", stlv_name);
@@ -1791,8 +1794,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
 		    for (i=0; i < stlv_len; i+=4)
- 		        proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+i, 4, "Shared Risk Link Group: %u", 
-			                tvb_get_ntohl(tvb,stlv_offset+4+i)); 
+ 		        proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+i, 4, "Shared Risk Link Group: %u",
+			                tvb_get_ntohl(tvb,stlv_offset+4+i));
 		    break;
 
 		case OIF_LOCAL_NODE_ID:
@@ -2127,10 +2130,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	    nr_tos = tvb_get_guint8(tvb, offset + 9);
 
-            
+
             ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_tos,
                                      "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
-                                     link_type_short_str, 
+                                     link_type_short_str,
                                      ip_to_str(tvb_get_ptr(tvb, offset, 4)),
                                      ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)),
                                      tvb_get_ntohs(tvb, offset + 10));

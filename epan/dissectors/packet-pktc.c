@@ -2,8 +2,8 @@
  * Routines for PacketCable (PKTC) Kerberized Key Management and
  *              PacketCable (PKTC) MTA FQDN                  packet disassembly
  *
- * References: 
- * [1] PacketCable 1.0 Security Specification, PKT-SP-SEC-I11-040730, July 30, 
+ * References:
+ * [1] PacketCable 1.0 Security Specification, PKT-SP-SEC-I11-040730, July 30,
  *     2004, Cable Television Laboratories, Inc., http://www.PacketCable.com/
  *
  * Ronnie Sahlberg 2004
@@ -226,8 +226,8 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
         break;
     case DOI_IPSEC:
         switch(kmmid){
-        /* we dont distinguish between SPIs for inbound Security Associations 
-	   of the client (AP-REQ) vs. server (AP-REP, REKEY). Feel free to add 
+        /* we dont distinguish between SPIs for inbound Security Associations
+	   of the client (AP-REQ) vs. server (AP-REP, REKEY). Feel free to add
 	   separation for this if it is imporant enough for you. */
         case KMMID_AP_REQUEST:
         case KMMID_AP_REPLY:
@@ -335,7 +335,7 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
     guint32 snonce;
 
     /* AP Request  kerberos blob */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* Server Nonce */
@@ -366,7 +366,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     tvbuff_t *pktc_tvb;
 
     /* AP Reply  kerberos blob */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* app specific data */
@@ -431,8 +431,8 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
     timestr=tvb_get_ptr(tvb, offset, 13);
-    proto_tree_add_string_format(tree, hf_pktc_timestamp, tvb, offset, 13, timestr, 
-                                "%s: %.2s-%.2s-%.2s %.2s:%.2s:%.2s", 
+    proto_tree_add_string_format(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
+                                "%s: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
                                 proto_registrar_get_name(hf_pktc_timestamp),
 				 timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
     offset+=13;
@@ -468,7 +468,7 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
     tvbuff_t *pktc_tvb;
 
     /* KRB_ERROR */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     return offset;
@@ -488,7 +488,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     offset+=1;
 
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, 
+        col_set_str(pinfo->cinfo, COL_INFO,
                    val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
 
     /* enterprise */
@@ -512,7 +512,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
        /* manufacturer cert revocation time */
        bignum = tvb_get_ntohl(tvb, offset);
        ts.secs = bignum;
-       proto_tree_add_time_format(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4, 
+       proto_tree_add_time_format(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4,
                                   &ts, "%s: %s",
                                   proto_registrar_get_name(hf_pktc_mtafqdn_manu_cert_revoked),
                                   (bignum==0) ? "not revoked" : abs_time_secs_to_str(bignum));
@@ -521,12 +521,13 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     case PKTC_MTAFQDN_REP:
         /* MTA FQDN */
         string_len = tvb_length_remaining(tvb, offset) - 4;
-       proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, FALSE); 
-       offset+=string_len;
+        DISSECTOR_ASSERT(string_len > 0);
+        proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, FALSE);
+        offset+=string_len;
 
         /* MTA IP address */
-       tvb_memcpy(tvb, (guint8 *)&bignum, offset, sizeof(bignum));
-       proto_tree_add_ipv4(tree, hf_pktc_mtafqdn_ip, tvb, offset, 4, bignum);
+        tvb_memcpy(tvb, (guint8 *)&bignum, offset, sizeof(bignum));
+        proto_tree_add_ipv4(tree, hf_pktc_mtafqdn_ip, tvb, offset, 4, bignum);
 
         break;
     }
@@ -562,11 +563,11 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* KRB_AP_RE[QP] */
-    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1);
     offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
 
     /* KRB_SAFE */
-    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1);
     offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
 
     proto_item_set_len(item, offset);
@@ -598,7 +599,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     doi=tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(pktc_tree, hf_pktc_doi, tvb, offset, 1, doi);
     offset+=1;
-    
+
     /* version */
     version=tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pktc_tree, tvb, offset, 1, "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
@@ -608,7 +609,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* fill COL_INFO */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO, 
+        col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(kmmid, kmmid_types, "Unknown KMMID %#x"));
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 		        val_to_str(doi, doi_types, "Unknown DOI %#x"));

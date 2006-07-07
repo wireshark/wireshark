@@ -485,7 +485,10 @@ unsigned int
 rpc_roundup(unsigned int a)
 {
 	unsigned int mod = a % 4;
-	return a + ((mod)? 4-mod : 0);
+        unsigned int ret;
+	ret = a + ((mod)? 4-mod : 0);
+        /* Check for overflow */
+        DISSECTOR_ASSERT(ret >= a);
 }
 
 
