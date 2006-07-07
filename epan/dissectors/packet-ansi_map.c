@@ -12703,7 +12703,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
 	    if (ansi_map_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, ansi_map_add_string);
+		proto_item_append_text(item, "%s", ansi_map_add_string);
 	    }
 	}
     }
@@ -12766,7 +12766,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
 
     if (ansi_map_add_string[0] != '\0')
     {
-	proto_item_append_text(item, ansi_map_add_string);
+	proto_item_append_text(item, "%s", ansi_map_add_string);
     }
 }
 
@@ -13033,23 +13033,23 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  	add_itu_tcap_subdissector(ssn , ansi_map_handle);
      }
  }
- 
- 
- 
+
+
+
  static void range_add_callback(guint32 ssn)
  {
      if (ssn) {
  	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
      }
  }
- 
- 
+
+
  void
  proto_reg_handoff_ansi_map(void)
  {
      static int ansi_map_prefs_initialized = FALSE;
      data_handle = find_dissector("data");
-     
+
      if(!ansi_map_prefs_initialized)
      {
  	ansi_map_prefs_initialized = TRUE;
@@ -13059,13 +13059,13 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      {
  	range_foreach(ssn_range, range_delete_callback);
      }
-     
+
      g_free(ssn_range);
      ssn_range = range_copy(global_ssn_range);
- 
+
      range_foreach(ssn_range, range_add_callback);
  }
- 
+
 
 
 /* Register the protocol with Wireshark */
@@ -13198,7 +13198,7 @@ proto_register_ansi_map(void)
 
 
     ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
-    
+
     prefs_register_range_preference(ansi_map_module, "map.ssn", "GSM MAP SSNs",
 				    "GSM MAP SSNs to decode as ANSI MAP",
 				    &global_ssn_range, MAX_SSN);

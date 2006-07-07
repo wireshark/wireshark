@@ -63,7 +63,7 @@
  * 11.8.2003
  * Additional interpretation of field Chain Position.
  * Show the chain position in the interface list.
- * Support for new format of fw monitor file 
+ * Support for new format of fw monitor file
  * writen by option -u | -s for UUID/SUUID.
  * NOTICE: First paket will have UUID == 0 !
  *
@@ -139,7 +139,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char		*interface_name;
   guint32	iface_len = 10;
   guint16	etype;
-  char		*header; 
+  char		*header;
   char		*p_header;
   int		i;
   gboolean	found;
@@ -168,7 +168,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (fw1_with_uuid)
   	iface_len = 6;
-  
+
   interface_name=ep_alloc(iface_len+1);
   tvb_get_nstringz0(tvb, 2, iface_len, interface_name);
 
@@ -207,9 +207,9 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if (!fw1_summary_in_tree)
       /* Do not show the summary in Protocol Tree */
-      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, fw1_header);
+      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, "%s", fw1_header);
     else
-      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
+      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, "%s", header);
 
     /* create display subtree for the protocol */
     fh_tree = proto_item_add_subtree(ti, ett_fw1);
@@ -220,8 +220,8 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, FALSE);
 
     proto_tree_add_string_format(fh_tree, hf_fw1_interface, tvb, 2, iface_len, "Interface: %s", interface_name);
-  
-    if (fw1_with_uuid) 
+
+    if (fw1_with_uuid)
       proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
   }
 
