@@ -35,6 +35,8 @@
 #include "packet-mount.h"
 #include "packet-nfs.h"
 
+#include <epan/emem.h>
+
 
 static int proto_mount = -1;
 static int proto_sgi_mount = -1;
