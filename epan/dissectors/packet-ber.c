@@ -1984,6 +1984,9 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
 		while (offset < end_offset){
 			guint32 len;
+                        gint s_offset;
+
+                        s_offset = offset;
 
 			if(ind){ /* this sequence of was of indefinite length, so check for EOC */
 				if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
@@ -1998,6 +2001,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			/* adjust end_offset if we find somthing that doesnt match */
 			offset += len;
 			cnt++;
+			DISSECTOR_ASSERT(offset > s_offset);
 		}
 	}
 	offset = hoffset;
