@@ -3465,8 +3465,14 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->req_frame);
-	} else
+        } else {
+        /* no bind information, simply show stub data */
+        pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
+        PROTO_ITEM_SET_GENERATED(pi);
+	    expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u (Call ID:%u)", 
+            ctx_id, hdr->call_id);
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
+        }
     }
 
     /* Dissect the verifier */
@@ -3594,8 +3600,14 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->rep_frame);
-        } else
+        } else {
+            /* no bind information, simply show stub data */
+            pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
+            PROTO_ITEM_SET_GENERATED(pi);
+	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u (Call ID:%u)", 
+                ctx_id, hdr->call_id);
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
+        }
     }
 
     /* Dissect the verifier */
