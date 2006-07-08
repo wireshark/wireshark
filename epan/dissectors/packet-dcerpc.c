@@ -491,29 +491,29 @@ static const fragment_items dcerpc_frag_items = {
 GHookList dcerpc_hooks_init_protos;
 
 #ifdef _WIN32
-int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
+int ResolveWin32UUID(e_uuid_t if_id, char *uuid_name, int uuid_name_max_len)
 {
-	TCHAR REG_UUID_NAME[MAX_PATH];
+	TCHAR reg_uuid_name[MAX_PATH];
 	HKEY hKey = NULL;
-	DWORD UUID_MAX_SIZE = MAX_PATH;
-	TCHAR REG_UUID_STR[MAX_PATH];
+	DWORD uuid_max_size = MAX_PATH;
+	TCHAR reg_uuid_str[MAX_PATH];
 
-	if(UUID_NAME_MAX_LEN < 2)
+	if(uuid_name_max_len < 2)
 		return 0;
-	REG_UUID_NAME[0] = '\0';
-	_snwprintf(REG_UUID_STR, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
+	reg_uuid_name[0] = '\0';
+	_snwprintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
 			if_id.Data1, if_id.Data2, if_id.Data3,
 			if_id.Data4[0], if_id.Data4[1],
 			if_id.Data4[2], if_id.Data4[3],
 			if_id.Data4[4], if_id.Data4[5],
 			if_id.Data4[6], if_id.Data4[7]);
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_UUID_STR, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, reg_uuid_str, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)REG_UUID_NAME, &UUID_MAX_SIZE) == ERROR_SUCCESS && UUID_MAX_SIZE <= MAX_PATH)
+		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH)
 			{
-			g_snprintf(UUID_NAME, UUID_NAME_MAX_LEN, "%s", utf_16to8(REG_UUID_NAME));
+			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
 			RegCloseKey(hKey);
-			return strlen(UUID_NAME);
+			return strlen(uuid_name);
 		}
 		RegCloseKey(hKey);
 	}
@@ -2222,7 +2222,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
 #ifdef _WIN32
-    char UUID_NAME[MAX_PATH];
+    char uuid_name[MAX_PATH];
 #endif
     proto_item *sub_item=NULL;
 
@@ -2241,9 +2241,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 					  tvb, offset, 0, TRUE);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
 #ifdef _WIN32
-		if(ResolveWin32UUID(info->call_data->uuid, UUID_NAME, MAX_PATH))
+		if(ResolveWin32UUID(info->call_data->uuid, uuid_name, MAX_PATH))
 			col_append_fstr (pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
-				UUID_NAME, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
+				uuid_name, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
 				info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
 				info->call_data->uuid.Data4[4], info->call_data->uuid.Data4[5], info->call_data->uuid.Data4[6],
 				info->call_data->uuid.Data4[7], info->call_data->ver);
@@ -2614,7 +2614,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     int uuid_str_len;
     dcerpc_auth_info auth_info;
 #ifdef _WIN32
-    char UUID_NAME[MAX_PATH];
+    char uuid_name[MAX_PATH];
 #endif
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -2685,9 +2685,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	  if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
 #ifdef _WIN32
-	  if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
+	  if(ResolveWin32UUID(if_id, uuid_name, MAX_PATH))
 		  iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
-                                        offset, 16, uuid_str, "Interface: %s\tUUID: %s", UUID_NAME, uuid_str);
+                                        offset, 16, uuid_str, "Interface: %s\tUUID: %s", uuid_name, uuid_str);
 	  else
 #endif
           iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
@@ -2758,9 +2758,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
 	  else
 #ifdef _WIN32
-		if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
+		if(ResolveWin32UUID(if_id, uuid_name, MAX_PATH))
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
-                           UUID_NAME, if_id.Data1, if_id.Data2, if_id.Data3,
+                           uuid_name, if_id.Data1, if_id.Data2, if_id.Data3,
                            if_id.Data4[0], if_id.Data4[1],
                            if_id.Data4[2], if_id.Data4[3],
                            if_id.Data4[4], if_id.Data4[5],
