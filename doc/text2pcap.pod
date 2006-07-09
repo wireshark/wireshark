@@ -184,7 +184,7 @@ SCTP header.
 =item -t E<lt>timefmtE<gt>
 
 Treats the text before the packet as a date/time code; I<timefmt> is a
-format string of the sort supported by B<strptime(3)>.
+format string of the sort supported by strptime(3).
 Example: The time "10:15:14.5476" has the format code "%H:%M:%S."
 
 B<NOTE:> The subsecond component delimiter must be specified (.) but no
@@ -195,12 +195,12 @@ a second.
 
 =head1 SEE ALSO
 
-I<od(1)>, I<tcpdump(8)>, I<pcap(3)>, I<wireshark(1)>, I<editcap(1)>, I<strptime(3)>.
+od(1), tcpdump(8), pcap(3), wireshark(1), editcap(1), strptime(3).
 
 =head1 NOTES
 
 B<Text2pcap> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at B<http://www.wireshark.org>.
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
 
 =head1 AUTHORS
 

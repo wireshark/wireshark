@@ -83,7 +83,7 @@ This example shows an interesting PCRE feature: pattern match options have to
 be specified with the B<(?>optionB<)> construct. For instance, B<(?i)> performs
 a case-insensitive pattern match. More information on PCRE can be found in the
 pcrepattern(3) man page (Perl Regular Expressions are explained in
-B<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
+L<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
 
 Note: the "matches" operator is only available if B<Wireshark> or B<TShark>
 have been compiled with the PCRE library. This can be checked by running:
@@ -380,7 +380,7 @@ field is also given.
 
 The B<wireshark-filters> manpage is part of the B<Wireshark> distribution.
 The latest version of B<Wireshark> can be found at
-B<http://www.wireshark.org>.
+L<http://www.wireshark.org>.
 
 Regular expressions in the "matches" operator are provided with B<libpcre>,
 the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
@@ -388,12 +388,12 @@ the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
 This manpage does not describe the capture filter syntax, which is
 different. See the tcpdump(8) manpage for a description of capture
 filters. Microsoft Windows versions use WinPcap from
-B<http://www.winpcap.org/> for which the capture filter syntax is described
-in B<http://www.winpcap.org/docs/man/html/group__language.html>.
+L<http://www.winpcap.org/> for which the capture filter syntax is described
+in L<http://www.winpcap.org/docs/man/html/group__language.html>.
 
 =head1 SEE ALSO
 
-I<wireshark(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+wireshark(1), tshark(1), editcap(1), tcpdump(8), pcap(3)
 
 =head1 AUTHORS
 

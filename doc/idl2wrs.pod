@@ -71,17 +71,17 @@ eg:  PYTHONPATH=/usr/lib/python1.5/
 
 =head1 SEE ALSO
 
-I<wireshark(1)>
+wireshark(1)
 
 
 =head1 NOTES
 
 B<idl2wrs> (including B<wireshark_be.py> and B<wireshark_gen.py>) are part of 
 the B<Wireshark> distribution.  The latest version of B<Wireshark> can 
-be found at B<http://www.wireshark.org>.
+be found at L<http://www.wireshark.org>.
 
-B<idl2wrs> uses B<omniidl>, and IDL parser, and can be found at
-B<http://omniorb.sourceforge.net/>
+B<idl2wrs> uses B<omniidl>, an IDL parser, and can be found at
+L<http://omniorb.sourceforge.net/>
 
 =head1 TODO
 

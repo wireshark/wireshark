@@ -194,19 +194,19 @@ reported by B<-L> are the values that can be used.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of I<tcpdump(8)>.
+See the manual page of tcpdump(8).
 
 =head1 SEE ALSO
 
-I<wireshark(1)>, I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+wireshark(1), tshark(1), editcap(1), tcpdump(8), pcap(3)
 
 =head1 NOTES
 
 B<Dumpcap> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at B<http://www.wireshark.org>.
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-http://www.wireshark.org/docs/man-pages
+L<http://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 

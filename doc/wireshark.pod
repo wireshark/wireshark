@@ -1373,7 +1373,8 @@ Display locally installed HTML versions of these manual pages in a web browser.
 
 =item Help:Wireshark Online
 
-Various links to online resources to be open in a web browser, like http://www.wireshark.org.
+Various links to online resources to be open in a web browser, like
+L<http://www.wireshark.org>.
 
 =item Help:About Wireshark
 
@@ -1954,12 +1955,12 @@ protocols built into Wireshark are.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of I<tcpdump(8)>.
+See the manual page of tcpdump(8).
 
 =head1 DISPLAY FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<Wireshark> see the I<wireshark-filter(4)> manual page.
+in B<Wireshark> see the wireshark-filter(4) manual page.
 
 =head1 FILES
 
@@ -2204,12 +2205,15 @@ See above in the description of the About:Plugins page.
 
 =head1 SEE ALSO
 
-I<wireshark-filter(4)> I<tshark(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+wireshark-filter(4), tshark(1), editcap(1), tcpdump(8), pcap(3)
 
 =head1 NOTES
 
 The latest version of B<Wireshark> can be found at
-B<http://www.wireshark.org>.
+L<http://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<http://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 
