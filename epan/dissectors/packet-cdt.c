@@ -45,6 +45,8 @@
 #include "packet-ber.h"
 #include "packet-x411.h"
 
+#include "packet-cdt.h"
+
 #define PNAME  "Compressed Data Type"
 #define PSNAME "CDT"
 #define PFNAME "cdt"
@@ -68,7 +70,7 @@ static int hf_cdt_contentType_OID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-#line 50 "packet-cdt-template.c"
+#line 52 "packet-cdt-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -80,7 +82,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 53 "packet-cdt-template.c"
+#line 55 "packet-cdt-template.c"
 
 
 /*--- Included file: packet-cdt-fn.c ---*/
@@ -324,7 +326,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 55 "packet-cdt-template.c"
+#line 57 "packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -397,7 +399,7 @@ void proto_register_cdt (void) {
         "CompressedContentInfo/compressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 87 "packet-cdt-template.c"
+#line 89 "packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -411,7 +413,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 92 "packet-cdt-template.c"
+#line 94 "packet-cdt-template.c"
   };
 
   /* Register protocol */
@@ -433,5 +435,5 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 107 "packet-cdt-template.c"
+#line 109 "packet-cdt-template.c"
 }

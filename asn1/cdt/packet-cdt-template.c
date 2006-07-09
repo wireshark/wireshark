@@ -37,6 +37,8 @@
 #include "packet-ber.h"
 #include "packet-x411.h"
 
+#include "packet-cdt.h"
+
 #define PNAME  "Compressed Data Type"
 #define PSNAME "CDT"
 #define PFNAME "cdt"
