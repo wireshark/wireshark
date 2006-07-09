@@ -334,7 +334,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 
-                DISSECTOR_ASSERT(offset > last_offset);
+                if(offset <= last_offset)
+                        THROW(ReportedBoundsError);
 		if(need_desegmentation) return;
 	}
 }

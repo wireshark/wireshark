@@ -2207,7 +2207,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									iSizeHeader = (gint) tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
                   /* XXX - 32 is inferred from the code below.  What's the
                    * correct minimum? */
-                  DISSECTOR_ASSERT(iSizeHeader > 32);
+                  if (iSizeHeader <= 32)
+		  	THROW(ReportedBoundsError);
 
 								 	if (tvb_length_remaining(tvb, offset) >= iSizeHeader)
 								 	{

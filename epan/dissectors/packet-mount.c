@@ -174,7 +174,8 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			host=ip_to_str(pinfo->dst.data);
 			len=tvb_get_ntohl(tvb, offset);
-                        DISSECTOR_ASSERT(len < ITEM_LABEL_LENGTH);
+                        if (len >= ITEM_LABEL_LENGTH)
+                                THROW(ReportedBoundsError);
 
 			dir=tvb_get_ptr(tvb, offset+4, len);
 			if(dir){

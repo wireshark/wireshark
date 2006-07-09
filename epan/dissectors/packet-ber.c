@@ -539,7 +539,8 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
 				offset += tmp_len;
                                 /* Make sure we've moved forward in the packet */
-                                DISSECTOR_ASSERT(offset > s_offset);
+				if (offset <= s_offset)
+					THROW(ReportedBoundsError);
 				}
 			tmp_length += 2;
 			tmp_ind = TRUE;
@@ -1069,7 +1070,8 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
-		DISSECTOR_ASSERT(eoffset > hoffset);
+		if (eoffset <= hoffset)
+			THROW(ReportedBoundsError);
 
 		if(ind_field && (len == 2)){
     			/* disgusting indefinite length zero length field, what are these people doing */
@@ -2001,7 +2003,8 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			/* adjust end_offset if we find somthing that doesnt match */
 			offset += len;
 			cnt++;
-			DISSECTOR_ASSERT(offset > s_offset);
+			if (offset <= s_offset)
+				THROW(ReportedBoundsError);
 		}
 	}
 	offset = hoffset;
@@ -2044,7 +2047,8 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
-		DISSECTOR_ASSERT(eoffset > hoffset);
+		if (eoffset <= hoffset)
+			THROW(ReportedBoundsError);
 
 		/* verify that this one is the one we want */
 		/* ahup if we are implicit then we return to the uper layer how much we have used */

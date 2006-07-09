@@ -574,6 +574,11 @@ new_format_oid(subid_t *oid, guint oid_length,
 	unsigned int i;
 	char *buf;
 
+        if (oid == NULL || oid_length < 1) {
+		*decoded = NULL;
+		return;
+	}
+
 #ifdef HAVE_SOME_SNMP
 	guchar *oid_string;
 	size_t oid_string_len;
@@ -2699,7 +2704,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1038 "packet-snmp-template.c"
+#line 1043 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3391,7 +3396,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1393 "packet-snmp-template.c"
+#line 1398 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3429,7 +3434,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1402 "packet-snmp-template.c"
+#line 1407 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 

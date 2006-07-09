@@ -488,7 +488,9 @@ rpc_roundup(unsigned int a)
         unsigned int ret;
 	ret = a + ((mod)? 4-mod : 0);
         /* Check for overflow */
-        DISSECTOR_ASSERT(ret >= a);
+        if (ret < a)
+		THROW(ReportedBoundsError);
+	return ret;
 }
 
 
