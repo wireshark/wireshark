@@ -88,6 +88,8 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+void proto_register_3com_xns(void);
+
 void
 proto_register_3com_xns(void)
 {
@@ -110,6 +112,8 @@ proto_register_3com_xns(void)
 	proto_register_field_array(proto_3com_xns, hf, array_length(hf)); 
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_3com_xns(void);
 
 void
 proto_reg_handoff_3com_xns(void)

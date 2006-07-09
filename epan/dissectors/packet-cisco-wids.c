@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* With current IOS, you can use Cisco wireless Bridges/APs as a
+/* With current IOS, you can use Cisco wireless Bridges/APs as
  * wireless sniffers and configure them with the "monitor ..."
  * command to * send the data to some central IDS.
  * This dissector tries to decode those frames.
@@ -52,8 +52,6 @@
 #include <epan/prefs.h>
 
 static guint udp_port = 0;
-void proto_reg_handoff_cwids(void);
-
 
 static int proto_cwids = -1;
 static int hf_cwids_version = -1;
@@ -131,13 +129,16 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += capturelen;
 	}
-	if (remain > 0) { /* FIXME: Shouldn't happen? */
+	if (remain > 0) { /* FIXME: Shouldn't happen? Maybe if packet is truncated */
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, remain, FALSE);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 
 		proto_tree_add_item(cwids_tree, hf_cwids_trailer, tvb, offset, remain, FALSE);
 	}
 }
+
+void proto_register_cwids(void);
+void proto_reg_handoff_cwids(void);
 
 void
 proto_register_cwids(void)

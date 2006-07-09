@@ -676,6 +676,8 @@ static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * item,int offset,int iscr
 }
 
 /* Register 9P with Wireshark */
+void proto_register_9P(void);
+
 void proto_register_9P(void)
 {
 	static hf_register_info hf[] = {
@@ -822,6 +824,8 @@ void proto_register_9P(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_9P(void);
 
 void proto_reg_handoff_9P(void)
 {

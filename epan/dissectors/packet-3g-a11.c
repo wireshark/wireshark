@@ -1510,6 +1510,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 } /* dissect_a11 */
 
 /* Register the protocol with Wireshark */
+void proto_register_a11(void);
+
 void proto_register_a11(void)
 {                 
 
@@ -1918,6 +1920,8 @@ void proto_register_a11(void)
 	proto_register_field_array(proto_a11, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_a11(void);
 
 void
 proto_reg_handoff_a11(void)

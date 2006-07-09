@@ -668,6 +668,8 @@ dissect_njack_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return dissect_njack(tvb, pinfo, tree);
 }
 
+void proto_register_njack(void);
+
 void
 proto_register_njack(void)
 {
@@ -781,6 +783,8 @@ proto_register_njack(void)
         proto_register_field_array(proto_njack, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_njack(void);
 
 void
 proto_reg_handoff_njack(void)
