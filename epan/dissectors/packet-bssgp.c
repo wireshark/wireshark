@@ -39,8 +39,9 @@
 #include <prefs.h>
 
 #include "packet-e212.h"
+#include "packet-gsm_a.h"
 
-/*#define BSSGP_DEBUG*/
+/* #define BSSGP_DEBUG */
 #define BSSGP_LITTLE_ENDIAN FALSE
 #define BSSGP_TRANSLATION_MAX_LEN 50
 #define BSSGP_MASK_LEFT_OCTET_HALF 0xf0
@@ -65,6 +66,7 @@ module_t *bssgp_module;
 void proto_reg_handoff_bssgp(void);
 
 /* Initialize the protocol and registered fields */
+static int hf_bssgp_iei_nacc_cause = -1;
 static int proto_bssgp = -1;
 static int hf_bssgp_pdu_type = -1;
 static int hf_bssgp_ie_type = -1;
@@ -73,6 +75,10 @@ static int hf_bssgp_mnc = -1;
 static int hf_bssgp_lac = -1;
 static int hf_bssgp_rac = -1;
 static int hf_bssgp_ci = -1;
+static int hf_bssgp_ra_discriminator = -1;
+static int hf_bssgp_appid = -1;
+static int hf_bssgp_rcid = -1;
+static int hf_bssgp_rrc_si_msg_type = -1;
 static int hf_bssgp_nri = -1;
 static int hf_bssgp_imsi = -1;
 static int hf_bssgp_imei = -1;
@@ -111,6 +117,8 @@ static gint ett_bssgp_mnc = -1;
 static gint ett_bssgp_routeing_area = -1;
 static gint ett_bssgp_location_area = -1;
 static gint ett_bssgp_rai_ci = -1;
+static gint ett_bssgp_rim_routing_information =-1;
+static gint ett_bssgp_ran_information_request_application_container = -1;
 static gint ett_bssgp_ran_information_request_container_unit = -1;
 static gint ett_bssgp_ran_information_container_unit = -1;
 static gint ett_bssgp_pfc_flow_control_parameters = -1;
@@ -178,6 +186,7 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_RAN_INFORMATION_REQUEST      0x71
 #define BSSGP_PDU_RAN_INFORMATION_ACK          0x72
 #define BSSGP_PDU_RAN_INFORMATION_ERROR        0x73
+#define BSSGP_PDU_RAN_APPLICATION_ERROR        0x74
 
 static const value_string tab_bssgp_pdu_types[] = {
   { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" },
@@ -295,13 +304,33 @@ static const value_string tab_bssgp_pdu_types[] = {
 #define BSSGP_IEI_RRLP_FLAGS                               0x4a
 #define BSSGP_IEI_RIM_APPLICATION_IDENTITY                 0x4b
 #define BSSGP_IEI_RIM_SEQUENCE_NUMBER                      0x4c
-#define BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT   0x4d
-#define BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT           0x4e
+#define BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER        0x4d
+#define BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER                0x4e
 #define BSSGP_IEI_RAN_INFORMATION_INDICATIONS              0x4f
 #define BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS                0x50
 #define BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS              0x52
 #define BSSGP_IEI_GLOBAL_CN_ID                             0x53
+#define BSSGP_IEI_RIM_ROUTING_INFORMATION				   0x54
+#define BSSGP_IEI_RIM_PROTOCOL_VERSION					   0x55
+#define BSSGP_IEI_APPLICATION_ERROR_CONTAINER			   0x56
 
+#define BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT   0x57
+#define BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT           0x58
+
+#define BSSGP_IEI_RAN_INFORMATION_APPLICATION_ERROR_CONTAINER_UNIT            0x59
+#define BSSGP_IEI_RAN_INFORMATION_ACK_RIM_CONTAINER        0x5a
+#define BSSGP_IEI_RAN_INFORMATION_ERROR_RIM_CONTAINER      0x5b
+
+static const value_string tab_nacc_cause[]={
+  { 0x00,			"Other unspecified error" },
+  { 0x01,			"Syntax error in the Application Container" },
+  { 0x02,			"Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
+  { 0x03,			"SI/PSI type error" },
+  { 0x04,			"Inconsistent lenght of a SI/PSI message" },
+  { 0x05,			"Inconsistent set of messages" },
+  { 0,				NULL },
+
+};
 static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_ALIGNMENT_OCTETS,            "Alignment Octets" },
   { BSSGP_IEI_BMAX_DEFAULT_MS,             "Bmax Default MS" },
@@ -343,7 +372,7 @@ static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED,   "Number of Octets Affected" },
   { BSSGP_IEI_LSA_IDENTIFIER_LIST,         "LSA Identifier List" },
   { BSSGP_IEI_LSA_INFORMATION,             "LSA Information" },
-  { BSSGP_IEI_PFI,                         "Packet Flow Identiifer" },
+  { BSSGP_IEI_PFI,                         "Packet Flow Identifier: " },
   { BSSGP_IEI_GPRS_TIMER,                  "GPRS Timer" },
   { BSSGP_IEI_ABQP,                        "ABQP" },
   { BSSGP_IEI_FEATURE_BITMAP,              "Feature Bitmap" },
@@ -363,10 +392,12 @@ static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_LCS_CAPABILITY,              "LCS Capability" },
   { BSSGP_IEI_RRLP_FLAGS,                  "RRLP Flags" },
   { BSSGP_IEI_RIM_APPLICATION_IDENTITY,    "RIM Application Identity" },
+  { BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER,	"RAN INFORMATION Application Container" },
   { BSSGP_IEI_RIM_SEQUENCE_NUMBER,         "RIM Sequence Number" },
-  { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN INFORMATION REQUEST Container Unit" },
-  { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN INFORMATION Container Unit" },
+  { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN INFORMATION REQUEST RIM Container" },
+  { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN INFORMATION RIM Container" },
   { BSSGP_IEI_RAN_INFORMATION_INDICATIONS,  "RAN INFORMATION Indications" },
+  { BSSGP_IEI_RIM_PROTOCOL_VERSION,  "RIM Protocol Version Number" },
   { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS,    "Number of Container Units" },
   { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS,  "PFC Flow Control Parameters" },
   { BSSGP_IEI_GLOBAL_CN_ID,                 "Global CN Id" }, 
@@ -1490,7 +1521,6 @@ decode_rai_ci(build_info_t *bi, proto_tree *parent_tree) {
   proto_tree_add_item(parent_tree, hf_bssgp_ci, 
 		      bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
   bi->offset += 2;
-
   g_snprintf(rai_ci, RES_LEN, "RAI %s, CI %u", rai, ci);
 #undef RES_LEN
   return rai_ci;
@@ -1530,7 +1560,7 @@ static void
 bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
   const guint8 MASK_PFI = 0x7f;
   guint8 value;
-
+  
   static const value_string tab_pfi[] = {
     { 0, "Best effort" },
     { 1, "Signaling" },
@@ -1541,11 +1571,11 @@ bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
     { 6, "Reserved" },
     { 7, "Reserved" },
     { 0, NULL },
-    /* Otherwise "Dynamically assigned */
+    /* Otherwise "Dynamically assigned (PFI: <value>)" */
   };
-  value = tvb_get_masked_guint8(tvb, offset, MASK_PFI);
+  value = tvb_get_masked_guint8(tvb, offset, MASK_PFI);  
   proto_item_append_text(pi, 
-			 val_to_str(value, tab_pfi, "Dynamically assigned"));
+		  val_to_str(value, tab_pfi, "Dynamically assigned (PFI: %d)"));
 }
 
 static void 
@@ -1762,9 +1792,11 @@ decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
     
     rai_ci = decode_rai_ci(bi, tf);
     proto_item_append_text(ti, ": %s", rai_ci);
-  }else{
-  bi->offset += ie->value_length;
+
+  } else {
+	bi->offset += ie->value_length;
   }
+
 }
 
 static void 
@@ -2815,20 +2847,24 @@ decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 static void 
 decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
-  proto_tree *tf;
-  guint32 tlli;
 
+  guint32 tlli;
   tlli = tvb_get_ntohl(bi->tvb, bi->offset);
 
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %#04x", tlli);
     
-    ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
+    /* By Stefan Boman LN/Ericsson 2006-07-14 -- 
+	 * Commented the following four lines. Preventing redundant data 
+	 */
+	/*
+	ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
         
     proto_tree_add_item(tf, hf_bssgp_tlli, 
 			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
+	*/
   }
   bi->offset += 4;
 
@@ -3933,21 +3969,29 @@ decode_iei_rrlp_flags(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset++;
 }
 
-static void 
+static void /* [7] 11.3.61 RIM Application Identity */
 decode_iei_rim_application_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
-  guint8 value;
+  guint8 appid;
 
-  if (bi->bssgp_tree) {
-    ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-    value = tvb_get_guint8(bi->tvb, bi->offset);
-    switch (value) {
-    case 0: proto_item_append_text(ti, ": Reserved"); break;
-    case 1: proto_item_append_text(ti, ": Network Assisted Cell Change (NACC)"); break;
-    default: proto_item_append_text(ti, ": Reserved");
+	if (!bi->bssgp_tree) {
+		bi->offset += 8;
+		return;
+	}
+
+	ti = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_appid, 
+		bi->tvb, bi->offset, 1, FALSE);
+
+    appid = tvb_get_guint8(bi->tvb, bi->offset);
+    switch (appid) {
+		case 0: proto_item_append_text(ti, " - Reserved"); break;
+		case 1: proto_item_append_text(ti, " - Network Assisted Cell Change (NACC)"); break;
+		case 0x10: proto_item_append_text(ti, " - System Information 3 (SI3)"); break;
+		case 0x11: proto_item_append_text(ti, " - MBMS data channel"); break;
+		default: proto_item_append_text(ti, " - Reserved");
     }
-  }
-  bi->offset++;
+	bi->offset++;
+
 }
 
 static void 
@@ -3980,27 +4024,85 @@ decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
 }
 
 static void 
-decode_iei_ran_information_request_container_unit(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
 
-  if (! bi->bssgp_tree) {
-    bi->offset += 8;
-    return;
+  if (bi->bssgp_tree) {
+    ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
+    tf = proto_item_add_subtree(ti, ett_bssgp_rim_routing_information);
+
+	proto_tree_add_item(tf, hf_bssgp_ra_discriminator, 
+		bi->tvb, bi->offset, 2, FALSE);
+ 	bi->offset += 1;
+
+  	decode_rai(bi, tf);
+
+  	proto_tree_add_item(tf, hf_bssgp_ci, 
+		      bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
+  	bi->offset += 2;
+
+  } else {
+	bi->offset += ie->value_length;
   }
-  ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-  tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_request_container_unit);
- 
-  decode_ran_information_common(bi, tf);
+
+}
+
+static void  /* [7] 11.62a.1 */
+decode_iei_ran_container_unit(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+  proto_item *ti;
+  proto_tree *tf;
+
+	if (!bi->bssgp_tree) {
+		bi->offset += 8;
+		return;
+	}
+
+	ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
+	tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_request_container_unit);
+}
+
+static void
+decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+  proto_item *ti;
+  proto_tree *tf;
+
+  if (bi->bssgp_tree) {
+    ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
+    tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
+
+    proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, FALSE);
+    proto_tree_add_text(tf, bi->tvb, bi->offset, tvb_length_remaining(bi->tvb, 0) - bi->offset , "Erroneous Application Container including IEI and LI");
+
+  } else {
+	bi->offset += ie->value_length;
+  }
 }
 
 static void 
-decode_iei_ran_information_container_unit(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+  proto_item *ti;
+  proto_tree *tf;
+  char *rai_ci;
+
+  if (bi->bssgp_tree) {
+    ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
+    tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
+    
+    rai_ci = decode_rai_ci(bi, tf);
+    proto_item_append_text(ti, ": %s", rai_ci);
+
+  } else {
+	bi->offset += ie->value_length;
+  }
+}
+static void 
+decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_NUMBER_OF_SI_PSI = 0xfe;
   const guint8 MASK_UNIT_TYPE = 0x01;
   const guint8 TYPE_SI = 0;
   const guint8 TYPE_PSI = 1;
-  const guint8 LEN_SI = 23;
+  const guint8 LEN_SI = 21;
   const guint8 LEN_PSI = 22;
   proto_item *ti, *pi;
   proto_tree *tf;
@@ -4012,8 +4114,10 @@ decode_iei_ran_information_container_unit(bssgp_ie_t *ie, build_info_t *bi, int 
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
- 
-  decode_ran_information_common(bi, tf);
+
+  /* don't work, ran_information_common read number of rai's but it is only one.
+  decode_ran_information_common(bi, tf); */
+  decode_rai_ci(bi,tf);
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
   num_si_psi = get_masked_guint8(data, MASK_NUMBER_OF_SI_PSI);
@@ -4037,16 +4141,39 @@ decode_iei_ran_information_container_unit(bssgp_ie_t *ie, build_info_t *bi, int 
       proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_SI, 
 			  " SI (%u), %u octets", i + 1, LEN_SI);
       /* XXX: Not decoded yet; which section in 3GPP TS 44.018? */
+	  proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, FALSE);
+	  /* TODO:
+	   * Add decoding in packet-gsm_a.c ? Needs a new exported function "gsm_a_decode_rr_message?)
+	   * 
+	   */
       bi->offset += LEN_SI;
     }
     else if (type_si_psi == TYPE_PSI) {
       proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_PSI, 
 			  " PSI (%u), %u octets", i + 1, LEN_PSI);
-      /* XXX: Not decoded yet; which section in 3GPP TS 44.060? */
+      /* XXX: Not decoded yet; which section in 3GPP TS 44.060?
+	  
+	  System information messages: Reference
+Packet System Information Type 1 11.2.18
+Packet System Information Type 2 11.2.19
+Packet System Information Type 3 11.2.20
+Packet System Information Type 3 bis 11.2.21
+Packet System Information Type 3 ter 11.2.21a
+Packet System Information Type 3 quater 11.2.21b
+Packet System Information Type 5 11.2.23
+Packet System Information Type 6 11.2.23a
+Packet System Information Type 7 11.2.23b
+Packet System Information Type 8 11.2.24
+Packet System Information Type 13 11.2.25
+Packet System Information Type 14 11.2.25a
+Packet System Information Type 15 11.2.25b
+Packet System Information Type 16 11.2.25c
+	  */
       bi->offset += LEN_PSI;
     }
   }
 }
+
 
 static void 
 decode_iei_ran_information_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
@@ -4182,11 +4309,13 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   gboolean use_default_ie_name = (ie->name == NULL);
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
+	proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[tvb_length_remaining] length remaining: %d", tvb_length_remaining(bi->tvb, bi->offset));
     return;
   }
   switch (ie->format) {
   case BSSGP_IE_FORMAT_TLV:
     if (!check_correct_iei(ie, bi)) {
+		  proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TLV] format: %d", ie->format);
       return;
     }
     bi->offset++; /* Account for type */
@@ -4195,7 +4324,8 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
   case BSSGP_IE_FORMAT_TV:
     if (!check_correct_iei(ie, bi)) {
-      return;
+		proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TV] format: %d", ie->format);
+		return;
     }
     bi->offset++; /* Account for type */
     ie->value_length = ie->total_length - 1;
@@ -4391,18 +4521,47 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   case BSSGP_IEI_RRLP_FLAGS:
     decode_iei_rrlp_flags(ie, bi, org_offset);
     break;
+  case BSSGP_IEI_RIM_ROUTING_INFORMATION:
+    decode_iei_rim_routing_information(ie, bi, org_offset);
+    break;
   case BSSGP_IEI_RIM_APPLICATION_IDENTITY:
     decode_iei_rim_application_identity(ie, bi, org_offset);
     break;
   case BSSGP_IEI_RIM_SEQUENCE_NUMBER:
     decode_simple_ie(ie, bi, org_offset, "", "", TRUE);
     break;
+  case BSSGP_IEI_RIM_PROTOCOL_VERSION:
+    decode_simple_ie(ie, bi, org_offset, "", "", TRUE);
+    break;
+
+  case BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER:
+	decode_iei_ran_information_request_application_container(ie, bi, org_offset);
+	break;
+  case BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER:
+	decode_iei_ran_information_application_container(ie, bi, org_offset);
+	break;
+
   case BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT:
-    decode_iei_ran_information_request_container_unit(ie, bi, org_offset);
+    decode_iei_ran_container_unit(ie, bi, org_offset);
     break;
   case BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT:
-    decode_iei_ran_information_container_unit(ie, bi, org_offset);
+    decode_iei_ran_container_unit(ie, bi, org_offset);
     break;
+  case  BSSGP_IEI_RAN_INFORMATION_APPLICATION_ERROR_CONTAINER_UNIT:
+    decode_iei_ran_container_unit(ie, bi, org_offset);
+    break;
+  case BSSGP_IEI_RAN_INFORMATION_ACK_RIM_CONTAINER:
+    decode_iei_ran_container_unit(ie, bi, org_offset);
+    break;
+  case BSSGP_IEI_RAN_INFORMATION_ERROR_RIM_CONTAINER:
+    decode_iei_ran_container_unit(ie, bi, org_offset);
+    break;
+
+  case BSSGP_IEI_APPLICATION_ERROR_CONTAINER:
+    decode_iei_application_error(ie, bi, org_offset);
+    break;
+
+
   case BSSGP_IEI_RAN_INFORMATION_INDICATIONS:
     decode_iei_ran_information_indications(ie, bi, org_offset);
     break;
@@ -4425,7 +4584,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   }
 }
 
-static void
+static void 
 decode_pdu_general(bssgp_ie_t *ies, int num_ies, build_info_t *bi) {
   int i;
   for (i = 0; i < num_ies; i++) {
@@ -4480,7 +4639,6 @@ decode_pdu_dl_unitdata(build_info_t *bi) {
 
   decode_pdu_general(ies, 13, bi);
 }
-
 
 static void 
 decode_pdu_ul_unitdata(build_info_t *bi) {
@@ -5422,125 +5580,125 @@ decode_pdu_position_response(build_info_t *bi) {
 static void 
 decode_pdu_ran_information(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_CELL_IDENTIFIER, "Destination Cell identifier", 
+
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, NULL, 
+    { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN-INFORMATION RIM Container", 
+      BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
+    
+	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
-      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, NULL, 
-      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
-
-    { BSSGP_IEI_CAUSE, "RIM Cause", 
-      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
-
-    { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS, NULL, 
+    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "Container Unit", 
-      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER, "RAN-INFORMATION RIM Container", 
+      BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
+
   };
+
   bi->dl_data = TRUE;
   bi->ul_data = TRUE;
 
-  decode_pdu_general(ies, 7, bi);
-
-  while (tvb_length_remaining(bi->tvb, bi->offset) >= 4) {
-    guint32 org_offset = bi->offset;
-
-    decode_ie(&ies[7], bi);
-
-    /* prevent an endless loop */
-    if(org_offset == bi->offset) {
-        THROW(ReportedBoundsError);
-    }
-  }
+  decode_pdu_general(ies, 8, bi);
 }
 
 static void 
 decode_pdu_ran_information_request(build_info_t *bi) {
-  const guint8 MASK_EVENT_MR = 0x01;
-  guint8 value;
   
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_CELL_IDENTIFIER, "Destination Cell Identifier", 
+
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, NULL, 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-REQUEST RIM Container", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
+    
+	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
-      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
-    /* Unknown IEI! 
-       { BSSGP_IEI_RAN_INFORMATION_REQUEST_INDICATIONS, NULL, 
-       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
-    */
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "Container Unit", 
-      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
-  };
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
+
+    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER, "RAN-INFORMATION-REQUEST Application Container", 
+      BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
+		
+  };  
 
   bi->dl_data = TRUE;
   bi->ul_data = TRUE;
   
-  decode_pdu_general(ies, 4, bi);
+  decode_pdu_general(ies, 8, bi);
 
-  /* Account for type and length; assume length field = 1 as total length = 3: */
-  bi->offset += 2; 
-  if (bi->bssgp_tree) {
-    value = tvb_get_masked_guint8(bi->tvb, bi->offset, MASK_EVENT_MR);
-    proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset - 2, 3, 
-			"RAN Information Request Indications: Event MR = %u: %s-driven multiple reports requested",
-			value, 
-			value == 0 ? "No event" : "Event");
-  }
-  bi->offset++;
-  decode_pdu_general(&ies[5], 1, bi);
 }
 
 static void 
 decode_pdu_ran_information_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_CELL_IDENTIFIER, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, NULL, 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ACK RIM Container", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
+
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
-      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
+
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
+
   };
   bi->dl_data = TRUE;
   bi->ul_data = TRUE;
 
-  decode_pdu_general(ies, 4, bi);
+  decode_pdu_general(ies, 6, bi);
 }
 
 static void 
 decode_pdu_ran_information_error(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_CELL_IDENTIFIER, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, NULL, 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ERROR RIM Container", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
+
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_CAUSE, "RIM Cause", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_PDU_IN_ERROR, NULL, 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
@@ -5548,8 +5706,44 @@ decode_pdu_ran_information_error(build_info_t *bi) {
   bi->dl_data = TRUE;
   bi->ul_data = TRUE;
 
-  decode_pdu_general(ies, 5, bi);
+  decode_pdu_general(ies, 7, bi);
 }
+
+static void 
+decode_pdu_ran_information_application_error(build_info_t *bi) {
+  bssgp_ie_t ies[] = {
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
+
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
+
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-APPLICATION RIM Container", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
+
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+   /* pdu indication, I hope RAN_INFORMATION_INDICATIONS decode it right, it use the same IEI so it should... */
+    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
+
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+      BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_APPLICATION_ERROR_CONTAINER, NULL, 
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
+
+  };
+  bi->dl_data = TRUE;
+  bi->ul_data = TRUE;
+
+  decode_pdu_general(ies, 8, bi);
+}
+
 
 static void
 decode_pdu(guint8 pdutype, build_info_t *bi) {
@@ -5702,6 +5896,9 @@ decode_pdu(guint8 pdutype, build_info_t *bi) {
   case BSSGP_PDU_RAN_INFORMATION_ACK:
     decode_pdu_ran_information_ack(bi);
     break;
+  case BSSGP_PDU_RAN_APPLICATION_ERROR:
+    decode_pdu_ran_information_application_error(bi);
+    break;
   case BSSGP_PDU_RAN_INFORMATION_ERROR:
     decode_pdu_ran_information_error(bi);
     break;
@@ -5762,9 +5959,14 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_HEX, VALS(tab_bssgp_pdu_types), 0x0,          
 	"", HFILL }
     },
-    { &hf_bssgp_ie_type,
-      { "IE Type", "bssgp.ie_type",
+    { &hf_bssgp_iei_nacc_cause,
+      { "NACC Cause", "bssgp.ie_type",
 	FT_UINT8, BASE_HEX, VALS(tab_bssgp_ie_types), 0x0,          
+	"NACC Cause", HFILL }
+    },
+    { &hf_bssgp_ie_type,
+      { "IE Type", "bssgp.iei.nacc_cause",
+	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,          
 	"Information element type", HFILL }
     },
     { &hf_bssgp_bvci,
@@ -5804,8 +6006,28 @@ proto_register_bssgp(void)
     },
     { &hf_bssgp_ci,
       { "CI", "bssgp.ci",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Cell Identity", HFILL }
+    },
+    { &hf_bssgp_ra_discriminator,
+      { "Routing Address Discriminator", "bssgp.rad",
+	FT_UINT8, BASE_DEC, NULL, 0x0f,
+	"Routing Address Discriminator", HFILL }
+    },
+    { &hf_bssgp_appid,
+      { "Application ID", "bssgp.appid",
+	FT_UINT8, BASE_HEX, NULL, 0x0,
+	"Application ID", HFILL }
+    },
+	{ &hf_bssgp_rcid,
+      { "Reporting Cell Identity", "bssgp.rcid",
+	FT_UINT64, BASE_HEX, NULL, 0x0,
+	"Reporting Cell Identity", HFILL }
+    },
+	{ &hf_bssgp_rrc_si_msg_type,
+      { "RRC SI type", "bssgp.rrc_si_type",
+	FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
+	"RRC SI type", HFILL }
     },
     { &hf_bssgp_tmsi_ptmsi,
       { "TMSI/PTMSI", "bssgp.tmsi_ptmsi",
@@ -5863,6 +6085,8 @@ proto_register_bssgp(void)
     &ett_bssgp_routeing_area,
     &ett_bssgp_location_area,
     &ett_bssgp_rai_ci,
+    &ett_bssgp_ran_information_request_application_container,
+    &ett_bssgp_rim_routing_information,
     &ett_bssgp_ran_information_request_container_unit,
     &ett_bssgp_ran_information_container_unit,
     &ett_bssgp_pfc_flow_control_parameters,
