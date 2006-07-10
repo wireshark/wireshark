@@ -448,17 +448,18 @@ new_format_oid(subid_t *oid, guint oid_length,
 	int len;
 	unsigned int i;
 	char *buf;
+#ifdef HAVE_SOME_SNMP
+	guchar *oid_string;
+	size_t oid_string_len;
+	size_t oid_out_len;
+#endif
 
-        if (oid == NULL || oid_length < 1) {
+    if (oid == NULL || oid_length < 1) {
 		*decoded = NULL;
 		return;
 	}
 
 #ifdef HAVE_SOME_SNMP
-	guchar *oid_string;
-	size_t oid_string_len;
-	size_t oid_out_len;
-
 	/*
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
