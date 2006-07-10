@@ -63,7 +63,6 @@ WIRESHARK_GTK_SRC = \
 	fileset_dlg.c	\
 	filter_dlg.c	\
 	find_dlg.c	\
-	firewall_dlg.c	\
 	follow_dlg.c	\
 	font_utils.c	\
 	goto_dlg.c	\
