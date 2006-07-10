@@ -580,6 +580,8 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
   proto_item *ldap_item = NULL;
   proto_tree *ldap_tree = NULL;
 
+  ldm_tree = NULL;
+
   /*
    * Do we have a conversation for this connection?
    */

@@ -2819,6 +2819,8 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
   proto_item *ldap_item = NULL;
   proto_tree *ldap_tree = NULL;
 
+  ldm_tree = NULL;
+
   /*
    * Do we have a conversation for this connection?
    */
@@ -4000,7 +4002,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1372 "packet-ldap-template.c"
+#line 1374 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4053,7 +4055,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1383 "packet-ldap-template.c"
+#line 1385 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
