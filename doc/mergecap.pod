@@ -31,7 +31,7 @@ are supported by B<Wireshark>.
 The input files don't need a specific filename extension; the file 
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
-L<http://www.wireshark.org/docs/man-pages/wireshark.1.html>
+L<http://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
 the same way B<Mergecap> handles this.
 
