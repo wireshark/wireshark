@@ -290,7 +290,7 @@ get_itl_nexus(ndmp_conv_data_t *ndmp_conv_data, packet_info *pinfo, gboolean cre
 	return itl;
 }
 
-static guint8 
+static guint8
 get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
 {
 	if(!ndmp_conv_data || (ndmp_conv_data->version==NDMP_PROTOCOL_UNKNOWN)){
@@ -519,12 +519,12 @@ dissect_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	err=tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
 	if(err && check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" NDMP Error:%s",
 			val_to_str(err, error_vals,
 			"Unknown NDMP error code %#x"));
 	}
-	
+
 	offset += 4;
 
 	return offset;
@@ -1223,7 +1223,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	proto_tree_add_uint(tree, hf_len, tvb, offset, 4, payload_len);
 	offset += 4;
 
-	if (payload_len != 0) {
+	if ((int) payload_len > 0) {
 		tvbuff_t *data_tvb;
 		int tvb_len, tvb_rlen;
 
@@ -1697,7 +1697,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			/* IP addr */
 			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
 			offset+=4;
-	
+
 			/* TCP port */
 			proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
 			offset+=4;
@@ -2864,7 +2864,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	top_tree=tree; /* scsi should open its expansions on the top level */
 
 	/*
-	 * We need to keep track of conversations so that we can track NDMP 
+	 * We need to keep track of conversations so that we can track NDMP
 	 * versions.
 	 */
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -2983,9 +2983,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
-		"Fragment header: %s%u %s", 
-		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "", 
+	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
+		"Fragment header: %s%u %s",
+		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
 		ndmp_rm & RPC_RM_FRAGLEN, plurality(ndmp_rm & RPC_RM_FRAGLEN, "byte", "bytes"));
 	hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
 	proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
@@ -3076,7 +3076,7 @@ proto_register_ndmp(void)
 		"NDMP Header", "ndmp.header", FT_NONE, 0,
 		NULL, 0, "NDMP Header", HFILL }},
 
-        { &hf_ndmp_response_frame, { 
+        { &hf_ndmp_response_frame, {
 		"Response In", "ndmp.response_frame", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The response to this NDMP command is in this frame", HFILL }},
 
@@ -3084,7 +3084,7 @@ proto_register_ndmp(void)
           { "Time from request", "ndmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
            0, "Time since the request packet", HFILL }},
 
-        { &hf_ndmp_request_frame, { 
+        { &hf_ndmp_request_frame, {
 		"Request In", "ndmp.request_frame", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The request to this NDMP command is in this frame", HFILL }},
 

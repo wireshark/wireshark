@@ -475,7 +475,7 @@ static GHashTable *nfs_name_snoop_matched = NULL;
 static se_tree_t *nfs_name_snoop_known = NULL;
 static se_tree_t *nfs_file_handles = NULL;
 
-/* This function will store one nfs filehandle in our global tree of 
+/* This function will store one nfs filehandle in our global tree of
  * filehandles.
  * We store all filehandles we see in this tree so that every unique
  * filehandle is only stored once with a unique pointer.
@@ -521,7 +521,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	se_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
 
 	return new_nfs_fh;
-} 
+}
 
 static gint
 nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
@@ -806,7 +806,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		fhkey[1].length=fhlen/4;
 		fhkey[1].key=(guint32 *)tvb_get_ptr(tvb, fh_offset, fh_length);
 		fhkey[2].length=0;
-		
+
 		nns=se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
 	}
 
@@ -2945,7 +2945,7 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=pinfo->private_data;
 
-		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS 
+		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS
 			calls might give us a mapping*/
 		if( (civ->prog==100003)
 		  &&(civ->vers==3)
@@ -3023,8 +3023,8 @@ dissect_nfstime3(tvbuff_t *tvb, int offset,
 }
 
 
-/* RFC 1813, Page 22 
- * The levels parameter tells this helper how many levels up in the tree it 
+/* RFC 1813, Page 22
+ * The levels parameter tells this helper how many levels up in the tree it
  * should display useful info such as type,mode,uid,gid
  * If level has the COL_INFO_LEVEL flag set it will also display
  * this info in the info column.
@@ -3137,7 +3137,7 @@ static const value_string value_follows[] =
 
 /* RFC 1813, Page 23 */
 int
-dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
+dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		const char* name)
 {
 	proto_item* post_op_attr_item = NULL;
@@ -4092,7 +4092,7 @@ dissect_nfs3_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	len=tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_count3, offset);
 
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" PRIu64 " Len:%u", hash, off, len);
 	}
@@ -4816,8 +4816,8 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  &&(!civ->request)
 		  &&((civ->proc==17))
 		) {
-			nfs_name_snoop_add_name(civ->xid, tvb, 0, 0, 
-				0/*parent offset*/, 0/*parent len*/, 
+			nfs_name_snoop_add_name(civ->xid, tvb, 0, 0,
+				0/*parent offset*/, 0/*parent len*/,
 				name);
 		}
 	}
@@ -5902,6 +5902,9 @@ static const value_string names_fattr4[] = {
 
 #define FATTR4_BITMAP_ONLY 0
 #define FATTR4_FULL_DISSECT 1
+/* XXX - What's a good maximum?  Linux appears to use 10.
+ * FreeBSD appears to use 2.  OpenSolaris appears to use 2.  */
+#define MAX_BITMAP_LEN 10
 
 static int
 dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -5920,6 +5923,11 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int attr_vals_offset;
 
 	bitmap_len = tvb_get_ntohl(tvb, offset);
+	if (bitmap_len > MAX_BITMAP_LEN) {
+		proto_tree_add_text(tree, tvb, offset, 4,
+			"Huge bitmap length: %u", bitmap_len);
+		THROW(ReportedBoundsError);
+	}
         tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
 	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
 		"%s", "attrmask");
@@ -6848,7 +6856,7 @@ dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *fitem = NULL;
 
 	delegation_type = tvb_get_ntohl(tvb, offset);
-	fitem = proto_tree_add_uint(tree, hf_nfs_open_delegation_type4, tvb, 
+	fitem = proto_tree_add_uint(tree, hf_nfs_open_delegation_type4, tvb,
 		offset+0, 4, delegation_type);
 	offset += 4;
 
@@ -6976,7 +6984,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (opcode == NFS4_OP_ILLEGAL)
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
 		else
-			newftree = proto_item_add_subtree(fitem, 
+			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
 
 		if (newftree == NULL)	break;
@@ -7327,7 +7335,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (opcode == NFS4_OP_ILLEGAL)
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
 		else
-			newftree = proto_item_add_subtree(fitem, 
+			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
 
 		if (newftree == NULL)
@@ -7338,7 +7346,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and
 		 * NFS4_OP_SETATTR, all other ops do *not* return data with the
-		 * failed status code. 
+		 * failed status code.
 		 */
 		if ((status != NFS4_OK) &&
 			((opcode != NFS4_OP_LOCK) && (opcode != NFS4_OP_LOCKT) &&
@@ -7567,7 +7575,7 @@ static const value_string nfsv3_proc_vals[] = {
 
 /* end of NFS Version 3 */
 
-/* the call to dissect_nfs3_null_call & dissect_nfs3_null_reply is 
+/* the call to dissect_nfs3_null_call & dissect_nfs3_null_reply is
  * intentional.  The V4 NULLPROC is the same as V3.
  */
 static const vsff nfs4_proc[] = {
