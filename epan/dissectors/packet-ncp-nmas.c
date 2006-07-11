@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 
@@ -204,11 +205,12 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
 {
         int     foffset = offset;
         guint32 str_length;
-        char    buffer[ITEM_LABEL_LENGTH];
+        char    *buffer;
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
 
+	buffer=ep_alloc(ITEM_LABEL_LENGTH+1);
         if (little) {
             str_length = tvb_get_letohl(tvb, foffset);
         }
