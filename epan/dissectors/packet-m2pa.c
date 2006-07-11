@@ -394,7 +394,7 @@ dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 static void
 dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  giunt32 message_data_length;
+  guint32 message_data_length;
   guint16 type;
   tvbuff_t *message_data_tvb;
 
