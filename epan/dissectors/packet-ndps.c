@@ -2004,11 +2004,12 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
 {
         int     foffset = offset;
         guint32 str_length;
-        char    buffer[ITEM_LABEL_LENGTH];
+        char    *buffer;
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
 
+	buffer=ep_alloc(ITEM_LABEL_LENGTH+1);
         if (stringval == NULL) {
                 stringval = buffer;
                 buflen = sizeof buffer;
