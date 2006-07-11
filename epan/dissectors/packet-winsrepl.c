@@ -1,6 +1,6 @@
 /*
  * packet-winsrepl.c
- * 
+ *
  * Routines for WINS Replication packet dissection
  *
  * Copyright 2005 Stefan Metzmacher <metze@samba.org>
@@ -415,6 +415,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	/* NAME_LEN */
 	name_len = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
+	if ((gint) name_len < 1) {
+		proto_tree_add_text(name_tree, winsrepl_tvb, winsrepl_offset,
+			4, "Bad name length: %u", name_len);
+		THROW(ReportedBoundsError);
+	}
 	proto_tree_add_uint(name_tree, hf_winsrepl_name_len, winsrepl_tvb, winsrepl_offset, 4, name_len);
 	winsrepl_offset += 4;
 
@@ -565,7 +570,7 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 		repl_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_REPLICATION");
 		repl_tree = proto_item_add_subtree(repl_item, ett_winsrepl_replication);
 	}
-	
+
 	/* REPLIICATION_CMD */
 	command = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
 	proto_tree_add_uint(repl_tree, hf_winsrepl_replication_command, winsrepl_tvb, winsrepl_offset, 4, command);
@@ -724,7 +729,7 @@ static guint
 get_winsrepl_pdu_len(tvbuff_t *tvb, int offset)
 {
     guint pdu_len;
- 
+
     pdu_len=tvb_get_ntohl(tvb, offset);
     return pdu_len+4;
 }

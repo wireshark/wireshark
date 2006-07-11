@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
- * 
+ *
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
@@ -341,7 +341,7 @@ typedef struct _tacplus_key_entry {
 	char	*k; /* Key */
 } tacplus_key_entry;
 
-static gint 
+static gint
 tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, const char *key )
 {
 	guint8	*buff;
@@ -350,7 +350,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 	/* TODO Check the possibility to use pinfo->decrypted_data */
 /* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
 
-	tvb_memcpy(tvb, (guint8*)session_id, 4,4); 
+	tvb_memcpy(tvb, (guint8*)session_id, 4,4);
 
 	buff = tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
@@ -541,8 +541,8 @@ dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 	/* Action */
 	val=tvb_get_guint8( tvb, AUTHEN_S_ACTION_OFF );
 	proto_tree_add_text( tree, tvb,
-			AUTHEN_S_ACTION_OFF, 1, 
-			"Action: %s", 
+			AUTHEN_S_ACTION_OFF, 1,
+			"Action: %s",
 			val_to_str( val, tacplus_authen_action_vals, "Unknown Packet" ) );
 
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
@@ -570,7 +570,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 			(val&TAC_PLUS_CONTINUE_FLAG_ABORT?"(Abort)":"") );
 
 
-	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF ); 
+	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF );
 	proto_tree_add_text( tree, tvb, AUTHEN_C_USER_LEN_OFF, 2 , "User length: %d", val );
 	if( val ){
 		buff=tvb_get_ephemeral_string( tvb, var_off, val );
@@ -578,7 +578,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 		var_off+=val;
 	}
 
-	val=tvb_get_ntohs( tvb, AUTHEN_C_DATA_LEN_OFF ); 
+	val=tvb_get_ntohs( tvb, AUTHEN_C_DATA_LEN_OFF );
 	proto_tree_add_text( tree, tvb, AUTHEN_C_DATA_LEN_OFF, 2 ,
 			"Data length: %d", val );
 	if( val ){
@@ -604,7 +604,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	proto_tree_add_text(tree, tvb,
 			AUTHEN_R_FLAGS_OFF, 1, "Flags: 0x%02x %s",
 			val, (val&TAC_PLUS_REPLY_FLAG_NOECHO?"(NoEcho)":"") );
-	
+
 
 	val=tvb_get_ntohs(tvb, AUTHEN_R_SRV_MSG_LEN_OFF );
 	proto_tree_add_text( tree, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2 ,
@@ -630,7 +630,7 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 	int var_off;
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_AUTH_METH_OFF ) ;
-	proto_tree_add_text( tree, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, 
+	proto_tree_add_text( tree, tvb, AUTHOR_Q_AUTH_METH_OFF, 1,
 			"Auth Method: %s", val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
@@ -639,7 +639,7 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 			AUTHOR_Q_VARDATA_OFF + val );
 
 	proto_tree_add_text( tree, tvb, AUTHOR_Q_ARGC_OFF, 1, "Arg count: %d", val );
-	
+
 /* var_off points after rem_addr */
 
 	dissect_tacplus_args_list( tvb, tree, var_off, AUTHOR_Q_VARDATA_OFF, val );
@@ -652,7 +652,7 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 	int val=tvb_get_guint8( tvb, AUTHOR_R_STATUS_OFF	) ;
 
 
-	proto_tree_add_text( tree, tvb, AUTHOR_R_STATUS_OFF	, 1, 
+	proto_tree_add_text( tree, tvb, AUTHOR_R_STATUS_OFF	, 1,
 			"Auth Status: 0x%01x (%s)", val,
 			val_to_str( val, tacplus_author_status, "Unknown Authorization Status" ));
 
@@ -679,7 +679,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 	proto_item *tf;
 	proto_tree *flags_tree;
 
-	val=tvb_get_guint8( tvb, ACCT_Q_FLAGS_OFF ); 
+	val=tvb_get_guint8( tvb, ACCT_Q_FLAGS_OFF );
 	tf = proto_tree_add_uint( tree, hf_tacplus_acct_flags, tvb, ACCT_Q_FLAGS_OFF, 1, val );
 
 	flags_tree = proto_item_add_subtree( tf, ett_tacplus_acct_flags );
@@ -697,8 +697,8 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 				"Watchdog: Set", "Watchdog: Not set" ) );
 
 	val=tvb_get_guint8( tvb, ACCT_Q_METHOD_OFF );
-	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1, 
-			"Authen Method: 0x%01x (%s)",  
+	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1,
+			"Authen Method: 0x%01x (%s)",
 			val, val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, ACCT_Q_ARG_CNT_OFF );
@@ -774,13 +774,13 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, tvbuff_t * tvb, proto_tree * tree )
 	  case TAC_PLUS_AUTHOR:
 		if ( seq_no & 0x01)
 			dissect_tacplus_body_author_req( tvb, tree );
-		else 
+		else
 			dissect_tacplus_body_author_rep( tvb, tree );
 		return;
 		break;
 	  case TAC_PLUS_ACCT:
 		if ( seq_no & 0x01)
-			dissect_tacplus_body_acct_req( tvb, tree ); 
+			dissect_tacplus_body_acct_req( tvb, tree );
 		else
 			dissect_tacplus_body_acct_rep( tvb, tree );
 		return;
@@ -839,7 +839,7 @@ find_key( address *srv, address *cln )
 	tacplus_print_key_entry( (gconstpointer)&data, NULL ); */
 	match=g_slist_find_custom( tacplus_keys, (gpointer)&data, cmp_conv_address );
 /*	printf("Finished (%p)\n", match);  */
-	if( match ) 
+	if( match )
 		return ((tacplus_key_entry*)match->data)->k;
 
 	return (tacplus_keys?NULL:tacplus_opt_key);
@@ -882,7 +882,7 @@ parse_tuple( char *key_from_option )
 	tacplus_keys = g_slist_prepend( tacplus_keys, tacplus_data );
 }
 
-static 
+static
 void
 parse_tacplus_keys( const char *keys_from_option )
 {
@@ -937,7 +937,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		int type = tvb_get_guint8(tvb,1);
-		col_add_fstr( pinfo->cinfo, COL_INFO, "%s: %s", 
+		col_add_fstr( pinfo->cinfo, COL_INFO, "%s: %s",
 				request ? "Q" : "R",
 				val_to_str(type, tacplus_type_vals, "Unknown (0x%02x)"));
 	}
@@ -986,6 +986,11 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tacplus_tree, hf_tacplus_session_id, tvb, 4, 4,
 		    FALSE);
 		len = tvb_get_ntohl(tvb,8);
+		if ((gint) len < 1) {
+			proto_tree_add_text(tacplus_tree, tvb, 8, 4,
+				"Invalid length: %u", len);
+			THROW(ReportedBoundsError);
+		}
 		proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4,
 		    len);
 
@@ -1002,7 +1007,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if( new_tvb ) {
 			/* Check to see if I've a decrypted tacacs packet */
-			if( !(flags&FLAGS_UNENCRYPTED) ){ 	
+			if( !(flags&FLAGS_UNENCRYPTED) ){
 				tmp_pi = proto_tree_add_text(tacplus_tree, new_tvb, 0, len, "Decrypted %s",
 							request?"Request":"Reply" );
 			}
@@ -1075,7 +1080,7 @@ proto_register_tacplus(void)
 		&ett_tacplus_flags,
 		&ett_tacplus_acct_flags,
 		&ett_tacplus_body,
-		&ett_tacplus_body_chap, 
+		&ett_tacplus_body_chap,
 	};
 	module_t *tacplus_module;
 
@@ -1111,7 +1116,7 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
-	
+
 	md5_buff = (md5_byte_t*)ep_alloc(md5_len+MD5_LEN);
 
 

@@ -836,7 +836,7 @@ kFPUTF8NameBit 			(bit 13)
 
 /* AFP 3.1 getsession token type */
 #define kLoginWithoutID         0
-#define kLoginWithID            1	
+#define kLoginWithID            1
 #define kReconnWithID           2
 #define kLoginWithTimeAndID     3
 #define kReconnWithTimeAndID    4
@@ -862,8 +862,8 @@ static const value_string token_type_vals[] = {
 
 /* AFP 3.2 ACL bitmap */
 #define kFileSec_UUID		(1 << 0)
-#define kFileSec_GRPUUID	(1 << 1)	
-#define kFileSec_ACL		(1 << 2)	
+#define kFileSec_GRPUUID	(1 << 1)
+#define kFileSec_ACL		(1 << 2)
 #define kFileSec_REMOVEACL	(1 << 3)
 #define kFileSec_Inherit	(1 << 4)
 
@@ -1292,13 +1292,13 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 	proto_tree_add_item(tree, hf_afp_unicode_name_offset,tvb, offset, 2, FALSE);
 	offset += 2;
 	if (unameoff) {
-	      /* FIXME AFP3.x reuses PDINFO bit for UTF8. 
+	      /* FIXME AFP3.x reuses PDINFO bit for UTF8.
 	       * In enumerate_ext it's pad with 4 bytes, PDINFO was 6 bytes,
-	       * but not in catsearch_ext. 
+	       * but not in catsearch_ext.
 	       * Last but not least there's a bug in OSX catsearch_ext for spec2
 	       * offset is off by 2 bytes.
 	       */
-	       
+
 		tp_ofs = unameoff +org_offset;
 	       if (tp_ofs > offset) {
 	           PAD(4);
@@ -1599,7 +1599,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 		}
 		offset += 2;
 	}
-	
+
 	if ((bitmap & kFPShortNameBit)) 	/* 7 */
 		offset += 2;
 	if ((bitmap & kFPNodeIDBit)) 		/* 8 */
@@ -1965,7 +1965,7 @@ static gint
 dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint16 f_bitmap;
-	
+
 	f_bitmap = decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
 
@@ -2034,7 +2034,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 	guint	size;
 	gint	org;
 	int i;
-	int decal; 
+	int decal;
 
 	for (i = 0; i < count; i++) {
 		org = offset;
@@ -2241,7 +2241,7 @@ query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 
 	/* spec 2 */
 	offset = catsearch_spec(tvb, ptree, offset, ext, r_bitmap, "Spec 2");
-	
+
 	return offset;
 }
 
@@ -2310,7 +2310,7 @@ dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	PAD(1)
         add_info_vol(tvb, pinfo, offset);
-	
+
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2406,7 +2406,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
 	offset += len +1;
-	
+
 	return decode_uam_parameters(uam, len_uam, tvb, tree, offset);
 }
 
@@ -2424,7 +2424,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_login_flags, tvb, offset, 2,FALSE);
 	offset += 2;
-	
+
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
 	offset += len +1;
@@ -2468,7 +2468,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	default:
 		break;
     	}
-	
+
 	return decode_uam_parameters(uam, len_uam, tvb, tree, offset);
 }
 
@@ -2479,7 +2479,7 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gi
 	int  param;
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
-	
+
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
 
@@ -2548,7 +2548,7 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	int param;
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
-	
+
 	PAD(1);
 
         add_info_fork(tvb, pinfo, offset);
@@ -3308,7 +3308,7 @@ dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 int len;
 
 	len = tvb_get_guint8(tvb, offset);
-	/* for type 3 and 4 len is 16 bits but we don't keep the type from the request 
+	/* for type 3 and 4 len is 16 bits but we don't keep the type from the request
 	 * XXX assume name < 256, ie the first byte is zero.
 	*/
 	if (!len) {
@@ -3366,7 +3366,7 @@ dissect_reply_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static gint
 dissect_query_afp_disconnect_old_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-int len;
+int len, orig_offset = offset;
 
 	PAD(1);
 
@@ -3380,6 +3380,9 @@ int len;
 	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
 	offset += len;
 
+	if (offset <= orig_offset)
+		THROW(ReportedBoundsError);
+
 	return offset;
 }
 
@@ -3388,7 +3391,7 @@ static gint
 dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 guint16	token;
-int len;
+int len, orig_offset = offset;
 
 	PAD(1);
 	token = tvb_get_ntohs(tvb, offset);
@@ -3411,6 +3414,9 @@ int len;
 	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
 	offset += len;
 
+	if (offset <= orig_offset)
+		THROW(ReportedBoundsError);
+
 	return offset;
 }
 
@@ -3418,7 +3424,7 @@ int len;
 static gint
 dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-int len;
+int len, orig_offset = offset;
 int size;
 
 	/* FIXME spec and capture disagree : or it's 4 bytes with no token type, or it's 2 bytes */
@@ -3435,6 +3441,9 @@ int size;
 
 	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
 	offset += len;
+
+	if (offset <= orig_offset)
+		THROW(ReportedBoundsError);
 
 	return offset;
 }
@@ -3520,7 +3529,7 @@ dissect_query_afp_get_user_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	if (tree) {
   		proto_tree *sub_tree;
   		proto_item *item;
-  		
+
 		item = proto_tree_add_item(tree, hf_afp_user_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_user_bitmap);
 		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_UID, tvb, offset, 2,FALSE);
@@ -3542,7 +3551,7 @@ dissect_reply_afp_get_user_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	if (tree) {
 		proto_tree *sub_tree;
 		proto_item *item;
-		
+
 		item = proto_tree_add_item(tree, hf_afp_user_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_user_bitmap);
 		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_UID, tvb, offset, 2,FALSE);
@@ -3584,7 +3593,7 @@ decode_attr_name (proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, gint 
 		gchar *name;
 		proto_tree *sub_tree;
 		proto_item *item;
-	
+
 		name = tvb_format_text(tvb,offset+2, len);
 		item = proto_tree_add_text(tree, tvb, offset, len + 2, label, name);
 		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_names);
@@ -3605,7 +3614,7 @@ decode_attr_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	if (tree) {
 		proto_tree *sub_tree;
 		proto_item *item;
-		
+
 		item = proto_tree_add_item(tree, hf_afp_extattr_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_bitmap);
 		proto_tree_add_item(sub_tree, hf_afp_extattr_bitmap_NoFollow, tvb, offset, 2,FALSE);
@@ -3649,6 +3658,7 @@ dissect_reply_afp_get_ext_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
 	guint32  len;
 	guint	 remain;
+	int	 orig_offset = offset;
 
 	offset = decode_attr_bitmap(tree, tvb, offset);
 
@@ -3662,7 +3672,10 @@ dissect_reply_afp_get_ext_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		offset += len;
 	}
 
-	return offset;	
+	if (offset <= orig_offset)
+		THROW(ReportedBoundsError);
+
+	return offset;
 }
 
 /* ************************** */
@@ -3691,7 +3704,7 @@ dissect_query_afp_set_ext_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_item(tree, hf_afp_extattr_data, tvb, offset, len, FALSE);
 	offset += len;
 
-	return offset;	
+	return offset;
 }
 
 /* ************************** */
@@ -3724,7 +3737,7 @@ dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 {
 	proto_item *item;
 	proto_tree *sub_tree;
-	gint length = 0;
+	gint length = 0, orig_offset = offset;
 	int remain;
 
 	offset = decode_attr_bitmap(tree, tvb, offset);
@@ -3737,17 +3750,20 @@ dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
            the entries without actually adding any entries */
 	remain =  tvb_reported_length_remaining(tvb, offset);
 	if (remain >= length) {
-	
+
 		item = proto_tree_add_text(tree, tvb, offset, remain , "Attributes");
 		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_names);
 		while ( remain > 0) {
-			tvb_get_ephemeral_stringz(tvb, offset, &length);  
+			tvb_get_ephemeral_stringz(tvb, offset, &length);
  			proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, FALSE);
 			offset += length;
 			remain -= length;
 		}
 
 	}
+
+	if (offset <= orig_offset)
+		THROW(ReportedBoundsError);
 
 	return offset;
 }
@@ -3778,7 +3794,7 @@ decode_acl_access_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	if (tree) {
 		proto_tree *sub_tree;
 		proto_item *item;
-		
+
 		item = proto_tree_add_item(tree, hf_afp_acl_access_bitmap, tvb, offset, 4, FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_acl_access_bitmap);
 
@@ -3836,7 +3852,7 @@ decode_acl_list_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	if (tree) {
 		proto_tree *sub_tree;
 		proto_item *item;
-		
+
 		item = proto_tree_add_item(tree, hf_afp_acl_list_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_acl_list_bitmap);
 		proto_tree_add_item(sub_tree, hf_afp_acl_list_bitmap_UUID, tvb, offset, 2,FALSE);
@@ -3860,7 +3876,7 @@ decode_ace_flags_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	if (tree) {
 		proto_tree *sub_tree;
 		proto_item *item;
-		
+
 		item = proto_tree_add_item(tree, hf_afp_ace_flags, tvb, offset, 4,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_ace_flags);
 		proto_tree_add_item(sub_tree, hf_afp_ace_flags_allow, tvb, offset, 4,FALSE);
@@ -3919,7 +3935,7 @@ decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ace_tree = proto_item_add_subtree(item, ett_afp_ace_entry);
 
 		offset = decode_kauth_ace(tvb, ace_tree, offset);
-	}	
+	}
 
 	return offset;
 }
@@ -3946,7 +3962,7 @@ decode_uuid_acl(tvbuff_t *tvb, proto_tree *tree, gint offset, guint16 bitmap)
 
 	return offset;
 }
-		
+
 /* ************************** */
 static gint
 dissect_query_afp_set_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
@@ -3992,7 +4008,7 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	bitmap = decode_acl_list_bitmap(tvb, tree, offset);
 	offset += 2;
-	
+
 	offset = decode_uuid_acl(tvb, tree, offset, bitmap);
 
 	return offset;
@@ -4075,7 +4091,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		afp_tree = proto_item_add_subtree(ti, ett_afp);
 	}
 	if (!aspinfo->reply)  {
-	        
+
 		proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
 	        if (afp_command != tvb_get_guint8(tvb, offset))
 	        {
@@ -4086,7 +4102,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        	 * ip1:2048 --> ip2:548 <SYN> use the same port but it's a new session!
 	        	 */
 			if (col_info) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, 
+				col_add_fstr(pinfo->cinfo, COL_INFO,
 			          "[Error!IP port reused, you need to split the capture file]");
 				return;
 			}
