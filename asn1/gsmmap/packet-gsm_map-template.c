@@ -150,11 +150,14 @@ static gint ett_gsm_map_RAIdentity = -1;
 static gint ett_gsm_map_LAIFixedLength = -1;
 static gint ett_gsm_map_isdn_address_string = -1;
 static gint ett_gsm_map_geo_desc = -1;
+static gint ett_gsm_map_LongSignalInfo = -1;
+static gint ett_gsm_map_RadioResourceInformation =-1;
 
 #include "packet-gsm_map-ett.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
+static dissector_handle_t ranap_handle;
 
 /* Preferenc settings default */
 #define MAX_SSN 254
@@ -1819,6 +1822,7 @@ void proto_reg_handoff_gsm_map(void) {
 
     static int map_prefs_initialized = FALSE;
     data_handle = find_dissector("data");
+    ranap_handle = find_dissector("ranap");
 
     if (!map_prefs_initialized) {
 	map_prefs_initialized = TRUE;
@@ -2221,6 +2225,8 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_LAIFixedLength,
 	&ett_gsm_map_isdn_address_string,
 	&ett_gsm_map_geo_desc,
+	&ett_gsm_map_LongSignalInfo,
+	&ett_gsm_map_RadioResourceInformation,
 
 #include "packet-gsm_map-ettarr.c"
   };

@@ -412,12 +412,18 @@ Component
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
+ proto_item *item;
+ proto_tree *subtree;
 
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
+
+ item = get_ber_last_created_item(); 
+ subtree = proto_item_add_subtree(item, ett_gsm_map_LongSignalInfo); 
+
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
 	case 1:
@@ -431,6 +437,7 @@ Component
 		break;
  	/* ts3G-25413 */
 	case 2:
+		call_dissector(ranap_handle, parameter_tvb, pinfo, tree); 
 		break;
 	default:
 		break;
@@ -657,6 +664,20 @@ Component
 
 #.FN_PARS OBJECT_IDENTIFIER
   FN_VARIANT = _str  VAL_PTR = &obj_id
+
+#.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb 
+    tvbuff_t        *parameter_tvb; 
+	proto_item *item;
+	proto_tree *subtree;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset; 
+
+    item = get_ber_last_created_item(); 
+    subtree = proto_item_add_subtree(item, ett_gsm_map_RadioResourceInformation); 
+	be_chan_type(tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR

@@ -1919,7 +1919,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 /*
  * [2] 3.2.2.11
  */
-static guint8
+guint8
 be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8	oct;

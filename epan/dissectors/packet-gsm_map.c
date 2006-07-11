@@ -982,6 +982,8 @@ static gint ett_gsm_map_RAIdentity = -1;
 static gint ett_gsm_map_LAIFixedLength = -1;
 static gint ett_gsm_map_isdn_address_string = -1;
 static gint ett_gsm_map_geo_desc = -1;
+static gint ett_gsm_map_LongSignalInfo = -1;
+static gint ett_gsm_map_RadioResourceInformation =-1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -1384,10 +1386,11 @@ static gint ett_gsm_map_ExtensionContainer = -1;
 static gint ett_gsm_map_AccessTypePriv = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 155 "packet-gsm_map-template.c"
+#line 157 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
+static dissector_handle_t ranap_handle;
 
 /* Preferenc settings default */
 #define MAX_SSN 254
@@ -2786,7 +2789,7 @@ static int dissect_diagnosticInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 513 "gsmmap.cnf"
+#line 520 "gsmmap.cnf"
 
 	
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
@@ -3308,7 +3311,7 @@ static int dissect_vlr_Capability_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 int
 dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 597 "gsmmap.cnf"
+#line 604 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -3704,7 +3707,7 @@ static int dissect_numberOfRequestedVectors(packet_info *pinfo, proto_tree *tree
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 645 "gsmmap.cnf"
+#line 652 "gsmmap.cnf"
 
         tvbuff_t        *parameter_tvb; 
         proto_item *item; 
@@ -4147,6 +4150,8 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
+ proto_item *item;
+ proto_tree *subtree;
 
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -4155,6 +4160,10 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
  if (!parameter_tvb)
 	return offset;
+
+ item = get_ber_last_created_item(); 
+ subtree = proto_item_add_subtree(item, ett_gsm_map_LongSignalInfo); 
+
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
 	case 1:
@@ -4168,6 +4177,7 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 		break;
  	/* ts3G-25413 */
 	case 2:
+		call_dissector(ranap_handle, parameter_tvb, pinfo, tree); 
 		break;
 	default:
 		break;
@@ -4240,8 +4250,23 @@ static int dissect_encryptionInfo_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_gsm_map_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 669 "gsmmap.cnf"
+    tvbuff_t        *parameter_tvb; 
+	proto_item *item;
+	proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+ 
+
+	if (!parameter_tvb) 
+                return offset; 
+
+    item = get_ber_last_created_item(); 
+    subtree = proto_item_add_subtree(item, ett_gsm_map_RadioResourceInformation); 
+	be_chan_type(tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
+
+
 
   return offset;
 }
@@ -5799,7 +5824,7 @@ static int
 dissect_gsm_map_T_ext_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
-#line 532 "gsmmap.cnf"
+#line 539 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -7242,7 +7267,7 @@ static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 543 "gsmmap.cnf"
+#line 550 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -7291,7 +7316,7 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 569 "gsmmap.cnf"
+#line 576 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -7337,7 +7362,7 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 583 "gsmmap.cnf"
+#line 590 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -8567,7 +8592,7 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
-#line 526 "gsmmap.cnf"
+#line 533 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -9449,7 +9474,7 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 627 "gsmmap.cnf"
+#line 634 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_item *item;
@@ -10793,7 +10818,7 @@ dissect_gsm_map_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 int
 dissect_gsm_map_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 446 "gsmmap.cnf"
+#line 453 "gsmmap.cnf"
  /*The structure of the USSD-DataCodingScheme is defined by
   * the Cell Broadcast Data Coding Scheme as described in
   * TS 3GPP TS 23.038
@@ -10823,7 +10848,7 @@ static int dissect_dataCodingScheme_impl(packet_info *pinfo, proto_tree *tree, t
 
 int
 dissect_gsm_map_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 468 "gsmmap.cnf"
+#line 475 "gsmmap.cnf"
 
   tvbuff_t	*parameter_tvb;
   int			length;
@@ -14737,7 +14762,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 563 "packet-gsm_map-template.c"
+#line 566 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -15997,6 +16022,7 @@ void proto_reg_handoff_gsm_map(void) {
 
     static int map_prefs_initialized = FALSE;
     data_handle = find_dissector("data");
+    ranap_handle = find_dissector("ranap");
 
     if (!map_prefs_initialized) {
 	map_prefs_initialized = TRUE;
@@ -19657,7 +19683,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2206 "packet-gsm_map-template.c"
+#line 2210 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19676,6 +19702,8 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_LAIFixedLength,
 	&ett_gsm_map_isdn_address_string,
 	&ett_gsm_map_geo_desc,
+	&ett_gsm_map_LongSignalInfo,
+	&ett_gsm_map_RadioResourceInformation,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -20078,7 +20106,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_AccessTypePriv,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2226 "packet-gsm_map-template.c"
+#line 2232 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
