@@ -2239,8 +2239,8 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		 */
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
-				val_to_str(cl, smb2_class_vals, "(Class:0x%08x)"),
-				val_to_str(il, vs, "(Level:0x%08x)"));
+				val_to_str(cl, smb2_class_vals, "(Class:0x%02x)"),
+				val_to_str(il, vs, "(Level:0x%02x)"));
 		}
 	}
 
