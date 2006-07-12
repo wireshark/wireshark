@@ -93,6 +93,8 @@
 #include <epan/oid_resolv.h>
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-windows-common.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
@@ -113,6 +115,7 @@ static int hf_ldap_sasl_buffer_length = -1;
 static int hf_ldap_response_in = -1;
 static int hf_ldap_response_to = -1;
 static int hf_ldap_time = -1;
+static int hf_ldap_guid = -1;
 
 static int hf_mscldap_netlogon_type = -1;
 static int hf_mscldap_netlogon_flags = -1;
@@ -241,7 +244,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 135 "packet-ldap-template.c"
+#line 138 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -292,7 +295,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 144 "packet-ldap-template.c"
+#line 147 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -400,8 +403,12 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
   return key1->messageId==key2->messageId;
 }
 
+/* This string contains the last LDAPString that was decoded */
+static char *attributedesc_string=NULL;
+
 /* This string contains the last AssertionValue that was decoded */
 static char *assertionvalue_string=NULL;
+
 /* if the octet string contain all printable ASCII characters, then
  * display it as a string, othervise just display it in hex.
  */
@@ -425,12 +432,56 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		return offset;
 	}
 
+
 	/*
-	 * Check whether the string is printable ASCII or binary.
+	 * Some special/wellknown attributes in common LDAP (read AD)
+	 * are neither ascii strings nor blobs of hex data.
+	 * Special case these attributes and decode them more nicely.
+	 *
+	 * Add more special cases as required to prettify further
+	 * (there cant be that many ones that are truly interesting)
+	 */
+	if(!strncmp("DomainSid", attributedesc_string, 9)){
+		tvbuff_t *sid_tvb;
+		char *tmpstr;
+
+		/* this octet string contains an NT SID */
+		sid_tvb=tvb_new_subset(tvb, offset, len, len);
+		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
+		assertionvalue_string=ep_strdup(tmpstr);
+		g_free(tmpstr);
+
+		goto finished;
+	} else if ( (len==16) /* GUIDs are always 16 bytes */ 
+	&& (!strncmp("DomainGuid", attributedesc_string, 10))) {
+		guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+		e_uuid_t uuid;
+		
+		/* This octet string contained a GUID */
+		dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_ldap_guid, &uuid);
+
+		assertionvalue_string=ep_alloc(1024);
+		g_snprintf(assertionvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                          uuid.Data1, uuid.Data2, uuid.Data3,
+                          uuid.Data4[0], uuid.Data4[1],
+                          uuid.Data4[2], uuid.Data4[3],
+                          uuid.Data4[4], uuid.Data4[5],
+                          uuid.Data4[6], uuid.Data4[7]);
+
+		goto finished;
+	}
+
+	/*
+	 * It was not one of our "wellknown" attributes so make the best
+	 * we can and just try to see if it is an ascii string or if it
+	 * is a binary blob.
 	 *
 	 * XXX - should we support reading RFC 2252-style schemas
 	 * for LDAP, and using that to determine how to display
 	 * attribute values and assertion values?
+	 *
+	 * -- I dont think there are full schemas available that describe the 
+	 *  interesting cases i.e. AD -- ronnie
 	 */
 	str=tvb_get_ptr(tvb, offset, len);
 	is_ascii=TRUE;
@@ -456,13 +507,12 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 	}
 
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, assertionvalue_string);
-	offset+=len;
 
+
+finished:
+	offset+=len;
 	return offset;
 }
-
-/* This string contains the last LDAPString that was decoded */
-static char *attributedesc_string=NULL;
 
 /* This string contains the last Filter item that was decoded */
 static char *Filter_string=NULL;
@@ -2710,7 +2760,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 475 "packet-ldap-template.c"
+#line 525 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3609,6 +3659,10 @@ void proto_register_ldap(void) {
       { "NDNC", "mscldap.netlogon.flags.ndnc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_ndnc), 0x00000400, "Is this an NDNC dc?", HFILL }},
 
+    { &hf_ldap_guid,
+      { "GUID", "ldap.guid", FT_GUID, BASE_NONE,
+        NULL, 0, "GUID", HFILL }},
+
 
 /*--- Included file: packet-ldap-hfarr.c ---*/
 #line 1 "packet-ldap-hfarr.c"
@@ -4002,7 +4056,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1374 "packet-ldap-template.c"
+#line 1428 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4055,7 +4109,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1385 "packet-ldap-template.c"
+#line 1439 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
