@@ -441,7 +441,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 	 * Add more special cases as required to prettify further
 	 * (there cant be that many ones that are truly interesting)
 	 */
-	if(!strncmp("DomainSid", attributedesc_string, 9)){
+	if(attributedesc_string && !strncmp("DomainSid", attributedesc_string, 9)){
 		tvbuff_t *sid_tvb;
 		char *tmpstr;
 
@@ -452,11 +452,11 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		g_free(tmpstr);
 
 		goto finished;
-	} else if ( (len==16) /* GUIDs are always 16 bytes */ 
-	&& (!strncmp("DomainGuid", attributedesc_string, 10))) {
+	} else if ( (len==16) /* GUIDs are always 16 bytes */
+	&& (attributedesc_string && !strncmp("DomainGuid", attributedesc_string, 10))) {
 		guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 		e_uuid_t uuid;
-		
+
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
@@ -480,7 +480,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 	 * for LDAP, and using that to determine how to display
 	 * attribute values and assertion values?
 	 *
-	 * -- I dont think there are full schemas available that describe the 
+	 * -- I dont think there are full schemas available that describe the
 	 *  interesting cases i.e. AD -- ronnie
 	 */
 	str=tvb_get_ptr(tvb, offset, len);
