@@ -386,7 +386,7 @@ fi
 datafiledir=$datadir/wireshark
 datafiledir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
-    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    test "x$exec_prefix" = xNONE && exec_prefix=$prefix
     eval echo "$datafiledir"
 )`
 AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
