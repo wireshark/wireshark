@@ -90,7 +90,26 @@ jimi:		N/A - build yourself - see above
 
 Packages for Gentoo
 -------------------
-TODO
+Like with all packages do...
+Check dependencies: emerge -p <package>
+Install it:         emerge <package>
+
+Tool/File	Package                  Opt./Mand.   Comments
+---------	-------                  ----------   --------
+xsltproc:	libxslt                  M            XSLT processer. A very fast processor writtin in C.
+xmllint:	libxml2                  O            Xml Validator. You probably want to install that.
+fop:		fop                      O            Only needed to generate PDFs. Has a lot of JAVA dependencies.
+docbook.xsl:	docbook-xsl-stylesheets  M            Necessary docbook catalogs are built automatically by portage in /etc/xml and /etc/sgml
+chunk.xsl:	docbook-xsl-stylesheets  M              using "/usr/bin/build-docbook-catalog".
+htmlhelp.xsl:	docbook-xsl-stylesheets  M              So docbook runs out of the box on Gentoo.
+docbookx.dtd:	docbook-xml-dtd          M
+jimi:		sun-jimi                 O            Jimi is a class library for managing images. Used by fop.
+Quanta+         quanta or kdewebdev      O            Nice HTML/XML/SGML and Docbook editor with Syntaxhighlighting, Autocompletion, etc.
+
+Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
+     To be able to generate the docs, change the version in the second line of developer-guide.xml
+     or install an older version of the DTD.
+     See into the Gentoo handbook howto unmask old versions.
 
 Packages for Fedora Core
 ------------------------
