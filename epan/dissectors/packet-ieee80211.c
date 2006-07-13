@@ -1860,8 +1860,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                 tvb_format_stringzpad(tvb, offset + 12, 16));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, "", "Tag interpretation: Unknown + Name: %s",
-			     out_buff);
+			     tag_len, "", "Tag interpretation: Unknown + Name: %s #Clients: %u",
+			     out_buff,
+			     /* Total number off associated clients and
+				repeater access points */
+			     tvb_get_guint8(tvb, offset + 28));
       if (check_col (pinfo->cinfo, COL_INFO)) {
           col_append_fstr(pinfo->cinfo, COL_INFO, ", Name: \"%s\"", out_buff);
       }
