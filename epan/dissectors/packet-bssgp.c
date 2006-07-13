@@ -79,6 +79,8 @@ static int hf_bssgp_ra_discriminator = -1;
 static int hf_bssgp_appid = -1;
 static int hf_bssgp_rcid = -1;
 static int hf_bssgp_rrc_si_msg_type = -1;
+static int hf_ran_inf_req_pdu_type_ext = -1;
+static int hf_ran_inf_pdu_type_ext = -1;
 static int hf_bssgp_nri = -1;
 static int hf_bssgp_imsi = -1;
 static int hf_bssgp_imei = -1;
@@ -111,7 +113,7 @@ static gint ett_bssgp_deciphering_keys = -1;
 static gint ett_bssgp_lcs_cause = -1;
 static gint ett_bssgp_lcs_capability = -1;
 static gint ett_bssgp_rrlp_flags = -1;
-static gint ett_bssgp_ran_information_indications = -1;
+static gint ett_bssgp_rim_pdu_indications = -1;
 static gint ett_bssgp_mcc = -1;
 static gint ett_bssgp_mnc = -1;
 static gint ett_bssgp_routeing_area = -1;
@@ -306,7 +308,7 @@ static const value_string tab_bssgp_pdu_types[] = {
 #define BSSGP_IEI_RIM_SEQUENCE_NUMBER                      0x4c
 #define BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER        0x4d
 #define BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER                0x4e
-#define BSSGP_IEI_RAN_INFORMATION_INDICATIONS              0x4f
+#define BSSGP_IEI_RIM_PDU_INDICATIONS					   0x4f
 #define BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS                0x50
 #define BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS              0x52
 #define BSSGP_IEI_GLOBAL_CN_ID                             0x53
@@ -390,17 +392,17 @@ static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_LCS_PRIORITY,                "LCS Priority" },
   { BSSGP_IEI_LCS_CAUSE,                   "LCS Cause" },
   { BSSGP_IEI_LCS_CAPABILITY,              "LCS Capability" },
-  { BSSGP_IEI_RRLP_FLAGS,                  "RRLP Flags" },
-  { BSSGP_IEI_RIM_APPLICATION_IDENTITY,    "RIM Application Identity" },
+  { BSSGP_IEI_RRLP_FLAGS,								"RRLP Flags" },
+  { BSSGP_IEI_RIM_APPLICATION_IDENTITY,					"RIM Application Identity" },
   { BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER,	"RAN INFORMATION Application Container" },
-  { BSSGP_IEI_RIM_SEQUENCE_NUMBER,         "RIM Sequence Number" },
-  { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN INFORMATION REQUEST RIM Container" },
-  { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN INFORMATION RIM Container" },
-  { BSSGP_IEI_RAN_INFORMATION_INDICATIONS,  "RAN INFORMATION Indications" },
-  { BSSGP_IEI_RIM_PROTOCOL_VERSION,  "RIM Protocol Version Number" },
-  { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS,    "Number of Container Units" },
-  { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS,  "PFC Flow Control Parameters" },
-  { BSSGP_IEI_GLOBAL_CN_ID,                 "Global CN Id" }, 
+  { BSSGP_IEI_RIM_SEQUENCE_NUMBER,						"RIM Sequence Number" },
+  { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT,	"RAN INFORMATION REQUEST RIM Container" },
+  { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT,			"RAN INFORMATION RIM Container" },
+  { BSSGP_IEI_RIM_PDU_INDICATIONS,						"RIM PDU Indications" },
+  { BSSGP_IEI_RIM_PROTOCOL_VERSION,						"RIM Protocol Version Number" },
+  { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS,				"Number of Container Units" },
+  { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS,				"PFC Flow Control Parameters" },
+  { BSSGP_IEI_GLOBAL_CN_ID,								"Global CN Id" }, 
   { 0,                                NULL },
 };
 
@@ -432,6 +434,7 @@ typedef struct {
   proto_tree   *parent_tree;
   gboolean      dl_data;
   gboolean      ul_data;
+  guint8		pdutype;
 } build_info_t;
 
 static guint8
@@ -4079,6 +4082,7 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   }
 }
 
+
 static void 
 decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -4173,11 +4177,33 @@ Packet System Information Type 16 11.2.25c
     }
   }
 }
+static const value_string ran_inf_req_pdu_type_ext_vals[] = {
+  { 0,"RAN-INFORMATION-REQUEST/Stop PDU" },
+  { 1,"RAN-INFORMATION-REQUEST/Single Report PDU" },
+  { 2,"RAN-INFORMATION-REQUEST/Multiple Report PDU" },
+  { 3,"Reserved" },
+  { 4,"Reserved" },
+  { 5,"Reserved" },
+  { 6,"Reserved" },
+  { 7,"Reserved" },
+  { 0, NULL },
+};
 
-
+static const value_string ran_inf_pdu_type_ext_vals[] = {
+  { 0,"RAN-INFORMATION/Stop PDU" },
+  { 1,"RAN-INFORMATION/Single Report PDU" },
+  { 2,"RAN-INFORMATION/Initial Multiple Report PDU" },
+  { 3,"RAN-INFORMATION/Multiple Report PDU" },
+  { 4,"RAN-INFORMATION/End PDU" },
+  { 5,"Reserved" },
+  { 6,"Reserved" },
+  { 7,"Reserved" },
+  { 0, NULL },
+};
+/* 11.3.65 RIM PDU Indications 3GPP TS 48.018 version 6.7.0 Release 6 */
 static void 
-decode_iei_ran_information_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  const guint8 MASK_END = 0x02;
+decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+  const guint8 MASK_EXT = 0x0E;
   const guint8 MASK_ACK = 0x01;
   proto_item *ti, *pi;
   proto_tree *tf;
@@ -4188,14 +4214,15 @@ decode_iei_ran_information_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_
     return;
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-  tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_indications);
+  tf = proto_item_add_subtree(ti, ett_bssgp_rim_pdu_indications);
     
   data = tvb_get_guint8(bi->tvb, bi->offset);
   
-  value = get_masked_guint8(data, MASK_END);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_END);
-  proto_item_append_text(pi, "END: %sEND indicated",
-			 value == 0 ? "No " : "");
+  if (bi->pdutype == BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT) {
+	  proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);	  
+  }else{
+	  proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);
+  }
 
   value = get_masked_guint8(data, MASK_ACK);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_ACK);
@@ -4562,8 +4589,8 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
 
 
-  case BSSGP_IEI_RAN_INFORMATION_INDICATIONS:
-    decode_iei_ran_information_indications(ie, bi, org_offset);
+  case BSSGP_IEI_RIM_PDU_INDICATIONS:
+    decode_iei_rim_pdu_indications(ie, bi, org_offset);
     break;
   case BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS:
     decode_iei_number_of_container_units(ie, bi, org_offset);
@@ -5596,7 +5623,7 @@ decode_pdu_ran_information(build_info_t *bi) {
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
@@ -5633,7 +5660,7 @@ decode_pdu_ran_information_request(build_info_t *bi) {
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
@@ -5724,8 +5751,8 @@ decode_pdu_ran_information_application_error(build_info_t *bi) {
     { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-   /* pdu indication, I hope RAN_INFORMATION_INDICATIONS decode it right, it use the same IEI so it should... */
-    { BSSGP_IEI_RAN_INFORMATION_INDICATIONS, "PDU Indications", 
+   /* pdu indication, I hope RIM_PDU_INDICATIONS decode it right, it use the same IEI so it should... */
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
     { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
@@ -5746,9 +5773,9 @@ decode_pdu_ran_information_application_error(build_info_t *bi) {
 
 
 static void
-decode_pdu(guint8 pdutype, build_info_t *bi) {
+decode_pdu(build_info_t *bi) {
 
-  switch (pdutype) {
+  switch (bi->pdutype) {
   case BSSGP_PDU_DL_UNITDATA:
     decode_pdu_dl_unitdata(bi);
     break;
@@ -5910,8 +5937,7 @@ decode_pdu(guint8 pdutype, build_info_t *bi) {
 static void
 dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 pdutype;
-  build_info_t bi = { NULL, 0, NULL, NULL, NULL, FALSE, FALSE };
+  build_info_t bi = { NULL, 0, NULL, NULL, NULL, FALSE, FALSE, 0 };
 
   proto_item *ti;
   proto_tree *bssgp_tree;
@@ -5928,26 +5954,26 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) 
     col_clear(pinfo->cinfo, COL_INFO);
 
-  pdutype = tvb_get_guint8(tvb, 0);
+  bi.pdutype = tvb_get_guint8(tvb, 0);
   bi.offset++;
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, FALSE);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
     proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, 
-				     pdutype,
+				     bi.pdutype,
 				     "%s (%#02x)",
-				     val_to_str(pdutype, tab_bssgp_pdu_types, 
-						"Unknown"), pdutype);
+				     val_to_str(bi.pdutype, tab_bssgp_pdu_types, 
+						"Unknown"), bi.pdutype);
     bi.bssgp_tree = bssgp_tree;
   }
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, 
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype, 
 						   tab_bssgp_pdu_types, 
 						   "Unknown PDU type"));
   }
-  decode_pdu(pdutype, &bi);
+  decode_pdu(&bi);
 }
 
 void
@@ -6029,6 +6055,16 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
 	"RRC SI type", HFILL }
     },
+	{ &hf_ran_inf_req_pdu_type_ext,
+      { "PDU Type Extension", "bssgp.ran_inf_req_pdu_type_ext",
+	FT_UINT8, BASE_DEC, VALS(ran_inf_req_pdu_type_ext_vals), 0x0e,
+	"PDU Type Extension", HFILL }
+    },
+	{ &hf_ran_inf_pdu_type_ext,
+      { "PDU Type Extension", "bssgp.ran_req_pdu_type_ext",
+	FT_UINT8, BASE_DEC, VALS(ran_inf_pdu_type_ext_vals), 0x0e,
+	"PDU Type Extension", HFILL }
+    },
     { &hf_bssgp_tmsi_ptmsi,
       { "TMSI/PTMSI", "bssgp.tmsi_ptmsi",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -6079,7 +6115,7 @@ proto_register_bssgp(void)
     &ett_bssgp_lcs_cause,
     &ett_bssgp_lcs_capability,
     &ett_bssgp_rrlp_flags,
-    &ett_bssgp_ran_information_indications,
+    &ett_bssgp_rim_pdu_indications,
     &ett_bssgp_mcc,
     &ett_bssgp_mnc,
     &ett_bssgp_routeing_area,
