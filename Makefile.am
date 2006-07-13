@@ -314,6 +314,7 @@ wireshark_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
+	@LIBICONV@			\
 	@LIBGNUTLS_LIBS@
 
 # Additional libs that I know how to build. These will be
@@ -520,6 +521,7 @@ EXTRA_DIST = \
 	aclocal-fallback/glib.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-fallback/gtk.m4 \
+	aclocal-fallback/iconv.m4 \
 	aclocal-flags		\
 	autogen.sh		\
 	capinfos.c		\

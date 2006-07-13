@@ -854,7 +854,9 @@ AC_CHECK_HEADERS(direct.h dirent.h fcntl.h netdb.h stdarg.h stddef.h unistd.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
-AC_CHECK_HEADERS(iconv.h)
+
+dnl iconv check
+AM_ICONV
 
 dnl SSL Check
 SSL_LIBS=''
