@@ -982,6 +982,89 @@ static gint *ett[] =
    The other variables are used for flagging up errors.
    </para>
 	</section>
+	<section id="TcpDissectPdus">
+		<title>How to reassemble split TCP Packets</title>
+		<para>	
+			A dissector gets a tvbuff_t pointer which holds the payload
+			of a TCP packet. This payload contains the header and data
+			of your application layer protocol.
+		</para>
+		<para>
+			When dissecting an application layer protocol you cannot assume
+			that each TCP packet contains exactly one application layer message.
+			One application layer message can be split into several TCP packets.
+		</para>
+		<para>
+			You also cannot assume the a TCP packet contains only one application layer message
+			and that the message header is at the start of your TCP payload.
+			More than one messages can be transmitted in one TCP packet,
+			so that a message can start at an abitrary position.
+			
+		</para>
+		<para>
+			This sounds complicated, but there is a simple solution.
+			<methodname>tcp_dissect_pdus()</methodname> does all this tcp packet reassembling for you.
+			This function is implemented in <filename>epan/dissectors/packet-tcp.h</filename>.
+		</para>
+		<example>
+			<title>Reassembling TCP fragments</title>
+			<programlisting>
+<![CDATA[
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <gmodule.h>
+#include <epan/packet.h>
+#include <epan/emem.h>
+#include <epan/dissectors/packet-tcp.h>
+#include <epan/prefs.h>
+
+...
+
+#define FRAME_HEADER_LEN 8
+
+/* The main dissecting routine */
+static void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+                     get_foo_message_len, dissect_foo_message);
+}
+
+/* This method dissects fully reassembled messages */
+static void dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* TODO: implement your dissecting code */
+}
+
+/* determine PDU length of protocol foo */
+static guint get_foo_message_len(tvbuff_t *tvb, int offset)
+{
+    /* TODO: change this to your needs */
+    return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
+}
+
+...
+]]>
+		 	</programlisting>
+		</example>
+		<para>
+			As you can see this is really simple. Just call <function>tcp_dissect_pdus()</function> in
+			your main dissection routine and move you message parsing code into another function.
+			This function gets called whenever a message has been reassembled.
+		</para>
+		<para>
+			The parameters <parameter>tvb</parameter>, <parameter>pinfo</parameter> and <parameter>tree</parameter> 
+			are just handed over to <function>tcp_dissect_pdus()</function>.
+			The 4th parameter is a flag to indicate if the data should be reassebled or not. This could be set 
+			according to a dissector preference as well.
+			Parameter 5 indicates how much data has at least to be available to be able to determine the length 
+			of the foo message.
+			Parameter 6 is a function pointer to a method that returns this length. It gets called when at least 
+			the number of bytes given in the previous parameter is available.
+			Parameter 7 is a function pointer to your real message dissector.
+		</para>
+	</section>
   </section>
   <section id="ChDissectTap">
 	<title>How to tap protocols</title>
