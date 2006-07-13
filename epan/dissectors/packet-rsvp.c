@@ -55,6 +55,9 @@
  *
  * August 22, 2005: added support for tapping and conversations.
  * (Manu Pathak) <mapathak[AT]cisco.com>
+ *
+ * July 4, 2006: added support for RFC4124; new CLASSTYPE object dissector
+ * (FF) <francesco.fondelli[AT]gmail.com>
  */
 
 
@@ -240,6 +243,7 @@ enum {
     TT_DIFFSERV,
     TT_DIFFSERV_MAP,
     TT_DIFFSERV_MAP_PHBID,
+    TT_CLASSTYPE,
     TT_UNKNOWN_CLASS,
 
     TT_MAX
@@ -343,6 +347,8 @@ enum rsvp_classes {
 
     RSVP_CLASS_DIFFSERV = 65,
 
+    RSVP_CLASS_CLASSTYPE = 66, /* FF: RFC4124 */
+
     RSVP_CLASS_SUGGESTED_LABEL = 129,
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
@@ -390,6 +396,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
     {RSVP_CLASS_PROTECTION, "PROTECTION object"},
     {RSVP_CLASS_DIFFSERV, "DIFFSERV object"},
+    {RSVP_CLASS_CLASSTYPE, "CLASSTYPE object"},
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
     {RSVP_CLASS_ACCEPTABLE_LABEL_SET, "ACCEPTABLE-LABEL-SET object"},
     {RSVP_CLASS_RESTART_CAP, "RESTART-CAPABILITY object"},
@@ -426,7 +433,8 @@ enum rsvp_error_types {
     RSVP_ERROR_SYSTEM,
     RSVP_ERROR_ROUTING,
     RSVP_ERROR_NOTIFY,
-    RSVP_ERROR_DIFFSERV = 27
+    RSVP_ERROR_DIFFSERV = 27,
+    RSVP_ERROR_DSTE = 28 /* FF: RFC4124 */
 };
 
 enum {
@@ -470,6 +478,18 @@ enum {
     RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL
 };
 
+/* FF: RFC4124 */
+enum {
+    RSVP_DSTE_ERROR_UNEXPECTED_CLASSTYPEOBJ = 1,
+    RSVP_DSTE_ERROR_UNSUPPORTED_CLASSTYPE,
+    RSVP_DSTE_ERROR_INVALID_CLASSTYPE_VALUE,
+    RSVP_DSTE_ERROR_CT_SETUP_PRIO_NOT_CONFIGURED,
+    RSVP_DSTE_ERROR_CT_HOLDING_PRIO_NOT_CONFIGURED,
+    RSVP_DSTE_ERROR_CT_SETUP_PRIO_AND_CT_HOLDING_PRIO_NOT_CONFIGURED,
+    RSVP_DSTE_ERROR_INCONSISTENCY_PSC_CT,
+    RSVP_DSTE_ERROR_INCONSISTENCY_PHB_CT
+};
+
 static value_string rsvp_error_codes[] = {
     {RSVP_ERROR_CONFIRM, "Confirmation"},
     {RSVP_ERROR_ADMISSION, "Admission Control Failure "},
@@ -489,6 +509,7 @@ static value_string rsvp_error_codes[] = {
     {RSVP_ERROR_ROUTING, "Routing Error"},
     {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
     {RSVP_ERROR_DIFFSERV, "RSVP Diff-Serv Error"},
+    {RSVP_ERROR_DSTE, "RSVP DiffServ-aware TE Error"},
     {0, NULL}
 };
 
@@ -535,6 +556,20 @@ static value_string rsvp_diffserv_error_vals[] = {
     {RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING, "Invalid `EXP<->PHB mapping'"},
     {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PSC, "Unsupported PSC"},
     {RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL, "Per-LSP context allocation failure"},
+    {0, NULL}
+};
+
+/* FF: RFC4124 */
+static value_string rsvp_diffserv_aware_te_error_vals[] = {
+    {RSVP_DSTE_ERROR_UNEXPECTED_CLASSTYPEOBJ, "Unexpected CLASSTYPE object"},
+    {RSVP_DSTE_ERROR_UNSUPPORTED_CLASSTYPE, "Unsupported Class-Type"},
+    {RSVP_DSTE_ERROR_INVALID_CLASSTYPE_VALUE, "Invalid Class-Type value"},
+    {RSVP_DSTE_ERROR_CT_SETUP_PRIO_NOT_CONFIGURED, "CT and setup priority do not form a configured TE-Class"},
+    {RSVP_DSTE_ERROR_CT_HOLDING_PRIO_NOT_CONFIGURED, "CT and holding priority do not form a configured TE-Class"},
+    {RSVP_DSTE_ERROR_CT_SETUP_PRIO_AND_CT_HOLDING_PRIO_NOT_CONFIGURED, 
+     "CT and setup priority do not form a configured TE-Class AND CT and holding priority do not form a configured TE-Class"},
+    {RSVP_DSTE_ERROR_INCONSISTENCY_PSC_CT, "Inconsistency between signaled PSC and signaled CT"},
+    {RSVP_DSTE_ERROR_INCONSISTENCY_PHB_CT, "Inconsistency between signaled PHBs and signaled CT"},
     {0, NULL}
 };
 
@@ -835,6 +870,7 @@ enum rsvp_filter_keys {
     RSVPF_LABEL_SET,
     RSVPF_PROTECTION,
     RSVPF_DIFFSERV,
+    RSVPF_DSTE,
 
     RSVPF_SUGGESTED_LABEL,
     RSVPF_ACCEPTABLE_LABEL_SET,
@@ -871,6 +907,9 @@ enum rsvp_filter_keys {
     RSVPF_DIFFSERV_PHBID_CODE,
     RSVPF_DIFFSERV_PHBID_BIT14,
     RSVPF_DIFFSERV_PHBID_BIT15,
+
+    /* Diffserv-aware TE object */
+    RSVPF_DSTE_CLASSTYPE,
 
     /* Sentinel */
     RSVPF_MAX
@@ -1032,6 +1071,10 @@ static hf_register_info rsvpf_info[] = {
      { "DIFFSERV", "rsvp.diffserv", FT_NONE, BASE_NONE, NULL, 0x0,
         "", HFILL }},
 
+    {&rsvp_filter[RSVPF_DSTE],
+     { "CLASSTYPE", "rsvp.dste", FT_NONE, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+
     {&rsvp_filter[RSVPF_RESTART_CAP],
      { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -1161,8 +1204,12 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
      { PHBID_BIT15_DESCRIPTION, "rsvp.diffserv.phbid.bit15", FT_UINT16,
-       BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, "Bit 15", HFILL }}
+       BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, "Bit 15", HFILL }},
 
+    /* Diffserv-aware TE object field */
+    {&rsvp_filter[RSVPF_DSTE_CLASSTYPE],
+     { "CT", "rsvp.dste.classtype", FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }}
 };
 
 /* RSVP Conversation related Hash functions */
@@ -1337,6 +1384,9 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_DIFFSERV :
 	return RSVPF_DIFFSERV;
 
+    case RSVP_CLASS_CLASSTYPE :
+	return RSVPF_DSTE;
+
     case RSVP_CLASS_NOTIFY_REQUEST :
 	return RSVPF_NOTIFY_REQUEST;
     case RSVP_CLASS_ADMIN_STATUS :
@@ -1421,6 +1471,8 @@ static inline int rsvp_class_to_tree_type(int classnum)
 	return TT_RESTART_CAP;
     case RSVP_CLASS_DIFFSERV :
 	return TT_DIFFSERV;
+    case RSVP_CLASS_CLASSTYPE:
+	return TT_CLASSTYPE;
     case RSVP_CLASS_NOTIFY_REQUEST :
 	return TT_UNKNOWN_CLASS;
     case RSVP_CLASS_ADMIN_STATUS :
@@ -1916,6 +1968,10 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
 	break;
     case RSVP_ERROR_DIFFSERV:
 	rsvp_error_vals = rsvp_diffserv_error_vals;
+	break;
+    case RSVP_ERROR_DSTE:
+	rsvp_error_vals = rsvp_diffserv_aware_te_error_vals;
+	break;
     }
     switch (error_code) {
     case RSVP_ERROR_ADMISSION:
@@ -1923,6 +1979,7 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
     case RSVP_ERROR_NOTIFY:
     case RSVP_ERROR_ROUTING:
     case RSVP_ERROR_DIFFSERV:
+    case RSVP_ERROR_DSTE:
 	if ((error_val & 0xc0) == 0) {
 	    proto_tree_add_text(ti, tvb, offset, 2,
 		"Error value: %u - %s", error_val,
@@ -4747,6 +4804,40 @@ dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
+ * CLASSTYPE
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
+			       tvbuff_t *tvb,
+			       int offset, int obj_length,
+			       int class _U_, int type)
+{
+    int offset2 = offset + 4;
+    guint8 ct = 0;
+    
+    proto_tree_add_item_hidden(rsvp_object_tree,
+			       rsvp_filter[RSVPF_DSTE],
+			       tvb, offset, 8, FALSE);
+    switch(type) {
+    case 1:
+	ct = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, "C-type: 1");
+	proto_tree_add_item(rsvp_object_tree, 
+			    rsvp_filter[RSVPF_DSTE_CLASSTYPE],
+			    tvb, offset2+3, 1, FALSE);
+	proto_item_set_text(ti, "CLASSTYPE: CT %u", ct);
+	break;
+    default:
+	proto_item_set_text(ti, "CLASSTYPE: (Unknown C-type)");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: Unknown (%u)", type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
  * Dissect a single RSVP message in a tree
  *------------------------------------------------------------------------------*/
 static void
@@ -5032,6 +5123,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case RSVP_CLASS_DIFFSERV:
 	    dissect_rsvp_diffserv(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    break;
+
+	case RSVP_CLASS_CLASSTYPE:
+	    dissect_rsvp_diffserv_aware_te(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_NULL:

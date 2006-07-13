@@ -19,7 +19,11 @@
  *
  * Added support to E-NNI routing (OIF2003.259.02)
  *   - (c) 2004 Roberto Morro <roberto.morro[AT]tilab.com>
-
+ *
+ * Added support of MPLS Diffserv-aware TE (RFC 4124); new BC sub-TLV
+ *   - (c) 2006 (FF) <francesco.fondelli[AT]gmail.com>
+ *
+ *
  * TOS - support is not fully implemented
  *
  * Wireshark - Network traffic analyzer
@@ -425,6 +429,7 @@ enum {
     OSPFF_LS_MPLS_LOCAL_IFID,
     OSPFF_LS_MPLS_REMOTE_IFID,
     OSPFF_LS_MPLS_LINKCOLOR,
+    OSPFF_LS_MPLS_BC_MODEL_ID,
 
     OSPFF_V2_OPTIONS,
     OSPFF_V2_OPTIONS_E,
@@ -578,6 +583,9 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_LS_MPLS_LINKCOLOR],
      { "MPLS/TE Link Resource Class/Color", "ospf.mpls.linkcolor", FT_UINT32,
        BASE_HEX, NULL, 0x0, "MPLS/TE Link Resource Class/Color", HFILL }},
+    {&ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
+     { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
+       BASE_HEX, NULL, 0x0, "MPLS/DSTE Bandwidth Constraints Model Id", HFILL }},
 
     {&ospf_filter[OSPFF_V2_OPTIONS],
      { "Options", "ospf.v2.options", FT_UINT8, BASE_HEX,
@@ -1476,7 +1484,7 @@ is_opaque(int lsa_type)
 
 /* MPLS/TE Link STLV types */
 enum {
-    MPLS_LINK_TYPE       = 1,
+    MPLS_LINK_TYPE       = 1,           /* RFC 3630, OSPF-TE   */
     MPLS_LINK_ID,
     MPLS_LINK_LOCAL_IF,
     MPLS_LINK_REMOTE_IF,
@@ -1485,10 +1493,11 @@ enum {
     MPLS_LINK_MAX_RES_BW,
     MPLS_LINK_UNRES_BW,
     MPLS_LINK_COLOR,
-    MPLS_LINK_LOCAL_REMOTE_ID = 11,
+    MPLS_LINK_LOCAL_REMOTE_ID = 11,     /* RFC 4203, GMPLS     */
     MPLS_LINK_PROTECTION = 14,
     MPLS_LINK_IF_SWITCHING_DESC,
-    MPLS_LINK_SHARED_RISK_GROUP
+    MPLS_LINK_SHARED_RISK_GROUP,
+    MPLS_LINK_BANDWIDTH_CONSTRAINT = 17 /* RFC 4124, OSPF-DSTE */
 };
 
 /* OIF TLV types */
@@ -1516,6 +1525,7 @@ static const value_string mpls_link_stlv_str[] = {
     {MPLS_LINK_PROTECTION, "Link Protection Type"},
     {MPLS_LINK_IF_SWITCHING_DESC, "Interface Switching Capability Descriptor"},
     {MPLS_LINK_SHARED_RISK_GROUP, "Shared Risk Link Group"},
+    {MPLS_LINK_BANDWIDTH_CONSTRAINT, "Bandwidth Constraints"},
     {OIF_LOCAL_NODE_ID, "Local Node ID"},
     {OIF_REMOTE_NODE_ID, "Remote Node ID"},
     {OIF_SONET_SDH_SWITCHING_CAPABILITY, "Sonet/SDH Interface Switching Capability"},
@@ -1553,6 +1563,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     int i;
     guint8 switch_cap;
 
+    const guint8 allzero[] = { 0x00, 0x00, 0x00 };
+    guint num_bcs = 0;
+    
     ti = proto_tree_add_text(tree, tvb, offset, length,
 			     "MPLS Traffic Engineering LSA");
     proto_tree_add_item_hidden(tree, ospf_filter[OSPFF_LS_MPLS],
@@ -1705,12 +1718,79 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					stlv_len);
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+(i*4), 4,
-					    "Pri %d: %.10g bytes/s (%.0f bits/s)", i,
+					    "Pri (or TE-Class) %d: %.10g bytes/s (%.0f bits/s)", i,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 4 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 4 + i*4) * 8.0);
 		    }
 		    break;
 
+		case MPLS_LINK_BANDWIDTH_CONSTRAINT:
+		    /*
+		      The "Bandwidth Constraints" sub-TLV format is illustrated below:
+		      
+		      0                   1                   2                   3
+		      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		      | BC Model Id   |           Reserved                            |
+		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		      |                       BC0 value                               |
+		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		      //                       . . .                                 //
+		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		      |                       BCh value                               |
+		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		    */
+		    
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s", stlv_name);
+		    
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    
+		    proto_tree_add_item(stlv_tree,
+                                        ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
+                                        tvb, stlv_offset+4, 1, FALSE);
+		    
+		    /* 3 octets reserved +5, +6 and +7 (all 0x00) */
+		    if(tvb_memeql(tvb, stlv_offset+5, allzero, 3) == -1) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 3, 
+					    "Warning: these bytes are reserved and must be 0x00");
+		    }
+		    
+		    if(((stlv_len % 4)!=0)) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len, 
+					    "Malformed Packet: Lenght must be N x 4 octets");
+			break;
+		    }
+		    
+		    /* stlv_len shound range from 4 to 36 bytes */
+		    num_bcs = (stlv_len - 4)/4;
+		    
+		    if(num_bcs>8) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len, 
+					    "Malformed Packet: too many BC (%u)", num_bcs);
+			break;
+		    }
+		    
+		    if(num_bcs==0) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
+					    "Malformed Packet: Bandwidth Constraints sub-TLV with no BC?");
+			break;
+		    }
+		    
+		    for(i = 0; i < num_bcs; i++) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
+					    "BC %d: %.10g bytes/s (%.0f bits/s)", i,
+					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),
+					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
+		    }
+		    break;
+		    
 		case MPLS_LINK_LOCAL_REMOTE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 		    			     "%s: %d (0x%x) - %d (0x%x)", stlv_name,
