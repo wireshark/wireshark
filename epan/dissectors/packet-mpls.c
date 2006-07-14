@@ -50,6 +50,7 @@
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
+#include <epan/ipproto.h>
 #include "packet-ppp.h"
 #include "packet-mpls.h"
 
@@ -584,4 +585,5 @@ proto_reg_handoff_mpls(void)
 	dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
 	dissector_add("gre.proto", ETHERTYPE_MPLS, mpls_handle);
 	dissector_add("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
+    dissector_add("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
 }
