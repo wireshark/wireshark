@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.2pre1">
+  <!ENTITY WiresharkCurrentVersion "0.99.2">
 
 ]>
 
@@ -35,30 +35,114 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	  The XXXXXX dissector could crash.
-	  <!-- Fixed in r#####, r##### -->
-	  <!-- Bug IDs: ### -->
-	  Versions affected: 0.99.0.
+	  The GSM BSSMAP dissector could crash.
+	  <!-- Fixed in r18586 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.11.
+        </para></listitem>
+
+        <listitem><para>
+	  The Checkpoint FW-1 dissector may have been vulnerable to a
+          format string error.
+	  <!-- Fixed in r18677 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.10.
+        </para></listitem>
+
+        <listitem><para>
+	  The MQ dissector was vulnerable to a format string overflow.
+	  <!-- Fixed in r18677 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.4.
+        </para></listitem>
+
+        <listitem><para>
+	  The XML dissector was vulnerable to a format string overflow.
+	  <!-- Fixed in r18677 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.13.
+        </para></listitem>
+
+        <listitem><para>
+	  The MOUNT dissector could attempt to allocate large amounts of
+	  memory.
+	  <!-- Fixed in r18678, r18684, r18693 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.9.4.
+        </para></listitem>
+
+	<listitem><para>
+	  The NCP NMAS and NDPS dissectors were susceptible to
+	  off-by-one errors.
+	  <!-- Fixed in r18678, r18710 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.9.7.
+        </para></listitem>
+
+        <listitem><para>
+	  The NTP dissector was vulnerable to a format string overflow.
+	  <!-- Fixed in r18678 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.13.
+        </para></listitem>
+
+        <listitem><para>
+	  The SSH dissector was vulnerable to an infinite loop.
+	  <!-- Fixed in r18692, r18693 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.9.10.
+        </para></listitem>
+
+        <listitem><para>
+	  The NFS dissector may have been susceptible to a buffer overflow.
+	  <!-- Fixed in r18699 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.8.16.
         </para></listitem>
 
       </itemizedlist>
 
-     <!-- Coverity bugs (r17489 and above) -->
+    </para>
 
-      Under a grant funded by the U.S. Department of Homeland Security,
-      <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered
-      a number of vulnerabilities in Wireshark:
-      <itemizedlist>
+    <para>
 
-        <!-- CID 1 - 149: Fixed for 0.99.0 -->
-        <!-- CID 150: Post-0.99.0 -->
+      The following non-security-related bugs have been fixed:
 
         <listitem><para>
-	  XXXX feature could crash Wireshark.
-	  <!-- Fixed in r##### -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID ### -->
-	  Versions affected: 0.9.16.
+        The "Follow TCP Stream" dialog now wraps long lines.
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark no longer aborts under Windows 95, 98, or ME.
+        </para>
+        <warning><para>
+        Windows 95, 98, and ME do not support memory protection features
+        that are required in order to run Wireshark securely.  It is
+        strongly recommended that you do not run Wireshark on these
+        platforms.
+        </para></listitem>
+
+        <listitem><para>
+        File exports under Windows work again.
+        </para></listitem>
+
+        <listitem><para>
+        Problems with ring buffers under 0.99.0 have been fixed.
+        </para></listitem>
+
+        <listitem><para>
+        It was possible for Wireshark to crash when closing the capture
+        information dialog.  This has been fixed.
+        </para></listitem>
+
+        <listitem><para>
+        It was possible for Wireshark to crash when using the "Find"
+        feature.  This has been fixed.
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark could crash if an interface was removed while viewing
+        the interface list.  This has been fixed.
         </para></listitem>
 
       </itemizedlist>
@@ -73,6 +157,43 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+        Multicast stream analysis (Statistics->Multicast Streams) has been
+        added.  It lets you determine burst size, output buffer size, and
+        losses for multicast data.
+        </para></listitem>
+
+        <listitem><para>
+        TCP reassembly has been updated and improved.
+        </para></listitem>
+
+        <listitem><para>
+        Expert analysis has been updated and improved.
+        </para></listitem>
+
+        <listitem><para>
+        SCSI service response time statistics have been added.
+        </para></listitem>
+
+        <listitem><para>
+        You can now find next/previous marked frames.
+        </para></listitem>
+
+        <listitem><para>
+        The LDAP and SNMP dissectors have been completely rewriten.
+        </para></listitem>
+
+        <listitem><para>
+        The SMB dissector now tracks filenames and share names.
+        </para></listitem>
+
+        <listitem><para>
+        The Windows file dialogs have been improved.
+        </para></listitem>
+
+        <listitem><para>
+        If Wireshark is linked with the PortAudio library, you can now
+        listen to RTP streams.  (PortAudio didn't make the cut in the
+        current Windows installer.  It will be included with 0.99.3.)
         </para></listitem>
 
       </itemizedlist>
@@ -82,16 +203,109 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+Bluetooth HCI (ACL, Command, Event, L2CAP, H4, RFCOMM, SCO, SDP),
+Cisco WIDS,
+DTLS,
+Ether-S-Bus,
+OMA ULP,
+PN-MRP,
+PN-MRRT,
+REXEC (yes, that REXEC),
+RRLP,
+RSerPool (CalcAppProtocol, ComponentStatusProtocol, FractalGeneratorProtocol, PingPongProtocol),
+Telkonet,
+TiVoConnect Discovery Protocol
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+AIM,
+AMR,
+ASAP,
+BER,
+BGP,
+BSSAP,
+BVLC,
+CAMEL,
+CMS,
+COPS,
+DAP,
+DCERPC (NETLOGON, PNIO),
+DCOM,
+DIAMETER,
+DVMRP,
+EAPOL,
+ENRP,
+ESP,
+FC,
+FIX,
+Frame,
+GPRS LLC,
+GSM A,
+GSM MAP,
+GSSAPI,
+GTP,
+H.225,
+H.235,
+H.245,
+H.248,
+H.263,
+H.450,
+H1,
+ICMP,
+IEEE 802.11,
+INAP,
+IP,
+IPMI,
+iSCSI,
+ISUP,
+JXTA,
+Kerberos,
+LDAP,
+LLDP,
+MEGACO,
+MySQL,
+NBAP,
+NDMP,
+NFS,
+OICQ,
+PER,
+PGM,
+PN-PTCP,
+Q.931,
+RANAP,
+RNSAP,
+ROS,
+RTCP,
+S4406,
+S5066,
+SCCP,
+SCSI,
+SDP,
+SIP,
+SMB (PIPE, SMB),
+SNMP,
+SSL,
+SUA,
+TCP,
+TDS,
+TELNET,
+TIPC,
+UMA,
+X.420,
+X.509 (af, ce, if),
+XML
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
+
+    Wireshark can now read BER-encoded files.  Catapult DCT2000 support
+    has been updated.
 
     </para>
     </section>
@@ -178,18 +392,6 @@ Wireshark Info
       It may not be possible to re-order coloring rules under Windows.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
       #699</ulink>)
-    </para>
-
-    <para>
-      Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757">Bug
-      #757</ulink>)
-    </para>
-
-    <para>
-      Wireshark may crash while viewing TCP streams.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug
-      #852</ulink>)
     </para>
 
   </section>
