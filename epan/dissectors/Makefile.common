@@ -490,6 +490,7 @@ DISSECTOR_SRC =	\
 	packet-osi-options.c	\
 	packet-osi.c	\
 	packet-ospf.c	\
+	packet-pana.c	\
 	packet-p_mul.c	\
 	packet-pagp.c	\
 	packet-pcnfsd.c	\

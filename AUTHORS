@@ -2504,6 +2504,10 @@ Krzysztof Burghardt	<krzysztof [AT] burghardt.pl> {
 	KISMET support
 }
 
+Peter Racz		<racz [AT] ifi.unizh.ch> {
+	PANA support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
