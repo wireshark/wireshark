@@ -95,38 +95,11 @@ static int hf_pana_flag_r = -1;
 static int hf_pana_flag_s = -1;
 static int hf_pana_flag_n = -1;
 static int hf_pana_flag_l = -1;
-static int hf_pana_flag_res4 = -1;
-static int hf_pana_flag_res5 = -1;
-static int hf_pana_flag_res6 = -1;
-static int hf_pana_flag_res7 = -1;
-static int hf_pana_flag_res8 = -1;
-static int hf_pana_flag_res9 = -1;
-static int hf_pana_flag_res10 = -1;
-static int hf_pana_flag_res11 = -1;
-static int hf_pana_flag_res12 = -1;
-static int hf_pana_flag_res13 = -1;
-static int hf_pana_flag_res14 = -1;
-static int hf_pana_flag_res15 = -1;
-
 static int hf_pana_avp_code = -1;
 static int hf_pana_avp_length = -1;
 static int hf_pana_avp_flags = -1;
 static int hf_pana_avp_flag_v = -1;
 static int hf_pana_avp_flag_m = -1;
-static int hf_pana_avp_flag_res2 = -1;
-static int hf_pana_avp_flag_res3 = -1;
-static int hf_pana_avp_flag_res4 = -1;
-static int hf_pana_avp_flag_res5 = -1;
-static int hf_pana_avp_flag_res6 = -1;
-static int hf_pana_avp_flag_res7 = -1;
-static int hf_pana_avp_flag_res8 = -1;
-static int hf_pana_avp_flag_res9 = -1;
-static int hf_pana_avp_flag_res10 = -1;
-static int hf_pana_avp_flag_res11 = -1;
-static int hf_pana_avp_flag_res12 = -1;
-static int hf_pana_avp_flag_res13 = -1;
-static int hf_pana_avp_flag_res14 = -1;
-static int hf_pana_avp_flag_res15 = -1;
 static int hf_pana_avp_reserved = -1;
 static int hf_pana_avp_vendorid = -1;
 
@@ -283,19 +256,6 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
        proto_tree_add_boolean(flags_tree, hf_pana_flag_l, tvb, offset, 2, flags);
        if (flags & PANA_FLAG_L)
                proto_item_append_text(flags_item, ", L flag set");
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res4, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res5, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res6, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res7, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res8, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res9, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res10, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res11, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res12, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res13, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res14, tvb, offset, 2, flags);
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_res15, tvb, offset, 2, flags);
-
 }
 
 
@@ -320,21 +280,6 @@ dissect_pana_avp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
        proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_m, tvb, offset, 2, flags);
        if (flags & PANA_AVP_FLAG_M)
                proto_item_append_text(avp_flags_item, ", Mandatory");
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res2, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res3, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res4, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res5, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res6, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res7, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res8, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res9, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res10, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res11, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res12, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res13, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res14, tvb, offset, 2, flags);
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_res15, tvb, offset, 2, flags);
-
 }
 
 
@@ -785,67 +730,6 @@ proto_register_pana(void)
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_L,
                        "", HFILL }
                },
-               { &hf_pana_flag_res4,
-                       { "Reserved","pana.flags.res4",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES4,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res5,
-                       { "Reserved","pana.flags.res5",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES5,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res6,
-                       { "Reserved","pana.flags.res6",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES6,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res7,
-                       { "Reserved","pana.flags.res7",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES7,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res8,
-                       { "Reserved","pana.flags.res8",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES8,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res9,
-                       { "Reserved","pana.flags.res9",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES9,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res10,
-                       { "Reserved","pana.flags.res10",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES10,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res11,
-                       { "Reserved","pana.flags.res11",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES11,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res12,
-                       { "Reserved","pana.flags.res12",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES12,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res13,
-                       { "Reserved","pana.flags.res13",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES13,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res14,
-                       { "Reserved","pana.flags.res14",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES14,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_res15,
-                       { "Reserved","pana.flags.res15",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_RES15,
-                       "", HFILL }
-               },
-
 
                { &hf_pana_msg_type,
                        { "PANA Message Type", "pana.type",
@@ -882,76 +766,6 @@ proto_register_pana(void)
                { &hf_pana_avp_flag_m,
                        { "Mandatory", "pana.avp.flags.m",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_M,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res2,
-                       { "Reserved","pana.avp.flags.res2",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES2,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res3,
-                       { "Reserved","pana.avp.flags.res3",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES3,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res4,
-                       { "Reserved","pana.avp.flags.res4",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES4,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res5,
-                       { "Reserved","pana.avp.flags.res5",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES5,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res6,
-                       { "Reserved","pana.avp.flags.res6",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES6,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res7,
-                       { "Reserved","pana.avp.flags.res7",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES7,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res8,
-                       { "Reserved","pana.avp.flags.res8",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES8,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res9,
-                       { "Reserved","pana.avp.flags.res9",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES9,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res10,
-                       { "Reserved","pana.avp.flags.res10",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES10,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res11,
-                       { "Reserved","pana.avp.flags.res11",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES11,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res12,
-                       { "Reserved","pana.avp.flags.res12",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES12,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res13,
-                       { "Reserved","pana.avp.flags.res13",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES13,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res14,
-                       { "Reserved","pana.avp.flags.res14",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES14,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_flag_res15,
-                       { "Reserved","pana.avp.flags.res15",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_RES15,
                        "", HFILL }
                },
                { &hf_pana_avp_reserved,
