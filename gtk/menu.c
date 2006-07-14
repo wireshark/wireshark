@@ -80,6 +80,7 @@
 #include "color_filters.h"
 #include "ssl-dlg.h"
 #include "sctp_stat.h"
+#include "firewall_dlg.h"
 
 GtkWidget *popup_menu_object;
 
@@ -99,7 +100,7 @@ typedef struct _menu_item {
 
 static GList *tap_menu_tree_root = NULL;
 
-static void 
+static void
 merge_all_tap_menus(GList *node);
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -160,7 +161,7 @@ static void colorize_cb(GtkWidget *w _U_, gpointer d _U_);
 
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
     http://developer.gnome.org/projects/gup/hig/1.0/index.html
-    
+
 Please note: there are some differences between the Gnome HIG menu suggestions and our implementation:
 
 File/Open Recent:   the Gnome HIG suggests putting the list of recently used files as elements into the File menuitem.
@@ -169,7 +170,7 @@ File/Open Recent:   the Gnome HIG suggests putting the list of recently used fil
 
 File/Close:         the Gnome HIG suggests putting this item just above the Quit item.
                     This results in unintuitive behaviour as both Close and Quit items are very near together.
-                    By putting the Close item near the open item(s), it better suggests that it will close the 
+                    By putting the Close item near the open item(s), it better suggests that it will close the
                     currently opened/captured file only.
 */
 
@@ -242,7 +243,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/_Unmark All Packets", NULL, packet_list_unmark_all_frames_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Set Time Reference (toggle)", "<control>T", reftime_frame_cb,
                         REFTIME_TOGGLE, WIRESHARK_STOCK_TIME),
     ITEM_FACTORY_ENTRY("/Edit/Find Next Reference", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Find Previous Reference", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
@@ -259,28 +260,28 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Packet _Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL, timestamp_absolute_date_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL, timestamp_absolute_date_cb,
                         0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day:   01:02:03.123456", NULL, timestamp_absolute_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day:   01:02:03.123456", NULL, timestamp_absolute_cb,
                         0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, timestamp_relative_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, timestamp_relative_cb,
                         0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet:   1.123456", NULL, timestamp_delta_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet:   1.123456", NULL, timestamp_delta_cb,
                         0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Automatic (File Format Precision)", NULL, timestamp_auto_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Automatic (File Format Precision)", NULL, timestamp_auto_cb,
                         0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds:   0", NULL, timestamp_sec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds:   0", NULL, timestamp_sec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Deciseconds:   0.1", NULL, timestamp_dsec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Deciseconds:   0.1", NULL, timestamp_dsec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Centiseconds:   0.12", NULL, timestamp_csec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Centiseconds:   0.12", NULL, timestamp_csec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Milliseconds:   0.123", NULL, timestamp_msec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Milliseconds:   0.123", NULL, timestamp_msec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Microseconds:   0.123456", NULL, timestamp_usec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Microseconds:   0.123456", NULL, timestamp_usec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Nanoseconds:   0.123456789", NULL, timestamp_nsec_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Nanoseconds:   0.123456789", NULL, timestamp_nsec_cb,
                         0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
@@ -348,31 +349,33 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Display Filters...", NULL, dfilter_dialog_cb,
                        0, WIRESHARK_STOCK_DISPLAY_FILTER),
     ITEM_FACTORY_ENTRY("/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... _and Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... _or Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... a_nd not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... a_nd not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... o_r not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... _and Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... _or Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... a_nd not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... a_nd not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND_NOT, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Firewall ACL Rules", NULL,
+                       firewall_rule_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, WIRESHARK_STOCK_CHECKBOX),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
@@ -381,9 +384,9 @@ static GtkItemFactoryEntry menu_items[] =
                        decode_show_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
-                       follow_stream_cb, 0, NULL, NULL),    
+                       follow_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow SSL Stream", NULL,
-                       ssl_stream_cb, 0, NULL, NULL),    
+                       ssl_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/_Summary", NULL, summary_open_cb, 0, GTK_STOCK_PROPERTIES),
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
@@ -434,15 +437,15 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_plist_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/_Not Selected", NULL, match_selected_plist_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/... _and Selected", NULL, match_selected_plist_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _and Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/... _or Selected", NULL, match_selected_plist_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _or Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL, match_selected_plist_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/... o_r not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
@@ -493,7 +496,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/_Not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
@@ -501,13 +504,13 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/... _or Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/_Not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_NOT, NULL, NULL),
@@ -515,7 +518,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        MATCH_SELECTED_AND, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... _or Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare a Filter/... a_nd not Selected", NULL, match_selected_ptree_cb, 
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... a_nd not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_AND_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
@@ -634,15 +637,15 @@ menus_init(void) {
 static gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 {
     return strcmp(
-        ((const menu_item_t *) a)->name, 
+        ((const menu_item_t *) a)->name,
         ((const menu_item_t *) b)->name);
 }
 
 
 /* add a menuitem below the current node */
 static GList * tap_menu_item_add(
-    char *name, 
-    gint group, 
+    char *name,
+    gint group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
@@ -695,7 +698,7 @@ static GList * tap_menu_item_add(
  */
 void
 register_stat_menu_item(
-    const char *name, 
+    const char *name,
     REGISTER_STAT_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
@@ -797,8 +800,8 @@ register_stat_menu_item(
      * the main menu.
      */
     tap_menu_item_add(
-        menupath, group, callback, 
-        selected_packet_enabled, selected_tree_row_enabled, 
+        menupath, group, callback,
+        selected_packet_enabled, selected_tree_row_enabled,
         callback_data, curnode);
 }
 
@@ -860,7 +863,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
     } else {
         /*
          * It's an interior node; call
-         * "merge_tap_menus_layered()" on all its children 
+         * "merge_tap_menus_layered()" on all its children
          */
 
         /*
@@ -895,7 +898,7 @@ void merge_all_tap_menus(GList *node) {
     entry->item_type = "<Separator>";
     entry->path = "/Statistics/";
 
-    /* 
+    /*
      * merge only the menu items of the specific group,
      * and then append a seperator
      */
@@ -937,7 +940,7 @@ set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
   gchar *dest;
 
 
-  /* the underscore character regularly confuses things, as it will prevent finding 
+  /* the underscore character regularly confuses things, as it will prevent finding
    * the menu_item, so it has to be removed first */
   dup = g_strdup(path);
   dest = dup;
@@ -1006,10 +1009,10 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 }
 
 
-/* Recently used capture files submenu: 
+/* Recently used capture files submenu:
  * Submenu containing the recently used capture files.
  * The capture filenames are always kept with the absolute path, to be independant
- * of the current path. 
+ * of the current path.
  * They are only stored inside the labels of the submenu (no separate list). */
 
 #define MENU_RECENT_FILES_PATH "/File/Open Recent"
@@ -1033,7 +1036,7 @@ static void
 update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     guint cnt = 0;
 
-    gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
+    gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
 		update_menu_recent_capture_file1, &cnt);
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
@@ -1069,7 +1072,7 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
 
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-    gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
+    gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
 		remove_menu_recent_capture_file, NULL);
 
     update_menu_recent_capture_file(submenu_recent_files);
@@ -1163,7 +1166,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	/* convert container to a GList */
 	menu_item_list = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
 
-	/* iterate through list items of menu_item_list, 
+	/* iterate through list items of menu_item_list,
 	 * removing special items, a maybe duplicate entry and every item above count_max */
 	cnt = 1;
 	for (li = g_list_first(menu_item_list); li; li = li->next, cnt++) {
@@ -1172,7 +1175,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		widget_cf_name = OBJECT_GET_DATA(menu_item, MENU_RECENT_FILES_KEY);
 
 		/* if this element string is one of our special items (seperator, ...) or
-		 * already in the list or 
+		 * already in the list or
 		 * this element is above maximum count (too old), remove it */
 		if (!widget_cf_name ||
 #ifdef _WIN32
@@ -1198,7 +1201,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
 	OBJECT_SET_DATA(menu_item, MENU_RECENT_FILES_KEY, normalized_cf_name);
 	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
-	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
+	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate",
 		menu_open_recent_file_cmd_cb, (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
 
@@ -1214,7 +1217,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
         menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
 #endif
 	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
-	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
+	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate",
 		clear_menu_recent_capture_file_cmd_cb, (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
 
@@ -1228,8 +1231,8 @@ void
 add_menu_recent_capture_file(gchar *cf_name) {
 	gchar *curr;
 	gchar *absolute;
-	
-	
+
+
 	/* if this filename is an absolute path, we can use it directly */
 	if (g_path_is_absolute(cf_name)) {
 		add_menu_recent_capture_file_absolute(cf_name);
@@ -1341,7 +1344,7 @@ statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 
-static void 
+static void
 timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE) {
@@ -1351,7 +1354,7 @@ timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
@@ -1361,7 +1364,7 @@ timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_RELATIVE) {
@@ -1371,7 +1374,7 @@ timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_DELTA) {
@@ -1381,7 +1384,7 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_AUTO) {
@@ -1392,7 +1395,7 @@ timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_SEC) {
@@ -1402,7 +1405,7 @@ timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_DSEC) {
@@ -1412,7 +1415,7 @@ timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_CSEC) {
@@ -1422,7 +1425,7 @@ timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_MSEC) {
@@ -1432,7 +1435,7 @@ timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_USEC) {
@@ -1442,7 +1445,7 @@ timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 timestamp_nsec_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_FIXED_NSEC) {
@@ -1468,7 +1471,7 @@ menu_name_resolution_changed(void)
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
 }
 
-static void 
+static void
 name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (GTK_CHECK_MENU_ITEM(w)->active) {
@@ -1478,7 +1481,7 @@ name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (GTK_CHECK_MENU_ITEM(w)->active) {
@@ -1488,7 +1491,7 @@ name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
-static void 
+static void
 name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (GTK_CHECK_MENU_ITEM(w)->active) {
@@ -1519,7 +1522,7 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
     }
 }
 
-static void 
+static void
 auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(w)->active);
@@ -1549,7 +1552,7 @@ menu_colorize_changed(gboolean packet_list_colorize) {
     }
 }
 
-static void 
+static void
 colorize_cb(GtkWidget *w, gpointer d _U_)
 {
     menu_colorize_changed(GTK_CHECK_MENU_ITEM(w)->active);
@@ -1598,7 +1601,7 @@ menu_recent_read_finished(void) {
 
     switch(recent.gui_time_format) {
     case(TS_ABSOLUTE_WITH_DATE):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456");
         /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_format = -1;
@@ -1606,20 +1609,20 @@ menu_recent_read_finished(void) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_ABSOLUTE):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Time of Day:   01:02:03.123456");
         /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_RELATIVE):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_DELTA):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Previous Packet:   1.123456");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
@@ -1630,7 +1633,7 @@ menu_recent_read_finished(void) {
 
     switch(recent.gui_time_precision) {
     case(TS_PREC_AUTO):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Automatic (File Format Precision)");
         /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_precision = -1;
@@ -1638,37 +1641,37 @@ menu_recent_read_finished(void) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_SEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds:   0");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_DSEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Deciseconds:   0.1");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_CSEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Centiseconds:   0.12");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_MSEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Milliseconds:   0.123");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_USEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Microseconds:   0.123456");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_NSEC):
-        menu = gtk_item_factory_get_widget(main_menu_factory, 
+        menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Nanoseconds:   0.123456789");
         recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
@@ -1792,7 +1795,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...",
       !capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/File/Open Recent", 
+  set_menu_sensitivity(main_menu_factory, "/File/Open Recent",
       !capture_in_progress);
 #ifdef HAVE_LIBPCAP
   set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
@@ -1908,9 +1911,9 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Statistics/Summary",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Statistics/Protocol Hierarchy", 
+  set_menu_sensitivity(main_menu_factory, "/Statistics/Protocol Hierarchy",
       have_captured_packets);
-      
+
   walk_menu_tree_for_captured_packets(tap_menu_tree_root,
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
@@ -1975,7 +1978,7 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 	return node_data->enabled;
 }
 
-int 
+int
 packet_is_ssl(epan_dissect_t* edt)
 {
   GPtrArray* array;
@@ -2031,6 +2034,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Firewall ACL Rules",
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
@@ -2126,13 +2131,13 @@ set_menus_for_selected_tree_row(capture_file *cf)
   gboolean properties;
 
 
-  set_menu_sensitivity(main_menu_factory, "/File/Export/Selected Packet Bytes...", 
-      cf->finfo_selected != NULL);  
-  set_menu_sensitivity(hexdump_menu_factory, "/Copy", 
+  set_menu_sensitivity(main_menu_factory, "/File/Export/Selected Packet Bytes...",
       cf->finfo_selected != NULL);
-  set_menu_sensitivity(hexdump_menu_factory, "/Export Selected Packet Bytes...", 
+  set_menu_sensitivity(hexdump_menu_factory, "/Copy",
       cf->finfo_selected != NULL);
-  
+  set_menu_sensitivity(hexdump_menu_factory, "/Export Selected Packet Bytes...",
+      cf->finfo_selected != NULL);
+
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {

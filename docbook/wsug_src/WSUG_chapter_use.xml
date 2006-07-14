@@ -5,8 +5,8 @@
   <title>User Interface</title>
   <section id="ChUseIntroductionSection"><title>Introduction</title>
     <para>
-      By now you have installed <application>Wireshark</application> and 
-      are most likely keen to get started capturing your first packets.  In 
+      By now you have installed <application>Wireshark</application> and
+      are most likely keen to get started capturing your first packets.  In
       the next chapters we will explore:
       <itemizedlist>
 	<listitem>
@@ -37,33 +37,33 @@
       </itemizedlist>
     </para>
   </section>
-  
+
   <section id="ChUseStartSection"><title>Start Wireshark</title>
     <para>
 	You can start Wireshark from your shell or window manager.
 	<tip><title>Tip!</title>
 	<para>
-	When starting Wireshark it's possible to specify optional settings using 
+	When starting Wireshark it's possible to specify optional settings using
 	the	command line. See <xref linkend="ChCustCommandLine"/> for details.
 	</para>
 	</tip>
 	<note><title>Note!</title>
 	<para>
-	In the following chapters, a lot of screenshots from Wireshark will be shown. 
-	As Wireshark runs on many different platforms and there are different 
-	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your 
-	screen might look different from the provided screenshots. But as there 
-	are no real differences in functionality, these screenshots should still 
+	In the following chapters, a lot of screenshots from Wireshark will be shown.
+	As Wireshark runs on many different platforms and there are different
+	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your
+	screen might look different from the provided screenshots. But as there
+	are no real differences in functionality, these screenshots should still
 	be well understandable.
 	</para>
 	</note>
 	</para>
   </section>
-  
+
   <section id="ChUseMainWindowSection"><title>The Main window</title>
 	<para>
-      Lets look at Wireshark's user interface. <xref linkend="ChUseFig01"/> shows 
-	Wireshark as you would usually see it after some packets captured or loaded 
+      Lets look at Wireshark's user interface. <xref linkend="ChUseFig01"/> shows
+	Wireshark as you would usually see it after some packets captured or loaded
 	(how to do this will be described later).
 	<figure id="ChUseFig01">
 	  <title>The Main window</title>
@@ -71,7 +71,7 @@
 	</figure>
     </para>
     <para>
-      Wireshark's main window consist of parts that are commonly known from many 
+      Wireshark's main window consist of parts that are commonly known from many
 	  other GUI programs.
       <orderedlist>
 	<listitem>
@@ -82,63 +82,63 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>main toolbar</emphasis> (see <xref linkend="ChUseMainToolbarSection"/>) 
+	    The <emphasis>main toolbar</emphasis> (see <xref linkend="ChUseMainToolbarSection"/>)
 		provides quick access to frequently used items from the menu.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>filter toolbar</emphasis> (see <xref linkend="ChUseFilterToolbarSection"/>) 
-		provides a way to directly manipulate the currently used display filter 
-		(see <xref linkend="ChWorkDisplayFilterSection"/>). 
+	    The <emphasis>filter toolbar</emphasis> (see <xref linkend="ChUseFilterToolbarSection"/>)
+		provides a way to directly manipulate the currently used display filter
+		(see <xref linkend="ChWorkDisplayFilterSection"/>).
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>packet list pane</emphasis> (see <xref linkend="ChUsePacketListPaneSection"/>) 
-		displays a summary of each packet captured.  By clicking on packets 
+	    The <emphasis>packet list pane</emphasis> (see <xref linkend="ChUsePacketListPaneSection"/>)
+		displays a summary of each packet captured.  By clicking on packets
 		in this pane you control what is displayed in the other two panes.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>packet details pane</emphasis> (see <xref linkend="ChUsePacketDetailsPaneSection"/>) 
+	    The <emphasis>packet details pane</emphasis> (see <xref linkend="ChUsePacketDetailsPaneSection"/>)
 		displays the packet selected in the packet list pane in more detail.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>packet bytes pane</emphasis> (see <xref linkend="ChUsePacketBytesPaneSection"/>) 
-		displays the data from the packet selected in the packet list pane, and 
+	    The <emphasis>packet bytes pane</emphasis> (see <xref linkend="ChUsePacketBytesPaneSection"/>)
+		displays the data from the packet selected in the packet list pane, and
 		highlights the field selected in the packet details pane.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <emphasis>statusbar</emphasis> (see <xref linkend="ChUseStatusbarSection"/>) 
-		shows some detailed information about the current program state and 
+	    The <emphasis>statusbar</emphasis> (see <xref linkend="ChUseStatusbarSection"/>)
+		shows some detailed information about the current program state and
 		the captured data.
 	  </para>
 	</listitem>
       </orderedlist>
 	  <tip><title>Tip!</title>
 	  <para>
-	  The layout of the main window can be customized by changing preference settings. 
+	  The layout of the main window can be customized by changing preference settings.
 	  See <xref linkend="ChCustPreferencesSection"/> for details!
 	  </para>
 	  </tip>
     </para>
 	</section>
-	
+
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
-      The Wireshark menu sits on top of the Wireshark window. 
+      The Wireshark menu sits on top of the Wireshark window.
       An example is shown in <xref linkend="ChUseWiresharkMenu"/>.
     </para>
 	<note><title>Note!</title>
 	<para>
-	Menu items will be greyed out if the corresponding feature isn't 
-	available. For example, you cannot save a capture file if you didn't 
+	Menu items will be greyed out if the corresponding feature isn't
+	available. For example, you cannot save a capture file if you didn't
 	capture or load any data before.
 	</para>
 	</note>
@@ -153,8 +153,8 @@
 	<varlistentry><term><command>File</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains items to open and merge capture files, 
-		  save / print / export capture files in whole or in part, 
+	      This menu contains items to open and merge capture files,
+		  save / print / export capture files in whole or in part,
 		  and to quit from Wireshark. See <xref linkend="ChUseFileMenuSection"/>.
 	    </para>
 	  </listitem>
@@ -162,8 +162,8 @@
 	<varlistentry><term><command>Edit</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains items to find a packet, time reference or mark one 
-		  or more packets, set your preferences, 
+	      This menu contains items to find a packet, time reference or mark one
+		  or more packets, set your preferences,
 	      (cut, copy, and paste are not presently implemented).
 		  See <xref linkend="ChUseEditMenuSection"/>.
 	    </para>
@@ -171,8 +171,8 @@
 	</varlistentry>
 	<varlistentry><term><command>View</command></term>
 	  <listitem>
-	    <para>This menu controls the display of the captured data, 
-		including the colorization of packets, zooming the font, 
+	    <para>This menu controls the display of the captured data,
+		including the colorization of packets, zooming the font,
 		show a packet in a separate window, expand and collapse trees in packet details, ....
 		See <xref linkend="ChUseViewMenuSection"/>.
 		</para>
@@ -195,7 +195,7 @@
 	<varlistentry><term><command>Analyze</command></term>
 	  <listitem>
 	    <para>
-		  This menu contains items to manipulate display filters, enable or 
+		  This menu contains items to manipulate display filters, enable or
 		  disable the dissection of protocols, configure user specified decodes
 		  and follow a TCP stream.
 		  See <xref linkend="ChUseAnalyzeMenuSection"/>.
@@ -206,7 +206,7 @@
 	  <listitem>
 	    <para>
 	      This menu contains menu-items to display various statistic windows,
-		  including a summary of the packets that have been captured, 
+		  including a summary of the packets that have been captured,
 		  display protocol hierarchy statistics and much more.
 		  See <xref linkend="ChUseStatisticsMenuSection"/>.
 	    </para>
@@ -215,7 +215,7 @@
 	<varlistentry><term><command>Help</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains items to help the user, like access to some basic 
+	      This menu contains items to help the user, like access to some basic
 		  help, a list of the supported protocols, manual pages, online access
 		  to some of the webpages, and the usual about dialog.
 		  See <xref linkend="ChUseHelpMenuSection"/>.
@@ -223,22 +223,22 @@
 	  </listitem>
 	  </varlistentry>
 	</variablelist>
-      Each of these menu items is described in more detail in the sections 
-	  that follow. 
+      Each of these menu items is described in more detail in the sections
+	  that follow.
     </para>
 	<tip><title>Tip!</title>
 	<para>
-	You can access menu items directly or by pressing the corresponding 
-	accelerator keys, which are shown at the right side of the 
-	menu. For example, you can press the Control (or Strg in German) and the K 
-	keys together to open the capture dialog. 
+	You can access menu items directly or by pressing the corresponding
+	accelerator keys, which are shown at the right side of the
+	menu. For example, you can press the Control (or Strg in German) and the K
+	keys together to open the capture dialog.
 	</para>
 	</tip>
   </section>
 
   <section id="ChUseFileMenuSection"><title>The "File" menu</title>
     <para>
-      The Wireshark file menu contains the fields shown in 
+      The Wireshark file menu contains the fields shown in
       <xref linkend="ChUseTabFile"/>.
     </para>
     <figure id="ChUseWiresharkFileMenu">
@@ -261,8 +261,8 @@
 		<entry><command>Open...</command></entry>
 		<entry>Ctrl+O</entry>
 		<entry><para>
-		    This menu item brings up the file open dialog box that 
-		    allows you to load a capture file for viewing. It is 
+		    This menu item brings up the file open dialog box that
+		    allows you to load a capture file for viewing. It is
 		    discussed in more detail in <xref linkend="ChIOOpen"/>.
 		  </para></entry>
 	      </row>
@@ -270,8 +270,8 @@
 		<entry><command>Open Recent</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item shows a submenu containing the recently opened 
-			capture files. Clicking on one of the submenu items will open the 
+		    This menu item shows a submenu containing the recently opened
+			capture files. Clicking on one of the submenu items will open the
 			corresponding capture file directly.
 		  </para></entry>
 	      </row>
@@ -279,8 +279,8 @@
 		<entry><command>Merge...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up the merge file dialog box that 
-		    allows you to merge a capture file into the currently loaded one. 
+		    This menu item brings up the merge file dialog box that
+		    allows you to merge a capture file into the currently loaded one.
 			It is discussed in more detail in <xref linkend="ChIOMergeSection"/>.
 		  </para></entry>
 	      </row>
@@ -288,7 +288,7 @@
 		<entry><command>Close</command></entry>
 		<entry>Ctrl+W</entry>
 		<entry><para>
-		    This menu item closes the current capture. If you 
+		    This menu item closes the current capture. If you
 		    haven't saved the capture, you will be asked to do so first
 			 (this can be disabled by a preference setting).
 		  </para></entry>
@@ -302,22 +302,22 @@
 		<entry><command>Save</command></entry>
 		<entry>Ctrl+S</entry>
 		<entry><para>
-		    This menu item saves the current capture. If you 
-		    have not set a default capture file name (perhaps with 
-		    the -w &lt;capfile&gt; option), Wireshark pops up the 
-		    Save Capture File As dialog box (which is discussed 
+		    This menu item saves the current capture. If you
+		    have not set a default capture file name (perhaps with
+		    the -w &lt;capfile&gt; option), Wireshark pops up the
+		    Save Capture File As dialog box (which is discussed
 		    further in <xref linkend="ChIOSaveAs"/>).
 		  </para><note>
 		    <title>Note!</title>
 		    <para>
-		      If you have already saved the current capture, this 
+		      If you have already saved the current capture, this
 		      menu item will be greyed out.
 		    </para>
 		  </note><note>
 		    <title>Note!</title>
 		    <para>
-		      You cannot save a live capture while it is in 
-		      progress.  You must stop the capture in order to 
+		      You cannot save a live capture while it is in
+		      progress.  You must stop the capture in order to
 		      save.
 		    </para>
 		  </note></entry>
@@ -326,9 +326,9 @@
 		<entry><command>Save As...</command></entry>
 		<entry>Shift+Ctrl+S</entry>
 		<entry><para>
-		    This menu item allows you to save the current capture 
-		    file to whatever file you would like. It pops up the 
-		    Save Capture File As dialog box (which is discussed 
+		    This menu item allows you to save the current capture
+		    file to whatever file you would like. It pops up the
+		    Save Capture File As dialog box (which is discussed
 		    further in <xref linkend="ChIOSaveAs"/>).
 		  </para></entry>
 	      </row>
@@ -341,8 +341,8 @@
 		<entry><command>File Set > List Files</command></entry>
 		<entry></entry>
 		<entry><para>
-			This menu item allows you to show a list of files in a file set. 
-			It pops up the Wireshark List File Set dialog box (which is 
+			This menu item allows you to show a list of files in a file set.
+			It pops up the Wireshark List File Set dialog box (which is
 			discussed further in <xref linkend="ChIOFileSetSection"/>).
 		  </para></entry>
 	      </row>
@@ -350,8 +350,8 @@
 		<entry><command>File Set > Next File</command></entry>
 		<entry></entry>
 		<entry><para>
-			If the currently loaded file is part of a file set, jump to the 
-			next file in the set. If it isn't part of a file set or just the 
+			If the currently loaded file is part of a file set, jump to the
+			next file in the set. If it isn't part of a file set or just the
 			last file in that set, this item is greyed out.
 		  </para></entry>
 	      </row>
@@ -359,8 +359,8 @@
 		<entry><command>File Set > Previous File</command></entry>
 		<entry></entry>
 		<entry><para>
-			If the currently loaded file is part of a file set, jump to the 
-			previous file in the set. If it isn't part of a file set or just 
+			If the currently loaded file is part of a file set, jump to the
+			previous file in the set. If it isn't part of a file set or just
 			the first file in that set, this item is greyed out.
 		  </para></entry>
 	      </row>
@@ -373,9 +373,9 @@
 		<entry><command>Export > as "Plain Text" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export all, or some, of the packets in 
-		    the capture file to a plain ASCII text file. 
-			It pops up the Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export all, or some, of the packets in
+		    the capture file to a plain ASCII text file.
+			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPlainDialog"/>).
 		  </para></entry>
 	      </row>
@@ -383,9 +383,9 @@
 		<entry><command>Export > as "PostScript" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a PostScript file. 
-			It pops up the Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export the (or some) of the packets in
+		    the capture file to a PostScript file.
+			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPSDialog"/>).
 		  </para></entry>
 	      </row>
@@ -393,9 +393,9 @@
 		<entry><command>Export > as "CSV" (Comma Separated Values packet summary) file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packet summaries in 
-		    the capture file to a .csv file (e.g. used by spreadsheet programs). 
-			It pops up the Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export the (or some) of the packet summaries in
+		    the capture file to a .csv file (e.g. used by spreadsheet programs).
+			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportCSVDialog"/>).
 		  </para></entry>
 	      </row>
@@ -403,9 +403,9 @@
 		<entry><command>Export > as "PSML" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a PSML (packet summary markup language) XML file. 
-			It pops up the Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export the (or some) of the packets in
+		    the capture file to a PSML (packet summary markup language) XML file.
+			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPSMLDialog"/>).
 		  </para></entry>
 	      </row>
@@ -413,9 +413,9 @@
 		<entry><command>Export > as "PDML" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a PDML (packet details markup language) XML file. 
-			It pops up the Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export the (or some) of the packets in
+		    the capture file to a PDML (packet details markup language) XML file.
+			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPDMLDialog"/>).
 		  </para></entry>
 	      </row>
@@ -423,9 +423,9 @@
 		<entry><command>Export > Selected Packet Bytes...</command></entry>
 		<entry>Ctrl+H</entry>
 		<entry><para>
-		    This menu item allows you to export the currently selected bytes 
-			in the packet bytes pane to a binary file. It pops up the 
-			Wireshark Export dialog box (which is discussed further in 
+		    This menu item allows you to export the currently selected bytes
+			in the packet bytes pane to a binary file. It pops up the
+			Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportSelectedDialog"/>)
 		  </para></entry>
 	      </row>
@@ -438,9 +438,9 @@
 		<entry><command>Print...</command></entry>
 		<entry>Ctrl+P</entry>
 		<entry><para>
-		    This menu item allows you to print all (or some of) the packets in 
-		    the capture file. It pops up the Wireshark Print dialog 
-		    box (which is discussed further in 
+		    This menu item allows you to print all (or some of) the packets in
+		    the capture file. It pops up the Wireshark Print dialog
+		    box (which is discussed further in
 		    <xref linkend="ChIOPrintSection"/>).
 		  </para></entry>
 	      </row>
@@ -453,19 +453,19 @@
 		<entry><command>Quit</command></entry>
 		<entry>Ctrl+Q</entry>
 		<entry><para>
-		    This menu item allows you to quit from Wireshark.  
-			Wireshark will ask to save your capture file if you haven't saved 
-			it before (this can be disabled by a preference setting). 
+		    This menu item allows you to quit from Wireshark.
+			Wireshark will ask to save your capture file if you haven't saved
+			it before (this can be disabled by a preference setting).
 		  </para></entry>
 	      </row>
 	    </tbody>
       </tgroup>
     </table>
   </section>
-  
+
   <section id="ChUseEditMenuSection"><title>The "Edit" menu</title>
     <para>
-      The Wireshark Edit menu contains the fields shown in 
+      The Wireshark Edit menu contains the fields shown in
       <xref linkend="ChUseTabEdit"/>.
     </para>
     <figure id="ChUseWiresharkEditMenu">
@@ -489,9 +489,9 @@
 		<entry><command>Find Packet...</command></entry>
 		<entry>Ctrl+F</entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows you 
+		    This menu item brings up a dialog box that allows you
 		    to find a packet by many criteria.
-		    There is further information on finding packets in 
+		    There is further information on finding packets in
 		    <xref linkend="ChWorkFindPacketSection"/>.
 		  </para></entry>
 	      </row>
@@ -499,7 +499,7 @@
 		<entry><command>Find Next</command></entry>
 		<entry>Ctrl+N</entry>
 		<entry><para>
-		    This menu item tries to find the next packet matching the 
+		    This menu item tries to find the next packet matching the
 			settings from "Find Packet...".
 		  </para></entry>
 	      </row>
@@ -507,7 +507,7 @@
 		<entry><command>Find Previous</command></entry>
 		<entry>Ctrl+B</entry>
 		<entry><para>
-		    This menu item tries to find the previous packet matching the 
+		    This menu item tries to find the previous packet matching the
 			settings from "Find Packet...".
 		  </para></entry>
 	      </row>
@@ -520,8 +520,8 @@
 		<entry><command>Time Reference > Set Time Reference (toggle)</command></entry>
 		<entry>Ctrl+T</entry>
 		<entry><para>
-		    This menu item set a time reference on the currently selected 
-			packet. See <xref linkend="ChWorkTimeReferencePacketSection"/> for more information 
+		    This menu item set a time reference on the currently selected
+			packet. See <xref linkend="ChWorkTimeReferencePacketSection"/> for more information
 		      about the time referenced packets.
 		  </para></entry>
 	      </row>
@@ -569,10 +569,10 @@
 		<entry><command>Preferences...</command></entry>
 		<entry>Shift+Ctrl+P</entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows 
-		    you to set preferences for many parameters that control 
-		    Wireshark.  You can also save your preferences so Wireshark 
-		    will use them the next time you start it. More detail 
+		    This menu item brings up a dialog box that allows
+		    you to set preferences for many parameters that control
+		    Wireshark.  You can also save your preferences so Wireshark
+		    will use them the next time you start it. More detail
 		    is provided in <xref linkend="ChCustPreferencesSection"/>.
 		  </para></entry>
 	      </row>
@@ -583,7 +583,7 @@
 
   <section id="ChUseViewMenuSection"><title>The "View" menu</title>
     <para>
-      The Wireshark View menu contains the fields shown in 
+      The Wireshark View menu contains the fields shown in
       <xref linkend="ChUseTabView"/>.
     </para>
     <figure id="ChUseWiresharkViewMenu">
@@ -607,7 +607,7 @@
 		<entry><command>Main Toolbar</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the main toolbar, see 
+		    This menu item hides or shows the main toolbar, see
 		  <xref linkend="ChUseMainToolbarSection"/>.
 		  </para></entry>
 	      </row>
@@ -615,7 +615,7 @@
 		<entry><command>Filter Toolbar</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the filter toolbar, see 
+		    This menu item hides or shows the filter toolbar, see
 		  <xref linkend="ChUseFilterToolbarSection"/>.
 		  </para></entry>
 	      </row>
@@ -623,7 +623,7 @@
 		<entry><command>Statusbar</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the statusbar, see 
+		    This menu item hides or shows the statusbar, see
 		  <xref linkend="ChUseStatusbarSection"/>.
 		  </para></entry>
 	      </row>
@@ -636,7 +636,7 @@
 		<entry><command>Packet List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the packet list pane, see 
+		    This menu item hides or shows the packet list pane, see
 		  <xref linkend="ChUsePacketListPaneSection"/>.
 		  </para></entry>
 	      </row>
@@ -644,7 +644,7 @@
 		<entry><command>Packet Details</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the packet details pane, see 
+		    This menu item hides or shows the packet details pane, see
 		  <xref linkend="ChUsePacketDetailsPaneSection"/>.
 		  </para></entry>
 	      </row>
@@ -652,7 +652,7 @@
 		<entry><command>Packet Bytes</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item hides or shows the packet bytes pane, see 
+		    This menu item hides or shows the packet bytes pane, see
 		  <xref linkend="ChUsePacketBytesPaneSection"/>.
 		  </para></entry>
 	      </row>
@@ -665,13 +665,13 @@
 		<entry><command>Time Display Format > Date and Time of Day:  1970-01-01 01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display the 
-	      time stamps in date and time of day format, see 
+	      Selecting this tells Wireshark to display the
+	      time stamps in date and time of day format, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  <note><title>Note!</title>
 		  <para>
-		  The fields "Time of Day", "Date and Time of 
-	      Day", "Seconds Since Beginning of Capture" and "Seconds Since 
+		  The fields "Time of Day", "Date and Time of
+	      Day", "Seconds Since Beginning of Capture" and "Seconds Since
 	      Previous Packet" are mutually exclusive.
 		  </para>
 		  </note>
@@ -681,17 +681,17 @@
 		<entry><command>Time Display Format > Time of Day:  01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time 
-	      stamps in time of day format, see 
-		  <xref linkend="ChWorkTimeFormatsSection"/>. 
+	      Selecting this tells Wireshark to display time
+	      stamps in time of day format, see
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Time Display Format > Seconds Since Beginning of Capture:  123.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time 
-	      stamps in seconds since beginning of capture format, see 
+	      Selecting this tells Wireshark to display time
+	      stamps in seconds since beginning of capture format, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -699,8 +699,8 @@
 		<entry><command>Time Display Format > Seconds Since Previous Packet:  1.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time stamps in 
-	      seconds since previous packet format, see 
+	      Selecting this tells Wireshark to display time stamps in
+	      seconds since previous packet format, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -713,8 +713,8 @@
 		<entry><command>Time Display Format > Automatic (File Format Precision)</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time stamps with the 
-		  precision given by the capture file format used, see 
+	      Selecting this tells Wireshark to display time stamps with the
+		  precision given by the capture file format used, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  <note><title>Note!</title>
 		  <para>
@@ -727,7 +727,7 @@
 		<entry><command>Time Display Format > Seconds:  0</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time stamps with a precision of one second, see 
+	      Selecting this tells Wireshark to display time stamps with a precision of one second, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -735,7 +735,7 @@
 		<entry><command>Time Display Format > ...seconds:  0....</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see 
+	      Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -743,7 +743,7 @@
 		<entry><command>Name Resolution > Resolve Name</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to trigger a name resolve of the current packet 
+		This item allows you to trigger a name resolve of the current packet
 		only, see <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
 	      </row>
@@ -751,7 +751,7 @@
 		<entry><command>Name Resolution > Enable for MAC Layer</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control whether or not 
+		This item allows you to control whether or not
 		Wireshark translates MAC addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
@@ -760,7 +760,7 @@
 		<entry><command>Name Resolution > Enable for Network Layer</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control whether or not 
+		This item allows you to control whether or not
 		Wireshark translates network addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
@@ -769,7 +769,7 @@
 		<entry><command>Name Resolution > Enable for Transport Layer</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control whether or not 
+		This item allows you to control whether or not
 		Wireshark translates transport addresses into names, see
 		  <xref linkend="ChAdvNameResolutionSection"/>.
 		  </para></entry>
@@ -778,10 +778,10 @@
 		<entry><command>Colorize Packet List</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control wether or not Wireshark should colorize 
+		This item allows you to control wether or not Wireshark should colorize
 		the packet list.</para>
 		<note><title>Note!</title><para>
-		Enabling colorization will slow down the display 
+		Enabling colorization will slow down the display
 		of new packets while capturing / loading capture files.
 		  </para></note></entry>
 	      </row>
@@ -789,11 +789,11 @@
 		<entry><command>Auto Scroll in Live Capture</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to specify that Wireshark 
-		should scroll the packet list pane as new packets come 
-		in, so you are always looking at the last packet.  If you 
-		do not specify this, Wireshark simply adds new packets onto 
-		the end of the list, but does not scroll the packet list 
+		This item allows you to specify that Wireshark
+		should scroll the packet list pane as new packets come
+		in, so you are always looking at the last packet.  If you
+		do not specify this, Wireshark simply adds new packets onto
+		the end of the list, but does not scroll the packet list
 		pane.
 		  </para></entry>
 	      </row>
@@ -830,7 +830,7 @@
 		  Resize all column widths so the content will fit into it.
 		  </para>
 		  <note><title>Note!</title><para>
-		  Resizing may take a significant amount of time, especially if a 
+		  Resizing may take a significant amount of time, especially if a
 		  large capture file is loaded.
 		  </para></note>
 		  </entry>
@@ -844,27 +844,27 @@
 		<entry><command>Expand Subtrees</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item expands the currently selected subtree in the 
-			packet details tree. 
+		    This menu item expands the currently selected subtree in the
+			packet details tree.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Expand All</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Wireshark keeps a list of all the protocol subtrees 
-		    that are expanded, and uses it to ensure that the 
-		    correct subtrees are expanded when you display a packet. 
-		    This menu item expands all subtrees in all packets in 
-		    the capture. 
+		    Wireshark keeps a list of all the protocol subtrees
+		    that are expanded, and uses it to ensure that the
+		    correct subtrees are expanded when you display a packet.
+		    This menu item expands all subtrees in all packets in
+		    the capture.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Collapse All</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item collapses the tree view of all packets 
-		    in the capture list.  
+		    This menu item collapses the tree view of all packets
+		    in the capture list.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -876,9 +876,9 @@
 		<entry><command>Coloring Rules...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows you 
-		    to color packets in the packet list pane according to 
-		    filter expressions you choose. It can be very useful 
+		    This menu item brings up a dialog box that allows you
+		    to color packets in the packet list pane according to
+		    filter expressions you choose. It can be very useful
 		    for spotting certain types of packets, see
 		  <xref linkend="ChCustColorizationSection"/>.
 		  </para></entry>
@@ -892,16 +892,16 @@
 		<entry><command>Show Packet in New Window</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up the selected packet in a 
-		    separate window. The separate window shows only the 
-		    tree view and byte view panes. 
+		    This menu item brings up the selected packet in a
+		    separate window. The separate window shows only the
+		    tree view and byte view panes.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Reload</command></entry>
 		<entry>Ctrl-R</entry>
 		<entry><para>
-		    This menu item allows you to reload the current 
+		    This menu item allows you to reload the current
 		    capture file.
 		  </para></entry>
 	      </row>
@@ -912,7 +912,7 @@
 
   <section id="ChUseGoMenuSection"><title>The "Go" menu</title>
     <para>
-      The Wireshark Go menu contains the fields shown in 
+      The Wireshark Go menu contains the fields shown in
       <xref linkend="ChUseTabGo"/>.
     </para>
     <figure id="ChUseWiresharkGoMenu">
@@ -936,7 +936,7 @@
 		<entry><command>Back</command></entry>
 		<entry>Alt+Left</entry>
 		<entry><para>
-		    Jump to the recently visited packet in the packet 
+		    Jump to the recently visited packet in the packet
 			history, much like the page history in a web browser.
 		  </para></entry>
 	      </row>
@@ -944,7 +944,7 @@
 		<entry><command>Forward</command></entry>
 		<entry>Alt+Right</entry>
 		<entry><para>
-		    Jump to the next visited packet in the packet 
+		    Jump to the next visited packet in the packet
 			history, much like the page history in a web browser.
 		  </para></entry>
 	      </row>
@@ -952,7 +952,7 @@
 		<entry><command>Go to Packet...</command></entry>
 		<entry>Ctrl-G</entry>
 		<entry><para>
-		    Bring up a dialog box that allows you 
+		    Bring up a dialog box that allows you
 		    to specify a packet number, and then goes to that packet. See
 			<xref linkend="ChWorkGoToPacketSection"/> for details.
 		  </para></entry>
@@ -961,8 +961,8 @@
 		<entry><command>Go to Corresponding Packet</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Go to the corresponding packet of the currently 
-			selected protocol field. If the selected field doesn't correspond 
+		    Go to the corresponding packet of the currently
+			selected protocol field. If the selected field doesn't correspond
 			to a packet, this item is greyed out.
 		  </para></entry>
 	      </row>
@@ -992,7 +992,7 @@
 
   <section id="ChUseCaptureMenuSection"><title>The "Capture" menu</title>
     <para>
-      The Wireshark Capture menu contains the fields shown in 
+      The Wireshark Capture menu contains the fields shown in
       <xref linkend="ChUseTabCap"/>.
     </para>
     <figure id="ChUseWiresharkCaptureMenu">
@@ -1016,7 +1016,7 @@
 		<entry><command>Interfaces...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box that shows what's going on 
+		    This menu item brings up a dialog box that shows what's going on
 			at the network interfaces Wireshark knows of, see
 			<xref linkend="ChCapInterfaceSection"/>) .
 		  </para></entry>
@@ -1025,9 +1025,9 @@
 		<entry><command>Options...</command></entry>
 		<entry>Ctrl+K</entry>
 		<entry><para>
-		    This menu item brings up the Capture Options 
-		    dialog box (discussed further in 
-		    <xref linkend="ChCapCaptureOptions"/>) and allows you to 
+		    This menu item brings up the Capture Options
+		    dialog box (discussed further in
+		    <xref linkend="ChCapCaptureOptions"/>) and allows you to
 		      start capturing packets.
 		  </para></entry>
 	      </row>
@@ -1035,7 +1035,7 @@
 		<entry><command>Start</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Immediately start capturing packets with the same settings than 
+		    Immediately start capturing packets with the same settings than
 			the last time.
 		  </para></entry>
 	      </row>
@@ -1051,7 +1051,7 @@
 		<entry><command>Restart</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item stops the currently running capture and starts 
+		    This menu item stops the currently running capture and starts
 			again with the same options, this is just for convenience.
 		  </para></entry>
 	      </row>
@@ -1059,10 +1059,10 @@
 		<entry><command>Capture Filters...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows you to 
-		    create and edit capture filters. You can name filters, 
-		    and you can save them for future use. More detail on 
-		    this subject is provided in 
+		    This menu item brings up a dialog box that allows you to
+		    create and edit capture filters. You can name filters,
+		    and you can save them for future use. More detail on
+		    this subject is provided in
 		    <xref linkend="ChWorkDefineFilterSection"/>
 		  </para></entry>
 	      </row>
@@ -1070,10 +1070,10 @@
       </tgroup>
     </table>
   </section>
-  
+
   <section id="ChUseAnalyzeMenuSection"><title>The "Analyze" menu</title>
     <para>
-      The Wireshark Analyze menu contains the fields shown in 
+      The Wireshark Analyze menu contains the fields shown in
       <xref linkend="ChUseAnalyze"/>.
     </para>
     <figure id="ChUseWiresharkAnalyzeMenu">
@@ -1096,10 +1096,10 @@
 		<entry><command>Display Filters...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows you 
-		    to create and edit display filters. You can name 
-		    filters, and you can save them for future use. More 
-		    detail on this subject is provided in 
+		    This menu item brings up a dialog box that allows you
+		    to create and edit display filters. You can name
+		    filters, and you can save them for future use. More
+		    detail on this subject is provided in
 		    <xref linkend="ChWorkDefineFilterSection"/>
 		  </para></entry>
 	      </row>
@@ -1107,9 +1107,9 @@
 		<entry><command>Apply as Filter > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-			These menu items will change the current display filter and apply 
+			These menu items will change the current display filter and apply
 			the changed filter immediately. Depending on the chosen menu item,
-			the current display filter string will be replaced or appended to 
+			the current display filter string will be replaced or appended to
 			by the selected protocol field in the packet details pane.
 		  </para></entry>
 	      </row>
@@ -1117,10 +1117,23 @@
 		<entry><command>Prepare a Filter > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-			These menu items will change the current display filter but won't 
+			These menu items will change the current display filter but won't
 			apply the changed filter. Depending on the chosen menu item,
 			the current display filter string will be replaced or appended to
 			by the selected protocol field in the packet details pane.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Firewall ACL Rules</command></entry>
+		<entry></entry>
+		<entry><para>
+		  This allows you to create command-line ACL rules for many different
+			firewall products, including Cisco IOS, Linux Netfilter (iptables),
+			OpenBSD pf and Windows Firewall (via netsh).  Rules for MAC addresses,
+			IPv4 addresses, TCP and UDP ports, and IPv4+port combinations are
+			supported.
+			</para><para>
+			It is assumed that the rules will be applied to an outside interface.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1132,7 +1145,7 @@
 		<entry><command>Enabled Protocols...</command></entry>
 		<entry>Shift+Ctrl+R</entry>
 		<entry><para>
-			This menu item allows the user to enable/disable protocol 
+			This menu item allows the user to enable/disable protocol
 			dissectors, see <xref linkend="ChAdvEnabledProtocols"/>
 		  </para></entry>
 	      </row>
@@ -1140,8 +1153,8 @@
 		<entry><command>Decode As...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force Wireshark to 
-		    decode certain packets as a particular protocol, see 
+		    This menu item allows the user to force Wireshark to
+		    decode certain packets as a particular protocol, see
 			<xref linkend="ChAdvDecodeAs"/>
 		  </para></entry>
 	      </row>
@@ -1149,8 +1162,8 @@
 		<entry><command>User Specified Decodes...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force Wireshark to 
-		    decode certain packets as a particular protocol, see 
+		    This menu item allows the user to force Wireshark to
+		    decode certain packets as a particular protocol, see
 			<xref linkend="ChAdvDecodeAsShow"/>
 		  </para></entry>
 	      </row>
@@ -1163,8 +1176,8 @@
 		<entry><command>Follow TCP Stream</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a separate window and displays 
-		    all the TCP segments captured that are on the same TCP 
+		    This menu item brings up a separate window and displays
+		    all the TCP segments captured that are on the same TCP
 		    connection as a selected packet, see
 		    <xref linkend="ChAdvFollowTCPSection"/>
 		  </para></entry>
@@ -1176,7 +1189,7 @@
 
   <section id="ChUseStatisticsMenuSection"><title>The "Statistics" menu</title>
     <para>
-      The Wireshark Statistics menu contains the fields shown in 
+      The Wireshark Statistics menu contains the fields shown in
       <xref linkend="ChUseStatistics"/>.
     </para>
     <figure id="ChUseWiresharkStatisticsMenu">
@@ -1184,7 +1197,7 @@
       <graphic entityref="WiresharkStatisticsMenu" format="PNG"/>
     </figure>
     <para>
-	All menu items will bring up a new window showing specific statistical 
+	All menu items will bring up a new window showing specific statistical
 	information.
     </para>
     <table id="ChUseStatistics" frame="none">
@@ -1204,15 +1217,15 @@
 		<entry><command>Summary</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Show information about the data captured, see <xref 
-			linkend="ChStatSummary"/>. 
+		    Show information about the data captured, see <xref
+			linkend="ChStatSummary"/>.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Protocol Hierarchy</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a hierarchical tree of protocol statistics, see <xref 
+		    Display a hierarchical tree of protocol statistics, see <xref
 			linkend="ChStatHierarchy"/>.
 		  </para></entry>
 	      </row>
@@ -1220,7 +1233,7 @@
 		<entry><command>Conversations</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of conversations (traffic between two endpoints), 
+		    Display a list of conversations (traffic between two endpoints),
 			see <xref linkend="ChStatConversationsWindow"/>.
 		  </para></entry>
 	      </row>
@@ -1228,7 +1241,7 @@
 		<entry><command>Endpoints</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of endpoints (traffic to/from an address), see 
+		    Display a list of endpoints (traffic to/from an address), see
 			<xref linkend="ChStatEndpointsWindow"/>.
 		  </para></entry>
 	      </row>
@@ -1236,7 +1249,7 @@
 		<entry><command>IO Graphs</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display user specified graphs (e.g. the number of packets in the 
+		    Display user specified graphs (e.g. the number of packets in the
 			course of time), see <xref linkend="ChStatIOGraphs"/>.
 		  </para></entry>
 	      </row>
@@ -1249,8 +1262,8 @@
 		<entry><command>Conversation List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of conversations, obsoleted by the combined window 
-			of Conversations above, see 
+		    Display a list of conversations, obsoleted by the combined window
+			of Conversations above, see
 			<xref linkend="ChStatConversationListWindow"/>.
 		  </para></entry>
 	      </row>
@@ -1258,8 +1271,8 @@
 		<entry><command>Endpoint List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of endpoints, obsoleted by the combined window 
-			of Endpoints above, see 
+		    Display a list of endpoints, obsoleted by the combined window
+			of Endpoints above, see
 			<xref linkend="ChStatEndpointListWindow"/>.
 		  </para></entry>
 	      </row>
@@ -1267,7 +1280,7 @@
 		<entry><command>Service Response Time</command></entry>
 		<entry></entry>
 		<entry><para>
-			Display the time between a request and the corresponding response, see 
+			Display the time between a request and the corresponding response, see
 			<xref linkend="ChStatSRT"/>.
 		  </para></entry>
 	      </row>
@@ -1360,10 +1373,10 @@
       </tgroup>
     </table>
   </section>
-  
+
   <section id="ChUseHelpMenuSection"><title>The "Help" menu</title>
     <para>
-      The Wireshark Help menu contains the fields shown in 
+      The Wireshark Help menu contains the fields shown in
       <xref linkend="ChUseHelp"/>.
     </para>
     <figure id="ChUseWiresharkHelpMenu">
@@ -1394,7 +1407,7 @@
 		<entry><command>Supported Protocols</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box showing the supported 
+		    This menu item brings up a dialog box showing the supported
 			protocols and protocol fields.
 		  </para></entry>
 	      </row>
@@ -1402,7 +1415,7 @@
 		<entry><command>Manual Pages > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item starts a Web browser showing one of the locally 
+		    This menu item starts a Web browser showing one of the locally
 			installed html manual pages.
 		  </para></entry>
 	      </row>
@@ -1410,8 +1423,8 @@
 		<entry><command>Wireshark Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item starts a Web browser showing the chosen 
-			webpage from: 
+		    This menu item starts a Web browser showing the chosen
+			webpage from:
 			<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
 		  </para></entry>
 	      </row>
@@ -1424,8 +1437,8 @@
 		<entry><command>About Wireshark</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up an information window that 
-		    provides some information on Wireshark, such as the plugins, the 
+		    This menu item brings up an information window that
+		    provides some information on Wireshark, such as the plugins, the
 			used folders, ...
 		  </para></entry>
 	      </row>
@@ -1440,22 +1453,22 @@
 	</note>
 	<note><title>Note!</title>
 	<para>
-	If calling a Web browser fails on your machine, maybe because just nothing 
-	happens or the browser is started but no page is shown, have a look at the 
+	If calling a Web browser fails on your machine, maybe because just nothing
+	happens or the browser is started but no page is shown, have a look at the
 	webbrowser setting in the preferences dialog.
 	</para>
 	</note>
-  </section> 
+  </section>
 
   <section id="ChUseMainToolbarSection"><title>The "Main" toolbar</title>
     <para>
-      The main toolbar provides quick access to frequently used items from the 
+      The main toolbar provides quick access to frequently used items from the
 	  menu. This toolbar cannot be customized by the user, but it can be hidden
-	  using the View menu, if the space on the screen is needed to show even 
+	  using the View menu, if the space on the screen is needed to show even
 	  more packet data.
     </para>
     <para>
-	As in the menu, only the items useful in the current program state will 
+	As in the menu, only the items useful in the current program state will
 	be available. The others will be greyed out (e.g. you cannot save a capture
 	file if you haven't loaded one).
     <figure id="ChUseWiresharkMainToolbar">
@@ -1483,8 +1496,8 @@
 		<entry><command>Interfaces...</command></entry>
 		<entry>Capture/Interfaces...</entry>
 		<entry><para>
-		    This item brings up the Capture Interfaces List 
-		    dialog box (discussed further in 
+		    This item brings up the Capture Interfaces List
+		    dialog box (discussed further in
 		    <xref linkend="ChCapCapturingSection"/>).
 		  </para>
 		  </entry>
@@ -1494,9 +1507,9 @@
 		<entry><command>Options...</command></entry>
 		<entry>Capture/Options...</entry>
 		<entry><para>
-		    This item brings up the Capture Options 
-		    dialog box (discussed further in 
-		    <xref linkend="ChCapCapturingSection"/>) and allows you to 
+		    This item brings up the Capture Options
+		    dialog box (discussed further in
+		    <xref linkend="ChCapCapturingSection"/>) and allows you to
 		      start capturing packets.
 		  </para>
 		  </entry>
@@ -1506,7 +1519,7 @@
 		<entry><command>Start</command></entry>
 		<entry>Capture/Start</entry>
 		<entry><para>
-		    This item starts capturing packets with the options form 
+		    This item starts capturing packets with the options form
 			the last time.
 		  </para>
 		  </entry>
@@ -1516,7 +1529,7 @@
 		<entry><command>Stop</command></entry>
 		<entry>Capture/Stop</entry>
 		<entry><para>
-		    This item stops the currently running live capture process 
+		    This item stops the currently running live capture process
 			<xref linkend="ChCapCapturingSection"/>).
 		  </para>
 		  </entry>
@@ -1526,7 +1539,7 @@
 		<entry><command>Restart</command></entry>
 		<entry>Capture/Restart</entry>
 		<entry><para>
-		    This item stops the currently running live capture process 
+		    This item stops the currently running live capture process
 			and restarts it again, for convenience.
 		  </para>
 		  </entry>
@@ -1541,8 +1554,8 @@
 		<entry><command>Open...</command></entry>
 		<entry>File/Open...</entry>
 		<entry><para>
-		    This item brings up the file open dialog box that 
-		    allows you to load a capture file for viewing. It is 
+		    This item brings up the file open dialog box that
+		    allows you to load a capture file for viewing. It is
 		    discussed in more detail in <xref linkend="ChIOOpen"/>.
 		  </para></entry>
 	      </row>
@@ -1551,14 +1564,14 @@
 		<entry><command>Save As...</command></entry>
 		<entry>File/Save As...</entry>
 		<entry><para>
-		    This item allows you to save the current capture file to whatever 
-			file you would like. It pops up the Save Capture File As dialog 
-			box (which is discussed further in <xref linkend="ChIOSaveAs"/>). 
+		    This item allows you to save the current capture file to whatever
+			file you would like. It pops up the Save Capture File As dialog
+			box (which is discussed further in <xref linkend="ChIOSaveAs"/>).
 			</para>
 			<note><title>Note!</title>
 			<para>
-			If you currently have a temporary capture file, the Save icon 
-			<inlinegraphic entityref="WiresharkToolbarSave" format="PNG"/> will be 
+			If you currently have a temporary capture file, the Save icon
+			<inlinegraphic entityref="WiresharkToolbarSave" format="PNG"/> will be
 			shown instead.
 		  </para></note>
 		  </entry>
@@ -1568,7 +1581,7 @@
 		<entry><command>Close</command></entry>
 		<entry>File/Close</entry>
 		<entry><para>
-		    This item closes the current capture. If you 
+		    This item closes the current capture. If you
 		    have not saved the capture, you will be asked to save it first.
 		  </para></entry>
 	      </row>
@@ -1585,9 +1598,9 @@
 		<entry><command>Print...</command></entry>
 		<entry>File/Print...</entry>
 		<entry><para>
-		    This item allows you to print all (or some of) the packets in 
-		    the capture file. It pops up the Wireshark Print dialog 
-		    box (which is discussed further in 
+		    This item allows you to print all (or some of) the packets in
+		    the capture file. It pops up the Wireshark Print dialog
+		    box (which is discussed further in
 		    <xref linkend="ChIOPrintSection"/>).
 		  </para></entry>
 	      </row>
@@ -1601,8 +1614,8 @@
 		<entry><command>Find Packet...</command></entry>
 		<entry>Edit/Find Packet...</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows you 
-		    to find a packet. There is further information on finding packets 
+		    This item brings up a dialog box that allows you
+		    to find a packet. There is further information on finding packets
 			in <xref linkend="ChWorkFindPacketSection"/>.
 		  </para></entry>
 	      </row>
@@ -1627,7 +1640,7 @@
 		<entry><command>Go to Packet...</command></entry>
 		<entry>Go/Go to Packet...</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows you 
+		    This item brings up a dialog box that allows you
 		    to specify a packet number to go to that packet.
 		  </para></entry>
 	      </row>
@@ -1646,7 +1659,7 @@
 		<entry><para>
 		    This item jumps to the last packet of the capture file.
 		  </para></entry>
-	      </row>		  
+	      </row>
 	      <row>
 		<entry><command>------</command></entry>
 		<entry></entry>
@@ -1715,10 +1728,10 @@
 		<entry><command>Capture Filters...</command></entry>
 		<entry>Capture/Capture Filters...</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows you to 
-		    create and edit capture filters. You can name filters, 
-		    and you can save them for future use. More detail on 
-		    this subject is provided in 
+		    This item brings up a dialog box that allows you to
+		    create and edit capture filters. You can name filters,
+		    and you can save them for future use. More detail on
+		    this subject is provided in
 		    <xref linkend="ChWorkDefineFilterSection"/>.
 		  </para></entry>
 	      </row>
@@ -1727,10 +1740,10 @@
 		<entry><command>Display Filters...</command></entry>
 		<entry>Analyze/Display Filters...</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows you 
-		    to create and edit display filters. You can name 
-		    filters, and you can save them for future use. More 
-		    detail on this subject is provided in 
+		    This item brings up a dialog box that allows you
+		    to create and edit display filters. You can name
+		    filters, and you can save them for future use. More
+		    detail on this subject is provided in
 		    <xref linkend="ChWorkDefineFilterSection"/>.
 		  </para></entry>
 	      </row>
@@ -1739,11 +1752,11 @@
 		<entry><command>Coloring Rules...</command></entry>
 		<entry>View/Coloring Rules...</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows you 
-		    color packets in the packet list pane according to 
-		    filter expressions you choose. It can be very useful 
-		    for spotting certain types of packets. More 
-		    detail on this subject is provided in 
+		    This item brings up a dialog box that allows you
+		    color packets in the packet list pane according to
+		    filter expressions you choose. It can be very useful
+		    for spotting certain types of packets. More
+		    detail on this subject is provided in
 		    <xref linkend="ChCustColorizationSection"/>.
 		  </para></entry>
 	      </row>
@@ -1752,10 +1765,10 @@
 		<entry><command>Preferences...</command></entry>
 		<entry>Edit/Preferences</entry>
 		<entry><para>
-		    This item brings up a dialog box that allows 
-		    you to set preferences for many parameters that control 
-		    Wireshark.  You can also save your preferences so Wireshark 
-		    will use them the next time you start it. More detail 
+		    This item brings up a dialog box that allows
+		    you to set preferences for many parameters that control
+		    Wireshark.  You can also save your preferences so Wireshark
+		    will use them the next time you start it. More detail
 		    is provided in <xref linkend="ChCustPreferencesSection"/>
 		  </para></entry>
 	      </row>
@@ -1775,12 +1788,12 @@
 	    </tbody>
       </tgroup>
     </table>
-  </section> 
-	  
+  </section>
+
   <section id="ChUseFilterToolbarSection"><title>The "Filter" toolbar</title>
     <para>
-      The filter toolbar lets you quickly edit and apply display filters. More information on 
-	    display filters is available in <xref linkend="ChWorkDisplayFilterSection"/>. 
+      The filter toolbar lets you quickly edit and apply display filters. More information on
+	    display filters is available in <xref linkend="ChWorkDisplayFilterSection"/>.
     <figure id="ChUseWiresharkFilterToolbar">
       <title>The "Filter" toolbar</title>
       <graphic entityref="WiresharkFilterToolbar" format="PNG"/>
@@ -1788,25 +1801,25 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The leftmost button labeled "Filter:" can be clicked to 
+	    The leftmost button labeled "Filter:" can be clicked to
 	    bring up the filter construction dialog, described in <xref linkend="FiltersDialog"/>.
 	  </para>
 	</listitem>
-	<listitem> 
+	<listitem>
 	  <para>
 	    The left middle text box provides an area to enter or edit display
 	    filter strings, see <xref linkend="ChWorkBuildDisplayFilterSection"/>
-		. A syntax check of your filter string is done while you are typing. 
-		The background will turn red if you enter an incomplete or invalid 
-		string, and will become green when you enter a valid string. You can 
-		click on the pull down arrow to select a previously-entered filter 
-		string from a list. The entries in the pull down list will remain 
+		. A syntax check of your filter string is done while you are typing.
+		The background will turn red if you enter an incomplete or invalid
+		string, and will become green when you enter a valid string. You can
+		click on the pull down arrow to select a previously-entered filter
+		string from a list. The entries in the pull down list will remain
 		available even after a program restart.
 	  </para>
 	  <note><title>Note!</title>
 	  <para>
-	  	After you've changed something in this field, don't forget to press 
-		the Apply button (or the Enter/Return key), to apply this filter 
+	  	After you've changed something in this field, don't forget to press
+		the Apply button (or the Enter/Return key), to apply this filter
 		string to the display.
 	  </para>
 	  </note>
@@ -1819,19 +1832,19 @@
 	<listitem>
 	  <para>
 	    The middle button labeled "Add Expression..." opens a dialog box that lets
-		you edit a display filter from a list of protocol fields, described in 
+		you edit a display filter from a list of protocol fields, described in
 		 <xref linkend="ChWorkFilterAddExpressionSection"/>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The right middle button labeled "Clear" resets the current 
+	    The right middle button labeled "Clear" resets the current
 	    display filter and clears the edit area.
 	  </para>
 	</listitem>
 	<listitem>
-	  <para> 
-	    The rightmost button labeled "Apply" applies the current 
+	  <para>
+	    The rightmost button labeled "Apply" applies the current
 	    value in the edit area as the new display filter.
 	  </para>
 	</listitem>
@@ -1842,36 +1855,36 @@
 		Applying a display filter on large capture files might take quite a long time!
 	  </para>
 	  </note>
-  </section> 
-	  
+  </section>
+
   <section id="ChUsePacketListPaneSection"><title>The "Packet List" pane</title>
     <para>
-      The packet list pane displays all the packets in the current capture 
+      The packet list pane displays all the packets in the current capture
 	  file.
     <figure id="ChUseWiresharkListPane">
       <title>The "Packet List" pane</title>
       <graphic entityref="WiresharkListPane" format="PNG"/>
     </figure>
-	Each line in the packet list corresponds to one packet in the capture 
-	file. If you select a line in this pane, more details will be displayed in 
+	Each line in the packet list corresponds to one packet in the capture
+	file. If you select a line in this pane, more details will be displayed in
 	the "Packet Details" and "Packet Bytes" panes.
     </para>
     <para>
-	While dissecting a packet, Wireshark will place information from the 
+	While dissecting a packet, Wireshark will place information from the
 	protocol dissectors into the columns. As higher level protocols might
-	overwrite information from lower levels, you will typically see the 
-	information from the highest possible level only. 
+	overwrite information from lower levels, you will typically see the
+	information from the highest possible level only.
     </para>
-    <para>	
+    <para>
 	For example, let's look at a packet containing TCP inside IP inside
-	an Ethernet packet. The Ethernet dissector will write its data (such as 
-	the Ethernet addresses), the IP dissector will overwrite this by its own 
-	(such as the IP addresses), the TCP dissector will overwrite the IP 
+	an Ethernet packet. The Ethernet dissector will write its data (such as
+	the Ethernet addresses), the IP dissector will overwrite this by its own
+	(such as the IP addresses), the TCP dissector will overwrite the IP
 	information, and so on.
     </para>
     <para>
-	There are a lot of different columns available. Which columns are 
-	displayed can be selected by preference settings, see 
+	There are a lot of different columns available. Which columns are
+	displayed can be selected by preference settings, see
 	<xref linkend="ChCustPreferencesSection"/>.
     </para>
     <para>
@@ -1879,19 +1892,19 @@
 	<itemizedlist>
 	<listitem>
 	  <para><command>No.</command>
-	  The number of the packet in the capture file. This number won't change, 
+	  The number of the packet in the capture file. This number won't change,
 	  even if a display filter is used.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para><command>Time</command>
-	  The timestamp of the packet. The presentation format of this timestamp 
+	  The timestamp of the packet. The presentation format of this timestamp
 	  can be changed, see <xref linkend="ChWorkTimeFormatsSection"/>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para><command>Source</command>
-	  The address where this packet is coming from. 
+	  The address where this packet is coming from.
 	  </para>
 	</listitem>
 	<listitem>
@@ -1912,14 +1925,14 @@
 	</itemizedlist>
     </para>
     <para>
-	There is a context menu (right mouse click) available, see details in 
+	There is a context menu (right mouse click) available, see details in
 	<xref linkend="ChWorkPacketListPanePopUpMenu"/>.
     </para>
-  </section> 	  
+  </section>
 
   <section id="ChUsePacketDetailsPaneSection"><title>The "Packet Details" pane</title>
     <para>
-      The packet details pane shows the current packet (selected in the "Packet List" 
+      The packet details pane shows the current packet (selected in the "Packet List"
 	  pane) in a more detailed form.
     <figure id="ChUseWiresharkDetailsPane">
       <title>The "Packet Details" pane</title>
@@ -1927,42 +1940,42 @@
     </figure>
     </para>
     <para>
-	This pane shows the protocols and protocol fields of the packet selected 
-	in the "Packet List" pane. The protocols and fields of the packet are 
-	displayed using a tree, which can be expanded and collapsed. 
-    </para>	
+	This pane shows the protocols and protocol fields of the packet selected
+	in the "Packet List" pane. The protocols and fields of the packet are
+	displayed using a tree, which can be expanded and collapsed.
+    </para>
     <para>
-	There is a context menu (right mouse click) available, see details in 
+	There is a context menu (right mouse click) available, see details in
 	<xref linkend="ChWorkPacketDetailsPanePopUpMenu"/>.
     </para>
     <para>
-	Some protocol fields are specially displayed. 
-    </para>	
+	Some protocol fields are specially displayed.
+    </para>
 	<itemizedlist>
 	<listitem>
     <para>
 	<command>Generated fields</command>
-	Wireshark itself will generate additional protocol fields which are 
-	surrounded by brackets. The information in these fields is derived from the 
-	known context to other packets in the capture file. For example, Wireshark 
-	is doing a sequence/acknowledge analysis of each TCP stream, 
+	Wireshark itself will generate additional protocol fields which are
+	surrounded by brackets. The information in these fields is derived from the
+	known context to other packets in the capture file. For example, Wireshark
+	is doing a sequence/acknowledge analysis of each TCP stream,
 	which is displayed in the [SEQ/ACK analysis] fields of the TCP protocol.
-    </para>	
+    </para>
 	</listitem>
 	<listitem>
-    <para>	
+    <para>
 	<command>Links</command>
-	If Wireshark detected a relationship to another packet in the capture file, 
-	it will generate a link to that packet. Links are underlined and displayed 
-	in blue. If double-clicked, Wireshark jumps to the corresponding packet. 
-    </para>	
+	If Wireshark detected a relationship to another packet in the capture file,
+	it will generate a link to that packet. Links are underlined and displayed
+	in blue. If double-clicked, Wireshark jumps to the corresponding packet.
+    </para>
 	</listitem>
 	</itemizedlist>
-  </section> 	  
+  </section>
 
   <section id="ChUsePacketBytesPaneSection"><title>The "Packet Bytes" pane</title>
     <para>
-      The packet bytes pane shows the data of the current packet (selected in the "Packet List" 
+      The packet bytes pane shows the data of the current packet (selected in the "Packet List"
 	  pane) in a hexdump style.
     <figure id="ChUseWiresharkBytesPane">
       <title>The "Packet Bytes" pane</title>
@@ -1970,20 +1983,20 @@
     </figure>
     </para>
     <para>
-	As usual for a hexdump, the left side shows the offset in the packet data, 
-	in the middle the packet data is shown in a hexadecimal representation and 
-	on the right the corresponding ASCII characters (or . if not appropriate) 
+	As usual for a hexdump, the left side shows the offset in the packet data,
+	in the middle the packet data is shown in a hexadecimal representation and
+	on the right the corresponding ASCII characters (or . if not appropriate)
 	are displayed.
     </para>
     <para>
-	There is a context menu (right mouse click) available, see details in 
+	There is a context menu (right mouse click) available, see details in
 	<xref linkend="ChWorkPacketBytesPanePopUpMenu"/>.
     </para>
     <para>
 	Depending on the packet data, sometimes more than one page is available,
-	e.g. when Wireshark has reassembled some packets into a single chunk of 
-	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are 
-	some additional tabs shown at the bottom of the pane to let you select 
+	e.g. when Wireshark has reassembled some packets into a single chunk of
+	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are
+	some additional tabs shown at the bottom of the pane to let you select
 	the page you want to see.
     <figure id="ChUseWiresharkBytesPaneTabs">
       <title>The "Packet Bytes" pane with tabs</title>
@@ -1996,18 +2009,18 @@
 	</para>
 	</note>
     <para>
-	The context menu (right mouse click) of the tab labels will show a list of 
-	all available pages. This can be helpful if the size in the pane is too 
+	The context menu (right mouse click) of the tab labels will show a list of
+	all available pages. This can be helpful if the size in the pane is too
 	small for all the tab labels.
     </para>
-  </section> 	  
+  </section>
 
   <section id="ChUseStatusbarSection"><title>The Statusbar</title>
     <para>
       The statusbar displays informational messages.
     </para>
     <para>
-	In general, the left side will show context related information, while the 
+	In general, the left side will show context related information, while the
 	right side will show the current number of packets.
     </para>
     <para>
@@ -2015,7 +2028,7 @@
       <title>The initial Statusbar</title>
       <graphic entityref="WiresharkStatusbarEmpty" format="PNG"/>
     </figure>
-	This statusbar is shown while no capture file is loaded, e.g. when 
+	This statusbar is shown while no capture file is loaded, e.g. when
 	Wireshark is started.
 	</para>
 	<para>
@@ -2023,18 +2036,18 @@
 		  <title>The Statusbar with a loaded capture file</title>
 		  <graphic entityref="WiresharkStatusbarLoaded" format="PNG"/>
 		</figure>
-		The left side shows information about the capture file, its 
+		The left side shows information about the capture file, its
 		name, its size and the elapsed time while it was being captured.
 	</para>
 	<para>
-		The right side shows the current number of packets in the 
+		The right side shows the current number of packets in the
 		capture file. The following values are displayed:
 	    <itemizedlist mark="bullet">
 	    <listitem>
 		<para><emphasis>P:</emphasis> the number of captured packets</para>
 	    </listitem>
 	    <listitem>
-		<para><emphasis>D:</emphasis> the number of packets currently being 
+		<para><emphasis>D:</emphasis> the number of packets currently being
 		displayed</para>
 	    </listitem>
 	    <listitem>
@@ -2047,17 +2060,17 @@
       <title>The Statusbar with a selected protocol field</title>
       <graphic entityref="WiresharkStatusbarSelected" format="PNG"/>
     </figure>
-		This is displayed if you have selected a protocol field from the 
-		"Packet Details" pane. 
+		This is displayed if you have selected a protocol field from the
+		"Packet Details" pane.
     </para>
     <tip><title>Tip!</title>
 	<para>
 		The value between the brackets (in this example
-		<command>arp.opcode</command>) can be used as a display filter string, 
+		<command>arp.opcode</command>) can be used as a display filter string,
 		representing the selected protocol field.
 	</para>
     </tip>
-  </section> 	  
+  </section>
 
 </chapter>
 <!-- End of WSUG Chapter 3 -->

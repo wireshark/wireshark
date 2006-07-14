@@ -58,6 +58,7 @@ noinst_HEADERS = \
 	fileset_dlg.h	\
 	filter_dlg.h	\
 	find_dlg.h	\
+	firewall_dlg.h	\
 	follow_dlg.h	\
 	font_utils.h	\
 	goto_dlg.h	\
