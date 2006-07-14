@@ -51,311 +51,292 @@ static dissector_handle_t data_handle;
 static guint global_kismet_tcp_port = TCP_PORT_KISMET;
 static guint tcp_port = 0;
 
-static gboolean response_is_continuation (const guchar * data);
-void proto_reg_handoff_kismet (void);
-void proto_register_kismet (void);
+static gboolean response_is_continuation(const guchar * data);
+void proto_reg_handoff_kismet(void);
+void proto_register_kismet(void);
 
 static gboolean
-dissect_kismet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  gboolean is_request;
-  gboolean is_continuation;
-  proto_tree *kismet_tree, *reqresp_tree;
-  proto_item *ti;
-  proto_item *tmp_item;
-  gint offset = 0;
-  const guchar *line;
-  gint next_offset;
-  int linelen;
-  int tokenlen;
-  int i;
-  const guchar *next_token;
+	gboolean is_request;
+	gboolean is_continuation;
+	proto_tree *kismet_tree=NULL, *reqresp_tree=NULL;
+	proto_item *ti;
+	proto_item *tmp_item;
+	gint offset = 0;
+	const guchar *line;
+	gint next_offset;
+	int linelen;
+	int tokenlen;
+	int i;
+	const guchar *next_token;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "kismet");
+	/*
+	 * Find the end of the first line.
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that is
+	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
+	 * call won't throw an exception.
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	line = tvb_get_ptr(tvb, offset, linelen);
 
-  /*
-   * Find the end of the first line.
-   *
-   * Note that "tvb_find_line_end()" will return a value that is
-   * not longer than what's in the buffer, so the "tvb_get_ptr()"
-   * call won't throw an exception.
-   */
-  linelen = tvb_find_line_end (tvb, offset, -1, &next_offset, FALSE);
-  line = tvb_get_ptr (tvb, offset, linelen);
-
-  /*
-   * Check if it is an ASCII based protocol with reasonable length
-   * packets, if not return, and try annother dissector.
-   */
-  if (linelen < 8)
-    {
-      /*
-       * Packet is too short
-       */
-      return FALSE;
-    }
-  else
-    {
-      for (i = 0; i < 8; ++i)
-        {
-	  /*
-	   * Packet contains non-ASCII data
-	   */
-	  if (line[i] < 32 || line[i] > 128)
-	    return FALSE;
-	}
-    }
-
-  if (pinfo->match_port == pinfo->destport)
-    {
-      is_request = TRUE;
-      is_continuation = FALSE;
-    }
-  else
-    {
-      is_request = FALSE;
-      is_continuation = response_is_continuation (line);
-    }
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      /*
-       * Put the first line from the buffer into the summary
-       * if it's a kismet request or reply (but leave out the
-       * line terminator).
-       * Otherwise, just call it a continuation.
-       */
-      if (is_continuation)
-	col_set_str (pinfo->cinfo, COL_INFO, "Continuation");
-      else
-	col_add_fstr (pinfo->cinfo, COL_INFO, "%s: %s",
-		      is_request ? "Request" : "Response",
-		      format_text (line, linelen));
-    }
-
-  if (tree)
-    {
-      ti = proto_tree_add_item (tree, proto_kismet, tvb, offset, -1, FALSE);
-      kismet_tree = proto_item_add_subtree (ti, ett_kismet);
-
-      if (is_continuation)
-	{
-	  /*
-	   * Put the whole packet into the tree as data.
-	   */
-	  call_dissector (data_handle, tvb, pinfo, kismet_tree);
-	  return TRUE;
-	}
-
-      if (is_request)
-	{
-	  tmp_item = proto_tree_add_boolean (kismet_tree,
-					 hf_kismet_request, tvb, 0, 0, TRUE);
-	}
-      else
-	{
-	  tmp_item = proto_tree_add_boolean (kismet_tree,
-					 hf_kismet_response, tvb, 0, 0, TRUE);
-	}
-      PROTO_ITEM_SET_GENERATED(tmp_item);
-
-      while (tvb_offset_exists (tvb, offset))
-	{
-	  /*
-	   * Find the end of the line.
-	   */
-	  linelen = tvb_find_line_end (tvb, offset, -1, &next_offset, FALSE);
-
-	  if (linelen)
-	    {
-	      /*
-	       * Put this line.
-	       */
-	      ti = proto_tree_add_text (kismet_tree, tvb, offset,
-					next_offset - offset, "%s",
-					tvb_format_text (tvb, offset,
-							 next_offset -
-							 offset - 1));
-	      reqresp_tree = proto_item_add_subtree (ti, ett_kismet_reqresp);
-	      tokenlen = get_token_len (line, line + linelen, &next_token);
-	      if (tokenlen != 0)
-		{
-		  guint8 *reqresp;
-		  reqresp = tvb_get_ephemeral_string (tvb, offset, tokenlen);
-		  if (is_request)
-		    {
+	/*
+	 * Check if it is an ASCII based protocol with reasonable length
+	 * packets, if not return, and try annother dissector.
+	 */
+	if (linelen < 8) {
+		/*
+		 * Packet is too short
+		 */
+		return FALSE;
+	} else {
+		for (i = 0; i < 8; ++i) {
 			/*
-			 * No request dissection
+			 * Packet contains non-ASCII data
 			 */
-		    }
-		  else
-		    {
-		      /*
-		       * *KISMET: {Version} {Start time} \001{Server name}\001 {Build Revision}
-		       * two fields left undocumented: {???} {?ExtendedVersion?}
-		       */
-		      if (strncmp (reqresp, "*KISMET", strlen ("*KISMET")) == 0)
-			{
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-					       tokenlen, "Kismet version: %s",
-					       format_text (line, tokenlen));
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-					       tokenlen, "Start time: %s",
-					       format_text (line, tokenlen));
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-					       tokenlen, "Server name: %s",
-					       format_text (line + 1, tokenlen - 2));
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-					       tokenlen, "Build revision: %s",
-					       format_text (line, tokenlen));
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-						tokenlen, "Unknown field: %s",
-						format_text (line, tokenlen));
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-						tokenlen, "Extended version string: %s",
-						format_text (line, tokenlen));
-			}
-		      /*
-		       * *TIME: {Time}
-		       */
-		      if (strncmp (reqresp, "*TIME", strlen ("*TIME")) == 0)
-			{
-			  time_t t;
-			  char *ptr;
-
-			  offset += next_token - line;
-			  linelen -= next_token - line;
-			  line = next_token;
-			  tokenlen = get_token_len (line, line + linelen, &next_token);
-
-			  /*
-			   * Convert form ascii to time_t
-			   */
-			  t = atoi (format_text (line, tokenlen));
-			  
-			  /*
-			   * Format ascii representation of time
-			   */
-			  ptr = ctime (&t);
-			  /*
-			   * Delete final '\n'
-			   */
-			  ptr[strlen(ptr) - 1] = 0;
-
-			  proto_tree_add_text (reqresp_tree, tvb, offset,
-						tokenlen, "Time: %s", ptr);
-			}
-		    }
-		  offset += next_token - line;
-		  linelen -= next_token - line;
-		  line = next_token;
+			if (line[i] < 32 || line[i] > 128)
+				return FALSE;
 		}
-	    }
-	  offset = next_offset;
 	}
-    }
-  return TRUE;
+
+	/*
+	 * If it is Kismet traffic set COL_PROTOCOL.
+	 */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "kismet");
+
+	/*
+	 * Check if it is request, reply or continuation.
+	 */
+	if (pinfo->match_port == pinfo->destport) {
+		is_request = TRUE;
+		is_continuation = FALSE;
+	} else {
+		is_request = FALSE;
+		is_continuation = response_is_continuation (line);
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		/*
+		 * Put the first line from the buffer into the summary
+		 * if it's a kismet request or reply (but leave out the
+		 * line terminator).
+		 * Otherwise, just call it a continuation.
+		 */
+		if (is_continuation)
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+		else
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+				is_request ? "Request" : "Response",
+				format_text(line, linelen));
+	}
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_kismet, tvb, offset, -1, FALSE);
+		kismet_tree = proto_item_add_subtree(ti, ett_kismet);
+	}
+
+	if (is_continuation) {
+		/*
+		 * Put the whole packet into the tree as data.
+		 */
+		call_dissector(data_handle, tvb, pinfo, kismet_tree);
+		return TRUE;
+	}
+
+	if (is_request) {
+		tmp_item = proto_tree_add_boolean(kismet_tree,
+				hf_kismet_request, tvb, 0, 0, TRUE);
+	} else {
+		tmp_item = proto_tree_add_boolean(kismet_tree,
+				hf_kismet_response, tvb, 0, 0, TRUE);
+	}
+	PROTO_ITEM_SET_GENERATED (tmp_item);
+
+	while (tvb_offset_exists(tvb, offset)) {
+		/*
+		 * Find the end of the line.
+		 */
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+		if (linelen) {
+			/*
+			 * Put this line.
+			 */
+			ti = proto_tree_add_text(kismet_tree, tvb, offset,
+					next_offset - offset, "%s",
+					tvb_format_text(tvb, offset,
+					next_offset - offset - 1));
+			reqresp_tree = proto_item_add_subtree(ti, ett_kismet_reqresp);
+			tokenlen = get_token_len(line, line + linelen, &next_token);
+			if (tokenlen != 0) {
+				guint8 *reqresp;
+				reqresp = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+				if (is_request) {
+					/*
+					 * No request dissection
+					 */
+				} else {
+					g_assert(reqresp);
+					/*
+					 * *KISMET: {Version} {Start time} \001{Server name}\001 {Build Revision}
+					 * two fields left undocumented: {???} {?ExtendedVersion?}
+					 */
+					if (!strncmp(reqresp, "*KISMET", 7)) {
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Kismet version: %s",
+							format_text(line, tokenlen));
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Start time: %s",
+							format_text(line, tokenlen));
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Server name: %s",
+							format_text(line + 1, tokenlen - 2));
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Build revision: %s",
+							format_text(line, tokenlen));
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Unknown field: %s",
+							format_text(line, tokenlen));
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen,
+							"Extended version string: %s",
+							format_text(line, tokenlen));
+					}
+					/*
+					 * *TIME: {Time}
+					 */
+					if (!strncmp(reqresp, "*TIME", 5)) {
+						time_t t;
+						char *ptr;
+
+						offset += next_token - line;
+						linelen -= next_token - line;
+						line = next_token;
+						tokenlen = get_token_len(line, line + linelen, &next_token);
+
+						/*
+						 * Convert form ascii to time_t
+						 */
+						t = atoi(format_text (line, tokenlen));
+
+						/*
+						 * Format ascii representaion of time
+						 */
+						ptr = ctime(&t);
+						/*
+						 * Delete final '\n'
+						 */
+						ptr[strlen(ptr) - 1] = 0;
+
+						proto_tree_add_text(reqresp_tree, tvb, offset,
+							tokenlen, "Time: %s", ptr);
+					}
+				}
+
+				offset += next_token - line;
+				linelen -= next_token - line;
+				line = next_token;
+			}
+		}
+		offset = next_offset;
+	}
+  
+	return TRUE;
 }
 
 static gboolean
-response_is_continuation (const guchar * data)
+response_is_continuation(const guchar * data)
 {
-  if (strncmp (data, "*", strlen ("*")) == 0)
-    return FALSE;
+	if (!strncmp(data, "*", 1))
+		return FALSE;
 
-  if (strncmp (data, "!", strlen ("!")) == 0)
-    return FALSE;
+	if (!strncmp(data, "!", 1))
+		return FALSE;
 
-  return TRUE;
+	return TRUE;
 }
 
 void
-proto_register_kismet (void)
+proto_register_kismet(void)
 {
+	static hf_register_info hf[] = {
+		{&hf_kismet_response,
+		{"Response", "kismet.response", FT_BOOLEAN, BASE_NONE, 
+		NULL, 0x0, "TRUE if kismet response", HFILL}},
 
-  static hf_register_info hf[] = {
-    {&hf_kismet_response,
-     {"Response", "kismet.response",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      "TRUE if kismet response", HFILL}},
+		{&hf_kismet_request,
+		{"Request", "kismet.request", FT_BOOLEAN, BASE_NONE, 
+		NULL, 0x0, "TRUE if kismet request", HFILL}}
+	};
 
-    {&hf_kismet_request,
-     {"Request", "kismet.request",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      "TRUE if kismet request", HFILL}}
-  };
-  static gint *ett[] = {
-    &ett_kismet,
-    &ett_kismet_reqresp,
-  };
-  module_t *kismet_module;
+	static gint *ett[] = {
+		&ett_kismet,
+		&ett_kismet_reqresp,
+	};
+	module_t *kismet_module;
 
-  proto_kismet =
-    proto_register_protocol ("Kismet Client/Server Protocol", "Kismet",
-			     "kismet");
-  proto_register_field_array (proto_kismet, hf, array_length (hf));
-  proto_register_subtree_array (ett, array_length (ett));
+	proto_kismet = proto_register_protocol("Kismet Client/Server Protocol", "Kismet", "kismet");
+	proto_register_field_array(proto_kismet, hf, array_length (hf));
+	proto_register_subtree_array(ett, array_length (ett));
 
-  /* Register our configuration options for Kismet, particularly our port */
+	/* Register our configuration options for Kismet, particularly our port */
 
-  kismet_module = prefs_register_protocol(proto_kismet, proto_reg_handoff_kismet);
+	kismet_module = prefs_register_protocol(proto_kismet, proto_reg_handoff_kismet);
 
-  prefs_register_uint_preference(kismet_module, "tcp.port", "Kismet Server TCP Port",
-                                 "Set the port for Kismet Client/Server messages (if other"
-                                 " than the default of 2501)",
-                                 10, &global_kismet_tcp_port);
+	prefs_register_uint_preference(kismet_module, "tcp.port",
+			  "Kismet Server TCP Port",
+			  "Set the port for Kismet Client/Server messages (if other"
+			  " than the default of 2501)", 10,
+			  &global_kismet_tcp_port);
 }
 
 void
-proto_reg_handoff_kismet (void)
+proto_reg_handoff_kismet(void)
 {
-  static int kismet_prefs_initialized = FALSE;
-  static dissector_handle_t kismet_handle;
+	static int kismet_prefs_initialized = FALSE;
+	static dissector_handle_t kismet_handle;
 
-  if (!kismet_prefs_initialized)
-    {
-      kismet_handle = new_create_dissector_handle(dissect_kismet, proto_kismet);
-      kismet_prefs_initialized = TRUE;
-    }
-  else
-    {
-      dissector_delete("tcp.port", tcp_port, kismet_handle);
-    }
+	if (!kismet_prefs_initialized) {
+		kismet_handle = new_create_dissector_handle(dissect_kismet, proto_kismet);
+		kismet_prefs_initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", tcp_port, kismet_handle);
+	}
 
-  /* Set our port number for future use */
+	/* Set our port number for future use */
+	tcp_port = global_kismet_tcp_port;
 
-  tcp_port = global_kismet_tcp_port;
-
-  dissector_add("tcp.port", global_kismet_tcp_port, kismet_handle);
-  data_handle = find_dissector ("data");
+	dissector_add("tcp.port", global_kismet_tcp_port, kismet_handle);
+	data_handle = find_dissector("data");
 }
