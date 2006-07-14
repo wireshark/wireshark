@@ -22,6 +22,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/* This protocol implements PANA as of the internet draft
+ * draft-ietf-pana-pana-11  which is a workitem of the ietf workgroup
+ * internet area/pana
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -36,6 +40,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/value_string.h>
+#include <epan/conversation.h>
+#include <epan/emem.h>
 
 #define PANA_UDP_PORT 3001
 #define PANA_VERSION 1
@@ -86,6 +92,9 @@ static int hf_pana_reserved_type = -1;
 static int hf_pana_length_type = -1;
 static int hf_pana_msg_type = -1;
 static int hf_pana_seqnumber = -1;
+static int hf_pana_response_in = -1;
+static int hf_pana_response_to = -1;
+static int hf_pana_time = -1;
 
 static dissector_handle_t pana_handle = NULL;
 static dissector_handle_t eap_handle = NULL;
@@ -226,6 +235,15 @@ static gint ett_pana_avp_info = -1;
 static gint ett_pana_avp_flags = -1;
 
 
+typedef struct _pana_transaction_t {
+        guint32 req_frame;
+        guint32 rep_frame;
+        nstime_t req_time;
+} pana_transaction_t;
+
+typedef struct _pana_conv_info_t {
+        se_tree_t *pdus;
+} pana_conv_info_t;
 
 /*
  * Function for the PANA flags dissector.
@@ -534,22 +552,27 @@ static void
 dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-       proto_tree *pana_tree;
-       proto_tree *avp_tree;
-       proto_item *ti;
-       proto_item *avp_item;
-
+       proto_tree *pana_tree=NULL;
+       proto_tree *avp_tree=NULL;
+       proto_item *ti=NULL;
+       proto_item *avp_item=NULL;
        tvbuff_t *avp_tvb;
-
        guint16 flags = 0;
        guint16 msg_type;
        gint16 msg_length;
        gint16 avp_length;
+       guint32 seq_num;
+       conversation_t *conversation;
+       pana_conv_info_t *pana_info;
+       pana_transaction_t *pana_trans;
+       int offset = 0;
+
 
        /* Get message length, type and flags */
        msg_length = tvb_get_ntohs(tvb, 2);
        flags = tvb_get_ntohs(tvb, 4);
        msg_type = tvb_get_ntohs(tvb, 6);
+       seq_num = tvb_get_ntohl(tvb, 8);
        avp_length = msg_length-12;
 
        /* Make entries in Protocol column and Info column on summary display */
@@ -565,50 +588,130 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
        /* Make the protocol tree */
        if (tree) {
-
-               gint offset = 0;
-
-               /* create display subtree for the protocol */
                ti = proto_tree_add_item(tree, proto_pana, tvb, 0, -1, FALSE);
                pana_tree = proto_item_add_subtree(ti, ett_pana);
-
-               /* Version */
-               proto_tree_add_item(pana_tree, hf_pana_version_type, tvb, offset, 1, FALSE);
-               offset += 1;
-               /* Reserved field */
-               proto_tree_add_item(pana_tree, hf_pana_reserved_type, tvb, offset, 1, FALSE);
-               offset += 1;
-               /* Length */
-               proto_tree_add_item(pana_tree, hf_pana_length_type, tvb, offset, 2, FALSE);
-               offset += 2;
-               /* Flags */
-               dissect_pana_flags(pana_tree, tvb, offset, flags);
-               offset += 2;
-
-               /* Message Type */
-               proto_tree_add_uint_format_value(pana_tree, hf_pana_msg_type, tvb,
-                                                       offset, 2, msg_type, "%s-%s (%d)",
-                            val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
-                            match_strval(flags & PANA_FLAG_R, msg_subtype_names),
-                            msg_type);
-               offset += 2;
-
-               proto_tree_add_item(pana_tree,
-                       hf_pana_seqnumber, tvb, offset, 4, FALSE);
-               offset += 4;
-
-               /* AVPs */
-               if(avp_length>0){
-                   avp_tvb = tvb_new_subset(tvb, offset, avp_length, avp_length);
-                   avp_item = proto_tree_add_text(pana_tree, tvb, offset, avp_length, "Attribute Value Pairs");
-                   avp_tree = proto_item_add_subtree(avp_item, ett_pana_avp);
-
-                   if (avp_tree != NULL) {
-                           dissect_avps(avp_tvb, pinfo, avp_tree);
-                   }
-               }
        }
 
+
+       /* 
+        * We need to track some state for this protocol on a per conversation
+        * basis so we can do neat things like request/response tracking
+        */
+       /*
+        * Do we have a conversation for this connection?
+        */
+       conversation = find_conversation(pinfo->fd->num, 
+                                   &pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, 
+                                   pinfo->srcport, pinfo->destport, 0);
+       if (conversation == NULL) {
+             /* We don't yet have a conversation, so create one. */
+             conversation = conversation_new(pinfo->fd->num, 
+                                   &pinfo->src, &pinfo->dst,
+    	                    	   pinfo->ptype,
+                                   pinfo->srcport, pinfo->destport, 0);
+       }
+       /*
+        * Do we already have a state structure for this conv
+        */
+       pana_info = conversation_get_proto_data(conversation, proto_pana);
+       if (!pana_info) {
+               /* No.  Attach that information to the conversation, and add
+                * it to the list of information structures.
+                */
+               pana_info = se_alloc(sizeof(pana_conv_info_t));
+               pana_info->pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "pana_pdus");
+
+               conversation_add_proto_data(conversation, proto_pana, pana_info);
+       }
+       if(!pinfo->fd->flags.visited){
+               if(flags&PANA_FLAG_R){
+                      /* This is a request */
+                      pana_trans=se_alloc(sizeof(pana_transaction_t));
+                      pana_trans->req_frame=pinfo->fd->num;
+                      pana_trans->rep_frame=0;
+                      pana_trans->req_time=pinfo->fd->abs_ts;
+                      se_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
+               } else {
+                      pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+                      if(pana_trans){
+                              pana_trans->rep_frame=pinfo->fd->num;
+                      }
+               }
+       } else {
+               pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+       }
+       if(!pana_trans){
+               /* create a "fake" pana_trans structure */
+               pana_trans=ep_alloc(sizeof(pana_transaction_t));
+               pana_trans->req_frame=0;
+               pana_trans->rep_frame=0;
+               pana_trans->req_time=pinfo->fd->abs_ts;
+       }
+
+
+       /* print state tracking in the tree */
+       if(flags&PANA_FLAG_R){
+               /* This is a request */
+               if(pana_trans->rep_frame){
+                       proto_item *it;
+
+                       it=proto_tree_add_uint(pana_tree, hf_pana_response_in, tvb, 0, 0, pana_trans->rep_frame);
+                       PROTO_ITEM_SET_GENERATED(it);
+               }
+       } else {
+               /* This is a reply */
+               if(pana_trans->req_frame){
+                       proto_item *it;
+                       nstime_t ns;
+
+                       it=proto_tree_add_uint(pana_tree, hf_pana_response_to, tvb, 0, 0, pana_trans->req_frame);
+                       PROTO_ITEM_SET_GENERATED(it);
+
+                       nstime_delta(&ns, &pinfo->fd->abs_ts, &pana_trans->req_time);
+                       it=proto_tree_add_time(pana_tree, hf_pana_time, tvb, 0, 0, &ns);
+                       PROTO_ITEM_SET_GENERATED(it);
+               }
+       }              
+
+
+
+       /* Version */
+       proto_tree_add_item(pana_tree, hf_pana_version_type, tvb, offset, 1, FALSE);
+       offset += 1;
+
+       /* Reserved field */
+       proto_tree_add_item(pana_tree, hf_pana_reserved_type, tvb, offset, 1, FALSE);
+       offset += 1;
+
+       /* Length */
+       proto_tree_add_item(pana_tree, hf_pana_length_type, tvb, offset, 2, FALSE);
+       offset += 2;
+
+       /* Flags */
+       dissect_pana_flags(pana_tree, tvb, offset, flags);
+       offset += 2;
+
+       /* Message Type */
+       proto_tree_add_uint_format_value(pana_tree, hf_pana_msg_type, tvb,
+                           offset, 2, msg_type, "%s-%s (%d)",
+                           val_to_str(msg_type, msg_type_names, "Unknown (%d)"), 
+                          match_strval(flags & PANA_FLAG_R, msg_subtype_names), msg_type);
+       offset += 2;
+
+       proto_tree_add_item(pana_tree, hf_pana_seqnumber, tvb, offset, 4, FALSE);
+       offset += 4;
+
+       /* AVPs */
+       if(avp_length>0){
+               avp_tvb = tvb_new_subset(tvb, offset, avp_length, avp_length);
+               avp_item = proto_tree_add_text(pana_tree, tvb, offset, avp_length, "Attribute Value Pairs");
+               avp_tree = proto_item_add_subtree(avp_item, ett_pana_avp);
+
+               if (avp_tree != NULL) {
+                       dissect_avps(avp_tvb, pinfo, avp_tree);
+               }
+        }
 }
 
 
@@ -692,6 +795,21 @@ proto_register_pana(void)
                        { "PANA Version", "pana.version",
                        FT_UINT8, BASE_DEC, NULL, 0x0,
                        "", HFILL }
+               },
+               { &hf_pana_response_in,
+                       { "Response In", "pana.response_in",
+                       FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+                       "The response to this PANA request is in this frame", HFILL }
+               },
+               { &hf_pana_response_to,
+                       { "Request In", "pana.response_to",
+                       FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+                       "This is a response to the PANA request in this frame", HFILL }
+               },
+               { &hf_pana_time,
+                       { "Time", "pana.time",
+                       FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+                       "The time between the Call and the Reply", HFILL }
                },
                { &hf_pana_reserved_type,
                        { "PANA Reserved", "pana.reserved",
