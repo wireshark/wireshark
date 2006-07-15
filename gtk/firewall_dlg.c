@@ -533,11 +533,11 @@ set_rule_text(rule_info_t *rule_info) {
 #if GTK_MAJOR_VERSION < 2
     txtlen = gtk_text_get_length(GTK_TEXT(rule_info->text));
     if (txtlen > 0) {
-        gtk_text_set_point(GTK_TEXT(follow_info->text), 0);
-        gtk_text_forward_delete(GTK_TEXT(follow_info->text), bytes_already);
+        gtk_text_set_point(GTK_TEXT(rule_info->text), 0);
+        gtk_text_forward_delete(GTK_TEXT(rule_info->text), txtlen);
     }
-    gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), NULL
-                        NULL, rtxt->str, rtxt->len);
+    gtk_text_insert(GTK_TEXT(rule_info->text), user_font_get_regular(),
+        NULL, NULL, rtxt->str, rtxt->len);
 #else
     gtk_text_buffer_set_text(buf, rtxt->str, rtxt->len);
 #endif

@@ -4,6 +4,7 @@
 EXPORTS
 abs_time_to_str
 address_to_str
+address_to_str_buf
 add_new_data_source
 add_oid_name
 add_oid_str_name
