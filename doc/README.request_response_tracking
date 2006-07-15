@@ -1,0 +1,189 @@
+It is often useful to enhance dissectors for request/response style protocols
+to match requests with responses.
+This allows you to display useful information in the decode tree
+such as which requests are matched to which response and the response time
+for individual transactions.
+
+This is also useful if you want to pass some data from the request onto the
+dissection of the actual response. The RPC dissector for example does
+something like this since to pass the actual command opcode from the request
+onto the response dissector since the opcode itself is not part of the
+response packet  and without the opcode we would not know how to decode the
+data.
+
+It is also useful when you need to track information on a per conversation 
+basis such as when some parameters are negotiatiod during a login phase of the 
+protocol and when these parameters affect how future commands on that
+session are to be decoded. The iSCSI dissector does something similar to that
+to track which sessions that HeaderDigest is activated for and which ones
+it is not.
+
+
+
+
+The example below shows how simple this is to add to the dissector IF
+1, there is something like a transaction id in the header
+2, it is very unlikely that the transaction identifier is reused for the same conversation
+
+The example is taken from the PANA dissector :
+
+
+First we need to include the definitions for conversations and memory
+magament
+
+	#include <epan/conversation.h>
+	#include <epan/emem.h>
+
+Then we also need a few header fields to show the relations between request 
+and response as well as the response time
+
+	static int hf_pana_response_in = -1;
+	static int hf_pana_response_to = -1;
+	static int hf_pana_time = -1;
+
+We need a structure that holds all the information we need to remember
+between the request and the responses.
+One such structure will be allocated for each unique transaction.
+In the example we only keep the frame numbers of the request and the response
+as well as the timestamp for the request.
+But since this structure is persistent and also a unique one is allocated for 
+each request/response pair, this is a good place to store other additional
+data you may want to keep track of from a request to a response.
+
+	typedef struct _pana_transaction_t {
+	        guint32 req_frame;
+	        guint32 rep_frame;
+	        nstime_t req_time;
+	} pana_transaction_t;
+
+We also need a structure that holds persistent information for each 
+conversation. ( a conversation is identified by SRC/DST address, protocol and SRC/DST port)
+In this case we only want to have keep a binary tree to track the actual 
+transactions that occur for this unique conversation.
+Some protocols negotiate session parameters during a login phase and those
+parameters may affect how later commands on the same session is to be decoded,
+this would be a good place to store that additional info you may want to keep
+around.
+
+	typedef struct _pana_conv_info_t {
+	        se_tree_t *pdus;
+	} pana_conv_info_t;
+
+
+
+Finally for the meat of it,  add the conversation and tracking code to the 
+actual dissector
+
+	...
+	guint32 seq_num;
+	conversation_t *conversation;
+	pana_conv_info_t *pana_info;
+	pana_transaction_t *pana_trans;
+
+	...
+	/* Get the transaction identifier */
+	seq_num = tvb_get_ntohl(tvb, 8);
+	...
+
+	/* 
+	 * We need to track some state for this protocol on a per conversation
+	 * basis so we can do neat things like request/response tracking
+	 */
+	/*
+	 * Do we have a conversation for this connection?
+	 */
+	conversation = find_conversation(pinfo->fd->num, 
+				&pinfo->src, &pinfo->dst,
+				pinfo->ptype, 
+				pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/* We don't yet have a conversation, so create one. */
+		conversation = conversation_new(pinfo->fd->num, 
+					&pinfo->src, &pinfo->dst,
+					pinfo->ptype,
+					pinfo->srcport, pinfo->destport, 0);
+	}
+	/*
+	 * Do we already have a state structure for this conv
+	 */
+	pana_info = conversation_get_proto_data(conversation, proto_pana);
+	if (!pana_info) {
+		/* No.  Attach that information to the conversation, and add
+		 * it to the list of information structures.
+		 */
+		pana_info = se_alloc(sizeof(pana_conv_info_t));
+		pana_info->pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "pana_pdus");
+
+		conversation_add_proto_data(conversation, proto_pana, pana_info);
+	}
+	if(!pinfo->fd->flags.visited){
+		if(flags&PANA_FLAG_R){
+			/* This is a request */
+			pana_trans=se_alloc(sizeof(pana_transaction_t));
+			pana_trans->req_frame=pinfo->fd->num;
+			pana_trans->rep_frame=0;
+			pana_trans->req_time=pinfo->fd->abs_ts;
+			se_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
+		} else {
+			pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+			if(pana_trans){
+				pana_trans->rep_frame=pinfo->fd->num;
+			}
+		}
+	} else {
+		pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+	}
+	if(!pana_trans){
+		/* create a "fake" pana_trans structure */
+		pana_trans=ep_alloc(sizeof(pana_transaction_t));
+		pana_trans->req_frame=0;
+		pana_trans->rep_frame=0;
+		pana_trans->req_time=pinfo->fd->abs_ts;
+	}
+
+	/* print state tracking in the tree */
+	if(flags&PANA_FLAG_R){
+		/* This is a request */
+		if(pana_trans->rep_frame){
+			proto_item *it;
+
+			it=proto_tree_add_uint(pana_tree, hf_pana_response_in, tvb, 0, 0, pana_trans->rep_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+	} else {
+		/* This is a reply */
+		if(pana_trans->req_frame){
+			proto_item *it;
+			nstime_t ns;
+
+			it=proto_tree_add_uint(pana_tree, hf_pana_response_to, tvb, 0, 0, pana_trans->req_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &pana_trans->req_time);
+			it=proto_tree_add_time(pana_tree, hf_pana_time, tvb, 0, 0, &ns);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+	}              
+
+
+
+
+
+
+Then we just need to declare the hf fields we used
+
+	{ &hf_pana_response_in,
+		{ "Response In", "pana.response_in",
+		FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		"The response to this PANA request is in this frame", HFILL }
+	},
+	{ &hf_pana_response_to,
+		{ "Request In", "pana.response_to",
+		FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		"This is a response to the PANA request in this frame", HFILL }
+	},
+	{ &hf_pana_time,
+		{ "Time", "pana.time",
+		FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		"The time between the Call and the Reply", HFILL }
+	},
