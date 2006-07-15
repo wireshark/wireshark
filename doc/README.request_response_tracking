@@ -6,7 +6,7 @@ for individual transactions.
 
 This is also useful if you want to pass some data from the request onto the
 dissection of the actual response. The RPC dissector for example does
-something like this since to pass the actual command opcode from the request
+something like this to pass the actual command opcode from the request
 onto the response dissector since the opcode itself is not part of the
 response packet  and without the opcode we would not know how to decode the
 data.
