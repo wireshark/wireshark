@@ -41,6 +41,12 @@ Wireshark Info
 	  Versions affected: 0.10.11.
         </para></listitem>
 
+      </itemizedlist>
+
+      Ilja van Sprundel discovered the following vulnerabilities:
+
+      <itemizedlist>
+
         <listitem><para>
 	  The Checkpoint FW-1 dissector may have been vulnerable to a
           format string error.
