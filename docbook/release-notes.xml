@@ -48,8 +48,15 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	  The Checkpoint FW-1 dissector may have been vulnerable to a
-          format string error.
+	  The ANSI MAP dissector was vulnerable to a format string overflow.
+	  <!-- Fixed in r18677 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.0.
+        </para></listitem>
+
+        <listitem><para>
+	  The Checkpoint FW-1 dissector was vulnerable to a format string
+          overflow.
 	  <!-- Fixed in r18677 -->
 	  <!-- Bug IDs: none -->
 	  Versions affected: 0.10.10.
@@ -108,6 +115,9 @@ Wireshark Info
 
       </itemizedlist>
 
+      Ilja found several other problems that could result in mis-dissected
+      packets.  They have been fixed.
+
     </para>
 
     <para>
@@ -121,12 +131,14 @@ Wireshark Info
         <listitem><para>
         Wireshark no longer aborts under Windows 95, 98, or ME.
         </para>
+
         <warning><para>
-        Windows 95, 98, and ME do not support memory protection features
-        that are required in order to run Wireshark securely.  It is
-        strongly recommended that you do not run Wireshark on these
-        platforms.
-        </para></listitem>
+        Windows 95, 98, and ME do not support memory protection
+        features that are required in order to run Wireshark securely.
+        It is <emphasis>strongly recommended</emphasis> that you not
+        run Wireshark on these platforms.
+        </para></warning>
+        </listitem>
 
         <listitem><para>
         File exports under Windows work again.
