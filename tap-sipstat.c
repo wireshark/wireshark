@@ -105,6 +105,7 @@ static const value_string vals_status_code[] = {
     { 420, "Bad Extension"},
     { 421, "Extension Required"},
     { 423, "Interval Too Brief"},
+    { 429, "Provide Referrer Identity"},
     { 480, "Temporarily Unavailable"},
     { 481, "Call/Transaction Does Not Exist"},
     { 482, "Loop Detected"},

@@ -11,15 +11,16 @@
 		<avp name="CC-Correlation-Id" code="411" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
+		<avp name="CC-Input-Octets" code="412" mandatory="must">
+			<type type-name="Unsigned64"/>
+		</avp>
 		<avp name="CC-Money" code="413" mandatory="must">
 			<grouped>
 				<gavp name="Unit-Value"/>
 				<gavp name="Currency-Code"/>
 			</grouped>
 		</avp>
-		<avp name="CC-Input-Octets" code="412" mandatory="must">
-			<type type-name="Unsigned64"/>
-		</avp>
+
 		<avp name="CC-Output-Octets" code="414" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
@@ -275,17 +276,17 @@
 		</avp>
 
 		<!-- Definition from SH specs -->
-		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" may-encrypt="yes" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 
-		<avp name="Time-Quota-Threshold" code="868" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Time-Quota-Threshold" code="868" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Volume-Quota-Threshold" code="869" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Volume-Quota-Threshold" code="869" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Trigger-Type" code="870" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Trigger-Type" code="870" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
 			<enum name="CHANGE_IN_QOS" code="2"/>
@@ -312,10 +313,10 @@
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
 			<enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
 		</avp>
-		<avp name="Quota-Holding-Time" code="871" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Quota-Holding-Time" code="871" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Reporting-Reason" code="872" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Reporting-Reason" code="872" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="THRESHOLD" code="0"/>
 			<enum name="QHT" code="1"/>
@@ -327,7 +328,7 @@
 			<enum name="FORCED_REAUTHORISATION" code="7"/>
 			<enum name="POOL_EXHAUSTED" code="8"/>
 		</avp>
-		<avp name="Service-Information" code="873" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Service-Information" code="873" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="PS-Information"/>
 				<gavp name="WLAN-Information"/>
@@ -338,19 +339,41 @@
 				<gavp name="MBMS-Information"/>
 			</grouped>
 		</avp>
-		<avp name="PS-Information" code="874" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="PS-Information" code="874" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="3GPP-Charging-Id"/>
+				<gavp name="3GPP-PDP Type"/>
+				<gavp name="PDP-Address"/>
+				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/>
+				<gavp name="SGSN-Address"/>
+				<gavp name="GGSN-Address"/>
+				<gavp name="CG-Address"/>
+				<gavp name="3GPP-IMSI-MCC-MNC"/>
+				<gavp name="3GPP-GGSN- MCC-MNC"/>
+				<gavp name="3GPP-NSAPI"/>
+				<gavp name="Called-Station-Id"/>
+				<gavp name="3GPP-Session-Stop-Indicator"/>
+				<gavp name="3GPP-Selection-Mode"/>
+				<gavp name="3GPP-Charging-Characteristics"/>
+				<gavp name="3GPP-SGSN-MCC-MNC"/>
+				<gavp name="3GPP-MS-TimeZone"/>
+				<gavp name="3GPP-CAMEL-Charging-Info"/>
+				<gavp name="Charging-Rule-Base-Name"/>
+				<gavp name="3GPP-User-Location-Info"/>
+				<gavp name="3GPP-RAT-Type"/>
+				<gavp name="PS-Furnish-Charging-Information"/>
+			</grouped>
+		</avp>
+		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="IMS-Information" code="876" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="IMS-Information" code="876" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="MMS-Information" code="877" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="MMS-Information" code="877" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="LCS-Information" code="878" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="LCS-Information" code="878" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="LCS-Client-ID"/>
 				<gavp name="Location-Type"/>
@@ -360,16 +383,29 @@
 				<gavp name="MSISDN"/>
 			</grouped>
 		</avp>
-		<avp name="PoC-Information" code="879" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="PoC-Information" code="879" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="MBMS-Information" code="880" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="MBMS-Information" code="880" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="Quota-Consumption-Time" code="881" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
+		<avp name="Quota-Consumption-Time" code="881" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Expires" code="888" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 
+		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="PDP-Address" code="1227" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="SGSN-Address" code="1228" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
 		<avp name="LCS-Client-Name" code="1231" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must">
 			<type type-name="UTF8String"/>
 		</avp>

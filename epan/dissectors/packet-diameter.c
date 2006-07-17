@@ -1902,10 +1902,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
 								                    tvb, offset, avpDataLength, FALSE);
 							} else {
-								proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-								                            tvb, offset, avpDataLength,
-								                            tvb_get_ptr(tvb, offset, avpDataLength),
-								                            "Error! Bad Address Length (Address in RFC3588 format?)");
+								ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+								                                 tvb, offset, avpDataLength,
+								                                 tvb_get_ptr(tvb, offset, avpDataLength),
+								                                 "Error! Bad Address Length (Address in RFC3588 format?)");
+								expert_add_info_format(pinfo, ti,
+								                       PI_MALFORMED, PI_NOTE,
+								                       "Bad Address Length (%u)",
+								                       avpDataLength);
 							}
 							break;
 						case DIAMETER_RFC:
@@ -1935,10 +1939,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int32,
 						                    tvb, offset, avpDataLength, FALSE);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Integer32 Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                 tvb, offset, avpDataLength,
+						                                 tvb_get_ptr(tvb, offset, avpDataLength),
+						                                "Error!  Bad Integer32 Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Integer32 Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -1951,10 +1959,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						                           tvb, offset, avpDataLength, data,
 						                           "Value: 0x%08x (%u)", data, data);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Unsigned32 Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                 tvb, offset, avpDataLength,
+						                                 tvb_get_ptr(tvb, offset, avpDataLength),
+						                                 "Error!  Bad Unsigned32 Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Unsigned32 Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -1969,10 +1981,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						                           "Value: 0x%08x (%u): %s", data,
 						                           data, valstr);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Enumerated Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                tvb, offset, avpDataLength,
+						                                tvb_get_ptr(tvb, offset, avpDataLength),
+						                                "Error!  Bad Enumerated Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Enumerated Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -1981,10 +1997,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int64,
 						                    tvb, offset, 8, FALSE);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 						                            tvb, offset, avpDataLength,
 						                            tvb_get_ptr(tvb, offset, avpDataLength),
 						                            "Error!  Bad Integer64 Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Integer64 Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -1993,10 +2013,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64,
 						                    tvb, offset, 8, FALSE);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Unsigned64 Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                tvb, offset, avpDataLength,
+						                                tvb_get_ptr(tvb, offset, avpDataLength),
+						                               "Error!  Bad Unsigned64 Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Unsigned64 Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -2025,10 +2049,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 							                            "Error!  Time before 00:00:00 UTC, January 1, 1970");
 						}
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Time Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                 tvb, offset, avpDataLength,
+						                                 tvb_get_ptr(tvb, offset, avpDataLength),
+						                                 "Error!  Bad Time Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Time Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -2043,10 +2071,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						                           "Value: 0x%08x (%u): %s", data,
 						                           data, valstr);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Enumerated Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                 tvb, offset, avpDataLength,
+						                                 tvb_get_ptr(tvb, offset, avpDataLength),
+						                                 "Error!  Bad Enumerated Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Enumerated Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -2054,10 +2086,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 					if (avpDataLength == 4) {
 						proto_tree_add_item(avpi_tree, hf_diameter_vendor_id, tvb, offset, avpDataLength, FALSE);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 						                            tvb, offset, avpDataLength,
 						                            tvb_get_ptr(tvb, offset, avpDataLength),
 						                            "Error!  Bad Vendor ID Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Vendor ID Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -2072,10 +2108,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 						                           "Application ID: %s %d (0x%08x)",
 						                           valstr, data, data);
 					} else {
-						proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-						                            tvb, offset, avpDataLength,
-						                            tvb_get_ptr(tvb, offset, avpDataLength),
-						                            "Error!  Bad Application ID Length");
+						ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						                                 tvb, offset, avpDataLength,
+						                                 tvb_get_ptr(tvb, offset, avpDataLength),
+						                                 "Error!  Bad Application ID Length");
+						expert_add_info_format(pinfo, ti,
+						                       PI_MALFORMED, PI_NOTE,
+						                       "Bad Application ID Length (%u)",
+						                       avpDataLength);
 					}
 					break;
 
@@ -2104,10 +2144,9 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 				}
 					break;
 				case DIAMETER_PRIVATE_ID:
-				{
 					proto_tree_add_item(avpi_tree, hf_diameter_avp_private_id,
 					                    tvb, offset, avpDataLength, FALSE);
-				}
+					break;
 
 				default:
 				case DIAMETER_OCTET_STRING:
