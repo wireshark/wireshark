@@ -737,7 +737,8 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
     gtk_text_buffer_get_start_iter(buf, &start);
     gtk_text_buffer_get_end_iter(buf, &end);
-    gtk_text_buffer_select_range(buf, &start, &end);
+    gtk_text_buffer_move_mark_by_name(buf, "insert", &start);
+    gtk_text_buffer_move_mark_by_name(buf, "selection_bound", &end);
     gtk_text_buffer_copy_clipboard(buf, gtk_clipboard_get(GDK_SELECTION_CLIPBOARD));
 #endif
 }
