@@ -22,7 +22,7 @@
 
 noinst_LTLIBRARIES = libdissectors.la
 
-INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
+INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. $(LIBGCRYPT_CFLAGS)
 
 include Makefile.common
 

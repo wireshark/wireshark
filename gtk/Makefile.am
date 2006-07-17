@@ -136,7 +136,7 @@ EXTRA_DIST = \
 	win32-file-dlg.h
 
 # Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS)
 
 doxygen:
 if HAVE_DOXYGEN
