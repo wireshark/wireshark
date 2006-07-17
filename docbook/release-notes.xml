@@ -353,6 +353,7 @@ XML
       </para>
     </section>
 
+<!--
     <section><title>Sun Solaris</title>
       <para>
 	Download the appropriate package from the
@@ -361,11 +362,12 @@ XML
 	using bzip2, and install it using pkgadd.
       </para>
     </section>
+-->
 
     <section><title>Source Code</title>
       <para>
 	Download wireshark-&WiresharkCurrentVersion;.tar.gz from the
-	<ulink url="http://www.wireshark.org/download/">main
+	<ulink url="http://www.wireshark.org/download/src">main
 	download area</ulink> on the web site.  Extract the package
 	using tar and gzip.  Run "configure ; make ; make install".
       </para>
