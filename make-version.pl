@@ -32,6 +32,7 @@
 #   format     - A strftime() formatted string to use as a template for
 #                the version string.  The sequence "%#" will substitute
 #                the SVN revision number.
+#   pkg_enable - Enable or disable package versioning.
 #   pkg_format - Like "format", but used for the package version.
 #
 # If run with the "-p" or "--package-version" argument, the
@@ -44,6 +45,7 @@
 #
 # enable: 1
 # format: SVN %Y%m%d%H%M%S
+# pkg_enable: 1
 # pkg_format: -SVN-%#
 # am_init: 0
 
@@ -65,6 +67,7 @@ my $pkg_version = 0;
 my %version_pref = (
 	"enable"     => 1,
 	"format"     => "SVN %Y%m%d%H%M%S",
+	"pkg_enable" => 1,
 	"pkg_format" => "-SVN-%#",
 	);
 my $srcdir = ".";
@@ -75,9 +78,13 @@ my $srcdir = ".";
 sub read_svn_info {
 	my $line;
 	my $version_format = $version_pref{"format"};
-	my $package_format = $version_pref{"pkg_format"};
+	my $package_format = "";
 	my $in_entries = 0;
 	my $svn_name;
+
+	if ($version_pref{"pkg_enable"}) {
+		$package_format = $version_pref{"pkg_format"};
+	}
 
 	if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
 		print ("Unable to get SVN info.\n");
