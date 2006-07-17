@@ -124,6 +124,8 @@ Wireshark Info
 
       The following non-security-related bugs have been fixed:
 
+      <itemizedlist>
+
         <listitem><para>
         The "Follow TCP Stream" dialog now wraps long lines.
         </para></listitem>
