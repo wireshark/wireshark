@@ -39,7 +39,7 @@ Wireshark Info
 	  The GSM BSSMAP dissector could crash.
 	  <!-- Fixed in r18586 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.11.
+	  Versions affected: 0.10.11 to 0.99.0.
           CVE-2006-3627
         </para></listitem>
 
@@ -53,7 +53,7 @@ Wireshark Info
 	  The ANSI MAP dissector was vulnerable to a format string overflow.
 	  <!-- Fixed in r18677 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.0.
+	  Versions affected: 0.10.0 to 0.99.0.
           CVE-2006-3628
         </para></listitem>
 
@@ -62,7 +62,7 @@ Wireshark Info
           overflow.
 	  <!-- Fixed in r18677 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.10.
+	  Versions affected: 0.10.10 to 0.99.0.
           CVE-2006-3628
         </para></listitem>
 
@@ -70,7 +70,7 @@ Wireshark Info
 	  The MQ dissector was vulnerable to a format string overflow.
 	  <!-- Fixed in r18677 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.4.
+	  Versions affected: 0.10.4 to 0.99.0.
           CVE-2006-3628
         </para></listitem>
 
@@ -78,7 +78,7 @@ Wireshark Info
 	  The XML dissector was vulnerable to a format string overflow.
 	  <!-- Fixed in r18677 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.13.
+	  Versions affected: 0.10.13 to 0.99.0.
           CVE-2006-3628
         </para></listitem>
 
@@ -87,7 +87,7 @@ Wireshark Info
 	  memory.
 	  <!-- Fixed in r18678, r18684, r18693 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.9.4.
+	  Versions affected: 0.9.4 to 0.99.0.
           CVE-2006-3629
         </para></listitem>
 
@@ -96,7 +96,7 @@ Wireshark Info
 	  off-by-one errors.
 	  <!-- Fixed in r18678, r18710 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.9.7.
+	  Versions affected: 0.9.7 to 0.99.0.
           CVE-2006-3630
         </para></listitem>
 
@@ -104,7 +104,7 @@ Wireshark Info
 	  The NTP dissector was vulnerable to a format string overflow.
 	  <!-- Fixed in r18678 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.13.
+	  Versions affected: 0.10.13 to 0.99.0.
           CVE-2006-3628
         </para></listitem>
 
@@ -112,7 +112,7 @@ Wireshark Info
 	  The SSH dissector was vulnerable to an infinite loop.
 	  <!-- Fixed in r18692, r18693 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.9.10.
+	  Versions affected: 0.9.10 to 0.99.0.
           CVE-2006-3631
         </para></listitem>
 
@@ -120,7 +120,7 @@ Wireshark Info
 	  The NFS dissector may have been susceptible to a buffer overflow.
 	  <!-- Fixed in r18699 -->
 	  <!-- Bug IDs: none -->
-	  Versions affected: 0.8.16.
+	  Versions affected: 0.8.16 to 0.99.0.
           CVE-2006-3632
         </para></listitem>
 
