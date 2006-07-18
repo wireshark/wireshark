@@ -3,9 +3,9 @@ distributing a software package containing Wireshark:
 
 1.  The canonical location for every Wireshark source release is
 
-    http://www.wireshark.org/download/all-versions/, e.g.
+    http://www.wireshark.org/download/src/all-versions/, e.g.
 
-    http://www.wireshark.org/download/all-versions/wireshark-0.55.71.tar.bz2
+    http://www.wireshark.org/download/src/all-versions/wireshark-0.99.55.tar.bz2
 
     If your packaging system downloads a copy of the Wireshark sources,
     use this location.
@@ -15,15 +15,15 @@ distributing a software package containing Wireshark:
 3.  Wireshark is released under the GNU General Public License.  Make sure
     your package complies with this license, or we send in the marmots.
 
-4.  Wireshark and the "e" logo are registered trademarks of Wireshark, Inc.
+4.  Wireshark and the "fin" logo are trademarks of Gerald Combs.
 
 5.  Custom version information can be added by creating a file called
-    "version.conf".  See make-version.pl for details.  We recommend that
-    you use this to differentiate your package from official Wireshark
-    releases.
+    "version.conf".  See make-version.pl for details.  If your package
+    contains significant changes we recommend that you use this to
+    differentiate it from official Wireshark releases.
 
-6.  Wireshark icons and logoscan be found in the "image" directory of the
-    Wireshark sources.
+6.  Wireshark icons, logos, and other artwork can be found in the
+    "image" directory of the Wireshark sources.
 
 If you have a question not addressed here, send it to
 wireshark-dev@wireshark.org.
