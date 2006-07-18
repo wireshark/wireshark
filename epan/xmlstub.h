@@ -104,7 +104,7 @@ extern void xmlCheckVersion(int version);
 /*
  * Whether iconv support is available
  */
-#ifdef HAVE_ICONV_H
+#ifdef HAVE_ICONV
 #define LIBXML_ICONV_ENABLED
 #include <iconv.h>
 #else

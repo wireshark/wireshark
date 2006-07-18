@@ -91,7 +91,7 @@
 #define HAVE_FCNTL_H 1
 
 /* Define if you have the <iconv.h> header file.  */
-/* #undef HAVE_ICONV_H */
+/* #undef HAVE_ICONV */
 
 /* Define if you have the <netdb.h> header file.  */
 /* #undef HAVE_NETDB_H */
