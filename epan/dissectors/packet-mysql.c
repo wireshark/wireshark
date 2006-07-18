@@ -49,13 +49,6 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 
-/* Define version if we are not building wireshark statically */
-#ifndef ENABLE_STATIC
-#include <gmodule.h>
-G_MODULE_EXPORT const gchar version[] = "0.1";
-#endif
-
-
 /* port for protocol registration */
 #define TCP_PORT_MySQL   3306
 
@@ -493,22 +486,6 @@ static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree 
 static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null);
-
-
-
-/* plugin registration (if compiled as plugin) */
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void plugin_register(void)
-{
-	if (proto_mysql == -1) { /* only once */
-		proto_register_mysql();
-	}
-}
-
-G_MODULE_EXPORT void plugin_reg_handoff(void){
-	proto_reg_handoff_mysql();
-}
-#endif
 
 
 /* dissector registration */
