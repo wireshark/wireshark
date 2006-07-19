@@ -1,13 +1,30 @@
 /*
  * Filename: packet-diameter-defs.h
  *
+ * $Id$
+ *
+ * Copyright (c) 2005 by Anders Broman <anders.broman@ericsson.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * This file contains the static definitions of the Diameter base protocol
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
- *
- * $Id$
- * Generated: Fri Feb 23 13:04:15 2001
- * * Copyright (c) 2005 by Anders Broman <anders.broman@ericsson.com>
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
  * http://www.iana.org/assignments/radius-types updated 20 January 2005 (Not command codes)
