@@ -315,6 +315,7 @@ wireshark_LDADD = \
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
 	@LIBICONV@			\
+	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@
 
 # Additional libs that I know how to build. These will be
@@ -338,6 +339,7 @@ tshark_LDADD = \
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@
 
 if ENABLE_STATIC
@@ -455,6 +457,7 @@ dftest_LDADD = \
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@
 
 dftest_LDFLAGS = -export-dynamic
