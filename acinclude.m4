@@ -797,32 +797,45 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 	#
 	AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h,,
 	[
-		if test "x$lua_dir" != "x"
-		then
-			#
-			# The user used "--with-lua=" to specify a directory
-			# containing liblua, but we didn't find the header file
-			# there; that either means they didn't specify the
-			# right directory or are confused about whether liblua
-			# is, in fact, installed.  Report the error and give up.
-			#
-			AC_MSG_ERROR([liblua header not found in directory specified in --with-lua])
-		else
-			if test "x$want_lua" = "xyes"
+		AC_CHECK_HEADERS(lua5.1/lua.h lua5.1/lualib.h lua5.1/lauxlib.h,
+		[
+			if test "x$lua_dir" != "x"
+			then
+				LUA_INCLUDES="-I$lua_dir/include/lua5.1"
+			else
+				# we found lua5.1/lua.h, but we don't know which include dir contains it
+				AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't use it. Please set the PATH for the --with-lua configure parameter. \n probably it is /usr.)
+			fi
+			
+		],
+		[
+			if test "x$lua_dir" != "x"
 			then
 				#
-				# The user tried to force us to use the library, but we
-				# couldn't find the header file; report an error.
+				# The user used "--with-lua=" to specify a directory
+				# containing liblua, but we didn't find the header file
+				# there; that either means they didn't specify the
+				# right directory or are confused about whether liblua
+				# is, in fact, installed.  Report the error and give up.
 				#
-				AC_MSG_ERROR(Header file lua.h not found.)
+				AC_MSG_ERROR([liblua header not found in directory specified in --with-lua])
 			else
-				#
-				# We couldn't find the header file; don't use the
-				# library, as it's probably not present.
-				#
-				want_lua=no
+				if test "x$want_lua" = "xyes"
+				then
+					#
+					# The user tried to force us to use the library, but we
+					# couldn't find the header file; report an error.
+					#
+					AC_MSG_ERROR(Header file lua.h not found.)
+				else
+					#
+					# We couldn't find the header file; don't use the
+					# library, as it's probably not present.
+					#
+					want_lua=no
+				fi
 			fi
-		fi
+		])
 	])
 
 	if test "x$want_lua" != "xno"
@@ -904,22 +917,37 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			])
 		],[  
 			#
-			# Restore the versions of CFLAGS, CPPFLAGS,
-			# LDFLAGS, and LIBS before we added the
-			# "--with-lua=" directory, as we didn't
-			# actually find lua there.
+			# We could not find the libs, maybe we have version number in the lib name
 			#
-			CFLAGS="$wireshark_save_CFLAGS"
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
-			LDFLAGS="$wireshark_save_LDFLAGS"
-			LIBS="$wireshark_save_LIBS"
-			LUA_LIBS=""
-			# User requested --with-lua but it isn't available
-			if test "x$want_lua" = "xyes"
-			then
-				AC_MSG_ERROR(Linking with liblua failed.)
-			fi
-			want_lua=no
+
+			LIBS="$wireshark_save_LIBS -llua5.1 -lm"
+
+			AC_CHECK_LIB(lua5.1, luaL_register,
+			[
+			    #
+			    #  Lua 5.1 found
+			    #
+			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			    LUA_LIBS=" -llua5.1 -lm"
+			],[
+				#
+				# Restore the versions of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS before we added the
+				# "--with-lua=" directory, as we didn't
+				# actually find lua there.
+				#
+				CFLAGS="$wireshark_save_CFLAGS"
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				LDFLAGS="$wireshark_save_LDFLAGS"
+				LIBS="$wireshark_save_LIBS"
+				LUA_LIBS=""
+				# User requested --with-lua but it isn't available
+				if test "x$want_lua" = "xyes"
+				then
+					AC_MSG_ERROR(Linking with liblua failed.)
+				fi
+				want_lua=no
+			])
 		])
 
 	CFLAGS="$wireshark_save_CFLAGS"

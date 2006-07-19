@@ -47,6 +47,9 @@ lua_la_SOURCES = \
 lua_la_LDFLAGS = -module -avoid-version
 lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
 
+BUILT_SOURCES = \
+	elua_register.h
+
 pkgdata_DATA = init.lua
 
 # Libs must be cleared, or else libtool won't create a shared module.
