@@ -444,6 +444,7 @@ File "..\..\dtds\presence.dtd"
 File "..\..\dtds\reginfo.dtd"
 File "..\..\dtds\rss.dtd"
 File "..\..\dtds\smil.dtd"
+File "..\..\dtds\xcap-caps.dtd"
 File "..\..\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 

@@ -110,6 +110,7 @@ dtds_DATA = \
 	dtds/reginfo.dtd \
 	dtds/rss.dtd \
 	dtds/smil.dtd \
+	dtds/xcap-caps.dtd \
 	dtds/watcherinfo.dtd
 #
 # Install the RADIUS directory files in the "radius" subdirectory
