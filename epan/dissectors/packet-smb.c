@@ -7966,7 +7966,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	int subcmd;
 	nt_trans_data ntd;
 	guint16 bc;
-	int padcnt;
+	guint32 padcnt;
 	smb_nt_transact_info_t *nti;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -8116,6 +8116,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		padcnt = po-offset;
 		if (padcnt > bc)
 			padcnt = bc;
+		CHECK_BYTE_COUNT(padcnt);
 	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
 		COUNT_BYTES(padcnt);
 	}
@@ -8497,7 +8498,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	smb_nt_transact_info_t *nti;
 	static nt_trans_data ntd;
 	guint16 bc;
-	int padcnt;
+	gint32 padcnt;
 	fragment_data *r_fd = NULL;
 	tvbuff_t *pd_tvb=NULL;
 	gboolean save_fragmented;
@@ -8639,7 +8640,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    padcnt = po-offset;
 	    if (padcnt > bc)
 	      padcnt = bc;
-	    tvb_ensure_bytes_exist(tvb, offset, padcnt);
+	    CHECK_BYTE_COUNT(padcnt);
 	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
 	    COUNT_BYTES(padcnt);
 	  }
