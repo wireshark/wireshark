@@ -76,39 +76,54 @@ static const msrp_header_t msrp_headers[] = {
 	{ "From-Path"},				/*  1 */
 	{ "To-Path"},				/*  2 */
 	{ "Message-ID"},			/*  3 */
-	{ "Success-Report"},		/*  4 */	
-	{ "Byte-Range"},			/*  5 */
-	{ "Status"},				/*  6 */
-	{ "Content-Type"},			/*  7 */
-	{ "Content-ID"},			/*  8 */
-	{ "Content-Description"},	/*  9 */
-	{ "Content-Disposition"},	/*  10 */
+	{ "Success-Report"},		/*  4 */
+	{ "Failure-Report"},		/*  5 */
+	{ "Byte-Range"},			/*  6 */
+	{ "Status"},				/*  7 */
+	{ "Content-Type"},			/*  8 */
+	{ "Content-ID"},			/*  9 */
+	{ "Content-Description"},	/*  10 */
+	{ "Content-Disposition"},	/*  11 */
+	{ "Use-Path"},				/*  12 */
+	{ "WWW-Authenticate"},		/*  13 */
+	{ "Authorization"},			/*  14 */
+	{ "Authentication-Info"},	/*  15 */
 };
 
 static gint hf_header_array[] = {
-                -1, /* 0"Unknown-header" - Pad so that the real headers start at index 1 */
-				-1, /* 1"From-Path														 */
-				-1, /* 2"To-Path														 */
-                -1, /* 3"Message-ID"													 */
-                -1, /* 4"Success-Report"												 */
-                -1, /* 5"Byte-Range"													 */
-                -1, /* 6"Status"														 */
-                -1, /* 7"Content-Type"													 */
-                -1, /* 8"Content-ID"													 */
-                -1, /* 9"Content-Description"											 */
-                -1, /* 10"Content-Disposition"											 */
+	-1, /* 0"Unknown-header" - Pad so that the real headers start at index 1 */
+	-1, /* 1"From-Path														 */
+	-1, /* 2"To-Path														 */
+	-1, /* 3"Message-ID"													 */
+	-1, /* 4"Success-Report"												 */
+	-1, /* 5"Failure-Report"												 */
+	-1, /* 6"Byte-Range"													 */
+	-1, /* 7"Status"														 */
+	-1, /* 8"Content-Type"													 */
+	-1, /* 9"Content-ID"													 */
+	-1, /* 10"Content-Description"											 */
+	-1, /* 11"Content-Disposition"											 */
+	-1, /* 12"Use-Path"														 */
+	-1, /* 13"WWW-Authenticate"												 */
+	-1, /* 14"Authorization"												 */
+	-1, /* 15"Authentication-Info"											 */
 };
 
 #define MSRP_FROM_PATH							1
 #define MSRP_TO_PATH							2
 #define MSRP_MESSAGE_ID							3
 #define MSRP_SUCCESS_REPORT						4
-#define MSRP_BYTE_RANGE							5
-#define MSRP_STATUS								6
-#define MSRP_CONTENT_TYPE						7
-#define MSRP_CONTENT_ID							8
-#define MSRP_CONTENT_DISCRIPTION				9
-#define MSRP_CONTENT_DISPOSITION				10
+#define MSRP_FAILURE_REPORT						5
+#define MSRP_BYTE_RANGE							6
+#define MSRP_STATUS								7
+#define MSRP_CONTENT_TYPE						8
+#define MSRP_CONTENT_ID							9
+#define MSRP_CONTENT_DISCRIPTION				10
+#define MSRP_CONTENT_DISPOSITION				11
+#define MSRP_USE_PATH							12
+#define MSRP_WWW_AUTHENTICATE					13
+#define MSRP_AUTHORIZATION						14
+#define MSRP_AUTHENTICATION_INFO				15
 
 dissector_handle_t msrp_handle;
 gboolean global_msrp_raw_text = TRUE;
@@ -124,15 +139,17 @@ static int dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Returns index of headers */
 static gint msrp_is_known_msrp_header(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint i;
+	guint i;
 
-        for (i = 1; i < array_length(msrp_headers); i++) {
-                if (header_len == strlen(msrp_headers[i].name) &&
-                    tvb_strncaseeql(tvb, offset, msrp_headers[i].name, header_len) == 0)
-                        return i;
-        }
+	for (i = 1; i < array_length(msrp_headers); i++) {
+		if (header_len == strlen(msrp_headers[i].name) &&
+		    tvb_strncaseeql(tvb, offset, msrp_headers[i].name, header_len) == 0)
+		{
+			return i;
+		}
+	}
 
-        return -1;
+	return -1;
 }
 
 
@@ -142,21 +159,22 @@ static gint msrp_is_known_msrp_header(tvbuff_t *tvb, int offset, guint header_le
 static void
 tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-        int offset, next_offset, linelen;
+	int offset, next_offset, linelen;
+	offset = 0;
 
-
-        offset = 0;
-
-        while (tvb_offset_exists(tvb, offset)) {
-                tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-                linelen = next_offset - offset;
-                if(tree) {
-					proto_tree_add_text(tree, tvb, offset, linelen,
-						"%s", tvb_format_text(tvb, offset, linelen));
-				}
-				offset = next_offset;
-        }
+	while (tvb_offset_exists(tvb, offset)) {
+		/* 'desegment' is FALSE so will set next_offset to beyond the end of
+		   the buffer if no line ending is found */
+		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		linelen = next_offset - offset;
+		if(tree) {
+			proto_tree_add_text(tree, tvb, offset, linelen,
+			                    "%s", tvb_format_text(tvb, offset, linelen));
+		}
+		offset = next_offset;
+	}
 }
+
 /* This code is modeled on the code in packet-sip.c 
  *  ABNF code for the MSRP header:
  *  The following syntax specification uses the augmented Backus-Naur
@@ -182,7 +200,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
  *	"MSRP 1234 200 OK(CRLF)
  */	
 static gboolean
-check_msrp_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+check_msrp_header(tvbuff_t *tvb)
 {	
 	gint offset = 0;
 	gint linelen;
@@ -232,6 +250,7 @@ check_msrp_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	return FALSE;
 }
+
 /* ABNF of line-end:
  * end-line = "-------" transact-id continuation-flag CRLF
  * This code is modeled on the code in packet-multipart.c
@@ -242,6 +261,8 @@ find_end_line(tvbuff_t *tvb, gint start)
 	gint offset = start, next_offset, linelen;
 
 	while (tvb_length_remaining(tvb, offset) > 0) {
+		/* 'desegment' is FALSE so will set next_offset to beyond the end of
+		   the buffer if no line ending is found */
 		linelen =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		if (linelen == -1) {
 			return -1;
@@ -260,7 +281,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	conversation_t* conversation;
 
-	if ( check_msrp_header(tvb, pinfo, tree)){
+	if ( check_msrp_header(tvb)){
 		/*
 		 * TODO Set up conversation here
 		 */
@@ -320,7 +341,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint parameter_offset;
 	gint semi_colon_offset;
 
-	if ( !check_msrp_header(tvb, pinfo, tree)){
+	if ( !check_msrp_header(tvb)){
 		return 0;
 	}
 	/* We have a MSRP header with at least three tokens 
@@ -331,17 +352,22 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	offset = 0;
 	linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+
 	/* Find the first SP and skip the first token */
 	token_2_start = tvb_find_guint8(tvb, 0, linelen, ' ') + 1;
 
-	space_offset = tvb_find_guint8(tvb, token_2_start, linelen, ' ');
+	/* Work out 2nd token's length by finding next space */
+	space_offset = tvb_find_guint8(tvb, token_2_start, linelen-token_2_start, ' ');
 	token_2_len = space_offset - token_2_start;
+
 	/* Transaction ID found store it for later use */
 	transaction_id_str = tvb_get_ephemeral_string(tvb, token_2_start, token_2_len);
 
+	/* Look for another space in this line to indicate a 4th token */
 	token_3_start = space_offset + 1;
-	space_offset = tvb_find_guint8(tvb, token_3_start,linelen, ' ');
+	space_offset = tvb_find_guint8(tvb, token_3_start,linelen-token_3_start, ' ');
 	if ( space_offset == -1){
+		/* 3rd token runs to the end of the line */
 		token_3_len = linelen - token_3_start;
 	}else{
 		/* We have a fourth token */
@@ -376,7 +402,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					tvb_format_text(tvb, token_4_start, token_4_len));
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaktion ID: %s",
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
 					tvb_format_text(tvb, token_2_start, token_2_len));
 		}
 	}else{
@@ -387,7 +413,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s ",
 					tvb_format_text(tvb, token_3_start, token_3_len));
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaktion ID: %s",
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
 					tvb_format_text(tvb, token_2_start, token_2_len));
 		}
 	}
@@ -411,7 +437,8 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			th = proto_tree_add_item(msrp_tree,hf_msrp_response_line,tvb,0,linelen,FALSE);
 			reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
 			proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
-			proto_tree_add_item(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,FALSE);
+			proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
+			                    atoi(tvb_get_string(tvb, token_3_start, token_3_len)));
 
 		}else{
 			th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,FALSE);
@@ -428,7 +455,8 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Process the headers
 		 */
 		while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < end_line_offset  ) {
-
+			/* 'desegment' is FALSE so will set next_offset to beyond the end of
+			   the buffer if no line ending is found */
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 			if (linelen == 0) {
 				/*
@@ -588,7 +616,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_msrp(void)
 {
-	
 	msrp_handle = new_create_dissector_handle(dissect_msrp, proto_msrp);
 	dissector_add("tcp.port", 0, msrp_handle);
 	heur_dissector_add("tcp", dissect_msrp_heur, proto_msrp);
@@ -596,8 +623,7 @@ proto_reg_handoff_msrp(void)
 
 void
 proto_register_msrp(void)
-{                 
-
+{
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_msrp,
@@ -632,9 +658,9 @@ proto_register_msrp(void)
 			"Method", HFILL }
 		},
 		{ &hf_msrp_status_code,
-			{ "Status code", 		"msrp.msg.hdr",
-			FT_STRING, BASE_NONE,NULL,0x0,
-			"Message Heade", HFILL }
+			{ "Status code", 		"msrp.status.code",
+			FT_UINT16, BASE_DEC,NULL,0x0,
+			"Status code", HFILL }
 		},
 		{ &hf_msrp_msg_hdr,
 			{ "Message Header", 		"msrp.end.line",
@@ -671,6 +697,11 @@ proto_register_msrp(void)
 			FT_STRING, BASE_NONE,NULL,0x0,
 			"Success Report", HFILL }
 		},
+		{ &hf_header_array[MSRP_FAILURE_REPORT],
+			{ "Failure Report", 		"msrp.failure.report",
+			FT_STRING, BASE_NONE,NULL,0x0,
+			"Failure Report", HFILL }
+		},
 		{ &hf_header_array[MSRP_BYTE_RANGE],
 			{ "Byte Range", 		"msrp.byte.range",
 			FT_STRING, BASE_NONE,NULL,0x0,
@@ -701,13 +732,33 @@ proto_register_msrp(void)
 			FT_STRING, BASE_NONE,NULL,0x0,
 			"Content-Disposition", HFILL }
 		},
+		{ &hf_header_array[MSRP_USE_PATH],
+			{ "Use-Path", 		"msrp.use.path",
+			FT_STRING, BASE_NONE,NULL,0x0,
+			"Use-Path", HFILL }
+		},
+		{ &hf_header_array[MSRP_WWW_AUTHENTICATE],
+			{ "WWW-Authenticate", 		"msrp.www.authenticate",
+			FT_STRING, BASE_NONE,NULL,0x0,
+			"WWW-Authenticate", HFILL }
+		},
+		{ &hf_header_array[MSRP_AUTHORIZATION],
+			{ "Authorization", 		"msrp.authorization",
+			FT_STRING, BASE_NONE,NULL,0x0,
+			"Authorization", HFILL }
+		},
+		{ &hf_header_array[MSRP_AUTHENTICATION_INFO],
+			{ "Authentication-Info", 		"msrp.authentication.info",
+			FT_STRING, BASE_NONE,NULL,0x0,
+			"Authentication-Info", HFILL }
+		},
 	};
 
 	module_t *msrp_module;
-/* Register the protocol name and description */
+	/* Register the protocol name and description */
 	proto_msrp = proto_register_protocol("Message Session Relay Protocol","MSRP", "msrp");
 
-/* Required function calls to register the header fields and subtrees used */
+	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_msrp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
