@@ -1834,7 +1834,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         g_snprintf (print_buff, SHORT_STR, "%sNon-ERP STAs, %suse protection, %s preambles",
                   erp_info & 0x01 ? "" : "no ",
                   erp_info & 0x02 ? "" : "do not ",
-                  erp_info & 0x04 ? "short or long": "long");
+                  /* 802.11g, 7.3.2.13: 1 means "one or more ... STAs
+                   * are not short preamble capable" */
+                  erp_info & 0x04 ? "long": "short or long");
         print_buff[SHORT_STR-1] = '\0';
         g_snprintf (out_buff, SHORT_STR,
                   "ERP info: 0x%x (%s)",erp_info,print_buff);
