@@ -49,8 +49,6 @@
 
 /* #undef HAVE_SA_LEN */
 
-/* #undef NEED_SNPRINTF_H */
-
 /* #undef NEED_STRERROR_H */
 
 #define NEED_MKSTEMP 1

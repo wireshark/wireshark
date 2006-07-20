@@ -8,7 +8,7 @@
  * For now all this is decoded just as "data".
  * It might be enough to just check
  * If the first byte of payload is the 0x7e delimeter and if so just
- * de escape it into a ep_alloc() buffer and then pass it to the ppp 
+ * de escape it into a ep_alloc() buffer and then pass it to the ppp
  * dissector.
  */
 
@@ -29,12 +29,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -46,10 +46,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/value_string.h>
@@ -134,7 +130,7 @@ static const value_string vs_ctl_pn_cl[] = {
 	{0x0, "no credit based flow control scheme"},
 	{0xe, "support of credit based flow control scheme (resp)"},
 	{0xf, "support of credit based flow control scheme (req)"},
-	/* specified by 07.10. Redefined by RFCOMM 
+	/* specified by 07.10. Redefined by RFCOMM
 	{0x0, "type 1 (unstructured octet stream)"},
 	{0x1, "type 2 (unstructured octet stream with flow control)"},
 	{0x2, "type 3 (uninterruptible framed data)"},
@@ -197,7 +193,7 @@ static const value_string vs_ctl_rls_l[] = {
 
 
 static const value_string vs_rfcomm_addr_d[] = {
-        {1, "Server Device"}, 
+        {1, "Server Device"},
 	{0, "Initiating Device"},
 	{0, NULL}
 };
@@ -246,7 +242,7 @@ static const value_string vs_ctl[] = {
 	{0x30, "Multiplexer close down (CLD)"},
 	{0x34, "Service Negotiation Command (SNC)"},
 	*/
-       /* old 
+       /* old
 	{0x80, "DLC parameter negotiation (PN)"},
 	{0x20, "Test Command (Test)"},
 	{0xa0, "Flow Control On Command (FCon)"},
@@ -269,13 +265,13 @@ static const value_string vs_ea[] = {
 };
 
 static const value_string vs_cr[] = {
-	{1, "Command"}, 
+	{1, "Command"},
 	{0, "Response"},
 	{0, NULL}
 };
 
 
-static int 
+static int
 get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *val_ptr, int hf_index)
 {
 	guint8 byte, bc = 0;
@@ -357,15 +353,15 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 			dlci_state->direction[1].stream_buf=NULL;
 			se_tree_insert32(dlci_table, dlci, dlci_state);
 		}
- 
+
 		if(!cl){
 			/* sender does not do credit based flow control */
 			dlci_state->do_credit_fc = 0;
 		} else if(cr_flag && (cl==0xf0)){
 			/* sender requests to use credit based flow control */
-			dlci_state->do_credit_fc |= 1; 
+			dlci_state->do_credit_fc |= 1;
 		} else if((!cr_flag) && (cl==0xe0)){
-			/* receiver also knows how to handle credit based 
+			/* receiver also knows how to handle credit based
 			   flow control */
 			dlci_state->do_credit_fc |= 2;
 		}
@@ -389,7 +385,7 @@ static void *my_malloc(int size) {
 }
 
 
-static void stream_buf_init(dlci_stream *s) 
+static void stream_buf_init(dlci_stream *s)
 {
 	s->len = DEFAULT_STREAM_BUF_SIZE;
 	s->mode = 0;
@@ -399,8 +395,8 @@ static void stream_buf_init(dlci_stream *s)
 }
 
 
-static void stream_buf_append(rfcomm_packet_state *rps, 
-			      dlci_stream *ds, tvbuff_t *tvb, 
+static void stream_buf_append(rfcomm_packet_state *rps,
+			      dlci_stream *ds, tvbuff_t *tvb,
 			      int off, int len) {
 
 	const guint8 *buf = tvb_get_ptr(tvb, off, len);
@@ -437,7 +433,7 @@ static void stream_buf_append(rfcomm_packet_state *rps,
 			if (byte == 0x7d)
 				ds->is_escaped = 1;
 			else
-				ds->stream_buf[ds->current++] = byte;		       
+				ds->stream_buf[ds->current++] = byte;
 		}
 
 	}
@@ -445,7 +441,7 @@ static void stream_buf_append(rfcomm_packet_state *rps,
 
 
 void add_ppp_frame(rfcomm_packet_state *rps, guint8 *buf, int len) {
-	
+
 	rfcomm_ppp_frame *ppp = my_malloc(len + sizeof(rfcomm_ppp_frame));
 
 	ppp->next = NULL;
@@ -482,7 +478,7 @@ int decode_fragments(dlci_stream *pstream, guint8 *buf) {
 			if (byte == 0x7d)
 				is_escaped = 1;
 			else
-				buf[real_len++] = byte;		       
+				buf[real_len++] = byte;
 		}
 
 	}
@@ -506,8 +502,8 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length)
 
 	start_offset=offset;
 	status = tvb_get_guint8(tvb, offset);
-	it = proto_tree_add_text(t, tvb, offset, 1, "V.24 Signals: FC = %d, RTC = %d, RTR = %d, IC = %d, DV = %d", (status >> 1) & 1, 
-				 (status >> 2) & 1, (status >> 3) & 1, 
+	it = proto_tree_add_text(t, tvb, offset, 1, "V.24 Signals: FC = %d, RTC = %d, RTR = %d, IC = %d, DV = %d", (status >> 1) & 1,
+				 (status >> 2) & 1, (status >> 3) & 1,
 				 (status >> 6) & 1, (status >> 7) & 1);
 	st = proto_item_add_subtree(it, ett_ctrl_pn_v24);
 
@@ -715,13 +711,13 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dlci_state->direction[1].stream_buf=NULL;
 		se_tree_insert32(dlci_table, dlci, dlci_state);
 	}
- 
+
 	/* pf and frame type */
 	offset=dissect_btrfcomm_Control(tvb, offset, rfcomm_tree, &pf_flag, &frame_type);
 
 
 	if ((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);	
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
 	}
 
 
@@ -729,7 +725,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset=dissect_btrfcomm_PayloadLen(tvb, offset, rfcomm_tree, &frame_len);
 
 
-	/* UID frame */ 
+	/* UID frame */
 	if(frame_type==0xef && dlci && pf_flag) {
 		if ((check_col(pinfo->cinfo, COL_INFO))){
 			col_append_str(pinfo->cinfo, COL_INFO, "UID ");
@@ -792,7 +788,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * it might be sufficient to just check if the first byte is the 0x7e
 	 * delimeter and if so just unescape it all into an ep_alloc() buffer
 	 * and pass it to ppp.
-	 */	
+	 */
 	if(dlci&&frame_len){
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
@@ -814,7 +810,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rps = my_malloc(sizeof(rfcomm_packet_state));
 		rps->ppp_first = NULL;
 		rps->ppp_last = NULL;
-		p_add_proto_data(pinfo->fd, proto_btrfcomm, rps);	
+		p_add_proto_data(pinfo->fd, proto_btrfcomm, rps);
 	}
 
 
@@ -827,7 +823,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			ds = &state[dlci].direction[cr_flag];
 			stream_buf_append(rps, ds, tvb, off, frame_len);
-		}		
+		}
 
 		if (rps && rps->ppp_first) {
 			rfcomm_ppp_frame *p;
@@ -849,16 +845,16 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_btrfcomm(void)
-{                   
+{
 	static hf_register_info hf[] = {
 		{&hf_dlci,
 			{"DLCI", "btrfcomm.dlci",
-			FT_UINT8, BASE_HEX, NULL, 0,          
+			FT_UINT8, BASE_HEX, NULL, 0,
 			"RFCOMM DLCI", HFILL}
 		},
 		{&hf_priority,
 			{"Priority", "btrfcomm.priority",
-			FT_UINT8, BASE_DEC, NULL, 0x3f,          
+			FT_UINT8, BASE_DEC, NULL, 0x3f,
 			"Priority", HFILL}
 		},
 		{&hf_max_frame_size,
@@ -903,35 +899,35 @@ proto_register_btrfcomm(void)
 		},
 		{&hf_frame_type,
 			{"Frame type", "btrfcomm.frame_type",
-			FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xef,          
+			FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xef,
 			"Command/Response flag", HFILL}
 		},
 		{&hf_pf,
 			{"P/F flag", "btrfcomm.pf",
-			FT_UINT8, BASE_HEX, NULL, 0x10,          
+			FT_UINT8, BASE_HEX, NULL, 0x10,
 			"Poll/Final bit", HFILL}
 		},
 		{&hf_pn_i14,
 			{"Type of frame", "btrfcomm.pn.i",
-			FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_i), 0x0f,          
-			"Type of information frames used for that particular DLCI", 
+			FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_i), 0x0f,
+			"Type of information frames used for that particular DLCI",
 			 HFILL}
 		},
 		{&hf_pn_c14,
 			{"Convergence layer", "btrfcomm.pn.cl",
-			FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_cl), 0xf0,          
+			FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_cl), 0xf0,
 			"Convergence layer used for that particular DLCI", HFILL}
 		},
 		{&hf_len,
 			{"Payload length", "btrfcomm.len",
-			FT_UINT16, BASE_DEC, NULL, 0,          
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Frame length", HFILL}
-		},		
+		},
 		{&hf_mcc_len,
 			{"MCC Length", "btrfcomm.mcc.len",
-			FT_UINT16, BASE_DEC, NULL, 0,          
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Length of MCC data", HFILL}
-		},		
+		},
 		{&hf_fcs,
 		         {"Frame Check Sequence", "btrfcomm.fcs",
 			 FT_UINT8, BASE_HEX, NULL, 0,
@@ -990,7 +986,7 @@ proto_register_btrfcomm(void)
 	proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Packet", "RFCOMM", "btrfcomm");
 
 	register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
-	
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
