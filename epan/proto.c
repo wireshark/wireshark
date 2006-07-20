@@ -240,7 +240,7 @@ static SLAB_FREE_LIST_DEFINE(item_label_t)
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
 	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
-	hfinfo=gpa_hfinfo.hfi[hfindex];		
+	hfinfo=gpa_hfinfo.hfi[hfindex];
 
 
 /* List which stores protocols and fields that have been registered */
@@ -484,10 +484,10 @@ free_GPtrArray_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
 	gint hfid = (gint)key;
 	header_field_info *hfinfo;
 
-	
+
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
 	if(hfinfo->ref_count){
-		/* when a field is referenced by a filter this also 
+		/* when a field is referenced by a filter this also
 		   affects the refcount for the parent protocol so we need
 		   to adjust the refcount for the parent as well
 		*/
@@ -1722,7 +1722,7 @@ static void
 proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
 {
 	e_guid_t guid;
-	
+
 	tvb_get_guid(tvb, start, &guid, little_endian);
 	proto_tree_set_guid(fi, &guid);
 }
@@ -1921,11 +1921,11 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
  * field info update instead of only updating the representation as does
  * proto_item_append_text()
  */
-/* NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM() 
+/* NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM()
  * speed optimization.
- * Currently only WSP use this function so it is not that bad but try to 
+ * Currently only WSP use this function so it is not that bad but try to
  * avoid using this one if possible.
- * IF you must use this function you MUST also disable the 
+ * IF you must use this function you MUST also disable the
  * TRY_TO_FAKE_THIS_ITEM() optimization for your dissector/function
  * using proto_item_append_string().
  * Do that by faking that the tree is visible by setting :
@@ -3048,7 +3048,7 @@ proto_item_get_len(proto_item *pi)
 	(fi->flags = (fi)->flags | (flags_in)); \
 }
 
-gboolean 
+gboolean
 proto_item_set_expert_flags(proto_item *pi, int group, int severity)
 {
 	if(pi == NULL || pi->finfo == NULL)
@@ -3166,7 +3166,7 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 }
 
 
-proto_item* 
+proto_item*
 proto_tree_get_parent(proto_tree *tree) {
 	/* dont bother if tree is not visible */
 	if( (!tree) || (!(PTREE_DATA(tree)->visible)) )
@@ -3202,7 +3202,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_
         /* fix last_child if required */
         if(tree->last_child == item_to_move) {
             tree->last_child = curr_item;
-        } 
+        }
     }
 
     /*** insert to_move after fixed ***/
@@ -3236,7 +3236,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
      * This is done by reducing the number of strcmp (and alike) calls as much as possible,
      * as this significally slows down startup time.
      *
-     * Drawback: As a hash value is used to reduce insert time, 
+     * Drawback: As a hash value is used to reduce insert time,
      * this might lead to a hash collision.
      * However, as we have around 500+ protocols and we're using a 32 bit int this is very,
      * very unlikely.
@@ -4591,7 +4591,7 @@ find_finfo(proto_node *node, gpointer data)
 			g_ptr_array_add(((ffdata_t*)data)->array, fi);
 		}
 	}
-	
+
 	/* Don't stop traversing. */
 	return FALSE;
 }
@@ -4606,14 +4606,14 @@ GPtrArray*
 proto_find_finfo(proto_tree *tree, int id)
 {
 	ffdata_t	ffdata;
-	
+
 	ffdata.array = g_ptr_array_new();
 	ffdata.id = id;
-	
+
 	proto_tree_traverse_pre_order(tree, find_finfo, &ffdata);
-	
+
 	return ffdata.array;
-}	
+}
 
 /* Helper function for proto_all_finfos() */
 static gboolean
@@ -4623,7 +4623,7 @@ every_finfo(proto_node *node, gpointer data)
 	if (fi && fi->hfinfo) {
 		g_ptr_array_add(((ffdata_t*)data)->array, fi);
 	}
-	
+
 	/* Don't stop traversing. */
 	return FALSE;
 }
@@ -4633,14 +4633,14 @@ GPtrArray*
 proto_all_finfos(proto_tree *tree)
 {
 	ffdata_t	ffdata;
-	
+
 	ffdata.array = g_ptr_array_new();
 	ffdata.id = 0;
-	
+
 	proto_tree_traverse_pre_order(tree, every_finfo, &ffdata);
-	
+
 	return ffdata.array;
-}	
+}
 
 
 typedef struct {
@@ -4939,7 +4939,7 @@ proto_registrar_dump_fields(int format)
 					hfinfo->type == FT_INT32 ||
 					hfinfo->type == FT_INT64) {
 
-					
+
 					switch(hfinfo->display) {
 						case BASE_NONE:
 							base_name = "BASE_NONE";
@@ -5157,7 +5157,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 }
 
 /* This function returns a string allocated with packet lifetime scope.
- * You do not need to [g_]free() this string since it will be automatically 
+ * You do not need to [g_]free() this string since it will be automatically
  * freed once the next packet is dissected.
  */
 char*
@@ -5332,7 +5332,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 				length = length_remaining;
 			if (length <= 0)
 				return NULL;
-			
+
 			start = finfo->start;
 			buf_len = 32 + length * 3;
 			buf = ep_alloc0(buf_len);
@@ -5346,7 +5346,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					ptr += g_snprintf(ptr, buf_len-(ptr-buf), "%02x", c);
 				}
 				else {
-					ptr += snprintf(ptr, buf_len-(ptr-buf), ":%02x", c);
+					ptr += g_snprintf(ptr, buf_len-(ptr-buf), ":%02x", c);
 				}
 			}
 			break;

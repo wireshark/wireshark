@@ -3066,7 +3066,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->name = ((TBLType *)list->data)->fieldName;
 
 			ni = fullindex;
-			ni += snprintf(&fieldname[ni], sizeof(fieldname) - ni, ".%s", p->name);
+			ni += g_snprintf(&fieldname[ni], sizeof(fieldname) - ni, ".%s", p->name);
 			p->fullname = g_strdup(fieldname);
 
 			/* initialize field info */

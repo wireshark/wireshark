@@ -36,7 +36,6 @@ libwireshark_LIBS = \
 LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
-#	snprintf.obj	\
 #	strerror.obj	\
 	inet_aton.obj	\
 	inet_pton.obj	\
