@@ -694,7 +694,7 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
 	g_ptr_array_free(dtd_data->elements,TRUE);
 
 	while(dtd_data->attributes->len) {
-		dtd_named_list_t* nl = g_ptr_array_remove_index_fast(dtd_data->elements,0);
+		dtd_named_list_t* nl = g_ptr_array_remove_index_fast(dtd_data->attributes,0);
 		g_ptr_array_free(nl->list,TRUE);
 		g_free(nl);
 	}
