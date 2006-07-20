@@ -278,7 +278,7 @@ endif		# HAVE_PLUGINS
 # we should probably split this into stuff needed both
 # by wireshark and tshark and stuff needed only by one or the
 # other.
-wireshark_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
+wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
 
 # Additional libs that I know how to build. These will be
