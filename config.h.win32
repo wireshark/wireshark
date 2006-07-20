@@ -216,7 +216,6 @@
 #define NEED_INET_V6DEFS_H	1
 #define NEED_GETOPT_H		1
 #define NEED_STRPTIME_H		1
-#define snprintf 		_snprintf
 #define strcasecmp		stricmp
 #define strncasecmp		strnicmp
 #define popen			_popen

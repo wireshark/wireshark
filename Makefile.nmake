@@ -41,7 +41,6 @@ command_line_OBJECTS =
 #setargv.obj
 
 EXTRA_OBJECTS = \
-#	snprintf.obj	\
 #	strerror.obj	\
 	mkstemp.obj	\
 	strptime.obj

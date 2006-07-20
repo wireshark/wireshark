@@ -1064,21 +1064,6 @@ fi
 AC_SUBST(GETOPT_C)
 AC_SUBST(GETOPT_O)
 
-# If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
-# then this won't work.
-SNPRINTF_C=""
-SNPRINTF_O=""
-AC_CHECK_FUNC(snprintf, SNPRINTF_O="",
-  [SNPRINTF_O="snprintf.o"
-   AC_DEFINE(NEED_SNPRINTF_H, 1, [Define if sprintf.h needs to be included])
-])
-if test "$ac_cv_func_snprintf" = no ; then
-  SNPRINTF_C="snprintf.c"
-  SNPRINTF_O="snprintf.o"
-fi
-AC_SUBST(SNPRINTF_C)
-AC_SUBST(SNPRINTF_O)
-
 AC_CHECK_FUNC(strerror, STRERROR_O="",
   [STRERROR_O="strerror.o"
    AC_DEFINE(NEED_STRERROR_H, 1, [Define if strerror.h needs to be included])

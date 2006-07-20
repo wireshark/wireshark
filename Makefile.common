@@ -121,7 +121,6 @@ TSHARK_TAP_SRC =	\
 EXTRA_wireshark_SOURCES =	\
 	getopt.c	\
 	mkstemp.c	\
-	snprintf.c	\
 	strerror.c	\
 	strcasecmp.c	\
 	strncasecmp.c	\
@@ -131,8 +130,6 @@ EXTRA_wireshark_SOURCES =	\
 EXTRA_wireshark_INCLUDES =	\
 	getopt.h	\
 	mkstemp.h	\
-	snprintf.h	\
-	snprintf-imp.h	\
 	strerror.h	\
 	strptime.h
 
