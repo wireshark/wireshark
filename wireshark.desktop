@@ -6,11 +6,7 @@
 Type=Application
 Version=1.0
 Encoding=UTF-8
-Name=Ethereal
-Name[ko]=이더리얼
-Name[ta]=®¾Ã¢Âø
-Name[uk]=Ефемерність
-Name[vi]=Ethereal
+Name=Wireshark
 GenericName=Network Analyzer
 GenericName[af]=Netwerk Analiseerder
 GenericName[az]=Şəbəkə Analiz Proqramı
