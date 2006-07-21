@@ -77,6 +77,15 @@ H245TransportAddress/ipxAddress/port  h245IpxPort
 H245TransportAddress/ip6Address     h245Ip6Address
 H245TransportAddress/ip6Address/ip  h245Ip6
 
+#.VIRTUAL_ASSGN
+Language           Setup-UUIE/language
+#.SET_TYPE
+Connect-UUIE/language         Language
+Setup-UUIE/language           Language
+RegistrationRequest/language  Language
+AdmissionConfirm/language     Language
+LocationRequest/language      Language
+
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
@@ -86,9 +95,6 @@ RasUsageSpecification/callStartingPoint RasUsageSpecificationcallStartingPoint
 CapacityReportingSpecification/when CapacityReportingSpecification_when
 RasUsageSpecification/when RasUsageSpecification_when
 TransportAddress/ipAddress/ip IpV4
-Connect-UUIE/language      Language
-Setup-UUIE/language        Language
-AdmissionConfirm/language  Language
 #----------------------------------------------------------------------------------------
 #.FIELD_RENAME
 RasUsageSpecification/callStartingPoint/alerting alerting_flg 
@@ -178,6 +184,14 @@ GatekeeperRejectReason/securityError gkRej_securityError
 RegistrationRejectReason/securityError reg_securityError
 
 CallIdentifier/guid guid
+
+ExtendedAliasAddress/address  extAliasAddress
+
+IsupNumber/e164Number                  isupE164Number
+IsupNumber/dataPartyNumber             isupDataPartyNumber
+IsupNumber/telexPartyNumber            isupTelexPartyNumber
+IsupNumber/privateNumber               isupPrivateNumber
+IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h323-message-body  VAL_PTR = &message_body_val

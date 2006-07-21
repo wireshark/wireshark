@@ -1,12 +1,12 @@
 -- MULTIMEDIA-SYSTEM-CONTROL.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h245/2005v12/MULTIMEDIA-SYSTEM-CONTROL.asn
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h245/2006v13/MULTIMEDIA-SYSTEM-CONTROL.asn
 --
 -- $Id$
 --
 
--- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:10/2005)
+-- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:05/2006)
 MULTIMEDIA-SYSTEM-CONTROL DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -195,7 +195,7 @@ TerminalCapabilitySet ::= SEQUENCE {
   protocolIdentifier     OBJECT IDENTIFIER,
   -- shall be set to the value
   -- {itu-t (0) recommendation (0) h (8) 245 
-  -- version (0) 12}
+  -- version (0) 13}
   multiplexCapability    MultiplexCapability OPTIONAL,
   capabilityTable        SET SIZE (1..256) OF CapabilityTableEntry OPTIONAL,
   capabilityDescriptors  SET SIZE (1..256) OF CapabilityDescriptor OPTIONAL,
@@ -296,7 +296,7 @@ Capability ::= CHOICE {
 H235SecurityCapability ::= SEQUENCE {
   encryptionAuthenticationAndIntegrity  EncryptionAuthenticationAndIntegrity,
   mediaCapability                       CapabilityTableEntryNumber,
-  -- NOTE ? The mediaCapability shall refer to Capability Table Entries 
+  -- NOTE – The mediaCapability shall refer to Capability Table Entries 
   -- that do contain, directly or indirectly, one or more transmit,
   -- receive, or receiveAndTransmit AudioCapability, VideoCapability,
   -- DataApplicationCapability, or similar capabilities indicated by a
@@ -509,11 +509,69 @@ ATMParameters ::= SEQUENCE {
   ...
 }
 
-QOSCapability ::= SEQUENCE {
-  nonStandardData  NonStandardParameter OPTIONAL,
-  rsvpParameters   RSVPParameters OPTIONAL,
-  atmParameters    ATMParameters OPTIONAL,
+ServicePriorityValue ::= SEQUENCE {
+  nonStandardParameter  NonStandardParameter OPTIONAL,
   ...
+}
+
+ServicePriority ::= SEQUENCE {
+  nonStandardData           NonStandardParameter OPTIONAL,
+  servicePrioritySignalled  BOOLEAN,
+  servicePriorityValue      ServicePriorityValue OPTIONAL,
+  ...
+}
+
+AuthorizationParameters ::= SEQUENCE {
+  nonStandardData  NonStandardParameter OPTIONAL,
+  ...
+}
+
+QOSType ::= CHOICE {desired   NULL,
+                    required  NULL,
+                    ...
+}
+
+QOSClass ::= CHOICE {
+  class0  NULL,
+  class1  NULL,
+  class2  NULL,
+  class3  NULL,
+  class4  NULL,
+  class5  NULL,
+  ...
+}
+
+QOSDescriptor ::= SEQUENCE {
+  nonStandardData  NonStandardParameter OPTIONAL,
+  qosType          QOSType,
+  qosClass         QOSClass,
+  ...
+}
+
+GenericTransportParameters ::= SEQUENCE {
+  nonStandardData  NonStandardParameter OPTIONAL,
+  averageRate      INTEGER(1..4294967295) OPTIONAL,
+  -- average bandwidth bytes/sec
+  burst            INTEGER(1..4294967295) OPTIONAL,
+  --  size in bytes
+  peakRate         INTEGER(1..4294967295) OPTIONAL,
+  -- peak bandwidth bytes/sec
+  maxPktSize       INTEGER(1..4294967295) OPTIONAL,
+  -- size in bytes
+  ...
+}
+
+QOSCapability ::= SEQUENCE {
+  nonStandardData                NonStandardParameter OPTIONAL,
+  rsvpParameters                 RSVPParameters OPTIONAL,
+  atmParameters                  ATMParameters OPTIONAL,
+  ...,
+  localQoS                       BOOLEAN OPTIONAL,
+  genericTransportParameters     GenericTransportParameters OPTIONAL,
+  servicePriority                ServicePriority OPTIONAL,
+  authorizationParameter         AuthorizationParameters OPTIONAL,
+  qosDescriptor                  QOSDescriptor OPTIONAL,
+  dscpValue                      INTEGER(0..63) OPTIONAL
 }
 
 MediaTransportType ::= CHOICE {
@@ -1090,7 +1148,7 @@ T38FaxProfile ::= SEQUENCE {
   ...,
   version                  INTEGER(0..255),
   -- Version 0, the default, refers to 
-  -- T.38 (1998)
+  -- T.38 (2005)
   t38FaxRateManagement     T38FaxRateManagement,
   -- The default Data Rate Management is
   -- determined by the choice of
@@ -1174,7 +1232,7 @@ UserInputCapability ::= CHOICE {
   encryptedGeneralString      NULL, -- encrypted general string in
   
   -- extendedAlphanumeric.encryptedalphanumeric
-  secureDTMF                  NULL, -- secure DTMF using encryptedSignalType 
+  secureDTMF                  NULL, -- secure DTMF using encryptedSignalType
   genericUserInputCapability  GenericCapability
 }
 
@@ -1216,7 +1274,7 @@ CapabilityIdentifier ::= CHOICE {
   ...
 }
 
--- NOTE ? The ranges of parameter values have been selected to ensure that the 
+-- NOTE – The ranges of parameter values have been selected to ensure that the 
 -- GenericParameter preamble, standard part of ParameterIdentifier and the 
 -- encoding of that choice, and the preamble of ParameterValue to fit into 
 -- 2 octets.
@@ -1305,7 +1363,9 @@ AudioToneCapability ::= SEQUENCE {dynamicRTPPayloadType  INTEGER(96..127),
 
 -- The following definitions are as above but without a Payload Type field.
 NoPTAudioTelephonyEventCapability ::= SEQUENCE {
-  audioTelephoneEvent  GeneralString, -- As per <list of values> in 3.9/RFC 2833
+  audioTelephoneEvent  GeneralString, -- As per <list of values> 
+  
+  -- in 3.9/RFC 2833
   ...
 }
 
@@ -1342,8 +1402,7 @@ FECCapability ::= SEQUENCE {
   rfc2733Format
     CHOICE {rfc2733rfc2198   MaxRedundancy, -- RFC2198 --
             rfc2733sameport  MaxRedundancy, -- separate packet, same port--
-            rfc2733diffport  MaxRedundancy
-  } -- separate packet and port -- OPTIONAL,
+            rfc2733diffport  MaxRedundancy} OPTIONAL, -- separate packet and port
   ...
 }
 
@@ -1404,9 +1463,8 @@ OpenLogicalChannel ::= SEQUENCE {
   -- for Open responder to establish the stack
   encryptionSync                   EncryptionSync OPTIONAL,
   genericInformation               SEQUENCE OF GenericInformation OPTIONAL
-}
+} -- generic information associated 
 
--- generic information associated 
 -- with the message
 LogicalChannelNumber ::= INTEGER(1..65535)
 
@@ -1680,7 +1738,7 @@ MultiplePayloadStreamElement ::= SEQUENCE {
   ...
 }
 
-DepFECData ::= CHOICE -- Deprecated, do not use 
+DepFECData ::= CHOICE -- Deprecated, do not use
                 {
   rfc2733
     SEQUENCE {mode
@@ -1765,7 +1823,7 @@ MulticastAddress ::= CHOICE {
 
 EncryptionSync ::=
   SEQUENCE
-   -- used to supply new key and synchronization point 
+   -- used to supply new key and synchronization point
   {
   nonStandard          NonStandardParameter OPTIONAL,
   synchFlag            INTEGER(0..255), -- may need to be larger 
@@ -1773,7 +1831,7 @@ EncryptionSync ::=
   -- for H.324, etc.
   -- shall be the Dynamic 
   -- Payload# for H.323 
-  h235Key              OCTET STRING(SIZE (1..65535)), -- H.235 
+  h235Key              OCTET STRING(SIZE (1..65535)), -- H.235.0 
   
   -- encoded value
   escrowentry          SEQUENCE SIZE (1..256) OF EscrowData OPTIONAL,
@@ -1840,17 +1898,15 @@ OpenLogicalChannelReject ::= SEQUENCE {
             securityDenied                     NULL},
   ...,
   genericInformation           SEQUENCE OF GenericInformation OPTIONAL
-}
+} -- generic information associated 
 
--- generic information associated 
 -- with the message
 OpenLogicalChannelConfirm ::= SEQUENCE {
   forwardLogicalChannelNumber  LogicalChannelNumber,
   ...,
   genericInformation           SEQUENCE OF GenericInformation OPTIONAL
-}
+} -- generic information associated 
 
--- generic information associated 
 -- with the message
 H2250LogicalChannelAckParameters ::= SEQUENCE {
   nonStandard            SEQUENCE OF NonStandardParameter OPTIONAL,
@@ -1936,7 +1992,7 @@ MultiplexElement ::= SEQUENCE {
   },
   repeatCount
     CHOICE {finite            INTEGER(1..65535), -- repeats of type--
-            untilClosingFlag  -- used for last element -- NULL}
+            untilClosingFlag  NULL} -- used for last element
 }
 
 MultiplexTableEntryNumber ::= INTEGER(1..15)
@@ -2106,7 +2162,7 @@ MultiplePayloadStreamElementMode ::= SEQUENCE {type  ModeElementType,
                                                ...
 }
 
-DepFECMode ::= CHOICE -- deprecated, do not use 
+DepFECMode ::= CHOICE -- deprecated, do not use
                 {
   rfc2733Mode
     SEQUENCE {mode
@@ -2133,9 +2189,8 @@ FECMode ::= SEQUENCE {
   -- identifies encoding scheme
   rfc2733Format
     CHOICE {rfc2733rfc2198   MaxRedundancy, -- RFC2198 redundancy--
-            rfc2733sameport  MaxRedundancy,
-            -- separate packet, same port
-            rfc2733diffport  -- separate packet and port -- MaxRedundancy
+            rfc2733sameport  MaxRedundancy, -- separate packet, same port--
+            rfc2733diffport  MaxRedundancy -- separate packet and port 
   } OPTIONAL,
   ...
 }
@@ -2149,8 +2204,8 @@ H223ModeParameters ::= SEQUENCE {
             al2WithSequenceNumbers     NULL,
             al3
               SEQUENCE {controlFieldOctets  INTEGER(0..2),
-                        sendBufferSize
-                          -- units octets -- INTEGER(0..16777215)},
+                        sendBufferSize      INTEGER(0..16777215) -- units octets 
+            },
             ...,
             al1M                       H223AL1MParameters,
             al2M                       H223AL2MParameters,
@@ -2550,36 +2605,33 @@ ConferenceResponse ::= CHOICE {
                          terminalID     TerminalID,
                          ...},
   terminalIDResponse
-    SEQUENCE-- response to TCS2 or TCI -- {-- same as IIS --terminalLabel
-                                                              TerminalLabel, -- (term->MC)--
-                                                            terminalID
-                                                              TerminalID,
-                                                            ...},
+    SEQUENCE-- response to TCS2 or TCI-- {-- same as IIS--terminalLabel
+                                                            TerminalLabel, -- (term->MC)--
+                                                          terminalID
+                                                            TerminalID,
+                                                          ...},
   conferenceIDResponse
-    SEQUENCE-- response to TCS3 -- {-- same as IIS --terminalLabel
-                                                       TerminalLabel, -- (term->MC)--
-                                                     conferenceID
-                                                       ConferenceID,
-                                                     ...},
+    SEQUENCE-- response to TCS3-- {-- same as IIS--terminalLabel  TerminalLabel, -- (term->MC)--
+                                                   conferenceID   ConferenceID,
+                                                   ...},
   passwordResponse
-    SEQUENCE-- response to TCS1 -- {-- same as IIS --terminalLabel
-                                                       TerminalLabel, -- (term->MC)--
-                                                     password       Password,
-                                                     ...},
+    SEQUENCE-- response to TCS1-- {-- same as IIS--terminalLabel  TerminalLabel, -- (term->MC)--
+                                                   password       Password,
+                                                   ...},
   terminalListResponse               SET SIZE (1..256) OF TerminalLabel,
   videoCommandReject                 NULL, -- same as H.230 VCR
   terminalDropReject                 NULL, -- same as H.230 CIR
   makeMeChairResponse
-    CHOICE-- same as H.230 CCR -- {grantedChairToken  NULL, -- same as H.230 CIT--
-                                   deniedChairToken   NULL, -- same as H.230 CCR--
-                                   ...},
+    CHOICE-- same as H.230 CCR-- {grantedChairToken  NULL, -- same as H.230 CIT--
+                                  deniedChairToken   NULL, -- same as H.230 CCR--
+                                  ...},
   ...,
   extensionAddressResponse
-    SEQUENCE-- response to TCS4 -- {extensionAddress  TerminalID, -- same as IIS (term->GW)--
-                                    ...},
+    SEQUENCE-- response to TCS4-- {extensionAddress  TerminalID, -- same as IIS (term->GW)--
+                                   ...},
   chairTokenOwnerResponse
     SEQUENCE-- response to TCA (same as TIR) --
-     -- sent by MC only 
+     -- sent by MC only
     {terminalLabel  TerminalLabel,
      terminalID     TerminalID,
      ...},
@@ -2728,8 +2780,8 @@ DialingInformationNetworkType ::= CHOICE {
 }
 
 ConnectionIdentifier ::= SEQUENCE {
-  channelTag      INTEGER(0..4294967295), -- from H.MULTILINK
-  sequenceNumber  INTEGER(0..4294967295), -- from H.MULTILINK
+  channelTag      INTEGER(0..4294967295), -- from H.226
+  sequenceNumber  INTEGER(0..4294967295), -- from H.226
   ...
 }
 
@@ -2835,9 +2887,9 @@ EndSessionCommand ::= CHOICE {
             v140            NULL,
             terminalOnHold  NULL,
             ...},
-  genericInformation
-    -- generic information associated with the message -- SEQUENCE OF
-      GenericInformation
+  genericInformation  SEQUENCE OF GenericInformation
+  -- generic information associated 
+  -- with the message
 }
 
 -- =============================================================================
@@ -2924,14 +2976,14 @@ MiscellaneousCommand ::= SEQUENCE {
                         ...},
             recoveryReferencePicture              SEQUENCE OF PictureReference,
             encryptionUpdateCommand
-              SEQUENCE-- for ack'ed key update in H.235V3 -- {encryptionSync
-                                                              
-                                                                EncryptionSync,
-                                                              multiplePayloadStream
-                                                              
-                                                                MultiplePayloadStream
-                                                                  OPTIONAL,
-                                                              ...},
+              SEQUENCE-- for ack'ed key update in H.235V3-- {encryptionSync
+                                                             
+                                                               EncryptionSync,
+                                                             multiplePayloadStream
+                                                             
+                                                               MultiplePayloadStream
+                                                                 OPTIONAL,
+                                                             ...},
             encryptionUpdateAck
               SEQUENCE {synchFlag  INTEGER(0..255),
                         ...}},
@@ -2940,8 +2992,10 @@ MiscellaneousCommand ::= SEQUENCE {
 }
 
 KeyProtectionMethod ::=
-  SEQUENCE -- specify how the new key is to be protected 
-   {
+  SEQUENCE -- specify how the new 
+  
+   -- key is to be protected
+  {
   secureChannel     BOOLEAN,
   sharedSecret      BOOLEAN,
   certProtectedKey  BOOLEAN,
@@ -3241,8 +3295,8 @@ IV16 ::= OCTET STRING(SIZE (16))
 -- initial value for 
 -- 128-bit block ciphers
 Params ::= SEQUENCE {
-  iv8   IV8 OPTIONAL, -- 8 octet initialization vector
-  iv16  IV16 OPTIONAL, -- 16 octet initialization vector
+  iv8   IV8 OPTIONAL, -- 8-octet initialization vector
+  iv16  IV16 OPTIONAL, -- 16-octet initialization vector
   iv    OCTET STRING OPTIONAL, -- arbitrary length
   
   -- initialization vector
@@ -3303,11 +3357,10 @@ UserInputIndication ::= CHOICE {
               paramS        Params OPTIONAL, -- any "runtime" parameters--
               encrypted     OCTET STRING, -- basic string encrypted--
               ...},
-  genericInformation
-    -- generic information associated with the message -- SEQUENCE OF
-      GenericInformation
-}
+  genericInformation          SEQUENCE OF GenericInformation
+} -- generic information associated 
 
+-- with the message
 -- =============================================================================
 -- Indication Message: Flow Control
 -- =============================================================================

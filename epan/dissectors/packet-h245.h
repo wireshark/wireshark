@@ -133,6 +133,7 @@ extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 /*--- Included file: packet-h245-exp.h ---*/
 #line 1 "packet-h245-exp.h"
 extern const value_string DataProtocolCapability_vals[];
+int dissect_h245_QOSCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);

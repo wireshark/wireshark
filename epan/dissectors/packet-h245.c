@@ -565,8 +565,29 @@ static int hf_h245_atmrtVBR = -1;                 /* BOOLEAN */
 static int hf_h245_atmnrtVBR = -1;                /* BOOLEAN */
 static int hf_h245_atmABR = -1;                   /* BOOLEAN */
 static int hf_h245_atmCBR = -1;                   /* BOOLEAN */
+static int hf_h245_nonStandardParameter = -1;     /* NonStandardParameter */
+static int hf_h245_servicePrioritySignalled = -1;  /* BOOLEAN */
+static int hf_h245_servicePriorityValue = -1;     /* ServicePriorityValue */
+static int hf_h245_desired = -1;                  /* NULL */
+static int hf_h245_required = -1;                 /* NULL */
+static int hf_h245_class0 = -1;                   /* NULL */
+static int hf_h245_class1 = -1;                   /* NULL */
+static int hf_h245_class2 = -1;                   /* NULL */
+static int hf_h245_class3 = -1;                   /* NULL */
+static int hf_h245_class4 = -1;                   /* NULL */
+static int hf_h245_class5 = -1;                   /* NULL */
+static int hf_h245_qosType = -1;                  /* QOSType */
+static int hf_h245_qosClass = -1;                 /* QOSClass */
+static int hf_h245_averageRate = -1;              /* INTEGER_1_4294967295 */
+static int hf_h245_burst = -1;                    /* INTEGER_1_4294967295 */
 static int hf_h245_rsvpParameters = -1;           /* RSVPParameters */
 static int hf_h245_atmParameters = -1;            /* ATMParameters */
+static int hf_h245_localQoS = -1;                 /* BOOLEAN */
+static int hf_h245_genericTransportParameters = -1;  /* GenericTransportParameters */
+static int hf_h245_servicePriority = -1;          /* ServicePriority */
+static int hf_h245_authorizationParameter = -1;   /* AuthorizationParameters */
+static int hf_h245_qosDescriptor = -1;            /* QOSDescriptor */
+static int hf_h245_dscpValue = -1;                /* INTEGER_0_63 */
 static int hf_h245_ip_UDP = -1;                   /* NULL */
 static int hf_h245_ip_TCP = -1;                   /* NULL */
 static int hf_h245_atm_AAL5_UNIDIR = -1;          /* NULL */
@@ -1727,6 +1748,13 @@ static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType = -1;
 static gint ett_h245_RSVPParameters = -1;
 static gint ett_h245_QOSMode = -1;
 static gint ett_h245_ATMParameters = -1;
+static gint ett_h245_ServicePriorityValue = -1;
+static gint ett_h245_ServicePriority = -1;
+static gint ett_h245_AuthorizationParameters = -1;
+static gint ett_h245_QOSType = -1;
+static gint ett_h245_QOSClass = -1;
+static gint ett_h245_QOSDescriptor = -1;
+static gint ett_h245_GenericTransportParameters = -1;
 static gint ett_h245_QOSCapability = -1;
 static gint ett_h245_MediaTransportType = -1;
 static gint ett_h245_T_atm_AAL5_compressed = -1;
@@ -2231,7 +2259,7 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 700 "h245.cnf"
+#line 701 "h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -2239,7 +2267,7 @@ dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 704 "h245.cnf"
+#line 705 "h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -2261,7 +2289,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 681 "h245.cnf"
+#line 682 "h245.cnf"
 	guint32 value;
 
 	nsiOID = "";
@@ -2290,7 +2318,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_nsd_data(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 715 "h245.cnf"
+#line 716 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2313,7 +2341,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 713 "h245.cnf"
+#line 714 "h245.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2368,7 +2396,7 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb, int offset, asn1_ctx_t *act
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
-#line 464 "h245.cnf"
+#line 465 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDet;
 
@@ -3267,7 +3295,7 @@ static int
 dissect_h245_T_standardOid(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &standard_oid_str);
 
-#line 503 "h245.cnf"
+#line 504 "h245.cnf"
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
 
@@ -3500,7 +3528,7 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 397 "h245.cnf"
+#line 398 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -3756,14 +3784,160 @@ dissect_h245_ATMParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, prot
 }
 
 
-static const per_sequence_t QOSCapability_sequence[] = {
+static const per_sequence_t GenericTransportParameters_sequence[] = {
   { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
-  { &hf_h245_rsvpParameters , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_RSVPParameters },
-  { &hf_h245_atmParameters  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_ATMParameters },
+  { &hf_h245_averageRate    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_1_4294967295 },
+  { &hf_h245_burst          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_1_4294967295 },
+  { &hf_h245_peakRate       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_1_4294967295 },
+  { &hf_h245_maxPktSize     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_1_4294967295 },
   { NULL, 0, 0, NULL }
 };
 
 static int
+dissect_h245_GenericTransportParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h245_GenericTransportParameters, GenericTransportParameters_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServicePriorityValue_sequence[] = {
+  { &hf_h245_nonStandardParameter, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_ServicePriorityValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h245_ServicePriorityValue, ServicePriorityValue_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServicePriority_sequence[] = {
+  { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { &hf_h245_servicePrioritySignalled, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_servicePriorityValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_ServicePriorityValue },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_ServicePriority(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h245_ServicePriority, ServicePriority_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AuthorizationParameters_sequence[] = {
+  { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_AuthorizationParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h245_AuthorizationParameters, AuthorizationParameters_sequence);
+
+  return offset;
+}
+
+
+static const value_string h245_QOSType_vals[] = {
+  {   0, "desired" },
+  {   1, "required" },
+  { 0, NULL }
+};
+
+static const per_choice_t QOSType_choice[] = {
+  {   0, &hf_h245_desired        , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   1, &hf_h245_required       , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_h245_QOSType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_h245_QOSType, QOSType_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string h245_QOSClass_vals[] = {
+  {   0, "class0" },
+  {   1, "class1" },
+  {   2, "class2" },
+  {   3, "class3" },
+  {   4, "class4" },
+  {   5, "class5" },
+  { 0, NULL }
+};
+
+static const per_choice_t QOSClass_choice[] = {
+  {   0, &hf_h245_class0         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   1, &hf_h245_class1         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   2, &hf_h245_class2         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   3, &hf_h245_class3         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   4, &hf_h245_class4         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   5, &hf_h245_class5         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_h245_QOSClass(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_h245_QOSClass, QOSClass_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t QOSDescriptor_sequence[] = {
+  { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { &hf_h245_qosType        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_QOSType },
+  { &hf_h245_qosClass       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_QOSClass },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_QOSDescriptor(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h245_QOSDescriptor, QOSDescriptor_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h245_INTEGER_0_63(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t QOSCapability_sequence[] = {
+  { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { &hf_h245_rsvpParameters , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_RSVPParameters },
+  { &hf_h245_atmParameters  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_ATMParameters },
+  { &hf_h245_localQoS       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_BOOLEAN },
+  { &hf_h245_genericTransportParameters, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_GenericTransportParameters },
+  { &hf_h245_servicePriority, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_ServicePriority },
+  { &hf_h245_authorizationParameter, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_AuthorizationParameters },
+  { &hf_h245_qosDescriptor  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_QOSDescriptor },
+  { &hf_h245_dscpValue      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_INTEGER_0_63 },
+  { NULL, 0, 0, NULL }
+};
+
+int
 dissect_h245_QOSCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_QOSCapability, QOSCapability_sequence);
@@ -4884,7 +5058,7 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H263VideoCapability, H263VideoCapability_sequence);
 
-#line 264 "h245.cnf"
+#line 265 "h245.cnf"
   h245_lc_dissector = h263_handle;
 
   return offset;
@@ -4977,7 +5151,7 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 388 "h245.cnf"
+#line 389 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5296,7 +5470,7 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 379 "h245.cnf"
+#line 380 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5877,7 +6051,7 @@ dissect_h245_SET_SIZE_1_256_OF_CapabilityDescriptor(tvbuff_t *tvb, int offset, a
 
 static int
 dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 508 "h245.cnf"
+#line 509 "h245.cnf"
   guint32 subMessageIdentifer;
 
 
@@ -5941,7 +6115,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
-#line 479 "h245.cnf"
+#line 480 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSet;
 
@@ -5952,7 +6126,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 119 "h245.cnf"
+#line 120 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 65535U, &value, FALSE);
@@ -5969,7 +6143,7 @@ static int
 dissect_h245_OLC_fw_lcn(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 125 "h245.cnf"
+#line 126 "h245.cnf"
   h223_fw_lc_num = h245_lc_temp;
 
   return offset;
@@ -6432,7 +6606,7 @@ dissect_h245_H222LogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_ctx_t 
 
 static int
 dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 156 "h245.cnf"
+#line 157 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1Framed;
 
@@ -6445,7 +6619,7 @@ dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb, int offset, asn1_ctx_t *act
 
 static int
 dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 161 "h245.cnf"
+#line 162 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1NotFramed;
 
@@ -6458,7 +6632,7 @@ dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb, int offset, asn1_ctx_t *
 
 static int
 dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 166 "h245.cnf"
+#line 167 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
 
@@ -6471,7 +6645,7 @@ dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset,
 
 static int
 dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 171 "h245.cnf"
+#line 172 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
 
@@ -6484,7 +6658,7 @@ dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, as
 
 static int
 dissect_h245_T_controlFieldOctets(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 185 "h245.cnf"
+#line 186 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 2U, &value, FALSE);
@@ -6500,7 +6674,7 @@ dissect_h245_T_controlFieldOctets(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_T_al3_sendBufferSize(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 194 "h245.cnf"
+#line 195 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 16777215U, &value, FALSE);
@@ -6531,7 +6705,7 @@ dissect_h245_Al3(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tr
 
 static int
 dissect_h245_T_h223_al_type_al3(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 176 "h245.cnf"
+#line 177 "h245.cnf"
  if(h223_lc_params_temp) {
 	h223_lc_params_temp->al_type = al3;
 	h223_lc_params_temp->al_params = se_alloc(sizeof(h223_al3_params));
@@ -6726,7 +6900,7 @@ dissect_h245_H223AL1MParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h245_T_h223_al_type_al1M(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 201 "h245.cnf"
+#line 202 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1M;
 
@@ -6776,7 +6950,7 @@ dissect_h245_H223AL2MParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h245_T_h223_al_type_al2M(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 206 "h245.cnf"
+#line 207 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2M;
 
@@ -6864,7 +7038,7 @@ dissect_h245_H223AL3MParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h245_T_h223_al_type_al3M(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 211 "h245.cnf"
+#line 212 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al3M;
 
@@ -6913,7 +7087,7 @@ dissect_h245_T_adaptationLayerType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_h223_lc_segmentableFlag(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 218 "h245.cnf"
+#line 219 "h245.cnf"
   guint32 value;
   offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &value);
 
@@ -6943,7 +7117,7 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_ctx_t 
 
 static int
 dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 138 "h245.cnf"
+#line 139 "h245.cnf"
   h223_fw_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_fw_lc_params->al_type = al_nonStandard;
   h223_fw_lc_params->al_params = NULL;
@@ -7117,7 +7291,7 @@ dissect_h245_V76LogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *
 
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 515 "h245.cnf"
+#line 516 "h245.cnf"
 
   tvbuff_t *value_tvb;
 
@@ -7139,7 +7313,7 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 528 "h245.cnf"
+#line 529 "h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -7398,14 +7572,14 @@ dissect_h245_TransportAddress(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 546 "h245.cnf"
+#line 547 "h245.cnf"
 
 
 	media_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 576 "h245.cnf"
+#line 577 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -7417,14 +7591,14 @@ dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 558 "h245.cnf"
+#line 559 "h245.cnf"
 
 
 	media_control_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 582 "h245.cnf"
+#line 583 "h245.cnf"
 
 
 	media_control_channel = FALSE;
@@ -7556,7 +7730,7 @@ static const per_sequence_t T_forwardLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 129 "h245.cnf"
+#line 130 "h245.cnf"
   h245_lc_dissector = NULL;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_T_forwardLogicalChannelParameters, T_forwardLogicalChannelParameters_sequence);
@@ -7574,7 +7748,7 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_c
 
 static int
 dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 147 "h245.cnf"
+#line 148 "h245.cnf"
   h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_rev_lc_params->al_type = al_nonStandard;
   h223_rev_lc_params->al_params = NULL;
@@ -7604,7 +7778,7 @@ static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
 
 static int
 dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 632 "h245.cnf"
+#line 633 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -7615,7 +7789,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *
                                  ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice,
                                  NULL);
 
-#line 640 "h245.cnf"
+#line 641 "h245.cnf"
 	
 	if (!actx->pinfo->fd->flags.visited) {
 		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
@@ -7859,7 +8033,7 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 100 "h245.cnf"
+#line 101 "h245.cnf"
   gint32 temp;
 
   h223_fw_lc_num = 0;
@@ -7878,7 +8052,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,
   }
 
 
-#line 490 "h245.cnf"
+#line 491 "h245.cnf"
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 
@@ -7944,7 +8118,7 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
-#line 444 "h245.cnf"
+#line 445 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChn;
 
@@ -7997,7 +8171,7 @@ dissect_h245_RequestChannelClose(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 44 "h245.cnf"
+#line 45 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 15U, &value, FALSE);
@@ -8012,7 +8186,7 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, asn1_ctx_t *ac
 
 static int
 dissect_h245_T_logicalChannelNum(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 70 "h245.cnf"
+#line 71 "h245.cnf"
   /*MultiplexElement/type/logicalChannelNumber*/
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -8032,7 +8206,7 @@ static const per_sequence_t T_subElementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_subElementList(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 78 "h245.cnf"
+#line 79 "h245.cnf"
   h223_mux_element dummy_me, *parent_me = h223_me;
   h223_me = &dummy_me;
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
@@ -8073,7 +8247,7 @@ dissect_h245_Me_type(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree
 
 static int
 dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 93 "h245.cnf"
+#line 94 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 65535U, &value, FALSE);
@@ -8090,7 +8264,7 @@ static int
 dissect_h245_T_untilClosingFlag(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
-#line 87 "h245.cnf"
+#line 88 "h245.cnf"
   h223_me->repeat_count = 0;
 
   return offset;
@@ -8127,7 +8301,7 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 60 "h245.cnf"
+#line 61 "h245.cnf"
   /*MultiplexElement*/
   h223_mux_element* me = se_alloc(sizeof(h223_mux_element));
   h223_me->next = me;
@@ -8147,7 +8321,7 @@ static const per_sequence_t T_elementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_elementList(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 50 "h245.cnf"
+#line 51 "h245.cnf"
   /* create a h223_mux_element to hold onto the head of the list, since
    * h223_me will track the tail */
   h223_mux_element dummy_me;
@@ -8172,7 +8346,7 @@ static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
 
 static int
 dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 32 "h245.cnf"
+#line 33 "h245.cnf"
   /*MultiplexEntryDescriptor*/
   h223_me = NULL;
   h223_mc = 0;
@@ -8437,7 +8611,7 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 413 "h245.cnf"
+#line 414 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -8764,7 +8938,7 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 405 "h245.cnf"
+#line 406 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -8832,7 +9006,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 421 "h245.cnf"
+#line 422 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9820,7 +9994,7 @@ static const per_choice_t RequestMessage_choice[] = {
 
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 268 "h245.cnf"
+#line 269 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9897,7 +10071,7 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb, int offset, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
-#line 429 "h245.cnf"
+#line 430 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetAck;
 
@@ -9935,7 +10109,7 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb, int offset, asn1_ctx_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
-#line 434 "h245.cnf"
+#line 435 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRjc;
 
@@ -9954,7 +10128,7 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, asn1_ctx_t *act
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
-#line 459 "h245.cnf"
+#line 460 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetAck;
 
@@ -10022,7 +10196,7 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb, int offset, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
-#line 469 "h245.cnf"
+#line 470 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRjc;
 
@@ -10035,7 +10209,7 @@ static int
 dissect_h245_OLC_ack_fw_lcn(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 256 "h245.cnf"
+#line 257 "h245.cnf"
   h223_fw_lc_num = h245_lc_temp;
 
   return offset;
@@ -10047,7 +10221,7 @@ static int
 dissect_h245_T_reverseLogicalChannelNumber(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 260 "h245.cnf"
+#line 261 "h245.cnf"
   h223_rev_lc_num = h245_lc_temp;
 
   return offset;
@@ -10096,14 +10270,14 @@ dissect_h245_OLC_ack_reverseLogicalChannelParameters(tvbuff_t *tvb, int offset, 
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 540 "h245.cnf"
+#line 541 "h245.cnf"
 
 
 	media_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 564 "h245.cnf"
+#line 565 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -10115,14 +10289,14 @@ dissect_h245_Ack_mediaChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 552 "h245.cnf"
+#line 553 "h245.cnf"
 
 
 	media_control_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 570 "h245.cnf"
+#line 571 "h245.cnf"
 
 
 	media_control_channel = FALSE;
@@ -10163,7 +10337,7 @@ static const per_choice_t T_forwardMultiplexAckParameters_choice[] = {
 
 static int
 dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 588 "h245.cnf"
+#line 589 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -10174,7 +10348,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, asn1_ctx
                                  ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
-#line 596 "h245.cnf"
+#line 597 "h245.cnf"
 	
 	if (!actx->pinfo->fd->flags.visited) {
 		if (codec_type && strcmp(codec_type, "t38fax")==0) {
@@ -10225,7 +10399,7 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 226 "h245.cnf"
+#line 227 "h245.cnf"
   guint32 temp;
   int p2p_dir;
   h223_pending_olc *pend;
@@ -10257,7 +10431,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
   actx->pinfo->p2p_dir = p2p_dir;
 
 
-#line 496 "h245.cnf"
+#line 497 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnAck;
 
@@ -10325,7 +10499,7 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, asn1_ctx_t *act
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
-#line 439 "h245.cnf"
+#line 440 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnRjc;
 
@@ -10343,7 +10517,7 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
-#line 449 "h245.cnf"
+#line 450 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChnAck;
 
@@ -11466,7 +11640,7 @@ static const per_choice_t ResponseMessage_choice[] = {
 
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 306 "h245.cnf"
+#line 307 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -12506,7 +12680,7 @@ static const per_choice_t CommandMessage_choice[] = {
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 355 "h245.cnf"
+#line 356 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -12570,7 +12744,7 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, asn1_ctx
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
-#line 474 "h245.cnf"
+#line 475 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRls;
 
@@ -12588,7 +12762,7 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, asn1_ctx_t 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
-#line 484 "h245.cnf"
+#line 485 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRls;
 
@@ -12607,7 +12781,7 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, asn1_ctx_t *ac
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
-#line 454 "h245.cnf"
+#line 455 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnCnf;
 
@@ -13548,7 +13722,7 @@ static const per_choice_t IndicationMessage_choice[] = {
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 331 "h245.cnf"
+#line 332 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -14760,7 +14934,7 @@ void proto_register_h245(void) {
     { &hf_h245_peakRate,
       { "peakRate", "h245.peakRate",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "RSVPParameters/peakRate", HFILL }},
+        "", HFILL }},
     { &hf_h245_minPoliced,
       { "minPoliced", "h245.minPoliced",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -14768,7 +14942,7 @@ void proto_register_h245(void) {
     { &hf_h245_maxPktSize,
       { "maxPktSize", "h245.maxPktSize",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "RSVPParameters/maxPktSize", HFILL }},
+        "", HFILL }},
     { &hf_h245_guaranteedQOS,
       { "guaranteedQOS", "h245.guaranteedQOS",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14801,6 +14975,66 @@ void proto_register_h245(void) {
       { "atmCBR", "h245.atmCBR",
         FT_BOOLEAN, 8, NULL, 0,
         "ATMParameters/atmCBR", HFILL }},
+    { &hf_h245_nonStandardParameter,
+      { "nonStandardParameter", "h245.nonStandardParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ServicePriorityValue/nonStandardParameter", HFILL }},
+    { &hf_h245_servicePrioritySignalled,
+      { "servicePrioritySignalled", "h245.servicePrioritySignalled",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ServicePriority/servicePrioritySignalled", HFILL }},
+    { &hf_h245_servicePriorityValue,
+      { "servicePriorityValue", "h245.servicePriorityValue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ServicePriority/servicePriorityValue", HFILL }},
+    { &hf_h245_desired,
+      { "desired", "h245.desired",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSType/desired", HFILL }},
+    { &hf_h245_required,
+      { "required", "h245.required",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSType/required", HFILL }},
+    { &hf_h245_class0,
+      { "class0", "h245.class0",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class0", HFILL }},
+    { &hf_h245_class1,
+      { "class1", "h245.class1",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class1", HFILL }},
+    { &hf_h245_class2,
+      { "class2", "h245.class2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class2", HFILL }},
+    { &hf_h245_class3,
+      { "class3", "h245.class3",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class3", HFILL }},
+    { &hf_h245_class4,
+      { "class4", "h245.class4",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class4", HFILL }},
+    { &hf_h245_class5,
+      { "class5", "h245.class5",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSClass/class5", HFILL }},
+    { &hf_h245_qosType,
+      { "qosType", "h245.qosType",
+        FT_UINT32, BASE_DEC, VALS(h245_QOSType_vals), 0,
+        "QOSDescriptor/qosType", HFILL }},
+    { &hf_h245_qosClass,
+      { "qosClass", "h245.qosClass",
+        FT_UINT32, BASE_DEC, VALS(h245_QOSClass_vals), 0,
+        "QOSDescriptor/qosClass", HFILL }},
+    { &hf_h245_averageRate,
+      { "averageRate", "h245.averageRate",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GenericTransportParameters/averageRate", HFILL }},
+    { &hf_h245_burst,
+      { "burst", "h245.burst",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GenericTransportParameters/burst", HFILL }},
     { &hf_h245_rsvpParameters,
       { "rsvpParameters", "h245.rsvpParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14809,6 +15043,30 @@ void proto_register_h245(void) {
       { "atmParameters", "h245.atmParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "QOSCapability/atmParameters", HFILL }},
+    { &hf_h245_localQoS,
+      { "localQoS", "h245.localQoS",
+        FT_BOOLEAN, 8, NULL, 0,
+        "QOSCapability/localQoS", HFILL }},
+    { &hf_h245_genericTransportParameters,
+      { "genericTransportParameters", "h245.genericTransportParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSCapability/genericTransportParameters", HFILL }},
+    { &hf_h245_servicePriority,
+      { "servicePriority", "h245.servicePriority",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSCapability/servicePriority", HFILL }},
+    { &hf_h245_authorizationParameter,
+      { "authorizationParameter", "h245.authorizationParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSCapability/authorizationParameter", HFILL }},
+    { &hf_h245_qosDescriptor,
+      { "qosDescriptor", "h245.qosDescriptor",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "QOSCapability/qosDescriptor", HFILL }},
+    { &hf_h245_dscpValue,
+      { "dscpValue", "h245.dscpValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "QOSCapability/dscpValue", HFILL }},
     { &hf_h245_ip_UDP,
       { "ip-UDP", "h245.ip_UDP",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19248,6 +19506,13 @@ void proto_register_h245(void) {
     &ett_h245_RSVPParameters,
     &ett_h245_QOSMode,
     &ett_h245_ATMParameters,
+    &ett_h245_ServicePriorityValue,
+    &ett_h245_ServicePriority,
+    &ett_h245_AuthorizationParameters,
+    &ett_h245_QOSType,
+    &ett_h245_QOSClass,
+    &ett_h245_QOSDescriptor,
+    &ett_h245_GenericTransportParameters,
     &ett_h245_QOSCapability,
     &ett_h245_MediaTransportType,
     &ett_h245_T_atm_AAL5_compressed,

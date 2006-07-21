@@ -1,12 +1,12 @@
 -- H323-MESSAGES.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2003/H323-MESSAGES.asn
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2006/H323-MESSAGES.asn
 --
 -- $Id$
 --
 
--- Module H323-MESSAGES (H.225.0:07/2003)
+-- Module H323-MESSAGES (H.225.0:05/2006)
 H323-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -15,7 +15,7 @@ IMPORTS
     Password, EncodedPwdCertToken, ClearToken, CryptoToken,
     AuthenticationMechanism
     FROM H235-SECURITY-MESSAGES
-  DataProtocolCapability, T38FaxProfile
+  DataProtocolCapability, T38FaxProfile, QOSCapability
     FROM MULTIMEDIA-SYSTEM-CONTROL;
 
 H323-UserInformation ::=
@@ -197,9 +197,8 @@ ReleaseCompleteReason ::= CHOICE {
   -- the Setup may be accepted on
   -- a new connection
   nonStandardReason            NonStandardParameter,
-  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to 
+  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to subsequent invitation 
   
-  -- subsequent invitation 
   -- to a conference 
   -- (see H.323 8.4.3.8)
   genericDataReason            NULL,
@@ -280,7 +279,7 @@ ScnConnectionType ::= CHOICE {
   hybrid1920  NULL, -- each connection is an H12 (1920kbps) hybrid call
   multirate   NULL, -- bandwidth supplied by SCN using multirate.
   
-  -- In this case, the information transfer rate octet in 
+  -- In this case, the information transfer rate octet in
   -- the bearer capability shall be set to multirate and 
   -- the rate multiplier octet shall denote the number
   -- of B channels.
@@ -631,7 +630,8 @@ AliasAddress ::= CHOICE {
   transportID   TransportAddress,
   email-ID      IA5String(SIZE (1..512)), -- rfc822-compliant email address
   partyNumber   PartyNumber,
-  mobileUIM     MobileUIM
+  mobileUIM     MobileUIM,
+  isupNumber    IsupNumber
 }
 
 AddressPattern ::= CHOICE {
@@ -754,6 +754,45 @@ GSM-UIM ::= SEQUENCE {
   -- number
   ...
 }
+
+IsupNumber ::= CHOICE {
+  e164Number                   IsupPublicPartyNumber,
+  -- the numbering plan is according to
+  -- Recommendations E.163 and E.164.
+  dataPartyNumber              IsupDigits, -- not used, value reserved.
+  telexPartyNumber             IsupDigits, -- not used, value reserved.
+  privateNumber                IsupPrivatePartyNumber,
+  -- the numbering plan is according to 
+  -- ISO/IEC 11571.
+  nationalStandardPartyNumber  IsupDigits, -- not used, value reserved.
+  ...
+}
+
+IsupPublicPartyNumber ::= SEQUENCE {
+  natureOfAddress  NatureOfAddress,
+  address          IsupDigits,
+  ...
+}
+
+IsupPrivatePartyNumber ::= SEQUENCE {
+  privateTypeOfNumber  PrivateTypeOfNumber,
+  address              IsupDigits,
+  ...
+}
+
+NatureOfAddress ::= CHOICE {
+  unknown                                 NULL,
+  subscriberNumber                        NULL,
+  nationalNumber                          NULL,
+  internationalNumber                     NULL,
+  networkSpecificNumber                   NULL,
+  routingNumberNationalFormat             NULL,
+  routingNumberNetworkSpecificFormat      NULL,
+  routingNumberWithCalledDirectoryNumber  NULL,
+  ...
+}
+
+IsupDigits ::= IA5String(SIZE (1..128))(FROM ("0123456789ABCDE"))
 
 ExtendedAliasAddress ::= SEQUENCE {
   address                AliasAddress,
@@ -1098,8 +1137,7 @@ CarrierInfo ::= SEQUENCE {
 ServiceControlDescriptor ::= CHOICE {
   url                       IA5String(SIZE (0..512)), -- indicates a URL- 
   
-  -- referenced 
-  -- protocol/resource
+  -- referenced  protocol/resource
   signal                    H248SignalsDescriptor,
   nonStandard               NonStandardParameter,
   callCreditServiceControl  CallCreditServiceControl,
@@ -1240,6 +1278,10 @@ RTPSession ::= SEQUENCE {
   bandwidth             BandWidth OPTIONAL
 }
 
+RehomingModel ::= CHOICE {gatekeeperBased  NULL,
+                          endpointBased    NULL
+}
+
 RasMessage ::= CHOICE {
   gatekeeperRequest           GatekeeperRequest,
   gatekeeperConfirm           GatekeeperConfirm,
@@ -1297,7 +1339,9 @@ GatekeeperRequest ::= SEQUENCE --(GRQ)
   integrityCheckValue          ICV OPTIONAL,
   supportsAltGK                NULL OPTIONAL,
   featureSet                   FeatureSet OPTIONAL,
-  genericData                  SEQUENCE OF GenericData OPTIONAL
+  genericData                  SEQUENCE OF GenericData OPTIONAL,
+  supportsAssignedGK           BOOLEAN,
+  assignedGatekeeper           AlternateGK OPTIONAL
 }
 
 GatekeeperConfirm ::= SEQUENCE --(GCF)
@@ -1316,7 +1360,9 @@ GatekeeperConfirm ::= SEQUENCE --(GCF)
   integrity               SEQUENCE OF IntegrityMechanism OPTIONAL,
   integrityCheckValue     ICV OPTIONAL,
   featureSet              FeatureSet OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper      AlternateGK OPTIONAL,
+  rehomingModel           RehomingModel OPTIONAL
 }
 
 GatekeeperReject ::= SEQUENCE --(GRJ)
@@ -1384,7 +1430,11 @@ RegistrationRequest ::= SEQUENCE --(RRQ)
   featureSet                      FeatureSet OPTIONAL,
   genericData                     SEQUENCE OF GenericData OPTIONAL,
   restart                         NULL OPTIONAL,
-  supportsACFSequences            NULL OPTIONAL
+  supportsACFSequences            NULL OPTIONAL,
+  supportsAssignedGK              BOOLEAN,
+  assignedGatekeeper              AlternateGK OPTIONAL,
+  transportQOS                    TransportQOS OPTIONAL,
+  language                        SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL
 }
 
 RegistrationConfirm ::= SEQUENCE --(RCF)
@@ -1429,7 +1479,10 @@ RegistrationConfirm ::= SEQUENCE --(RCF)
   featureServerAlias               AliasAddress OPTIONAL,
   capacityReportingSpec            CapacityReportingSpecification OPTIONAL,
   featureSet                       FeatureSet OPTIONAL,
-  genericData                      SEQUENCE OF GenericData OPTIONAL
+  genericData                      SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper               AlternateGK OPTIONAL,
+  rehomingModel                    RehomingModel OPTIONAL,
+  transportQOS                     TransportQOS OPTIONAL
 }
 
 RegistrationReject ::= SEQUENCE --(RRJ)
@@ -1445,7 +1498,8 @@ RegistrationReject ::= SEQUENCE --(RRJ)
   cryptoTokens            SEQUENCE OF CryptoH323Token OPTIONAL,
   integrityCheckValue     ICV OPTIONAL,
   featureSet              FeatureSet OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper      AlternateGK OPTIONAL
 }
 
 RegistrationRejectReason ::= CHOICE {
@@ -1475,7 +1529,8 @@ RegistrationRejectReason ::= CHOICE {
               ...},
   genericDataReason                 NULL,
   neededFeatureNotSupported         NULL,
-  securityError                     SecurityErrors
+  securityError                     SecurityErrors,
+  registerWithAssignedGK            NULL
 }
 
 UnregistrationRequest ::= SEQUENCE --(URQ)
@@ -1495,7 +1550,8 @@ UnregistrationRequest ::= SEQUENCE --(URQ)
   endpointAliasPattern     SEQUENCE OF AddressPattern OPTIONAL,
   supportedPrefixes        SEQUENCE OF SupportedPrefix OPTIONAL,
   alternateGatekeeper      SEQUENCE OF AlternateGK OPTIONAL,
-  genericData              SEQUENCE OF GenericData OPTIONAL
+  genericData              SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper       AlternateGK OPTIONAL
 }
 
 UnregRequestReason ::= CHOICE {
@@ -1505,7 +1561,8 @@ UnregRequestReason ::= CHOICE {
   undefinedReason         NULL,
   ...,
   maintenance             NULL,
-  securityError           SecurityErrors2
+  securityError           SecurityErrors2,
+  registerWithAssignedGK  NULL
 }
 
 UnregistrationConfirm ::= SEQUENCE --(UCF)
@@ -1516,7 +1573,8 @@ UnregistrationConfirm ::= SEQUENCE --(UCF)
   tokens                  SEQUENCE OF ClearToken OPTIONAL,
   cryptoTokens            SEQUENCE OF CryptoH323Token OPTIONAL,
   integrityCheckValue     ICV OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper      AlternateGK OPTIONAL
 }
 
 UnregistrationReject ::= SEQUENCE --(URJ)
@@ -1601,7 +1659,8 @@ TransportQOS ::= CHOICE {
   endpointControlled    NULL,
   gatekeeperControlled  NULL,
   noControl             NULL,
-  ...
+  ...,
+  qOSCapabilities       SEQUENCE SIZE (1..256) OF QOSCapability
 }
 
 AdmissionConfirm ::= SEQUENCE --(ACF)
@@ -1634,7 +1693,8 @@ AdmissionConfirm ::= SEQUENCE --(ACF)
   multipleCalls                   BOOLEAN OPTIONAL,
   featureSet                      FeatureSet OPTIONAL,
   genericData                     SEQUENCE OF GenericData OPTIONAL,
-  modifiedSrcInfo                 SEQUENCE OF AliasAddress OPTIONAL
+  modifiedSrcInfo                 SEQUENCE OF AliasAddress OPTIONAL,
+  assignedGatekeeper              AlternateGK OPTIONAL
 }
 
 UUIEsRequested ::= SEQUENCE {
@@ -1667,13 +1727,14 @@ AdmissionReject ::= SEQUENCE --(ARJ)
   integrityCheckValue     ICV OPTIONAL,
   serviceControl          SEQUENCE OF ServiceControlSession OPTIONAL,
   featureSet              FeatureSet OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper      AlternateGK OPTIONAL
 }
 
 AdmissionRejectReason ::= CHOICE {
   calledPartyNotRegistered   NULL, -- cannot translate address
   invalidPermission          NULL, -- permission has expired
-  requestDenied              NULL, -- no bandwidth available
+  requestDenied              NULL,
   undefinedReason            NULL,
   callerNotRegistered        NULL,
   routeCallToGatekeeper      NULL,
@@ -1697,7 +1758,8 @@ AdmissionRejectReason ::= CHOICE {
   securityError              SecurityErrors2,
   securityDHmismatch         NULL, -- mismatch of DH parameters
   noRouteToDestination       NULL, -- destination unreachable
-  unallocatedNumber          NULL -- detination number unassigned
+  unallocatedNumber          NULL, -- destination number unassigned
+  registerWithAssignedGK     NULL
 }
 
 BandwidthRequest ::= SEQUENCE --(BRQ)
@@ -1720,7 +1782,8 @@ BandwidthRequest ::= SEQUENCE --(BRQ)
   capacity                 CallCapacity OPTIONAL,
   usageInformation         RasUsageInformation OPTIONAL,
   bandwidthDetails         SEQUENCE OF BandwidthDetails OPTIONAL,
-  genericData              SEQUENCE OF GenericData OPTIONAL
+  genericData              SEQUENCE OF GenericData OPTIONAL,
+  transportQOS             TransportQOS OPTIONAL
 }
 
 BandwidthConfirm ::= SEQUENCE --(BCF)
@@ -1733,7 +1796,8 @@ BandwidthConfirm ::= SEQUENCE --(BCF)
   cryptoTokens            SEQUENCE OF CryptoH323Token OPTIONAL,
   integrityCheckValue     ICV OPTIONAL,
   capacity                CallCapacity OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  transportQOS            TransportQOS OPTIONAL
 }
 
 BandwidthReject ::= SEQUENCE --(BRJ)
@@ -1785,7 +1849,8 @@ LocationRequest ::= SEQUENCE --(LRQ)
   callIdentifier               CallIdentifier OPTIONAL,
   bandWidth                    BandWidth OPTIONAL,
   sourceEndpointInfo           SEQUENCE OF AliasAddress OPTIONAL,
-  canMapSrcAlias               BOOLEAN
+  canMapSrcAlias               BOOLEAN,
+  language                     SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL
 }
 
 LocationConfirm ::= SEQUENCE --(LCF)
@@ -1832,7 +1897,7 @@ LocationReject ::= SEQUENCE --(LRJ)
 LocationRejectReason ::= CHOICE {
   notRegistered              NULL,
   invalidPermission          NULL, -- exclusion by administrator or feature
-  requestDenied              NULL, -- cannot find location
+  requestDenied              NULL,
   undefinedReason            NULL,
   ...,
   securityDenial             NULL,
@@ -1893,7 +1958,8 @@ DisengageConfirm ::= SEQUENCE --(DCF)
   capacity                CallCapacity OPTIONAL,
   circuitInfo             CircuitInfo OPTIONAL,
   usageInformation        RasUsageInformation OPTIONAL,
-  genericData             SEQUENCE OF GenericData OPTIONAL
+  genericData             SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper      AlternateGK OPTIONAL
 }
 
 DisengageReject ::= SEQUENCE --(DRJ)
@@ -1934,7 +2000,8 @@ InfoRequest ::= SEQUENCE --(IRQ)
   segmentedResponseSupported     NULL OPTIONAL,
   nextSegmentRequested           INTEGER(0..65535) OPTIONAL,
   capacityInfoRequested          NULL OPTIONAL,
-  genericData                    SEQUENCE OF GenericData OPTIONAL
+  genericData                    SEQUENCE OF GenericData OPTIONAL,
+  assignedGatekeeper             AlternateGK OPTIONAL
 }
 
 InfoRequestResponse ::= SEQUENCE --(IRR)
@@ -2120,7 +2187,7 @@ ServiceControlResponse ::= SEQUENCE --(SCR)
   ...
 }
 
-END
+END -- of ASN.1
 
 -- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
 
