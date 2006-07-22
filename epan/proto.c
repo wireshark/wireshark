@@ -5109,7 +5109,12 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 			 * These all have values, so we can match.
 			 */
 			return TRUE;
-
+		case FT_NONE:
+			/*
+			 * Doesn't have a value, but may still want to test 
+			 * for its presence in a trace
+			 */
+			return TRUE;
 		default:
 			/*
 			 * This doesn't have a value, so we'd match
@@ -5286,6 +5291,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			break;
 
 		case FT_PROTOCOL:
+		case FT_NONE:
+			/* Just want to test for the presence of these */
 			buf = ep_strdup(finfo->hfinfo->abbrev);
 			break;
 
