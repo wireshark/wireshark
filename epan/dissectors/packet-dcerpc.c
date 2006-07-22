@@ -1224,13 +1224,10 @@ dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, guint8 *drep)
 void
 dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, guint8 *drep, e_uuid_t *uuid)
 {
-    unsigned int i;
-    uuid->Data1 = dcerpc_tvb_get_ntohl (tvb, offset, drep);
-    uuid->Data2 = dcerpc_tvb_get_ntohs (tvb, offset+4, drep);
-    uuid->Data3 = dcerpc_tvb_get_ntohs (tvb, offset+6, drep);
-
-    for (i=0; i<sizeof (uuid->Data4); i++) {
-        uuid->Data4[i] = tvb_get_guint8 (tvb, offset+8+i);
+    if (drep[0] & 0x10) {
+        tvb_get_letohguid (tvb, offset, (e_guid_t *) uuid);
+    } else {
+        tvb_get_ntohguid (tvb, offset, (e_guid_t *) uuid);
     }
 }
 
@@ -2225,6 +2222,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     char uuid_name[MAX_PATH];
 #endif
     proto_item *sub_item=NULL;
+    proto_item *pi;
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -2283,6 +2281,9 @@ else
                       name, (info->ptype == PDU_REQ) ? "request" : "response");
     }
 
+    sub_dissect = (info->ptype == PDU_REQ) ?
+	    proc->dissect_rqst : proc->dissect_resp;
+
     if (tree) {
         sub_item = proto_tree_add_item (tree, sub_proto->proto_id, tvb, 0,
                                         -1, FALSE);
@@ -2296,7 +2297,7 @@ else
          * Put the operation number into the tree along with
          * the operation's name.
          */
-
+    if(sub_dissect == NULL)
 	if (sub_proto->opnum_hf != -1)
             proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
                                        tvb, 0, 0, info->call_data->opnum,
@@ -2307,14 +2308,22 @@ else
                                        0, 0, info->call_data->opnum,
                                        "Operation: %s (%u)",
                                        name, info->call_data->opnum);
-    }
 
-    sub_dissect = (info->ptype == PDU_REQ) ?
-	    proc->dissect_rqst : proc->dissect_resp;
+    if(info->ptype == PDU_REQ && info->call_data->rep_frame!=0) {
+		pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,
+				    tvb, 0, 0, info->call_data->rep_frame);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    if(info->ptype == PDU_RESP && info->call_data->req_frame!=0) {
+		pi = proto_tree_add_uint(sub_tree, hf_dcerpc_request_in,
+				    tvb, 0, 0, info->call_data->req_frame);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    } /* tree */
 
     if (decrypted_tvb != NULL) {
         /* Either there was no encryption or we successfully decrypted
-           the entrypted payload. */
+           the encrypted payload. */
         if (sub_dissect) {
             /* We have a subdissector - call it. */
             saved_proto = pinfo->current_proto;
@@ -3492,6 +3501,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 alloc_hint;
     proto_item *pi;
     proto_item *parent_pi;
+    char uuid_str[DCERPC_UUID_STR_LEN];
+    int uuid_str_len;
+    e_uuid_t obj_id_null = DCERPC_UUID_NULL;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -3584,6 +3596,29 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    di->call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
+
+        /* (optional) "Object UUID" from request */
+        if (value && dcerpc_tree && memcmp(&value->object_uuid, &obj_id_null, sizeof(obj_id_null)) != 0) {
+            /* XXX - use "dissect_ndr_uuid_t()"? */
+	        uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
+                                        "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                        value->object_uuid.Data1, value->object_uuid.Data2, value->object_uuid.Data3,
+                                        value->object_uuid.Data4[0],
+                                        value->object_uuid.Data4[1],
+                                        value->object_uuid.Data4[2],
+                                        value->object_uuid.Data4[3],
+                                        value->object_uuid.Data4[4],
+                                        value->object_uuid.Data4[5],
+                                        value->object_uuid.Data4[6],
+                                        value->object_uuid.Data4[7]);
+	        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
+		      memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
+                pi = proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
+                                              offset, 0, uuid_str, "Object UUID: %s", uuid_str);
+                PROTO_ITEM_SET_GENERATED(pi);
+        }
+
+        /* request in */
 	    if(value->req_frame!=0){
 		nstime_t delta_ts;
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
@@ -3595,6 +3630,11 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
 		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
+        } else {
+		    pi = proto_tree_add_text(dcerpc_tree, 
+				        tvb, 0, 0, "No request to this DCE/RPC call found");
+		    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
+			    "No request to this DCE/RPC call found");
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -3741,6 +3781,11 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
 		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
+        } else {
+		    pi = proto_tree_add_text(dcerpc_tree, 
+				        tvb, 0, 0, "No request to this DCE/RPC call found");
+		    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
+			    "No request to this DCE/RPC call found");
 	    }
 
 	    length = tvb_length_remaining(tvb, offset);
@@ -4719,6 +4764,11 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
 	pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
     PROTO_ITEM_SET_GENERATED(pi);
+    } else {
+		pi = proto_tree_add_text(dcerpc_tree, 
+				    tvb, 0, 0, "No request to this DCE/RPC call found");
+		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
+			"No request to this DCE/RPC call found");
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
