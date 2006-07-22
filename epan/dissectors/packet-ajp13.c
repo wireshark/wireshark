@@ -168,6 +168,8 @@ static const value_string mtype_codes[] = {
   { 5, "END RESPONSE" },
   { 6, "GET BODY CHUNK" },
   { 7, "SHUTDOWN" },
+  { 9, "CPONG" },
+  {10, "CPING" },
   { 0, NULL }
 };
 
@@ -393,6 +395,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, 0);
     pos+=2;
 
+  } else if ( mcode == 9 ) {
+
   } else {
     /* MESSAGE DATA (COPOUT)
      */
@@ -409,9 +413,17 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
  * packets.
  */
 static void
-display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree)
+display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
   /*printf("ajp13:display_req_body()\n");*/
+
+  /*
+   * In a resued connection this is never reset.
+   */
+  guint16 content_length;
+
+  content_length = tvb_get_ntohs( tvb, 4 );
+  cd->content_length -= content_length;
 
   if (ajp13_tree) {
 
@@ -487,6 +499,11 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   }
   pos+=1;
+  if ( cod == 10 ) {
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_append_str(pinfo->cinfo, COL_INFO, "CPING" );
+    return;
+  }
 
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
@@ -712,7 +729,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (mag == 0x1234) {
 
     if (fd->is_request_body)
-      display_req_body(tvb, ajp13_tree);
+      display_req_body(tvb, ajp13_tree, cd);
     else
       display_req_forward(tvb, pinfo, ajp13_tree, cd);
 
