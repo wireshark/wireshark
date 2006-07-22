@@ -920,8 +920,6 @@ static const value_string cast_callSecurityStatusTypes[] = {
 #define MAX_PICTURE_FORMAT			 5
 #define MAX_REFERENCE_PICTURE		 4
 
-static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Initialize the protocol and registered fields */
 static int proto_skinny          = -1;
 static int hf_skinny_data_length = -1;
@@ -2549,7 +2547,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Code to actually dissect the packets */
-static void
+static gboolean
 dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
@@ -2570,7 +2568,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (hdr_data_length < 4 || hdr_reserved != 0) {
     /* Not an SKINNY packet, just happened to use the same port */
     call_dissector(data_handle,tvb, pinfo, tree);
-    return;
+    return FALSE;
   }
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -2584,6 +2582,8 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
 	get_skinny_pdu_len, dissect_skinny_pdu);
+
+  return TRUE;
 }
 
 /* Register the protocol with Wireshark */
@@ -4263,7 +4263,7 @@ proto_reg_handoff_skinny(void)
 
   data_handle = find_dissector("data");
   rtp_handle = find_dissector("rtp");
-  skinny_handle = create_dissector_handle(dissect_skinny, proto_skinny);
+  skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 }
 
