@@ -154,10 +154,18 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 
+    if(PROTO_ITEM_IS_GENERATED(node)) {
+        label_ptr = g_strdup_printf("[%s]", label_ptr);
+    }
+
 	if (!print_line(pdata->stream, pdata->level, label_ptr)) {
 		pdata->success = FALSE;
 		return;
 	}
+
+    if(PROTO_ITEM_IS_GENERATED(node)) {
+        g_free(label_ptr);
+    }
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
