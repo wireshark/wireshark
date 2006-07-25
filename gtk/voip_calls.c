@@ -481,7 +481,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		return 0;
 	}
 
-	/* check wether we already have a RTP stream with this setup frame and ssrc in the list */
+	/* check whether we already have a RTP stream with this setup frame and ssrc in the list */
 	list = g_list_first(tapinfo->list);
 	while (list)
 	{
@@ -704,7 +704,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	 * OR if we have not found the Setup message in the graph. 
 	 */
 	if ( (pi->setup_frame_number == 0) || (gai == NULL) ){
-		/* check wether we already have a call with these parameters in the list */
+		/* check whether we already have a call with these parameters in the list */
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{
@@ -855,7 +855,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		return 0;
 	}
 
-	/* check wether we already have a call with these parameters in the list */
+	/* check whether we already have a call with these parameters in the list */
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
 	{
@@ -1053,7 +1053,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	/* check if the lower layer is MTP matching the frame number */
 	if (mtp3_frame_num != pinfo->fd->num) return 0;
 	
-	/* check wether we already have a call with these parameters in the list */
+	/* check whether we already have a call with these parameters in the list */
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
 	{
@@ -1676,12 +1676,12 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		/* if the LCF/LRJ doesn't match to a LRQ, just return */
 		if (!pi->request_available) return 0;
 		
-		/* check wether we already have a call with this request SeqNum */
+		/* check whether we already have a call with this request SeqNum */
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{
 			tmp_listinfo=list->data;
-			g_assert(tmp_h323info != NULL);
+			g_assert(tmp_listinfo != NULL);
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
 				if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
@@ -1692,7 +1692,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			list = g_list_next (list);
 		}
 	} else {
-		/* check wether we already have a call with this guid in the list */
+		/* check whether we already have a call with this guid in the list */
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{
@@ -2279,7 +2279,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 	if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ){
-		/* check wether we already have a call with this Endpoint and it is active*/
+		/* check whether we already have a call with this Endpoint and it is active*/
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{
