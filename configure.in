@@ -81,7 +81,7 @@ AM_PATH_LIBGNUTLS(1.0.0,
 )
 
 # libgrypt
-AM_PATH_LIBGCRYPT(1.1.0,
+AM_PATH_LIBGCRYPT(1.1.42,
         [
                 echo "libgcrypt found, enabling ipsec decryption"
                 AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
