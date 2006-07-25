@@ -26,9 +26,13 @@
  */
 
 /* With current IOS, you can use Cisco wireless Bridges/APs as
- * wireless sniffers and configure them with the "monitor ..."
- * command to * send the data to some central IDS.
- * This dissector tries to decode those frames.
+ * wireless sniffers and configure them to send the data to some
+ * central IDS:
+ * interface dot11Radio 0
+ *   station-role scanner
+ *   monitor frames endpoint ip address 172.22.1.1 port 8999 truncate 2312
+ * These frames are raw, i.e. they don't have a pcap header.
+ * Running wireshark at the receiving end will provide those.
  */
 
 /* 2do:
@@ -36,7 +40,7 @@
  *	- Protect the address fields etc (all columns?)
  *	- Create subelements and put each header and packet into it
  *	- fuzz-test the dissector
- *	- Find some heuristic do detect the packet automagically and
+ *	- Find some heuristic to detect the packet automagically and
  *	  convert dissector into a heuristic dissector
  *	- Is the TRY/CATCH stuff OK?
  */
@@ -56,10 +60,11 @@ static guint udp_port = 0;
 static int proto_cwids = -1;
 static int hf_cwids_version = -1;
 static int hf_cwids_unknown1 = -1;
+static int hf_cwids_channel = -1;
+static int hf_cwids_unknown2 = -1;
 static int hf_cwids_reallength = -1;
 static int hf_cwids_capturelen = -1;
-static int hf_cwids_unknown2 = -1;
-static int hf_cwids_trailer = -1;
+static int hf_cwids_unknown3 = -1;
 
 static gint ett_cwids = -1;
 
@@ -86,20 +91,24 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	cwids_tree = NULL;
 
-	while((remain = tvb_length_remaining(tvb, offset)) >= 28) {
+	while((remain = tvb_length_remaining(tvb, offset)) > 0) {
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, FALSE);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 	
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, FALSE);
 		offset += 2;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 14, FALSE);
-		offset += 14;
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, FALSE);
+		offset += 7;
+		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, FALSE);
+		offset += 1;
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 6, FALSE);
+		offset += 6;
 		proto_tree_add_item(cwids_tree, hf_cwids_reallength, tvb, offset, 2, FALSE);
 		offset += 2;
 		capturelen = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_capturelen, tvb, offset, 2, FALSE);
 		offset += 2;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 8, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, FALSE);
 		offset += 8;
 	
 		wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
@@ -129,12 +138,6 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += capturelen;
 	}
-	if (remain > 0) { /* FIXME: Shouldn't happen? Maybe if packet is truncated */
-		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, remain, FALSE);
-		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
-
-		proto_tree_add_item(cwids_tree, hf_cwids_trailer, tvb, offset, remain, FALSE);
-	}
 }
 
 void proto_register_cwids(void);
@@ -150,7 +153,15 @@ proto_register_cwids(void)
 
 		{ &hf_cwids_unknown1,
 		{ "Unknown1", "cwids.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, "1st Unknown block", HFILL }},
+			0x0, "1st Unknown block - timestamp?", HFILL }},
+
+		{ &hf_cwids_channel,
+		{ "Channel", "cwids.channel", FT_UINT8, BASE_DEC, NULL,
+			0x0, "Channel for this capture", HFILL }},
+
+		{ &hf_cwids_unknown2,
+		{ "Unknown2", "cwids.unknown2", FT_BYTES, BASE_NONE, NULL,
+			0x0, "2nd Unknown block", HFILL }},
 
 		{ &hf_cwids_reallength,
 		{ "Original length", "cwids.reallen", FT_UINT16, BASE_DEC, NULL,
@@ -160,13 +171,10 @@ proto_register_cwids(void)
 		{ "Capture length", "cwids.caplen", FT_UINT16, BASE_DEC, NULL,
 			0x0, "Captured bytes in record", HFILL }},
 
-		{ &hf_cwids_unknown2,
-		{ "Unknown2", "cwids.unknown2", FT_BYTES, BASE_NONE, NULL,
-			0x0, "2nd Unknown block", HFILL }},
+		{ &hf_cwids_unknown3,
+		{ "Unknown3", "cwids.unknown3", FT_BYTES, BASE_NONE, NULL,
+			0x0, "3rd Unknown block", HFILL }},
 
-		{ &hf_cwids_trailer,
-		{ "Trailer", "cwids.trailer", FT_BYTES, BASE_NONE, NULL,
-			0x0, "CWIDS trailer", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_cwids,
