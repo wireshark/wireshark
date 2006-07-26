@@ -40,20 +40,22 @@
 /* Magic number size */
 #define MAGIC_SIZE	12
 
-static guchar nettl_magic_hpux9[MAGIC_SIZE] = {
+/* HP-UX 9.x */
+static guint8 nettl_magic_hpux9[MAGIC_SIZE] = {
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x00
 };
-static guchar nettl_magic_hpux10[MAGIC_SIZE] = {
+/* HP-UX 10.x and 11.x */
+static guint8 nettl_magic_hpux10[MAGIC_SIZE] = {
     0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
 
 #define FILE_HDR_SIZE	128
 
 struct nettl_file_hdr {
-    guchar	magic[MAGIC_SIZE];
+    guint8	magic[MAGIC_SIZE];
     gchar	file_name[56];
     gchar	tz[20];
-    gchar	host_name[10];
+    gchar	host_name[9];
     gchar	os_vers[9];
     guchar	os_v;
     guint8	xxa[8];
@@ -174,14 +176,14 @@ static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    char magic[MAGIC_SIZE], os_vers[2];
+    struct nettl_file_hdr file_hdr;
     guint16 dummy[2];
     int subsys;
     int bytes_read;
 
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, 1, MAGIC_SIZE, wth->fh);
+    bytes_read = file_read(file_hdr.magic, 1, MAGIC_SIZE, wth->fh);
     if (bytes_read != MAGIC_SIZE) {
     	*err = file_error(wth->fh);
 	if (*err != 0)
@@ -189,30 +191,25 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 	return 0;
     }
 
-    if (memcmp(magic, nettl_magic_hpux9, MAGIC_SIZE) &&
-        memcmp(magic, nettl_magic_hpux10, MAGIC_SIZE)) {
+    if (memcmp(file_hdr.magic, nettl_magic_hpux9, MAGIC_SIZE) &&
+        memcmp(file_hdr.magic, nettl_magic_hpux10, MAGIC_SIZE)) {
 	return 0;
     }
 
-    if (file_seek(wth->fh, 0x63, SEEK_SET, err) == -1)
-	return -1;
-    wth->data_offset = 0x63;
-    bytes_read = file_read(os_vers, 1, 2, wth->fh);
-    if (bytes_read != 2) {
+    /* Read the rest of the file header */
+    bytes_read = file_read(file_hdr.file_name, 1, FILE_HDR_SIZE - MAGIC_SIZE,
+			   wth->fh);
+    if (bytes_read != FILE_HDR_SIZE - MAGIC_SIZE) {
 	*err = file_error(wth->fh);
 	if (*err != 0)
 	    return -1;
 	return 0;
     }
 
-    if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1)
-	return -1;
-    wth->data_offset = FILE_HDR_SIZE;
-
     /* This is an nettl file */
     wth->file_type = WTAP_FILE_NETTL;
     wth->capture.nettl = g_malloc(sizeof(nettl_t));
-    if (os_vers[0] == '1' && os_vers[1] == '1')
+    if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
 	wth->capture.nettl->is_hpux_11 = TRUE;
     else
 	wth->capture.nettl->is_hpux_11 = FALSE;
@@ -706,7 +703,7 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	memcpy(file_hdr.magic,nettl_magic_hpux10,sizeof(file_hdr.magic));
 	strcpy(file_hdr.file_name,"/tmp/wireshark.TRC000");
 	strcpy(file_hdr.tz,"UTC");
-	strcpy(file_hdr.host_name,"wireshark");
+	strcpy(file_hdr.host_name,"wshark");	/* XXX - leave blank? */
 	strcpy(file_hdr.os_vers,"B.11.11");
 	file_hdr.os_v=0x55;
 	strcpy(file_hdr.model,"9000/800");
