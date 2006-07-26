@@ -53,7 +53,7 @@ struct nettl_file_hdr {
     guchar	magic[MAGIC_SIZE];
     gchar	file_name[56];
     gchar	tz[20];
-    gchar	host_name[9];
+    gchar	host_name[10];
     gchar	os_vers[9];
     guchar	os_v;
     guint8	xxa[8];
