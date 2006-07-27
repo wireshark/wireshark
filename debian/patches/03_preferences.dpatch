@@ -1,4 +1,30 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
+## 03_preferences.dpatch by  <fred@candle>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: use Debian sensible-browser
+
+@DPATCH@
+diff -urNad wireshark-0.10.13~/configure.in wireshark-0.10.13/configure.in
+--- wireshark-0.10.13~/configure.in	2005-12-08 12:47:00.000000000 +0100
++++ wireshark-0.10.13/configure.in	2005-12-08 12:53:33.000000000 +0100
+@@ -38,12 +38,12 @@
+ 	#
+ 	AC_MSG_ERROR(I couldn't find pod2html; make sure it's installed and in your path)
+ fi
+-AC_PATH_PROG(HTML_VIEWER, htmlview)
++AC_PATH_PROG(HTML_VIEWER, sensible-browser)
+ if test "x$HTML_VIEWER" = x
+ then
+-	AC_DEFINE_UNQUOTED(HTML_VIEWER, "mozilla", [HTML viewer, e.g. mozilla])
++	AC_DEFINE_UNQUOTED(HTML_VIEWER, "sensible-browser", [HTML viewer, e.g. sensible-browser])
+ else
+-	AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
++	AC_DEFINE_UNQUOTED(HTML_VIEWER, "sensible-browser", [HTML viewer, e.g. mozilla])
+ fi
+ 
+ AC_PATH_PROG(LEX, flex)
+#! /bin/sh /usr/share/dpatch/dpatch-run
 ## 03_preferences.dpatch by  <fpeters@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.

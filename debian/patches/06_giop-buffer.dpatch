@@ -5,6 +5,25 @@
 ## DP: No description.
 
 @DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./epan/dissectors/packet-giop.c /tmp/dpep-work.7N90PO/wireshark-0.10.11/epan/dissectors/packet-giop.c
+--- ./epan/dissectors/packet-giop.c	2005-07-17 18:52:08.000000000 +0200
++++ /tmp/dpep-work.7N90PO/wireshark-0.10.11/epan/dissectors/packet-giop.c	2005-07-17 18:55:32.000000000 +0200
+@@ -1760,6 +1760,8 @@
+ 
+   if (len == 0)
+     return FALSE;
++  if (*offset > header->message_size)
++    return FALSE;
+ 
+   saved_proto = pinfo->current_proto;
+   for (i=0; i<len; i++) {
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 06_giop-buffer.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
 diff -urNad --exclude=CVS --exclude=.svn ./epan/dissectors/packet-giop.c /tmp/dpep-work.7N90PO/ethereal-0.10.11/epan/dissectors/packet-giop.c
 --- ./epan/dissectors/packet-giop.c	2005-07-17 18:52:08.000000000 +0200
 +++ /tmp/dpep-work.7N90PO/ethereal-0.10.11/epan/dissectors/packet-giop.c	2005-07-17 18:55:32.000000000 +0200

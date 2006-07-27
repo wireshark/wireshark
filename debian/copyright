@@ -1,14 +1,428 @@
-This package was debianized by Frederic Peters <fpeters@debian.org> on
+his package was debianized by Frederic Peters <fpeters@debian.org> on
 Sun, 13 Sep 1998 23:05:47 +0200
 
-It was downloaded from http://www.ethereal.com/distribution/
+It was downloaded from http://www.wireshark.org/download/src/all-versions/
+
+The Wireshark web site URL is http://www.wireshark.org/
 
 Upstream Authors:
-  Gerald Combs <gerald@wireshark.org>
-  (as well as many contributors)
+  Gerald Combs <gerald@wireshark.org> and contributors
 
-Copyright:
+Except where otherwise noted in the source code, Wireshark is covered under
+the GNU General Public License (v2 or later).
 
-GPL, as evidenced by existence of GPL license file "COPYING".
-(the GNU GPL may be viewed on Debian systems in /usr/share/common-licenses/GPL)
+Wireshark is copyright (c) 1998-2006 Gerald Combs.
 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301,  USA.
+
+On Debian systems the GNU GPL may be viewed in /usr/share/common-licenses/GPL.
+
+Wireshark and the "fin" logo are trademarks of Gerald Combs.
+
+Source files included in Wireshark and with other licenses are listed below:
+
+
+Public Domain
+-------------
+
+g711.c:
+ * This source code is a product of Sun Microsystems, Inc. and is provided
+ * for unrestricted use.  Users may copy or modify this source code without
+ * charge.
+ *
+ * SUN SOURCE CODE IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING
+ * THE WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
+ *
+ * Sun source code is provided with no support and without any obligation on
+ * the part of Sun Microsystems, Inc. to assist in its use, correction,
+ * modification or enhancement.
+ *
+ * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
+ * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY THIS SOFTWARE
+ * OR ANY PART THEREOF.
+ *
+ * In no event will Sun Microsystems, Inc. be liable for any lost revenue
+ * or profits or other special, indirect and consequential damages, even if
+ * Sun has been advised of the possibility of such damages.
+ *
+ * Sun Microsystems, Inc.
+ * 2550 Garcia Avenue
+ * Mountain View, California  94043
+
+
+LGPL
+----
+
+mkstemp.c: LGPL, from GNU C Library
+mkstemp.h: idem
+strcasecmp.c: idem
+strncasecmp.c: idem
+strptime.c: idem
+ps.c: idem
+ * Copyright (C) 1991, 1992, 1996, 1998 Free Software Foundation, Inc.
+ * This file is part of the GNU C Library.
+ *
+ * The GNU C Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The GNU C Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the GNU C Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA  02110-1301,  USA.
+
+
+epan/g_ascii_strtoull.c: LGPL, from GLIB
+epan/g_ascii_strtoull.h: idem
+gtk/ethclist.c: idem
+gtk/ethclist.h: idem
+ * GLIB - Library of useful routines for C programming
+ * Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
+ * Copyright (C) 1997-1998 Jay Painter <jpaint@serv.net><jpaint@gimp.org>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301,  USA.
+
+
+epan/dfilter/grammar.c: LGPL, Copyright 1991-1995 by D. Richard Hipp
+tools/lemon/lempar.c: idem
+ * Copyright 1991-1995 by D. Richard Hipp.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301,  USA.
+
+
+MIT
+---
+
+epan/xmlstub.h:
+ *  This is part of tree.h from the libxml2 distribution.  It is used
+ *  for structure reference when dynamically linking to libxml.
+ *
+ *  The GPL agreement for this file and for libxml2 can be found at
+ *  http://www.xmlsoft.org
+
+Note that libxml2 is MIT-licensed, not GPL.
+
+
+BSD & BSD-like
+--------------
+
+epan/crypt-md5.c:
+epan/crypt-md5.h:
+ * Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ * L. Peter Deutsch
+ * ghost@aladdin.com
+
+
+epan/except.c:
+epan/except.h:
+ * Portable Exception Handling for ANSI C.
+ * Copyright (C) 1999 Kaz Kylheku <kaz@ashi.footprints.net>
+ *
+ * Free Software License:
+ *
+ * All rights are reserved by the author, with the following exceptions:
+ * Permission is granted to freely reproduce and distribute this software,
+ * possibly in exchange for a fee, provided that this copyright notice appears
+ * intact. Permission is also granted to adapt this software to produce
+ * derivative works, as long as the modified versions carry this copyright
+ * notice and additional notices stating that the work has been modified.
+ * This source code may be translated into executable form and incorporated
+ * into proprietary software; there is no requirement for such software to
+ * contain a copyright notice related to this source.
+
+
+epan/in_cksum.c:
+epan/inet_aton.c:
+ * Copyright (c) 1988, 1992, 1993
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+
+
+epan/inet_ntop.c:
+epan/inet_pton.c:
+ * Copyright (c) 1996-1999 by Internet Software Consortium.
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND INTERNET SOFTWARE CONSORTIUM DISCLAIMS
+ * ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL INTERNET SOFTWARE
+ * CONSORTIUM BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+ * SOFTWARE.
+
+
+epan/dissectors/packet-enc.c:
+epan/dissectors/packet-etherip.c:
+epan/dissectors/packet-ipsec-udp.c:
+ * Copyright (c) 2003 Markus Friedl.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+epan/dissectors/packet-pflog.c:
+epan/dissectors/packet-pflog.h:
+ * Copyright 2001 Mike Frantzen
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *    - Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+
+
+epan/dissectors/packet-vj.c:
+ * This file created by Irfan Khan <ikhan@qualcomm.com>
+ * Copyright (c) 2001  by QUALCOMM, Incorporated.
+ * All Rights reserved.
+ *
+ * Routines to compress and uncompress TCP packets (for transmission
+ * over low speed serial lines).
+ *
+ * Copyright (c) 1989 Regents of the University of California.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms are permitted
+ * provided that the above copyright notice and this paragraph are
+ * duplicated in all such forms and that any documentation,
+ * advertising materials, and other materials related to such
+ * distribution and use acknowledge that the software was developed
+ * by the University of California, Berkeley.  The name of the
+ * University may not be used to endorse or promote products derived
+ * from this software without specific prior written permission.
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+
+wiretap/erf.c:
+wiretap/erf.h:
+ * Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
+ * All rights reserved.
+ *
+ * This software and documentation has been developed by Endace Technology Ltd.
+ * along with the DAG PCI network capture cards. For further information please
+ * visit http://www.endace.com/.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *  this list of conditions and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
+ *
+ *  3. The name of Endace Technology Ltd may not be used to endorse or promote
+ *  products derived from this software without specific prior written
+ *  permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ENDACE TECHNOLOGY LTD ``AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL ENDACE TECHNOLOGY LTD BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+
+
+wiretap/i4b_trace.h:
+ * Copyright (c) 1997, 1999 Hellmuth Michaelis. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+
+
+Files missing license notices
+-----------------------------
+
+tap-funnel.c:
+  Wireshark terms, according to author on wireshark-dev@, message-id:
+  <f20d86b70607200240x2a6f7b0as68daf43b2eef6a56@mail.gmail.com>
+
+editcap.c:
+merge.c:
+mergecap.c:
+  Wireshark terms, according to wireshark-dev@, message-id:
+  <c9a3e4540607210110v50758766wf272c4e6c74d48f3@mail.gmail.com>
+
+epan/epan.c:
+epan/exceptions.h:
+epan/dfilter/gencode.h:
+epan/dfilter/glib-util.c:
+epan/dfilter/glib-util.h:
+  Contributed by Gilbert Ramirez, he has been contacted, his other files are
+  under Wireshark terms, (message-id: <44C1EFA2.3050907@alum.mit.edu>)
+
+epan/dissectors/packet-bootparams.h:
+epan/dissectors/packet-mount.h:
+epan/dissectors/packet-nfs.h:
+epan/dissectors/packet-x11-keysym.h:
+  Corresponding .c files have GPL notices, authors have been contacted for
+  clarification.
+
+epan/dissectors/packet-nlm.h: no license info
+  Wireshark terms, according to wireshark-dev@, message-id:
+  <c9a3e4540607221458j407d552ekf28309c494487a8b@mail.gmail.com>
+
+gtk/win32-file-dlg.h:
+  Contributed by Gerald Combs, Wireshark author, no answer yet but there is no
+  reason why it would not have standard Wireshark terms.  Message-id:
+  <44C1EFA2.3050907@alum.mit.edu>
+
+epan/in_cksum.h:
+  BSD, like in_cksum.c, according to wireshark-dev@, message-id:
+  <44C1EFA2.3050907@alum.mit.edu>
+
+epan/dissectors/packet-diameter-defs.h:
+  GNU GPL notice added in current Subversion repository, will be in file for
+  0.99.3.
+
+snprintf.h:
+  no longer used, according to wireshark-dev@, but it was under GPL like .c
+  message-id: <c9a3e4540607200322j2225fdf8q8687b1b1fd13543a@mail.gmail.com>

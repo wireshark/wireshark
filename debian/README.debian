@@ -1,11 +1,11 @@
 Ethereal for Debian
 -------------------
 
-Q. Why isn't ethereal linked against libssl ?
+Q. Why isn't wireshark linked against libssl ?
 A. Because it can't be linked against libssl.
    See http://www.openssl.org/support/faq.html#LEGAL2
 
-Q. Why isn't ethereal linked against libsnmp ?
+Q. Why isn't wireshark linked against libsnmp ?
 A. Because it would also need to be linked against libssl
 
 Frederic Peters <fpeters@debian.org>, Tue, 21 May 2002 08:37:52 +0200

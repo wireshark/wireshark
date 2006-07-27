@@ -38,6 +38,25 @@ exit 0
 
 #! /bin/sh -e
 
+PYTHON=python2.3
+
+case "$1" in
+	configure|abort-upgrade|abort-remove|abort-deconfigure)
+		/usr/bin/$PYTHON -O /usr/lib/$PYTHON/compileall.py -q \
+			/usr/lib/$PYTHON/site-packages/
+	;;
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0
+
+#! /bin/sh -e
+
 PYTHON=python2.2
 
 case "$1" in

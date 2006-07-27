@@ -6,8 +6,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export DH_COMPAT=3
-
 include /usr/share/dpatch/dpatch.make 
 DB2MAN=/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl
 
@@ -28,19 +26,23 @@ idl2deb.1: idl2deb.dbk
 asn2deb.1: asn2deb.dbk
 	xsltproc --nonet --novalid $(DB2MAN) $<
 
+
+CONFIGURE_FLAGS=--prefix=/usr --sysconfdir=/usr/share/wireshark --datadir=/usr/share/wireshark --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/wireshark CFLAGS="$(CFLAGS)";
+
 configure: configure-stamp
 configure-stamp: patch
 	dh_testdir
 
 	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	libtoolize --force --copy
+	autoheader
 	autoconf
 	-mkdir aclocal-missing
 	(if [ ! -x ./configure ]; then \
-	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal CFLAGS="$(CFLAGS)"; \
+	   ./autogen.sh $(CONFIGURE_FLAGS) CFLAGS="$(CFLAGS)"; \
 	fi)
 
-	./configure --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal CFLAGS="$(CFLAGS)"
+	./configure $(CONFIGURE_FLAGS) CFLAGS="$(CFLAGS)"
 
 	touch configure-stamp
 
@@ -60,11 +62,11 @@ clean: unpatch-stamp
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	-$(MAKE) distclean
-	rm -f rdps ethereal.1 tshark.1 idl2deb.1 wireshark-filter.4 asn2deb.1
+	rm -f rdps wireshark.1 tshark.1 idl2deb.1 wireshark-filter.4 asn2deb.1
 	rm -f conftest conftest.c
 	rm -f config.guess config.sub config.log
+	rm -f config.h.in config.h configure
 
 	dh_clean
 
@@ -87,19 +89,20 @@ binary-arch: build
 	# Add here commands to install the files into debian/tmp
 	$(MAKE) install DESTDIR=`pwd`/debian/tmp
 	mkdir -p `pwd`/debian/tmp/usr/share/applications/
-	cp ethereal.desktop `pwd`/debian/tmp/usr/share/applications/
+	cp wireshark.desktop `pwd`/debian/tmp/usr/share/applications/
+	cp tools/idl2wrs.sh `pwd`/debian/tmp/usr/bin/
 	cp debian/wireshark-root.desktop `pwd`/debian/tmp/usr/share/applications/
 	mkdir -p `pwd`/debian/tmp/usr/share/pixmaps/
-	cp image/hi48-app-ethereal.png `pwd`/debian/tmp/usr/share/pixmaps/
+	cp image/hi48-app-wireshark.png `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/wsicon32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
 	mkdir -p `pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
 	install -m 755 `pwd`/idl2deb `pwd`/debian/tmp/usr/bin/
 	install -m 755 `pwd`/asn2deb `pwd`/debian/tmp/usr/bin/
-	cp `pwd`/ethereal_be.py `pwd`/ethereal_gen.py \
+	cp `pwd`/tools/wireshark_be.py `pwd`/tools/wireshark_gen.py \
 			`pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
-	mkdir -p `pwd`/debian/tmp/usr/include/ethereal/
+	mkdir -p `pwd`/debian/tmp/usr/include/wireshark/
 	for F in `cat debian/wireshark-dev.header-files`; do \
-		cp --parents $$F `pwd`/debian/tmp/usr/include/ethereal; \
+		cp --parents $$F `pwd`/debian/tmp/usr/include/wireshark; \
 	done
 	# .a is no longer built; why was is used ?
 	#cp `pwd`/wiretap/libwiretap.a `pwd`/debian/tmp/usr/lib/

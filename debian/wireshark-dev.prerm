@@ -43,3 +43,18 @@ dpkg --listfiles $PACKAGE |
 
 #DEBHELPER#
 
+#! /bin/bash -e
+#
+# Debian prerm script for Python x.y hierarchical modules
+# Written by Gregor Hoffleit <flight@debian.org>
+# Extended by Matthias Klose <doko@debian.org>
+#
+
+PACKAGE=`basename $0 | sed -e 's/\.[^.]*$//'`
+
+dpkg --listfiles $PACKAGE |
+	awk '$0~/\.py$/ {print $0"c\n" $0"o"}' |
+	xargs rm -f >&2
+
+#DEBHELPER#
+

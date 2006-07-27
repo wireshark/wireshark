@@ -5,6 +5,176 @@
 ## DP: Drop all capabilities but CAP_NET_RAW
 
 @DPATCH@
+diff -urNad wireshark-0.99.2~/configure.in wireshark-0.99.2/configure.in
+--- wireshark-0.99.2~/configure.in	2006-07-18 21:59:41.000000000 +0200
++++ wireshark-0.99.2/configure.in	2006-07-18 21:59:46.000000000 +0200
+@@ -831,6 +831,47 @@
+ fi
+ 
+ 
++dnl libcap check
++AC_MSG_CHECKING(whether to use libcap to improve security)
++
++AC_ARG_WITH(cap,
++[  --with-cap[[=DIR]]       use libcap (located in directory DIR, if supplied) to improve security.  [[default=yes, if available]]],
++[
++	if test $withval = no
++	then
++		want_cap=no
++	elif test $withval = yes
++	then
++		want_cap=yes
++	else
++		want_cap=yes
++		cap_dir=$withval
++	fi
++],[
++	#
++	# Use libcap if it's present, otherwise don't.
++	#
++	want_cap=ifavailable
++	cap_dir=
++])
++if test "x$want_cap" = "xno" ; then
++        AC_MSG_RESULT(no)
++	cap_message="no (disabled by explicit request)"
++else
++        AC_MSG_RESULT(yes)
++        AC_CHECK_LIB(cap, cap_init, [
++		AC_DEFINE(HAVE_LIBCAP, 1, [
++			Define if libcap is available to restrict process capabilities
++		])
++		LIBS="$LIBS -lcap"
++		cap_message="yes"
++	], [
++		AC_MSG_WARN([libcap check failed])
++		cap_message="no (check failed)"
++	])
++fi
++
++
+ dnl Check if wireshark should be installed setuid
+ AC_ARG_ENABLE(setuid-install,
+ [  --enable-setuid-install install wireshark as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
+@@ -1448,3 +1489,4 @@
+ echo "          Use IPv6 name resolution : $enable_ipv6"
+ echo "     Use UCD SNMP/Net-SNMP library : $snmp_libs_message"
+ echo "                Use gnutls library : $tls_message"
++echo "                   Use cap library : $cap_message"
+diff -urNad wireshark-0.99.2~/gtk/main.c wireshark-0.99.2/gtk/main.c
+--- wireshark-0.99.2~/gtk/main.c	2006-07-17 21:56:45.000000000 +0200
++++ wireshark-0.99.2/gtk/main.c	2006-07-18 21:59:46.000000000 +0200
+@@ -1718,6 +1718,9 @@
+ {
+     gchar *capture_msg;
+ 
++#ifdef HAVE_LIBCAP
++  dropexcesscapabilities();
++#endif
+ 
+ 	gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
+ 
+diff -urNad wireshark-0.99.2~/tshark.c wireshark-0.99.2/tshark.c
+--- wireshark-0.99.2~/tshark.c	2006-07-17 22:00:06.000000000 +0200
++++ wireshark-0.99.2/tshark.c	2006-07-18 22:01:35.000000000 +0200
+@@ -749,6 +749,10 @@
+   capture_opts_init(&capture_opts, NULL /* cfile */);
+ #endif
+ 
++#ifdef HAVE_LIBCAP
++  dropexcesscapabilities();
++#endif
++
+   timestamp_set_type(TS_RELATIVE);
+   timestamp_set_precision(TS_PREC_AUTO);
+ 
+diff -urNad wireshark-0.99.2~/util.c wireshark-0.99.2/util.c
+--- wireshark-0.99.2~/util.c	2006-07-17 22:00:05.000000000 +0200
++++ wireshark-0.99.2/util.c	2006-07-18 21:59:46.000000000 +0200
+@@ -40,6 +40,10 @@
+ #include <epan/address.h>
+ #include <epan/addr_resolv.h>
+ 
++#ifdef HAVE_LIBCAP
++#include <sys/capability.h>
++#endif
++
+ #include "util.h"
+ 
+ /*
+@@ -180,3 +184,46 @@
+ 	}
+ 	return "";
+ }
++
++
++#ifdef HAVE_LIBCAP
++void dropexcesscapabilities(void)
++{
++	cap_t cap_d;
++	cap_value_t cap_values[] = {
++		/* capabilities we need to keep */
++		CAP_NET_RAW,
++		CAP_DAC_READ_SEARCH
++	};
++	cap_flag_value_t current_cap;
++
++	cap_d = cap_get_proc();
++	if (!cap_d) {
++		g_warning("Could not get capabilities\n");
++		return;
++	}
++
++	cap_get_flag(cap_d, CAP_NET_RAW, CAP_EFFECTIVE, &current_cap);
++	cap_free(&cap_d);
++	if (current_cap == CAP_CLEAR) {
++		return;
++	}
++
++	cap_d = cap_init();
++	if (!cap_d) {
++		g_warning("Could not alloc cap struct\n");
++		return;
++	}
++
++	cap_clear(cap_d);
++	cap_set_flag(cap_d, CAP_PERMITTED, 2, cap_values, CAP_SET);
++	cap_set_flag(cap_d, CAP_EFFECTIVE, 2, cap_values, CAP_SET);
++
++	if (cap_set_proc(cap_d) != 0) {
++		g_warning("Could not set capabilities: %s\n", strerror(errno));
++		cap_free(&cap_d);
++		return;
++	}
++	cap_free(&cap_d);
++}
++#endif /* HAVE_LIBCAP */
+diff -urNad wireshark-0.99.2~/util.h wireshark-0.99.2/util.h
+--- wireshark-0.99.2~/util.h	2006-07-17 22:00:06.000000000 +0200
++++ wireshark-0.99.2/util.h	2006-07-18 22:01:52.000000000 +0200
+@@ -53,6 +53,15 @@
+ const char *get_conn_cfilter(void);
+ 
+ 
++#ifdef HAVE_LIBCAP
++/*
++ * Limit the potential impact of undiscovered security vulnerabilities by
++ * dropping all capabilities except the sniffer capability we need to do our
++ * job.
++ */
++void dropexcesscapabilities(void);
++#endif /* HAVE_LIBCAP */
++
+ #ifdef __cplusplus
+ }
+ #endif /* __cplusplus */
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 04_drop-capabilities.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Drop all capabilities but CAP_NET_RAW
+
+@DPATCH@
 diff -urNad --exclude=CVS --exclude=.svn ./config.h.in /tmp/dpep-work.rT2mW8/ethereal-0.10.12/config.h.in
 --- ./config.h.in	2005-07-31 12:50:13.000000000 +0200
 +++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/config.h.in	2005-07-31 12:54:13.000000000 +0200

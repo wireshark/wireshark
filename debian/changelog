@@ -1,3 +1,165 @@
+wireshark (0.99.2-2) unstable; urgency=low
+
+  * debian/rules: set --datadir so that DATAFILE_DIR is correct (it was
+    wrongly set to "${prefix}/share/wireshark" and not expanded.
+    * AUTHORS-SHORT is now displayed correclty in about dialog
+    * colofilters is now found and used properly
+
+ -- Frederic Peters <fpeters@debian.org>  Wed, 26 Jul 2006 13:27:54 +0200
+
+wireshark (0.99.2-1) unstable; urgency=high
+
+  * New upstream release. (closes: #378745)
+    * The project changed name, ethereal is now wireshark. (closes: #351941)
+      See http://www.wireshark.org/news/20060607.html
+      * tethereal has been renamed to tshark
+      * idl2eth has been renamed to idl2wrs
+    * Urgency high since it fixes security issues
+      * http://www.wireshark.org/security/wnpa-sec-2006-01.html has details
+      * crash in GSM BSSMAP dissector (CVE-2006-3627)
+      * format string overflow in ANSI MAP dissector (CVE-2006-3628)
+      * format string overflow in Checkpoint FW-1 dissector (CVE-2006-3628)
+      * format string overflow in MQ dissector (CVE-2006-3628)
+      * format string overflow in XML dissector (CVE-2006-3628)
+      * large memory allocation in MOUNT dissector (CVE-2006-3629)
+      * off-by-one errors in NCP NMAS and NDPS dissectors (CVE-2006-3630)
+      * format string overflow in NTP dissector (CVE-2006-3628)
+      * infinite loop in SSH dissector (CVE-2006-3631)
+      * buffer overflow in NFS dissector (CVE-2006-3632)
+  * debian/wireshark-dev.header-files: includes missing files
+    (closes: #376522, #368860)
+  * debian/copyright: list source files that are under a license different
+    than Wireshark.
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 24 Jul 2006 19:29:26 +0200
+
+ethereal (0.99.0-1) unstable; urgency=high
+
+  * New upstream release (urgency high since it fixes security issues;
+    see http://www.ethereal.com/appnotes/enpa-sa-00023.html advisory)
+    * crash in H.248 dissector (CVE-2006-1937)
+    * infinite loop in UMA dissector (CVE-2006-1933)
+    * crash in X.509if dissector (CVE-2006-1937)
+    * crash in SRVLOC dissector (CVE-2006-1937)
+    * crash in H.245 dissector (CVE-2006-1937)
+    * off-by-one error in OID printing routine (CVE-2006-1932)
+    * buffer overflow in COPS dissector (CVE-2006-1935)
+    * buffer overflow in ALCAP dissector (CVE-2006-1934)
+    * crash in statistics counter (CVE-2006-1937)
+    * crash with malformed capture (CVE-2006-1938)
+    * crash with invalid display filter (CVE-2006-1939)
+    * crash in general packet dissector (CVE-2006-1937)
+    * crash in AIM dissector (CVE-2006-1937)
+    * crash in RPC dissector (CVE-2006-1939)
+    * crash in DCERPC dissector (CVE-2006-1939)
+    * crash in ASN.1 dissector (CVE-2006-1939)
+    * crash in SMB PIPE dissector (CVE-2006-1938)
+    * excessive loop in BER dissector (CVE-2006-1933)
+    * abort in SNDCP dissector (CVE-2006-1940)
+    * buffer overrun in Network Instruments file code (CVE-2006-1934)
+    * buffer overrun in NetXray/Windows Sniffer file code (CVE-2006-1934)
+    * crash in GSM SMS dissector (CVE-2006-1939)
+    * buffer overrun in ALCAP dissector (CVE-2006-1934)
+    * buffer overrun in telnet dissector (CVE-2006-1936)
+    * crash in ASN.1 based dissectors (CVE-2006-1939)
+    * crash in DCERPC NT dissector (CVE-2006-1939)
+    * crash in PER dissector (CVE-2006-1939)
+  * debian/patches/04_drop-capabilities.dpatch: updated.
+  * debian/control: added build-depends on libgnutls-dev since libgnutls can
+    now be used for SSL support.
+
+ -- Frederic Peters <fpeters@debian.org>  Mon,  1 May 2006 14:50:42 +0200
+
+ethereal (0.10.14-2) unstable; urgency=low
+
+  * debian/watch: added watch file.
+
+ -- Frederic Peters <fpeters@debian.org>  Mon,  6 Mar 2006 00:03:13 +0100
+
+ethereal (0.10.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * Acknowledge NMU, thanks for the support while I was away.
+  * debian/patches/11-security-CVE-2005-3651.dpatch: removed since included
+    upstream.
+  * debian/patches/07_gcc4.dpatch: removed part about packet-cms since it now
+    causes the build to fail.
+
+ -- Frederic Peters <fpeters@debian.org>  Thu, 23 Feb 2006 11:04:11 +0100
+
+ethereal (0.10.13-1.3) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Build-conflict with libsnmp-dev, not just libsnmp5-dev, to prevent
+    accidental linkage with openssl.  Closes: #353613.
+
+ -- Steve Langasek <vorlon@debian.org>  Sun, 19 Feb 2006 18:03:20 -0800
+
+ethereal (0.10.13-1.2) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * High-urgency upload for RC bugfix.
+  * Add missing epan/gnuc_format_check.h, epan/ipv6-utils.h headers to
+    ethereal-dev.  Closes: #344011.
+  * Build-depend on automake1.9 instead of automake; the latter points to
+    the ancient automake1.4 package, which was not what's used upstream.
+
+ -- Steve Langasek <vorlon@debian.org>  Fri, 17 Feb 2006 17:47:37 -0800
+
+ethereal (0.10.13-1.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Fix buffer overflow in OSPF dissector (CVE-2005-3651)
+
+ -- Moritz Muehlenhoff <jmm@debian.org>  Sun, 25 Dec 2005 11:15:28 +0100
+
+ethereal (0.10.13-1) unstable; urgency=high
+
+  * New upstream release (urgency high since it fixes security issues;
+    see http://www.ethereal.com/appnotes/enpa-sa-00021.html advisory)
+    * memory exhaustion by ISAKMP, FC-FCS, RSVP, ISIS LSP dissectors
+      (CAN-2005-3241)
+    * crash in IrDA dissector and SMB transaction payload reassembly
+      (CAN-2005-3242)
+    * buffer overflow in AgentX and SLIMP3 dissectors (CAN-2005-3243)
+    * infinite loop in BER dissector (CAN-2005-3244)
+    * memory exhaustion by ONC RPC dissector with option "Dissect unknown RPC
+      program numbers" (CAN-2005-3245)
+    * NULL pointer in sFlow, RTnet, SCSI dissectors (CAN-2005-3246)
+    * infinite loop and crash in SigComp UDVM (CAN-2005-3247)
+    * division by zero in X11 dissector (CAN-2005-3248)
+    * invalid pointer freed in WSP dissecto (CAN-2005-3249)
+    * buffer overflow in SRVLOC dissector (CAN-2005-3184)
+  * debian/patches/04_drop-capabilities.dpatch: updated
+  * debian/patches/08_ethereal-desktop-menu.dpatch: updated
+  * debian/patches/09_idl2eth.dpatch: updated
+
+ -- Frederic Peters <fpeters@debian.org>  Thu,  8 Dec 2005 14:18:07 +0100
+
+ethereal (0.10.12-6) unstable; urgency=low
+
+  * Rebuilt with gtk/atk from unstable. (closes: #329889)
+
+ -- Frederic Peters <fpeters@debian.org>  Sat, 24 Sep 2005 11:11:40 +0200
+
+ethereal (0.10.12-5) unstable; urgency=low
+
+  * debian/ethereal-dev.header-files: added missing epan/range.h
+    (closes: #306426)
+
+ -- Frederic Peters <fpeters@debian.org>  Fri, 23 Sep 2005 18:28:04 +0200
+
+ethereal (0.10.12-4) unstable; urgency=low
+
+  * debian/control: upgraded automake dependency of ethereal-dev to 1.8.
+  * debian/patches/11_diameter_vendors.dpatch: removed, wrong.
+  * debian/ethereal-common.files: add capinfos.
+  * debian/ethereal-common.manpages: add capinfos man page.
+  * debian/changelog: fixed 0.6.3-2 header line since lintian now complains
+    about the old way of closing bugs from changelogs.
+
+ -- Frederic Peters <fpeters@debian.org>  Fri, 12 Aug 2005 00:43:39 +0200
+
 ethereal (0.10.12-3) unstable; urgency=low
 
   * debian/patches/04_drop-capabilities.dpatch: don't exit on failure, simply
@@ -291,13 +453,13 @@ ethereal (0.10.3-1) unstable; urgency=high
     (closes: #71994)
   * added another .desktop entry to start ethereal with gksu from Gnome menu
   * Upstream changes; libethereal and libwiretap handled differently; they may
-    end up in new packages (but go in wireshark-common for now)
+    end up in new packages (but go in ethereal-common for now)
 
  -- Frederic Peters <fpeters@debian.org>  Sat, 27 Mar 2004 14:09:49 +0100
 
 ethereal (0.10.2-2) unstable; urgency=low
 
-  * New files in wireshark-dev (closes: #236702)
+  * New files in ethereal-dev (closes: #236702)
 
  -- Frederic Peters <fpeters@debian.org>  Sun,  7 Mar 2004 21:43:17 +0100
 
@@ -629,7 +791,7 @@ ethereal (0.9.1-6) unstable; urgency=low
 
 ethereal (0.9.1-5) unstable; urgency=low
 
-  * debian/rules: added --disable-ssl so that wireshark is not built with
+  * debian/rules: added --disable-ssl so that ethereal is not built with
     ssl support and may be uploaded to main. (closes: #134273)
 
  -- Frederic Peters <fpeters@debian.org>  Mon, 18 Feb 2002 09:33:30 +0100
@@ -910,7 +1072,7 @@ ethereal (0.7.1-1) unstable; urgency=low
   
  -- Frederic Peters <fpeters@debian.org>  Sat,  7 Aug 1999 16:29:03 +0200
  
-ethereal (0.6.3-2) unstable; urgency=low, closes=41908
+ethereal (0.6.3-2) unstable; urgency=low
 
   * Renamed NEWS to changelog since this is the upstream ChangeLog
     (fixes bug #41908)
