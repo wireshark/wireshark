@@ -690,8 +690,8 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}
 	/* is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
+		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 		if (rtpinfo->info_timestamp > statinfo->timestamp){
-			statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
 		else{
