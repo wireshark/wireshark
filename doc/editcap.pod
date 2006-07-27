@@ -8,6 +8,7 @@ editcap - Edit and/or translate the format of capture files
 B<editcap>
 S<[ B<-c> E<lt>packets per fileE<gt> ]>
 S<[ B<-C> E<lt>choplenE<gt> ]>
+S<[ B<-d> ]>
 S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-A> E<lt>start timeE<gt> ]>
@@ -70,6 +71,12 @@ Each packet is chopped at the packet end by a few <choplen> bytes of data.
 
 This is useful in the rare case that the conversion between two file 
 formats leaves some random bytes at the end of each packet.
+
+=item -d
+
+Attempts to remove duplicate packets.  The length and MD5 sum of the 
+current packet are compared to the previous four packets.  If a match 
+is found, the packet is skipped.
 
 =item -E  E<lt>error probabilityE<gt>
 

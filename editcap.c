@@ -48,6 +48,8 @@
 # include "strptime.h"
 #endif
 
+#include "epan/crypt-md5.h"
+
 #include "svnversion.h"
 
 /*
@@ -60,6 +62,19 @@ struct select_item {
   int first, second;
 
 };
+
+
+/*
+ * Duplicate frame detection
+ */
+typedef struct _fd_hash_t {
+  md5_byte_t digest[16];
+  guint32 len;
+} fd_hash_t;
+
+#define DUP_DEPTH 5
+fd_hash_t fd_hash[DUP_DEPTH];
+int cur_dup = 0;
 
 #define ONE_MILLION 1000000
 
@@ -93,6 +108,7 @@ static double err_prob = 0.0;
 static time_t starttime = 0;
 static time_t stoptime = 0;
 static gboolean check_startstop = FALSE;
+static gboolean dup_detect = FALSE;
 
 /* Add a selection item, a simple parser for now */
 
@@ -228,6 +244,36 @@ set_time_adjustment(char *optarg)
   time_adj.tv.tv_usec = val;
 }
 
+static gboolean
+is_duplicate(guint8* fd, guint32 len) {
+  int i;
+  md5_state_t ms;
+
+  cur_dup++;
+  if (cur_dup >= DUP_DEPTH)
+    cur_dup = 0;
+
+  /* Calculate our digest */
+  md5_init(&ms);
+  md5_append(&ms, fd, len);
+  md5_finish(&ms, fd_hash[cur_dup].digest);
+
+  fd_hash[cur_dup].len = len;
+
+  /* Look for duplicates */
+  for (i = 0; i < DUP_DEPTH; i++) {
+    if (i == cur_dup)
+      continue;
+
+    if (fd_hash[i].len == fd_hash[cur_dup].len &&
+        memcmp(fd_hash[i].digest, fd_hash[cur_dup].digest, 16) == 0) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
 static void usage(void)
 {
   fprintf(stderr, "Editcap %s"
@@ -244,6 +290,7 @@ static void usage(void)
   fprintf(stderr, "\n");
   fprintf(stderr, "Packets:\n");
   fprintf(stderr, "  -C <choplen>           chop each packet at the end by <choplen> bytes\n");
+  fprintf(stderr, "  -d                     remove duplicate packets\n");
   fprintf(stderr, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
   fprintf(stderr, "                         that a particular packet byte will be randomly changed\n");
   fprintf(stderr, "  -r                     keep the selected packets, default is to delete them\n");
@@ -319,7 +366,7 @@ int main(int argc, char *argv[])
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "A:B:c:C:E:F:hrs:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
 
     switch (opt) {
 
@@ -363,6 +410,14 @@ int main(int argc, char *argv[])
       	fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
       	    optarg);
       	exit(1);
+      }
+      break;
+
+    case 'd':
+      dup_detect = TRUE;
+      for (i = 0; i < DUP_DEPTH; i++) {
+	memset(&fd_hash[i].digest, 0, 16);
+	fd_hash[i].len = 0;
       }
       break;
 
@@ -427,11 +482,11 @@ int main(int argc, char *argv[])
 					optarg);
 			exit(1);
 		}
-		
+
 		check_startstop = TRUE;
 		starttime = mktime(&starttm);
 		break;
-	}	
+	}
 	case 'B':
 	{
 		struct tm stoptm;
@@ -450,7 +505,7 @@ int main(int argc, char *argv[])
     }
 
   }
-  
+
 #ifdef DEBUG
   printf("Optind = %i, argc = %i\n", optind, argc);
 #endif
@@ -469,15 +524,15 @@ int main(int argc, char *argv[])
 	  stoptm.tm_year = 135;
 	  stoptm.tm_mday = 31;
 	  stoptm.tm_mon = 11;
-	  
+
 	  stoptime = mktime(&stoptm);
   }
-  
+
   if (starttime > stoptime) {
 	  fprintf(stderr, "editcap: start time is after the stop time\n");
 	  exit(1);
   }
-  
+
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
@@ -522,7 +577,7 @@ int main(int argc, char *argv[])
     } else {
       filename = argv[optind+1];
     }
-  
+
     pdh = wtap_dump_open(filename, out_file_type,
 			 out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
     if (pdh == NULL) {
@@ -555,11 +610,11 @@ int main(int argc, char *argv[])
 	pdh = wtap_dump_open(filename, out_file_type,
 			     out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
 	if (pdh == NULL) {
-	  
+
 	  fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
 		  wtap_strerror(err));
 	  exit(1);
-	  
+
 	}
       }
 
@@ -618,6 +673,16 @@ int main(int argc, char *argv[])
           }
           phdr = &snap_phdr;
         }
+
+	if (dup_detect) {
+	  buf = wtap_buf_ptr(wth);
+	  if (is_duplicate(buf, phdr->caplen)) {
+            if (verbose)
+              printf("Skipping duplicate: %u\n", count);
+            count++;
+	    continue;
+          }
+	}
 
         if (err_prob > 0.0) {
           buf = wtap_buf_ptr(wth);
