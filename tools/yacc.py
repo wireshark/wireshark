@@ -3,7 +3,7 @@
 #
 # Author(s): David M. Beazley (dave@dabeaz.com)
 #
-# Copyright (C) 2001-2005, David M. Beazley
+# Copyright (C) 2001-2006, David M. Beazley
 #
 # $Header: /cvs/projects/PLY/yacc.py,v 1.6 2004/05/26 20:51:34 beazley Exp $
 #
@@ -48,7 +48,7 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__ = "1.6"
+__version__ = "1.7"
 
 #-----------------------------------------------------------------------------
 #                     === User configurable parameters ===
@@ -1137,12 +1137,14 @@ def compute_first1():
 # Global variables for the LR parsing engine
 def lr_init_vars():
     global _lr_action, _lr_goto, _lr_method
-    global _lr_goto_cache
+    global _lr_goto_cache, _lr0_cidhash
     
     _lr_action       = { }        # Action table
     _lr_goto         = { }        # Goto table
     _lr_method       = "Unknown"  # LR method used
     _lr_goto_cache   = { }
+    _lr0_cidhash     = { }
+
 
 # Compute the LR(0) closure operation on I, where I is a set of LR(0) items.
 # prodlist is a list of productions.
@@ -1617,10 +1619,14 @@ def ReduceNonterminals():
         
 
 
-def ReduceToTerminals(nt):
+def ReduceToTerminals(nt,cyclemap=None):
     global Prodnames
     global Terminals
     reducedterminals = []
+    if not cyclemap: cyclemap = {}
+
+    if cyclemap.has_key(nt): return []
+    cyclemap[nt] = 1
 
     for p in Prodnames[nt]:
         if len(p.prod) > 0:
@@ -1629,11 +1635,11 @@ def ReduceToTerminals(nt):
                     reducedterminals.append(p.prod[0])
             else:
                 if p.prod[0] != nt:
-                    terms = ReduceToTerminals(p.prod[0])
+                    terms = ReduceToTerminals(p.prod[0],cyclemap)
                     for t in terms:
                         if t not in reducedterminals:
                             reducedterminals.append(t)
-
+    del cyclemap[nt]			  
     return reducedterminals
 
             
@@ -2150,6 +2156,16 @@ def lr_read_tables(module=tab_module,optimize=0):
     except (ImportError,AttributeError):
         return 0
 
+
+# Available instance types.  This is used when parsers are defined by a class.
+# it's a little funky because I want to preserve backwards compatibility
+# with Python 2.0 where types.ObjectType is undefined.
+
+try:
+   _INSTANCETYPE = (types.InstanceType, types.ObjectType)
+except AttributeError:
+   _INSTANCETYPE = types.InstanceType
+
 # -----------------------------------------------------------------------------
 # yacc(module)
 #
@@ -2178,7 +2194,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
         # User supplied a module object.
         if isinstance(module, types.ModuleType):
             ldict = module.__dict__
-        elif isinstance(module, types.InstanceType):
+        elif isinstance(module, _INSTANCETYPE):
             _items = [(k,getattr(module,k)) for k in dir(module)]
             ldict = { }
             for i in _items:
@@ -2218,7 +2234,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
         
     else:
         # Get the tokens map
-        if (module and isinstance(module,types.InstanceType)):
+        if (module and isinstance(module,_INSTANCETYPE)):
             tokens = getattr(module,"tokens",None)
         else:
             tokens = ldict.get("tokens",None)
