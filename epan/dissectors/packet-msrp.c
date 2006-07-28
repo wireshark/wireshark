@@ -39,7 +39,10 @@
 #include <epan/conversation.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "prefs.h"
+
+#include "packet-msrp.h"
 
 #define TCP_PORT_MSRP 0
 
@@ -57,6 +60,7 @@ static int ett_msrp_hdr				= -1;
 static int ett_msrp_element			= -1;
 static int ett_msrp_data			= -1;
 static int ett_msrp_end_line		= -1;
+static int ett_msrp_setup			= -1;
 
 static int hf_msrp_response_line	= -1;
 static int hf_msrp_request_line		= -1;
@@ -66,6 +70,11 @@ static int hf_msrp_status_code		= -1;
 static int hf_msrp_msg_hdr			= -1;
 static int hf_msrp_end_line			= -1;
 static int hf_msrp_cnt_flg			= -1;
+
+/* MSRP setup fields */
+static int hf_msrp_setup        = -1;
+static int hf_msrp_setup_frame  = -1;
+static int hf_msrp_setup_method = -1;
 
 typedef struct {
         const char *name;
@@ -134,6 +143,145 @@ gboolean global_msrp_raw_text = TRUE;
 static dissector_table_t media_type_dissector_table;
 
 static int dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+
+/* Displaying conversation setup info */
+static gboolean global_msrp_show_setup_info = TRUE;
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Set up an MSRP conversation using the info given */
+void msrp_add_address( packet_info *pinfo,
+                       address *addr, int port,
+                       const gchar *setup_method, guint32 setup_frame_number)
+{
+	address null_addr;
+	conversation_t* p_conv;
+	struct _msrp_conversation_info *p_conv_data = NULL;
+
+	/*
+	 * If this isn't the first time this packet has been processed,
+	 * we've already done this work, so we don't need to do it
+	 * again.
+	 */
+	if (pinfo->fd->flags.visited)
+	{
+		return;
+	}
+
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+	/*
+	 * Check if the ip address and port combination is not
+	 * already registered as a conversation.
+	 */
+	p_conv = find_conversation( pinfo->fd->num, addr, &null_addr, PT_TCP, port, 0,
+	                            NO_ADDR_B | NO_PORT_B);
+
+	/*
+	 * If not, create a new conversation.
+	 */
+	if (!p_conv) {
+		p_conv = conversation_new( pinfo->fd->num, addr, &null_addr, PT_TCP,
+		                           (guint32)port, 0,
+		                           NO_ADDR2 | NO_PORT2);
+	}
+
+	/* Set dissector */
+	conversation_set_dissector(p_conv, msrp_handle);
+
+	/*
+	 * Check if the conversation has data associated with it.
+	 */
+	p_conv_data = conversation_get_proto_data(p_conv, proto_msrp);
+
+	/*
+	 * If not, add a new data item.
+	 */
+	if (!p_conv_data) {
+		/* Create conversation data */
+		p_conv_data = se_alloc(sizeof(struct _msrp_conversation_info));
+		if (!p_conv_data)
+		{
+			return;
+		}
+		memset(p_conv_data, 0, sizeof(struct _msrp_conversation_info));
+		conversation_add_proto_data(p_conv, proto_msrp, p_conv_data);
+	}
+
+	/*
+	 * Update the conversation data.
+	 */
+	p_conv_data->setup_method_set = TRUE;
+	strncpy(p_conv_data->setup_method, setup_method, MAX_MSRP_SETUP_METHOD_SIZE);
+	p_conv_data->setup_method[MAX_MSRP_SETUP_METHOD_SIZE] = '\0';
+	p_conv_data->setup_frame_number = setup_frame_number;
+}
+
+
+
+/* Look for conversation info and display any setup info found */
+void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Conversation and current data */
+	conversation_t *p_conv = NULL;
+	struct _msrp_conversation_info *p_conv_data = NULL;
+
+	/* Use existing packet data if available */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_msrp);
+
+	if (!p_conv_data)
+	{
+		/* First time, get info from conversation */
+		p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+		                           PT_TCP,
+		                           pinfo->destport, pinfo->srcport, 0);//NO_ADDR_B | NO_PORT_B);
+
+		if (p_conv)
+		{
+			/* Look for data in conversation */
+			struct _msrp_conversation_info *p_conv_packet_data;
+			p_conv_data = conversation_get_proto_data(p_conv, proto_msrp);
+
+			if (p_conv_data)
+			{
+				/* Save this conversation info into packet info */
+				p_conv_packet_data = se_alloc(sizeof(struct _msrp_conversation_info));
+				if (!p_conv_packet_data)
+				{
+					return;
+				}
+				memcpy(p_conv_packet_data, p_conv_data,
+				       sizeof(struct _msrp_conversation_info));
+
+				p_add_proto_data(pinfo->fd, proto_msrp, p_conv_packet_data);
+			}
+		}                                                           
+	}
+
+	/* Create setup info subtree with summary info. */
+	if (p_conv_data && p_conv_data->setup_method_set)
+	{
+		proto_tree *msrp_setup_tree;
+		proto_item *ti =  proto_tree_add_string_format(tree, hf_msrp_setup, tvb, 0, 0,
+		                                               "",
+		                                               "Stream setup by %s (frame %u)",
+		                                               p_conv_data->setup_method,
+		                                               p_conv_data->setup_frame_number);
+		PROTO_ITEM_SET_GENERATED(ti);
+		msrp_setup_tree = proto_item_add_subtree(ti, ett_msrp_setup);
+		if (msrp_setup_tree)
+		{
+			/* Add details into subtree */
+			proto_item* item = proto_tree_add_uint(msrp_setup_tree, hf_msrp_setup_frame,
+			                                       tvb, 0, 0, p_conv_data->setup_frame_number);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_string(msrp_setup_tree, hf_msrp_setup_method,
+			                             tvb, 0, 0, p_conv_data->setup_method);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+	}
+}
+
 
 
 /* Returns index of headers */
@@ -286,8 +434,10 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * TODO Set up conversation here
 		 */
 		if (pinfo->fd->flags.visited){
+			/* Look for existing conversation */
 			conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 				pinfo->srcport, pinfo->destport, 0);
+			/* Create new one if not found */
 			if (conversation == NULL){
 				conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
@@ -445,6 +595,12 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
 			proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
 			proto_tree_add_item(reqresp_tree,hf_msrp_method,tvb,token_3_start,token_3_len,FALSE);
+		}
+
+		/* Conversation setup info */
+		if (global_msrp_show_setup_info)
+		{
+			show_setup_info(tvb, pinfo, msrp_tree);
 		}
 
 		/* Headers */
@@ -633,6 +789,7 @@ proto_register_msrp(void)
 		&ett_msrp_element,
 		&ett_msrp_data,
 		&ett_msrp_end_line,
+		&ett_msrp_setup
 	};
 
         /* Setup list of header fields */
@@ -752,6 +909,21 @@ proto_register_msrp(void)
 			FT_STRING, BASE_NONE,NULL,0x0,
 			"Authentication-Info", HFILL }
 		},
+		{ &hf_msrp_setup,
+			{ "Stream setup", "msrp.setup",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			"Stream setup, method and frame number", HFILL}
+		},
+		{ &hf_msrp_setup_frame,
+			{ "Setup frame", "msrp.setup-frame",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Frame that set up this stream", HFILL}
+		},
+		{ &hf_msrp_setup_method,
+			{ "Setup Method", "msrp.setup-method",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			"Method used to set up this stream", HFILL}
+		},
 	};
 
 	module_t *msrp_module;
@@ -772,7 +944,14 @@ proto_register_msrp(void)
 		"MSRP message should be displayed "
 		"in addition to the dissection tree",
 		&global_msrp_raw_text);
-		
+
+	prefs_register_bool_preference(msrp_module, "show_setup_info",
+		"Show stream setup information",
+		"Where available, show which protocol and frame caused "
+		"this MSRP stream to be created",
+		&global_msrp_show_setup_info);
+
+
 	/*
 	 * Register the dissector by name, so other dissectors can
 	 * grab it by name rather than just referring to it directly.

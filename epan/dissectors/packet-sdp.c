@@ -64,13 +64,13 @@
 #include <epan/prefs.h>
 
 #include "packet-rtcp.h"
-
 #include "packet-t38.h"
+#include "packet-msrp.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
-
 static dissector_handle_t t38_handle=NULL;
+static dissector_handle_t msrp_handle=NULL;
 
 static int sdp_tap = -1;
 
@@ -190,6 +190,13 @@ typedef struct {
   gint8 media_count;
 } transport_info_t;
 
+
+/* MSRP transport info (as set while parsing path attribute) */
+static gboolean msrp_transport_address_set = FALSE;
+static guint32  msrp_ipaddr[4];
+static guint16  msrp_port_number;
+
+
 /* static functions */
 
 static void call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti,
@@ -232,6 +239,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32     port=0;
   gboolean    is_rtp=FALSE;
   gboolean    is_t38=FALSE;
+  gboolean    is_msrp=FALSE;
   gboolean    set_rtp=FALSE;
   gboolean    is_ipv4_addr=FALSE;
   gboolean    is_ipv6_addr=FALSE;
@@ -397,14 +405,19 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if(transport_info.media_proto[n]!=NULL) {
       /* Check if media protocol is RTP
-	   * and stream decoding is enabled in preferences 
-	   */
-		if(global_sdp_establish_conversation){
-			is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
-			/* Check if media protocol is T38 */
-			is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
-		}
+       * and stream decoding is enabled in preferences 
+       */
+       if(global_sdp_establish_conversation){
+            /* Check if media protocol is RTP */
+            is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+            /* Check if media protocol is T38 */
+            is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
+            /* Check if media protocol is MSRP/TCP */
+            is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp")==0);
+       }
     }
+    
+
     if(transport_info.connection_address!=NULL) {
       if(transport_info.connection_type!=NULL) {
         if (strcmp(transport_info.connection_type,"IP4")==0) {
@@ -438,14 +451,27 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         port++;
         rtcp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
       }
-    } 
-      
+    }
+
     /* Add t38 conversation, if available and only if no rtp */
     if((!pinfo->fd->flags.visited) && port!=0 && !set_rtp && is_t38 && is_ipv4_addr){
       src_addr.data=(char *)&ipaddr;
       if(t38_handle){
         t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
-      }  
+      }
+    }
+
+    /* Add MSRP conversation.  Uses addresses discovered in attribute
+       rather than connection information of media session line */
+    if (is_msrp ){
+        if ((!pinfo->fd->flags.visited) && msrp_transport_address_set){
+            if(msrp_handle){
+                src_addr.type=AT_IPv4;
+                src_addr.len=4;
+                src_addr.data=(char *)&msrp_ipaddr;
+                msrp_add_address(pinfo, &src_addr, msrp_port_number, "SDP", pinfo->fd->num);
+            }
+        }
     }
 
     /* Create the RTP summary str for the Voip Call analysis */
@@ -879,6 +905,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   next_offset = 0;
   tokenlen = 0;
 
+  /* Re-initialise for a new media description */
+  msrp_transport_address_set = FALSE;
+
   sdp_media_tree = proto_item_add_subtree(ti,ett_sdp_media);
 
   next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
@@ -904,8 +933,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     /* Save port info */
     transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
-    proto_tree_add_item(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        FALSE);
+    proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                        atoi(tvb_get_string(tvb, offset, tokenlen)));
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
     if(next_offset == -1)
@@ -924,8 +953,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
-    proto_tree_add_item(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        FALSE);
+    proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                        atoi(tvb_get_string(tvb, offset, tokenlen)));
     offset = next_offset + 1;
   }
 
@@ -1132,30 +1161,39 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
   gint offset, next_offset, tokenlen, n;
   guint8 *field_name;
   guint8 *payload_type;
+  guint8 *attribute_value;
   gint   *key;
 
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
 
+  /* Create attribute tree */
   sdp_media_attribute_tree = proto_item_add_subtree(ti,
                                                     ett_sdp_media_attribute);
-
+  /* Find end of field */
   next_offset = tvb_find_guint8(tvb,offset,-1,':');
 
   if(next_offset == -1)
     return;
 
+  /* Attribute field name is token before ':' */
   tokenlen = next_offset - offset;
-
   proto_tree_add_item(sdp_media_attribute_tree,
                       hf_media_attribute_field,
                       tvb, offset, tokenlen, FALSE);
-
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
+  /* Skip colon */
   offset = next_offset + 1;
 
+  /* Value is the remainder of the line */
+  attribute_value = tvb_get_string(tvb, offset, tvb_length_remaining(tvb, offset));
+
+
+  /*********************************************/
+  /* Special parsing for some field name types */
+  
   /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
   if (strcmp(field_name, "rtpmap") == 0) {
 
@@ -1234,6 +1272,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
         return;
   }
+
   if (strcmp(field_name, "fmtp") == 0) {
     proto_item *fmtp_item, *media_format_item;
     proto_tree *fmtp_tree;
@@ -1259,8 +1298,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
     offset = next_offset + 1;
 
     /* There may be 2 parameters given
-	 * TODO: Handle arbitarry number of parameters.
-	 */
+     * TODO: Handle arbitary number of parameters.
+     */
     next_offset = tvb_find_guint8(tvb,offset,-1,';');
 
     if(next_offset != -1){
@@ -1291,6 +1330,33 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
                     transport_info->encoding_name);
     return;
   }
+
+  /* msrp attributes that contain address needed for conversation */
+  if (strcmp(field_name, "path") == 0) {
+    const char *msrp_res = "msrp://";
+    if (strncmp(attribute_value, msrp_res, strlen(msrp_res)) == 0){
+      int address_offset, port_offset, port_end_offset;
+
+      /* Address starts here */
+      address_offset = offset + strlen(msrp_res);
+
+      /* Port is after next ':' */
+      port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
+
+      /* Port ends with '/' */
+      port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
+      
+      /* Attempt to convert address */
+      if (inet_pton(AF_INET, tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
+        /* Get port number */
+        msrp_port_number = atoi(tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
+
+        /* Set flag so this info can be used */
+        msrp_transport_address_set = TRUE;
+      }
+    }
+  }
+
 
   /* No special treatment for values of this attribute type, just add as one item. */
   proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
@@ -1479,7 +1545,7 @@ proto_register_sdp(void)
         "Media Type", HFILL }},
     { &hf_media_port,
       { "Media Port",
-        "sdp.media.port",FT_STRING, BASE_NONE, NULL, 0x0,
+        "sdp.media.port",FT_UINT16, BASE_DEC, NULL, 0x0,
         "Media Port", HFILL }},
     { &hf_media_portcount,
       { "Media Port Count",
@@ -1549,8 +1615,8 @@ proto_register_sdp(void)
    */
    sdp_module = prefs_register_protocol(proto_sdp, NULL);
    prefs_register_bool_preference(sdp_module, "establish_conversation",
-       "Establish RTP Conversation",
-       "Specifies that RTP stream is decoded based "
+       "Establish Media Conversation",
+       "Specifies that RTP/RTCP/T.38/MSRP/etc streams are decoded based "
        "upon port numbers found in SIP/SDP payload",
        &global_sdp_establish_conversation);
  
@@ -1571,7 +1637,7 @@ proto_reg_handoff_sdp(void)
 
   rtp_handle = find_dissector("rtp");
   rtcp_handle = find_dissector("rtcp");
-
+  msrp_handle = find_dissector("msrp");
   t38_handle = find_dissector("t38");
 
   sdp_handle = find_dissector("sdp");
