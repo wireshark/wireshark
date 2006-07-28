@@ -1,0 +1,57 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 09_idl2wrs.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad wireshark-0.99.2~/tools/idl2wrs.sh wireshark-0.99.2/tools/idl2wrs.sh
+--- wireshark-0.99.2~/tools/idl2wrs.sh	2006-07-18 22:53:59.000000000 +0200
++++ wireshark-0.99.2/tools/idl2wrs.sh	2006-07-18 22:57:54.000000000 +0200
+@@ -1,4 +1,4 @@
+-#! @SHELL@
++#! /bin/sh
+ #
+ #  $Id: idl2wrs.sh 18271 2006-05-31 19:12:15Z gerald $
+ #
+@@ -48,40 +48,6 @@
+     exit 1;
+ fi
+ 
+-#
+-# Run wireshark backend, looking for wireshark_be.py and wireshark_gen.py
+-# in pythons's "site-packages" directory. If cannot find that, then
+-# try looking in current directory. If still cannot, then exit with
+-# error.
+-
+-if [ -f $PYTHONPATH/site-packages/wireshark_be.py ] && [ -f $PYTHONPATH/site-packages/wireshark_gen.py ]; then
+-    exec omniidl  -p $PYTHONPATH/site-packages -b wireshark_be $@
+-    /* not reached */
+-fi
+-
+-# Try current directory.
+-
+-if [ -f ./wireshark_be.py ] && [ -f ./wireshark_gen.py ]; then
+-    exec omniidl  -p ./ -b wireshark_be $@
+-    /* not reached */
+-fi
+-
+-# Could not find both wireshark_be.py AND wireshark_gen.py
+-# So let's just try to run it without -p, hoping that the installation
+-# set up a valid path.
+ 
+ exec omniidl -b wireshark_be $@
+ 
+-old code: not reached
+-
+-echo "idl2wrs Error: Could not find both wireshark_be.py AND wireshark_gen.py."
+-echo "Please ensure you have the PYTHONPATH variable set, or that wireshark_be.py "
+-echo "and wireshark_gen.py exist in the current directory. "
+-echo
+-echo "On this system, PYTHONPATH is : $PYTHONPATH"
+-echo
+-
+-exit 2
+-
+-
+-

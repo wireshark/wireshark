@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 10_wireshark_gen.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./wireshark_gen.py /tmp/dpep-work.vCo5MH/wireshark-0.10.11/wireshark_gen.py
+--- ./tools/wireshark_gen.py	2005-07-17 19:42:15.000000000 +0200
++++ /tmp/dpep-work.vCo5MH/wireshark-0.10.11/ools/wireshark_gen.py	2005-07-17 19:42:34.000000000 +0200
+@@ -2188,7 +2188,8 @@
+ #include <glib.h>
+ #include <epan/packet.h>
+ #include <epan/proto.h>
+ #include <epan/dissectors/packet-giop.h>
++#include <plugins/plugin_api_defs.h>
+ 
+ #ifndef ENABLE_STATIC
+ G_MODULE_EXPORT const gchar version[] = "0.0.1";
