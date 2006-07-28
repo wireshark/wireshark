@@ -184,16 +184,14 @@ make install
 	<example id="Ch2Ex2">
 	  <title>Building and installing libpcap</title>
 	  <programlisting>
-gzip -dc libpcap-0.8.3.tar.Z | tar xvf -
+gzip -dc libpcap-0.9.4.tar.Z | tar xvf -
 &lt;much output removed>
-cd libpcap_0_8_3
+cd libpcap-0.9.4
 ./configure
 &lt;much output removed>
 make
 &lt;much output removed>
 make install
-&lt;much output removed>
-make install-incl
 &lt;much output removed>
 	    </programlisting>
 	</example>
@@ -207,30 +205,6 @@ make install-incl
 	directory that has been unpacked.
       </para>
     </note>
-    <para>
-      When installing the include files, you might get the error shown 
-      in <xref linkend="Ch02Ex3"/> when you submit the command 
-	<command>make install-incl</command>.
-	<example id="Ch02Ex3">
-	  <title>Errors while installing the libpcap include files</title>
-	  <programlisting>
-/usr/local/include/pcap.h
-/usr/bin/install -c -m 444 -o bin -g bin ./pcap-namedb.h \
-/usr/local/include/pcap-namedb.h
-/usr/bin/install -c -m 444 -o bin -g bin ./net/bpf.h \
-/usr/local/include/net/bpf.h
-/usr/bin/install: cannot create regular file \
-`/usr/local/include/net/bpf.h': No such file or directory
-make: *** [install-incl] Error 1
-	  </programlisting>
-	</example>
-	If you do, simply create the missing directory with the following 
-	command:
-	<programlisting>
-mkdir /usr/local/include/net
-	</programlisting>
-	and rerun the command <command>make install-incl</command>.
-    </para>
     <para>
       Under RedHat 6.x and beyond (and distributions based on it, like 
       Mandrake) you can simply install each of the packages you need from 
