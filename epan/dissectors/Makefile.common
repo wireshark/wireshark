@@ -420,6 +420,7 @@ DISSECTOR_SRC =	\
 	packet-lmp.c	\
 	packet-loop.c	\
 	packet-lpd.c	\
+	packet-lsc.c	\
 	packet-lwapp.c	\
 	packet-MAP_DialoguePDU.c	\
 	packet-m2pa.c	\
