@@ -1349,7 +1349,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
                                         count);
                 } else if ( ! ( value & 0x8000 )) {
                     const gchar* run_type = (value & 0x4000) ? "1s" : "0s";
-                    value &= 0x7FFF;
+                    value &= 0x3FFF;
                     proto_tree_add_text(chunks_tree, tvb, offset, 2,
                                         "Chunk: %u -- Length Run %s, length: %u",
                                         count, run_type, value);
