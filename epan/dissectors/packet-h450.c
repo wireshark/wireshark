@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h450.c                                                            */
+/* ./packet-h450.c                                                            */
 /* ../../tools/asn2wrs.py -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
@@ -4119,26 +4119,29 @@ void proto_register_h450(void) {
    { &hf_h4501,
       { "SupplementaryService", "h4501.SupplementaryService", FT_NONE, BASE_NONE,
       NULL, 0, "SupplementaryService sequence", HFILL }},
-  { &hf_h4501_constrained_invokeId,
+   { &hf_h4501_dummy,
+      { "dummy", "h4501.dummy", FT_NONE, BASE_NONE,
+      NULL, 0, "Dummy", HFILL }},
+   { &hf_h4501_constrained_invokeId,
       { "invokeId", "h4501.invokeId", FT_UINT32, BASE_DEC,
-      NULL, 0, "invokeId", HFILL }},
+      NULL, 0, "constrained_invokeId", HFILL }},
    { &hf_h4501_invokeId,
       { "invokeId", "h4501.invokeId", FT_INT32, BASE_DEC,
       NULL, 0, "invokeId", HFILL }},
    { &hf_h4501_localOpcode,
-      { "opcode", "h4501.opcode", FT_INT32, BASE_DEC,
+      { "localOpcode", "h4501.localOpcode", FT_INT32, BASE_DEC,
       VALS(localOpcode_vals), 0, "local", HFILL }},
    { &hf_h4501_globalCode,
-      { "global", "h4501.global", FT_STRING, BASE_HEX,
+      { "globalCode", "h4501.globalCode", FT_STRING, BASE_HEX,
       NULL, 0, "global", HFILL }},
    { &hf_h4501_globalargument,
-      { "argument", "h4501.argument", FT_BYTES, BASE_HEX,
+      { "argumentArgument", "h4501.globalArgument", FT_BYTES, BASE_HEX,
       NULL, 0, "argument", HFILL }},
    { &hf_h4501_opcode,
       { "opcode", "h4501.opcode", FT_UINT32, BASE_DEC,
       VALS(opcode_vals), 0, "opcode choice", HFILL }},
    { &hf_h4501_ReturnResult_result,
-      { "result", "h4501.ReturnResult.result", FT_BYTES, BASE_HEX,
+      { "ReturnResult_result", "h4501.ReturnResult.result", FT_BYTES, BASE_HEX,
       NULL, 0, "result", HFILL }},
    { &hf_h4501_result,
       { "result", "h4501.result", FT_NONE, BASE_NONE,
@@ -4147,7 +4150,7 @@ void proto_register_h450(void) {
       { "ReturnResult", "h4501.ReturnResult", FT_NONE, BASE_NONE,
       NULL, 0, "ReturnResult sequence of", HFILL }},
    { &hf_h4501_localErrorCode,
-      { "errorCode", "h4501.errorCode", FT_INT32, BASE_DEC,
+      { "localErrorCode", "h4501.localErrorCode", FT_INT32, BASE_DEC,
       VALS(localErrorCode_vals), 0, "local", HFILL }},
    { &hf_h4501_errorCode,
       { "errorCode", "h4501.errorCode", FT_UINT32, BASE_DEC,
@@ -5371,7 +5374,7 @@ void proto_register_h450(void) {
         "Extension/extensionArgument", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 1036 "packet-h450-template.c"
+#line 1039 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -5513,7 +5516,7 @@ void proto_register_h450(void) {
     &ett_h450_Extension,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 1052 "packet-h450-template.c"
+#line 1055 "packet-h450-template.c"
   };
 
 
