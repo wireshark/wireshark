@@ -14,54 +14,58 @@ README.win32 for those instructions.
 
 0. This is beta software.  Beware.
 
-1. If you wish to build Wireshark, make sure you have GTK+ and GLIB
-    installed. Try running 'gtk-config --version' and
-    'glib-config --version' to see if you have them installed.
-    Wireshark needs versions 1.2.0 or above of both these packages.
-    If you need to install or re-install GTK+ or GLIB, you can find
-    the packages at:
+1. If you wish to build Wireshark, make sure you have GTK+ and GLib
+   installed. Try running 'pkg-config glib-2.0 --modversion' to see if
+   you have GLib 2.x installed and, if that fails, try running
+   'glib-config --version' to see if you have GLib 1.2[.x] installed. 
+   Then try running 'pkg-config gtk+-2.0 --modversion' to see if you
+   have GTK+ 2.x installed and, if that fails, try running
+   'gtk-config --version' to see if you have GTK+ 1.2[.x] installed.
+   Wireshark needs versions 1.2.0 or above of both these packages.
+   If you need to install or re-install GTK+ or GLIB, you can find
+   the packages at:
 
         http://www.gtk.org
 
-    If you installed GTK+ from a binary package, you may have to
-    install a "development" package; there may be separate "user's"
-    and "developer's" packages, with the former not including
-    header files and the like.  For example, Red Hat users will
-    need to install a "gtk-devel" .rpm.
+   If you installed GTK+ from a binary package, you may have to
+   install a "development" package; there may be separate "user's"
+   and "developer's" packages, with the former not including
+   header files and the like.  For example, Red Hat users will
+   need to install a "gtk-devel" .rpm.
 
-    Note also that Wireshark configuration defaults to using GTK+ and
-    GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
-    1.2[.x].
+   Note also that Wireshark configuration defaults to using GTK+ and
+   GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
+   1.2[.x].
 
 2. If you wish to build TShark, the line-mode version of Wireshark,
-    make sure you have GLIB installed.  See note #1 above for instructions
-    on checking if you have GLIB installed. You can download GLIB from
-    the same site as GTK.
+   make sure you have GLIB installed.  See note #1 above for instructions
+   on checking if you have GLIB installed. You can download GLIB from
+   the same site as GTK.
 
 3. If you want to capture packets, make sure you have libpcap
-    installed.  The latest "official" version can be found at
+   installed.  The latest "official" version can be found at
 
-    http://www.tcpdump.org .
+        http://www.tcpdump.org .
 
-    If you've downloaded the 0.5.2 version, make sure you install
-    the headers ('make install-incl') when you install the library.
-    The CVS snapshots will install the headers if you do 'make
-    install', and have no 'install-incl' target.
+   If you've downloaded the 0.5.2 version, make sure you install
+   the headers ('make install-incl') when you install the library.
+   The CVS snapshots will install the headers if you do 'make
+   install', and have no 'install-incl' target.
 
-    If you installed libpcap from a binary package, you may have to
-    install a "development" package; for example, there's
-    apparently a "libpcap0" Debian package, but it just includes a
-    shared library, a copyright notice, changelog files, and a
-    README file - you also need to install a "libpcap-dev" package
-    to get header files, a non-shared library, and the man page.
-    Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
-    .rpm to go along with the "libpcap" .rpm.
+   If you installed libpcap from a binary package, you may have to
+   install a "development" package; for example, there's
+   apparently a "libpcap0" Debian package, but it just includes a
+   shared library, a copyright notice, changelog files, and a
+   README file - you also need to install a "libpcap-dev" package
+   to get header files, a non-shared library, and the man page.
+   Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
+   .rpm to go along with the "libpcap" .rpm.
 
 4. Run './configure' in the Wireshark distribution directory.
-    Running './configure --help' displays a list of options.
-    The file 'INSTALL.configure' contains general instructions for
-    using 'configure' and 'make'. Wireshark has some non-generic configure 
-    options:
+   Running './configure --help' displays a list of options.
+   The file 'INSTALL.configure' contains general instructions for
+   using 'configure' and 'make'. Wireshark has some non-generic configure 
+   options:
 
     --sysconfdir=DIR
         Wireshark installs a support file (manuf) in ${PREFIX}/etc by
@@ -190,28 +194,27 @@ README.win32 for those instructions.
         are installed.
 
 5. After running './configure', you will see a summary of some
-    of the options you chose. Ensure that the summary reflects
-    what you want. If it doesn't, re-run './configure' with new options.
+   of the options you chose. Ensure that the summary reflects
+   what you want. If it doesn't, re-run './configure' with new options.
 
 6. Run 'make'.  Hopefully, you won't run into any problems.
 
 7. Run './wireshark' or './tshark', and make sure things are working.
-    You must have root privileges in order to capture live data.
+   You must have root privileges in order to capture live data.
 
 8. Run 'make install'.  If you wish to install the man page, run
-    'make install-man'.  If you're running a system that supports
-    the Apt, RPM, or System V Release 4 packaging systems, you can
-    run one of
+   'make install-man'.  If you're running a system that supports
+   the Apt, RPM, or System V Release 4 packaging systems, you can
+   run one of
 
-    make debian-package	# Builds a binary package using dpkg
-    make rpm-package	# Builds a binary package using rpm
-    make srpm-package	# Builds a source package using rpm
-    make svr4-package	# Builds a source package using pkgmk
-    make solaris-package	# Same as "make svr4-package"
+        make debian-package	# Builds a binary package using dpkg
+        make rpm-package	# Builds a binary package using rpm
+        make srpm-package	# Builds a source package using rpm
+        make svr4-package	# Builds a source package using pkgmk
+        make solaris-package	# Same as "make svr4-package"
 
-    to make an installable package for your system.
+   to make an installable package for your system.
 
 If you have trouble with the build or installation process, you can
 find assistance on the wireshark-users and wireshark-dev mailing lists.
 See http://www.wireshark.org/lists/ for details.
-
