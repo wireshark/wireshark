@@ -231,7 +231,7 @@ print_usage(gboolean print_ver)
 
 #ifdef HAVE_LIBPCAP
   fprintf(output, "Capture interface:\n");
-  fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
+  fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
