@@ -387,7 +387,10 @@ datafiledir=$datadir/wireshark
 datafiledir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    eval echo "$datafiledir"
+    # Ugly hack, but I don't see how this problem can be solved
+    # properly that DATAFILE_DIR had a value starting with
+    # "${prefix}/" instead of e.g. "/usr/local/"
+    eval eval echo "$datafiledir"
 )`
 AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
 
