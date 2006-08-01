@@ -820,7 +820,7 @@ proto_register_msrp(void)
 			"Status code", HFILL }
 		},
 		{ &hf_msrp_msg_hdr,
-			{ "Message Header", 		"msrp.end.line",
+			{ "Message Header", 		"msrp.msg.hdr",
 			FT_NONE, 0,NULL,0x0,
 			"Message Header", HFILL }
 		},
