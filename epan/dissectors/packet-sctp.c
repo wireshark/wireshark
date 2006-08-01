@@ -953,7 +953,7 @@ static const value_string parameter_identifier_values[] = {
   { ECN_PARAMETER_ID,                        "ECN"                         },
   { NONCE_SUPPORTED_PARAMETER_ID,            "Nonce supported"             },
   { RANDOM_PARAMETER_ID,                     "Random"                      },
-  { CHUNKS_PARAMETER_ID,                     "Chunk list"                  },
+  { CHUNKS_PARAMETER_ID,                     "Authenticated Chunk list"    },
   { HMAC_ALGO_PARAMETER_ID,                  "Requested HMAC Algorithm"    },
   { SUPPORTED_EXTENSIONS_PARAMETER_ID,       "Supported Extensions"        },
   { FORWARD_TSN_SUPPORTED_PARAMETER_ID,      "Forward TSN supported"       },
