@@ -1797,7 +1797,6 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 			                                      avpNameString,avph.avp_code);
 			if (!AVP_code_found)
 			{
-				printf("adding expert info!\n");
 				expert_add_info_format(pinfo, ti,
 				                       PI_UNDECODED, PI_NOTE,
 				                       "AVP info not available (code %u)",
