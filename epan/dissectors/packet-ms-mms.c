@@ -280,6 +280,9 @@ static const value_string server_to_client_error_vals[] =
 
 /*************************/
 /* Function declarations */
+void proto_register_msmms(void);
+void proto_reg_handoff_msmms_command(void);
+
 static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -442,7 +445,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 4;
 
     /* Protocol name.  Must be "MMS"... */
-    if (strncmp(tvb_get_ephemeral_string(tvb, offset, 3), "MMS", 3) != 0)
+    if (strncmp((char*)tvb_get_ephemeral_string(tvb, offset, 3), "MMS", 3) != 0)
     {
         return 0;
     }
@@ -793,7 +796,7 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        format_text(transport_info, length_remaining - 20));
+                        format_text((guchar*)transport_info, length_remaining - 20));
     }
 
 
@@ -898,7 +901,7 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
-	                    format_text(server_version, server_version_length));
+                        format_text((guchar*)server_version, server_version_length));
         }
     }
     offset += (server_version_length*2);
@@ -912,7 +915,7 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Server version string */
         proto_tree_add_string(tree, hf_msmms_command_tool_version, tvb,
                               offset, tool_version_length*2,
-                              format_text(tool_version, tool_version_length));
+                              format_text((guchar*)tool_version, tool_version_length));
     }
     offset += (tool_version_length*2);
 
@@ -965,7 +968,7 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        format_text(player_info, (length_remaining - 12)/2));
+                        format_text((guchar*)player_info, (length_remaining - 12)/2));
     }
 }
 
@@ -1061,7 +1064,7 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        format_text(server_file, (length_remaining - 16)/2));
+                        format_text((guchar*)server_file, (length_remaining - 16)/2));
     }
 }
 
