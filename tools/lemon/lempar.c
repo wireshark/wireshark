@@ -82,20 +82,27 @@
 ** functions that take a state number and lookahead value and return an
 ** action integer.  
 **
-** The action integer is a number N between
-** 0 and YYNSTATE-1 mean shift the look-ahead and go to state N.
-** Numbers between YYNSTATE and YYNSTATE+YYNRULE-1 mean reduce by
-** rule N-YYNSTATE.  Number YYNSTATE+YYNRULE means that a syntax
-** error has occurred.  Number YYNSTATE+YYNRULE+1 means the parser
-** accepts its input.
+** Suppose the action integer is N.  Then the action is determined as
+** follows
 **
-** The action table is constructed as a single large hash table with
-** a perfect hash.  Given state S and lookahead X, the action is computed
-** as
+**   0 <= N < YYNSTATE                  Shift N.  That is, push the lookahead
+**                                      token onto the stack and goto state N.
+**
+**   YYNSTATE <= N < YYNSTATE+YYNRULE   Reduce by rule N-YYNSTATE.
+**
+**   N == YYNSTATE+YYNRULE              A syntax error has occurred.
+**
+**   N == YYNSTATE+YYNRULE+1            The parser accepts its input.
+**
+**   N == YYNSTATE+YYNRULE+2            No such action.  Denotes unused
+**                                      slots in the yy_action[] table.
+**
+** The action table is constructed as a single large table named yy_action[].
+** Given state S and lookahead X, the action is computed as
 **
 **      yy_action[ yy_shift_ofst[S] + X ]
 **
-** If the index yy_shift_ofst[S]+X is out of range or if the value
+** If the index value yy_shift_ofst[S]+X is out of range or if the value
 ** yy_lookahead[yy_shift_ofst[S]+X] is not equal to X or if yy_shift_ofst[S]
 ** is equal to YY_SHIFT_USE_DFLT, it means that the action is not in the table
 ** and that yy_default[S] should be used instead.  
@@ -116,7 +123,7 @@
 **  yy_reduce_ofst[]   For each state, the offset into yy_action for
 **                     shifting non-terminals after a reduce.
 **  yy_default[]       Default action for each state.
- */
+*/
 %%
 #define YY_SZ_ACTTAB (sizeof(yy_action)/sizeof(yy_action[0]))
 
@@ -162,7 +169,6 @@ typedef struct yyStackEntry yyStackEntry;
 struct yyParser {
   int yyidx;                    /* Index of top element in stack */
   int yyerrcnt;                 /* Shifts left before out of the error */
-  yyStackEntry *yytop;          /* Pointer to the top stack element */
   ParseARG_SDECL                /* A place to hold %extra_argument */
   yyStackEntry yystack[YYSTACKDEPTH];  /* The parser's stack */
 };
@@ -203,7 +209,7 @@ void ParseTrace(FILE *TraceFILE, char *zTracePrompt){
 #ifndef NDEBUG
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
-static const char *yyTokenName[] = {
+static const char *const yyTokenName[] = {
 %%
 };
 #endif /* NDEBUG */
@@ -211,7 +217,7 @@ static const char *yyTokenName[] = {
 #ifndef NDEBUG
 /* For tracing reduce actions, the names of all rules are required.
 */
-static const char *yyRuleName[] = {
+static const char *const yyRuleName[] = {
 %%
 };
 #endif /* NDEBUG */
@@ -231,7 +237,6 @@ const char *ParseTokenName(int tokenType){
   return "";
 #endif
 }
-
 
 /*
 ** This function allocates a new parser.
@@ -286,19 +291,19 @@ static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
 */
 static int yy_pop_parser_stack(yyParser *pParser){
   YYCODETYPE yymajor;
+  yyStackEntry *yytos = &pParser->yystack[pParser->yyidx];
 
   if( pParser->yyidx<0 ) return 0;
 #ifndef NDEBUG
   if( yyTraceFILE && pParser->yyidx>=0 ){
     fprintf(yyTraceFILE,"%sPopping %s\n",
       yyTracePrompt,
-     yyTokenName[pParser->yytop->major]);
+     yyTokenName[yytos->major]);
   }
 #endif
-  yymajor = pParser->yytop->major;
-  yy_destructor( yymajor, &pParser->yytop->minor);
+  yymajor = yytos->major;
+  yy_destructor( yymajor, &yytos->minor);
   pParser->yyidx--;
-  pParser->yytop--;
   return yymajor;
 }
 
@@ -316,7 +321,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
 */
 void ParseFree(
   void *p,                 /* The parser to be deleted */
-  void (*freeProc)(void *) /* Function used to reclaim memory */
+  void (*freeProc)(void*)  /* Function used to reclaim memory */
 ){
   yyParser *pParser = (yyParser*)p;
   if( pParser==0 ) return;
@@ -340,7 +345,7 @@ static int yy_find_shift_action(
   int stateno = pParser->yystack[pParser->yyidx].stateno;
 
   if( stateno>YY_SHIFT_MAX || (i = yy_shift_ofst[stateno])==YY_SHIFT_USE_DFLT ){
-    return yy_default[pParser->yytop->stateno];
+    return yy_default[stateno];
   }
   if( iLookAhead==YYNOCODE ){
     return YY_NO_ACTION;
@@ -360,7 +365,7 @@ static int yy_find_shift_action(
       return yy_find_shift_action(pParser, iFallback);
     }
 #endif
-    return yy_default[pParser->yytop->stateno];
+    return yy_default[stateno];
   }else{
     return yy_action[i];
   }
@@ -396,7 +401,6 @@ static int yy_find_reduce_action(
   }
 }
 
-
 /*
 ** Perform a shift action.
 */
@@ -406,12 +410,11 @@ static void yy_shift(
   int yyMajor,                  /* The major token to shift in */
   YYMINORTYPE *yypMinor         /* Pointer ot the minor token to shift in */
 ){
+  yyStackEntry *yytos;
   yypParser->yyidx++;
-  yypParser->yytop++;
   if( yypParser->yyidx>=YYSTACKDEPTH ){
      ParseARG_FETCH;
      yypParser->yyidx--;
-     yypParser->yytop--;
 #ifndef NDEBUG
      if( yyTraceFILE ){
        fprintf(yyTraceFILE,"%sStack Overflow!\n",yyTracePrompt);
@@ -424,9 +427,10 @@ static void yy_shift(
 	 ParseARG_STORE; /* Suppress warning about unused %extra_argument var */
      return;
   }
-  yypParser->yytop->stateno = yyNewState;
-  yypParser->yytop->major = yyMajor;
-  yypParser->yytop->minor = *yypMinor;
+  yytos = &yypParser->yystack[yypParser->yyidx];
+  yytos->stateno = yyNewState;
+  yytos->major = yyMajor;
+  yytos->minor = *yypMinor;
 #ifndef NDEBUG
   if( yyTraceFILE && yypParser->yyidx>0 ){
     int i;
@@ -467,7 +471,7 @@ static void yy_reduce(
   yyStackEntry *yymsp;            /* The top of the parser's stack */
   int yysize;                     /* Amount to pop the stack */
   ParseARG_FETCH;
-  yymsp = yypParser->yytop;
+  yymsp = &yypParser->yystack[yypParser->yyidx];
 #ifndef NDEBUG
   if( yyTraceFILE && yyruleno>=0 
         && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
@@ -502,7 +506,6 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yyidx -= yysize;
-  yypParser->yytop -= yysize;
   yyact = yy_find_reduce_action(yymsp[-yysize].stateno,yygoto);
   if( yyact < YYNSTATE ){
 #ifdef NDEBUG
@@ -615,9 +618,8 @@ void Parse(
     /* if( yymajor==0 ) return; // not sure why this was here... */
     yypParser->yyidx = 0;
     yypParser->yyerrcnt = -1;
-    yypParser->yytop = &yypParser->yystack[0];
-    yypParser->yytop->stateno = 0;
-    yypParser->yytop->major = 0;
+    yypParser->yystack[0].stateno = 0;
+    yypParser->yystack[0].major = 0;
   }
   yyminorunion.yy0 = yyminor;
   yyendofinput = (yymajor==0);
@@ -642,6 +644,7 @@ void Parse(
     }else if( yyact < YYNSTATE + YYNRULE ){
       yy_reduce(yypParser,yyact-YYNSTATE);
     }else if( yyact == YY_ERROR_ACTION ){
+      int yymx;
 #ifndef NDEBUG
       if( yyTraceFILE ){
         fprintf(yyTraceFILE,"%sSyntax Error!\n",yyTracePrompt);
@@ -670,7 +673,8 @@ void Parse(
       if( yypParser->yyerrcnt<0 ){
         yy_syntax_error(yypParser,yymajor,yyminorunion);
       }
-     if( yypParser->yytop->major==YYERRORSYMBOL || yyerrorhit ){
+      yymx = yypParser->yystack[yypParser->yyidx].major;
+      if( yymx==YYERRORSYMBOL || yyerrorhit ){
 #ifndef NDEBUG
         if( yyTraceFILE ){
           fprintf(yyTraceFILE,"%sDiscard input token %s\n",
@@ -682,7 +686,7 @@ void Parse(
       }else{
          while(
           yypParser->yyidx >= 0 &&
-          yypParser->yytop->major != YYERRORSYMBOL &&
+          yymx != YYERRORSYMBOL &&
           (yyact = yy_find_shift_action(yypParser,YYERRORSYMBOL)) >= YYNSTATE
         ){
           yy_pop_parser_stack(yypParser);
@@ -691,7 +695,7 @@ void Parse(
           yy_destructor(yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
-        }else if( yypParser->yytop->major!=YYERRORSYMBOL ){
+        }else if( yymx!=YYERRORSYMBOL ){
           YYMINORTYPE u2;
           u2.YYERRSYMDT = 0;
           yy_shift(yypParser,yyact,YYERRORSYMBOL,&u2);
@@ -726,3 +730,4 @@ void Parse(
   }while( yymajor!=YYNOCODE && yypParser->yyidx>=0 );
   return;
 }
+
