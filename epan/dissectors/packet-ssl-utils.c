@@ -29,8 +29,10 @@
 #include <string.h>
 #include "packet-ssl-utils.h"
 
+#include <epan/emem.h>
+
 void 
-ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
+ssl_data_set(StringInfo* str, guchar* data, guint len)
 {
     memcpy(str->data, data, len);
     str->data_len = len;
@@ -42,21 +44,23 @@ ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
 #define SSL_HMAC gcry_md_hd_t
 
 static inline void 
-ssl_hmac_init(SSL_HMAC* md, const void * key, int len, int algo)
+ssl_hmac_init(SSL_HMAC* md, const void * key, gint len, gint algo)
 {
     gcry_md_open(md,algo, GCRY_MD_FLAG_HMAC); 
     gcry_md_setkey (*(md), key, len);
 }
 static inline void 
-ssl_hmac_update(SSL_HMAC* md, const void* data, int len)
+ssl_hmac_update(SSL_HMAC* md, const void* data, gint len)
 {
     gcry_md_write(*(md), data, len);
 }
 static inline void 
-ssl_hmac_final(SSL_HMAC* md, unsigned char* data, unsigned int* datalen)
+ssl_hmac_final(SSL_HMAC* md, guchar* data, guint* datalen)
 { 
-    int algo = gcry_md_get_algo (*(md));
-    unsigned int len = gcry_md_get_algo_dlen(algo);
+    gint algo;
+    guint len;
+    algo = gcry_md_get_algo (*(md));
+    len = gcry_md_get_algo_dlen(algo);
     memcpy(data, gcry_md_read(*(md), algo), len);
     *datalen =len;
 }
@@ -70,20 +74,22 @@ ssl_hmac_cleanup(SSL_HMAC* md)
 #define SSL_MD gcry_md_hd_t
 
 static inline void 
-ssl_md_init(SSL_MD* md, int algo)
+ssl_md_init(SSL_MD* md, gint algo)
 {
     gcry_md_open(md,algo, 0); 
 }
 static inline void 
-ssl_md_update(SSL_MD* md, unsigned char* data, int len) 
+ssl_md_update(SSL_MD* md, guchar* data, gint len) 
 { 
     gcry_md_write(*(md), data, len); 
 }
 static inline void 
-ssl_md_final(SSL_MD* md, unsigned char* data, unsigned int* datalen)
+ssl_md_final(SSL_MD* md, guchar* data, guint* datalen)
 { 
-    int algo = gcry_md_get_algo (*(md));
-    int len = gcry_md_get_algo_dlen (algo);
+    gint algo;
+    gint len;
+    algo = gcry_md_get_algo (*(md));
+    len = gcry_md_get_algo_dlen (algo);
     memcpy(data, gcry_md_read(*(md),  algo), len);
     *datalen = len;
 }
@@ -103,12 +109,12 @@ ssl_sha_init(SSL_SHA_CTX* md)
     gcry_md_open(md,GCRY_MD_SHA1, 0); 
 }
 static inline void 
-ssl_sha_update(SSL_SHA_CTX* md, unsigned char* data, int len) 
+ssl_sha_update(SSL_SHA_CTX* md, guchar* data, gint len) 
 { 
     gcry_md_write(*(md), data, len);
 }
 static inline void 
-ssl_sha_final(unsigned char* buf, SSL_SHA_CTX* md)
+ssl_sha_final(guchar* buf, SSL_SHA_CTX* md)
 {
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_SHA1), 
         gcry_md_get_algo_dlen(GCRY_MD_SHA1));
@@ -119,18 +125,18 @@ ssl_sha_cleanup(SSL_SHA_CTX* md)
     gcry_md_close(*(md));
 }
 
-static inline int 
+static inline gint 
 ssl_md5_init(SSL_MD5_CTX* md)
 {
     return gcry_md_open(md,GCRY_MD_MD5, 0); 
 }
 static inline void 
-ssl_md5_update(SSL_MD5_CTX* md, unsigned char* data, int len)
+ssl_md5_update(SSL_MD5_CTX* md, guchar* data, gint len)
 {
     gcry_md_write(*(md), data, len);
 }
 static inline void 
-ssl_md5_final(unsigned char* buf, SSL_MD5_CTX* md)
+ssl_md5_final(guchar* buf, SSL_MD5_CTX* md)
 {
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_MD5), 
         gcry_md_get_algo_dlen(GCRY_MD_MD5));
@@ -141,13 +147,14 @@ ssl_md5_cleanup(SSL_MD5_CTX* md)
     gcry_md_close(*(md));
 }
 
-static int
-ssl_cipher_setiv(gcry_cipher_hd_t *cipher,unsigned char* iv, int iv_len)
+static gint
+ssl_cipher_setiv(gcry_cipher_hd_t *cipher,guchar* iv, gint iv_len)
 {
-  unsigned char * ivp;
-  int ret=0;
-  int i;
+  /* guchar * ivp; */
+  gint ret;
+  /* gint i; */
   gcry_cipher_hd_t c;
+  ret=0;
   c=(gcry_cipher_hd_t)*cipher;
   
   ssl_debug_printf("--------------------------------------------------------------------");
@@ -169,15 +176,13 @@ ssl_cipher_setiv(gcry_cipher_hd_t *cipher,unsigned char* iv, int iv_len)
   return ret;
 }
 /* stream cipher abstraction layer*/
-static int 
-ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk, 
-        unsigned char* iv, int mode)
+static gint 
+ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk, 
+        guchar* iv, gint mode)
 {
-    int gcry_modes[]={
-        GCRY_CIPHER_MODE_STREAM,
-        GCRY_CIPHER_MODE_CBC
-    };
-    int err = gcry_cipher_open(cipher, algo, gcry_modes[mode], 0); 
+    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC};
+    gint err; 
+    err = gcry_cipher_open(cipher, algo, gcry_modes[mode], 0); 
     if (err !=0)
         return  -1;
     err = gcry_cipher_setkey(*(cipher), sk, gcry_cipher_get_algo_keylen (algo)); 
@@ -188,19 +193,19 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk,
         return -1;
     return 0;
 }
-static inline int 
-ssl_cipher_decrypt(gcry_cipher_hd_t *cipher, unsigned char * out, int outl, 
-                   const unsigned char * in,int inl)
+static inline gint 
+ssl_cipher_decrypt(gcry_cipher_hd_t *cipher, guchar * out, gint outl, 
+                   const guchar * in, gint inl)
 {
     return gcry_cipher_decrypt ( *(cipher), out, outl, in, inl);
 }
-static inline int 
-ssl_get_digest_by_name(const char*name)
+static inline gint 
+ssl_get_digest_by_name(const gchar*name)
 {
     return gcry_md_map_name(name);
 }
-static inline int 
-ssl_get_cipher_by_name(const char* name)
+static inline gint 
+ssl_get_cipher_by_name(const gchar* name)
 {
     return gcry_cipher_map_name(name);
 }
@@ -213,28 +218,30 @@ ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
 }
 
 /* private key abstraction layer */
-static inline int 
+static inline gint 
 ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
 
 gcry_err_code_t
 _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
-                   gcry_mpi_t *skey, int flags);
+                   gcry_mpi_t *skey, gint flags);
                    
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0) 
 
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
 int 
-ssl_private_decrypt(unsigned int len, unsigned char* encr_data, SSL_PRIVATE_KEY* pk)
+ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 {
-    int rc;
-    size_t decr_len = 0;
+    gint rc;
+    size_t decr_len;
     gcry_sexp_t  s_data, s_plain;
     gcry_mpi_t encr_mpi;
-    size_t i, encr_len = len;
-    unsigned char* decr_data_ptr;
-    gcry_mpi_t text=NULL;
-
+    size_t i, encr_len;
+    guchar* decr_data_ptr;
+    gcry_mpi_t text;
+    decr_len = 0;
+    encr_len = len;
+    text=NULL;
     /* build up a mpi rappresentation for encrypted data */
     rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG,encr_data, encr_len, &encr_len); 
     if (rc != 0 ) {
@@ -349,8 +356,8 @@ out:
 }
 
 /* stringinfo interface */
-static int 
-ssl_data_alloc(StringInfo* str, unsigned int len)
+static gint 
+ssl_data_alloc(StringInfo* str, guint len)
 {
     str->data = g_malloc(len);
     if (!str->data)
@@ -363,12 +370,12 @@ ssl_data_alloc(StringInfo* str, unsigned int len)
         ssl3_prf(secret,usage,rnd1,rnd2,out): \
         tls_prf(secret,usage,rnd1,rnd2,out))
 
-static const char *digests[]={
+static const gchar *digests[]={
      "MD5",
      "SHA1"
 };
 
-static const char *ciphers[]={
+static const gchar *ciphers[]={
      "DES",
      "3DES",
      "ARCFOUR", /* gnutls does not support rc4, but this should be 100% compatible*/
@@ -438,17 +445,20 @@ ssl_find_cipher(int num,SslCipherSuite* cs)
     return -1;
 }
 
-static int 
+static gint 
 tls_hash(StringInfo* secret,
-        StringInfo* seed, int md, StringInfo* out)
+        StringInfo* seed, gint md, StringInfo* out)
 {
-    guint8 *ptr=out->data;
-    unsigned int left=out->data_len;
-    int tocpy;
+    guint8 *ptr;
+    guint left;
+    gint tocpy;
     guint8 *A;
     guint8 _A[20],tmp[20];
-    unsigned int A_l,tmp_l;
+    guint A_l,tmp_l;
     SSL_HMAC hm;
+    ptr=out->data;
+    left=out->data_len;
+    
     
     ssl_print_string("tls_hash: hash secret", secret);
     ssl_print_string("tls_hash: hash seed", seed);
@@ -478,16 +488,18 @@ tls_hash(StringInfo* secret,
     return (0);
 }    
 
-static int 
-tls_prf(StringInfo* secret, const char *usage,
+static gint 
+tls_prf(StringInfo* secret, const gchar *usage,
         StringInfo* rnd1, StringInfo* rnd2, StringInfo* out)
 {
     StringInfo seed, sha_out, md5_out;
     guint8 *ptr;
     StringInfo s1, s2;
-    unsigned int i,s_l, r=-1;
-    int usage_len = strlen(usage);
-    
+    guint i,s_l, r;
+    gint usage_len;
+    r=-1;
+    usage_len = strlen(usage);
+
     /* initalize buffer for sha, md5 random seed*/
     if (ssl_data_alloc(&sha_out, MAX(out->data_len,20)) < 0)
         return -1;
@@ -536,7 +548,7 @@ free_sha:
     return r;    
 }
 
-static int 
+static gint 
 ssl3_generate_export_iv(StringInfo* r1,
         StringInfo* r2, StringInfo* out)
 {
@@ -555,23 +567,23 @@ ssl3_generate_export_iv(StringInfo* r1,
     return(0);
 }
 
-static int 
-ssl3_prf(StringInfo* secret, const char* usage,
+static gint 
+ssl3_prf(StringInfo* secret, const gchar* usage,
         StringInfo* r1,
         StringInfo* r2,StringInfo* out)
 {
     SSL_MD5_CTX md5;
     SSL_SHA_CTX sha;
     StringInfo *rnd1,*rnd2;
-    unsigned int off;
-    int i=0,j;
+    guint off;
+    gint i=0,j;
     guint8 buf[20];
     
     rnd1=r1; rnd2=r2;
     
     for(off=0;off<out->data_len;off+=16){
-        unsigned char outbuf[16];
-        int tocpy;
+        guchar outbuf[16];
+        gint tocpy;
         i++;
         
         ssl_debug_printf("ssl3_prf: sha1_hash(%d)\n",i);
@@ -611,12 +623,12 @@ ssl3_prf(StringInfo* secret, const char* usage,
     return(0);
 }
 
-static int 
+static gint 
 ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite, 
         guint8 *mk, guint8 *sk, guint8 *iv)
 {
-    int ciph=0;
-
+    gint ciph;
+    ciph=0;
     /* Find the SSLeay cipher */
     if(cipher_suite->enc!=ENC_NULL) {
         ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", ciphers[cipher_suite->enc-0x30]);
@@ -654,7 +666,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     StringInfo key_block;
     guint8 _iv_c[MAX_BLOCK_SIZE],_iv_s[MAX_BLOCK_SIZE];
     guint8 _key_c[MAX_KEY_SIZE],_key_s[MAX_KEY_SIZE];
-    int needed;
+    gint needed;
     guint8 *ptr,*c_wk,*s_wk,*c_mk,*s_mk,*c_iv = _iv_c,*s_iv = _iv_s;
     
     /* if master_key is not yet generate, create it now*/    
@@ -864,7 +876,7 @@ int
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
-    int i;
+    gint i;
         
     if(ssl_session->cipher_suite.kex!=KEX_RSA) {
         ssl_debug_printf("ssl_decrypt_pre_master_secret key %d diferent from KEX_RSA(%d)\n",
@@ -898,7 +910,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
  
 /* convert network byte order 32 byte number to right-aligned host byte order *
  * 8 bytes buffer */
-static int fmt_seq(guint32 num, guint8* buf)
+static gint fmt_seq(guint32 num, guint8* buf)
 {
     guint32 netnum;
 
@@ -909,12 +921,12 @@ static int fmt_seq(guint32 num, guint8* buf)
     return(0);
 }
 
-static int 
-tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
+static gint 
+tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
         guint32 datalen, guint8* mac)
 {
     SSL_HMAC hm;
-    int md;
+    gint md;
     guint32 len;
     guint8 buf[20];
 
@@ -958,10 +970,10 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
         guint32 datalen, guint8* mac)
 {
     SSL_MD mc;
-    int md;
+    gint md;
     guint32 len;
     guint8 buf[64],dgst[20];
-    int pad_ct;
+    gint pad_ct;
     
     pad_ct=(decoder->cipher_suite->dig==DIG_SHA)?40:48;
 
@@ -1014,12 +1026,12 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 }
  
 #if 0
-static int 
-dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
+static gint 
+dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
         guint32 datalen, guint8* mac)
 {
     SSL_HMAC hm;
-    int md;
+    gint md;
     guint32 len;
     guint8 buf[20];
     guint32 netnum;
@@ -1060,10 +1072,10 @@ dtls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
 
  
 int 
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
-        const unsigned char* in, int inl,unsigned char*out,int* outl)
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
+        const guchar* in, gint inl, guchar*out, gint* outl)
 {
-    int pad, worklen;
+    gint pad, worklen;
     guint8 *mac;
 
 
@@ -1134,9 +1146,9 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
 /* old relase of gnutls does not define the appropriate macros, so get 
  * them from the string*/
 static void 
-ssl_get_version(int* major, int* minor, int* patch)
+ssl_get_version(gint* major, gint* minor, gint* patch)
 {
-    const char* str = gnutls_check_version(NULL);
+    const gchar* str = gnutls_check_version(NULL);
     
     ssl_debug_printf("ssl_get_version: %s\n", str);
     sscanf(str, "%d.%d.%d", major, minor, patch);
@@ -1153,9 +1165,9 @@ ssl_load_key(FILE* fp)
     struct gnutls_x509_privkey_int* priv_key;
     gnutls_datum key;
     gnutls_datum m, e, d, p,q, u;
-    int size, major, minor, patch;
-    unsigned int bytes;
-    unsigned int tmp_size;
+    gint size, major, minor, patch;
+    guint bytes;
+    guint tmp_size;
 #ifdef SSL_FAST
     gcry_mpi_t* rsa_params = g_malloc(sizeof(gcry_mpi_t)*6);
 #else
@@ -1260,7 +1272,7 @@ ssl_load_key(FILE* fp)
     return rsa_params;
 #else
     {
-        int i;
+        gint i;
         for (i=0; i< 6; i++)
             gcry_mpi_release(rsa_params[i]);
     }
@@ -1271,7 +1283,7 @@ ssl_load_key(FILE* fp)
 void ssl_free_key(SSL_PRIVATE_KEY* key)
 {
 #if SSL_FAST
-    int i;
+    gint i;
     for (i=0; i< 6; i++)
         gcry_mpi_release(key[i]);    
 #else
@@ -1329,8 +1341,8 @@ ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session,
 }
 
 int 
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct, 
-        const unsigned char* in, int inl,unsigned char*out,int* outl)
+ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct, 
+        const guchar* in, gint inl, guchar*out, gint* outl)
 {
     ssl_debug_printf("ssl_decrypt_record: impossible without gnutls. ssl %p"
         "decoder %p ct %d, in %p inl %d out %p outl %p\n", ssl, decoder, ct,
@@ -1345,7 +1357,7 @@ void
 ssl_session_init(SslDecryptSession* ssl_session)
 {
     ssl_debug_printf("ssl_session_init: initializing ptr %p size %lu\n", 
-        ssl_session, (unsigned long)sizeof(SslDecryptSession));
+        ssl_session, (gulong)sizeof(SslDecryptSession));
 
     ssl_session->master_secret.data = ssl_session->_master_secret;
     ssl_session->session_id.data = ssl_session->_session_id;
@@ -1356,6 +1368,359 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->app_data_segment.data_len=0;
 }
 
+/* Hash Functions for TLS/DTLS sessions table and private keys table*/
+gint  
+ssl_equal (gconstpointer v, gconstpointer v2)
+{
+  const StringInfo *val1;
+  const StringInfo *val2;
+  val1 = (const StringInfo *)v;
+  val2 = (const StringInfo *)v2;
+
+  if (val1->data_len == val2->data_len &&
+      !memcmp(val1->data, val2->data, val2->data_len)) {
+    return 1;
+  }
+  return 0;
+}
+
+guint 
+ssl_hash  (gconstpointer v)
+{    
+  guint l,hash;
+  StringInfo* id;
+  guint* cur;
+  hash = 0;
+  id = (StringInfo*) v;
+  cur = (guint*) id->data;
+
+  for (l=4; (l<id->data_len); l+=4, cur++)
+    hash = hash ^ (*cur);
+        
+  return hash;
+}
+
+gint 
+ssl_private_key_equal (gconstpointer v, gconstpointer v2)
+{
+  const SslService *val1;
+  const SslService *val2;
+  val1 = (const SslService *)v;
+  val2 = (const SslService *)v2;
+
+  if ((val1->port == val2->port) &&
+      ! CMP_ADDRESS(&val1->addr, &val2->addr)) {
+    return 1;
+  }
+  return 0;
+}
+
+guint 
+ssl_private_key_hash  (gconstpointer v)
+{    
+  const SslService *key;
+  guint l, hash, len ;
+  guint* cur;
+  key = (const SslService *)v;
+  hash = key->port;
+  len = key->addr.len;
+  cur = (guint*) key->addr.data;
+
+  for (l=4; (l<len); l+=4, cur++)
+    hash = hash ^ (*cur);
+        
+  return hash;
+}
+
+/* private key table entries have a scope 'larger' then packet capture,
+ * so we can't relay on se_alloc** function */
+void 
+ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
+{
+  g_free(id);
+  ssl_free_key((SSL_PRIVATE_KEY*) key);
+}
+
+/* handling of association between tls/dtls ports and clear text protocol */
+void 
+ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp)
+{
+
+  SslAssociation* assoc;
+  assoc = g_malloc(sizeof(SslAssociation));
+
+  assoc->info=g_malloc(strlen(protocol)+1);
+  strcpy(assoc->info, protocol);
+  assoc->ssl_port = port;
+    
+  assoc->handle = find_dissector(protocol); 
+
+  ssl_debug_printf("association_add port %d protocol %s handle %p\n",
+		   port, protocol, assoc->handle);
+
+  
+  if(!assoc->handle){
+    fprintf(stderr, "association_add() could not find handle for protocol:%s\n",protocol);
+  } else {
+    if(tcp)
+      dissector_add("tcp.port", port, handle);   
+    else
+      dissector_add("udp.port", port, handle);    
+    g_tree_insert(associations, (gpointer)port, assoc);
+  }
+}
+
+
+gint 
+ssl_association_cmp(gconstpointer a, gconstpointer b)
+{
+  return (gint)a-(gint)b;
+}
+
+SslAssociation* 
+ssl_association_find(GTree * associations, guint port)
+{
+  register SslAssociation* ret;
+  ret = g_tree_lookup(associations, (gpointer)port);
+
+  ssl_debug_printf("association_find: port %d found %p\n", port, ret);
+  return ret;
+}
+
+gint 
+ssl_association_remove_handle_tcp (gpointer key _U_, 
+				   gpointer  data, gpointer  user_data _U_)
+{
+  SslAssociation* assoc;
+  assoc = (SslAssociation*) data;
+
+  ssl_debug_printf("association_remove_handle removing ptr %p handle %p\n",
+		   data, assoc->handle);
+  if (assoc->handle)
+    dissector_delete("tcp.port", assoc->ssl_port, assoc->handle);
+  g_free(data);
+  return 0;
+}
+
+gint 
+ssl_association_remove_handle_udp (gpointer key _U_, 
+				   gpointer  data, gpointer  user_data _U_)
+{
+  SslAssociation* assoc;
+  assoc = (SslAssociation*) data;
+
+  ssl_debug_printf("association_remove_handle removing ptr %p handle %p\n",
+		   data, assoc->handle);
+  if (assoc->handle)
+    dissector_delete("tcp.port", assoc->ssl_port, assoc->handle);
+  g_free(data);
+  return 0;
+}
+
+int 
+ssl_packet_from_server(GTree* associations, guint port)
+{
+  register gint ret;
+  ret = ssl_association_find(associations, port) != 0;
+
+  ssl_debug_printf("packet_from_server: is from server %d\n", ret);    
+  return ret;
+}    
+
+/* add to packet data a newly allocated tvb with the specified real data*/
+void
+ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id)
+{
+  guchar* real_data;
+  SslRecordInfo* rec;
+  SslPacketInfo* pi;
+  real_data = se_alloc(data_len);
+  rec = se_alloc(sizeof(SslRecordInfo));
+  pi = p_get_proto_data(pinfo->fd, proto);
+
+  if (!pi)
+    {
+      pi = se_alloc0(sizeof(SslPacketInfo));
+      p_add_proto_data(pinfo->fd, proto,pi);
+    }
+    
+  rec->id = record_id;
+  rec->tvb = tvb_new_real_data(real_data, data_len, data_len);
+  memcpy(real_data, data, data_len);
+    
+  /* head insertion */
+  rec->next= pi->handshake_data;
+  pi->handshake_data = rec;
+}
+
+
+/* search in packet data the tvbuff associated to the specified id */
+tvbuff_t* 
+ssl_get_record_info(int proto, packet_info *pinfo, gint record_id)
+{
+  SslRecordInfo* rec;
+  SslPacketInfo* pi;
+  pi = p_get_proto_data(pinfo->fd, proto);
+
+  if (!pi)
+    return NULL;
+    
+  for (rec = pi->handshake_data; rec; rec = rec->next)
+    if (rec->id == record_id)
+      return rec->tvb;
+
+  return NULL;
+}
+
+/* initialize/reset per capture state data (ssl sessions cache) */
+void 
+ssl_common_init(GHashTable **session_hash , StringInfo * decrypted_data)
+{
+  if (*session_hash)
+    g_hash_table_destroy(*session_hash);
+  *session_hash = g_hash_table_new(ssl_hash, ssl_equal);
+  if (decrypted_data->data)
+    g_free(decrypted_data->data);
+  decrypted_data->data = g_malloc0(32);
+  decrypted_data->data_len = 32;
+}
+
+/* parse ssl related preferences (private keys and ports association strings) */
+void 
+ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp)
+{
+  gchar* end;
+  gchar* start;
+  gchar* tmp;
+  guchar* ip;
+  SslService* service;
+  SSL_PRIVATE_KEY * private_key;
+  FILE* fp;
+
+  start = strdup(keys_list);
+  tmp = start;   
+  ssl_debug_printf("ssl_init keys string %s\n", start);
+  do {
+    gchar* addr, *port, *protocol, *filename;            
+            
+    addr = start;
+    /* split ip/file couple with ';' separator*/
+    end = strchr(start, ';');
+    if (end) {
+      *end = 0;
+      start = end+1;
+    }
+  
+    /* for each entry split ip, port, protocol, filename with ',' separator */
+    ssl_debug_printf("ssl_init found host entry %s\n", addr);
+    port = strchr(addr, ',');
+    if (!port)
+      {
+	ssl_debug_printf("ssl_init entry malformed can't find port in %s\n", addr);
+	break;
+      }
+    *port = 0;
+    port++;
+            
+    protocol = strchr(port,',');
+    if (!protocol)
+      {
+	ssl_debug_printf("ssl_init entry malformed can't find protocol in %s\n", port);
+	break;
+      }
+    *protocol=0;
+    protocol++;
+            
+    filename = strchr(protocol,',');
+    if (!filename)
+      {
+	ssl_debug_printf("ssl_init entry malformed can't find filename in %s\n", port);
+	break;
+      }
+    *filename=0;
+    filename++;
+            
+    /* convert ip and port string to network rappresentation*/
+    service = g_malloc(sizeof(SslService) + 4);
+    service->addr.type = AT_IPv4;
+    service->addr.len = 4;
+    service->addr.data = ip = ((guchar*)service) + sizeof(SslService);
+    sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
+    service->port = atoi(port);
+    ssl_debug_printf("ssl_init addr %hhu.%hhu.%hhu.%hhu port %d filename %s\n", 
+		     ip[0], ip[1], ip[2], ip[3], service->port, filename);
+    
+    /* try to load pen file*/
+    fp = fopen(filename, "rb");
+    if (!fp) {
+      fprintf(stderr, "can't open file %s \n",filename);
+      break;
+    }        
+            
+    private_key = ssl_load_key(fp);
+    if (!private_key) {
+      fprintf(stderr,"can't load private key from %s\n",
+	      filename);
+      break;
+    }
+    fclose(fp);
+            
+    ssl_debug_printf("ssl_init private key file %s successfully loaded\n", 
+		     filename);
+    g_hash_table_insert(key_hash, service, private_key);
+	    
+    ssl_association_add(associations, handle, atoi(port), protocol, tcp);
+	    
+  } while (end != NULL);
+  free(tmp);  
+}
+
+/* store master secret into session data cache */
+void 
+ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
+{
+  /* allocate stringinfo chunks for session id and master secret data*/
+  StringInfo* session_id;
+  StringInfo* master_secret;
+  session_id = se_alloc0(sizeof(StringInfo) + ssl->session_id.data_len);
+  master_secret = se_alloc0(48 + sizeof(StringInfo));
+
+  master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
+  session_id->data = ((guchar*)session_id+sizeof(StringInfo));
+    
+  ssl_data_set(session_id, ssl->session_id.data, ssl->session_id.data_len);
+  ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
+  g_hash_table_insert(session_hash, session_id, master_secret);
+  ssl_print_string("ssl_save_session stored session id", session_id);
+  ssl_print_string("ssl_save_session stored master secret", master_secret);
+}
+
+void 
+ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
+{
+  StringInfo* ms;
+  ms = g_hash_table_lookup(session_hash, &ssl->session_id);
+
+  if (!ms) {
+    ssl_debug_printf("ssl_restore_session can't find stored session\n");
+    return;
+  }
+  ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
+  ssl->state |= SSL_MASTER_SECRET;    
+  ssl_debug_printf("ssl_restore_session master key retrived\n");
+}
+
+int
+ssl_is_valid_content_type(guint8 type)
+{
+  if (type >= 0x14 && type <= 0x17)
+    {
+      return 1;
+    }
+
+  return 0;
+}
+
 #ifdef SSL_DECRYPT_DEBUG
 
 static FILE* ssl_debug_file=NULL;
@@ -1363,9 +1728,11 @@ static FILE* ssl_debug_file=NULL;
 void 
 ssl_set_debug(char* name)
 {
-    static int debug_file_must_be_closed = 0;
-    int use_stderr = name?(strcmp(name, SSL_DEBUG_USE_STDERR) == 0):0;
-    
+    static gint debug_file_must_be_closed;
+    gint use_stderr;
+    debug_file_must_be_closed = 0;
+    use_stderr = name?(strcmp(name, SSL_DEBUG_USE_STDERR) == 0):0;
+
     if (debug_file_must_be_closed)
         fclose(ssl_debug_file);
     if (use_stderr)    
@@ -1380,10 +1747,12 @@ ssl_set_debug(char* name)
 
 
 void 
-ssl_debug_printf(const char* fmt, ...)
+ssl_debug_printf(const gchar* fmt, ...)
 {
     va_list ap;
-    int ret=0;
+    gint ret;
+    ret=0;
+
     if (!ssl_debug_file)  
         return;
     
@@ -1394,9 +1763,9 @@ ssl_debug_printf(const char* fmt, ...)
 }
 
 void 
-ssl_print_text_data(const char* name, const unsigned char* data, int len)
+ssl_print_text_data(const gchar* name, const guchar* data, gint len)
 {
-    int i;
+    gint i;
     if (!ssl_debug_file)  
         return;
     fprintf(ssl_debug_file,"%s: ",name);
@@ -1408,9 +1777,9 @@ ssl_print_text_data(const char* name, const unsigned char* data, int len)
 }
 
 void 
-ssl_print_data(const char* name, const unsigned char* data, int len)
+ssl_print_data(const gchar* name, const guchar* data, gint len)
 {
-    int i;
+    gint i;
     if (!ssl_debug_file)  
         return;
     fprintf(ssl_debug_file,"%s[%d]:\n",name, len);
@@ -1424,7 +1793,7 @@ ssl_print_data(const char* name, const unsigned char* data, int len)
 }
 
 void 
-ssl_print_string(const char* name, const StringInfo* data)
+ssl_print_string(const gchar* name, const StringInfo* data)
 {
     ssl_print_data(name, data->data, data->data_len);
 }
