@@ -195,33 +195,49 @@ static const value_string rtcp_xr_ip_ttl_vals[] =
 };
 
 /* RTCP Application PoC1 Value strings 
- * OMA-TS-PoC-UserPlane-V1_0-20051006-C
+ * OMA-TS-PoC-UserPlane-V1_0-20060609-A
  */
+ 
+#define TBCP_BURST_REQUEST                 0
+#define TBCP_BURST_GRANTED                 1
+#define TBCP_BURST_TAKEN_EXPECT_NO_REPLY   2
+#define TBCP_BURST_DENY                    3
+#define TBCP_BURST_RELEASE                 4
+#define TBCP_BURST_IDLE                    5
+#define TBCP_BURST_REVOKE                  6
+#define TBCP_BURST_ACKNOWLEDGMENT          7
+#define TBCP_QUEUE_STATUS_REQUEST          8
+#define TBCP_QUEUE_STATUS_RESPONSE         9
+#define TBCP_DISCONNECT                    11
+#define TBCP_CONNECT                       15
+#define TBCP_BURST_TAKEN_EXPECT_REPLY      18
+
+
 static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
 {
-	{  0,   "TBCP Talk Burst Request"},
-	{  1,   "TBCP Talk Burst Granted"},
-	{  2,   "TBCP Talk Burst Taken (no reply expected)"},
-	{  3,   "TBCP Talk Burst Deny"},
-	{  4,   "TBCP Talk Burst Release"},
-	{  5,   "TBCP Talk Burst Idle"},
-	{  6,   "TBCP Talk Burst Revoke"},
-	{  7,	"TBCP Talk Burst Acknowledgement"},
-	{  8,	"TBCP Queue Status Request"},
-	{  9,	"TBCP Queue Status Response"},
-	{ 11,	"TBCP Disconnect"},
-	{ 15,	"TBCP Connect"},
-	{ 18,	"TBCP Talk Burst Taken (ack expected)"},
+	{  TBCP_BURST_REQUEST,                 "TBCP Talk Burst Request"},
+	{  TBCP_BURST_GRANTED,                 "TBCP Talk Burst Granted"},
+	{  TBCP_BURST_TAKEN_EXPECT_NO_REPLY,   "TBCP Talk Burst Taken (no ack expected)"},
+	{  TBCP_BURST_DENY,                    "TBCP Talk Burst Deny"},
+	{  TBCP_BURST_RELEASE,                 "TBCP Talk Burst Release"},
+	{  TBCP_BURST_IDLE,                    "TBCP Talk Burst Idle"},
+	{  TBCP_BURST_REVOKE,                  "TBCP Talk Burst Revoke"},
+	{  TBCP_BURST_ACKNOWLEDGMENT,          "TBCP Talk Burst Acknowledgement"},
+	{  TBCP_QUEUE_STATUS_REQUEST,          "TBCP Queue Status Request"},
+	{  TBCP_QUEUE_STATUS_RESPONSE,         "TBCP Queue Status Response"},
+	{  TBCP_DISCONNECT,                    "TBCP Disconnect"},
+	{  TBCP_CONNECT,                       "TBCP Connect"},
+	{  TBCP_BURST_TAKEN_EXPECT_REPLY,      "TBCP Talk Burst Taken (ack expected)"},
 	{  0,   NULL },
 };
 
 static const value_string rtcp_app_poc1_reason_code1_vals[] =
 {
-	{  1,   "Floor already in use"},
+	{  1,   "Another PoC User has permission"},
 	{  2,   "Internal PoC server error"},
-	{  3,	"Only one participant in the group"},
-	{  4,	"Retry-after timer has not expired"},
-	{  5,	"Listen only"},
+	{  3,   "Only one participant in the group"},
+	{  4,   "Retry-after timer has not expired"},
+	{  5,   "Listen only"},
 	{  0,   NULL },
 };
 
@@ -229,8 +245,8 @@ static const value_string rtcp_app_poc1_reason_code2_vals[] =
 {
 	{  1,   "Only one user"},
 	{  2,   "Talk burst too long"},
-	{  3,	"No permission to send a Talk Burst"},
-	{  4,	"Talk burst pre-empted"},
+	{  3,   "No permission to send a Talk Burst"},
+	{  4,   "Talk burst pre-empted"},
 	{  0,   NULL },
 };
 
@@ -302,23 +318,27 @@ static int hf_rtcp_blp               = -1;
 static int hf_rtcp_padding_count     = -1;
 static int hf_rtcp_padding_data      = -1;
 static int hf_rtcp_profile_specific_extension = -1;
+static int hf_rtcp_app_poc1          = -1;
 static int hf_rtcp_app_poc1_subtype  = -1;
 static int hf_rtcp_app_poc1_sip_uri  = -1;
 static int hf_rtcp_app_poc1_disp_name = -1;
+static int hf_rtcp_app_poc1_priority	= -1;
+static int hf_rtcp_app_poc1_request_ts	= -1;
 static int hf_rtcp_app_poc1_stt			= -1;
 static int hf_rtcp_app_poc1_partic		= -1;
 static int hf_rtcp_app_poc1_ssrc_granted	= -1;
 static int hf_rtcp_app_poc1_last_pkt_seq_no = -1;
+static int hf_rtcp_app_poc1_ignore_seq_no = -1;
 static int hf_rtcp_app_poc1_reason_code1	= -1;
 static int hf_rtcp_app_poc1_item_len		= -1;
 static int hf_rtcp_app_poc1_reason1_phrase	= -1;
 static int hf_rtcp_app_poc1_reason_code2	= -1;
-static int hf_rtcp_app_poc1_additionalinfo	= -1;
+static int hf_rtcp_app_poc1_new_time_request	= -1;
 static int hf_rtcp_app_poc1_ack_subtype		= -1;
 static int hf_rtcp_app_poc1_ack_reason_code	= -1;
 static int hf_rtcp_app_poc1_qsresp_priority	= -1;
 static int hf_rtcp_app_poc1_qsresp_position	= -1;
-static int hf_rtcp_app_poc1_conn_content_1st_byte[5] = { -1, -1, -1, -1, -1 };
+static int hf_rtcp_app_poc1_conn_content[5] = { -1, -1, -1, -1, -1 };
 static int hf_rtcp_app_poc1_conn_session_type	= -1;
 static int hf_rtcp_app_poc1_conn_add_ind_mao	= -1;
 static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, -1, -1, -1, -1 };
@@ -606,7 +626,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	proto_item *PoC1_item;
 
 	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
-	static const char app_name_str[] = "PoC1";
+	static const char poc1_app_name_str[] = "PoC1";
 
 
 	/* SSRC / CSRC */
@@ -614,37 +634,25 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	offset += 4;
 	packet_len -= 4;
 
-	/* Name (ASCII) */
+	/* Application Name (ASCII) */
 	for( counter = 0; counter < 4; counter++ )
 	    ascii_name[ counter ] = tvb_get_guint8( tvb, offset + counter );
 	/* strncpy( ascii_name, pd + offset, 4 ); */
 	ascii_name[4] = '\0';
 	proto_tree_add_string( tree, hf_rtcp_name_ascii, tvb, offset, 4,
-	    ascii_name );
-	if ( strncasecmp(ascii_name,app_name_str,4 ) != 0 ){ /* Not PoC1 */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
-		offset += 4;
-		packet_len -= 4;
-		/* Applications specific data */
-		if ( padding ) {
-			/* If there's padding present, we have to remove that from the data part
-			* The last octet of the packet contains the length of the padding
-			*/
-			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
-		}
-		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
-		offset += packet_len;
+	                       ascii_name );
 
-		return offset;
-	}else{/* PoC1 Application */
+	/* See if we can handle this application type */
+	if ( strncasecmp(ascii_name, poc1_app_name_str,4 ) == 0 )
+	{
+		/* PoC1 Application */
 		guint8 t2timer_code, participants_code;
 		proto_item *item;
 		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,"(%s) subtype=%s",ascii_name,
-				val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
+			col_append_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
+			                val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
 		offset += 4;
 		packet_len -= 4;
 		app_length = app_length -8;
@@ -661,90 +669,236 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		   the length */
 		items_start_offset = offset;
 
-		PoC1_item = proto_tree_add_text(tree, tvb, offset, packet_len,
-		    "PoC1 Application specific data");
+		/* Top-level poc tree */
+		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, FALSE);
 		PoC1_tree = proto_item_add_subtree( PoC1_item, ett_PoC1 );
 
-
-		proto_tree_add_item( PoC1_tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		/* Dissect it according to its subtype */
 		switch ( rtcp_subtype ) {
-			case 1: /* TBCP Granted */
+
+			case TBCP_BURST_REQUEST:
+				{
+				guint8 code;
+				guint16 priority;
+
+				/* Look for a code in the first byte */
+				code = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -=1;
+
+				/* Priority (optional) */
+				if (code == 102)
+				{
+					item_len = tvb_get_guint8(tvb, offset);
+					offset += 1;
+					packet_len -= 1;
+					if (item_len != 2) /* SHALL be 2 */
+						return offset;
+
+					priority = tvb_get_ntohs(tvb, offset);
+					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_priority, tvb, offset, 2, FALSE );
+					offset += 2;
+					packet_len -= 2;
+
+					/* Look for next code */
+					code = tvb_get_guint8(tvb, offset);
+					offset += 1;
+					packet_len -=1;
+					
+					if (check_col(pinfo->cinfo, COL_INFO))
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+						               " \"%s\"",
+						               val_to_str(priority,
+						                          rtcp_app_poc1_qsresp_priority_vals,
+						                          "Unknown"));
+					}
+				}
+
+				/* Request timestamp (optional) */
+				if (code == 103)
+				{
+					gchar *buff;
+					item_len = tvb_get_guint8(tvb, offset);
+					offset += 1;
+					packet_len -= 1;
+					if (item_len != 8) /* SHALL be 8 */
+						return offset;
+
+					buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset, 8));
+					proto_tree_add_string_format(PoC1_tree, hf_rtcp_app_poc1_request_ts,
+												 tvb, offset, 8, ( const char* ) buff,
+												 "Request timestamp: %s", buff );
+					offset += 8;
+					packet_len -=8;
+
+					if (check_col(pinfo->cinfo, COL_INFO))
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
+					}
+				}
+				}
+				break;
+
+			case TBCP_BURST_GRANTED:
+				{
+				proto_item *ti;
+				guint16 stop_talking_time;
+				guint16 participants;
+
+				/* Stop talking timer (now mandatory) */
 				t2timer_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
 				if (t2timer_code != 101) /* SHALL be 101 */
 					return offset;
-				
+
 				item_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -= 1;
 				if (item_len != 2) /* SHALL be 2 */
 					return offset;
-				
-				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_stt, tvb, offset, 2, FALSE );
+
+				stop_talking_time = tvb_get_ntohs(tvb, offset);
+				ti = proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_stt, tvb, offset, 2, FALSE );
+
+				/* Append text with meanings of value */
+				switch (stop_talking_time)
+				{
+					case 0:
+						proto_item_append_text(ti, " unknown");
+						break;
+					case 65535:
+						proto_item_append_text(ti, " infinity");
+						break;
+					default:
+						proto_item_append_text(ti, " seconds");
+						break;
+				}
 				offset += item_len;
 				packet_len -= item_len;
 
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
+					                stop_talking_time);
+				}
+
+				/* Participants (optional) */
 				participants_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
 				if (participants_code != 100) /* SHALL be 100 */
 					return offset;
-				
+
 				item_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -= 1;
 				if (item_len != 2) /* SHALL be 2 */
 					return offset;
-				
-				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
+
+				participants = tvb_get_ntohs(tvb, offset);
+				ti = proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
+
+				/* Append text with meanings of extreme values */
+				switch (participants)
+				{
+					case 0:
+						proto_item_append_text(ti, " (not known)");
+						break;
+					case 65535:
+						proto_item_append_text(ti, " (or more)");
+						break;
+					default:
+						break;
+				}
 				offset += item_len;
 				packet_len -= item_len;
+
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
+					                participants);
+				}
+
+				}
 				break;
-			case 2:		/* TBCP Talk Burst Taken (no reply expected) */
-			case 18:	/* TBCP Talk Burst Taken (ack expected) */
+
+			case TBCP_BURST_TAKEN_EXPECT_NO_REPLY:
+			case TBCP_BURST_TAKEN_EXPECT_REPLY:
+				{
+				guint16 participants;
+				proto_item *ti;
+
+				/* SSRC of PoC client */
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ssrc_granted, tvb, offset, 4, FALSE );
 				offset += 4;
 				packet_len -= 4;
+
+				/* SDES type (must be CNAME) */
 				sdes_type = tvb_get_guint8( tvb, offset );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, FALSE );
 				offset++;
 				packet_len--;
+				if (sdes_type != RTCP_SDES_CNAME)
+				{
+					return offset;
+				}
+
 				/* Item length, 8 bits */
 				item_len = tvb_get_guint8( tvb, offset );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
 				offset++;
 				packet_len--;
+
+				/* SIP URI */
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, item_len, FALSE );
+
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
+					                tvb_get_ephemeral_string(tvb, offset, item_len));
+				}
+				
 				offset = offset + item_len;
 				packet_len = packet_len - item_len;
 				
 				/* In the application dependent data, the TBCP Talk Burst Taken message SHALL carry
 				 * a SSRC field and SDES items, CNAME and MAY carry SDES item NAME to identify the
-				 * PoC Client that has been granted permission to send a Talk Burst. 
+				 * PoC Client that has been granted permission to send a Talk Burst.
+				 *
 				 * The SDES item NAME SHALL be included if it is known by the PoC Server. 
 				 * Therefore the length of the packet will vary depending on number of SDES items 
 				 * and the size of the SDES items.
 				 */
 				if ( packet_len == 0 )
 					return offset;
-				
+
+				/* SDES type (must be NAME if present) */
 				sdes_type = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, FALSE );
-				offset++;
-				packet_len--;
-				/* Item length, 8 bits */
-				item_len = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
-				offset++;
-				packet_len--;
-				if ( item_len != 0 )
-					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, item_len, FALSE );
-				offset = offset + item_len;
-				packet_len = packet_len - item_len;
-				
-				if (packet_len == 0)
-					return offset;
+				if (sdes_type == RTCP_SDES_NAME)
+				{
+					proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, FALSE );
+					offset++;
+					packet_len--;
+	
+					/* Item length, 8 bits */
+					item_len = tvb_get_guint8( tvb, offset );
+					proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
+					offset++;
+					packet_len--;
+	
+					/* Display name */
+					if ( item_len != 0 )
+						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, item_len, FALSE );
+					offset = offset + item_len;
+					packet_len = packet_len - item_len;
+
+					if (packet_len == 0)
+						return offset;
+				}
+
+				/* Participants (optional) */
 				participants_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
@@ -755,104 +909,270 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				packet_len -= 1;
 				if (item_len != 2) /* SHALL be 2 */
 					return offset;
-				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
+
+				participants = tvb_get_ntohs(tvb, offset);
+				ti = proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
+
+				/* Append text with meanings of extreme values */
+				switch (participants)
+				{
+					case 0:
+						proto_item_append_text(ti, " (not known)");
+						break;
+					case 65535:
+						proto_item_append_text(ti, " (or more)");
+						break;
+					default:
+						break;
+				}
+
 				offset += item_len;
 				packet_len -= item_len;
+				}
 				break;
-			case 3:		/* TBCP Talk Burst Deny */
+
+			case TBCP_BURST_DENY:
+				{
+				guint8 reason_code;
+
+				/* Reason code */
+				reason_code = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, FALSE );
 				offset++;
 				packet_len--;
+
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+					                val_to_str(reason_code,
+					                           rtcp_app_poc1_reason_code1_vals,
+					                           "Unknown"));
+				}
+
 				/* Item length, 8 bits */
 				item_len = tvb_get_guint8( tvb, offset );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_item_len, tvb, offset, 1, FALSE );
 				offset++;
 				packet_len--;
+
+				/* Reason phrase */
 				if ( item_len != 0 )
 					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, item_len, FALSE );
-				offset = offset + item_len;
-				packet_len = packet_len - item_len;
-				break;
-			case 4:		/* TBCP Talk Burst Release */
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
-				proto_tree_add_text(PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes");
-				offset += 4;
-				packet_len-=4;
-				break;
-						/* 5 TBCP Talk Burst Idle */
-			case 6:		/* TBCP Talk Burst Revoke */
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code2, tvb, offset, 2, FALSE );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_additionalinfo, tvb, offset + 2, 2, FALSE );
-				offset += 4;
-				packet_len-=4;
-				break;
-
-			case 7:		/* TBCP Talk Burst Acknowledgement */
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, FALSE );
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_reason_code, tvb, offset, 2, FALSE );
-			    proto_tree_add_text( PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes" );
-			    offset += 4;
-			    packet_len -= 4;
-			    break;
-
-				/* 8 TBCP Queue Status Request */
-
-			case 9: /*TBCP Queue Status Response */
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_priority, tvb, offset, 1, FALSE );
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset + 1, 2, FALSE );
-			    proto_tree_add_text( PoC1_tree, tvb, offset + 3, 1, "Padding 1 byte" );
-			    offset += 4;
-			    packet_len -= 4;
-			    break;
-				
-				/* 11 TBCP Disconnect */
-
-			case 15:		/* TBCP Connect */
-				{
-			    proto_item *content = proto_tree_add_text(PoC1_tree, tvb, offset, 2, "SDES item content");
-			    gboolean contents[5];
-			    unsigned int i;
-
-			    proto_tree *content_tree = proto_item_add_subtree(content, ett_poc1_conn_contents);
-			    guint temp_byte = tvb_get_guint8( tvb, offset );
-
-			    for ( i = 0; i < sizeof(contents) /
-				      sizeof(contents[0]) &&
-				      i < sizeof(hf_rtcp_app_poc1_conn_content_1st_byte) /
-				      sizeof(hf_rtcp_app_poc1_conn_content_1st_byte[0]);
-				  ++i ) {
-				proto_tree_add_item( content_tree, hf_rtcp_app_poc1_conn_content_1st_byte[i], tvb, offset, 1, FALSE );
-				contents[i] = temp_byte & (1 << (7-i));
-			    }
-
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_session_type, tvb, offset + 2, 1, FALSE );
-
-			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, FALSE );
-			    
-			    offset += 4;
-			    packet_len -= 4;
-
-			    for ( i = 0; i < sizeof(contents) /
-				      sizeof(contents[0]); ++i ) {
-				if ( contents[i] ) {
-				    guint sdes_type, sdes_len;
-				    sdes_type = tvb_get_guint8( tvb, offset++ );
-				    sdes_len = tvb_get_guint8( tvb, offset );
-
-				    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_sdes_items[i], tvb, offset, 1, FALSE );
-
-				    offset += sdes_len + 1;
-				    packet_len -= (sdes_len + 2);
+				offset += item_len;
+				packet_len -= item_len;
 				}
-			    }
+				break;
+
+			case TBCP_BURST_RELEASE:
+				{
+				guint16 last_seq_no;
+				guint8  ignore_last_seq_no;
+
+				/* Sequence number of last RTP packet in burst */
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
+				last_seq_no = tvb_get_ntohs(tvb, offset);
+
+				/* Bit 16 is ignore flag */
+				offset += 2;
+				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ignore_seq_no, tvb, offset, 2, FALSE );
+				ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);
+
+				if (ignore_last_seq_no && check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
+					                last_seq_no);
+				}
+
+				/* 15 bits of padding follows */
+
+				offset += 2;
+				packet_len-=4;
+				}
+				break;
+
+			case TBCP_BURST_IDLE:
+				break;
+
+			case TBCP_BURST_REVOKE:
+				{
+					/* Reason code */
+					guint16 reason_code = tvb_get_ntohs(tvb, offset);
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code2, tvb, offset, 2, FALSE );
+
+					/* The meaning of this field depends upon the reason code... */
+					switch (reason_code)
+					{
+						case 1: /* Only one user */
+							/* No additional info */
+							break;
+						case 2: /* Talk burst too long */
+							/* Additional info is 16 bits with time (in seconds) client can request */
+							proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_new_time_request, tvb, offset + 2, 2, FALSE );
+							break;
+						case 3: /* No permission */
+							/* No additional info */
+							break;
+						case 4: /* Pre-empted */
+							/* No additional info */
+							break;
+					}
+
+					if (check_col(pinfo->cinfo, COL_INFO))
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+						                val_to_str(reason_code,
+						                           rtcp_app_poc1_reason_code2_vals,
+						                           "Unknown"));
+					}
+					offset += 4;
+					packet_len-=4;
+				}
+				break;
+
+			case TBCP_BURST_ACKNOWLEDGMENT:
+				{
+				guint8 subtype;
+
+				/* Code of message being acknowledged */
+				subtype = (tvb_get_guint8(tvb, offset) & 0xf8) >> 3;
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, FALSE );
+
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
+					                val_to_str(subtype,
+					                           rtcp_app_poc1_floor_cnt_type_vals,
+					                           "Unknown"));
+				}
+
+				/* Reason code only seen if subtype was Connect */
+				if (subtype == TBCP_CONNECT)
+				{
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_reason_code, tvb, offset, 2, FALSE );
+				}
+
+				/* 16 bits of padding follow */ 
+				offset += 4;
+				packet_len -= 4;
+				}
+				break;
+
+			case TBCP_QUEUE_STATUS_REQUEST:
+				break;
+
+			case TBCP_QUEUE_STATUS_RESPONSE:
+				{
+				guint16 position;
+				proto_item *ti;
+
+				/* Priority */
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_priority, tvb, offset, 1, FALSE );
+
+				/* Queue position. 65535 indicates 'position not available' */
+				position = tvb_get_ntohs(tvb, offset+1);
+				ti = proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset+1, 2, FALSE );
+				if (position == 65535)
+				{
+					proto_item_append_text(ti, " (position not available)");
+				}
+
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, " position=%u", position);
+				}
+
+				/* 1 bytes of padding  follows */
+
+				offset += 4;
+				packet_len -= 4;
+				}
 			    break;
-			}    
+
+			case TBCP_DISCONNECT:
+				break;
+
+			case TBCP_CONNECT:
+				{
+				proto_item *content = proto_tree_add_text(PoC1_tree, tvb, offset, 2, "SDES item content");
+				gboolean contents[5];
+				unsigned int i;
+				guint8 items_set = 0;
+
+				proto_tree *content_tree = proto_item_add_subtree(content, ett_poc1_conn_contents);
+				guint16 items_field = tvb_get_ntohs(tvb, offset );
+
+				/* Dissect each defined bit flag in the SDES item content */
+				for ( i = 0;
+				      i < sizeof(contents) / sizeof(contents[0]) &&
+				      i < sizeof(hf_rtcp_app_poc1_conn_content) /
+				          sizeof(hf_rtcp_app_poc1_conn_content[0]);
+				      ++i )
+				{
+					proto_tree_add_item( content_tree, hf_rtcp_app_poc1_conn_content[i], tvb, offset, 2, FALSE );
+					contents[i] = items_field & (1 << (15-i));
+					if (contents[i]) ++items_set;
+				}
+
+				/* Show how many flags were set */
+				proto_item_append_text(content, " (%u items)", items_set);
+				
+				/* Session type */
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_session_type, tvb, offset + 2, 1, FALSE );
+
+				/* Additional indications */
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, FALSE );
+
+				offset += 4;
+				packet_len -= 4;
+
+				/* One SDES item for every set flag in contents array */
+				for ( i = 0;
+				      i < sizeof(contents) / sizeof(contents[0]);
+				      ++i ) {
+					if ( contents[i] ) {
+						guint sdes_type, sdes_len;
+						/* (sdes_type not currently used...).  Could complain if type
+						   doesn't match expected for item... */
+						sdes_type = tvb_get_guint8( tvb, offset++ );
+						sdes_len = tvb_get_guint8( tvb, offset );
+
+						/* Add SDES field indicated as present */
+						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_sdes_items[i], tvb, offset, 1, FALSE );
+
+						/* Move past field */
+						offset += sdes_len + 1;
+						packet_len -= (sdes_len + 2);
+					}
+				}
+			    break;
+			}
+
 			default:
 				break;
 		}
 		offset += packet_len;
 		return offset;
 	}
+	else
+	{
+		/* Unhandled application type, just show app name and raw data */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		offset += 4;
+		packet_len -= 4;
+		/* Applications specific data */
+		if ( padding ) {
+			/* If there's padding present, we have to remove that from the data part
+			* The last octet of the packet contains the length of the padding
+			*/
+			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		}
+		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		offset += packet_len;
+
+		return offset;
+	}
+
 }
 
 
@@ -879,11 +1199,17 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		reason_text = tvb_get_ephemeral_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
-		offset += reason_length;
+		/* Allow for terminating null character */
+		offset += (reason_length+1);
+	}
+
+	/* BYE packet padded out if string (including null) didn't fit in previous word */
+	if (offset % 4)
+	{
+		offset += (4 - (offset % 4));
 	}
 
 	return offset;
-
 }
 
 static void
@@ -1870,7 +2196,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				col_set_str( pinfo->cinfo, COL_INFO, "Goodbye");
 				break;
 			case RTCP_APP:
-				col_set_str( pinfo->cinfo, COL_INFO, "Application defined");
+				col_set_str( pinfo->cinfo, COL_INFO, "Application");
 				break;
 			case RTCP_XR:
 				col_set_str( pinfo->cinfo, COL_INFO, "Extended report");
@@ -2437,6 +2763,18 @@ proto_register_rtcp(void)
 			}
 		},
 		{
+			&hf_rtcp_app_poc1,
+			{
+				"PoC1 Application specific data",
+				"rtcp.app.poc1",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
 			&hf_rtcp_app_poc1_subtype,
 			{
 				"Subtype",
@@ -2465,6 +2803,30 @@ proto_register_rtcp(void)
 			{
 				"Display Name",
 				"rtcp.app.poc1.disp.name",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_priority,
+			{
+				"Priority",
+				"rtcp.app.poc1.priority",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_qsresp_priority_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_request_ts,
+			{
+				"Talk Burst Requst Timestamp",
+				"rtcp.app.poc1.request.ts",
 				FT_STRING,
 				BASE_NONE,
 				NULL,
@@ -2511,12 +2873,24 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_app_poc1_last_pkt_seq_no,
 			{
-				"Seq. no of last RTP packet",
+				"Sequence number of last RTP packet",
 				"rtcp.app.poc1.last.pkt.seq.no",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
 				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_ignore_seq_no,
+			{
+				"Ignore sequence number field",
+				"rtcp.app.poc1.ignore.seq.no",
+				FT_UINT16,
+				BASE_HEX,
+				NULL,
+				0x8000,
 				"", HFILL
 			}
 		},
@@ -2569,15 +2943,15 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_additionalinfo,
+			&hf_rtcp_app_poc1_new_time_request,
 			{
-				"additional information",
-				"rtcp.app.poc1.add.info",
+				"New time client can request (seconds)",
+				"rtcp.app.poc1.new.time.request",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Time in seconds client can request for", HFILL
 			}
 		},
 		{
@@ -2619,7 +2993,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_app_poc1_qsresp_position,
 			{
-				"Position",
+				"Position (number of clients ahead)",
 				"rtcp.app.poc1.qsresp.position",
 				FT_UINT16,
 				BASE_DEC,
@@ -2629,62 +3003,62 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_conn_content_1st_byte[0],
+			&hf_rtcp_app_poc1_conn_content[0],
 			{
 				"Identity of inviting client",
 				"rtcp.app.poc1.conn.content.a.id",
 				FT_BOOLEAN,
-				8,
+				16,
 				NULL,
-				0x80,
+				0x8000,
 				"", HFILL
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_conn_content_1st_byte[1],
+			&hf_rtcp_app_poc1_conn_content[1],
 			{
 				"Nick name of inviting client",
 				"rtcp.app.poc1.conn.content.a.dn",
 				FT_BOOLEAN,
-				8,
+				16,
 				NULL,
-				0x40,
+				0x4000,
 				"", HFILL
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_conn_content_1st_byte[2],
+			&hf_rtcp_app_poc1_conn_content[2],
 			{
 				"Session identity",
 				"rtcp.app.poc1.conn.content.sess.id",
 				FT_BOOLEAN,
-				8,
+				16,
 				NULL,
-				0x20,
+				0x2000,
 				"", HFILL
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_conn_content_1st_byte[3],
+			&hf_rtcp_app_poc1_conn_content[3],
 			{
 				"Group name",
 				"rtcp.app.poc1.conn.content.grp.dn",
 				FT_BOOLEAN,
-				8,
+				16,
 				NULL,
-				0x10,
+				0x1000,
 				"", HFILL
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_conn_content_1st_byte[4],
+			&hf_rtcp_app_poc1_conn_content[4],
 			{
 				"Group identity",
 				"rtcp.app.poc1.conn.content.grp.id",
 				FT_BOOLEAN,
-				8,
+				16,
 				NULL,
-				0x08,
+				0x0800,
 				"", HFILL
 			}
 		},
