@@ -43,6 +43,7 @@
 #define MAX_PROTOCOL_NAME          64
 #define MAX_PORT_DIGITS            2
 #define MAX_VARIANT_DIGITS         32
+#define MAX_OUTHDR_NAME            64
 #define AAL_HEADER_CHARS           12
 
 /* TODO:
@@ -105,13 +106,8 @@ static guint8 context_port;
 /* The DCT2000 protocol name of the packet, plus variant number */
 static gchar protocol_name[MAX_PROTOCOL_NAME+1];
 static gchar variant_name[MAX_VARIANT_DIGITS+1];
+static gchar outhdr_name[MAX_OUTHDR_NAME+1];
 
-
-/*************************************************/
-/* Preference state (shared with stub protocol). */
-/* Set to FALSE to get better use out of other   */
-/* wiretap applications (mergecap, editcap)      */
-gboolean catapult_dct2000_board_ports_only = FALSE;
 
 /************************************************************/
 /* Functions called from wiretap                            */
@@ -137,8 +133,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            long *data_offset,
                            gint *data_chars,
                            packet_direction_t *direction,
-                           int *encap,
-                           gboolean seek_read);
+                           int *encap);
 static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
                       packet_direction_t direction, int encap);
 static guchar hex_from_char(gchar c);
@@ -319,7 +314,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         if (parse_line(line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
-                       &data_chars, &direction, &encap, FALSE))
+                       &data_chars, &direction, &encap))
         {
             guchar *frame_buffer;
             int n;
@@ -444,7 +439,7 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
     if (parse_line(length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
-                   &data_chars, &direction, &encap, TRUE))
+                   &data_chars, &direction, &encap))
     {
         int n;
         int stub_offset = 0;
@@ -457,7 +452,7 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
 
         /*********************/
         /* Write stub header */
-        stub_offset = write_stub_header((char*)pd, timestamp_string,
+        stub_offset = write_stub_header((guchar*)pd, timestamp_string,
                                         direction, encap);
 
 
@@ -529,8 +524,8 @@ void catapult_dct2000_close(wtap *wth)
 gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err _U_)
 {
     /* Fill in other dump callbacks */
-	wdh->subtype_write = catapult_dct2000_dump;
-	wdh->subtype_close = catapult_dct2000_dump_close;
+    wdh->subtype_write = catapult_dct2000_dump;
+    wdh->subtype_close = catapult_dct2000_dump_close;
 
     return TRUE;
 }
@@ -652,6 +647,10 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     for (; pd[n] != '\0'; n++);
     n++;
 
+    /* Outhdr (as string) */
+    for (; pd[n] != '\0'; n++);
+    n++;
+
     /* Direction & encap */
     n += 2;
 
@@ -737,14 +736,15 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                     long *before_time_offset, long *after_time_offset,
                     long *data_offset, gint *data_chars,
                     packet_direction_t *direction,
-                    int *encap,
-                    gboolean seek_read)
+                    int *encap)
 {
     int  n = 0;
     int  port_digits = 0;
     char port_number_string[MAX_PORT_DIGITS+1];
     int  variant_digits = 0;
+    int  variant = 1;
     int  protocol_chars = 0;
+    int  outhdr_chars = 0;
 
     char seconds_buff[MAX_SECONDS_CHARS+1];
     int  seconds_chars;
@@ -831,6 +831,61 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     n++;
 
 
+    /* Following the / is the variant number.  No digits indicate 1 */
+    for (variant_digits = 0;
+         (isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+         n++, variant_digits++)
+    {
+        if (!isdigit(linebuff[n]))
+        {
+            return FALSE;
+        }
+        variant_name[variant_digits] = linebuff[n];
+    }
+    if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
+    {
+        return FALSE;
+    }
+    if (variant_digits > 0)
+    {
+        variant_name[variant_digits] = '\0';
+        variant = atoi(variant_name);
+    }
+    else
+    {
+        strcpy(variant_name, "1");
+    }
+
+
+    /* Outheader values may follow */
+    outhdr_name[0] = '\0';
+    if (linebuff[n] == ',')
+    {
+        /* Skip , */
+        n++;
+
+        for (outhdr_chars = 0;
+             (isdigit(linebuff[n]) || linebuff[n] == ',') &&
+             (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
+             n++, outhdr_chars++)
+        {
+            if (!isdigit(linebuff[n]) && (linebuff[n] != ','))
+            {
+                return FALSE;
+            }
+            outhdr_name[outhdr_chars] = linebuff[n];
+        }
+        if (outhdr_chars > MAX_OUTHDR_NAME || (n+1 >= line_length))
+        {
+            return FALSE;
+        }
+        /* Terminate (possibly empty) string */
+        outhdr_name[outhdr_chars] = '\0';
+    }
+
+
+
+
     /******************************************************************/
     /* Now check whether we know how to use a packet of this protocol */
 
@@ -840,14 +895,23 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
     else
 
-    /* For ATM protocols, we need to read the separate atm headerparse */
+    /* FP may be carried over ATM, which has separate atm header to parse */
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0))
     {
-        *encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
-        atm_header_present = TRUE;
+        if ((variant > 256) && (variant % 256 == 3))
+        {
+            /* FP over udp is contained in IPPrim... */
+            *encap = 0;
+        }
+        else
+        {
+            /* FP over AAL0 or AAL2 */
+            *encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
+            atm_header_present = TRUE;
+        }
     }
 
     else
@@ -884,45 +948,8 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
     else
     {
-        /* Only reject protocol if reading for the first time and preference
-           setting says board ports only.  This should not fail to read a
-           non board-port protocol on re-reading because the preference setting
-           has since changed...
-        */
-        if (catapult_dct2000_board_ports_only && !seek_read)
-        {
-            return FALSE;
-        }
-        else
-        {
-            /* Not a supported protocol/encap, but should show as raw data anyway */
-            *encap = DCT2000_ENCAP_UNHANDLED;
-        }
-    }
-
-
-    /* Following the / is the variant number.  No digits indicate 1 */
-    for (variant_digits = 0;
-         (isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
-         n++, variant_digits++)
-    {
-        if (!isdigit(linebuff[n]))
-        {
-            return FALSE;
-        }
-        variant_name[variant_digits] = linebuff[n];
-    }
-    if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
-    {
-        return FALSE;
-    }
-    if (variant_digits > 0)
-    {
-        variant_name[variant_digits] = '\0';
-    }
-    else
-    {
-        strcpy(variant_name, "1");
+        /* Not a supported board port protocol/encap, but can show as raw data anyway */
+        *encap = DCT2000_ENCAP_UNHANDLED;
     }
 
 
@@ -1106,9 +1133,13 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     strcpy((char*)&frame_buffer[stub_offset], protocol_name);
     stub_offset += (strlen(protocol_name) + 1);
 
-    /* Protocol variant number */
+    /* Protocol variant number (as string) */
     strcpy((void*)&frame_buffer[stub_offset], variant_name);
     stub_offset += (strlen(variant_name) + 1);
+
+    /* Outhdr */
+    strcpy((char*)&frame_buffer[stub_offset], outhdr_name);
+    stub_offset += (strlen(outhdr_name) + 1);
 
     /* Direction */
     frame_buffer[stub_offset] = direction;
@@ -1117,7 +1148,7 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     /* Encap */
     frame_buffer[stub_offset] = (guint8)encap;
     stub_offset++;
-    
+
     return stub_offset;
 }
 

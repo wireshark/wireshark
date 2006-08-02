@@ -42,19 +42,21 @@ static int hf_catapult_dct2000_port_number = -1;
 static int hf_catapult_dct2000_timestamp = -1;
 static int hf_catapult_dct2000_protocol = -1;
 static int hf_catapult_dct2000_variant = -1;
+static int hf_catapult_dct2000_outhdr = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
 
 /* Variables used for preferences */
 gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
+gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
 
 static const value_string direction_vals[] = {
-	{ 0,   "Sent" },
-	{ 1,   "Received" },
+    { 0,   "Sent" },
+    { 1,   "Received" },
     { 0,   NULL },
 };
 
@@ -70,6 +72,11 @@ static const value_string encap_vals[] = {
     { DCT2000_ENCAP_UNHANDLED,           "Unhandled Protocol" },
     { 0,                                 NULL },
 };
+
+
+void proto_reg_handoff_catapult_dct2000(void);
+void proto_register_catapult_dct2000(void);
+
 
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
@@ -122,6 +129,191 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
     return FALSE;
 }
 
+
+
+/* Look for the protocol data within an sctpprim (variant 1 or 2...) packet.
+   Only set *data_offset if data field found. */
+static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset)
+{
+    guint8 length;
+    int offset = *data_offset;
+
+    /* Get the sctpprim command code. */
+    guint8 tag = tvb_get_guint8(tvb, offset++);
+
+    /* Only accept interested in data requests or indications */
+    switch (tag)
+    {
+        case 0x04:  /* data request */
+        case 0x62:  /* data indication */
+            break;
+        default:
+            return FALSE;
+    }
+
+    /* Length field. msb set indicates 2 bytes */
+    if (tvb_get_guint8(tvb, offset) & 0x80)
+    {
+        offset += 2;
+    }
+    else
+    {
+        offset++;
+    }
+
+    /* Skip any other TLC fields before reach payload */
+    while (tvb_length_remaining(tvb, offset) > 2)
+    {
+        /* Look at next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+
+        /* Is this the data payload we're expecting? */
+        if (tag == 0x19)
+        {
+            *data_offset = offset;
+            return TRUE;
+        }
+        else
+        {
+            /* Read length in next byte */
+            length = tvb_get_guint8(tvb, offset++);
+            /* Skip the following value */
+            offset += length;
+        }
+    }
+
+    /* No data found... */
+    return FALSE;
+}
+
+/* Look for the protocol data within an sctpprim (variant 3) packet.
+   Only set *data_offset if data field found. */
+static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset)
+{
+    int offset = *data_offset;
+
+    /* Get the sctpprim (2 byte) command code. */
+    guint16 top_tag = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+    offset += 2;
+
+    /* Only interested in data requests or indications */
+    switch (top_tag)
+    {
+        case 0x0400:  /* SendDataReq */
+        case 0x6200:  /* DataInd */
+            break;
+        default:
+            return FALSE;
+    }
+
+    /* Overall length field is next 2 bytes */
+    offset += 2;
+
+    /* DataInd messages have 32 bits fixed here */
+    if (top_tag == 0x6200)
+    {
+        /* Associate-Id + destination port */
+        offset += 4;
+    }
+
+    /* Skip any other known fields before reach payload */
+    while (tvb_length_remaining(tvb, offset) > 4)
+    {
+        /* Get the next tag */
+        guint16 tag = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+        offset += 2;
+
+        /* Is this the data (i) payload we're expecting? */
+        if (tag == 0x1900)
+        {
+            /* 2-byte length field */
+            offset += 2;
+
+            /* Data is here!!! */
+            *data_offset = offset;
+            return TRUE;
+        }
+        else
+        {
+            guint8 length;
+
+            /* Deal with non-data tags */
+            switch (tag)
+            {
+                /* These tags take a fixed-length, 16-bit payload */
+                case 0x2400: /* AssociateId */
+                case 0x3200: /* Delivery Option  */
+                    offset += 2;
+                    break;
+
+                /* These tags take a 2-byte length field */
+                case 0x0d00: /* Stream num */
+                case 0x0900: /* IPv4 address */
+                case 0x0b00: /* Options */
+                case 0x0c00: /* Payload type */
+                    length = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+                    if (top_tag == 0x0400)
+                    {
+                        /* Weird... */
+                        length = length/2;
+                    }
+                    offset += (2+length);
+                    break;
+
+                case 0x0008:
+                    /* 4 bytes of data (IP address) */
+                    offset += 4;
+                    break;
+
+                default:
+                    /* Unexpected tag - abort */
+                    return FALSE;
+            }
+
+            /* Indications always have these fields */
+            if (top_tag == 0x6200 && tag == 0x0900)
+            {
+                /* StrSeqNum + StreamNum + PayloadType */
+                offset += 8;
+            }
+        }
+    }
+
+    /* No data found... */
+    return FALSE;
+}
+
+
+
+/* Look up dissector by protocol name.  Fix up known name mis-matches. */
+dissector_handle_t look_for_dissector(char *protocol_name)
+{
+    /* Use known aliases... */
+    if (strcmp(protocol_name, "tbcp") == 0)
+    {
+        return find_dissector("rtcp");
+    }
+    else
+    if (strcmp(protocol_name, "diameter_r6") == 0)
+    {
+        return find_dissector("diameter");
+    }
+    else
+    if ((strcmp(protocol_name, "xcap_caps") == 0) ||
+        (strcmp(protocol_name, "mm1") == 0) ||
+        (strcmp(protocol_name, "mm7") == 0))
+    {
+        return find_dissector("http");
+    }
+
+    /* Try for an exact match */
+    else
+    {
+        return find_dissector(protocol_name);
+    }
+}
+
+
 /*****************************************/
 /* Main dissection function.             */
 /*****************************************/
@@ -139,11 +331,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        timestamp_length;
     gint        variant_start;
     gint        variant_length;
+    gint        outhdr_start;
+    gint        outhdr_length;
     guint8      direction;
     tvbuff_t    *next_tvb;
     int         encap;
     dissector_handle_t protocol_handle = 0;
-    dissector_handle_t heur_ipprim_protocol_handle = 0;
+    dissector_handle_t heur_protocol_handle = 0;
     int sub_dissector_result = 0;
 
     /* Protocol name */
@@ -195,6 +389,17 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                         offset, variant_length, FALSE);
     offset += variant_length;
+
+    /* Outhdr */
+    outhdr_start = offset;
+    outhdr_length = tvb_strsize(tvb, offset);
+    if (outhdr_length > 1)
+    {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
+                            offset, outhdr_length, FALSE);
+    }
+    offset += outhdr_length;
+
 
     /* Direction */
     direction = tvb_get_guint8(tvb, offset);
@@ -269,15 +474,30 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Try IP Prim heuristic if configured to */
             if (catapult_dct2000_try_ipprim_heuristic)
             {
-                heur_ipprim_protocol_handle =
-                        find_dissector(tvb_get_ephemeral_string(tvb, protocol_start,
-                                                                protocol_length));
-                if ((heur_ipprim_protocol_handle != 0) &&
+                heur_protocol_handle =
+                    look_for_dissector((char*)tvb_get_ephemeral_string(tvb, protocol_start,
+                                                                       protocol_length));
+                if ((heur_protocol_handle != 0) &&
                     find_ipprim_data_offset(tvb, &offset))
                 {
-                    protocol_handle = heur_ipprim_protocol_handle;
+                    protocol_handle = heur_protocol_handle;
                 }
             }
+
+            /* Try SCTP Prim heuristic if configured to */
+            if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic)
+            {
+                heur_protocol_handle =
+                    look_for_dissector(tvb_get_ephemeral_string(tvb, protocol_start,
+                                                                protocol_length));
+                if ((heur_protocol_handle != 0) &&
+                    (find_sctpprim_variant1_data_offset(tvb, &offset) ||
+                     find_sctpprim_variant3_data_offset(tvb, &offset)))
+                {
+                    protocol_handle = heur_protocol_handle;
+                }
+            }
+
             break;
 
         default:
@@ -370,6 +590,12 @@ void proto_register_catapult_dct2000(void)
               "DCT2000 protocol variant", HFILL
             }
         },
+        { &hf_catapult_dct2000_outhdr,
+            { "Out-header",
+              "dct2000.outhdr", FT_STRING, BASE_NONE, NULL, 0x0,
+              "DCT2000 protocol outhdr", HFILL
+            }
+        },
         { &hf_catapult_dct2000_direction,
             { "Direction",
               "dct2000.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
@@ -410,14 +636,9 @@ void proto_register_catapult_dct2000(void)
     catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000,
                                                       proto_reg_handoff_catapult_dct2000);
 
-    /* Determines whether non-supported protocols should be shown anyway */
-/*    prefs_register_bool_preference(catapult_dct2000_module, "board_ports_only",
-                                   "Only show known 'board-port' protocols",
-                                   "Don't show other protocols, i.e. unknown board-port "
-                                   "protocols and non-standard primitives between "
-                                   "contexts on the same card.  The capture file "
-                                   "needs to be (re)-loaded before effect will be seen",
-                                   &catapult_dct2000_board_ports_only);*/
+    /* This preference no longer supported (introduces linkage dependency between
+       dissectors and wiretap */
+    prefs_register_obsolete_preference(catapult_dct2000_module, "board_ports_only");
 
     /* Determines whether for not-handled protocols we should try to parse it if:
        - it looks like its embedded in an ipprim message, AND
@@ -425,9 +646,23 @@ void proto_register_catapult_dct2000(void)
     prefs_register_bool_preference(catapult_dct2000_module, "ipprim_heuristic",
                                    "Use IP Primitive heuristic",
                                    "If a payload looks like its embedded in an "
-                                   "IP primitive messages, and there is an wireshark "
+                                   "IP primitive message, and there is an wireshark "
                                    "dissector matching the DCT2000 protocol name, "
                                    "try parsing the payload using that dissector",
                                    &catapult_dct2000_try_ipprim_heuristic);
+
+    /* Determines whether for not-handled protocols we should try to parse it if:
+       - it looks like its embedded in an sctpprim message, AND
+       - the DCT2000 protocol name matches an wireshark dissector name */
+    prefs_register_bool_preference(catapult_dct2000_module, "sctpprim_heuristic",
+                                   "Use SCTP Primitive heuristic",
+                                   "If a payload looks like its embedded in an "
+                                   "SCTP primitive message, and there is an wireshark "
+                                   "dissector matching the DCT2000 protocol name, "
+                                   "try parsing the payload using that dissector",
+                                   &catapult_dct2000_try_sctpprim_heuristic);
+
+
+
 }
 
