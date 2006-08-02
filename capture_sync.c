@@ -432,7 +432,7 @@ sync_pipe_start(capture_options *capture_opts) {
     /* associate the operating system filehandle to a C run-time file handle */
     capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe_write, _O_BINARY);
 
-    /* child own's the read side now, close our handle */
+    /* child owns the read side now, close our handle */
     CloseHandle(signal_pipe_read);
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
@@ -445,9 +445,8 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if ((capture_opts->fork_child = fork()) == 0) {
       /*
-       * Child process - run Wireshark with the right arguments to make
-       * it just pop up the live capture dialog box and capture with
-       * the specified capture parameters, writing to the specified file.
+       * Child process - run dumpcap with the right arguments to make
+       * it just capture with the specified capture parameters
        */
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
