@@ -14,7 +14,7 @@ RANDPKT=./randpkt
 
 # This needs to point to a 'date' that supports %s.
 DATE=/bin/date
-BASE_NAME=rand-`$DATE +%Y-%m-%d`-$$
+BASE_NAME=randpkt-`$DATE +%Y-%m-%d`-$$
 
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
