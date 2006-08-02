@@ -790,9 +790,9 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
           * don't get packets in a given direction coming from more than one
           * address, unless the CONVERSATION_TEMPLATE option is set.)
           */
-         if (!(options & NO_ADDR_B) && ptype != PT_UDP)
+         if (!(conversation->options & NO_ADDR_B) && ptype != PT_UDP)
          {
-            if(!(options & CONVERSATION_TEMPLATE))
+            if(!(conversation->options & CONVERSATION_TEMPLATE))
             {
                conversation_set_addr2(conversation, addr_b);
             }
@@ -829,7 +829,7 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
              * conversation.
              */
             if (ptype != PT_UDP) {
-               if(!(options & CONVERSATION_TEMPLATE))
+               if(!(conversation->options & CONVERSATION_TEMPLATE))
                {
                   conversation_set_addr2(conversation, addr_a);
                }
@@ -881,9 +881,9 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
           * get packets in a given direction coming from more than one port,
           * unless the CONVERSATION_TEMPLATE option is set.)
           */
-         if (!(options & NO_PORT_B) && ptype != PT_UDP)
+         if (!(conversation->options & NO_PORT_B) && ptype != PT_UDP)
          {
-            if(!(options & CONVERSATION_TEMPLATE))
+            if(!(conversation->options & CONVERSATION_TEMPLATE))
             {
                conversation_set_port2(conversation, port_b);
             }
@@ -921,7 +921,7 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
              */
             if (ptype != PT_UDP)
             {
-               if(!(options & CONVERSATION_TEMPLATE))
+               if(!(conversation->options & CONVERSATION_TEMPLATE))
                {
                   conversation_set_port2(conversation, port_a);
                }
@@ -963,11 +963,11 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
        */
       if (ptype != PT_UDP)
       {
-         if(!(options & CONVERSATION_TEMPLATE))
+         if(!(conversation->options & CONVERSATION_TEMPLATE))
          {
-            if (!(options & NO_ADDR_B))
+            if (!(conversation->options & NO_ADDR_B))
                conversation_set_addr2(conversation, addr_b);
-            if (!(options & NO_PORT_B))
+            if (!(conversation->options & NO_PORT_B))
                conversation_set_port2(conversation, port_b);
          }
          else
