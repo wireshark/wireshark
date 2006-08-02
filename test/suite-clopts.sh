@@ -117,7 +117,7 @@ clopts_step_invalid_interface() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		grep -i 'The capture session could not be initiated!' ./testout.txt > /dev/null
+		grep -i 'The capture session could not be initiated' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_ok
 		else
