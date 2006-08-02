@@ -24,6 +24,7 @@
 #define __SSL_UTILS_H_
 
 #include <glib.h>
+#include <epan/packet.h>
 #include <epan/gnuc_format_check.h>
 #include <epan/value_string.h>
 
