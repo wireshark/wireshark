@@ -37,7 +37,8 @@ static int hf_time_time = -1;
 
 static gint ett_time = -1;
 
-#define UDP_PORT_TIME    37
+/* This dissector works for TCP and UDP time packets */
+#define TIME_PORT 37
 
 static void
 dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -59,8 +60,8 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     time_tree = proto_item_add_subtree(ti, ett_time);
 
     proto_tree_add_text(time_tree, tvb, 0, 0,
-			pinfo->srcport==UDP_PORT_TIME? "Type: Response":"Type: Request");
-    if (pinfo->srcport == UDP_PORT_TIME) {
+			pinfo->srcport==TIME_PORT ? "Type: Response":"Type: Request");
+    if (pinfo->srcport == TIME_PORT) {
       /* seconds since 1900-01-01 00:00:00 GMT, *not* 1970 */
       guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
       proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
@@ -95,5 +96,6 @@ proto_reg_handoff_time(void)
   dissector_handle_t time_handle;
 
   time_handle = create_dissector_handle(dissect_time, proto_time);
-  dissector_add("udp.port", UDP_PORT_TIME, time_handle);
+  dissector_add("udp.port", TIME_PORT, time_handle);
+  dissector_add("tcp.port", TIME_PORT, time_handle);
 }
