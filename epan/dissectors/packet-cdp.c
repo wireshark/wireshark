@@ -167,69 +167,56 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 	proto_tree_add_item(cdp_tree, hf_cdp_checksum, tvb, offset, 2, FALSE);
 	offset += 2;
+	}
+    else
+	{
+	offset += 4; /* The version/ttl/checksum fields from above */
+	}
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 	    type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
 	    length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
 	    if (length < 4) {
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset, 4,
-		    "TLV with invalid length %u (< 4)",
-		    length);
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		offset += 4;
-		break;
+		    if(tree) {
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset, 4,
+			"TLV with invalid length %u (< 4)",
+			length);
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    }
+		    offset += 4;
+		    break;
 	    }
 
 	    switch (type) {
 
 	    case TYPE_DEVICE_ID:
 		/* Device ID */
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Device ID: %s",
-			    tvb_format_stringzpad(tvb, offset + 4, length - 4));
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Device ID: %s",
-			    tvb_format_stringzpad(tvb, offset + 4, length - 4));
-		offset += length;
-		break;
 
-	    case TYPE_ADDRESS:
-		/* Addresses */
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Addresses");
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		offset += 4;
-		length -= 4;
-		naddresses = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_text(tlv_tree, tvb, offset, 4,
-			    "Number of addresses: %u", naddresses);
-		offset += 4;
-		length -= 4;
-		while (naddresses != 0) {
-		    addr_length = dissect_address_tlv(tvb, offset, length,
-		    		tlv_tree);
-		    if (addr_length < 0)
-			break;
-		    offset += addr_length;
-		    length -= addr_length;
+		if(check_col(pinfo->cinfo, COL_INFO))
+		    col_append_fstr(pinfo->cinfo, COL_INFO,
+				    "  Device ID: %s",
+				    tvb_format_stringzpad(tvb, offset + 4,
+							  length - 4));
 
-		    naddresses--;
-		}
-		offset += length;
-		break;
+		if(tree){
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "Device ID: %s",
+				tvb_format_stringzpad(tvb, offset + 4, length - 4));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "Device ID: %s",
+				tvb_format_stringzpad(tvb, offset + 4, length - 4));
+		    }
+		    offset += length;
+		    break;
 
 	    case TYPE_PORT_ID:
 		real_length = length;
@@ -242,6 +229,14 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		       minus 1 because that's what makes one capture work. */
 		    real_length = length + 3;
 		}
+
+		if(check_col(pinfo->cinfo, COL_INFO))
+		    col_append_fstr(pinfo->cinfo, COL_INFO,
+				    "  Port ID: %s",
+				    tvb_format_stringzpad(tvb, offset + 4,
+							  length - 4));
+
+		if(tree){ 
 		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
 			    real_length, "Port ID: %s",
 			    tvb_format_text(tvb, offset + 4, real_length - 4));
@@ -254,402 +249,450 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    real_length - 4,
 			    "Sent through Interface: %s",
 			    tvb_format_text(tvb, offset + 4, real_length - 4));
+		}
 		offset += real_length;
 		break;
 
-	    case TYPE_CAPABILITIES:
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Capabilities");
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		offset += 4;
-		length -= 4;
-		dissect_capabilities(tvb, offset, length, tlv_tree);
-		offset += length;
-		break;
-
-	    case TYPE_IOS_VERSION:
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Software Version");
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		add_multi_line_string_to_tree(tlv_tree, tvb, offset + 4,
-				length - 4, "Software Version: ");
-		offset += length;
-		break;
-
-	    case TYPE_PLATFORM:
-		/* ??? platform */
-		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Platform: %s",
-			    tvb_format_text(tvb, offset + 4, length - 4));
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Platform: %s",
-			    tvb_format_text(tvb, offset + 4, length - 4));
-		offset += length;
-		break;
-            case TYPE_IP_PREFIX:
-		if (length == 8) {
-		    /* if length is 8 then this is default gw not prefix */
+	    if(tree){
+		case TYPE_ADDRESS:
+		    /* Addresses */
 		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "ODR Default gateway: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+				length, "Addresses");
 		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
+				offset + TLV_TYPE, 2, type);
 		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		    proto_tree_add_text(tlv_tree, tvb, offset+4, 4,
-				"ODR Default gateway = %s",
-				ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
-		    offset += 8;
-		} else {  
-		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "IP Prefixes: %d",length/5);
-
-		    /* the actual number of prefixes is (length-4)/5
-		    but if the variable is not a "float" but "integer"
-		    then length/5=(length-4)/5  :)  */
-
-		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
+				offset + TLV_LENGTH, 2, length);
 		    offset += 4;
 		    length -= 4;
-		    while (length > 0) {
-			proto_tree_add_text(tlv_tree, tvb, offset, 5,
-				"IP Prefix = %s/%u",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)),
-				tvb_get_guint8(tvb,offset+4));
-			offset += 5;
-			length -= 5;
+		    naddresses = tvb_get_ntohl(tvb, offset);
+		    proto_tree_add_text(tlv_tree, tvb, offset, 4,
+				"Number of addresses: %u", naddresses);
+		    offset += 4;
+		    length -= 4;
+		    while (naddresses != 0) {
+			addr_length = dissect_address_tlv(tvb, offset, length,
+				    tlv_tree);
+			if (addr_length < 0)
+			    break;
+			offset += addr_length;
+			length -= addr_length;
+    
+			naddresses--;
 		    }
-		}
-		break;
-	    case TYPE_PROTOCOL_HELLO:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset,length, "Protocol Hello: %s",
-					 val_to_str(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown (0x%04x)"));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset+4, 3,
-				  "OUI: 0x%06X (%s)",
-				  tvb_get_ntoh24(tvb,offset+4),
-				  val_to_str(tvb_get_ntoh24(tvb,offset+4), oui_vals, "Unknown"));
-	      proto_tree_add_text(tlv_tree, tvb, offset+7, 2,
-				  "Protocol ID: 0x%04X (%s)",
-				  tvb_get_ntohs(tvb, offset+7),
-				  val_to_str(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown"));
-	      switch(tvb_get_ntohs(tvb, offset+7)) {
-	      case TYPE_HELLO_CLUSTER_MGMT:
-		/*		proto_tree_add_text(tlv_tree, tvb, offset+9,
-				    length - 9, "Cluster Management");
-		*/
-		ip_addr = tvb_get_ipv4(tvb, offset+9);
-		proto_tree_add_text(tlv_tree, tvb, offset+9, 4,
-				    "Cluster Master IP: %s",ip_to_str((guint8 *)&ip_addr));
-		ip_addr = tvb_get_ipv4(tvb, offset+13);
-		proto_tree_add_text(tlv_tree, tvb, offset+13, 4,
-				    "UNKNOWN (IP?): 0x%08X (%s)",
-				    ip_addr, ip_to_str((guint8 *)&ip_addr));
-		proto_tree_add_text(tlv_tree, tvb, offset+17, 1,
-				    "Version?: 0x%02X",
-				    tvb_get_guint8(tvb, offset+17));
-		proto_tree_add_text(tlv_tree, tvb, offset+18, 1,
-				    "Sub Version?: 0x%02X",
-				    tvb_get_guint8(tvb, offset+18));
-		proto_tree_add_text(tlv_tree, tvb, offset+19, 1,
-				    "Status?: 0x%02X",
-				    tvb_get_guint8(tvb, offset+19));
-		proto_tree_add_text(tlv_tree, tvb, offset+20, 1,
-				    "UNKNOWN: 0x%02X",
-				    tvb_get_guint8(tvb, offset+20));
-		proto_tree_add_text(tlv_tree, tvb, offset+21, 6,
-				    "Cluster Commander MAC: %s",
-				    ether_to_str(tvb_get_ptr(tvb, offset+21, 6)));
-		proto_tree_add_text(tlv_tree, tvb, offset+27, 6,
-				    "Switch's MAC: %s",
-				    ether_to_str(tvb_get_ptr(tvb, offset+27, 6)));
-		proto_tree_add_text(tlv_tree, tvb, offset+33, 1,
-				    "UNKNOWN: 0x%02X",
-				    tvb_get_guint8(tvb, offset+33));
-		proto_tree_add_text(tlv_tree, tvb, offset+34, 2,
-				    "Management VLAN: %d",
-				    tvb_get_ntohs(tvb, offset+34));
-		break;
-	      default:
-		proto_tree_add_text(tlv_tree, tvb, offset + 9,
-				    length - 9, "Unknown");
-		break;
-	      }
-	      offset += length;
-	      break;
-	    case TYPE_VTP_MGMT_DOMAIN:
-		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "VTP Management Domain: %s",
-			    tvb_format_text(tvb, offset + 4, length - 4));
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "VTP Management Domain: %s",
-			    tvb_format_text(tvb, offset + 4, length - 4));
-		offset += length;
-		break;
-	    case TYPE_NATIVE_VLAN:
-		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Native VLAN: %u",
-					   tvb_get_ntohs(tvb, offset + 4));
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Native VLAN: %u",
-				    tvb_get_ntohs(tvb, offset + 4));
-		offset += length;
-		break;
-	    case TYPE_DUPLEX:
-		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Duplex: %s",
-					   tvb_get_guint8(tvb, offset + 4) ?
-					   "Full" : "Half" );
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Duplex: %s",
-				    tvb_get_guint8(tvb, offset + 4) ?
-				    "Full" : "Half" );
-		offset += length;
-		break;
-	    case TYPE_VOIP_VLAN_REPLY:
-	      if (length >= 7) {
-	        tlvi = proto_tree_add_text(cdp_tree, tvb,
-					   offset, length, "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
-	      } else {
-	      	/*
-	      	 * XXX - what are these?  I've seen them in some captures;
-	      	 * they have a length of 6, and run up to the end of
-	      	 * the packet, so if we try to dissect it the same way
-	      	 * we dissect the 7-byte ones, we report a malformed
-	      	 * frame.
-	      	 */
-	        tlvi = proto_tree_add_text(cdp_tree, tvb,
-					   offset, length, "VoIP VLAN Reply");
-	      }
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  1, "Data");
-	      if (length >= 7) {
-	        proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				    2, "Voice VLAN: %u",
-				    tvb_get_ntohs(tvb, offset + 5));
-	      }
-	      offset += length;
-	      break;
-	    case TYPE_VOIP_VLAN_QUERY:
-	      if (length >= 7) {
-	        tlvi = proto_tree_add_text(cdp_tree, tvb,
-					   offset, length, "VoIP VLAN Query: %u", tvb_get_ntohs(tvb, offset + 5));
-	      } else {
-	      	/*
-	      	 * XXX - what are these?  I've seen them in some captures;
-	      	 * they have a length of 6, and run up to the end of
-	      	 * the packet, so if we try to dissect it the same way
-	      	 * we dissect the 7-byte ones, we report a malformed
-	      	 * frame.
-	      	 */
-	        tlvi = proto_tree_add_text(cdp_tree, tvb,
-					   offset, length, "VoIP VLAN Query");
-	      }
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  1, "Data");
-	      if (length >= 7) {
-	        proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				    2, "Voice VLAN: %u",
-				    tvb_get_ntohs(tvb, offset + 5));
-	      }
-	      offset += length;
-	      break;
-	    case TYPE_POWER:
-		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Power consumption: %u mW",
-					   tvb_get_ntohs(tvb, offset + 4));
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Power consumption: %u mW",
-				    tvb_get_ntohs(tvb, offset + 4));
-		offset += length;
-		break;
-	    case TYPE_MTU:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "MTU: %u",
-					 tvb_get_ntohl(tvb,offset + 4));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "MTU: %u",
-				  tvb_get_ntohl(tvb,offset + 4));
-	      offset += length;
-	      break;
-	    case TYPE_TRUST_BITMAP:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "Trust Bitmap: 0x%02X",
-					 tvb_get_guint8(tvb, offset + 4));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "Trust Bitmap: %02x",
-				  tvb_get_guint8(tvb, offset + 4));
-	      offset += length;
-	      break;
-	    case TYPE_UNTRUSTED_COS:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "Untrusted port CoS: 0x%02X",
-					 tvb_get_guint8(tvb, offset + 4));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "Untrusted port CoS: %02x",
-				  tvb_get_guint8(tvb, offset + 4));
-	      offset += length;
-	      break;
-	    case TYPE_SYSTEM_NAME:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "System Name: %s",
-					 tvb_format_text(tvb, offset + 4, length - 4));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "System Name: %s",
-				  tvb_format_text(tvb, offset + 4, length - 4));
-	      offset += length;
-	      break;
-	    case TYPE_SYSTEM_OID:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "System Object Identifier");
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "System Object Identifier: %s",
-				  tvb_bytes_to_str(tvb, offset + 4, length - 4));
-	      offset += length;
-	      break;
-	    case TYPE_MANAGEMENT_ADDR:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "Management Addresses");
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      offset += 4;
-	      length -= 4;
-	      naddresses = tvb_get_ntohl(tvb, offset);
-	      proto_tree_add_text(tlv_tree, tvb, offset, 4,
-				  "Number of addresses: %u", naddresses);
-	      offset += 4;
-	      length -= 4;
-	      while (naddresses != 0) {
-		addr_length = dissect_address_tlv(tvb, offset, length,
-						  tlv_tree);
-		if (addr_length < 0)
+		    offset += length;
+		    break;
+
+		case TYPE_CAPABILITIES:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "Capabilities");
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    offset += 4;
+		    length -= 4;
+		    dissect_capabilities(tvb, offset, length, tlv_tree);
+		    offset += length;
+		    break;
+
+		case TYPE_IOS_VERSION:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "Software Version");
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    add_multi_line_string_to_tree(tlv_tree, tvb, offset + 4,
+				    length - 4, "Software Version: ");
+		    offset += length;
+		    break;
+
+		case TYPE_PLATFORM:
+		    /* ??? platform */
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+				offset, length, "Platform: %s",
+				tvb_format_text(tvb, offset + 4, length - 4));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "Platform: %s",
+				tvb_format_text(tvb, offset + 4, length - 4));
+		    offset += length;
+		    break;
+
+		case TYPE_IP_PREFIX:
+		    if (length == 8) {
+			/* if length is 8 then this is default gw not prefix */
+			tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "ODR Default gateway: %s",
+				ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+			tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+			proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+			proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+			proto_tree_add_text(tlv_tree, tvb, offset+4, 4,
+				    "ODR Default gateway = %s",
+				    ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+			offset += 8;
+		    } else {  
+			tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "IP Prefixes: %d",length/5);
+
+			/* the actual number of prefixes is (length-4)/5
+			but if the variable is not a "float" but "integer"
+			then length/5=(length-4)/5  :)  */
+
+			tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+			proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+			proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+			offset += 4;
+			length -= 4;
+			while (length > 0) {
+			    proto_tree_add_text(tlv_tree, tvb, offset, 5,
+				    "IP Prefix = %s/%u",
+				    ip_to_str(tvb_get_ptr(tvb, offset, 4)),
+				    tvb_get_guint8(tvb,offset+4));
+			    offset += 5;
+			    length -= 5;
+			}
+		    }
+		    break;
+
+		case TYPE_PROTOCOL_HELLO:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset,length, "Protocol Hello: %s",
+					     val_to_str(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown (0x%04x)"));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset+4, 3,
+				      "OUI: 0x%06X (%s)",
+				      tvb_get_ntoh24(tvb,offset+4),
+				      val_to_str(tvb_get_ntoh24(tvb,offset+4), oui_vals, "Unknown"));
+		  proto_tree_add_text(tlv_tree, tvb, offset+7, 2,
+				      "Protocol ID: 0x%04X (%s)",
+				      tvb_get_ntohs(tvb, offset+7),
+				      val_to_str(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown"));
+		  switch(tvb_get_ntohs(tvb, offset+7)) {
+
+		  case TYPE_HELLO_CLUSTER_MGMT:
+		    /*		proto_tree_add_text(tlv_tree, tvb, offset+9,
+					length - 9, "Cluster Management");
+		    */
+		    ip_addr = tvb_get_ipv4(tvb, offset+9);
+		    proto_tree_add_text(tlv_tree, tvb, offset+9, 4,
+					"Cluster Master IP: %s",ip_to_str((guint8 *)&ip_addr));
+		    ip_addr = tvb_get_ipv4(tvb, offset+13);
+		    proto_tree_add_text(tlv_tree, tvb, offset+13, 4,
+					"UNKNOWN (IP?): 0x%08X (%s)",
+					  ip_addr, ip_to_str((guint8 *)&ip_addr));
+		    proto_tree_add_text(tlv_tree, tvb, offset+17, 1,
+					"Version?: 0x%02X",
+					tvb_get_guint8(tvb, offset+17));
+		    proto_tree_add_text(tlv_tree, tvb, offset+18, 1,
+					"Sub Version?: 0x%02X",
+					tvb_get_guint8(tvb, offset+18));
+		    proto_tree_add_text(tlv_tree, tvb, offset+19, 1,
+					"Status?: 0x%02X",
+					tvb_get_guint8(tvb, offset+19));
+		    proto_tree_add_text(tlv_tree, tvb, offset+20, 1,
+					"UNKNOWN: 0x%02X",
+					tvb_get_guint8(tvb, offset+20));
+		    proto_tree_add_text(tlv_tree, tvb, offset+21, 6,
+					"Cluster Commander MAC: %s",
+					ether_to_str(tvb_get_ptr(tvb, offset+21, 6)));
+		    proto_tree_add_text(tlv_tree, tvb, offset+27, 6,
+					"Switch's MAC: %s",
+					ether_to_str(tvb_get_ptr(tvb, offset+27, 6)));
+		    proto_tree_add_text(tlv_tree, tvb, offset+33, 1,
+					"UNKNOWN: 0x%02X",
+					tvb_get_guint8(tvb, offset+33));
+		    proto_tree_add_text(tlv_tree, tvb, offset+34, 2,
+					"Management VLAN: %d",
+					tvb_get_ntohs(tvb, offset+34));
+		    break;
+		  default:
+		    proto_tree_add_text(tlv_tree, tvb, offset + 9,
+					length - 9, "Unknown");
+		    break;
+		  }
+		  offset += length;
 		  break;
-		offset += addr_length;
-		length -= addr_length;
-		
-		naddresses--;
-	      }
-	      offset += length;
-	      break;
-	    case TYPE_LOCATION:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "Location: %s",
-					 tvb_format_text(tvb, offset + 5, length - 5));
-	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-				  offset + TLV_TYPE, 2, type);
-	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-				  offset + TLV_LENGTH, 2, length);
-	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  1 , "UNKNOWN: 0x%02X",
-				  tvb_get_guint8(tvb, offset + 4));
-	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				  length - 5, "Location: %s",
-				  tvb_format_text(tvb, offset + 5, length - 5));
-	      offset += length;
-	      break;
-	    default:
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Type: %s, length: %u",
-			    val_to_str(type, type_vals, "Unknown (0x%04x)"),
-			    length);
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		if (length > 4) {
-			proto_tree_add_text(tlv_tree, tvb, offset + 4,
-					length - 4, "Data");
-		} else
-			return;
-		offset += length;
+
+		 case TYPE_VTP_MGMT_DOMAIN:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+				offset, length, "VTP Management Domain: %s",
+				tvb_format_text(tvb, offset + 4, length - 4));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "VTP Management Domain: %s",
+				tvb_format_text(tvb, offset + 4, length - 4));
+		    offset += length;
+		    break;
+
+		case TYPE_NATIVE_VLAN:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+				offset, length, "Native VLAN: %u",
+					       tvb_get_ntohs(tvb, offset + 4));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "Native VLAN: %u",
+					tvb_get_ntohs(tvb, offset + 4));
+		    offset += length;
+		    break;
+
+		case TYPE_DUPLEX:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+				offset, length, "Duplex: %s",
+					       tvb_get_guint8(tvb, offset + 4) ?
+					       "Full" : "Half" );
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "Duplex: %s",
+					tvb_get_guint8(tvb, offset + 4) ?
+					"Full" : "Half" );
+		    offset += length;
+		    break;
+
+		case TYPE_VOIP_VLAN_REPLY:
+		  if (length >= 7) {
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+					       offset, length, "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
+		  } else {
+		    /*
+		     * XXX - what are these?  I've seen them in some captures;
+		     * they have a length of 6, and run up to the end of
+		     * the packet, so if we try to dissect it the same way
+		     * we dissect the 7-byte ones, we report a malformed
+		     * frame.
+		     */
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+					       offset, length, "VoIP VLAN Reply");
+		  }
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      1, "Data");
+		  if (length >= 7) {
+		    proto_tree_add_text(tlv_tree, tvb, offset + 5,
+					2, "Voice VLAN: %u",
+					tvb_get_ntohs(tvb, offset + 5));
+		  }
+		  offset += length;
+		  break;
+
+		case TYPE_VOIP_VLAN_QUERY:
+		  if (length >= 7) {
+			tlvi = proto_tree_add_text(cdp_tree, tvb,
+						   offset, length, "VoIP VLAN Query: %u", tvb_get_ntohs(tvb, offset + 5));
+		  } else {
+		    /*
+		     * XXX - what are these?  I've seen them in some captures;
+		     * they have a length of 6, and run up to the end of
+		     * the packet, so if we try to dissect it the same way
+		     * we dissect the 7-byte ones, we report a malformed
+		     * frame.
+		     */
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+					       offset, length, "VoIP VLAN Query");
+		  }
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      1, "Data");
+		  if (length >= 7) {
+		    proto_tree_add_text(tlv_tree, tvb, offset + 5,
+					2, "Voice VLAN: %u",
+					tvb_get_ntohs(tvb, offset + 5));
+		  }
+		  offset += length;
+		  break;
+
+		case TYPE_POWER:
+		    tlvi = proto_tree_add_text(cdp_tree, tvb,
+				offset, length, "Power consumption: %u mW",
+					       tvb_get_ntohs(tvb, offset + 4));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				length - 4, "Power consumption: %u mW",
+					tvb_get_ntohs(tvb, offset + 4));
+		    offset += length;
+		    break;
+
+		case TYPE_MTU:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "MTU: %u",
+					     tvb_get_ntohl(tvb,offset + 4));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      length - 4, "MTU: %u",
+				      tvb_get_ntohl(tvb,offset + 4));
+		  offset += length;
+		  break;
+
+		case TYPE_TRUST_BITMAP:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Trust Bitmap: 0x%02X",
+					     tvb_get_guint8(tvb, offset + 4));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      length - 4, "Trust Bitmap: %02x",
+				      tvb_get_guint8(tvb, offset + 4));
+		  offset += length;
+		  break;
+
+		case TYPE_UNTRUSTED_COS:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Untrusted port CoS: 0x%02X",
+					     tvb_get_guint8(tvb, offset + 4));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      length - 4, "Untrusted port CoS: %02x",
+				      tvb_get_guint8(tvb, offset + 4));
+		  offset += length;
+		  break;
+
+		case TYPE_SYSTEM_NAME:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "System Name: %s",
+					     tvb_format_text(tvb, offset + 4, length - 4));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      length - 4, "System Name: %s",
+				      tvb_format_text(tvb, offset + 4, length - 4));
+		  offset += length;
+		  break;
+
+		case TYPE_SYSTEM_OID:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "System Object Identifier");
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      length - 4, "System Object Identifier: %s",
+				      tvb_bytes_to_str(tvb, offset + 4, length - 4));
+		  offset += length;
+		  break;
+
+		case TYPE_MANAGEMENT_ADDR:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Management Addresses");
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  offset += 4;
+		  length -= 4;
+		  naddresses = tvb_get_ntohl(tvb, offset);
+		  proto_tree_add_text(tlv_tree, tvb, offset, 4,
+				      "Number of addresses: %u", naddresses);
+		  offset += 4;
+		  length -= 4;
+		  while (naddresses != 0) {
+		    addr_length = dissect_address_tlv(tvb, offset, length,
+						      tlv_tree);
+		    if (addr_length < 0)
+		      break;
+		      offset += addr_length;
+		    length -= addr_length;
+
+		    naddresses--;
+		  }
+		  offset += length;
+		  break;
+
+		case TYPE_LOCATION:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Location: %s",
+					     tvb_format_text(tvb, offset + 5, length - 5));
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				      1 , "UNKNOWN: 0x%02X",
+				      tvb_get_guint8(tvb, offset + 4));
+		  proto_tree_add_text(tlv_tree, tvb, offset + 5,
+				      length - 5, "Location: %s",
+				      tvb_format_text(tvb, offset + 5, length - 5));
+		  offset += length;
+		  break;
+		  }
+
+		default:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+				length, "Type: %s, length: %u",
+				val_to_str(type, type_vals, "Unknown (0x%04x)"),
+				length);
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+		    if (length > 4) {
+			    proto_tree_add_text(tlv_tree, tvb, offset + 4,
+					    length - 4, "Data");
+		    } else
+			    return;
+		    offset += length;
 	    }
 	}
-	call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
 			cdp_tree);
-    }
 }
 
 #define	PROTO_TYPE_NLPID	1
