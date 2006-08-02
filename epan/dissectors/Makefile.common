@@ -171,6 +171,7 @@ DISSECTOR_SRC =	\
 	packet-daap.c	\
 	packet-dap.c	\
 	packet-data.c	\
+	packet-daytime.c \
 	packet-dccp.c	\
 	packet-dcp.c	\
 	packet-dcerpc-afs4int.c	\
