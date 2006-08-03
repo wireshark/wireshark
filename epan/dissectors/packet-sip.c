@@ -61,6 +61,7 @@
 #include "packet-sip.h"
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #include "packet-tcp.h"
 
@@ -1395,9 +1396,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 			if (hf_index == -1) {
 				if(hdr_tree) {
-					proto_tree_add_text(hdr_tree, tvb,
-					                    offset, next_offset - offset, "%s",
-					                    tvb_format_text(tvb, offset, linelen));
+					proto_item *ti = proto_tree_add_text(hdr_tree, tvb,
+					                                     offset, next_offset - offset, "%s",
+					                                     tvb_format_text(tvb, offset, linelen));
+					expert_add_info_format(pinfo, ti,
+					                       PI_UNDECODED, PI_NOTE,
+					                       "Unrecognised SIP header (%s)",
+					                       tvb_format_text(tvb, offset, header_len));
 				}
 			} else {
 				/*
