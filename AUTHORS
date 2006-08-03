@@ -2508,6 +2508,10 @@ Peter Racz		<racz [AT] ifi.unizh.ch> {
 	PANA support
 }
 
+Jakob Bratkovic		<j.bratkovic@iskratel.si> {
+	Multicast stream analysis support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
