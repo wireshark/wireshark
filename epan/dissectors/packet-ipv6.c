@@ -732,7 +732,7 @@ again:
 
   /* collect packet info */
   pinfo->ipproto = nxt;
-  pinfo->iplen = sizeof(ipv6) + plen;
+  pinfo->iplen = sizeof(ipv6) + plen + offset;
   pinfo->iphdrlen = offset;
 
   /* If ipv6_reassemble is on, this is a fragment, and we have all the data
