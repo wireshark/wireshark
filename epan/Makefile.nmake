@@ -51,7 +51,7 @@ DOXYGEN_DEP=doxygen
 !IFDEF ENABLE_LIBWIRESHARK
 all: ftypes dfilter dissectors libwireshark.dll
 !ELSE
-all: ftypes dfilter dissectors ethereal.lib
+all: ftypes dfilter dissectors libwireshark.lib
 !ENDIF
 
 # For use when making libwireshark.dll
@@ -69,9 +69,9 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def ftypes df
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-ethereal.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                   ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib
-	link /lib /out:ethereal.lib $(LIBWIRESHARK_OBJECTS) \
+	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
 ..\config.h	: ..\config.h.win32 ..\config.nmake
@@ -80,7 +80,7 @@ ethereal.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter dissectors $(D
 	cd epan
 
 clean:
-	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) ethereal.lib libwireshark.dll libwireshark.lib libwireshark.exp $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) libwireshark.lib libwireshark.dll libwireshark.lib libwireshark.exp $(PDB_FILE) doxygen.cfg html/*.*
 	if exist html rmdir html	
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
