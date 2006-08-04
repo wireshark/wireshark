@@ -69,11 +69,9 @@ static gint ett_exec = -1;
 #define EXEC_PASSWORD_LEN 16
 #define EXEC_COMMAND_LEN 256 /* Longer depending on server operating system? */
 
-/* Initialize the structure that will be tied to each conversation
- * This is used to display the username (and command?) in the INFO column of
- * each packet as well as displaying hidden fields so filtering by these
- * does not only show the first packet or two, but shows the entire 
- * conversation */
+/* Initialize the structure that will be tied to each conversation.
+ * This is used to display the username and/or command in the INFO column of
+ * each packet of the conversation. */
 
 typedef enum {
 	NONE                 = 0,
