@@ -95,8 +95,6 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U
 
 	if (icon_size && (tvb_ensure_length_remaining(tvb, offset) >= icon_size))
 	{
-		/* TODO: this is set to FT_UINT16 - is length fixed, or would
-		   FT_BYTES be better? */
 		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
 	}
 
@@ -135,7 +133,10 @@ static int dissect_aim_sst_buddy_up_req (tvbuff_t *tvb, packet_info *pinfo _U_, 
 	icon_size = tvb_get_ntohs(tvb, offset);
 	offset+=2;
 
-	proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+	if (icon_size && (tvb_ensure_length_remaining(tvb, offset) >= icon_size))
+	{
+		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+	}
 
 	offset+=icon_size;
 	return offset;
