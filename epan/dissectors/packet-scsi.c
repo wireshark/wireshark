@@ -7809,10 +7809,11 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *old_proto;
     cmdset_t *csdata;
 
-    if(!itlq){
+    if(!itlq || !itl){
         /* we have no record of this exchange and so we can't dissect the
          * payload
          */
+	proto_tree_add_text(tree, tvb, offset, 0, "Unknown SCSI exchange, can not decode SCSI data");
         return;
     }
 
