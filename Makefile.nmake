@@ -222,6 +222,7 @@ config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
 	    -e "s/@HAVE_PCRE@/$(PCRE_CONFIG)/" \
+ 	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
 	    -e "s/@HAVE_NETTLE@/$(NETTLE_CONFIG)/" \
 	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
 	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \

@@ -21,6 +21,7 @@ libwireshark_LIBS = \
 	$(GLIB_LIBS)	\
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
+	$(KFW_LIBS) \
 	$(NETTLE_LIBS) \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) \

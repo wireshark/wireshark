@@ -152,6 +152,12 @@ ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05
 #
 PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 
+# If you have kerberos for windows (mit),
+# set this pathname to the directory where the kfw package has been
+# extracted
+# to enable kerberos/sasl/dcerpc decryption support
+# KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
+
 #
 # If you have the Nettle encryption library, set this to the pathname
 # of the directory in which the nettle package has been extracted.
@@ -397,6 +403,18 @@ ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
 ADNS_CFLAGS=
 ADNS_LIBS=
 ADNS_CONFIG=
+!ENDIF
+
+!IFDEF KFW_DIR
+KFW_PATH=$(KFW_DIR)\bin
+KFW_CFLAGS=/I$(KFW_DIR)\inc
+KFW_LIBS=$(KFW_DIR)\lib\krb5_32.lib
+# Nmake uses carets to escape special characters
+KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
+!else
+KFW_CFLAGS=
+KFW_LIBS=
+KFW_CONFIG=
 !ENDIF
 
 !IFDEF PCRE_DIR

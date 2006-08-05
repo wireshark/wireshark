@@ -199,6 +199,12 @@
 /* Define to use the gnutls library */
 @HAVE_GNUTLS@
 
+/* Define to use mit kerberos for decryption of kerberos/sasl/dcerpc */
+@HAVE_KFW@
+#ifdef HAVE_MIT_KERBEROS
+#define HAVE_KERBEROS
+#endif
+
 /* Define to use Lua */
 @HAVE_LUA@
 @HAVE_LUA_5_1@
