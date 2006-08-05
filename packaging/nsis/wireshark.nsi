@@ -322,6 +322,10 @@ File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
 File "${PCRE_DIR}\bin\pcre.dll"
 File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 !endif
+!ifdef KFW_DIR
+File "${KFW_DIR}\bin\comerr32.dll"
+File "${KFW_DIR}\bin\krb5_32.dll"
+!endif
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"

@@ -142,6 +142,9 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 !IF "$(ADNS_DIR)" != ""
 	/DADNS_DIR=$(ADNS_DIR) \
 !ENDIF
+!IF "$(KFW_DIR)" != ""
+	/DKFW_DIR=$(KFW_DIR) \
+!ENDIF
 !IF "$(PCRE_DIR)" != ""
 	/DPCRE_DIR=$(PCRE_DIR) \
 !ENDIF
