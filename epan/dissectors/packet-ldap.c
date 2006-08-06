@@ -3411,6 +3411,30 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	char *oid, *oidname;
+
+	/* tvb here contains an ascii string that is really an oid */
+/* XXX   we should convert the string oid into a real oid so we can use
+ *       proto_tree_add_oid() instead.
+ */
+
+	oid=tvb_get_ephemeral_string(tvb, 0, tvb_length(tvb));
+	if(!oid){
+		return;
+	}
+
+	oidname=get_oid_str_name(oid);
+
+	if(oidname){
+		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s (%s)",oid,oidname);
+	} else {
+		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s",oid);
+	}
+}
+
+static void
 dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
@@ -4073,7 +4097,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1445 "packet-ldap-template.c"
+#line 1469 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4126,7 +4150,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1456 "packet-ldap-template.c"
+#line 1480 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4203,6 +4227,8 @@ proto_reg_handoff_ldap(void)
 
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
 	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
+	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
+	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
 }
 
 
