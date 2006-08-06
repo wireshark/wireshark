@@ -452,19 +452,19 @@ ldap_conv_info_t *ldap_info;
 	and_filter_string=NULL;
 
 #.FN_FTR Filter/equalityMatch
-	Filter_string=ep_strdup_printf("(%s=%s)",attributedesc_string,assertionvalue_string);
+	Filter_string=ep_strdup_printf("(%s=%s)",attributedesc_string,ldapvalue_string);
 
 
 #.FN_FTR Filter/greaterOrEqual
-	Filter_string=ep_strdup_printf("(%s>=%s)",attributedesc_string,assertionvalue_string);
+	Filter_string=ep_strdup_printf("(%s>=%s)",attributedesc_string,ldapvalue_string);
 
 
 #.FN_FTR Filter/lessOrEqual
-	Filter_string=ep_strdup_printf("(%s<=%s)",attributedesc_string,assertionvalue_string);
+	Filter_string=ep_strdup_printf("(%s<=%s)",attributedesc_string,ldapvalue_string);
 
 
 #.FN_FTR Filter/approxMatch
-	Filter_string=ep_strdup_printf("(%s~=%s)",attributedesc_string,assertionvalue_string);
+	Filter_string=ep_strdup_printf("(%s~=%s)",attributedesc_string,ldapvalue_string);
 
 #.FN_FTR Filter/and/_item
 	if(and_filter_string){
@@ -537,7 +537,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_HDR Filter/extensibleMatch
 	attr_type=NULL;
 	matching_rule_string=NULL;
-	assertionvalue_string=NULL;
+	ldapvalue_string=NULL;
 	matching_rule_dnattr=FALSE;
 
 #.FN_FTR Filter/extensibleMatch
@@ -546,7 +546,7 @@ ldap_conv_info_t *ldap_info;
 					(matching_rule_dnattr?"dn:":""),
 					(matching_rule_string?matching_rule_string:""),
 					(matching_rule_string?":":""),
-					assertionvalue_string);
+					ldapvalue_string);
 
 #.FN_FTR SubstringFilter/substrings/_item
 	if (substring_item_final) {

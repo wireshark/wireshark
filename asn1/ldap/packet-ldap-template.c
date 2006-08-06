@@ -255,7 +255,7 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 static char *attributedesc_string=NULL;
 
 /* This string contains the last AssertionValue that was decoded */
-static char *assertionvalue_string=NULL;
+static char *ldapvalue_string=NULL;
 
 /* if the octet string contain all printable ASCII characters, then
  * display it as a string, othervise just display it in hex.
@@ -296,7 +296,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		/* this octet string contains an NT SID */
 		sid_tvb=tvb_new_subset(tvb, offset, len, len);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
-		assertionvalue_string=ep_strdup(tmpstr);
+		ldapvalue_string=ep_strdup(tmpstr);
 		g_free(tmpstr);
 
 		goto finished;
@@ -308,8 +308,8 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-		assertionvalue_string=ep_alloc(1024);
-		g_snprintf(assertionvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		ldapvalue_string=ep_alloc(1024);
+		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
                           uuid.Data4[2], uuid.Data4[3],
@@ -342,19 +342,19 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 
 	/* convert the string into a printable string */
 	if(is_ascii){
-		assertionvalue_string=ep_alloc(len+1);
-		memcpy(assertionvalue_string,str,len);
-		assertionvalue_string[i]=0;
+		ldapvalue_string=ep_alloc(len+1);
+		memcpy(ldapvalue_string,str,len);
+		ldapvalue_string[i]=0;
 	} else {
-		assertionvalue_string=ep_alloc(3*len);
+		ldapvalue_string=ep_alloc(3*len);
 		for(i=0;i<len;i++){
-			g_snprintf(assertionvalue_string+i*3,3,"%02x",str[i]&0xff);
-			assertionvalue_string[3*i+2]=':';
+			g_snprintf(ldapvalue_string+i*3,3,"%02x",str[i]&0xff);
+			ldapvalue_string[3*i+2]=':';
 		}
-		assertionvalue_string[3*len-1]=0;
+		ldapvalue_string[3*len-1]=0;
 	}
 
-	proto_tree_add_string(tree, hf_index, tvb, offset, len, assertionvalue_string);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, ldapvalue_string);
 
 
 finished:
@@ -1171,6 +1171,23 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
 }
 
+static void
+dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	e_uuid_t uuid;
+
+	/* This octet string contained a GUID */
+	dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
+
+	ldapvalue_string=ep_alloc(1024);
+	g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   uuid.Data1, uuid.Data2, uuid.Data3,
+                   uuid.Data4[0], uuid.Data4[1],
+                   uuid.Data4[2], uuid.Data4[3],
+                   uuid.Data4[4], uuid.Data4[5],
+                   uuid.Data4[6], uuid.Data4[7]);
+}
 
 static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1469,7 +1486,6 @@ void proto_register_ldap(void) {
 
   ldap_name_dissector_table = register_dissector_table("ldap.name", "LDAP Attribute Type Dissectors", FT_STRING, BASE_NONE);
 
-
 }
 
 
@@ -1512,7 +1528,7 @@ proto_reg_handoff_ldap(void)
 	add_oid_str_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
 
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
-
+	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
 }
 
 
