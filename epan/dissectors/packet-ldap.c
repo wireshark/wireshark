@@ -4207,11 +4207,14 @@ proto_reg_handoff_ldap(void)
 	add_oid_str_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
 	add_oid_str_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
 	add_oid_str_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.474","LDAP_CONTROL_SORT_RESP_OID");
 	add_oid_str_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
 	add_oid_str_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
 	add_oid_str_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
 	add_oid_str_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.800","LDAP_CAP_ACTIVE_DIRECTORY_OID");
 	add_oid_str_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
+	add_oid_str_name("1.2.840.113556.1.4.804","LDAP_OID_COMPARATOR_OR");
 	add_oid_str_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
 	add_oid_str_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
 	add_oid_str_name("1.2.840.113556.1.4.970 ","None");
@@ -4220,10 +4223,14 @@ proto_reg_handoff_ldap(void)
 	add_oid_str_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
 	add_oid_str_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
 	add_oid_str_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1670","LDAP_CAP_ACTIVE_DIRECTORY_V51_OID");
 	add_oid_str_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1791","LDAP_CAP_ACTIVE_DIRECTORY_LDAP_INTEG_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1851","LDAP_CAP_ACTIVE_DIRECTORY_ADAM_OID");
 	add_oid_str_name("1.3.6.1.4.1.1466.101.119.1","None");
 	add_oid_str_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
 	add_oid_str_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
+	add_oid_str_name("2.16.840.1.113730.3.4.10","LDAP_CONTROL_VLVRESPONSE VLV");
 
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
 	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
