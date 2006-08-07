@@ -31,26 +31,26 @@
 #include <epan/packet.h>
 
 /*
- * TODO:
- * Doesn't currently dissect the lines of the message.
- * Need to refactor SIP dissector and make its functionality available here
+ * Doesn't do a detailed dissection of the lines of the message, just treat as text.
  */
 
 
 /* Initialize the protocol and registered fields. */
 static int proto_sipfrag = -1;
-static int hf_line = -1;
+static int hf_sipfrag_line = -1;
 
 /* Protocol subtree. */
 static int ett_sipfrag = -1;
 
+void proto_reg_handoff_sipfrag(void);
+static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 
 /* Main dissection function. */
-static void
-dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*sipfrag_tree;
-    proto_item	*ti;
+    proto_tree  *sipfrag_tree;
+    proto_item  *ti;
     gint        offset = 0;
     gint        next_offset;
     int         linelen;
@@ -79,8 +79,8 @@ dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* For now, add all lines as unparsed strings */
 
         /* Extract & add the string. */
-        string = tvb_get_ephemeral_string(tvb, offset, linelen);
-        proto_tree_add_string_format(sipfrag_tree, hf_line,
+        string = (char*)tvb_get_ephemeral_string(tvb, offset, linelen);
+        proto_tree_add_string_format(sipfrag_tree, hf_sipfrag_line,
                                      tvb, offset,
                                      linelen, string,
                                      "%s", string);
@@ -101,12 +101,11 @@ dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-void
-proto_register_sipfrag(void)
+void proto_register_sipfrag(void)
 {
     static hf_register_info hf[] =
     {
-        { &hf_line,
+        { &hf_sipfrag_line,
             { "Line",
               "sipfrag.line",FT_STRING, BASE_NONE, NULL, 0x0, "Line", HFILL
             }
@@ -127,8 +126,7 @@ proto_register_sipfrag(void)
     register_dissector("sipfrag", dissect_sipfrag, proto_sipfrag);
 }
 
-void
-proto_reg_handoff_sipfrag(void)
+void proto_reg_handoff_sipfrag(void)
 {
     dissector_handle_t sipfrag_handle = find_dissector("sipfrag");
     dissector_add_string("media_type", "message/sipfrag", sipfrag_handle);
