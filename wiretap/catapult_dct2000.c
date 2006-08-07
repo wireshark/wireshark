@@ -345,11 +345,14 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Get buffer pointer ready */
             buffer_assure_space(wth->frame_buffer,
-                                strlen(context_name)+1 +  /* Context name */
-                                1 +                       /* port */
-                                strlen(protocol_name)+1 + /* Protocol name */
-                                1 +                       /* direction */
-                                1 +                       /* encap */
+                                strlen(context_name)+1 +     /* Context name */
+                                1 +                          /* port */
+                                strlen(timestamp_string)+1 + /* timestamp */
+                                strlen(variant_name)+1 +     /* variant */
+                                strlen(outhdr_name)+1 +      /* outhdr */
+                                strlen(protocol_name)+1 +    /* Protocol name */
+                                1 +                          /* direction */
+                                1 +                          /* encap */
                                 (data_chars/2));
             frame_buffer = buffer_start_ptr(wth->frame_buffer);
 
