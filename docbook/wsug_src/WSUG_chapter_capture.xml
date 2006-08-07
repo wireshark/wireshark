@@ -566,7 +566,7 @@ wireshark -i eth0 -k
 	<section><title>Buttons</title>
       <para>
 	Once you have set the values you desire and have selected the 
-	options you need, simply click on <command>OK</command> to commence the 
+	options you need, simply click on <command>Start</command> to commence the 
 	capture, or <command>Cancel</command> to cancel the capture.
       </para>
       <para>
@@ -783,7 +783,7 @@ wireshark -i eth0 -k
 
       <example id="ChCapExFilt1">
 	<title>
-	  A capture filter for telnet than captures traffic to and from a 
+	  A capture filter for telnet that captures traffic to and from a 
 	  particular host
 	</title>
 	<programlisting>

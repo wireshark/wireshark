@@ -52,7 +52,7 @@
 	"Colors" page.
     </para>
     <para>
-	None printable characters will be replaced by dots.
+	Non-printable characters will be replaced by dots.
 	XXX - What about line wrapping (maximum line length) and CRNL conversions?
     </para>
     <para>
@@ -140,7 +140,7 @@
   <section id="ChAdvTimestamps"><title>Time Stamps</title>
 	<para>
 	Time stamps, their precisions and all that can be quite
-	confusing, this section will provide you with information what's going
+	confusing. This section will provide you with information about what's going
 	on while Wireshark processes time stamps.
 	</para>
     <para>
