@@ -145,6 +145,9 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 !IF "$(KFW_DIR)" != ""
 	/DKFW_DIR=$(KFW_DIR) \
 !ENDIF
+!IF "$(GNUTLS_DIR)" != ""
+	/DGNUTLS_DIR=$(GNUTLS_DIR) \
+!ENDIF
 !IF "$(PCRE_DIR)" != ""
 	/DPCRE_DIR=$(PCRE_DIR) \
 !ENDIF

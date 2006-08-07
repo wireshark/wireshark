@@ -519,6 +519,10 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. lua5_1_vc6.zip
 !ENDIF
+!IFDEF GNUTLS_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		. gnutls-1.5.0.zip
+!ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -680,6 +684,14 @@ install-required-deps:
 !IFDEF KFW_DIR
 	xcopy $(KFW_DIR)\bin\comerr32.dll . /d
 	xcopy $(KFW_DIR)\bin\krb5_32.dll . /d
+!ENDIF
+!IFDEF GNUTLS_DIR
+	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-14.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-14.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-14.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll . /d
 !ENDIF
 
 clean-deps:
