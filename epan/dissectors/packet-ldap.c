@@ -141,6 +141,7 @@ static int hf_mscldap_clientsitename = -1;
 static int hf_mscldap_netlogon_version = -1;
 static int hf_mscldap_netlogon_lm_token = -1;
 static int hf_mscldap_netlogon_nt_token = -1;
+static int hf_ldap_sid = -1;
 
 
 /*--- Included file: packet-ldap-hf.c ---*/
@@ -244,7 +245,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 138 "packet-ldap-template.c"
+#line 139 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -295,7 +296,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 147 "packet-ldap-template.c"
+#line 148 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -2760,7 +2761,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 525 "packet-ldap-template.c"
+#line 526 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3435,6 +3436,17 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	char *tmpstr;
+
+	/* this octet string contains an NT SID */
+	dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
+	ldapvalue_string=ep_strdup(tmpstr);
+	g_free(tmpstr);
+}
+
+static void
 dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
@@ -3659,6 +3671,11 @@ void proto_register_ldap(void) {
       { "Client Site", "mscldap.clientsitename",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Client Site name", HFILL }},
+
+    { &hf_ldap_sid,
+      { "Sid", "ldap.sid",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Sid", HFILL }},
 
     { &hf_mscldap_netlogon_flags_pdc,
       { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
@@ -4097,7 +4114,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1469 "packet-ldap-template.c"
+#line 1486 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4150,7 +4167,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1480 "packet-ldap-template.c"
+#line 1497 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4236,6 +4253,7 @@ proto_reg_handoff_ldap(void)
 	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
 	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
 	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
+	register_ldap_name_dissector("objectSid", dissect_ldap_sid, proto_ldap);
 }
 
 

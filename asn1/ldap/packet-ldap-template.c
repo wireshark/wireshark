@@ -133,6 +133,7 @@ static int hf_mscldap_clientsitename = -1;
 static int hf_mscldap_netlogon_version = -1;
 static int hf_mscldap_netlogon_lm_token = -1;
 static int hf_mscldap_netlogon_nt_token = -1;
+static int hf_ldap_sid = -1;
 
 #include "packet-ldap-hf.c"
 
@@ -1196,6 +1197,17 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	char *tmpstr;
+
+	/* this octet string contains an NT SID */
+	dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
+	ldapvalue_string=ep_strdup(tmpstr);
+	g_free(tmpstr);
+}
+
+static void
 dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
@@ -1421,6 +1433,11 @@ void proto_register_ldap(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Client Site name", HFILL }},
 
+    { &hf_ldap_sid,
+      { "Sid", "ldap.sid",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Sid", HFILL }},
+
     { &hf_mscldap_netlogon_flags_pdc,
       { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_pdc), 0x00000001, "Is this DC a PDC or not?", HFILL }},
@@ -1562,6 +1579,7 @@ proto_reg_handoff_ldap(void)
 	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
 	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
 	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
+	register_ldap_name_dissector("objectSid", dissect_ldap_sid, proto_ldap);
 }
 
 
