@@ -3436,6 +3436,12 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_length(tvb), NULL);
+}
+
+static void
 dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	char *tmpstr;
@@ -4114,7 +4120,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1486 "packet-ldap-template.c"
+#line 1492 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4167,7 +4173,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1497 "packet-ldap-template.c"
+#line 1503 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4254,6 +4260,7 @@ proto_reg_handoff_ldap(void)
 	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
 	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
 	register_ldap_name_dissector("objectSid", dissect_ldap_sid, proto_ldap);
+	register_ldap_name_dissector("nTSecurityDescriptor", dissect_ldap_nt_sec_desc, proto_ldap);
 }
 
 
