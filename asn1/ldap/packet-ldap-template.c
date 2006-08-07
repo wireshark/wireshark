@@ -509,13 +509,18 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     /* we have found a match */
 
     if(lcrp){
+      proto_item *it;
+
       if(lcrp->is_request){
-        proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+        it=proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+        PROTO_ITEM_SET_GENERATED(it);
       } else {
         nstime_t ns;
-        proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+        it=proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+        PROTO_ITEM_SET_GENERATED(it);
         nstime_delta(&ns, &pinfo->fd->abs_ts, &lcrp->req_time);
-        proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+        it=proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(it);
       }
     }
 

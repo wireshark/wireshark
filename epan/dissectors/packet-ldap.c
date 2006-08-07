@@ -661,13 +661,18 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     /* we have found a match */
 
     if(lcrp){
+      proto_item *it;
+
       if(lcrp->is_request){
-        proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+        it=proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+        PROTO_ITEM_SET_GENERATED(it);
       } else {
         nstime_t ns;
-        proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+        it=proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+        PROTO_ITEM_SET_GENERATED(it);
         nstime_delta(&ns, &pinfo->fd->abs_ts, &lcrp->req_time);
-        proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+        it=proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(it);
       }
     }
 
@@ -2761,7 +2766,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 526 "packet-ldap-template.c"
+#line 531 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -4120,7 +4125,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1492 "packet-ldap-template.c"
+#line 1497 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4173,7 +4178,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1503 "packet-ldap-template.c"
+#line 1508 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
