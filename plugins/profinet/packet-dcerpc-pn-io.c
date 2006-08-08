@@ -289,6 +289,17 @@ static int hf_pn_io_subslot = -1;
 static int hf_pn_io_number_of_slots = -1;
 static int hf_pn_io_number_of_subslots = -1;
     
+static int hf_pn_io_maintenance_required_drop_budget = -1;
+static int hf_pn_io_maintenance_demanded_drop_budget = -1;
+static int hf_pn_io_error_drop_budget = -1;
+
+static int hf_pn_io_maintenance_required_power_budget = -1;
+static int hf_pn_io_maintenance_demanded_power_budget = -1;
+static int hf_pn_io_error_power_budget = -1;
+
+static int hf_pn_io_fiber_optic = -1;
+static int hf_pn_io_fiber_optic_cable = -1;
+
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -1100,6 +1111,30 @@ static const value_string pn_io_media_type[] = {
 };
 
 
+static const value_string pn_io_fiber_optic[] = {
+	{ 0x0000, "No fiber type adjusted" },
+	{ 0x0001, "9 um single mode fiber" },
+	{ 0x0002, "50 um multi mode fiber" },
+	{ 0x0003, "62,5 um multi mode fiber" },
+	{ 0x0004, "SI-POF, NA=0.5" },
+	{ 0x0005, "SI-PCF, NA=0.36" },
+	{ 0x0006, "LowNA-POF, NA=0.3" },
+	{ 0x0007, "GI-POF" },
+    /*0x0008 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
+static const value_string pn_io_fiber_optic_cable[] = {
+	{ 0x0000, "No cable specified" },
+	{ 0x0001, "inside/outside cable, fixed installation" },
+	{ 0x0002, "inside/outside cable, flexible installation" },
+	{ 0x0003, "outdoor cable, fixed installation" },
+    /*0x0004 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
 
 static int dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -1283,6 +1318,34 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+dissect_ChannelProperties(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 body_length)
+{
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+    guint16 u16ChannelProperties;
+
+
+    sub_item = proto_tree_add_item(tree, hf_pn_io_channel_properties, tvb, offset, 2, FALSE);
+	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_channel_properties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_direction, &u16ChannelProperties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_specifier, &u16ChannelProperties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_maintenance_demanded, &u16ChannelProperties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_maintenance_required, &u16ChannelProperties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_accumulative, &u16ChannelProperties);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_type, &u16ChannelProperties);
+
+    return offset;
+}
+
+
 /* dissect the alarm notification block */
 static int
 dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
@@ -1292,12 +1355,11 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
     guint32 u32SubmoduleIdentNumber;
     guint16 u16UserStructureIdentifier;
     guint16 u16ChannelNumber;
-    guint16 u16ChannelProperties;
     guint16 u16ChannelErrorType;
     guint16 u16ExtChannelErrorType;
     guint32 u32ExtChannelAddValue;
 	proto_item *sub_item;
-	proto_tree *sub_tree;
+
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Notification");
@@ -1311,31 +1373,32 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
 
     offset = dissect_Alarm_specifier(tvb, offset, pinfo, tree, drep);
 
+    proto_item_append_text(item, ", Ident:0x%x, SubIdent:0x%x",
+        u32ModuleIdentNumber, u32SubmoduleIdentNumber);
+
+    /* the rest of the block is optional: [MaintenanceItem] or [AlarmItem] */
+    if(body_length == 20) {
+        return offset;
+    }
+
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_user_structure_identifier, &u16UserStructureIdentifier);
 
-    proto_item_append_text(item, ", Ident:0x%x, SubIdent:0x%x, USI:0x%x",
-        u32ModuleIdentNumber, u32SubmoduleIdentNumber, u16UserStructureIdentifier);
+    proto_item_append_text(item, ", USI:0x%x", u16UserStructureIdentifier);
 
     switch(u16UserStructureIdentifier) {
+    case(0x8000):   /* ChannelDiagnosisData */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_number, &u16ChannelNumber);
+        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, body_length);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
+        break;
     case(0x8002):   /* ExtChannelDiagnosisData */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_channel_number, &u16ChannelNumber);
 
-        sub_item = proto_tree_add_item(tree, hf_pn_io_channel_properties, tvb, offset, 2, FALSE);
-	    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_channel_properties);
-        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_direction, &u16ChannelProperties);
-        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_specifier, &u16ChannelProperties);
-        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_maintenance_demanded, &u16ChannelProperties);
-        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_maintenance_required, &u16ChannelProperties);
-        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_accumulative, &u16ChannelProperties);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_channel_properties_type, &u16ChannelProperties);
+        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, body_length);
 
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_channel_error_type, &u16ChannelErrorType);
@@ -1344,11 +1407,14 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
         break;
+    /* XXX - dissect remaining user structures of [MaintenanceItem] and [AlarmItem]*/
+    case(0x8001):   /* DiagnosisData */
+    case(0x8003):   /* QualifiedChannelDiagnosisData */
+    case(0x8100):   /* MaintenanceItem */
     default:
-        /* XXX - dissect AlarmItem */
         body_length -= 22;
         sub_item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, body_length, "data", 
-            "Alarm Item Data: %u bytes", body_length);
+            "Data of UserStructureIdentifier(0x%x): %u bytes", u16UserStructureIdentifier, body_length);
         if(u16UserStructureIdentifier >= 0x8000) {
             expert_add_info_format(pinfo, sub_item, PI_UNDECODED, PI_WARN,
 			    "Unknown UserStructureIdentifier 0x%x", u16UserStructureIdentifier);
@@ -1626,10 +1692,11 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 /* dissect the PDPortDataCheck/PDPortDataAdjust blocks */
 static int
 dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
 {
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
+    tvbuff_t *tvb_new;
 
 
     proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
@@ -1644,7 +1711,13 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
 
     proto_item_append_text(item, ": Slot:0x%x/0x%x", u16SlotNr, u16SubslotNr);
 
-    dissect_blocks(tvb, offset, pinfo, tree, drep);
+    u16BodyLength -= 6;
+
+    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    offset += u16BodyLength;
+
+    /* XXX - do we have to free the tvb_new somehow? */
 
     return offset;
 }
@@ -2000,6 +2073,119 @@ dissect_AdjustPortState_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": PortState:%s, Properties:0x%x", 
         val_to_str(u16PortState, pn_io_port_state, "0x%x"),
         u16AdjustProperties);
+
+    return offset;
+}
+
+
+/* dissect the CheckPortState block */
+static int
+dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16PortState;
+
+
+    /* PortState */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_port_state, &u16PortState);
+
+    proto_item_append_text(item, ": %s", 
+        val_to_str(u16PortState, pn_io_port_state, "0x%x"));
+    return offset;
+}
+
+
+/* dissect the PDPortFODataAdjust block */
+static int
+dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint32 u32FiberOptic;
+    guint32 u32FiberOpticCable;
+
+
+    /* Padding */
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* FiberOptic */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_fiber_optic, &u32FiberOptic);
+
+    /* FiberOpticCable */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_fiber_optic_cable, &u32FiberOpticCable);
+
+/*
+    proto_item_append_text(item, ": %s", 
+        val_to_str(u16PortState, pn_io_port_state, "0x%x"));*/
+
+    return offset;
+}
+
+
+/* dissect the PDPortFODataCheck block */
+static int
+dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint32 u32FiberOpticPowerBudget;
+
+
+    /* Padding */
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MaintenanceRequiredPowerBudget */
+    /* XXX - decode the u32FiberOpticPowerBudget better */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maintenance_required_power_budget, &u32FiberOpticPowerBudget);
+
+    /* MaintenanceDemandedPowerBudget */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maintenance_demanded_power_budget, &u32FiberOpticPowerBudget);
+
+    /* ErrorPowerBudget */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_error_power_budget, &u32FiberOpticPowerBudget);
+
+/*
+    proto_item_append_text(item, ": %s", 
+        val_to_str(u16PortState, pn_io_port_state, "0x%x"));*/
+
+    return offset;
+}
+
+
+/* dissect the PDNCDataCheck block */
+static int
+dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint32 u32NCDropBudget;
+
+
+    /* Padding */
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MaintenanceRequiredDropBudget */
+    /* XXX - decode the u32NCDropBudget better */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maintenance_required_drop_budget, &u32NCDropBudget);
+
+    /* MaintenanceDemandedDropBudget */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maintenance_demanded_drop_budget, &u32NCDropBudget);
+
+    /* ErrorDropBudget */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_error_drop_budget, &u32NCDropBudget);
+
+/*
+    proto_item_append_text(item, ": %s", 
+        val_to_str(u16PortState, pn_io_port_state, "0x%x"));*/
 
     return offset;
 }
@@ -2948,7 +3134,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_MCRBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0110):
+    case(0x0111):
     case(0x0112):
+    case(0x0113):
     case(0x0114):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -2977,13 +3165,15 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_ModuleDiffBlock(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x8110):
+    case(0x8111):
     case(0x8112):
+    case(0x8113):
     case(0x8114):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0200):
     case(0x0202):
-        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0203):
         dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -3020,6 +3210,18 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x21B):
         dissect_AdjustPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x21C):
+        dissect_CheckPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x222):
+        dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x223):
+        dissect_PDPortFODataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x230):
+        dissect_PDNCDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     default:
     	header_item = proto_tree_add_string_format(sub_tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", "Undecoded Block Data: %d bytes", u16BodyLength);
@@ -3257,6 +3459,9 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x802d):   /* PDSyncData */
     case(0x802e):   /* PDSyncData */
     case(0x802f):   /* PDPortDataAdjust */
+    case(0x8061):   /* PDPortFODataCheck */
+    case(0x8062):   /* PDPortFODataAdjust */
+    case(0x8070):   /* PDNCDataCheck */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     default:
@@ -4019,6 +4224,24 @@ proto_register_pn_io (void)
     { &hf_pn_io_number_of_subslots,
       { "NumberOfSubslots", "pn_io.number_of_subslots", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+    { &hf_pn_io_maintenance_required_drop_budget,
+      { "MaintenanceRequiredDropBudget", "pn_io.maintenance_required_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_maintenance_demanded_drop_budget,
+      { "MaintenanceDemandedDropBudget", "pn_io.maintenance_demanded_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_error_drop_budget,
+      { "ErrorDropBudget", "pn_io.error_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_maintenance_required_power_budget,
+      { "MaintenanceRequiredPowerBudget", "pn_io.maintenance_required_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_maintenance_demanded_power_budget,
+      { "MaintenanceDemandedPowerBudget", "pn_io.maintenance_demanded_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_error_power_budget,
+      { "ErrorPowerBudget", "pn_io.error_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_fiber_optic,
+      { "FiberOptic", "pn_io.fiber_optic", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic), 0x0, "", HFILL }},
+    { &hf_pn_io_fiber_optic_cable,
+      { "FiberOpticCable", "pn_io.fiber_optic_cable", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable), 0x0, "", HFILL }},
     };
 
 	static gint *ett[] = {
