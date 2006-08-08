@@ -85,6 +85,8 @@ static gint hf_bfd_flags_c = -1;
 static gint hf_bfd_flags_a = -1;
 static gint hf_bfd_flags_d = -1;
 static gint hf_bfd_flags_d_v0 = -1;
+static gint hf_bfd_flags_p_v0 = -1;
+static gint hf_bfd_flags_f_v0 = -1;
 static gint hf_bfd_detect_time_multiplier = -1;
 static gint hf_bfd_my_discriminator = -1;
 static gint hf_bfd_your_discriminator = -1;
@@ -159,6 +161,8 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     gint bfd_flags_a = -1;
     gint bfd_flags_d = -1;
     gint bfd_flags_d_v0 = -1;
+    gint bfd_flags_p_v0 = -1;
+    gint bfd_flags_f_v0 = -1;
     gint bfd_detect_time_multiplier = -1;
     gint bfd_length = -1;
     gint bfd_my_discriminator = -1;
@@ -183,6 +187,8 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	bfd_flags = tvb_get_guint8(tvb, 1 );
         bfd_flags_h = (tvb_get_guint8(tvb, 1) & 0x80);
         bfd_flags_d_v0 = (tvb_get_guint8(tvb, 1) & 0x40);
+        bfd_flags_p_v0 = (tvb_get_guint8(tvb, 1) & 0x20);
+        bfd_flags_f_v0 = (tvb_get_guint8(tvb, 1) & 0x10);
 	break;
     case 1:
     default:
@@ -248,19 +254,21 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
 			               bfd_flags);
 	    bfd_flags_tree = proto_item_add_subtree(bfd_tree, ett_bfd_flags);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h, tvb, 8, 1, bfd_flags_h);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 8, 1, bfd_flags_d_v0);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h, tvb, 1, 1, bfd_flags_h);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 1, 1, bfd_flags_d_v0);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p_v0, tvb, 1, 1, bfd_flags_p_v0);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f_v0, tvb, 1, 1, bfd_flags_f_v0);
 	    break;
 	case 1:
 	default:
             ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
 			               bfd_flags);
 	    bfd_flags_tree = proto_item_add_subtree(bfd_tree, ett_bfd_flags);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p, tvb, 6, 1, bfd_flags_p);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f, tvb, 6, 1, bfd_flags_f);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_c, tvb, 6, 1, bfd_flags_c);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_a, tvb, 6, 1, bfd_flags_a);
-	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d, tvb, 6, 1, bfd_flags_d);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p, tvb, 1, 1, bfd_flags_p);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f, tvb, 1, 1, bfd_flags_f);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_c, tvb, 1, 1, bfd_flags_c);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_a, tvb, 1, 1, bfd_flags_a);
+	    ti =  proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d, tvb, 1, 1, bfd_flags_d);
 	    break;
 	}
 
@@ -331,6 +339,16 @@ void proto_register_bfd(void)
         { &hf_bfd_flags_d_v0,
           { "Demand", "bfd.flags.d",
             FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x40,
+            "", HFILL }
+        },
+        { &hf_bfd_flags_p_v0,
+          { "Poll", "bfd.flags.p",
+            FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x20,
+            "", HFILL }
+        },
+        { &hf_bfd_flags_f_v0,
+          { "Final", "bfd.flags.f",
+            FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
             "", HFILL }
         },
         { &hf_bfd_flags_p,
