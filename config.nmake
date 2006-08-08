@@ -156,7 +156,7 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 # set this pathname to the directory where the kfw package has been
 # extracted
 # to enable kerberos/sasl/dcerpc decryption support
-# KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 
 #
 # If you have the Nettle encryption library, set this to the pathname

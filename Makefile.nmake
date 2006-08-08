@@ -497,6 +497,10 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. net-snmp-5.3.1.zip
 !ENDIF
+!IFDEF KFW_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		kfw-2.5 kfw-2.5.zip
+!ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. WpdPack_3_1.zip
