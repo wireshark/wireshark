@@ -1,0 +1,28 @@
+# umts_rrc.cnf
+# umts_rrc conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.INCLUDE ../umts_rrc_ies/umts_rrc_ies-exp.cnf
+#.INCLUDE ../umts_rrc_pdu_def/umts_rrc_pdu_def-exp.cnf
+
+#.PDU
+DL-DCCH-Message
+
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+DL-DCCH-Message
+UL-DCCH-Message
+DL-CCCH-Message
+UL-CCCH-Message
+PCCH-Message
+DL-SHCCH-Message
+UL-SHCCH-Message
+BCCH-FACH-Message
+BCCH-BCH-Message
+MCCH-Message
+MSCH-Message
+
+#.FIELD_RENAME
+

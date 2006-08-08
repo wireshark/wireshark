@@ -50,6 +50,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rnsap.h"
+#include "packet-umts_rrc.h"
 /*#include "packet-umts_rrc.h"*/
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
@@ -2288,7 +2289,7 @@ static int hf_rnsap_privateIEid = -1;             /* PrivateIE_ID */
 static int hf_rnsap_privateIEvalue = -1;          /* PrivateIEvalue */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 561 "packet-rnsap-template.c"
+#line 562 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -3150,7 +3151,7 @@ static gint ett_rnsap_PrivateIE_Container = -1;
 static gint ett_rnsap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 570 "packet-rnsap-template.c"
+#line 571 "packet-rnsap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -10704,8 +10705,30 @@ static int dissect_id_HCS_Prio(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, prot
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+#line 84 "rnsap.cnf"
+
+	tvbuff_t *parameter_tvb;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+
+	switch (ProcedureCode){
+
+	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
+		actx->encoding =FALSE;
+		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0,  actx, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
+		actx->encoding =TRUE;
+		break;
+	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
+	default:
+		break;
+	}
+
+
 
   return offset;
 }
@@ -30284,7 +30307,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 593 "packet-rnsap-template.c"
+#line 594 "packet-rnsap-template.c"
 
 
 static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
@@ -38892,7 +38915,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2324 "packet-rnsap-template.c"
+#line 2325 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39755,7 +39778,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2334 "packet-rnsap-template.c"
+#line 2335 "packet-rnsap-template.c"
   };
 
 

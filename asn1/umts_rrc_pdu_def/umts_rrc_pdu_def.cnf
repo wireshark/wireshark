@@ -1,0 +1,91 @@
+# umts_rrc_pdu_def.cnf
+# umts_rrc_pdu_def conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.INCLUDE ../umts_rrc_ies/umts_rrc_ies-exp.cnf
+
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+	ActiveSetUpdate
+	ActiveSetUpdateComplete
+	ActiveSetUpdateFailure	
+	AssistanceDataDelivery
+	CellChangeOrderFromUTRAN
+	CellChangeOrderFromUTRANFailure
+	CellUpdate
+	CellUpdateConfirm-CCCH
+	CellUpdateConfirm
+	CounterCheck
+	CounterCheckResponse
+	DownlinkDirectTransfer
+	HandoverToUTRANComplete
+	InitialDirectTransfer
+	HandoverFromUTRANCommand-GERANIu
+	HandoverFromUTRANCommand-GSM
+	HandoverFromUTRANCommand-CDMA2000
+	HandoverFromUTRANFailure
+	MBMSAccessInformation
+	MBMSCommonPTMRBInformation
+	MBMSCurrentCellPTMRBInformation
+	MBMSGeneralInformation
+	MBMSModificationRequest
+	MBMSModifiedServicesInformation
+	MBMSNeighbouringCellPTMRBInformation
+	MBMSSchedulingInformation
+	MBMSUnmodifiedServicesInformation
+	MeasurementControl
+	MeasurementControlFailure
+	MeasurementReport
+	PagingType1
+	PagingType2
+	PhysicalChannelReconfiguration
+	PhysicalChannelReconfigurationComplete
+	PhysicalChannelReconfigurationFailure
+	PhysicalSharedChannelAllocation
+	PUSCHCapacityRequest
+	RadioBearerReconfiguration
+	RadioBearerReconfigurationComplete
+	RadioBearerReconfigurationFailure
+	RadioBearerRelease
+	RadioBearerReleaseComplete
+	RadioBearerReleaseFailure
+	RadioBearerSetup
+	RadioBearerSetupComplete
+	RadioBearerSetupFailure
+	RRCConnectionReject
+	RRCConnectionRelease
+	RRCConnectionRelease-CCCH
+	RRCConnectionReleaseComplete
+	RRCConnectionRequest
+	RRCConnectionSetup
+	RRCConnectionSetupComplete
+	RRCStatus
+	SecurityModeCommand
+	SecurityModeComplete
+	SecurityModeFailure
+	SignallingConnectionRelease
+	SignallingConnectionReleaseIndication
+	SystemInformation-BCH
+	SystemInformation-FACH
+	SystemInformationChangeIndication
+	TransportChannelReconfiguration
+	TransportChannelReconfigurationComplete
+	TransportChannelReconfigurationFailure
+	TransportFormatCombinationControl
+	TransportFormatCombinationControlFailure
+	UECapabilityEnquiry
+	UECapabilityInformation
+	UECapabilityInformationConfirm
+	UplinkDirectTransfer
+	UplinkPhysicalChannelControl
+	URAUpdate
+	URAUpdateConfirm
+	URAUpdateConfirm-CCCH
+	UTRANMobilityInformation
+	UTRANMobilityInformationConfirm
+	UTRANMobilityInformationFailure
+
+#.FIELD_RENAME
+

@@ -1,0 +1,1258 @@
+-- 11.5	RRC information between network nodes
+Internode-definitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+
+	HandoverToUTRANCommand,
+	MeasurementReport,
+	PhysicalChannelReconfiguration,
+	RadioBearerReconfiguration,
+	RadioBearerRelease,
+	RadioBearerSetup,
+	RRC-FailureInfo,
+	TransportChannelReconfiguration
+FROM PDU-definitions
+
+-- Core Network IEs :
+	CN-DomainIdentity,
+	CN-DomainInformationList,
+	CN-DomainInformationListFull,
+	CN-DRX-CycleLengthCoefficient,
+	NAS-SystemInformationGSM-MAP,
+-- UTRAN Mobility IEs :
+	CellIdentity,
+	URA-Identity,
+-- User Equipment IEs :
+	AccessStratumReleaseIndicator,
+	C-RNTI,
+	ChipRateCapability,
+	DL-CapabilityWithSimultaneousHS-DSCHConfig,
+	DL-PhysChCapabilityFDD-v380ext,
+	DL-PhysChCapabilityTDD,
+	DL-PhysChCapabilityTDD-LCR-r4,
+	GSM-Measurements,
+	GSMSecurityCapability-v6xyext,
+	HSDSCH-physical-layer-category,
+	FailureCauseWithProtErr,
+	MaxHcContextSpace,
+	MaximumAM-EntityNumberRLC-Cap,
+	MaximumRLC-WindowSize,
+	MaxNoPhysChBitsReceived,
+	MaxNoDPDCH-BitsTransmitted,
+	MaxPhysChPerFrame,
+	MaxPhysChPerSubFrame-r4,
+	MaxPhysChPerTS,
+	MaxROHC-ContextSessions-r4,
+	MaxTS-PerFrame,
+	MaxTS-PerSubFrame-r4,
+	MinimumSF-DL,
+	MultiModeCapability,
+	MultiRAT-Capability,
+	NetworkAssistedGPS-Supported,
+	PhysicalChannelCapability-edch-r6,
+	RadioFrequencyBandTDDList,
+	RLC-Capability,
+	RRC-MessageSequenceNumber,
+	SecurityCapability,
+	SimultaneousSCCPCH-DPCH-Reception,
+	STARTList,
+	STARTSingle,
+	START-Value,
+	SupportOfDedicatedPilotsForChEstimation,
+	TransportChannelCapability,
+	TxRxFrequencySeparation,
+	U-RNTI,
+	UE-CapabilityContainer-IEs,
+	UE-MultiModeRAT-Capability,
+	UE-PowerClassExt,
+	UE-RadioAccessCapabBandFDDList,
+	UE-RadioAccessCapabBandFDDList2,
+	UE-RadioAccessCapabBandFDDList-ext,
+	UE-RadioAccessCapability,
+	UE-RadioAccessCapability-v370ext,
+	UE-RadioAccessCapability-v380ext,
+	UE-RadioAccessCapability-v3a0ext,
+	UE-RadioAccessCapability-v3g0ext,
+	UE-RadioAccessCapability-v4b0ext,
+	UE-RadioAccessCapability-v590ext,
+	UE-RadioAccessCapability-v5c0ext,
+	UE-RadioAccessCapability-v650ext,
+	UL-PhysChCapabilityFDD,
+	UL-PhysChCapabilityFDD-r6,
+	UL-PhysChCapabilityTDD,
+	UL-PhysChCapabilityTDD-LCR-r4,
+-- Radio Bearer IEs :
+	PredefinedConfigStatusList,
+	PredefinedConfigValueTag,
+	RAB-InformationSetupList,
+	RAB-InformationSetupList-r4,
+	RAB-InformationSetupList-r5,
+	RAB-InformationSetupList-r6-ext,
+	RAB-InformationSetupList-r6,
+	RB-Identity,
+	SRB-InformationSetupList,
+	SRB-InformationSetupList-r5,
+	SRB-InformationSetupList-r6,
+-- Transport Channel IEs :
+	CPCH-SetID,
+	DL-CommonTransChInfo,
+	DL-CommonTransChInfo-r4,
+	DL-AddReconfTransChInfoList,
+	DL-AddReconfTransChInfoList-r4,
+	DL-AddReconfTransChInfoList-r5,
+	DRAC-StaticInformationList,
+	UL-CommonTransChInfo,
+	UL-CommonTransChInfo-r4,
+	UL-AddReconfTransChInfoList,
+	UL-AddReconfTransChInfoList-r6,
+-- Physical Channel IEs :
+	PrimaryCPICH-Info,
+	TPC-CombinationIndex,
+	ScramblingCodeChange,
+	TGCFN,
+	TGPSI,
+	TGPS-ConfigurationParams,
+-- Measurement IEs :
+	Inter-FreqEventCriteriaList-v590ext,
+	Intra-FreqEventCriteriaList-v590ext,
+	IntraFreqEvent-1d-r5,
+	IntraFreqReportingCriteria-1b-r5,
+	InterRATCellInfoIndication,
+	MeasurementIdentity,
+	MeasurementReportingMode,
+	MeasurementType,
+	MeasurementType-r4,
+	AdditionalMeasurementID-List,
+	PositionEstimate,
+-- MBMS IEs :
+	MBMS-JoinedInformation-r6,
+-- Other IEs :
+	GERANIu-RadioAccessCapability,
+	GSM-MS-RadioAccessCapability,
+	InterRAT-UE-RadioAccessCapabilityList,
+	InterRAT-UE-RadioAccessCapability-v590ext,
+	InterRAT-UE-RadioAccessCapability-v6xyext,
+	UESpecificBehaviourInformation1idle,
+	UESpecificBehaviourInformation1interRAT
+
+FROM InformationElements;
+
+--	maxCNdomains,
+--	maxNoOfMeas,
+
+--	maxRB,
+--	maxRBallRABs,
+--	maxRFC3095-CID,
+--	maxSRBsetup,
+--	maxRL,
+--	maxTGPS
+--FROM Constant-definitions
+--;
+
+maxCNdomains				INTEGER ::= 4
+maxNoOfMeas					INTEGER ::= 16
+maxRB						INTEGER ::= 32
+maxRBallRABs				INTEGER ::= 27
+maxRFC3095CID				INTEGER ::= 16384
+maxSRBsetup					INTEGER ::= 8
+maxRL						INTEGER ::= 8
+maxTGPS						INTEGER ::= 6
+
+-- Part 1: Class definitions similar to what has been defined in 11.1 for RRC messages
+-- Information that is tranferred in the same direction and across the same path is grouped
+
+-- ***************************************************
+--
+-- RRC information, to target RNC
+--
+-- ***************************************************
+-- RRC Information to target RNC sent either from source RNC or from another RAT
+
+ToTargetRNC-Container ::= CHOICE {
+	interRATHandoverInfo				InterRATHandoverInfoWithInterRATCapabilities-r3,
+	srncRelocation						SRNC-RelocationInfo-r3,
+	rfc3095-ContextInfo					RFC3095-ContextInfo-r5,
+	extension							NULL
+}
+
+-- ***************************************************
+--
+-- RRC information, target RNC to source RNC
+--
+-- ***************************************************
+
+
+TargetRNC-ToSourceRNC-Container ::= CHOICE {
+	radioBearerSetup					RadioBearerSetup,
+	radioBearerReconfiguration			RadioBearerReconfiguration,
+	radioBearerRelease					RadioBearerRelease,
+	transportChannelReconfiguration		TransportChannelReconfiguration,
+	physicalChannelReconfiguration		PhysicalChannelReconfiguration,
+	rrc-FailureInfo						RRC-FailureInfo,
+	-- IE dl-DCCHmessage consists of an octet string that includes the IE DL-DCCH-Message
+	dL-DCCHmessage						OCTET STRING,
+	extension							NULL
+}
+
+-- Part 2: Container definitions, similar to the PDU definitions in 11.2 for RRC messages
+-- In alphabetical order
+
+
+-- ***************************************************
+--
+-- Handover to UTRAN information
+--
+-- ***************************************************
+
+InterRATHandoverInfoWithInterRATCapabilities-r3 ::= CHOICE {
+	r3								SEQUENCE {
+		-- IE InterRATHandoverInfoWithInterRATCapabilities-r3-IEs also 
+		-- includes non critical extensions
+		interRATHandoverInfo-r3			InterRATHandoverInfoWithInterRATCapabilities-r3-IEs,
+		v390NonCriticalExtensions		SEQUENCE {
+			interRATHandoverInfoWithInterRATCapabilities-v390ext
+										InterRATHandoverInfoWithInterRATCapabilities-v390ext-IEs,
+			-- Reserved for future non critical extension
+			v6xyNonCriticalExtensions		SEQUENCE {
+				interRATHandoverInfoWithInterRATCapabilities-v6xyext
+										InterRATHandoverInfoWithInterRATCapabilities-v6xyext-IEs,
+				nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+			}		OPTIONAL
+		}		OPTIONAL
+	},
+	criticalExtensions				SEQUENCE {}
+}
+
+InterRATHandoverInfoWithInterRATCapabilities-r3-IEs ::=		SEQUENCE {
+		-- The order of the IEs may not reflect the tabular format
+		--  but has been chosen to simplify the handling of the information in the BSC
+	--	Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList	OPTIONAL,
+		-- interRATHandoverInfo, Octet string is used to obtain 8 bit length field prior to 
+		-- actual information.  This makes it possible for BSS to transparently handle information
+		-- received via GSM air interface even when it includes non critical extensions.
+		-- The octet string shall include the InterRATHandoverInfo information
+		-- The BSS can re-use the 04.18 length field received from the MS
+		interRATHandoverInfo			OCTET STRING (SIZE (0..255))
+}
+
+InterRATHandoverInfoWithInterRATCapabilities-v390ext-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		failureCauseWithProtErr				FailureCauseWithProtErr					OPTIONAL
+}
+
+InterRATHandoverInfoWithInterRATCapabilities-v6xyext-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		gsmSecurityCapability-v6xyext		GSMSecurityCapability-v6xyext				OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability-v6xyext	InterRAT-UE-RadioAccessCapability-v6xyext	OPTIONAL
+}
+
+-- ***************************************************
+--
+-- RFC3095 context, source RNC to target RNC
+--
+-- ***************************************************
+
+RFC3095-ContextInfo-r5 ::= CHOICE {
+	r5								SEQUENCE {
+		rFC3095-ContextInfoList-r5		RFC3095-ContextInfoList-r5,
+		-- Reserved for future non critical extension
+		nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+	},
+	criticalExtensions				SEQUENCE {}
+}
+
+RFC3095-ContextInfoList-r5 ::=		SEQUENCE (SIZE (1..maxRBallRABs)) OF
+										RFC3095-ContextInfo
+
+
+-- ***************************************************
+--
+-- SRNC Relocation information
+--
+-- ***************************************************
+
+SRNC-RelocationInfo-r3 ::= CHOICE {
+	r3								SEQUENCE {
+		sRNC-RelocationInfo-r3			SRNC-RelocationInfo-r3-IEs,
+		v380NonCriticalExtensions			SEQUENCE {
+			sRNC-RelocationInfo-v380ext	SRNC-RelocationInfo-v380ext-IEs,
+			-- Reserved for future non critical extension
+			v390NonCriticalExtensions			SEQUENCE {
+				sRNC-RelocationInfo-v390ext			SRNC-RelocationInfo-v390ext-IEs,
+				v3a0NonCriticalExtensions			SEQUENCE {
+					sRNC-RelocationInfo-v3a0ext			SRNC-RelocationInfo-v3a0ext-IEs,
+					v3b0NonCriticalExtensions			SEQUENCE {
+						sRNC-RelocationInfo-v3b0ext			SRNC-RelocationInfo-v3b0ext-IEs,
+						v3c0NonCriticalExtensions			SEQUENCE {
+							sRNC-RelocationInfo-v3c0ext			SRNC-RelocationInfo-v3c0ext-IEs,
+							laterNonCriticalExtensions			SEQUENCE {
+								sRNC-RelocationInfo-v3d0ext			SRNC-RelocationInfo-v3d0ext-IEs,
+								-- Container for additional R99 extensions
+--								sRNC-RelocationInfo-r3-add-ext		BIT STRING
+--												(CONTAINING	SRNC-RelocationInfo-v3h0ext-IEs)		OPTIONAL,
+								sRNC-RelocationInfo-r3-add-ext		BIT STRING						OPTIONAL,
+								v3g0NonCriticalExtensions			SEQUENCE {
+									sRNC-RelocationInfo-v3g0ext			SRNC-RelocationInfo-v3g0ext-IEs,
+									v4b0NonCriticalExtensions			SEQUENCE {
+										sRNC-RelocationInfo-v4b0ext			SRNC-RelocationInfo-v4b0ext-IEs,
+										v590NonCriticalExtensions			SEQUENCE {
+											sRNC-RelocationInfo-v590ext
+																			SRNC-RelocationInfo-v590ext-IEs,
+											v5a0NonCriticalExtensions			SEQUENCE {
+												sRNC-RelocationInfo-v5a0ext
+																			SRNC-RelocationInfo-v5a0ext-IEs,
+												v5b0NonCriticalExtensions			SEQUENCE {
+													sRNC-RelocationInfo-v5b0ext
+																			SRNC-RelocationInfo-v5b0ext-IEs,
+														v5c0NonCriticalExtensions			SEQUENCE {
+															sRNC-RelocationInfo-v5c0ext
+																				SRNC-RelocationInfo-v5c0ext-IEs,
+															v6xyNonCriticalExtensions		SEQUENCE {
+																sRNC-RelocationInfo-v6xyext
+																			SRNC-RelocationInfo-v6xyext-IEs,
+																-- Reserved for future non critical extension
+																nonCriticalExtensions	SEQUENCE {}	OPTIONAL
+															}		OPTIONAL
+														}		OPTIONAL
+												}		OPTIONAL
+											}		OPTIONAL
+										}		OPTIONAL
+									}		OPTIONAL
+								}		OPTIONAL
+							}		OPTIONAL
+						}		OPTIONAL
+					}		OPTIONAL
+				}		OPTIONAL
+			}		OPTIONAL
+		}		OPTIONAL
+	},
+	later-than-r3					CHOICE {
+		r4								SEQUENCE {
+			sRNC-RelocationInfo-r4			SRNC-RelocationInfo-r4-IEs,
+			v4d0NonCriticalExtensions		SEQUENCE {
+				sRNC-RelocationInfo-v4d0ext		SRNC-RelocationInfo-v4d0ext-IEs,
+				-- Container for adding non critical extensions after freezing REL-5
+--				sRNC-RelocationInfo-r4-add-ext		BIT STRING
+--								(CONTAINING SRNC-RelocationInfo-v650ext1-IEs)		OPTIONAL,
+				sRNC-RelocationInfo-r4-add-ext		BIT STRING						OPTIONAL,
+				v590NonCriticalExtensions			SEQUENCE {
+					sRNC-RelocationInfo-v590ext			SRNC-RelocationInfo-v590ext-IEs,
+					v5a0NonCriticalExtensions			SEQUENCE {
+						sRNC-RelocationInfo-v5a0ext			SRNC-RelocationInfo-v5a0ext-IEs,
+						v5b0NonCriticalExtensions			SEQUENCE {
+							sRNC-RelocationInfo-v5b0ext			SRNC-RelocationInfo-v5b0ext-IEs,
+							v5c0NonCriticalExtensions			SEQUENCE {
+								sRNC-RelocationInfo-v5c0ext			SRNC-RelocationInfo-v5c0ext-IEs,
+								v6xyNonCriticalExtensions			SEQUENCE {
+									sRNC-RelocationInfo-v6xyext			
+												SRNC-RelocationInfo-v6xyext-IEs,
+									nonCriticalExtensions				SEQUENCE {}	OPTIONAL
+								}	OPTIONAL
+							}	OPTIONAL
+						}	OPTIONAL
+					}	OPTIONAL
+				}	OPTIONAL
+			}	OPTIONAL
+		},
+		criticalExtensions				CHOICE {
+			r5								SEQUENCE {
+				sRNC-RelocationInfo-r5			SRNC-RelocationInfo-r5-IEs,
+				sRNC-RelocationInfo-r5-add-ext	BIT STRING		OPTIONAL,
+				v5a0NonCriticalExtensions		SEQUENCE {
+					sRNC-RelocationInfo-v5a0ext		SRNC-RelocationInfo-v5a0ext-IEs,
+					v5b0NonCriticalExtensions		SEQUENCE {
+						sRNC-RelocationInfo-v5b0ext		SRNC-RelocationInfo-v5b0ext-IEs,
+						v5c0NonCriticalExtensions			SEQUENCE {
+							sRNC-RelocationInfo-v5c0ext			SRNC-RelocationInfo-v5c0ext-IEs,
+							v650NonCriticalExtensions		SEQUENCE {
+								sRNC-RelocationInfo-v650ext2	SRNC-RelocationInfo-v650ext2-IEs,
+								v6xyNonCriticalExtensions		SEQUENCE {
+									sRNC-RelocationInfo-v6xyext		SRNC-RelocationInfo-v6xyext-IEs,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								}	OPTIONAL
+							}	OPTIONAL
+						}	OPTIONAL
+					}	OPTIONAL
+				}	OPTIONAL
+			},
+			criticalExtensions				CHOICE {
+				r6								SEQUENCE {
+					sRNC-RelocationInfo-r6			SRNC-RelocationInfo-r6-IEs,
+					sRNC-RelocationInfo-r6-add-ext	BIT STRING		OPTIONAL,
+					nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+				},
+				criticalExtensions					SEQUENCE {}
+			}
+		}
+	}
+}
+
+SRNC-RelocationInfo-r3-IEs ::=		SEQUENCE {
+	-- Non-RRC IEs
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+	-- If the extension v380 is included use the extension for the ciphering status per CN domain
+		cipheringStatus					CipheringStatus,
+		-- If ciphering status is started and the IE latestConfiguredCN-Domain should be included,
+		-- SRNC-RelocationInfo-r3-IEs can not be used. Since IE latestConfiguredCN-Domain is present 
+		-- in later-than-r3 branch, that should be used instead.
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		-- The order of occurrence in the IE cipheringInfoPerRB-List is the
+		-- same as the RBs in SRB-InformationSetupList in RAB-InformationSetupList.
+		-- The signalling RBs are supposed to be listed
+		-- first. Only UM and AM RBs that are ciphered are listed here
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List				OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		-- In the IE srb-SpecificIntegrityProtInfo, the first information listed corresponds to
+      -- signalling radio bearer RB0 and after the order of occurrence is the same as the SRBs in
+	 -- SRB-InformationSetupList
+		-- The target RNC may ignore the IE srb-SpecificIntegrityProtInfo if the
+		-- IE integrityProtectionStatus has the value "not started".
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		ue-RadioAccessCapability		UE-RadioAccessCapability,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationList			OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList					OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList,
+		rab-InformationList				RAB-InformationSetupList			OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList			OPTIONAL,
+		modeSpecificInfo				CHOICE {
+			fdd								SEQUENCE {
+				-- dummy and dummy2 are not used in this version of the specification, they should
+				-- not be sent and if received they should be ignored.
+				dummy							CPCH-SetID					OPTIONAL,
+				dummy2							DRAC-StaticInformationList	OPTIONAL
+			},
+			tdd								NULL
+		},
+		dl-CommonTransChInfo			DL-CommonTransChInfo				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList			OPTIONAL,
+	-- Measurement report
+		measurementReport				MeasurementReport					OPTIONAL
+}
+
+SRNC-RelocationInfo-v380ext-IEs ::= SEQUENCE {
+	-- Ciphering related information IEs
+		cn-DomainIdentity					CN-DomainIdentity,
+		cipheringStatusList					CipheringStatusList
+}
+
+SRNC-RelocationInfo-v390ext-IEs ::= SEQUENCE {
+		cn-DomainInformationList-v390ext	CN-DomainInformationList-v390ext		OPTIONAL,
+		ue-RadioAccessCapability-v370ext	UE-RadioAccessCapability-v370ext		OPTIONAL,
+		ue-RadioAccessCapability-v380ext	UE-RadioAccessCapability-v380ext		OPTIONAL,
+		dl-PhysChCapabilityFDD-v380ext		DL-PhysChCapabilityFDD-v380ext,
+		failureCauseWithProtErr				FailureCauseWithProtErr					OPTIONAL
+}
+
+SRNC-RelocationInfo-v3a0ext-IEs ::= SEQUENCE {
+		cipheringInfoForSRB1-v3a0ext		CipheringInfoPerRB-List-v3a0ext,
+		ue-RadioAccessCapability-v3a0ext	UE-RadioAccessCapability-v3a0ext		OPTIONAL,
+		-- cn-domain identity for IE startValueForCiphering-v3a0ext is specified
+		-- in subsequent extension (SRNC-RelocationInfo-v3b0ext-IEs)
+		startValueForCiphering-v3a0ext		START-Value
+}
+
+SRNC-RelocationInfo-v3b0ext-IEs ::= SEQUENCE {
+		-- cn-domain identity for IE startValueForCiphering-v3a0ext included in previous extension
+		cn-DomainIdentity				CN-DomainIdentity,
+		-- the IE startValueForCiphering-v3b0ext contains the start values for each CN Domain. The 
+		-- value of start indicated by the IE startValueForCiphering-v3a0ext should be set to the
+		-- same value as the start-Value for the corresponding cn-DomainIdentity in the IE 
+		-- startValueForCiphering-v3b0ext
+		startValueForCiphering-v3b0ext		STARTList2								OPTIONAL
+}
+
+SRNC-RelocationInfo-v3c0ext-IEs ::= SEQUENCE {
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE “TargetRNC-ToSourceRNC-Container”.
+		-- Only included if type is “UE involved”
+		rb-IdentityForHOMessage				RB-Identity  		OPTIONAL
+}
+
+SRNC-RelocationInfo-v3d0ext-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		uESpecificBehaviourInformation1idle		UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT		UESpecificBehaviourInformation1interRAT		OPTIONAL
+}
+
+SRNC-RelocationInfo-v3g0ext-IEs ::= SEQUENCE {
+		ue-RadioAccessCapability-v3g0ext	UE-RadioAccessCapability-v3g0ext		OPTIONAL
+}
+
+SRNC-RelocationInfo-v3h0ext-IEs ::= SEQUENCE {
+		tpc-CombinationInfoList			TPC-CombinationInfoList		OPTIONAL,
+		v650NonCriticalExtensions		SEQUENCE {
+			ue-RadioAccessCapability-v650ext	UE-RadioAccessCapability-v650ext	OPTIONAL,
+			nonCriticalExtension				SEQUENCE {}							OPTIONAL
+	}	OPTIONAL
+}
+
+SRNC-RelocationInfo-v4d0ext-IEs ::= SEQUENCE {
+		tpc-CombinationInfoList		TPC-CombinationInfoList		OPTIONAL
+}
+
+TPC-CombinationInfoList ::= SEQUENCE (SIZE (1..maxRL)) OF
+		TPC-Combination-Info
+
+STARTList2 ::=						SEQUENCE (SIZE (2..maxCNdomains)) OF
+										STARTSingle
+
+SRNC-RelocationInfo-v4b0ext-IEs ::= SEQUENCE {
+		ue-RadioAccessCapability-v4b0ext	UE-RadioAccessCapability-v4b0ext		OPTIONAL
+}
+
+SRNC-RelocationInfo-v590ext-IEs ::= SEQUENCE {
+		ue-RadioAccessCapability-v590ext	UE-RadioAccessCapability-v590ext		OPTIONAL,
+		ue-RATSpecificCapability-v590ext	InterRAT-UE-RadioAccessCapability-v590ext	OPTIONAL
+}
+
+SRNC-RelocationInfo-v5a0ext-IEs ::= SEQUENCE {
+		storedCompressedModeInfo		StoredCompressedModeInfo	OPTIONAL
+}
+
+SRNC-RelocationInfo-v5b0ext-IEs ::= SEQUENCE {
+	interRATCellInfoIndication			InterRATCellInfoIndication			OPTIONAL
+}
+
+SRNC-RelocationInfo-v5c0ext-IEs ::= SEQUENCE {
+		ue-RadioAccessCapability-v5c0ext	UE-RadioAccessCapability-v5c0ext		OPTIONAL
+}
+
+SRNC-RelocationInfo-v650ext1-IEs ::= SEQUENCE {
+	ue-RadioAccessCapability-v650ext	UE-RadioAccessCapability-v650ext	OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}		OPTIONAL
+}
+
+SRNC-RelocationInfo-v650ext2-IEs ::= SEQUENCE {
+		ue-RadioAccessCapability-v650ext		UE-RadioAccessCapability-v650ext
+}
+
+CipheringInfoPerRB-List-v3a0ext ::= SEQUENCE {
+		dl-UM-SN						BIT STRING (SIZE (7))
+}
+
+CipheringStatusList ::=			SEQUENCE (SIZE (1..maxCNdomains)) OF
+										CipheringStatusCNdomain
+
+CipheringStatusCNdomain ::=				SEQUENCE {
+		cn-DomainIdentity				CN-DomainIdentity,
+		cipheringStatus					CipheringStatus
+}
+
+CodeChangeStatusList ::= SEQUENCE (SIZE (1..maxRL)) OF
+		CodeChangeStatus
+
+CodeChangeStatus ::= SEQUENCE {
+		primaryCPICH-Info					PrimaryCPICH-Info,
+		scramblingCodeChange				ScramblingCodeChange
+}
+
+StoredCompressedModeInfo ::= SEQUENCE {
+		storedTGP-SequenceList		StoredTGP-SequenceList,
+		codeChangeStatusList		CodeChangeStatusList	OPTIONAL
+}
+
+StoredTGP-SequenceList ::=			SEQUENCE (SIZE (1..maxTGPS)) OF
+										StoredTGP-Sequence
+
+StoredTGP-Sequence ::=				SEQUENCE {
+	tgpsi								TGPSI,
+	current-tgps-Status					CHOICE {
+		active								SEQUENCE {
+			tgcfn								TGCFN
+		},
+		inactive							NULL
+	},
+	tgps-ConfigurationParams			TGPS-ConfigurationParams			OPTIONAL
+}
+
+SRNC-RelocationInfo-r4-IEs ::=			SEQUENCE {
+	-- Non-RRC IEs
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE “TargetRNC-ToSourceRNC-Container”.
+		-- Only included if type is “UE involved”
+		rb-IdentityForHOMessage			RB-Identity							OPTIONAL,
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+		cipheringStatusList				CipheringStatusList-r4,
+		latestConfiguredCN-Domain		CN-DomainIdentity,
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List-r4			OPTIONAL,
+	-- Integrity protection related information IEs
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		-- The target RNC may ignore the IE srb-SpecificIntegrityProtInfo if the
+		-- IE integrityProtectionStatus has the value "not started".
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		ue-RadioAccessCapability		UE-RadioAccessCapability-r4,
+		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList		OPTIONAL,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+		uESpecificBehaviourInformation1idle		UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT		UESpecificBehaviourInformation1interRAT		OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList-r4				OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList,
+		rab-InformationList				RAB-InformationSetupList-r4			OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList			OPTIONAL,
+		-- 'dummy', 'dummy1' and 'dummy2' are not used in this version of the specification,
+		-- they should not be sent and if received they should be ignored.
+		dummy							CHOICE {
+			fdd								SEQUENCE {
+				dummy1							CPCH-SetID					OPTIONAL,
+				dummy2							DRAC-StaticInformationList	OPTIONAL
+			},
+			tdd								NULL
+		}																	OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList-r4		OPTIONAL,
+	-- Measurement report
+		measurementReport				MeasurementReport					OPTIONAL,
+		failureCause					FailureCauseWithProtErr				OPTIONAL
+}
+
+SRNC-RelocationInfo-r5-IEs ::=			SEQUENCE {
+	-- Non-RRC IEs
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE “TargetRNC-ToSourceRNC-Container”.
+		-- Only included if type is "UE involved"
+		rb-IdentityForHOMessage			RB-Identity							OPTIONAL,
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+		cipheringStatusList				CipheringStatusList-r4,
+		latestConfiguredCN-Domain		CN-DomainIdentity,
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List-r4			OPTIONAL,
+	-- Integrity protection related information IEs
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList	OPTIONAL,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		ue-RadioAccessCapability		UE-RadioAccessCapability-r5,
+		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList		OPTIONAL,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+		uESpecificBehaviourInformation1idle
+										UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT
+										UESpecificBehaviourInformation1interRAT		OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList-r5	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList-r5				OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList-r5,
+		rab-InformationList				RAB-InformationSetupList-r5			OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList			OPTIONAL,
+		-- 'dummy', 'dummy1' and 'dummy2' are not used in this version of the specification,
+		-- they should not be sent and if received they should be ignored.
+		dummy							CHOICE {
+			fdd								SEQUENCE {
+				dummy1							CPCH-SetID					OPTIONAL,
+				dummy2							DRAC-StaticInformationList	OPTIONAL
+			},
+			tdd								NULL
+		}																	OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList-r5		OPTIONAL,
+	-- PhyCH IEs
+		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
+	-- Measurement report
+		measurementReport				MeasurementReport					OPTIONAL,
+	-- Other IEs
+		failureCause					FailureCauseWithProtErr				OPTIONAL
+}
+
+SRNC-RelocationInfo-v6xyext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		-- IE ueCapabilityContainer is used for the transparent transfer of capability information
+		-- received from the UE
+--		ueCapabilityContainer			BIT STRING
+--											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
+		ueCapabilityContainer			BIT STRING									OPTIONAL,
+
+	-- Radio bearer IEs
+		rab-InformationSetupList		RAB-InformationSetupList-r6-ext		OPTIONAL,
+	-- MBMS IEs
+		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL
+}
+
+SRNC-RelocationInfo-r6-IEs ::=			SEQUENCE {
+	-- Non-RRC IEs
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE “TargetRNC-ToSourceRNC-Container”.
+		-- Only included if type is "UE involved"
+		rb-IdentityForHOMessage			RB-Identity							OPTIONAL,
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+		cipheringStatusList				CipheringStatusList-r4,
+		latestConfiguredCN-Domain		CN-DomainIdentity,
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List-r4			OPTIONAL,
+	-- Integrity protection related information IEs
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList	OPTIONAL,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		ue-RadioAccessCapability		UE-RadioAccessCapability-r6,
+		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList-r6	OPTIONAL,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+		uESpecificBehaviourInformation1idle
+										UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT
+										UESpecificBehaviourInformation1interRAT		OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList-r6	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList-r5				OPTIONAL,
+		interRATCellInfoIndication		InterRATCellInfoIndication			OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList-r6,
+		rab-InformationList				RAB-InformationSetupList-r6			OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList-r6		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList-r5		OPTIONAL,
+	-- PhyCH IEs
+		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
+		storedCompressedModeInfo		StoredCompressedModeInfo			OPTIONAL,
+	-- Measurement report
+		measurementReport				MeasurementReport					OPTIONAL,
+	-- Other IEs
+		failureCause					FailureCauseWithProtErr				OPTIONAL,
+	-- MBMS IEs
+		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL
+}
+
+-- IE definitions
+
+CalculationTimeForCiphering ::=		SEQUENCE {
+	cell-Id								CellIdentity,
+	sfn									INTEGER (0..4095)
+}
+
+CipheringInfoPerRB ::=				SEQUENCE {
+	dl-HFN								BIT STRING (SIZE (20..25)),
+	ul-HFN								BIT STRING (SIZE (20..25))
+}
+
+CipheringInfoPerRB-r4 ::=			SEQUENCE {
+	rb-Identity							RB-Identity,
+	dl-HFN								BIT STRING (SIZE (20..25)),
+	dl-UM-SN							BIT STRING (SIZE (7)) 				OPTIONAL,
+	ul-HFN								BIT STRING (SIZE (20..25))
+}
+
+-- TABULAR: CipheringInfoPerRB-List, multiplicity value numberOfRadioBearers 
+-- has been replaced with maxRB.
+CipheringInfoPerRB-List ::=			SEQUENCE (SIZE (1..maxRB)) OF
+										CipheringInfoPerRB
+
+CipheringInfoPerRB-List-r4 ::=		SEQUENCE (SIZE (1..maxRB)) OF
+										CipheringInfoPerRB-r4
+
+
+CipheringStatus ::=					ENUMERATED {
+										started, notStarted }
+
+CipheringStatusList-r4 ::=			SEQUENCE (SIZE (1..maxCNdomains)) OF
+										CipheringStatusCNdomain-r4
+
+CipheringStatusCNdomain-r4 ::=		SEQUENCE {
+		cn-DomainIdentity				CN-DomainIdentity,
+		cipheringStatus					CipheringStatus,
+		start-Value						START-Value
+}
+
+CN-DomainInformation-v390ext ::=		SEQUENCE {
+	cn-DRX-CycleLengthCoeff				CN-DRX-CycleLengthCoefficient
+}
+
+CN-DomainInformationList-v390ext ::=	SEQUENCE (SIZE (1..maxCNdomains)) OF
+										CN-DomainInformation-v390ext
+
+CompressedModeMeasCapability-r4 ::=	SEQUENCE {
+	fdd-Measurements					BOOLEAN,
+	-- TABULAR: The IEs tdd-Measurements, gsm-Measurements and multiCarrierMeasurements
+	-- are made optional since they are conditional based on another information element.
+	-- Their absence corresponds to the case where the condition is not true.
+	tdd384-Measurements					BOOLEAN								OPTIONAL,
+	tdd128-Measurements					BOOLEAN								OPTIONAL,
+	gsm-Measurements					GSM-Measurements					OPTIONAL,
+	multiCarrierMeasurements			BOOLEAN								OPTIONAL
+}
+
+COUNT-C-List ::=						SEQUENCE (SIZE (1..maxCNdomains)) OF
+										COUNT-CSingle
+
+COUNT-CSingle ::=						SEQUENCE {
+	cn-DomainIdentity					CN-DomainIdentity,
+	count-C								BIT STRING (SIZE (32))			
+}
+
+DL-PhysChCapabilityFDD-r4 ::=		SEQUENCE {
+	-- The IE “maxNoDPCH-PDSCH-Codes” only gives information on the maximum number of DPCH Codes.
+	maxNoDPCH-PDSCH-Codes				INTEGER (1..8),
+	maxNoPhysChBitsReceived				MaxNoPhysChBitsReceived,
+	supportForSF-512					BOOLEAN,
+	-- dummy, dummy2 and dummy3 are not used in this version of the specification,
+	-- they should not be sent and if received they should be ignored.
+	dummy								BOOLEAN,
+	dummy2								SimultaneousSCCPCH-DPCH-Reception,
+	dummy3								SupportOfDedicatedPilotsForChEstimation		OPTIONAL
+}
+
+DL-PhysChCapabilityFDD-r5 ::=		SEQUENCE {
+	-- The IE “maxNoDPCH-PDSCH-Codes” only gives information on the maximum number of DPCH Codes.
+	maxNoDPCH-PDSCH-Codes				INTEGER (1..8),
+	maxNoPhysChBitsReceived				MaxNoPhysChBitsReceived,
+	supportForSF-512					BOOLEAN,
+	-- dummy, dumy2 and dummy3 are not used in this version of the specification,
+	-- they should not be sent and if received they should be ignored.
+	dummy								BOOLEAN,
+	dummy2								SimultaneousSCCPCH-DPCH-Reception,
+	dummy3								SupportOfDedicatedPilotsForChEstimation		OPTIONAL,
+	fdd-hspdsch							CHOICE {
+		supported							SEQUENCE {
+			hsdsch-physical-layer-category		HSDSCH-physical-layer-category,
+			-- dummy and dummy2 are not used in this version of the specification
+			-- they should not be sent and if received they should be ignored.
+			dummy								BOOLEAN,
+			dummy2								BOOLEAN
+		},
+		unsupported							NULL
+	}
+}
+
+DL-PhysChCapabilityTDD-r5 ::=		SEQUENCE {
+	maxTS-PerFrame						MaxTS-PerFrame,
+	maxPhysChPerFrame					MaxPhysChPerFrame,
+	minimumSF							MinimumSF-DL,
+	supportOfPDSCH						BOOLEAN,
+	maxPhysChPerTS						MaxPhysChPerTS,
+	tdd384-hspdsch						CHOICE {
+		supported							HSDSCH-physical-layer-category,
+		unsupported							NULL
+	}
+}
+
+DL-PhysChCapabilityTDD-LCR-r5 ::=	SEQUENCE {
+	maxTS-PerSubFrame					MaxTS-PerSubFrame-r4,
+	maxPhysChPerFrame					MaxPhysChPerSubFrame-r4,
+	minimumSF							MinimumSF-DL,
+	supportOfPDSCH						BOOLEAN,
+	maxPhysChPerTS						MaxPhysChPerTS,
+	supportOf8PSK						BOOLEAN,
+	tdd128-hspdsch						CHOICE {
+		supported							HSDSCH-physical-layer-category,
+		unsupported							NULL
+	}
+}
+
+DL-RFC3095-Context ::=				SEQUENCE {
+	rfc3095-Context-Identity			INTEGER (0..16383),
+	dl-mode								ENUMERATED {u, o, r},
+	dl-ref-ir							OCTET STRING ( SIZE (1..3000)),
+	dl-ref-time							INTEGER (0..4294967295)		OPTIONAL,
+	dl-curr-time						INTEGER (0..4294967295)		OPTIONAL,
+	dl-syn-offset-id					INTEGER (0..65535)			OPTIONAL,
+	dl-syn-slope-ts						INTEGER (0..4294967295)		OPTIONAL,
+	dl-dyn-changed						BOOLEAN
+}
+
+ImplementationSpecificParams ::=	BIT STRING (SIZE (1..512))
+
+
+IntegrityProtectionStatus ::=		ENUMERATED {
+										started, notStarted }
+
+InterRAT-UE-RadioAccessCapabilityList-r5 ::=	SEQUENCE {
+	interRAT-UE-RadioAccessCapability	InterRAT-UE-RadioAccessCapabilityList,
+	geranIu-RadioAccessCapability		GERANIu-RadioAccessCapability				OPTIONAL
+}
+
+InterRAT-UE-RadioAccessCapabilityList-r6 ::=	SEQUENCE {
+	interRAT-UE-RadioAccessCapability	InterRAT-UE-RadioAccessCapabilityList,
+	geranIu-RadioAccessCapability		GERANIu-RadioAccessCapability				OPTIONAL,
+	gsm-MS-RadioAccessCapability		GSM-MS-RadioAccessCapability				OPTIONAL
+}
+
+-- dummy is not used in this version of the specification, it should
+-- not be sent and if received it should be ignored.
+MaxHcContextSpace-r5 ::=				ENUMERATED { 
+											dummy, by1024, by2048, by4096, by8192, 
+											by16384, by32768, by65536, by131072 }
+
+MeasurementCapability-r4 ::=		SEQUENCE {
+	downlinkCompressedMode				CompressedModeMeasCapability-r4,
+	uplinkCompressedMode				CompressedModeMeasCapability-r4	
+}
+
+MeasurementCommandWithType ::=		CHOICE {
+	setup								MeasurementType,
+	modify								NULL,
+	release								NULL
+}
+
+MeasurementCommandWithType-r4 ::=	CHOICE {
+	setup								MeasurementType-r4,
+	modify								NULL,
+	release								NULL
+}
+
+OngoingMeasRep ::=					SEQUENCE {
+	measurementIdentity					MeasurementIdentity,
+	-- TABULAR: The CHOICE Measurement in the tabular description is included
+	-- in MeasurementCommandWithType
+	measurementCommandWithType			MeasurementCommandWithType,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
+}
+
+OngoingMeasRep-r4 ::=				SEQUENCE {
+	measurementIdentity					MeasurementIdentity,
+	-- TABULAR: The CHOICE Measurement in the tabular description is included
+	-- in MeasurementCommandWithType-r4.
+	measurementCommandWithType			MeasurementCommandWithType-r4,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
+}
+
+OngoingMeasRep-r5 ::=				SEQUENCE {
+	measurementIdentity					MeasurementIdentity,
+	-- TABULAR: The CHOICE Measurement in the tabular description is included
+	-- in MeasurementCommandWithType-r4.
+	measurementCommandWithType			MeasurementCommandWithType-r4,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL,
+	measurementCommand-v590ext			CHOICE {
+		-- the choice "intra-frequency" shall be used for the case of intra-frequency measurement,
+		-- as well as when intra-frequency events are configured for inter-frequency measurement
+		intra-frequency						Intra-FreqEventCriteriaList-v590ext,
+		inter-frequency						Inter-FreqEventCriteriaList-v590ext
+	}		OPTIONAL,
+	intraFreqReportingCriteria-1b-r5		IntraFreqReportingCriteria-1b-r5	OPTIONAL,
+	intraFreqEvent-1d-r5					IntraFreqEvent-1d-r5				OPTIONAL
+}
+
+OngoingMeasRepList ::=				SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep
+
+OngoingMeasRepList-r4 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-r4
+
+OngoingMeasRepList-r5 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-r5
+
+PDCP-Capability-r4 ::=				SEQUENCE {
+	losslessSRNS-RelocationSupport		BOOLEAN,
+	supportForRfc2507					CHOICE {
+		notSupported						NULL,
+		supported							MaxHcContextSpace
+	},
+	supportForRfc3095					CHOICE {
+		notSupported						NULL,
+		supported							SEQUENCE {
+			maxROHC-ContextSessions				MaxROHC-ContextSessions-r4	DEFAULT s16,
+			reverseCompressionDepth				INTEGER (0..65535)			DEFAULT 0
+		}
+	}
+}
+
+PDCP-Capability-r5 ::=				SEQUENCE {
+	losslessSRNS-RelocationSupport		BOOLEAN,
+	supportForRfc2507					CHOICE {
+		notSupported						NULL,
+		supported							MaxHcContextSpace-r5
+	},
+	supportForRfc3095					CHOICE {
+		notSupported						NULL,
+		supported							SEQUENCE {
+			maxROHC-ContextSessions				MaxROHC-ContextSessions-r4	DEFAULT s16,
+			reverseCompressionDepth				INTEGER (0..65535)			DEFAULT 0,
+			supportForRfc3095ContextRelocation	BOOLEAN
+		}
+	}
+}
+
+PDCP-Capability-r6 ::=				SEQUENCE {
+	losslessSRNS-RelocationSupport		BOOLEAN,
+	losslessDLRLC-PDUSizeChange			ENUMERATED { true }					OPTIONAL,
+	supportForRfc2507					CHOICE {
+		notSupported						NULL,
+		supported							MaxHcContextSpace-r5
+	},
+	supportForRfc3095					CHOICE {
+		notSupported						NULL,
+		supported							SEQUENCE {
+			maxROHC-ContextSessions				MaxROHC-ContextSessions-r4	DEFAULT s16,
+			reverseCompressionDepth				INTEGER (0..65535)			DEFAULT 0,
+			supportForRfc3095ContextRelocation	BOOLEAN
+		}
+	}
+}
+
+PhysicalChannelCapability-r4 ::=		SEQUENCE {
+		fddPhysChCapability					SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityFDD-r4,
+			uplinkPhysChCapability				UL-PhysChCapabilityFDD
+		}											OPTIONAL,
+		tdd384-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD
+		}											OPTIONAL,
+		tdd128-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD-LCR-r4,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD-LCR-r4
+		}											OPTIONAL
+}
+
+PhysicalChannelCapability-r5 ::=		SEQUENCE {
+		fddPhysChCapability					SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityFDD-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityFDD
+		}											OPTIONAL,
+		tdd384-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD
+		}											OPTIONAL,
+		tdd128-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD-LCR-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD-LCR-r4
+		}											OPTIONAL
+}
+
+PhysicalChannelCapability-r6 ::=		SEQUENCE {
+		fddPhysChCapability					SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityFDD-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityFDD-r6
+		}											OPTIONAL,
+		tdd384-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD
+		}											OPTIONAL,
+		tdd128-PhysChCapability				SEQUENCE {
+			downlinkPhysChCapability			DL-PhysChCapabilityTDD-LCR-r5,
+			uplinkPhysChCapability				UL-PhysChCapabilityTDD-LCR-r4
+		}											OPTIONAL
+}
+
+RF-Capability-r4 ::=				SEQUENCE {
+		fddRF-Capability				SEQUENCE {
+			ue-PowerClass					UE-PowerClassExt,
+			txRxFrequencySeparation			TxRxFrequencySeparation
+		}																OPTIONAL,
+		tdd384-RF-Capability			SEQUENCE {
+			ue-PowerClass					UE-PowerClassExt,
+			radioFrequencyBandTDDList		RadioFrequencyBandTDDList,
+			chipRateCapability				ChipRateCapability
+		}																OPTIONAL,
+		tdd128-RF-Capability			SEQUENCE {
+			ue-PowerClass					UE-PowerClassExt,
+			radioFrequencyBandTDDList		RadioFrequencyBandTDDList,
+			chipRateCapability				ChipRateCapability
+		}																OPTIONAL
+}
+
+RFC3095-ContextInfo ::= 			SEQUENCE {
+	rb-Identity							RB-Identity,
+	rfc3095-Context-List				RFC3095-Context-List
+}
+
+RFC3095-Context-List ::=			SEQUENCE (SIZE (1..maxRFC3095CID)) OF SEQUENCE {
+	dl-RFC3095-Context					DL-RFC3095-Context		OPTIONAL,
+	ul-RFC3095-Context					UL-RFC3095-Context		OPTIONAL
+}
+
+RLC-Capability-r5 ::=				SEQUENCE {
+	totalRLC-AM-BufferSize				TotalRLC-AM-BufferSize-r5,
+	maximumRLC-WindowSize				MaximumRLC-WindowSize,
+	maximumAM-EntityNumber				MaximumAM-EntityNumberRLC-Cap
+}
+
+
+SRB-SpecificIntegrityProtInfo ::=	SEQUENCE {
+	ul-RRC-HFN							BIT STRING (SIZE (28)),
+	dl-RRC-HFN							BIT STRING (SIZE (28)),
+	ul-RRC-SequenceNumber				RRC-MessageSequenceNumber,
+	dl-RRC-SequenceNumber				RRC-MessageSequenceNumber
+}
+
+SRB-SpecificIntegrityProtInfoList ::= SEQUENCE (SIZE (4..maxSRBsetup)) OF
+										SRB-SpecificIntegrityProtInfo
+
+StateOfRRC ::=						ENUMERATED {
+										cell-DCH, cell-FACH,
+										cell-PCH, ura-PCH }
+
+StateOfRRC-Procedure ::=			ENUMERATED {
+										awaitNoRRC-Message,
+										awaitRB-ReleaseComplete,
+										awaitRB-SetupComplete,
+										awaitRB-ReconfigurationComplete,
+										awaitTransportCH-ReconfigurationComplete,
+										awaitPhysicalCH-ReconfigurationComplete,
+										awaitActiveSetUpdateComplete,
+										awaitHandoverComplete,
+										sendCellUpdateConfirm,
+										sendUraUpdateConfirm,
+										-- dummy is not used in this version of specification
+										-- It should not be sent
+										dummy,
+										otherStates 
+}
+
+TotalRLC-AM-BufferSize-r5 ::=		ENUMERATED { 
+										kb10, kb50, kb100, kb150, kb200, 
+										kb300, kb400, kb500, kb750, kb1000 }
+
+TPC-Combination-Info ::= SEQUENCE {
+		primaryCPICH-Info					PrimaryCPICH-Info,
+		tpc-CombinationIndex				TPC-CombinationIndex
+}
+
+UE-MultiModeRAT-Capability-r5 ::=	SEQUENCE {
+	multiRAT-CapabilityList				MultiRAT-Capability,
+	multiModeCapability					MultiModeCapability,
+	supportOfUTRAN-ToGERAN-NACC			BOOLEAN
+}
+
+UE-Positioning-Capability-r4 ::=	SEQUENCE {
+	standaloneLocMethodsSupported			BOOLEAN,
+	ue-BasedOTDOA-Supported					BOOLEAN,
+	networkAssistedGPS-Supported			NetworkAssistedGPS-Supported,
+	supportForUE-GPS-TimingOfCellFrames		BOOLEAN,
+	supportForIPDL							BOOLEAN,
+	rx-tx-TimeDifferenceType2Capable 		BOOLEAN,
+	validity-CellPCH-UraPCH 				ENUMERATED { true }		OPTIONAL,
+	sfn-sfnType2Capability					ENUMERATED { true }			OPTIONAL
+}
+
+UE-Positioning-LastKnownPos ::=		SEQUENCE { 
+		sfn								INTEGER (0..4095),
+		cell-id							CellIdentity,
+		positionEstimate				PositionEstimate
+}
+
+UE-RadioAccessCapability-r4 ::=		SEQUENCE {
+	accessStratumReleaseIndicator		AccessStratumReleaseIndicator,
+	pdcp-Capability						PDCP-Capability-r4,
+	rlc-Capability						RLC-Capability,
+	transportChannelCapability			TransportChannelCapability,
+	rf-Capability						RF-Capability-r4,
+	physicalChannelCapability			PhysicalChannelCapability-r4,
+	ue-MultiModeRAT-Capability			UE-MultiModeRAT-Capability,
+	securityCapability					SecurityCapability,
+	ue-positioning-Capability			UE-Positioning-Capability-r4,
+	measurementCapability				MeasurementCapability-r4		OPTIONAL
+}
+
+UE-RadioAccessCapability-r5 ::=		SEQUENCE {
+	accessStratumReleaseIndicator		AccessStratumReleaseIndicator,
+	dl-CapabilityWithSimultaneousHS-DSCHConfig
+										DL-CapabilityWithSimultaneousHS-DSCHConfig	OPTIONAL,
+	pdcp-Capability						PDCP-Capability-r5,
+	rlc-Capability						RLC-Capability-r5,
+	transportChannelCapability			TransportChannelCapability,
+	rf-Capability						RF-Capability-r4,
+	physicalChannelCapability			PhysicalChannelCapability-r5,
+	ue-MultiModeRAT-Capability			UE-MultiModeRAT-Capability-r5,
+	securityCapability					SecurityCapability,
+	ue-positioning-Capability			UE-Positioning-Capability-r4,
+	measurementCapability				MeasurementCapability-r4		OPTIONAL
+}
+
+UE-RadioAccessCapability-r6 ::=		SEQUENCE {
+	accessStratumReleaseIndicator		AccessStratumReleaseIndicator,
+	dl-CapabilityWithSimultaneousHS-DSCHConfig
+										DL-CapabilityWithSimultaneousHS-DSCHConfig	OPTIONAL,
+	pdcp-Capability						PDCP-Capability-r6,
+	rlc-Capability						RLC-Capability-r5,
+	transportChannelCapability			TransportChannelCapability,
+	rf-Capability						RF-Capability-r4,
+	physicalChannelCapability			PhysicalChannelCapability-r6,
+	ue-MultiModeRAT-Capability			UE-MultiModeRAT-Capability-r5,
+	securityCapability					SecurityCapability,
+	ue-positioning-Capability			UE-Positioning-Capability-r4,
+	measurementCapability				MeasurementCapability-r4		OPTIONAL
+}
+
+UE-RadioAccessCapabBandFDDList-r6 ::= SEQUENCE {
+	ue-RadioAccessCapability-ext		UE-RadioAccessCapabBandFDDList,
+	ue-RadioAccessCapabBandFDDList2		UE-RadioAccessCapabBandFDDList2,
+	-- IE 'ue-RadioAccessCapabBandFDDList-ext' shall be included if the UE supports Band I-VII
+	ue-RadioAccessCapabBandFDDList-ext	UE-RadioAccessCapabBandFDDList-ext	OPTIONAL
+}
+
+UL-RFC3095-Context ::=				SEQUENCE {
+	rfc3095-Context-Identity			INTEGER (0..16383),
+	ul-mode								ENUMERATED {u, o, r},
+	ul-ref-ir							OCTET STRING ( SIZE (1..3000)),
+	ul-ref-time							INTEGER (0..4294967295)		OPTIONAL,
+	ul-curr-time						INTEGER (0..4294967295)		OPTIONAL,
+	ul-syn-offset-id					INTEGER (0..65535)			OPTIONAL,
+	ul-syn-slope-ts						INTEGER (0..4294967295)		OPTIONAL,
+	ul-ref-sn-1							INTEGER (0..65535)			OPTIONAL
+
+}
+
+END

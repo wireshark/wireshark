@@ -1,0 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\umts_rrc_internode-defs-exp.cnf
+# ../../tools/asn2wrs.py -u -e -p umts_rrc_internode-defs -c umts_rrc_internode-defs.cnf -s packet-umts_rrc_internode-defs-template umts_rrc_Internode-definitions.asn
+
+#.MODULE
+Internode-definitions  umts_rrc_internode-defs
+#.END
+
+#.TYPE_ATTR
+#.END
+

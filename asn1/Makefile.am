@@ -360,6 +360,27 @@ EXTRA_DIST = \
 	ulp/ULP.asn	\
 	ulp/ulp.cnf	\
 	ulp/ulp-exp.cnf	\
+	umts_rrc/Makefile	\
+	umts_rrc/Makefile.nmake	\
+	umts_rrc/packet-umts_rrc-template.c	\
+	umts_rrc/packet-umts_rrc-template.h	\
+	umts_rrc/umts_rrc_Class-definitions.asn	\
+	umts_rrc/umts_rrc.cnf	\
+	umts_rrc/umts_rrc-exp.cnf	\
+	umts_rrc_ies/Makefile	\
+	umts_rrc_ies/Makefile.nmake	\
+	umts_rrc_ies/packet-umts_rrc_ies-template.c	\
+	umts_rrc_ies/packet-umts_rrc_ies-template.h	\
+	umts_rrc/umts_rrc_InformationElements.asn	\
+	umts_rrc/umts_rrc_ies.cnf	\
+	umts_rrc/umts_rrc_ies-exp.cnf	\
+	umts_rrc_pdu_def/Makefile	\
+	umts_rrc_pdu_def/Makefile.nmake	\
+	umts_rrc_pdu_def/packet-umts_rrc_pdu_def-template.c	\
+	umts_rrc_pdu_def/packet-umts_rrc_pdu_def-template.h	\
+	umts_rrc_pdu_def/umts_rrc_umts_rrc_PDU-definitions.asn	\
+	umts_rrc_pdu_def/umts_rrc_pdu_def.cnf	\
+	umts_rrc_pdu_def/umts_rrc_pdu_def-exp.cnf	\
 	wlancertextn/Makefile	\
 	wlancertextn/Makefile.nmake	\
 	wlancertextn/packet-wlancertextn-template.c	\

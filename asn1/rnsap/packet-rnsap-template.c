@@ -42,6 +42,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rnsap.h"
+#include "packet-umts_rrc.h"
 /*#include "packet-umts_rrc.h"*/
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"

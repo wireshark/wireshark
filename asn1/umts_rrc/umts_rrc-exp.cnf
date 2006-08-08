@@ -1,0 +1,23 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\umts_rrc-exp.cnf
+# ../../tools/asn2wrs.py -u -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn
+
+#.MODULE
+Class-definitions  umts_rrc
+#.END
+
+#.TYPE_ATTR
+DL-DCCH-Message          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UL-DCCH-Message          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DL-CCCH-Message          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UL-CCCH-Message          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PCCH-Message             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DL-SHCCH-Message         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UL-SHCCH-Message         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+BCCH-FACH-Message        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+BCCH-BCH-Message         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MCCH-Message             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MSCH-Message             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

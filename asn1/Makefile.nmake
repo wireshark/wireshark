@@ -64,7 +64,10 @@ per: \
 	ranap	\
 	rnsap	\
 	rrlp	\
-	ulp
+	ulp		\
+	umts_rrc	\
+	umts_rrc_ies	\
+	umts_rrc_pdu_def	
 	
 clean:
 	cd acse
@@ -212,6 +215,15 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ulp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd umts_rrc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd umts_rrc_ies
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd umts_rrc_pdu_def
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd wlancertextn
@@ -486,6 +498,21 @@ tcap::
 
 ulp::
 	cd ulp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+umts_rrc::
+	cd umts_rrc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+umts_rrc_ies::
+	cd umts_rrc_ies
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+umts_rrc_pdu_def::
+	cd umts_rrc_pdu_def
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

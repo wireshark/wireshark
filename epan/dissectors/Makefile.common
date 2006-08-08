@@ -644,6 +644,9 @@ DISSECTOR_SRC =	\
 	packet-uma.c	\
 	packet-udp.c	\
 	packet-ulp.c	\
+	packet-umts_rrc.c	\
+	packet-umts_rrc_ies.c	\
+	packet-umts_rrc_pdu_def.c	\
 	packet-user_encap.c \
 	packet-v120.c	\
 	packet-vines.c	\
@@ -935,6 +938,9 @@ DISSECTOR_INCLUDES =	\
 	packet-tr.h	\
 	packet-udp.h	\
 	packet-ulp.h	\
+	packet-umts_rrc.h	\
+	packet-umts_rrc_ies.h	\
+	packet-umts_rrc_pdu_def.h	\
 	packet-vines.h	\
 	packet-vlan.h	\
 	packet-wap.h	\

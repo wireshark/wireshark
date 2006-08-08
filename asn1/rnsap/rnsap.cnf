@@ -80,5 +80,26 @@ VAL_PTR = &ddMode
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
 
+#.FN_BODY L3-Information VAL_PTR = &parameter_tvb
+
+	tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+
+	switch (ProcedureCode){
+
+	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
+		actx->encoding =FALSE;
+		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0,  %(ACTX)s, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
+		actx->encoding =TRUE;
+		break;
+	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
+	default:
+		break;
+	}
+
 #.TYPE_ATTR
 BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL

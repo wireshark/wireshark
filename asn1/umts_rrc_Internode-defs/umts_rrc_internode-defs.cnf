@@ -1,0 +1,15 @@
+# umts_rrc_internode_defs.cnf
+# umts_rrc__internode_ conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.INCLUDE ../umts_rrc_ies/umts_rrc_ies-exp.cnf
+#.INCLUDE ../umts_rrc_pdu_def/umts_rrc_pdu_def-exp.cnf
+
+
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+
+#.FIELD_RENAME
+

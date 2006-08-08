@@ -1,0 +1,90 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\umts_rrc_pdu_def-exp.cnf
+# ../../tools/asn2wrs.py -u -e -p umts_rrc_pdu_def -c umts_rrc_pdu_def.cnf -s packet-umts_rrc_pdu_def-template umts_rrc_PDU-definitions.asn
+
+#.MODULE
+PDU-definitions  umts_rrc_pdu_def
+#.END
+
+#.TYPE_ATTR
+ActiveSetUpdate          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_ActiveSetUpdate_vals)  BITMASK = 0
+ActiveSetUpdateComplete  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ActiveSetUpdateFailure   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+AssistanceDataDelivery   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_AssistanceDataDelivery_vals)  BITMASK = 0
+CellChangeOrderFromUTRAN TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_CellChangeOrderFromUTRAN_vals)  BITMASK = 0
+CellChangeOrderFromUTRANFailure TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_CellChangeOrderFromUTRANFailure_vals)  BITMASK = 0
+CellUpdate               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CellUpdateConfirm        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_CellUpdateConfirm_vals)  BITMASK = 0
+CellUpdateConfirm-CCCH   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_CellUpdateConfirm_CCCH_vals)  BITMASK = 0
+CounterCheck             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_CounterCheck_vals)  BITMASK = 0
+CounterCheckResponse     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DownlinkDirectTransfer   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_DownlinkDirectTransfer_vals)  BITMASK = 0
+HandoverToUTRANComplete  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+InitialDirectTransfer    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+HandoverFromUTRANCommand-GSM TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_HandoverFromUTRANCommand_GSM_vals)  BITMASK = 0
+HandoverFromUTRANCommand-GERANIu TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+HandoverFromUTRANCommand-CDMA2000 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_HandoverFromUTRANCommand_CDMA2000_vals)  BITMASK = 0
+HandoverFromUTRANFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MeasurementControl       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_MeasurementControl_vals)  BITMASK = 0
+MeasurementControlFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MeasurementReport        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PagingType1              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PagingType2              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PhysicalChannelReconfiguration TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_PhysicalChannelReconfiguration_vals)  BITMASK = 0
+PhysicalChannelReconfigurationComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PhysicalChannelReconfigurationFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PhysicalSharedChannelAllocation TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_PhysicalSharedChannelAllocation_vals)  BITMASK = 0
+PUSCHCapacityRequest     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerReconfiguration TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RadioBearerReconfiguration_vals)  BITMASK = 0
+RadioBearerReconfigurationComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerReconfigurationFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerRelease       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RadioBearerRelease_vals)  BITMASK = 0
+RadioBearerReleaseComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerReleaseFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerSetup         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RadioBearerSetup_vals)  BITMASK = 0
+RadioBearerSetupComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RadioBearerSetupFailure  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RRCConnectionReject      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RRCConnectionReject_vals)  BITMASK = 0
+RRCConnectionRelease     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RRCConnectionRelease_vals)  BITMASK = 0
+RRCConnectionRelease-CCCH TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RRCConnectionRelease_CCCH_vals)  BITMASK = 0
+RRCConnectionReleaseComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RRCConnectionRequest     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RRCConnectionSetup       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_RRCConnectionSetup_vals)  BITMASK = 0
+RRCConnectionSetupComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RRCStatus                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SecurityModeCommand      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_SecurityModeCommand_vals)  BITMASK = 0
+SecurityModeComplete     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SecurityModeFailure      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SignallingConnectionRelease TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_SignallingConnectionRelease_vals)  BITMASK = 0
+SignallingConnectionReleaseIndication TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SystemInformation-BCH    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SystemInformation-FACH   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SystemInformationChangeIndication TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TransportChannelReconfiguration TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_TransportChannelReconfiguration_vals)  BITMASK = 0
+TransportChannelReconfigurationComplete TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TransportChannelReconfigurationFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TransportFormatCombinationControl TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TransportFormatCombinationControlFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UECapabilityEnquiry      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_UECapabilityEnquiry_vals)  BITMASK = 0
+UECapabilityInformation  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UECapabilityInformationConfirm TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_UECapabilityInformationConfirm_vals)  BITMASK = 0
+UplinkDirectTransfer     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UplinkPhysicalChannelControl TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_UplinkPhysicalChannelControl_vals)  BITMASK = 0
+URAUpdate                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+URAUpdateConfirm         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_URAUpdateConfirm_vals)  BITMASK = 0
+URAUpdateConfirm-CCCH    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_URAUpdateConfirm_CCCH_vals)  BITMASK = 0
+UTRANMobilityInformation TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(umts_rrc_pdu_def_UTRANMobilityInformation_vals)  BITMASK = 0
+UTRANMobilityInformationConfirm TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+UTRANMobilityInformationFailure TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSAccessInformation    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSCommonPTMRBInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSCurrentCellPTMRBInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSGeneralInformation   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSModificationRequest  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSModifiedServicesInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSNeighbouringCellPTMRBInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSSchedulingInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MBMSUnmodifiedServicesInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
