@@ -87,4 +87,10 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep);
 
+/* needed to decrypt PAC_CONSTRAINED_DELEGATION in kerberos */
+int 
+netlogon_dissect_PAC_CONSTRAINED_DELEGATION(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep);
+
 #endif /* packet-dcerpc-netlogon.h */

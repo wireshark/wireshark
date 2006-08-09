@@ -1519,7 +1519,45 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+netlogon_dissect_CONSTRAINED_DELEGATION_name(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep)
+{
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_string, 0);
 
+	return offset;
+}
+
+static int
+netlogon_dissect_CONSTRAINED_DELEGATION_array(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_CONSTRAINED_DELEGATION_name);
+
+	return offset;
+}
+
+int
+netlogon_dissect_PAC_CONSTRAINED_DELEGATION(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep)
+{
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_string, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_long, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CONSTRAINED_DELEGATION_array, NDR_POINTER_UNIQUE,
+		"names:", -1);
+
+	return offset;
+}
 
 static int
 netlogon_dissect_PAC(tvbuff_t *tvb, int offset,

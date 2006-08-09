@@ -134,6 +134,7 @@ static gint hf_krb_PAC_CREDENTIAL_TYPE = -1;
 static gint hf_krb_PAC_SERVER_CHECKSUM = -1;
 static gint hf_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint hf_krb_PAC_CLIENT_INFO_TYPE = -1;
+static gint hf_krb_PAC_CONSTRAINED_DELEGATION = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
 static gint hf_krb_encrypted_EncKrbCredPart = -1;
 static gint hf_krb_checksum_checksum = -1;
@@ -278,6 +279,7 @@ static gint ett_krb_PAC_CREDENTIAL_TYPE = -1;
 static gint ett_krb_PAC_SERVER_CHECKSUM = -1;
 static gint ett_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint ett_krb_PAC_CLIENT_INFO_TYPE = -1;
+static gint ett_krb_PAC_CONSTRAINED_DELEGATION = -1;
 static gint ett_krb_KDC_REP_enc = -1;
 static gint ett_krb_EncTicketPart = -1;
 static gint ett_krb_EncAPRepPart = -1;
@@ -1150,12 +1152,14 @@ static const value_string krb5_error_codes[] = {
 #define PAC_SERVER_CHECKSUM	6
 #define PAC_PRIVSVR_CHECKSUM	7
 #define PAC_CLIENT_INFO_TYPE	10
+#define PAC_CONSTRAINED_DELEGATION 11
 static const value_string w2k_pac_types[] = {
     { PAC_LOGON_INFO		, "Logon Info" },
     { PAC_CREDENTIAL_TYPE	, "Credential Type" },
     { PAC_SERVER_CHECKSUM	, "Server Checksum" },
     { PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
     { PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
+    { PAC_CONSTRAINED_DELEGATION, "Constrained Delegation" },
     { 0, NULL },
 };
 
@@ -2424,6 +2428,41 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 }
 
 static int
+dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	dcerpc_info di;	/* fake dcerpc_info struct */
+	void *old_private_data;
+
+	item=proto_tree_add_item(parent_tree, hf_krb_PAC_CONSTRAINED_DELEGATION, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+	if(parent_tree){
+		tree=proto_item_add_subtree(item, ett_krb_PAC_CONSTRAINED_DELEGATION);
+	}
+
+	/* skip the first 20 bytes, they look like a unique ndr pointer
+	   followed by (where did it come from?) a contect_handle ?*/
+	proto_tree_add_text(tree, tvb, offset, 20, "unknown: is this an undocumented policy handle?");
+	offset+=20;
+
+
+	/* the PAC_CONSTRAINED_DELEGATION blob */
+	/* fake whatever state the dcerpc runtime support needs */
+	di.conformant_run=0;
+	di.call_data=NULL;
+	old_private_data=pinfo->private_data;
+	pinfo->private_data=&di;
+	init_ndr_pointer_list(pinfo);
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_PAC_CONSTRAINED_DELEGATION, NDR_POINTER_REF,
+		"PAC_CONSTRAINED_DELEGATION:", -1);
+	pinfo->private_data=old_private_data;
+
+	return offset;
+}
+
+static int
 dissect_krb5_PAC_CREDENTIAL_TYPE(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *item=NULL;
@@ -2556,6 +2595,9 @@ dissect_krb5_AD_WIN2K_PAC_struct(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 		break;
 	case PAC_CLIENT_INFO_TYPE:
 		dissect_krb5_PAC_CLIENT_INFO_TYPE(pinfo, tr, next_tvb, 0);
+		break;
+	case PAC_CONSTRAINED_DELEGATION:
+		dissect_krb5_PAC_CONSTRAINED_DELEGATION(pinfo, tr, next_tvb, 0);
 		break;
 	default:;
 /*qqq*/
@@ -4631,6 +4673,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_PAC_CLIENT_INFO_TYPE, {
 	    "PAC_CLIENT_INFO_TYPE", "kerberos.PAC_CLIENT_INFO_TYPE", FT_BYTES, BASE_HEX,
 	    NULL, 0, "PAC_CLIENT_INFO_TYPE structure", HFILL }},
+	{ &hf_krb_PAC_CONSTRAINED_DELEGATION, {
+	    "PAC_CONSTRAINED_DELEGATION", "kerberos.PAC_CONSTRAINED_DELEGATION", FT_BYTES, BASE_HEX,
+	    NULL, 0, "PAC_CONSTRAINED_DELEGATION structure", HFILL }},
 	{ &hf_krb_checksum_checksum, {
 	    "checksum", "kerberos.checksum.checksum", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Kerberos Checksum", HFILL }},
@@ -4893,6 +4938,7 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_SERVER_CHECKSUM,
 	&ett_krb_PAC_PRIVSVR_CHECKSUM,
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
+	&ett_krb_PAC_CONSTRAINED_DELEGATION,
 	&ett_krb_e_checksum,
     };
     module_t *krb_module;
