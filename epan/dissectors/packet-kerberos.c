@@ -242,6 +242,7 @@ static gint hf_krb_KDCOptions_proxy = -1;
 static gint hf_krb_KDCOptions_allow_postdate = -1;
 static gint hf_krb_KDCOptions_postdated = -1;
 static gint hf_krb_KDCOptions_renewable = -1;
+static gint hf_krb_KDCOptions_constrained_delegation = -1;
 static gint hf_krb_KDCOptions_canonicalize = -1;
 static gint hf_krb_KDCOptions_opt_hardware_auth = -1;
 static gint hf_krb_KDCOptions_disable_transited_check = -1;
@@ -1448,6 +1449,10 @@ static const true_false_string krb5_kdcoptions_renewable = {
 	"This ticket is RENEWABLE",
 	"This ticket is NOT renewable"
 };
+static const true_false_string krb5_kdcoptions_constrained_delegation = {
+	"This is a request for a CONSTRAINED DELEGATION PAC",
+	"This is a normal request (no constrained delegation)"
+};
 static const true_false_string krb5_kdcoptions_canonicalize = {
 	"This is a request for a CANONICALIZED ticket",
 	"This is NOT a canonicalized ticket request"
@@ -1482,6 +1487,7 @@ static int* KDCOptions_bits[] = {
   &hf_krb_KDCOptions_postdated,
   &hf_krb_KDCOptions_renewable,
   &hf_krb_KDCOptions_opt_hardware_auth,
+  &hf_krb_KDCOptions_constrained_delegation,
   &hf_krb_KDCOptions_canonicalize,
   &hf_krb_KDCOptions_disable_transited_check,
   &hf_krb_KDCOptions_renewable_ok,
@@ -4565,6 +4571,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_KDCOptions_renewable, {
 	    "Renewable", "kerberos.kdcoptions.renewable", FT_BOOLEAN, 32,
 	    TFS(&krb5_kdcoptions_renewable), 0x00800000, "Whether this ticket is renewable or not", HFILL }},
+	{ &hf_krb_KDCOptions_constrained_delegation, {
+	    "Constrained Delegation", "kerberos.kdcoptions.constrained_delegation", FT_BOOLEAN, 32,
+	    TFS(&krb5_kdcoptions_constrained_delegation), 0x00020000, "Do we want a PAC containing constrained delegation info or not", HFILL }},
 	{ &hf_krb_KDCOptions_canonicalize, {
 	    "Canonicalize", "kerberos.kdcoptions.canonicalize", FT_BOOLEAN, 32,
 	    TFS(&krb5_kdcoptions_canonicalize), 0x00010000, "Do we want the KDC to canonicalize the principal or not", HFILL }},
