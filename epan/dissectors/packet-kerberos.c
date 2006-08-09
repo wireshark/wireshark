@@ -2406,10 +2406,11 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 		tree=proto_item_add_subtree(item, ett_krb_PAC_LOGON_INFO);
 	}
 
-	/* skip the first 20 bytes, they look like a unique ndr pointer
-	   followed by (where did it come from?) a contect_handle ?*/
-	proto_tree_add_text(tree, tvb, offset, 20, "unknown: is this an undocumented policy handle?");
-	offset+=20;
+	/* skip the first 16 bytes, they are some magic created by the idl 
+	 * compiler   the first 4 bytes might be flags?
+	 */
+	proto_tree_add_text(tree, tvb, offset, 16, "unknown: is this an undocumented policy handle?");
+	offset+=16;
 
 
 	/* the PAC_LOGON_INFO blob */
@@ -2420,7 +2421,7 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	pinfo->private_data=&di;
 	init_ndr_pointer_list(pinfo);
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_REF,
+		netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_UNIQUE,
 		"PAC_LOGON_INFO:", -1);
 	pinfo->private_data=old_private_data;
 
@@ -2441,10 +2442,11 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_t
 		tree=proto_item_add_subtree(item, ett_krb_PAC_CONSTRAINED_DELEGATION);
 	}
 
-	/* skip the first 20 bytes, they look like a unique ndr pointer
-	   followed by (where did it come from?) a contect_handle ?*/
-	proto_tree_add_text(tree, tvb, offset, 20, "unknown: is this an undocumented policy handle?");
-	offset+=20;
+	/* skip the first 16 bytes, they are some magic created by the idl 
+	 * compiler   the first 4 bytes might be flags?
+	 */
+	proto_tree_add_text(tree, tvb, offset, 16, "unknown: is this an undocumented policy handle?");
+	offset+=16;
 
 
 	/* the PAC_CONSTRAINED_DELEGATION blob */
@@ -2455,7 +2457,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_t
 	pinfo->private_data=&di;
 	init_ndr_pointer_list(pinfo);
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_PAC_CONSTRAINED_DELEGATION, NDR_POINTER_REF,
+		netlogon_dissect_PAC_CONSTRAINED_DELEGATION, NDR_POINTER_UNIQUE,
 		"PAC_CONSTRAINED_DELEGATION:", -1);
 	pinfo->private_data=old_private_data;
 
