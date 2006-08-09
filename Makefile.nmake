@@ -233,6 +233,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBWIRESHARKDLL@/$(LIBWIRESHARK_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
 	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
+	    -e "s/@HAVE_LIBGCRYPT@/$(LIBGCRYPT_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    < config.h.win32 > $@
@@ -525,7 +526,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. gnutls-1.5.0.zip
+		. gnutls-1.5.0-1.zip
 !ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"

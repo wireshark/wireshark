@@ -199,6 +199,9 @@
 /* Define to use the gnutls library */
 @HAVE_GNUTLS@
 
+/* Define to use the libgcrypt library */
+@HAVE_LIBGCRYPT@
+
 /* Define to use mit kerberos for decryption of kerberos/sasl/dcerpc */
 @HAVE_KFW@
 #ifdef HAVE_MIT_KERBEROS

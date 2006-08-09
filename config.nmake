@@ -82,7 +82,7 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 # If you have gnutls set this to the pathname where the lib and include files
 # are stored.
 # This enable ssl decryption
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.0
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.0-1
 
 # Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
 # but without MICRO version number) 
@@ -449,13 +449,19 @@ LIBWIRESHARK_CONFIG=
 !IFDEF GNUTLS_DIR
 GNUTLS_PATH=$(GNUTLS_DIR)
 GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include
-GNUTLS_LIBS=$(GNUTLS_DIR)\bin\libgnutls-14.lib $(GNUTLS_DIR)\bin\libgcrypt-11.lib
+GNUTLS_LIBS=\
+	$(GNUTLS_DIR)\bin\libtasn1-3.lib	\
+	$(GNUTLS_DIR)\bin\libgpg-error-0.lib	\
+	$(GNUTLS_DIR)\bin\libgcrypt-11.lib	\
+	$(GNUTLS_DIR)\bin\libgnutls-14.lib
 # Nmake uses carets to escape special characters
 GNUTLS_CONFIG=^#define HAVE_LIBGNUTLS 1
+LIBGCRYPT_CONFIG=^#define HAVE_LIBGCRYPT 1
 !else
 GNUTLS_CFLAGS=
 GNUTLS_LIBS=
 GNUTLS_CONFIG=
+LIBGCRYPT_CONFIG=
 !ENDIF
 
 !IFDEF LUA_DIR
