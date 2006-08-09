@@ -681,6 +681,12 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				guint8 code;
 				guint16 priority;
 
+				/* Both items here are optional */
+				if (tvb_reported_length_remaining( tvb, offset) == 0)
+				{
+					return offset;
+				}
+				
 				/* Look for a code in the first byte */
 				code = tvb_get_guint8(tvb, offset);
 				offset += 1;
@@ -700,11 +706,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					offset += 2;
 					packet_len -= 2;
 
-					/* Look for next code */
-					code = tvb_get_guint8(tvb, offset);
-					offset += 1;
-					packet_len -=1;
-					
 					if (check_col(pinfo->cinfo, COL_INFO))
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -713,6 +714,16 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 						                          rtcp_app_poc1_qsresp_priority_vals,
 						                          "Unknown"));
 					}
+
+					/* Look for (optional) next code */
+					if (tvb_reported_length_remaining( tvb, offset) == 0)
+					{
+						return offset;
+					}
+					code = tvb_get_guint8(tvb, offset);
+					offset += 1;
+					packet_len -=1;
+
 				}
 
 				/* Request timestamp (optional) */
@@ -727,8 +738,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset, 8));
 					proto_tree_add_string_format(PoC1_tree, hf_rtcp_app_poc1_request_ts,
-												 tvb, offset, 8, ( const char* ) buff,
-												 "Request timestamp: %s", buff );
+					                             tvb, offset, 8, ( const char* ) buff,
+					                             "Request timestamp: %s", buff );
 					offset += 8;
 					packet_len -=8;
 
@@ -785,6 +796,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				}
 
 				/* Participants (optional) */
+				if (tvb_reported_length_remaining( tvb, offset) == 0)
+				{
+					return offset;
+				}
 				participants_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
@@ -899,6 +914,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				}
 
 				/* Participants (optional) */
+				if (tvb_reported_length_remaining( tvb, offset) == 0)
+				{
+					return offset;
+				}
 				participants_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
@@ -977,7 +996,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ignore_seq_no, tvb, offset, 2, FALSE );
 				ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);
 
-				if (ignore_last_seq_no && check_col(pinfo->cinfo, COL_INFO))
+				if (!ignore_last_seq_no && check_col(pinfo->cinfo, COL_INFO))
 				{
 					col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
 					                last_seq_no);
@@ -1071,6 +1090,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Queue position. 65535 indicates 'position not available' */
 				position = tvb_get_ntohs(tvb, offset+1);
 				ti = proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset+1, 2, FALSE );
+				if (position == 0)
+				{
+					proto_item_append_text(ti, " (client is un-queued)");
+				}
 				if (position == 65535)
 				{
 					proto_item_append_text(ti, " (position not available)");
