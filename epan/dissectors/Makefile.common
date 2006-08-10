@@ -396,6 +396,7 @@ DISSECTOR_SRC =	\
 	packet-iua.c	\
 	packet-iuup.c	\
 	packet-jabber.c	\
+	packet-jpeg.c \
 	packet-juniper.c \
 	packet-jxta.c	\
 	packet-k12.c \
