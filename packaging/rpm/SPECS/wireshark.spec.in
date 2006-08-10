@@ -1,6 +1,6 @@
 # Note that this is NOT a relocatable package
 %define ver      @VERSION@
-%define rel      1
+%define rel      2
 %define prefix   /usr
 
 Summary:	Network protocol analyzer
@@ -34,9 +34,6 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-mkdir -p $RPM_BUILD_ROOT%prefix/X11R6/bin $RPM_BUILD_ROOT%prefix/X11R6/man/man1
-mv $RPM_BUILD_ROOT%prefix/bin/wireshark $RPM_BUILD_ROOT%prefix/X11R6/bin/wireshark
-mv $RPM_BUILD_ROOT%prefix/man/man1/wireshark.1* $RPM_BUILD_ROOT%prefix/X11R6/man/man1/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -44,8 +41,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog FAQ INSTALL NEWS README*
-%prefix/X11R6/bin/*
-%prefix/X11R6/man/*/*
 %prefix/bin/*
 %prefix/lib/*
 %prefix/share/wireshark/*
@@ -53,6 +48,10 @@ rm -rf $RPM_BUILD_ROOT
 %prefix/man/*/*
 
 %changelog
+* Thu Aug 10 2006 Joerg Mayer
+- Starting with X.org 7.x X11R6 is being phased out. Install wireshark
+  and manpage into the standard path.
+
 * Mon Aug 01 2005 Gerald Combs
 - Add a desktop file and icon for future use
 
