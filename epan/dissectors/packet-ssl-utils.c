@@ -1294,7 +1294,6 @@ void ssl_free_key(SSL_PRIVATE_KEY* key)
 void 
 ssl_lib_init(void)
 {
-    gnutls_global_init();
 }
 
 #else /* HAVE_LIBGNUTLS */

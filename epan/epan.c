@@ -9,6 +9,19 @@
 #include "config.h"
 #endif
 
+#if (defined(HAVE_LIBGCRYPT) || defined(HAVE_LIBGNUTLS)) && defined(_WIN32)
+#include <winposixtype.h>
+#endif
+
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#endif /* HAVE_LIBGCRYPT */
+
+#ifdef HAVE_LIBGNUTLS
+#include <gnutls/gnutls.h>
+#endif /* HAVE_LIBGNUTLS */
+
+
 #include <glib.h>
 #include "epan.h"
 #include "epan_dissect.h"
@@ -66,6 +79,11 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	report_open_failure_func = report_open_failure;
 	report_read_failure_func = report_read_failure;
 	except_init();
+#ifdef HAVE_LIBGNUTLS
+	gnutls_global_init();
+#elif defined(HAVE_LIBGCRYPT)
+	gcry_check_version(NULL);
+#endif
 	tvbuff_init();
 	oid_resolv_init();
 	tap_init();
@@ -86,6 +104,9 @@ epan_cleanup(void)
 	packet_cleanup();
 	oid_resolv_cleanup();
 	tvbuff_cleanup();
+#ifdef HAVE_LIBGNUTLS
+	gnutls_global_deinit();
+#endif
 	except_deinit();
 	host_name_lookup_cleanup();
 }
