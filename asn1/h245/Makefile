@@ -6,8 +6,8 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py packet-h245-template.c packet-h245-template.h h245.cnf
-	python ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template h245.asn
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py packet-h245-template.c packet-h245-template.h h245.cnf MULTIMEDIA-SYSTEM-CONTROL.asn
+	python ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

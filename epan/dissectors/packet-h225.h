@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h225.h                                                            */
+/* ./packet-h225.h                                                            */
 /* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.h */
@@ -84,7 +84,7 @@ typedef struct _h225_packet_info {
  * libwireshark.dll, we need a special declaration.
  */
 
-#include "packet-per.h"
+#include <epan/dissectors/packet-per.h>
 
 
 /*--- Included file: packet-h225-exp.h ---*/

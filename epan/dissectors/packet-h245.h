@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h245.h                                                            */
+/* ./packet-h245.h                                                            */
 /* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.h */
@@ -121,7 +121,7 @@ struct _h223_mux_element {
 };
 
 #include <epan/packet_info.h>
-#include "packet-per.h"
+#include <epan/dissectors/packet-per.h>
 
 typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me );
 extern void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );

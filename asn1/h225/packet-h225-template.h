@@ -76,7 +76,7 @@ typedef struct _h225_packet_info {
  * libwireshark.dll, we need a special declaration.
  */
 
-#include "packet-per.h"
+#include <epan/dissectors/packet-per.h>
 
 #include "packet-h225-exp.h" 
 

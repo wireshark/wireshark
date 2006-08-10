@@ -1,6 +1,6 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\h245-exp.cnf
+# ./h245-exp.cnf
 # ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn
 
 #.MODULE
