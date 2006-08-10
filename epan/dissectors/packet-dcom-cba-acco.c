@@ -1781,8 +1781,8 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb,
     /* the tvb will NOT contain the frame_id here! */
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
-	/* frame id must be in valid range (cyclic Real-Time, class=1) */
-	if (u16FrameID < 0xc000 || u16FrameID >= 0xfb00) {
+	/* frame id must be in valid range (cyclic Real-Time, class=1 or class=2) */
+	if (u16FrameID < 0x8000 || u16FrameID >= 0xfb00) {
         return FALSE;
     }
 
