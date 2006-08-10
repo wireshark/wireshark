@@ -223,13 +223,13 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
-	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast response";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) identify multicast request";
         }
         if (u16FrameID == 0xfeff) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
-	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) identify response";
         }
     } else if (u16FrameID < 0xff20){
 		pszProtShort 	= "PN-PTCP";
