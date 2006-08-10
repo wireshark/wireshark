@@ -67,6 +67,10 @@ static int hf_nt_ace_flags_successful_access = -1;
 static int hf_nt_ace_flags_failed_access = -1;
 static int hf_nt_ace_type = -1;
 static int hf_nt_ace_size = -1;
+static int hf_nt_ace_flags_object_type_present = -1;
+static int hf_nt_ace_flags_inherited_object_type_present = -1;
+static int hf_nt_ace_guid = -1;
+static int hf_nt_ace_inherited_guid = -1;
 
 static gint ett_nt_sec_desc = -1;
 static gint ett_nt_sec_desc_type = -1;
@@ -74,6 +78,8 @@ static gint ett_nt_sid = -1;
 static gint ett_nt_acl = -1;
 static gint ett_nt_ace = -1;
 static gint ett_nt_ace_flags = -1;
+static gint ett_nt_ace_object = -1;
+static gint ett_nt_ace_object_flags = -1;
 
 /*
  * DOS error codes.
@@ -1654,15 +1660,33 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static int hf_nt_access_mask = -1;
 
+#define ACL_REVISION_NT4		2
+#define ACL_REVISION_ADS		4
+static const value_string acl_revision_vals[] = {
+	{ ACL_REVISION_NT4,	"NT4"},
+	{ ACL_REVISION_ADS,	"AD"},
+	{0,NULL}
+};
+
 #define ACE_TYPE_ACCESS_ALLOWED		0
 #define ACE_TYPE_ACCESS_DENIED		1
 #define ACE_TYPE_SYSTEM_AUDIT		2
 #define ACE_TYPE_SYSTEM_ALARM		3
+#define ACE_TYPE_ALLOWED_COMPOUND	4
+#define ACE_TYPE_ACCESS_ALLOWED_OBJECT	5
+#define ACE_TYPE_ACCESS_DENIED_OBJECT	6
+#define ACE_TYPE_SYSTEM_AUDIT_OBJECT	7
+#define ACE_TYPE_SYSTEM_ALARM_OBJECT	8
 static const value_string ace_type_vals[] = {
-  { ACE_TYPE_ACCESS_ALLOWED,	"Access Allowed"},
-  { ACE_TYPE_ACCESS_DENIED,	"Access Denied"},
-  { ACE_TYPE_SYSTEM_AUDIT,	"System Audit"},
-  { ACE_TYPE_SYSTEM_ALARM,	"System Alarm"},
+  { ACE_TYPE_ACCESS_ALLOWED,		"Access Allowed"},
+  { ACE_TYPE_ACCESS_DENIED,		"Access Denied"},
+  { ACE_TYPE_SYSTEM_AUDIT,		"System Audit"},
+  { ACE_TYPE_SYSTEM_ALARM,		"System Alarm"},
+  { ACE_TYPE_ALLOWED_COMPOUND,		"Allowed Compound"},
+  { ACE_TYPE_ACCESS_ALLOWED_OBJECT,	"Allowed Object"},
+  { ACE_TYPE_ACCESS_DENIED_OBJECT,	"Denied Object"},
+  { ACE_TYPE_SYSTEM_AUDIT_OBJECT,	"Audit Object"},
+  { ACE_TYPE_SYSTEM_ALARM_OBJECT,	"Alarm Object"},
   { 0, NULL}
 };
 static const true_false_string tfs_ace_flags_object_inherit = {
@@ -1700,6 +1724,57 @@ static const true_false_string tfs_ace_flags_failed_access = {
 			proto_item_append_text(item, string, sep);	\
 		sep = ", ";						\
 	}
+
+
+static int
+dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree, packet_info *pinfo, guint8 *drep)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	proto_item *flags_item = NULL;
+	proto_tree *flags_tree = NULL;
+	guint32 flags;
+	int old_offset=offset;
+	const char *sep = " ";
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+					   "ACE Object");
+		tree = proto_item_add_subtree(item, ett_nt_ace_object);
+	}
+
+	/* flags */
+	flags=tvb_get_letohl(tvb, offset);
+	if(tree){
+		flags_item = proto_tree_add_text(tree, tvb, offset, 4,
+					   "ACE Object Flags (0x%08x)", flags);
+		flags_tree = proto_item_add_subtree(flags_item, ett_nt_ace_object_flags);
+	}
+	proto_tree_add_boolean(flags_tree, hf_nt_ace_flags_object_type_present,
+		       tvb, offset, 4, flags);
+	APPEND_ACE_TEXT(flags&0x00000001, flags_item, "%sObject Type Present");
+
+	proto_tree_add_boolean(flags_tree, hf_nt_ace_flags_inherited_object_type_present,
+		       tvb, offset, 4, flags);
+	APPEND_ACE_TEXT(flags&0x00000002, flags_item, "%sInherited Object Type Present");
+	offset+=4;
+
+
+	/* is there a GUID ? */
+	if(flags&0x00000001){
+		proto_tree_add_item(tree, hf_nt_ace_guid, tvb, offset, 16, TRUE);
+		offset+=16;
+	}
+	
+	/* is there an inherited GUID ? */
+	if(flags&0x00000002){
+		proto_tree_add_item(tree, hf_nt_ace_inherited_guid, tvb, offset, 16, TRUE);
+		offset+=16;
+	}
+	
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
 
 static int
 dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
@@ -1807,11 +1882,24 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACE_TYPE_ACCESS_DENIED:
 	case ACE_TYPE_SYSTEM_AUDIT:
 	case ACE_TYPE_SYSTEM_ALARM:
-
+	case ACE_TYPE_ALLOWED_COMPOUND:
+	case ACE_TYPE_ACCESS_ALLOWED_OBJECT:
+	case ACE_TYPE_ACCESS_DENIED_OBJECT:
+	case ACE_TYPE_SYSTEM_AUDIT_OBJECT:
+	case ACE_TYPE_SYSTEM_ALARM_OBJECT:
 		/* access mask */
 		offset = dissect_nt_access_mask(
 			tvb, offset, pinfo, tree, drep, 
 			hf_nt_access_mask, ami, &perms);
+
+		/* these aces contain an extra object */
+		switch(type){
+		case ACE_TYPE_ACCESS_ALLOWED_OBJECT:
+		case ACE_TYPE_ACCESS_DENIED_OBJECT:
+		case ACE_TYPE_SYSTEM_AUDIT_OBJECT:
+		case ACE_TYPE_SYSTEM_ALARM_OBJECT:
+			offset=dissect_nt_ace_object(tvb, offset, tree, pinfo, drep);
+		}
 
 		/* SID */
 		offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
@@ -1873,8 +1961,9 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 2;
 
 	switch(revision){
-	case 2:  /* only version we will ever see of this structure?*/
-	case 3:
+	case ACL_REVISION_NT4:
+	case ACL_REVISION_ADS:
+	case 3:  /* weirdo type */
 	  /* size */
 	  proto_tree_add_item(tree, hf_nt_acl_size, tvb, offset, 2, TRUE);
 	  offset += 2;
@@ -2273,7 +2362,7 @@ proto_do_register_windows_common(int proto_smb)
 
 		{ &hf_nt_acl_revision,
 		  { "Revision", "nt.acl.revision", FT_UINT16, BASE_DEC,
-		    NULL, 0, "Version of NT ACL structure", HFILL }},
+		    VALS(acl_revision_vals), 0, "Version of NT ACL structure", HFILL }},
 
 		/* ACLs */
 
@@ -2464,7 +2553,26 @@ proto_do_register_windows_common(int proto_smb)
 		{ &hf_access_specific_0,
 		  { "Specific access, bit 0", "nt.access_mask.specific_0",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    0x0001, "Specific access, bit 0", HFILL }}
+		    0x0001, "Specific access, bit 0", HFILL }},
+
+		{ &hf_nt_ace_flags_object_type_present,
+		  { "Object Type Present", "nt.ace.object.flags.object_type_present",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x00000001, "", HFILL }},
+
+		{ &hf_nt_ace_flags_inherited_object_type_present,
+		  { "Inherited Object Type Present", "nt.ace.object.flags.inherited_object_type_present",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x00000002, "", HFILL }},
+
+	        { &hf_nt_ace_guid,
+		  { "GUID", "nt.ace.object.guid", FT_GUID, BASE_NONE,
+		    NULL, 0, "", HFILL }},
+
+	        { &hf_nt_ace_inherited_guid,
+		  { "Inherited GUID", "nt.ace.object.inherited_guid", FT_GUID, BASE_NONE,
+		    NULL, 0, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -2474,6 +2582,8 @@ proto_do_register_windows_common(int proto_smb)
 		&ett_nt_acl,
 		&ett_nt_ace,
 		&ett_nt_ace_flags,
+		&ett_nt_ace_object,
+		&ett_nt_ace_object_flags,
 		&ett_nt_access_mask,
 		&ett_nt_access_mask_generic,
 		&ett_nt_access_mask_standard,
