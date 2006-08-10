@@ -3273,7 +3273,7 @@ faster.
 
 5.4 Display Filter Functions
 
-You define a desplay filte function by adding an entry to
+You define a display filter function by adding an entry to
 the df_functions table in epan/dfilter/dfunctions.c. The record struct
 is defined in defunctions.h, and shown here:
 
