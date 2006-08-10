@@ -107,9 +107,8 @@ static const value_string ansi_tele_id_strings[] = {
     { 4097,	"CDMA Cellular Paging Teleservice" },
     { 4098,	"CDMA Cellular Messaging Teleservice" },
     { 4099,	"CDMA Voice Mail Notification" },
-    { 32513,	"TDMA Cellular Messaging Teleservice" },
-    { 32520,	"TDMA System Assisted Mobile Positioning through Satellite (SAMPS)" },
-    { 32584,	"TDMA Segmented System Assisted Mobile Positioning Service" },
+    { 4100,	"CDMA Wireless Application Protocol (WAP)" },
+    { 4101,	"CDMA Wireless Enhanced Messaging Teleservice (WEMT)" },
     { 0, NULL },
 };
 
@@ -916,7 +915,62 @@ trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 
     str = match_strval(value, ansi_tele_id_strings);
 
-    if (NULL == str) str = "Unrecognized Teleservice ID";
+    if (NULL == str)
+    {
+	switch (value)
+	{
+	case 1:
+	    str = "Reserved for maintenance";
+	    break;
+	case 4102:
+	    str = "CDMA Service Category Programming Teleservice (SCPT)";
+	    break;
+	case 4103:
+	    str = "CDMA Card Application Toolkit Protocol Teleservice (CATPT)";
+	    break;
+	case 32513:
+	    str = "TDMA Cellular Messaging Teleservice";
+	    break;
+	case 32514:
+	    str = "TDMA Cellular Paging Teleservice (CPT-136)";
+	    break;
+	case 32515:
+	    str = "TDMA Over-the-Air Activation Teleservice (OATS)";
+	    break;
+	case 32520:
+	    str = "TDMA System Assisted Mobile Positioning through Satellite (SAMPS)";
+	    break;
+	case 32584:
+	    str = "TDMA Segmented System Assisted Mobile Positioning Service";
+	    break;
+	default:
+	    if ((value >= 2) && (value <= 4095))
+	    {
+		str = "Reserved for assignment by TIA-41";
+	    }
+	    else if ((value >= 4104) && (value <= 4113))
+	    {
+		str = "Reserved for GSM1x Teleservice (CDMA)";
+	    }
+	    else if ((value >= 4114) && (value <= 32512))
+	    {
+		str = "Reserved for assignment by TIA-41";
+	    }
+	    else if ((value >= 32521) && (value <= 32575))
+	    {
+		str = "Reserved for assignment by this Standard for TDMA MS-based SMEs";
+	    }
+	    else if ((value >= 49152) && (value <= 65535))
+	    {
+		str = "Reserved for carrier specific teleservices";
+	    }
+	    else
+	    {
+		str = "Unrecognized Teleservice ID";
+	    }
+	    break;
+	}
+    }
 
     proto_tree_add_text(tree, tvb, offset, 2,
 	"%s (%d)",
@@ -1602,6 +1656,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*ansi_637_item;
     proto_tree	*ansi_637_tree = NULL;
     const gchar	*str = NULL;
+    guint32	value;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
@@ -1613,12 +1668,69 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (tree)
     {
+	value = pinfo->match_port;
+
 	/*
 	 * create the ansi_637 protocol tree
 	 */
-	str = match_strval(pinfo->match_port, ansi_tele_id_strings);
+	str = match_strval(value, ansi_tele_id_strings);
 
-	if (NULL == str) str = "Unrecognized Teleservice ID";
+	if (NULL == str)
+	{
+	    switch (value)
+	    {
+	    case 1:
+		str = "Reserved for maintenance";
+		break;
+	    case 4102:
+		str = "CDMA Service Category Programming Teleservice (SCPT)";
+		break;
+	    case 4103:
+		str = "CDMA Card Application Toolkit Protocol Teleservice (CATPT)";
+		break;
+	    case 32513:
+		str = "TDMA Cellular Messaging Teleservice";
+		break;
+	    case 32514:
+		str = "TDMA Cellular Paging Teleservice (CPT-136)";
+		break;
+	    case 32515:
+		str = "TDMA Over-the-Air Activation Teleservice (OATS)";
+		break;
+	    case 32520:
+		str = "TDMA System Assisted Mobile Positioning through Satellite (SAMPS)";
+		break;
+	    case 32584:
+		str = "TDMA Segmented System Assisted Mobile Positioning Service";
+		break;
+	    default:
+		if ((value >= 2) && (value <= 4095))
+		{
+		    str = "Reserved for assignment by TIA-41";
+		}
+		else if ((value >= 4104) && (value <= 4113))
+		{
+		    str = "Reserved for GSM1x Teleservice (CDMA)";
+		}
+		else if ((value >= 4114) && (value <= 32512))
+		{
+		    str = "Reserved for assignment by TIA-41";
+		}
+		else if ((value >= 32521) && (value <= 32575))
+		{
+		    str = "Reserved for assignment by this Standard for TDMA MS-based SMEs";
+		}
+		else if ((value >= 49152) && (value <= 65535))
+		{
+		    str = "Reserved for carrier specific teleservices";
+		}
+		else
+		{
+		    str = "Unrecognized Teleservice ID";
+		}
+		break;
+	    }
+	}
 
 	ansi_637_item =
 	    proto_tree_add_protocol_format(tree, proto_ansi_637_tele, tvb, 0, -1,
