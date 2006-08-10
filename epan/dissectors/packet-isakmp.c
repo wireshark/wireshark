@@ -2400,6 +2400,8 @@ msgtype2str(int isakmp_version, guint16 type)
     {    37,	"FAILED_CP_REQUIRED" },
     {    38,	"TS_UNACCEPTABLE" },
     {    39,	"INVALID_SELECTORS" },
+    {    40,	"UNACCEPTABLE_ADDRESSES" },
+    {    41,	"UNEXPECTED_NAT_DETECTED" },
     { 16384,	"INITIAL_CONTACT" },
     { 16385,	"SET_WINDOW_SIZE" },
     { 16386,	"ADDITIONAL_TS_POSSIBLE" },
@@ -2412,6 +2414,13 @@ msgtype2str(int isakmp_version, guint16 type)
     { 16393,	"REKEY_SA" },
     { 16394,	"ESP_TFC_PADDING_NOT_SUPPORTED" },
     { 16395,	"NON_FIRST_FRAGMENTS_ALSO" },
+    { 16396,	"MOBIKE_SUPPORTED" },
+    { 16397,	"ADDITIONAL_IP4_ADDRESS" },
+    { 16398,	"ADDITIONAL_IP6_ADDRESS" },
+    { 16399,	"NO_ADDITIONAL_ADDRESSES" },
+    { 16400,	"UPDATE_SA_ADDRESSES" },
+    { 16401,	"COOKIE2" },
+    { 16402,	"NO_NATS_ALLOWED" },
     { 0,	NULL },
   };
 
@@ -2430,9 +2439,9 @@ msgtype2str(int isakmp_version, guint16 type)
       return "RESERVED (Future Use) - status (2)";
     return val_to_str(type, vs_v1_notifmsg, "UNKNOWN-NOTIFY-MESSAGE-TYPE");
   } else if (isakmp_version == 2) {
-    if (type >= 40 && type <= 8191)
+    if (type >= 42 && type <= 8191)
       return "RESERVED TO IANA - Error types";
-    if (type >= 16396 && type <= 40959)
+    if (type >= 16403 && type <= 40959)
       return "RESERVED TO IANA - STATUS TYPES";
     if (type >= 8192 && type <= 16383)
       return "Private Use - Errors";
