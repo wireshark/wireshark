@@ -1702,6 +1702,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 {
 	int ret;
 
+	g_assert(handle != NULL);
 	ret = call_dissector_work(handle, tvb, pinfo, tree);
 	if (ret == 0) {
 		/*
