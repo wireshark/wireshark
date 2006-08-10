@@ -48,6 +48,19 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
+
+/* Disable rudp by default. The previously hardcoded value of
+ * 7000 (used by Cisco) collides with afs and as the draft states:
+ * "RUDP doesn't place any restrictions on which UDP port numbers are used.  
+ *  Valid port numbers are ports not defined in RFC 1700."
+ */
+/* FIXME: The proper solution would be to convert this dissector into
+ *        heuristic dissector, but it isn't complete anyway.
+ */
+static guint udp_port = 0;
+
+void proto_reg_handoff_rudp(void);
 
 static int proto_rudp = -1;
 
@@ -210,6 +223,18 @@ proto_register_rudp(void)
 
 	proto_register_field_array(proto_rudp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	{
+		module_t *rudp_module;
+		rudp_module = prefs_register_protocol(proto_rudp, proto_reg_handoff_rudp);
+		prefs_register_uint_preference(rudp_module,
+			"udp.port",
+			"UDP port for RUDP",
+			"Set the UDP port for Reliable UDP traffic",
+			10,
+			&udp_port);
+	}
+
 }
 
 void
@@ -220,5 +245,5 @@ proto_reg_handoff_rudp(void) {
 		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
 	}
 
-	dissector_add("udp.port", 7000, rudp_handle);
+	dissector_add("udp.port", udp_port, rudp_handle);
 }
