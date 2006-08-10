@@ -10,11 +10,7 @@
  *
  *  See
  *
- *	http://web.archive.org/web/20040209004121/http://www.shaftnet.org/~pizza/software/capturefrm.txt
- *
- *  or, if the site is restored,
- *
- *	http://www.shaftnet.org/~pizza/software/capturefrm.txt
+ *	https://mail.shaftnet.org/chora/browse.php?rt=wlanng&f=trunk%2Fdoc%2Fcapturefrm.txt
  * 
  * By Solomon Peachy
  *
@@ -75,6 +71,15 @@ struct wlan_header_v1 {
   gint32 encoding;
 };
 
+/* V2 of the header */
+struct wlan_header_v2 {
+  struct wlan_header_v1 v1_hdr;
+  guint32 sequence;
+  guint32 drops;
+  guint8 sniffer_addr[6];
+  guint8 pad[2];
+};
+
 static int hf_wlan_version = -1;
 static int hf_wlan_length = -1;
 static int hf_wlan_mactime = -1;
@@ -89,6 +94,9 @@ static int hf_wlan_ssi_signal = -1;
 static int hf_wlan_ssi_noise = -1;
 static int hf_wlan_preamble = -1;
 static int hf_wlan_encoding = -1;
+static int hf_wlan_sequence = -1;
+static int hf_wlan_drops = -1;
+static int hf_wlan_sniffer_addr = -1;
 
 static gint ett_wlan = -1;
 
@@ -133,6 +141,11 @@ proto_register_wlancap(void)
     { 1, "CCK" },
     { 2, "PBCC" },
     { 3, "OFDM" },
+    { 4, "DSS-OFDM" },
+    { 5, "BPSK" },
+    { 6, "QPSK" },
+    { 7, "16QAM" },
+    { 8, "64QAM" },
     { 0, NULL },
   };
 
@@ -180,6 +193,12 @@ proto_register_wlancap(void)
 			   BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
     { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32, 
 			   BASE_DEC, VALS(encoding_type), 0x0, "", HFILL } },
+    { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32, 
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32, 
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_sniffer_addr, { "Sniffer Address", "wlancap.sniffer_addr", FT_ETHER, 
+			       BASE_NONE, NULL, 0x0, "Sniffer Hardware Address", HFILL } },
   };
   static gint *ett[] = {
     &ett_wlan
@@ -282,6 +301,19 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint(wlan_tree, hf_wlan_encoding, tvb, offset,
 			  4, tvb_get_ntohl(tvb, offset));
       offset+=4;
+      if (version > 1) {
+	      proto_tree_add_uint(wlan_tree, hf_wlan_sequence, tvb, offset,
+				  4, tvb_get_ntohl(tvb, offset));
+	      offset+=4;
+	      proto_tree_add_uint(wlan_tree, hf_wlan_drops, tvb, offset,
+				  4, tvb_get_ntohl(tvb, offset));
+	      offset+=4;
+	      proto_tree_add_ether(wlan_tree, hf_wlan_sniffer_addr, tvb, 
+				   offset, 6, 
+				   tvb_get_ptr(tvb, offset, 6));
+	      /* Yes, this is supposed to be 8. */
+	      offset+=8;
+      }
     }
 
     offset = length;
