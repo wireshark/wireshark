@@ -107,7 +107,8 @@ Prints the help listing and exits.
 
 =head1 SEE ALSO
 
-tcpdump(8), pcap(3), wireshark(1)>, mergecap(1), editcap(1), tshark(1)
+tcpdump(8), pcap(3), wireshark(1)>, mergecap(1), editcap(1), tshark(1),
+dumpcap(1)
 
 =head1 NOTES
 

@@ -195,7 +195,8 @@ a second.
 
 =head1 SEE ALSO
 
-od(1), tcpdump(8), pcap(3), wireshark(1), editcap(1), strptime(3).
+od(1), tcpdump(8), pcap(3), wireshark(1), tshark(1), dumpcap(1), mergecap(1),
+editcap(1), strptime(3).
 
 =head1 NOTES
 

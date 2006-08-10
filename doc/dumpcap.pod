@@ -198,7 +198,8 @@ See the manual page of tcpdump(8).
 
 =head1 SEE ALSO
 
-wireshark(1), tshark(1), editcap(1), tcpdump(8), pcap(3)
+wireshark(1), tshark(1), editcap(1), mergecap(1), capinfos(1), tcpdump(8),
+pcap(3)
 
 =head1 NOTES
 

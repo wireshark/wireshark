@@ -71,7 +71,7 @@ eg:  PYTHONPATH=/usr/lib/python1.5/
 
 =head1 SEE ALSO
 
-wireshark(1)
+wireshark(1), tshark(1)
 
 
 =head1 NOTES

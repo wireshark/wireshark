@@ -208,7 +208,8 @@ To introduce 5% random errors in a capture file use:
 
 =head1 SEE ALSO
 
-tcpdump(8), pcap(3), wireshark(1), mergecap(1), text2pcap(1), od(1)
+tcpdump(8), pcap(3), wireshark(1), tshark(1), mergecap(1), dumpcap(1),
+capinfos(1), text2pcap(1), od(1)
 
 =head1 NOTES
 
