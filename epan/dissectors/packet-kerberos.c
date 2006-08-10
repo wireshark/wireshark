@@ -2409,7 +2409,7 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	/* skip the first 16 bytes, they are some magic created by the idl 
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	proto_tree_add_text(tree, tvb, offset, 16, "unknown: is this an undocumented policy handle?");
+	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
 	offset+=16;
 
 
@@ -2445,7 +2445,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_t
 	/* skip the first 16 bytes, they are some magic created by the idl 
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	proto_tree_add_text(tree, tvb, offset, 16, "unknown: is this an undocumented policy handle?");
+	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
 	offset+=16;
 
 
