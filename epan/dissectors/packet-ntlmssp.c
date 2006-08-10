@@ -874,6 +874,9 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     case NTLM_NAME_END:
       addr_tf = proto_tree_add_item(tree, hf_ntlmssp_address_list_terminator,
 				    tvb, item_offset, item_length, TRUE);
+      break;
+    default:
+      addr_tf = proto_tree_add_text(tree, tvb, item_offset, item_length, "Unknown type:0x%04x", item_type);
     }
 
     /* Now show the actual bytes that made up the summary line */
