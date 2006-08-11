@@ -1,32 +1,83 @@
 $Id$
 
+Installing Wireshark on FreeBSD/OpenBSD/NetBSD
+========================================================================
+
+     1. Extra packages required
+     2. Compiling Wireshark 
+     3. Berkeley Packet Filter (BPF) requirement
+     4. Running Wireshark as a non-root user
+
+
+1. Extra packages required
+---------------------------
+Wireshark requires a number of additional programs to function.
+Install the latest versions of the following programs before compiling:
+
+    atk
+    cairo
+    expat
+    gettext
+    glib2
+    glitz
+    gtk2 / gtk+2
+    jpeg
+    libiconv
+    pango
+    pkgconfig
+    png
+    tiff
+
+The easiest way to install these is by using your operating system's
+ports or packages system.
+
+
+2. Compiling Wireshark
+-----------------------
+To compile Wireshark with the default options, run configure, make and
+make install:
+
+     ./configure
+     make
+     make install
+
+The configure and make steps can be run as a non-root user and you can
+run Wireshark from the compilation directory itself.  You must run make
+install as root in order to copy the program to the proper directories.
+
+
+3. Berkeley Packet Filter (BPF) requirement
+--------------------------------------------
 In order to capture packets (with Wireshark/TShark, tcpdump, or any
-other packet capture program) on a BSD system, your kernel must have
-the Berkeley packet Filter mechanism enabled.  On some BSDs (recent
-versions of FreeBSD, for example), it's enabled by default in the
-generic kernel; it's not enabled by default in older FreeBSD kernels,
-and might not be enabled by default in other kernels.
+other packet capture program) on a BSD system, your kernel must have the
+Berkeley Packet Filter mechanism enabled.  The default kernel
+configurations in recent versions of BSD systems have this enabled
+already.  To verify the bpf device is present, look in the /dev
+directory:
 
-The entry in the FreeBSD 3.4 i386 GENERIC configuration file for it is:
+    ls -l /dev/bpf*
 
-	# The `bpfilter' pseudo-device enables the Berkeley Packet Filter.
-	# Be aware of the administrative consequences of enabling this!
-	# The number of devices determines the maximum number of
-	# simultaneous BPF clients programs runnable.
-	pseudo-device   bpfilter 1      #Berkeley packet filter
+You should see one or more bpf devices listed similar to this:
 
-To enable BPF, add "pseudo-device" line such as the last line there to
-your configuration file, re-run "config", rebuild the kernel, install
-the new kernel, and reboot.
+    crw-------  1 root  wheel    0,  90 Aug 10 21:05 /dev/bpf0
+    crw-------  1 root  wheel    0,  91 Aug 10 21:05 /dev/bpf1
 
-Note that some daemons, or other applications, may be BPF clients, i.e. 
-may use the BPF mechanism to see link-layer traffic coming into the
-machine and send link-layer traffic from the machine; for example, if
-the number in the "pseudo-device bpfilter" line is 1, and such a daemon
-or application is running, a packet-capture program will not be able to
-do packet capture, as the one and only BPF device will already be in
-use.  You may therefore need to increase the number of BPF devices, by
-increasing the number in the "pseudo-device bpfilter" line, re-running
-"config", rebuilding the kernel, installing the new kernel, and
-rebooting.
+Packet-capturing programs will pick the first bpf device that's not in
+use.  Recent versions of most BSDs will create bpf devices as needed, so
+you don't have to configure the number of devices that will be
+available.
 
+4. Running wireshark as a non-root user
+-------------------------------------------
+Since the bpf devices are read-only by the owner (root), you normally
+have to run packet capturing programs such as Wireshark as root.  It is
+safer to run programs as a non-root user if possible.  To run Wireshark
+as a non-root user, you must change the permissions on the bpf device(s).
+If you are the only user that needs to use Wireshark, the easiest way
+is to change the owner of each bpf device to your username.  You can also
+add the read/write ability to the group (typically wheel) and add users
+that need to use Wireshark to the wheel group.  Check your operating
+system's documentation on how to make permanent these changes as they
+are often reset upon reboot; if /dev is implemented with devfs, it might
+be possible to configure devfs to create all bpf devices owned by a
+particular user and/or group and with particular permissions.
