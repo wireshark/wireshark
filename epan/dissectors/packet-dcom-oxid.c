@@ -239,7 +239,7 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 							&u32ArraySize);
 
 		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, 
-							hf_oxid_bindings);
+							hf_oxid_bindings, NULL);
 		
 		offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
 							hf_oxid_ipid, &ipid);
@@ -275,7 +275,7 @@ dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     dissect_dcerpc_uint64(tvb , offset, pinfo, tree, drep, hf_oxid_Unknown1, NULL);
     offset += 8;
 
-    offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, hf_oxid_ds_array);
+    offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, hf_oxid_ds_array, NULL);
 
     /* unknown field 2 */
     dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_oxid_Unknown2, NULL);

@@ -147,7 +147,7 @@ dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 				&u32Pointer);
 	if (u32Pointer) {
-        offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, hf_dispatch_itinfo);
+        offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, hf_dispatch_itinfo, NULL /* XXX */);
     }
 
 	/* HRESULT of call */

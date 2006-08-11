@@ -85,6 +85,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/addr_resolv.h>
+#include <epan/inet_aton.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "prefs.h"
@@ -134,8 +136,8 @@ gint ett_dcom_objref = -1;
 static int hf_dcom_objref = -1;
 static int hf_dcom_objref_signature = -1;
 static int hf_dcom_objref_flags = -1;
-static int hf_dcom_objref_iid = -1;
-static int hf_dcom_objref_clsid = -1;
+int hf_dcom_iid = -1;
+int hf_dcom_clsid = -1;
 static int hf_dcom_objref_resolver_address = -1;
 static int hf_dcom_objref_cbextension = -1;
 static int hf_dcom_objref_size = -1;
@@ -144,9 +146,9 @@ gint ett_dcom_stdobjref = -1;
 static int hf_dcom_stdobjref = -1;
 static int hf_dcom_stdobjref_flags = -1;
 static int hf_dcom_stdobjref_public_refs = -1;
-static int hf_dcom_stdobjref_oxid = -1;
-static int hf_dcom_stdobjref_oid = -1;
-static int hf_dcom_stdobjref_ipid = -1;
+int hf_dcom_oxid = -1;
+int hf_dcom_oid = -1;
+int hf_dcom_ipid = -1;
 
 gint ett_dcom_dualstringarray = -1;
 gint ett_dcom_dualstringarray_binding = -1;
@@ -212,6 +214,160 @@ static int hf_dcom_vt_date = -1;
 static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
+
+
+GList *dcom_machines;
+GList *dcom_interfaces;
+
+void dcom_interface_dump(void) {
+    dcom_machine_t *machine;
+    dcom_object_t *object;
+    dcom_interface_t *interf;
+    GList *machines;
+    GList *objects;
+    GList *interfaces;
+
+
+    for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
+        machine = machines->data;
+        g_warning("Machine(#%4u): IP:%s", machine->first_packet, ip_to_str(machine->ip));
+
+        for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
+            object = objects->data;
+            g_warning(" Object(#%4u): OID:0x%x%x private:0x%x", object->first_packet, object->oid, object->private_data);
+
+            for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
+                interf = interfaces->data;
+                g_warning("  Interface(#%4u): iid:%s", 
+                    interf->first_packet, dcom_uuid_to_str(&interf->iid));
+                g_warning("            ipid:%s", dcom_uuid_to_str(&interf->ipid));
+            }
+        }
+    }    
+}
+
+
+dcom_interface_t *dcom_interface_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid) 
+{
+    dcom_interface_t *interf;
+    GList *interfaces;
+    static const e_uuid_t uuid_null = DCERPC_UUID_NULL;
+
+
+    if(memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
+    {
+        return NULL;
+    }
+
+    for(interfaces = dcom_interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
+        interf = interfaces->data;
+
+        if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+            return interf;
+        }
+    }
+
+    return NULL;
+}
+
+
+dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
+{
+    static const e_uuid_t uuid_null = DCERPC_UUID_NULL;
+    GList *dcom_iter;
+    dcom_machine_t *machine;
+    dcom_object_t *object;
+    dcom_interface_t *interf;
+
+
+    if( memcmp(iid, &uuid_null, sizeof(uuid_null)) == 0 ||
+        memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
+    {
+        return NULL;
+    }
+
+    if(oxid == 0 || oid == 0) {
+        /*g_warning("interface_new#%u", pinfo->fd->num);*/
+
+        interf = se_alloc(sizeof(dcom_interface_t));
+        interf->parent = NULL; //object;
+        interf->private_data = NULL;
+        interf->first_packet = pinfo->fd->num;
+        interf->iid = *iid;
+        interf->ipid = *ipid;
+
+        dcom_interfaces = g_list_append(dcom_interfaces, interf);
+        //object->interfaces = g_list_append(object->interfaces, interf);
+        return interf;
+    }
+
+    /* find machine */
+    dcom_iter = dcom_machines;
+    while(dcom_iter != NULL) {
+        machine = dcom_iter->data;
+        if(memcmp(machine->ip, ip, 4) == 0) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
+
+    /* create new machine if not found */
+    if(dcom_iter == NULL) {
+        machine = se_alloc(sizeof(dcom_machine_t));
+        memcpy( (void *) (machine->ip), ip, 4);
+        machine->objects = NULL;
+        machine->first_packet = pinfo->fd->num;
+        dcom_machines = g_list_append(dcom_machines, machine);
+    }
+
+    /* find object */
+    dcom_iter = machine->objects;
+    while(dcom_iter != NULL) {
+        object = dcom_iter->data;
+        if(object->oid == oid) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
+
+    /* create new object if not found */
+    if(dcom_iter == NULL) {
+        object = se_alloc(sizeof(dcom_object_t));
+        object->parent = machine;
+        object->interfaces = NULL;
+        object->private_data = NULL;
+        object->first_packet = pinfo->fd->num;
+        object->oid = oid;
+        object->oxid = oxid;
+
+        machine->objects = g_list_append(machine->objects, object);
+    }
+
+    /* find interface */
+    dcom_iter = object->interfaces;
+    while(dcom_iter != NULL) {
+        interf = dcom_iter->data;
+        if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
+
+    /* create new interface if not found */
+    if(dcom_iter == NULL) {
+        interf = se_alloc(sizeof(dcom_interface_t));
+        interf->parent = object;
+        interf->private_data = NULL;
+        interf->first_packet = pinfo->fd->num;
+        interf->iid = *iid;
+        interf->ipid = *ipid;
+
+        object->interfaces = g_list_append(object->interfaces, interf);
+        dcom_interfaces = g_list_append(dcom_interfaces, interf);
+    }
+
+    return interf;
+}
 
 
 /*
@@ -586,6 +742,9 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
+    proto_item *pi;
+    dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
+    e_uuid_t uuid_null = DCERPC_UUID_NULL;
 	
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
@@ -611,6 +770,11 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 		u16VersionMajor, u16VersionMinor, dcom_uuid_to_str(&uuidCausality));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
+    if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
+        pi = proto_tree_add_guid(tree, hf_dcom_ipid, tvb, offset, GUID_LEN, (e_guid_t *) &info->call_data->object_uuid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+
 	return offset;
 }
 
@@ -623,6 +787,9 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
+    proto_item *pi;
+    dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
+    e_uuid_t uuid_null = DCERPC_UUID_NULL;
 
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
@@ -637,6 +804,11 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	
 	/* update subtree header */
 	proto_item_set_len(sub_item, offset - u32SubStart);
+
+    if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
+        pi = proto_tree_add_guid(tree, hf_dcom_ipid, tvb, offset, GUID_LEN, (e_guid_t *) &info->call_data->object_uuid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
 
 	return offset;
 }
@@ -1177,7 +1349,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 			if (u32Pointer) {
 				offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, sub_tree, drep, 
-								hf_dcom_vt_dispatch);
+								hf_dcom_vt_dispatch, NULL); /* XXX - how to handle this? */
 			}
 			break;
 		case(WIRESHARK_VT_ARRAY):
@@ -1217,21 +1389,20 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
-	int hfindex, const gchar *field_name, int field_index)
+	int hfindex, const gchar *field_name, int field_index, e_uuid_t *uuid)
 {
-	e_uuid_t uuid;
 	const gchar *uuid_name;
 
 
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
-						hfindex, &uuid);
+						hfindex, uuid);
 
 	/* update column info now */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	/* XXX: improve it: getting the hash value is done the second time here */
 
 		/* look for a registered uuid name */
-		uuid_name = dcerpc_get_uuid_name(&uuid, 0);
+		uuid_name = dcerpc_get_uuid_name(uuid, 0);
 
 		if (field_index != -1) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]=%s", 
@@ -1437,7 +1608,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect an DUALSTRINGARRAY */
 int
 dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex)
+                       proto_tree *tree, guint8 *drep, int hfindex, gchar *ip)
 {
 	guint16	u16NumEntries;
 	guint16	u16SecurityOffset;
@@ -1456,6 +1627,9 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *subsub_tree;
 	guint32	u32SubSubStart;
     gboolean isPrintable;
+    guint32 first_ip = 0;
+    guint32 curr_ip = 0;
+    struct in_addr		ipaddr;
 
 
 	/* add subtree header */
@@ -1484,6 +1658,30 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, szStr, u32MaxStr, &isPrintable);
 		proto_tree_add_string(subsub_tree, hf_dcom_dualstringarray_string_network_addr, 
 			tvb, u32Start, offset - u32Start, szStr);
+
+        /* convert ip address (if it is dotted decimal) */
+        /* XXX - this conversion is ugly */
+        if (inet_aton(szStr, &ipaddr)) {
+            if(get_host_ipaddr(szStr, &curr_ip)) {
+                curr_ip = ntohl(curr_ip);
+
+    	        /*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s", 
+                    ip_to_str( (gchar *) &curr_ip));*/
+
+                if(first_ip == 0) {
+                    if(ip != NULL) {
+                            memcpy(ip, &curr_ip, sizeof(curr_ip));
+                    }
+                    first_ip = curr_ip;
+                } else {
+                    if(first_ip != curr_ip) {
+                        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+                            "DUALSTRINGARRAY: multiple IP's %s %s", 
+                            ip_to_str( (char *) &first_ip), ip_to_str( (char *) &curr_ip));
+                    }
+                }
+            }
+        }
 
 		proto_item_append_text(subsub_item, "[%u]: TowerId=%s, NetworkAddr=\"%s\"", 
 			u32StringBindings, 
@@ -1532,11 +1730,11 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect an STDOBJREF */
 int
 dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex _U_)
+                       proto_tree *tree, guint8 *drep, int hfindex _U_, 
+                       guint64 *oxid, guint64 *oid, e_uuid_t *ipid)
 {
 	guint32	u32Flags;
 	guint32	u32PublicRefs;
-	e_uuid_t ipid;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
@@ -1553,15 +1751,15 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_stdobjref_public_refs, &u32PublicRefs);
 	offset = dissect_dcom_ID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_stdobjref_oxid, NULL);
+                        hf_dcom_oxid, oxid);
 	offset = dissect_dcom_ID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_stdobjref_oid, NULL);
+                        hf_dcom_oid, oid);
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_stdobjref_ipid, &ipid);
+                        hf_dcom_ipid, ipid);
 
 	/* append info to subtree header */
 	proto_item_append_text(sub_item, ": PublicRefs=%u IPID=%s",
-		u32PublicRefs, dcom_uuid_to_str(&ipid));
+		u32PublicRefs, dcom_uuid_to_str(ipid));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	return offset;
@@ -1571,7 +1769,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect an OBJREF */
 int
 dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex)
+                       proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf)
 {
 	guint32	u32Signature;
 	guint32	u32Flags;
@@ -1582,6 +1780,11 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32	u32SubStart;
 	guint32	u32CBExtension;
 	guint32	u32Size;
+    guint64 oxid;
+    guint64 oid;
+    e_uuid_t ipid;
+    dcom_interface_t *dcom_if = NULL;
+    gchar ip[4];
 
 
 	/* add subtree header */
@@ -1595,25 +1798,26 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_objref_flags, &u32Flags);
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_objref_iid, &iid);
-
+                        hf_dcom_iid, &iid);
 
 	switch(u32Flags) {
 		case(0x1):	/* standard */
-			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex);
+			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex, 
+                                &oxid, &oid, &ipid);
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep,
-								hf_dcom_objref_resolver_address);
+								hf_dcom_objref_resolver_address, ip);
 		break;
 		case(0x2):	/* handler (untested) */
-			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex);
+			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex, 
+                                &oxid, &oid, &iid);
 			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
-								hf_dcom_objref_clsid, &clsid);
+								hf_dcom_clsid, &clsid);
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep, 
-								hf_dcom_objref_resolver_address);
+								hf_dcom_objref_resolver_address, ip);
 		break;
 		case(0x4):	/* custom */
 			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
-								hf_dcom_objref_clsid, &clsid);
+								hf_dcom_clsid, &clsid);
 	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                                 hf_dcom_objref_cbextension, &u32CBExtension);
 	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
@@ -1622,6 +1826,19 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, sub_tree, drep, u32Size);
 		break;
 	}
+
+    if(u32Flags == 0x1 || u32Flags == 0x2) {
+        /* add interface instance to database (we currently only handle IPv4) */
+        if(pinfo->net_src.type == AT_IPv4) {
+            dcom_if = dcom_interface_new(pinfo, 
+                ip,
+                &iid, oxid, oid, &ipid);
+        }
+    }
+
+    if(interf != NULL) {
+        *interf = dcom_if;
+    }
 
 	/* append info to subtree header */
 	proto_item_set_len(sub_item, offset - u32SubStart);
@@ -1634,7 +1851,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect an MInterfacePointer */
 int
 dissect_dcom_MInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex)
+                       proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf)
 {
 	guint32	u32CntData;
 	guint32	u32ArraySize;
@@ -1657,7 +1874,7 @@ dissect_dcom_MInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, drep, &u32ArraySize);
 
-	offset = dissect_dcom_OBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex);
+	offset = dissect_dcom_OBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex, interf);
 
 	/* append info to subtree header */
 	proto_item_set_len(sub_item, offset - u32SubStart);
@@ -1669,7 +1886,7 @@ dissect_dcom_MInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect a pointer to a MInterfacePointer */
 int
 dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex)
+                       proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf)
 {
 	guint32 u32Pointer;
 
@@ -1677,8 +1894,12 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, hfindex);
-	}
+		offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, hfindex, interf);
+    } else {
+        if(interf != NULL) {
+            *interf = NULL;
+        }
+    }
 
 	return offset;
 }
@@ -1692,6 +1913,12 @@ void dcom_register_server_coclass(int proto _U_, int ett _U_, e_uuid_t *uuid _U_
 	 * not a whole sub_dissector registration */
     /* but this is currently not possible :-( */
 /*	dcerpc_init_uuid (proto, ett, uuid, ver, sub_dissectors, opnum_hf);*/
+}
+
+
+static void dcom_reinit( void) {
+    dcom_machines = NULL;
+    dcom_interfaces = NULL;
 }
 
 
@@ -1709,7 +1936,7 @@ proto_register_dcom (void)
 		{ &hf_dcom_this_res,
 		{ "Reserved", "dcom.this.res", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcom_this_cid,
-        { "Causality ID", "dcom.this.uuid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+        { "Causality ID", "dcom.this.uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }}
 	};
 	
 	static hf_register_info hf_dcom_that_array[] = {
@@ -1781,10 +2008,10 @@ proto_register_dcom (void)
 		{ "Signature", "dcom.objref.signature", FT_UINT32, BASE_HEX, VALS(dcom_objref_signature_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_objref_flags,
 		{ "Flags", "dcom.objref.flags", FT_UINT32, BASE_HEX, VALS(dcom_objref_flag_vals), 0x0, "", HFILL }},
-		{ &hf_dcom_objref_iid,
-		{ "IID", "dcom.objref.iid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
-		{ &hf_dcom_objref_clsid,
-		{ "CLSID", "dcom.objref.clsid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_iid,
+		{ "IID", "dcom.iid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_clsid,
+		{ "CLSID", "dcom.clsid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_objref_resolver_address,
 		{ "ResolverAddress", "dcom.objref.resolver_address", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_objref_cbextension,
@@ -1800,12 +2027,12 @@ proto_register_dcom (void)
 		{ "Flags", "dcom.stdobjref.flags", FT_UINT32, BASE_HEX, VALS(dcom_stdobjref_flag_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_stdobjref_public_refs,
 		{ "PublicRefs", "dcom.stdobjref.public_refs", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_dcom_stdobjref_oxid,
-		{ "OXID", "dcom.stdobjref.oxid", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_dcom_stdobjref_oid,
-		{ "OID", "dcom.stdobjref.oid", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_dcom_stdobjref_ipid,
-		{ "IPID", "dcom.stdobjref.ipid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ &hf_dcom_oxid,
+		{ "OXID", "dcom.oxid", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_oid,
+		{ "OID", "dcom.oid", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_ipid,
+		{ "IPID", "dcom.ipid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }}
 	};
 
 	static hf_register_info hf_dcom_dualstringarray_array[] = {
@@ -1950,6 +2177,8 @@ proto_register_dcom (void)
 		"Display some DCOM unmarshalled fields "
 		"usually hidden",
 		&dcom_prefs_display_unmarshalling_details);
+
+    register_init_routine(dcom_reinit);
 }
 
 

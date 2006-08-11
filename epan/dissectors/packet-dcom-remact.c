@@ -39,8 +39,6 @@
 
 static int hf_remact_opnum = -1;
 
-static int hf_remact_clsid = -1;
-static int hf_remact_iid = -1;
 static int hf_remact_requested_protseqs = -1;
 static int hf_remact_protseqs = -1;
 static int hf_remact_interfaces = -1;
@@ -50,9 +48,7 @@ static int hf_remact_object_name = -1;
 static int hf_remact_object_storage = -1;
 static int hf_remact_interface_data = -1;
 
-static int hf_remact_oxid = -1;
 static int hf_remact_oxid_bindings = -1;
-static int hf_remact_ipid = -1;
 static int hf_remact_authn_hint = -1;
 
 static const value_string dcom_protseq_vals[] = {
@@ -86,6 +82,8 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32ArraySize;
 	guint32 u32ItemIdx;
 	guint16 u16ProtSeqs;
+    e_uuid_t clsid;
+    e_uuid_t iid;
 
 	gchar 	szObjName[1000] = { 0 };
 	guint32 u32ObjNameLen = sizeof(szObjName);
@@ -93,7 +91,7 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, drep,
-		hf_remact_clsid, "CLSID", -1);
+		hf_dcom_clsid, "CLSID", -1, &clsid);
 	
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
@@ -103,7 +101,7 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
-						hf_remact_object_storage);
+						hf_remact_object_storage, NULL /* XXX */);
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
 						hf_remact_client_impl_level, &u32ClientImpLevel);
@@ -121,7 +119,7 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 		u32ItemIdx = 1;
 		while (u32Interfaces--) {
 			offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, drep,
-				hf_remact_iid, "IID", u32ArraySize);
+				hf_dcom_iid, "IID", u32ArraySize, &iid);
 
 			u32ItemIdx++;
 		}
@@ -161,18 +159,18 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_remact_oxid, NULL);
+						hf_dcom_oxid, NULL);
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
 	if (u32Pointer) {
 		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
 							&u32ArraySize);
 		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, 
-							hf_remact_oxid_bindings);
+							hf_remact_oxid_bindings, NULL);
 	}
 
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
-                        hf_remact_ipid, &ipid);
+                        hf_dcom_ipid, &ipid);
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
 						hf_remact_authn_hint, &u32AuthnHint);
 	offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep,
@@ -189,7 +187,7 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_MInterfacePointer(tvb, u32VariableOffset, pinfo, tree, drep,
-						hf_remact_interface_data);
+						hf_remact_interface_data, NULL /* XXX */);
 		}
 	}
 	offset = u32VariableOffset;
@@ -235,10 +233,6 @@ proto_register_remact (void)
         { &hf_remact_opnum,
 	    { "Operation", "remact_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 
-        { &hf_remact_clsid,
-        { "CLSID", "remact_clsid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
-        { &hf_remact_iid,
-        { "IID", "remact_iid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_remact_requested_protseqs,
 		{ "RequestedProtSeqs", "remact_req_prot_seqs", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_remact_protseqs,
@@ -256,12 +250,8 @@ proto_register_remact (void)
 		{ &hf_remact_interface_data,
 		{ "InterfaceData", "remact_interface_data", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 
-        { &hf_remact_oxid,
-		{ "OXID", "remact_oxid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_remact_oxid_bindings,
 		{ "OxidBindings", "hf_remact_oxid_bindings", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},
-        { &hf_remact_ipid,
-        { "IPID", "remact_ipid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_remact_authn_hint,
 		{ "AuthnHint", "remact_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	};

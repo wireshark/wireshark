@@ -33,9 +33,12 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
+#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "packet-dcom-dispatch.h"
+#include "packet-dcom-cba-acco.h"
 
 
 static int hf_cba_opnum = -1;
@@ -569,6 +572,8 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32Pointer;
 	gchar 	szStr[1000];
 	guint32 u32MaxStr = sizeof(szStr);
+    dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
+    gchar *call;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
@@ -579,7 +584,12 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
 		offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, drep, 
 			hf_cba_name, szStr, u32MaxStr);
 	}
-	
+
+    if(szStr != NULL) {
+        call = se_strdup(szStr);
+        info->call_data->private_data = call;
+    }
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	      col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
 	}
@@ -593,11 +603,31 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 u32HResult;
+    dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
+    gchar *ldev_name = info->call_data->private_data;
+    dcom_interface_t *pdev_interf;
+    dcom_interface_t *ldev_interf;
+    cba_pdev_t *pdev;
+    cba_ldev_t *ldev;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0);
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &ldev_interf);
+
+    /* try to read the ldev name from the request */
+    if(ldev_name != NULL && ldev_interf != NULL) {
+        /* XXX - this is a hack to create a pdev interface */
+        /* as I currently don't understand the objref process for a root interface! */
+        pdev_interf = dcom_interface_new(pinfo, pinfo->net_dst.data, &uuid_ICBAPhysicalDevice, 0, 0, &info->call_data->object_uuid);    
+        if(pdev_interf != NULL) {
+            pdev = cba_pdev_add(pinfo, pinfo->net_dst.data);
+            cba_pdev_link(pinfo, pdev, pdev_interf);
+
+            ldev = cba_ldev_add(pinfo, pdev, ldev_name);
+            cba_ldev_link(pinfo, ldev, ldev_interf);
+        }
+    }
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
@@ -730,7 +760,38 @@ dissect_Revision_resp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_get_Name_resp(tvbuff_t *tvb, int offset,
+dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	gchar 	szStr[1000];
+	guint32 u32MaxStr = sizeof(szStr);
+	guint32 u32Pointer;
+	guint32 u32HResult;
+
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+						&u32Pointer);
+	if (u32Pointer) {
+		offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, drep, 
+			hf_cba_name, szStr, u32MaxStr);
+	}
+	
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+				&u32HResult);
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\" -> %s", szStr,
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_RTAuto_get_Name_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 
@@ -743,11 +804,25 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 u32HResult;
+    dcom_interface_t *acco_interf;
+    dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
+    cba_ldev_t *ldev;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0);
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &acco_interf);
+    if(acco_interf == NULL) {
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+            "LDev_get_ACCO: can't resolve ACCO interface pointer");
+    }
+
+    ldev = cba_ldev_find(pinfo, pinfo->net_src.data, &info->call_data->object_uuid);
+    
+    /* "crosslink" interface and it's object */
+    if(ldev != NULL && acco_interf != NULL) {
+        cba_ldev_link_acco(pinfo, ldev, acco_interf);
+    }
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
@@ -769,7 +844,7 @@ dissect_ICBALogicalDevice_get_RTAuto_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0);
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, NULL);
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
@@ -857,7 +932,7 @@ dissect_Advise_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0);
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, NULL);
 
 	return offset;
 }
@@ -1001,7 +1076,7 @@ dissect_ICBAPhysicalDevicePCEvent_OnLogicalDeviceAdded_rqst(tvbuff_t *tvb, int o
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_cookie, &u32Cookie);
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0);
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, NULL);
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
@@ -1158,7 +1233,7 @@ static dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
     { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
     { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
-    { 7, "get_Name", dissect_dcom_simple_rqst, dissect_get_Name_resp },
+    { 7, "get_Name", dissect_dcom_simple_rqst, dissect_ICBALogicalDevice_get_Name_resp },
     { 8, "get_Producer", dissect_dcom_simple_rqst, dissect_get_Producer_resp },
     { 9, "get_Product", dissect_dcom_simple_rqst, dissect_get_Product_resp },
     {10, "get_SerialNo", dissect_dcom_simple_rqst, dissect_get_SerialNo_resp },
@@ -1262,7 +1337,7 @@ static dcerpc_sub_dissector ICBARTAuto_dissectors[] = {
     { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
     { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
-    { 7, "get_Name", dissect_dcom_simple_rqst, dissect_get_Name_resp },
+    { 7, "get_Name", dissect_dcom_simple_rqst, dissect_RTAuto_get_Name_resp },
     { 8, "Revision", dissect_dcom_simple_rqst, dissect_Revision_resp },
 
 	/* stage 2 */
@@ -1288,6 +1363,11 @@ static dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
     { 8, "StampCollection", dissect_dcom_simple_rqst, NULL },
     { 0, NULL, NULL, NULL },
 };
+
+
+static void cba_reinit( void) {
+    cba_pdevs = NULL;
+}
 
 
 /* register protocol */
@@ -1451,6 +1531,8 @@ proto_register_dcom_cba (void)
 	ett[0] = &ett_ICBASystemProperties;
 	proto_ICBASystemProperties = proto_register_protocol ("ICBASystemProperties", "ICBASysProp", "cba_sysprop");
 	proto_register_subtree_array (ett, array_length (ett));
+
+    register_init_routine(cba_reinit);
 }
 
 

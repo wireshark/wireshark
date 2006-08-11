@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
@@ -76,6 +77,11 @@ static guint16  ver_remunk2 = 0;
 static int proto_remunk2 = -1;
 
 
+typedef struct remunk_remqueryinterface_call_s {
+    guint       iid_count;
+    e_uuid_t    *iids;
+} remunk_remqueryinterface_call_t;
+
 
 static int
 dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
@@ -86,9 +92,12 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 	guint16	u16IIDs;
 	guint32	u32ArraySize;
 	guint32	u32ItemIdx;
+	e_uuid_t iid;
+	dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
+	remunk_remqueryinterface_call_t *call;
 
 
-    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
                         hf_remunk_ipid, &ipid);
@@ -102,10 +111,22 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
 						&u32ArraySize);
 
-	u32ItemIdx = 1;
-	while (u32ArraySize--) {
+    /* limit the allocation to a reasonable size */
+    if(u32ArraySize < 100) {
+	    call = se_alloc(sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_uuid_t));
+	    call->iid_count = u32ArraySize;
+	    call->iids = (e_uuid_t *) (call+1);
+        info->call_data->private_data = call;
+    } else {
+        call = NULL;
+    }
+
+	for (u32ItemIdx = 0; u32ArraySize--; u32ItemIdx++) {
 		offset = dissect_dcom_append_UUID(tvb, offset, 	pinfo, tree, drep,
-			hf_remunk_iid, "IID", u32ItemIdx++);
+			hf_remunk_iid, "IID", u32ItemIdx+1, &iid);
+        if(call != NULL) {
+		    call->iids[u32ItemIdx] = iid;
+        }
 	}
 
 	return offset;
@@ -123,9 +144,17 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 	proto_tree *sub_tree;
 	guint32	u32HResult;
 	guint32	u32SubStart;
+	e_uuid_t iid;
+	e_uuid_t iid_null = DCERPC_UUID_NULL;
+	dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
+	remunk_remqueryinterface_call_t *call = info->call_data->private_data;
+    guint64 oxid;
+    guint64 oid;
+    e_uuid_t ipid;
+    dcom_interface_t *dcom_if;
 
 
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
@@ -134,7 +163,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
 	u32ItemIdx = 1;
 	while (u32ArraySize--) {
-        /* add subtree */
+		/* add subtree */
 		sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, FALSE);
 		sub_tree = proto_item_add_subtree(sub_item, ett_remunk_rqi_result);
 
@@ -144,9 +173,26 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 		u32SubStart = offset - 4;
 		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
 							&u32Pointer);
-		if (u32Pointer) {
-			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, 0 /* hfindex */);
+
+		/* try to read the iid from the request */
+		if(call != NULL && u32ItemIdx <= call->iid_count) {
+			iid = call->iids[u32ItemIdx-1];
+		} else {
+			iid = iid_null;
 		}
+
+		/* XXX - this doesn't seem to be dependent on the pointer above?!? */
+		/*if (u32Pointer) {*/
+			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, 0 /* hfindex */, 
+                &oxid, &oid, &ipid);
+		/*}*/
+
+        /* add interface instance to database (we currently only handle IPv4) */
+        if(pinfo->net_src.type == AT_IPv4) {
+            dcom_if = dcom_interface_new(pinfo, 
+                pinfo->net_src.data,
+                &iid, oxid, oid, &ipid);
+        }
 
 		/* update subtree */
 		proto_item_append_text(sub_item, "[%u]: %s", 
@@ -163,7 +209,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
 		u32ItemIdx++;
 	}
-		
+
 	/* HRESULT of call */
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);

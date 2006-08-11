@@ -58,7 +58,7 @@ dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
         4);
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
-						hf_sysact_unknown);
+						hf_sysact_unknown, NULL /* XXX */);
 
 	return offset;
 }
@@ -72,7 +72,7 @@ dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
-						hf_sysact_unknown);
+						hf_sysact_unknown, NULL /* XXX */);
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 					 NULL /* pu32HResult */);
