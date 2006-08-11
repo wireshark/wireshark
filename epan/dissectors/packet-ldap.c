@@ -142,6 +142,15 @@ static int hf_mscldap_netlogon_version = -1;
 static int hf_mscldap_netlogon_lm_token = -1;
 static int hf_mscldap_netlogon_nt_token = -1;
 static int hf_ldap_sid = -1;
+static int hf_ldap_AccessMask_ADS_CREATE_CHILD = -1;
+static int hf_ldap_AccessMask_ADS_DELETE_CHILD = -1;
+static int hf_ldap_AccessMask_ADS_LIST = -1;
+static int hf_ldap_AccessMask_ADS_SELF_WRITE = -1;
+static int hf_ldap_AccessMask_ADS_READ_PROP = -1;
+static int hf_ldap_AccessMask_ADS_WRITE_PROP = -1;
+static int hf_ldap_AccessMask_ADS_DELETE_TREE = -1;
+static int hf_ldap_AccessMask_ADS_LIST_OBJECT = -1;
+static int hf_ldap_AccessMask_ADS_CONTROL_ACCESS = -1;
 
 
 /*--- Included file: packet-ldap-hf.c ---*/
@@ -245,7 +254,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 139 "packet-ldap-template.c"
+#line 148 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -296,7 +305,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 148 "packet-ldap-template.c"
+#line 157 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -2766,7 +2775,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 531 "packet-ldap-template.c"
+#line 540 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3440,10 +3449,85 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+#define LDAP_ACCESSMASK_ADS_CREATE_CHILD	0x00000001
+static const true_false_string ldap_AccessMask_ADS_CREATE_CHILD_tfs = {
+   "ADS CREATE CHILD is SET",
+   "Ads create child is NOT set",
+};
+
+#define LDAP_ACCESSMASK_ADS_DELETE_CHILD	0x00000002
+static const true_false_string ldap_AccessMask_ADS_DELETE_CHILD_tfs = {
+   "ADS DELETE CHILD is SET",
+   "Ads delete child is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_LIST		0x00000004
+static const true_false_string ldap_AccessMask_ADS_LIST_tfs = {
+   "ADS LIST is SET",
+   "Ads list is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_SELF_WRITE		0x00000008
+static const true_false_string ldap_AccessMask_ADS_SELF_WRITE_tfs = {
+   "ADS SELF WRITE is SET",
+   "Ads self write is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_READ_PROP		0x00000010
+static const true_false_string ldap_AccessMask_ADS_READ_PROP_tfs = {
+   "ADS READ PROP is SET",
+   "Ads read prop is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_WRITE_PROP		0x00000020
+static const true_false_string ldap_AccessMask_ADS_WRITE_PROP_tfs = {
+   "ADS WRITE PROP is SET",
+   "Ads write prop is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_DELETE_TREE		0x00000040
+static const true_false_string ldap_AccessMask_ADS_DELETE_TREE_tfs = {
+   "ADS DELETE TREE is SET",
+   "Ads delete tree is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_LIST_OBJECT		0x00000080
+static const true_false_string ldap_AccessMask_ADS_LIST_OBJECT_tfs = {
+   "ADS LIST OBJECT is SET",
+   "Ads list object is NOT set",
+};
+#define LDAP_ACCESSMASK_ADS_CONTROL_ACCESS	0x00000100
+static const true_false_string ldap_AccessMask_ADS_CONTROL_ACCESS_tfs = {
+   "ADS CONTROL ACCESS is SET",
+   "Ads control access is NOT set",
+};
+
+static void
+ldap_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+{
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_CONTROL_ACCESS, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_LIST_OBJECT, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_DELETE_TREE, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_WRITE_PROP, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_READ_PROP, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_SELF_WRITE, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_LIST, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_DELETE_CHILD, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(tree, hf_ldap_AccessMask_ADS_CREATE_CHILD, tvb, offset, 4, access);
+}
+struct access_mask_info ldap_access_mask_info = {
+	"LDAP",			/* Name of specific rights */
+	ldap_specific_rights,	/* Dissection function */
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
+};
+
 static void
 dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_length(tvb), NULL);
+	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_length(tvb), &ldap_access_mask_info);
 }
 
 static void
@@ -3731,6 +3815,33 @@ void proto_register_ldap(void) {
     { &hf_ldap_guid,
       { "GUID", "ldap.guid", FT_GUID, BASE_NONE,
         NULL, 0, "GUID", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_CREATE_CHILD, 
+	  { "Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CREATE_CHILD_tfs), LDAP_ACCESSMASK_ADS_CREATE_CHILD, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_DELETE_CHILD, 
+	  { "Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_CHILD_tfs), LDAP_ACCESSMASK_ADS_DELETE_CHILD, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_LIST, 
+	  { "List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_tfs), LDAP_ACCESSMASK_ADS_LIST, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_SELF_WRITE, 
+	  { "Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_SELF_WRITE_tfs), LDAP_ACCESSMASK_ADS_SELF_WRITE, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_READ_PROP, 
+	  { "Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_READ_PROP_tfs), LDAP_ACCESSMASK_ADS_READ_PROP, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_WRITE_PROP, 
+	  { "Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_WRITE_PROP_tfs), LDAP_ACCESSMASK_ADS_WRITE_PROP, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_DELETE_TREE, 
+	  { "Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_TREE_tfs), LDAP_ACCESSMASK_ADS_DELETE_TREE, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_LIST_OBJECT, 
+	  { "List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_OBJECT_tfs), LDAP_ACCESSMASK_ADS_LIST_OBJECT, "", HFILL }},
+
+    { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS, 
+	  { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, "", HFILL }},
 
 
 /*--- Included file: packet-ldap-hfarr.c ---*/
@@ -4125,7 +4236,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1497 "packet-ldap-template.c"
+#line 1608 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4178,7 +4289,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1508 "packet-ldap-template.c"
+#line 1619 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
