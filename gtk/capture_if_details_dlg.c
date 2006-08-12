@@ -497,33 +497,33 @@ static const value_string win32_802_11_network_type_vals[] = {
 };
 
 static const value_string win32_802_11_encryption_status_vals[] = {
-	{ Ndis802_11Encryption1Enabled,     "Encryption 1 Enabled  (WEP enabled, TKIP & AES disabled, transmit key available)" },
-	{ Ndis802_11EncryptionDisabled,     "Encryption Disabled  (WEP & TKIP & AES disabled, transmit key available)" },
-	{ Ndis802_11Encryption1KeyAbsent,   "Encryption 1 Key Absent (WEP enabled, TKIP & AES disabled, transmit key unavailable)" },
-	{ Ndis802_11EncryptionNotSupported, "Encryption Not Supported (WEP & TKIP & AES not supported)" },
-	{ Ndis802_11Encryption2Enabled,     "Encryption 2 Enabled (WEP & TKIP enabled, AES disabled, transmit key available)" },
-	{ Ndis802_11Encryption2KeyAbsent,   "Encryption 2 Key Absent (WEP & TKIP enabled, AES disabled, transmit key unavailable)" },
-	{ Ndis802_11Encryption3Enabled,     "Encryption 3 Enabled (WEP & TKIP & AES enabled, transmit key available)" },
-	{ Ndis802_11Encryption3KeyAbsent,   "Encryption 3 Key Absent (WEP & TKIP & AES enabled, transmit key unavailable)" },
+	{ Ndis802_11Encryption1Enabled,     "WEP enabled, TKIP & AES disabled, transmit key available" },
+	{ Ndis802_11EncryptionDisabled,     "WEP & TKIP & AES disabled, transmit key available" },
+	{ Ndis802_11Encryption1KeyAbsent,   "WEP enabled, TKIP & AES disabled, transmit key unavailable" },
+	{ Ndis802_11EncryptionNotSupported, "WEP & TKIP & AES not supported" },
+	{ Ndis802_11Encryption2Enabled,     "WEP & TKIP enabled, AES disabled, transmit key available" },
+	{ Ndis802_11Encryption2KeyAbsent,   "WEP & TKIP enabled, AES disabled, transmit key unavailable" },
+	{ Ndis802_11Encryption3Enabled,     "WEP & TKIP & AES enabled, transmit key available" },
+	{ Ndis802_11Encryption3KeyAbsent,   "WEP & TKIP & AES enabled, transmit key unavailable" },
     { 0, NULL }
 };
 
 /* frequency to channel mapping (OID_802_11_CONFIGURATION) */
 static const value_string win32_802_11_channel_freq_vals[] = {
-	{ 2412000, "1 (2412000 kHz)" },
-	{ 2417000, "2 (2417000 kHz)" },
-	{ 2422000, "3 (2422000 kHz)" },
-	{ 2427000, "4 (2427000 kHz)" },
-	{ 2432000, "5 (2432000 kHz)" },
-	{ 2437000, "6 (2437000 kHz)" },
-	{ 2442000, "7 (2442000 kHz)" },
-	{ 2447000, "8 (2447000 kHz)" },
-	{ 2452000, "9 (2452000 kHz)" },
-	{ 2457000, "10 (2457000 kHz)" },
-	{ 2462000, "11 (2462000 kHz)" },
-	{ 2467000, "12 (2467000 kHz)" },
-	{ 2472000, "13 (2472000 kHz)" },
-	{ 2484000, "14 (2484000 kHz)" },
+	{ 2412000, "1 (2,412,000 kHz)" },
+	{ 2417000, "2 (2,417,000 kHz)" },
+	{ 2422000, "3 (2,422,000 kHz)" },
+	{ 2427000, "4 (2,427,000 kHz)" },
+	{ 2432000, "5 (2,432,000 kHz)" },
+	{ 2437000, "6 (2,437,000 kHz)" },
+	{ 2442000, "7 (2,442,000 kHz)" },
+	{ 2447000, "8 (2,447,000 kHz)" },
+	{ 2452000, "9 (2,452,000 kHz)" },
+	{ 2457000, "10 (2,457,000 kHz)" },
+	{ 2462000, "11 (2,462,000 kHz)" },
+	{ 2467000, "12 (2,467,000 kHz)" },
+	{ 2472000, "13 (2,472,000 kHz)" },
+	{ 2484000, "14 (2,484,000 kHz)" },
     { 0, NULL }
 };
 
@@ -876,7 +876,7 @@ rates_details(unsigned char *values, int length) {
                     g_string_append(Rates, "/");
                 }
 
-                float_value = (float) ((values[i] & 0x7F) / 2);
+                float_value = ((float) (values[i] & 0x7F)) / 2;
 
                 /* reduce the screen estate by showing fractions only where required */
                 int_value = (int)float_value;
@@ -1123,7 +1123,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
     const gchar         *manuf_name;
 
 
-    add_string_to_table(table, row, "Characteristics", "");
+    add_string_to_table(table, row, "Current network", "");
 
     /* SSID */
     length = sizeof(struct ndis_essid);
@@ -1266,12 +1266,12 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     if (wpcap_packet_request(adapter, OID_802_11_BSSID_LIST, FALSE /* !set */, (char *) bssid_list, &length)) {
         add_string_to_table(table, row, "", "");
-        add_string_to_table(table, row, "BSSID list", "");
+        add_string_to_table(table, row, "Available networks", "");
 
         capture_if_details_802_11_bssid_list(main_vb, bssid_list);
         entries += bssid_list->num_items;
     } else {
-        add_string_to_table(table, row, "802.11 BSSID list", "-");
+        add_string_to_table(table, row, "Available networks", "-");
     }
 
     g_free(bssid_list);
