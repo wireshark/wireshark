@@ -988,32 +988,32 @@ se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 
 
 static inline se_tree_node_t *
-se_tree_parent(se_tree_node_t *node)
+emem_tree_parent(se_tree_node_t *node)
 {
 	return node->parent;
 }
 
 static inline se_tree_node_t *
-se_tree_grandparent(se_tree_node_t *node)
+emem_tree_grandparent(se_tree_node_t *node)
 {
 	se_tree_node_t *parent;
 
-	parent=se_tree_parent(node);
+	parent=emem_tree_parent(node);
 	if(parent){
 		return parent->parent;
 	}
 	return NULL;
 }
 static inline se_tree_node_t *
-se_tree_uncle(se_tree_node_t *node)
+emem_tree_uncle(se_tree_node_t *node)
 {
 	se_tree_node_t *parent, *grandparent;
 
-	parent=se_tree_parent(node);
+	parent=emem_tree_parent(node);
 	if(!parent){
 		return NULL;
 	}
-	grandparent=se_tree_parent(parent);
+	grandparent=emem_tree_parent(parent);
 	if(!grandparent){
 		return NULL;
 	}
@@ -1074,8 +1074,8 @@ rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *grandparent;
 	se_tree_node_t *parent;
 
-	parent=se_tree_parent(node);
-	grandparent=se_tree_parent(parent);
+	parent=emem_tree_parent(node);
+	grandparent=emem_tree_parent(parent);
 	parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 	grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
 	if( (node==parent->left) && (parent==grandparent->left) ){
@@ -1091,8 +1091,8 @@ rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *grandparent;
 	se_tree_node_t *parent;
 
-	parent=se_tree_parent(node);
-	grandparent=se_tree_parent(parent);
+	parent=emem_tree_parent(node);
+	grandparent=emem_tree_parent(parent);
 	if(!grandparent){
 		return;
 	}
@@ -1113,12 +1113,12 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *parent;
 	se_tree_node_t *uncle;
 
-	uncle=se_tree_uncle(node);
+	uncle=emem_tree_uncle(node);
 	if(uncle && (uncle->u.rb_color==SE_TREE_RB_COLOR_RED)){
-		parent=se_tree_parent(node);
+		parent=emem_tree_parent(node);
 		parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 		uncle->u.rb_color=SE_TREE_RB_COLOR_BLACK;
-		grandparent=se_tree_grandparent(node);
+		grandparent=emem_tree_grandparent(node);
 		grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, grandparent);
 	} else {
@@ -1131,7 +1131,7 @@ rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node)
 {
 	se_tree_node_t *parent;
 
-	parent=se_tree_parent(node);
+	parent=emem_tree_parent(node);
 	/* parent is always non-NULL here */
 	if(parent->u.rb_color==SE_TREE_RB_COLOR_BLACK){
 		return;
@@ -1144,7 +1144,7 @@ rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
 {
 	se_tree_node_t *parent;
 
-	parent=se_tree_parent(node);
+	parent=emem_tree_parent(node);
 	if(!parent){
 		node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 		return;
