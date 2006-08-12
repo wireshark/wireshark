@@ -167,9 +167,14 @@
 #endif /* PRIu64 */
 
 /* Formats for printing 64-bit unsigned hexadecimal numbers */
+/* XXX - it seems that GLib has problems with the MSVC like I64x.
+   As we use GLib's g_sprintf and alike, it should be safe to use
+   llx everywhere now, making the macros pretty useless. For details see:
+   http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1025 */
 #ifndef PRIx64
 #ifdef _MSC_EXTENSIONS
-#define PRIx64  "I64x"
+/*#define PRIx64  "I64x"*/
+#define PRIx64  "llx"
 #else /* _MSC_EXTENSIONS */
 #define PRIx64  "llx"
 #endif /* _MSC_EXTENSIONS */
@@ -177,7 +182,8 @@
 
 #ifndef PRIX64
 #ifdef _MSC_EXTENSIONS
-#define PRIX64  "I64X"
+/*#define PRIX64  "I64X"*/
+#define PRIX64  "llX"
 #else /* _MSC_EXTENSIONS */
 #define PRIX64  "llX"
 #endif /* _MSC_EXTENSIONS */
