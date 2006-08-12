@@ -362,7 +362,8 @@ void
 window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
     /* as we now have the geometry from the recent file, set it */
-    if (geom->set_pos) {
+    /* if the window was minimized, x and y are -32000 (at least on Win32) */
+    if (geom->set_pos && geom->x != -32000 && geom->y != -32000) {
 #if GTK_MAJOR_VERSION >= 2
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,
