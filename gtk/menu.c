@@ -174,6 +174,198 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
+
+#define CONV_ETHER  1
+#define CONV_IP     2
+#define CONV_TCP    3
+#define CONV_UDP    4
+#define CONV_CBA    5
+
+void
+conversation_cb(GtkWidget * w, gpointer data _U_, int action)
+{
+    packet_info *pi = &cfile.edt->pi;
+    char* buf;
+	GtkWidget	*filter_te;
+
+
+    switch(action) {
+    case(CONV_CBA):
+	if (pi->profinet_type == 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error filtering conversation.  Please make\n"
+			      "sure you have a PROFINET CBA packet selected.");
+		return;
+	}
+
+  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	&& pi->ipproto == 6 ) {
+    /* IPv4 */
+      switch(pi->profinet_type) {
+      case(1):
+    buf = g_strdup_printf(
+	     "(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data));
+    break;
+      case(2):
+    buf = g_strdup_printf(
+	     "(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_src.data));
+    break;
+      case(3):
+    buf = g_strdup_printf(
+	     "(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data));
+    break;
+      case(4):
+    buf = g_strdup_printf(
+	     "(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_dst.data),
+	     ip_to_str( pi->net_src.data));
+    break;
+      default:
+        return;
+  }
+  } else {
+    return;
+  }
+  break;
+    case(CONV_TCP):
+	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error filtering conversation.  Please make\n"
+			      "sure you have a TCP packet selected.");
+		return;
+	}
+
+  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	&& pi->ipproto == 6 ) {
+    /* TCP over IPv4 */
+    buf = g_strdup_printf(
+	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
+	     pi->srcport, pi->destport );
+  }
+  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+	&& pi->ipproto == 6 ) {
+    /* TCP over IPv6 */
+    buf = g_strdup_printf(
+	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+	     pi->srcport, pi->destport );
+  }
+  else {
+    return;
+  }
+  break;
+    case(CONV_UDP):
+	if (cfile.edt->pi.ipproto != IP_PROTO_UDP) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error filtering conversation.  Please make\n"
+			      "sure you have a UDP packet selected.");
+		return;
+	}
+
+  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	&& pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+    /* UDP over IPv4 */
+    buf = g_strdup_printf(
+	     "(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
+	     pi->srcport, pi->destport );
+  }
+  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+	&& pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+    /* UDP over IPv6 */
+    buf = g_strdup_printf(
+	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+	     pi->srcport, pi->destport );
+  }
+  else {
+    return;
+  }
+  break;
+    case(CONV_IP):
+	if (cfile.edt->pi.ethertype != 0x800) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error filtering conversation.  Please make\n"
+			      "sure you have a IP packet selected.");
+		return;
+	}
+
+  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	&& pi->ipproto == 6 ) {
+    /* IPv4 */
+    buf = g_strdup_printf(
+	     "ip.addr eq %s and ip.addr eq %s",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data));
+  }
+  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+	&& pi->ipproto == 6 ) {
+    /* IPv6 */
+    buf = g_strdup_printf(
+	     "ipv6.addr eq %s and ipv6.addr eq %s",
+	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data));
+  }
+  else {
+    return;
+  }
+  break;
+    case(CONV_ETHER):
+        /* XXX - is this the right way to check for Ethernet? */
+	if (cfile.edt->pi.ethertype == 0x0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error filtering conversation.  Please make\n"
+			      "sure you have a Ethernet packet selected.");
+		return;
+	}
+
+  if( pi->dl_src.type == 1 /*AT_IPv4*/ && pi->dl_dst.type == 1 /*AT_IPv4*/) {
+    /* Ethernet */
+    buf = g_strdup_printf(
+	     "eth.addr eq %s and eth.addr eq %s",
+	     ether_to_str( pi->dl_src.data),
+	     ether_to_str( pi->dl_dst.data));
+  }
+  else {
+    return;
+  }
+  break;
+    default:
+        return;
+    }
+
+	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+
+	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+
+	/* Run the display filter so it goes in effect - even if it's the
+	   same as the previous display filter. */
+	main_filter_packets(&cfile, buf, TRUE);
+
+    g_free(buf);
+
+}
+
+
 /* main menu */
 static GtkItemFactoryEntry menu_items[] =
 {
@@ -463,6 +655,18 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/Conversation Filter", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_ENTRY("/Conversation Filter/Ethernet", NULL, conversation_cb,
+                       CONV_ETHER, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Conversation Filter/IP", NULL, conversation_cb,
+                       CONV_IP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Conversation Filter/TCP", NULL, conversation_cb,
+                       CONV_TCP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Conversation Filter/UDP", NULL, conversation_cb,
+                       CONV_UDP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Conversation Filter/PN-CBA Server", NULL, conversation_cb,
+                       CONV_CBA, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/SCTP", NULL, NULL, 0, "<Branch>",NULL),
     ITEM_FACTORY_ENTRY("/SCTP/Analyse this Association", NULL, sctp_analyse_start,
@@ -1004,6 +1208,7 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
   set_menu_object_data_meat(main_menu_factory, path, key, data);
   while (menu_list != NULL) {
   	set_menu_object_data_meat(menu_list->data, shortpath, key, data);
+  	set_menu_object_data_meat(menu_list->data, path, key, data);
 	menu_list = g_slist_next(menu_list);
   }
 }
@@ -2048,6 +2253,16 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
       cf->current_frame != NULL ? is_ssl : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
+      cf->current_frame != NULL ? (cf->edt->pi.ethertype != 0) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
+      cf->current_frame != NULL ? (cf->edt->pi.ethertype == 0x800) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
+      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",

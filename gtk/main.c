@@ -3683,6 +3683,16 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                          filter_te);
     set_menu_object_data("/Analyze/Prepare a Filter/... or not Selected", E_DFILTER_TE_KEY,
                          filter_te);
+    set_menu_object_data("/Conversation Filter/Ethernet", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Conversation Filter/IP", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Conversation Filter/TCP", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Conversation Filter/UDP", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Conversation Filter/PN-CBA Server", E_DFILTER_TE_KEY,
+                         filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
