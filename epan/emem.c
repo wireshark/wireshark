@@ -868,6 +868,7 @@ se_tree_create(int type, char *name)
 	tree_list->type=type;
 	tree_list->tree=NULL;
 	tree_list->name=name;
+	tree_list->malloc=se_alloc;
 	se_trees=tree_list;
 
 	return tree_list;
@@ -1163,7 +1164,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 
 	/* is this the first node ?*/
 	if(!node){
-		node=se_alloc(sizeof(se_tree_node_t));
+		node=se_tree->malloc(sizeof(se_tree_node_t));
 		switch(se_tree->type){
 		case SE_TREE_TYPE_RED_BLACK:
 			node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
@@ -1191,7 +1192,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 			if(!node->left){
 				/* new node to the left */
 				se_tree_node_t *new_node;
-				new_node=se_alloc(sizeof(se_tree_node_t));
+				new_node=se_tree->malloc(sizeof(se_tree_node_t));
 				node->left=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1208,7 +1209,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 			if(!node->right){
 				/* new node to the right */
 				se_tree_node_t *new_node;
-				new_node=se_alloc(sizeof(se_tree_node_t));
+				new_node=se_tree->malloc(sizeof(se_tree_node_t));
 				node->right=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1239,7 +1240,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 
 	/* is this the first node ?*/
 	if(!node){
-		node=se_alloc(sizeof(se_tree_node_t));
+		node=se_tree->malloc(sizeof(se_tree_node_t));
 		switch(se_tree->type){
 			case SE_TREE_TYPE_RED_BLACK:
 				node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
@@ -1266,7 +1267,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 			if(!node->left){
 				/* new node to the left */
 				se_tree_node_t *new_node;
-				new_node=se_alloc(sizeof(se_tree_node_t));
+				new_node=se_tree->malloc(sizeof(se_tree_node_t));
 				node->left=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1283,7 +1284,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 			if(!node->right){
 				/* new node to the right */
 				se_tree_node_t *new_node;
-				new_node=se_alloc(sizeof(se_tree_node_t));
+				new_node=se_tree->malloc(sizeof(se_tree_node_t));
 				node->right=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1322,6 +1323,7 @@ se_tree_create_non_persistent(int type, char *name)
 	tree_list->type=type;
 	tree_list->tree=NULL;
 	tree_list->name=name;
+	tree_list->malloc=se_alloc;
 
 	return tree_list;
 }

@@ -173,9 +173,6 @@ typedef struct _se_tree_node_t {
 	void *data;
 } se_tree_node_t;
 
-/* list of all se trees so they can all be reset automatically when
- * we free all se memory
- */
 /* Right now we only do basic red/black trees   but in the future we might want
  * to try something different, such as a tree where each node keeps track
  * of how many times it has been looked up, and letting often looked up
@@ -188,7 +185,12 @@ typedef struct _se_tree_t {
 	int type;
 	char *name;    /* just a string to make debugging easier */
 	se_tree_node_t *tree;
+	void *(*malloc)(size_t);
 } se_tree_t;
+
+/* list of all se trees so they can all be reset automatically when
+ * we free all se memory
+ */
 extern se_tree_t *se_trees;
 
 
