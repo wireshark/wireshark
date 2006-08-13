@@ -354,7 +354,7 @@ get_runtime_version_info(GString *str)
 		break;
 	}
 	if (info.szCSDVersion[0] != '\0')
-		g_string_sprintfa(str, " %s", info.szCSDVersion);
+		g_string_sprintfa(str, " %s", utf_16to8(info.szCSDVersion));
 	g_string_sprintfa(str, ", build %lu", info.dwBuildNumber);
 #elif defined(HAVE_SYS_UTSNAME_H)
 	/*

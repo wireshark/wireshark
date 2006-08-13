@@ -624,3 +624,46 @@ signal_pipe_check_running(void)
 
 
 const char *netsnmp_get_version(void) { return ""; }
+
+
+/* Convert from UTF-16 to UTF-8. */
+/* XXX - copied from epan/strutil.c */
+#define	INITIAL_FMTBUF_SIZE	128
+
+gchar * utf_16to8(const wchar_t *utf16str) {
+  static gchar *utf8buf[3];
+  static int utf8buf_len[3];
+  static int idx;
+
+  if (utf16str == NULL)
+    return NULL;
+
+  idx = (idx + 1) % 3;
+
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (utf8buf[idx] == NULL) {
+    utf8buf_len[idx] = INITIAL_FMTBUF_SIZE;
+    utf8buf[idx] = g_malloc(utf8buf_len[idx]);
+  }
+
+  while (WideCharToMultiByte(CP_UTF8, 0, utf16str, -1,
+      NULL, 0, NULL, NULL) >= utf8buf_len[idx]) {
+    /*
+     * Double the buffer's size if it's not big enough.
+     * The size of the buffer starts at 128, so doubling its size
+     * adds at least another 128 bytes, which is more than enough
+     * for one more character plus a terminating '\0'.
+     */
+    utf8buf_len[idx] *= 2;
+    utf8buf[idx] = g_realloc(utf8buf[idx], utf8buf_len[idx]);
+  }
+
+  if (WideCharToMultiByte(CP_UTF8, 0, utf16str, -1,
+      utf8buf[idx], utf8buf_len[idx], NULL, NULL) == 0)
+    return NULL;
+
+  return utf8buf[idx];
+}
+
