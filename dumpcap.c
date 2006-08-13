@@ -626,6 +626,8 @@ signal_pipe_check_running(void)
 const char *netsnmp_get_version(void) { return ""; }
 
 
+#ifdef _WIN32
+
 /* Convert from UTF-16 to UTF-8. */
 /* XXX - copied from epan/strutil.c */
 #define	INITIAL_FMTBUF_SIZE	128
@@ -666,4 +668,6 @@ gchar * utf_16to8(const wchar_t *utf16str) {
 
   return utf8buf[idx];
 }
+
+#endif /* _WIN32 */
 
