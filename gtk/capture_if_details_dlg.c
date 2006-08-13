@@ -510,20 +510,20 @@ static const value_string win32_802_11_encryption_status_vals[] = {
 
 /* frequency to channel mapping (OID_802_11_CONFIGURATION) */
 static const value_string win32_802_11_channel_freq_vals[] = {
-	{ 2412000, "1 (2,412,000 kHz)" },
-	{ 2417000, "2 (2,417,000 kHz)" },
-	{ 2422000, "3 (2,422,000 kHz)" },
-	{ 2427000, "4 (2,427,000 kHz)" },
-	{ 2432000, "5 (2,432,000 kHz)" },
-	{ 2437000, "6 (2,437,000 kHz)" },
-	{ 2442000, "7 (2,442,000 kHz)" },
-	{ 2447000, "8 (2,447,000 kHz)" },
-	{ 2452000, "9 (2,452,000 kHz)" },
-	{ 2457000, "10 (2,457,000 kHz)" },
-	{ 2462000, "11 (2,462,000 kHz)" },
-	{ 2467000, "12 (2,467,000 kHz)" },
-	{ 2472000, "13 (2,472,000 kHz)" },
-	{ 2484000, "14 (2,484,000 kHz)" },
+	{ 2412000, "1 (2412 MHz)" },
+	{ 2417000, "2 (2417 MHz)" },
+	{ 2422000, "3 (2422 MHz)" },
+	{ 2427000, "4 (2427 MHz)" },
+	{ 2432000, "5 (2432 MHz)" },
+	{ 2437000, "6 (2437 MHz)" },
+	{ 2442000, "7 (2442 MHz)" },
+	{ 2447000, "8 (2447 MHz)" },
+	{ 2452000, "9 (2452 MHz)" },
+	{ 2457000, "10 (2457 MHz)" },
+	{ 2462000, "11 (2462 MHz)" },
+	{ 2467000, "12 (2467 MHz)" },
+	{ 2472000, "13 (2472 MHz)" },
+	{ 2484000, "14 (2484 MHz)" },
     { 0, NULL }
 };
 
@@ -1266,12 +1266,12 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     if (wpcap_packet_request(adapter, OID_802_11_BSSID_LIST, FALSE /* !set */, (char *) bssid_list, &length)) {
         add_string_to_table(table, row, "", "");
-        add_string_to_table(table, row, "Available networks", "");
+        add_string_to_table(table, row, "Available networks (BSSID list)", "");
 
         capture_if_details_802_11_bssid_list(main_vb, bssid_list);
         entries += bssid_list->num_items;
     } else {
-        add_string_to_table(table, row, "Available networks", "-");
+        add_string_to_table(table, row, "Available networks (BSSID list)", "-");
     }
 
     g_free(bssid_list);
