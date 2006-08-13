@@ -11,6 +11,7 @@ S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
 S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-D> ]>
+S<[ B<--display=>E<lt>X display to useE<gt> ] >
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
@@ -244,6 +245,12 @@ that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
 example, as root), then, if B<Wireshark> is run with the B<-D> flag and
 is not run from such an account, it will not list any interfaces.
+
+=item --display=E<lt>X display to useE<gt>
+
+Specifies the X display to use.  A hostname and screen (otherhost:0.0)
+or just a screen (:0.0) can be specified.  This option is not available
+under Windows.
 
 =item -f  E<lt>capture filterE<gt>
 
