@@ -90,6 +90,19 @@ static gint ett_dispatch = -1;
 static int proto_dispatch = -1;
 
 
+/* from MSDN "Locale Identifiers" */
+/* see: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/intl/nls_8sj7.asp */
+/* values from cygwin's winnls.h and: */
+/* http://msdn.microsoft.com/library/default.asp?url=/library/en-us/intl/nls_238z.asp */
+static const value_string dcom_lcid_vals[] = {
+    { 0x0000, "Language neutral" },
+    { 0x0400, "LOCALE_USER_DEFAULT" },
+    { 0x0409, "English (United States)" },
+    { 0x0800, "LOCALE_SYSTEM_DEFAULT" },
+	{ 0,    NULL }
+};
+
+
 
 int
 dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
@@ -543,7 +556,7 @@ proto_register_dcom_dispatch(void)
 		{ &hf_dispatch_names,
 		{ "Names", "dispatch_names", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dispatch_lcid,
-        { "LCID", "dispatch_lcid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        { "LCID", "dispatch_lcid", FT_UINT32, BASE_HEX, VALS(dcom_lcid_vals), 0x0, "", HFILL }},
         { &hf_dispatch_id,
         { "DispID", "dispatch_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dispatch_flags,
