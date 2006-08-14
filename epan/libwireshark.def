@@ -224,9 +224,14 @@ ep_stack_push
 ep_stack_pop
 ep_tvb_memdup
 se_tree_create
-se_tree_insert32
-se_tree_lookup32
-se_tree_lookup32_le
+se_tree_create_non_persistent
+emem_tree_insert32
+emem_tree_insert32_array
+emem_tree_insert_string
+emem_tree_lookup32
+emem_tree_lookup32_le
+emem_tree_lookup32_array
+emem_tree_lookup_string
 epan_cleanup
 epan_dissect_fill_in_columns
 epan_dissect_free

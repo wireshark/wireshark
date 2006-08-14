@@ -877,7 +877,7 @@ se_tree_create(int type, char *name)
 
 
 void *
-se_tree_lookup32(emem_tree_t *se_tree, guint32 key)
+emem_tree_lookup32(emem_tree_t *se_tree, guint32 key)
 {
 	emem_tree_node_t *node;
 
@@ -900,7 +900,7 @@ se_tree_lookup32(emem_tree_t *se_tree, guint32 key)
 }
 
 void *
-se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key)
+emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key)
 {
 	emem_tree_node_t *node;
 
@@ -1156,7 +1156,7 @@ rb_insert_case1(emem_tree_t *se_tree, emem_tree_node_t *node)
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
 void
-se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
+emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 {
 	emem_tree_node_t *node;
 
@@ -1328,16 +1328,34 @@ se_tree_create_non_persistent(int type, char *name)
 	return tree_list;
 }
 
+/* create another (sub)tree using the same memory allocation scope
+ * as the parent tree.
+ */
+static emem_tree_t *
+emem_tree_create_subtree(emem_tree_t *parent_tree, char *name)
+{
+	emem_tree_t *tree_list;
+
+	tree_list=parent_tree->malloc(sizeof(emem_tree_t));
+	tree_list->next=NULL;
+	tree_list->type=parent_tree->type;
+	tree_list->tree=NULL;
+	tree_list->name=name;
+	tree_list->malloc=parent_tree->malloc;
+
+	return tree_list;
+}
+
 static void* create_sub_tree(void* d) {
 	emem_tree_t *se_tree = d;
-	return se_tree_create_non_persistent(se_tree->type, "subtree");
+	return emem_tree_create_subtree(se_tree, "subtree");
 }
 
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
 
 void
-se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
+emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
 	emem_tree_t *next_tree;
 
@@ -1345,7 +1363,7 @@ se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 	        DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	if((key[0].length==1)&&(key[1].length==0)){
-		se_tree_insert32(se_tree, *key[0].key, data);
+		emem_tree_insert32(se_tree, *key[0].key, data);
 		return;
 	}
 
@@ -1357,11 +1375,11 @@ se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 		key[0].length--;
 		key[0].key++;
 	}
-	se_tree_insert32_array(next_tree, key, data);
+	emem_tree_insert32_array(next_tree, key, data);
 }
 
 void *
-se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
+emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *next_tree;
 
@@ -1369,9 +1387,9 @@ se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 	        DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	if((key[0].length==1)&&(key[1].length==0)){
-		return se_tree_lookup32(se_tree, *key[0].key);
+		return emem_tree_lookup32(se_tree, *key[0].key);
 	}
-	next_tree=se_tree_lookup32(se_tree, *key[0].key);
+	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
 	if(!next_tree){
 		return NULL;
 	}
@@ -1381,11 +1399,12 @@ se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 		key[0].length--;
 		key[0].key++;
 	}
-	return se_tree_lookup32_array(next_tree, key);
+	return emem_tree_lookup32_array(next_tree, key);
 }
 
 
-void se_tree_insert_string(emem_string_hash_t* se_tree, const gchar* k, void* v) {
+void 
+emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
@@ -1422,10 +1441,11 @@ void se_tree_insert_string(emem_string_hash_t* se_tree, const gchar* k, void* v)
 			break;
 	}
 
-	se_tree_insert32_array(se_tree,key,v);
+	emem_tree_insert32_array(se_tree,key,v);
 }
 
-void* se_tree_lookup_string(emem_string_hash_t* se_tree, const gchar* k) {
+void *
+emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
@@ -1462,5 +1482,5 @@ void* se_tree_lookup_string(emem_string_hash_t* se_tree, const gchar* k) {
 			break;
 	}
 
-	return se_tree_lookup32_array(se_tree, key);
+	return emem_tree_lookup32_array(se_tree, key);
 }

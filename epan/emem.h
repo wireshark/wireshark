@@ -194,6 +194,9 @@ typedef struct _emem_tree_t {
 extern emem_tree_t *se_trees;
 
 
+/* *******************************************************************
+ * Tree functions for SE memory allocation scope
+ * ******************************************************************* */
 /* This function is used to create a se based tree with monitoring.
  * When the SE heap is released back to the system the pointer to the 
  * tree is automatically reset to NULL.
@@ -201,26 +204,6 @@ extern emem_tree_t *se_trees;
  * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
 emem_tree_t *se_tree_create(int type, char *name);
-
-/* This function is used to insert a node indexed by a guint32 key value.
- * The data pointer should be allocated by SE allocators so that the
- * data will be released at the same time as the tree itself is destroyed.
- */
-void se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
-
-/* This function will look up a node in the tree indexed by a guint32 integer
- * value.
- */
-void *se_tree_lookup32(emem_tree_t *se_tree, guint32 key);
-
-/* This function will look up a node in the tree indexed by a guint32 integer
- * value.
- * The function will return the node that has the largest key that is 
- * equal to or smaller than the search key, or NULL if no such key was
- * found.
- */
-void *se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
-
 
 /* This function is similar to the se_tree_create() call but with the
  * difference that when the se memory is release everything including the 
@@ -233,7 +216,70 @@ void *se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
  */
 emem_tree_t *se_tree_create_non_persistent(int type, char *name);
 
+/* se_tree_insert32 
+ * Insert data into the tree and key it by a 32bit integer value
+ */
+#define se_tree_insert32 emem_tree_insert32
 
+/* se_tree_lookup32 
+ * Retreive the data at the search key. the search key is a 32bit integer value
+ */
+#define se_tree_lookup32 emem_tree_lookup32
+
+/* se_tree_lookup32_le
+ * Retreive the data for the largest key that is less than or equal
+ * to the search key.
+ */
+#define se_tree_lookup32_le emem_tree_lookup32_le
+
+/* se_tree_insert32_array
+ * Insert data into the tree and key it by a 32bit integer value
+ */
+#define se_tree_insert32_array emem_tree_insert32_array
+
+/* se_tree_lookup32_array
+ * Lookup data from the tree that is index by an array
+ */
+#define se_tree_lookup32_array emem_tree_lookup32_array
+
+
+
+/* Create a new string based hash table */
+#define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
+
+/* Insert a new value under a string key */
+#define se_tree_insert_string emem_tree_insert_string
+
+/* Lookup the value under a string key */
+#define se_tree_lookup_string emem_tree_lookup_string
+
+
+
+
+
+/* ******************************************************************
+ * Real tree functions
+ * ****************************************************************** */
+
+/* This function is used to insert a node indexed by a guint32 key value.
+ * The data pointer should be allocated by the appropriate storage scope
+ * so that it will be released at the same time as the tree itself is 
+ * destroyed.
+ */
+void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
+
+/* This function will look up a node in the tree indexed by a guint32 integer
+ * value.
+ */
+void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
+
+/* This function will look up a node in the tree indexed by a guint32 integer
+ * value.
+ * The function will return the node that has the largest key that is 
+ * equal to or smaller than the search key, or NULL if no such key was
+ * found.
+ */
+void *emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
 
 typedef struct _emem_tree_key_t {
 	guint32 length;			/*length in guint32 words */
@@ -267,26 +313,25 @@ typedef struct _emem_tree_key_t {
  *			fhkey[1].key=nns->fh;
  *			fhkey[2].length=0;
  */
-void se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
+void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
 
 /* This function will look up a node in the tree indexed by a sequence of
  * guint32 integer values.
  */
-void *se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
-
-/*
- * A hash table with string keys based on the red/black tree
- */
-typedef struct _emem_tree_t emem_string_hash_t;
-
-/* Create a new string based hash table */
-#define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
+void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 /* Insert a new value under a string key */
-void se_tree_insert_string(emem_string_hash_t* h, const gchar* k, void* v);
+void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v);
 
 /* Lookup the value under a string key */
-void* se_tree_lookup_string(emem_string_hash_t* h, const gchar* k);
+void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k);
+
+
+
+
+
+
+
 
 
 #endif /* emem.h */
