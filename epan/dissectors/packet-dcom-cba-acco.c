@@ -1761,7 +1761,9 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
             /* mark this connection as disconnected */
             if(call && u32Idx <= call->conn_count) {
                 conn = call->conns[u32Idx-1];
-                cba_connection_disconnect(pinfo, conn);
+                if(conn != NULL) {
+                    cba_connection_disconnect(pinfo, conn);
+                }
             }
 
 			u32Idx++;
@@ -2201,7 +2203,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
                         &u32ArraySize);
 
     /* link frame infos to the call */
-    if(prov_ldev != NULL && cons_ldev != NULL) {
+    if(prov_ldev != NULL && cons_ldev != NULL && u32ArraySize < 100) {
         call = se_alloc(sizeof(server_frame_call_t) + u32ArraySize * sizeof(cba_frame_t *));
         call->frame_count = 0;
         call->frames = (cba_frame_t **) (call+1);
@@ -2461,7 +2463,9 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
             /* put response data into the frame */
             if(call && u32Idx <= call->frame_count) {
                 frame = call->frames[u32Idx-1];
-                cba_frame_disconnect(pinfo, frame);
+                if(frame != NULL) {
+                    cba_frame_disconnect(pinfo, frame);
+                }
             }
 
 			u32Idx++;
