@@ -232,7 +232,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 {
   struct ct_struct *cts = user_data;
   struct ct_struct child_cts;
-  GtkWidget        *main_vb, *main_tb, *frame;
+  GtkWidget        *main_vb, *main_tb, *frame, *main_sw;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN];
 #if GTK_MAJOR_VERSION < 2
   gchar            *label_ptr = label_str;
@@ -310,9 +310,14 @@ module_prefs_show(module_t *module, gpointer user_data)
      * No.  Create a notebook page for it.
      */
 
+    /* Scrolled window */
+    main_sw = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+
     /* Frame */
     frame = gtk_frame_new(module->title);
-    gtk_widget_show(frame);
+    gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
 
     /* Main vertical box */
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -333,7 +338,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     OBJECT_SET_DATA(frame, E_PAGE_MODULE_KEY, module);
 
     /* Add the page to the notebook */
-    gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), frame, NULL);
+    gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
 
     /* Attach the page to the tree item */
 #if GTK_MAJOR_VERSION < 2
@@ -348,7 +353,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     cts->page++;
 
     /* Show 'em what we got */
-    gtk_widget_show_all(main_vb);
+    gtk_widget_show_all(main_sw);
   }
 
   return 0;
@@ -363,7 +368,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 
 /* add a page to the tree */
 static prefs_tree_iter
-prefs_tree_page_add(const gchar *title, gint page_nr, 
+prefs_tree_page_add(const gchar *title, gint page_nr,
                     gpointer store, prefs_tree_iter *parent_iter,
                     gboolean has_child
 #if GTK_MAJOR_VERSION >= 2
@@ -460,7 +465,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* scrolled window on the left for the categories tree */
   ct_sb = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ct_sb), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ct_sb),
                                    GTK_SHADOW_IN);
 #endif
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
@@ -534,8 +539,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   gtk_container_border_width( GTK_CONTAINER(gui_font_pg), 5 );
 
-  /* IMPORTANT: the following gtk_font_selection_set_xy() functions will only 
-     work, if the widget and it's corresponding window is already shown 
+  /* IMPORTANT: the following gtk_font_selection_set_xy() functions will only
+     work, if the widget and it's corresponding window is already shown
      (so don't put the following into gui_font_prefs_show()) !!! */
 
   /* We set the current font and, for GTK+ 1.2[.x], the font filter
@@ -563,8 +568,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 	    NULL,		  /* all setwidths are OK */
 	    fixedwidths,	  /* ONLY fixed-width fonts */
 	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
-#endif  
-  
+#endif
+
   /* GUI Colors prefs */
   strcpy(label_str, "Colors");
   prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
@@ -613,7 +618,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_module_list_foreach(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and cancel buttons */
-  
+
   if(topic_available(HELP_PREFERENCES_DIALOG)) {
     bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
   } else {
@@ -1202,7 +1207,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
                gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
 	   }
 #endif
-  
+
   gui_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
   layout_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
@@ -1570,7 +1575,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
       continue;	/* It doesn't have one. */
     if (page_module == p.module) {
 	  tree_select_node(
-		  OBJECT_GET_DATA(prefs_w, E_PREFSW_TREE_KEY), 
+		  OBJECT_GET_DATA(prefs_w, E_PREFSW_TREE_KEY),
 		  OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
 	  return;
 	}

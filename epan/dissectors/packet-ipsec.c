@@ -144,7 +144,7 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_SA_ADDR_LEN_SEPARATOR '/'
 
 /* Number of Security Associations */
-#define IPSEC_NB_SA 2
+#define IPSEC_NB_SA 16
 #endif
 
 static const value_string cpi2val[] = {
