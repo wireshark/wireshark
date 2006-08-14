@@ -38,6 +38,7 @@
 #include <ctype.h>
 
 #include <glib.h>
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/base64.h>
@@ -46,6 +47,7 @@
 
 #include <epan/req_resp_hdrs.h>
 #include "packet-http.h"
+#include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -139,6 +141,10 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_RADAN_HTTP			8088
 #define TCP_PORT_HKP			11371
 #define TCP_PORT_DAAP			3689
+
+#define HTTP_PORTS (TCP_PORT_HTTP || TCP_PORT_PROXY_HTTP || TCP_PORT_PROXY_ADMIN_HTTP || TCP_ALT_PORT_HTTP || TCP_RADAN_HTTP || \
+		    TCP_PORT_HKP || TCP_PORT_DAAP)
+
 /*
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
@@ -180,6 +186,7 @@ static int is_http_request_or_reply(const gchar *data, int linelen,
     http_type_t *type, ReqRespDissector *reqresp_dissector);
 static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *tree, int offset);
+static void http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_tree, packet_info *pinfo);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
     proto_tree *tree, headers_t *eh_ptr);
@@ -493,8 +500,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dissector_handle_t handle;
 	gboolean	dissected;
 	/*guint		i;*/
-	guint32 framenum = pinfo->fd->num;
 	/*http_info_value_t *si;*/
+	conversation_t  *conversation;
 
 	/*
 	 * Is this a request or response?
@@ -529,13 +536,25 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	/* we first allocate and initialize the current stat_info */ 
-	stat_info = ep_alloc(sizeof(http_info_value_t));
-	stat_info->framenum = framenum;
-	stat_info->response_code = 0;
-	stat_info->request_method = NULL;
-	stat_info->request_uri = NULL;
-	stat_info->http_host = NULL;
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	
+	if(!conversation) {  /* Conversation does not exist yet - create it */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	/* Retrieve information from conversation 
+	 * or add it if it isn't there yet
+	 */
+	stat_info = conversation_get_proto_data(conversation, proto_http);
+	if(!stat_info) {
+		stat_info = se_alloc(sizeof(http_info_value_t));
+		stat_info->response_code = 0;
+		stat_info->request_method = NULL;
+		stat_info->request_uri = NULL;
+		stat_info->http_host = NULL;
+
+		conversation_add_proto_data(conversation, proto_http, stat_info);
+	}
 
 	switch (pinfo->match_port) {
 
@@ -1108,8 +1127,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
 		} else {
-			call_dissector(data_handle, next_tvb, pinfo,
-			    http_tree);
+			/* Call the subdissector (defaults to data) */
+			http_payload_subdissector(next_tvb, tree, http_tree, pinfo);
 		}
 
 	body_dissected:
@@ -1157,7 +1176,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	stat_info->request_uri = (gchar*) tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	stat_info->request_uri = se_strdup((gchar*) tvb_get_ephemeral_string(tvb, offset, tokenlen));
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 	    stat_info->request_uri);
 	offset += next_token - line;
@@ -1384,6 +1403,54 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 }
 
+static void
+http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_tree, packet_info *pinfo)
+{
+	/* tree = the main protocol tree that the subdissector would be listed in
+	 * sub_tree = the http protocol tree
+	 */
+ 	guint32 *ptr;
+	struct tcpinfo *tcpinfo = pinfo->private_data;
+	struct tcp_analysis *tcpd=NULL;
+	gchar **strings; /* An array for spitting the request URI into hostname and port */
+
+	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
+	if(stat_info->request_method != NULL && stat_info->response_code == 200 &&
+	   strncmp(stat_info->request_method, "CONNECT", 7) == 0) {
+
+		/* Call a subdissector to handle HTTP CONNECT's traffic */
+		tcpd=get_tcp_conversation_data(pinfo);
+
+		/* Grab the destination port number from the request URI to find the right subdissector */
+		strings = g_strsplit(stat_info->request_uri, ":", 2);
+		
+		if(strings[1] != NULL) { /* The string was successfuly split in two */
+			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect hostname: %s", strings[0]);
+			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect port: %s", strings[1]);
+			
+			/* Replaces the pinfo->destport or srcport with the port the http connect was done to */
+			/* pinfo->srcport and destport are guint32 variables (epan/packet_info.h) */
+			if (pinfo->destport  == HTTP_PORTS)
+				ptr = &pinfo->destport;
+			else
+				ptr = &pinfo->srcport;
+			
+			*ptr = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
+			
+			dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
+					    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
+					    tree, tree, tcpd);
+		}
+		
+		g_strfreev(strings); /* Free the result of g_strsplit() above */
+		
+	} else {
+		/* Call the default data dissector */
+		   call_dissector(data_handle, next_tvb, pinfo, sub_tree);
+	}
+}
+		
+
 
 /*
  * XXX - this won't handle HTTP 0.9 replies, but they're all data
@@ -1561,7 +1628,7 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
 			if (!stat_info->request_method)
-				stat_info->request_method = ep_strndup(data, index+1);
+				stat_info->request_method = se_strndup(data, index+1);
 		}
 	}
 
