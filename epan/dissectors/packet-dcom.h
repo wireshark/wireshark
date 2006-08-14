@@ -28,6 +28,7 @@
 
 extern const value_string dcom_hresult_vals[];
 extern const value_string dcom_variant_type_vals[];
+extern const value_string dcom_protseq_vals[];
 
 extern int hf_dcom_iid;
 extern int hf_dcom_clsid;

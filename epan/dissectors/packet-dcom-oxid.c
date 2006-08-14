@@ -321,7 +321,7 @@ proto_register_oxid (void)
 		{ &hf_oxid_requested_protseqs,
 		{ "RequestedProtSeq", "oxid_requested_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_oxid_protseqs,
-		{ "ProtSeq", "oxid_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "ProtSeq", "oxid_protseqs",  FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, "", HFILL }},
 
 		{ &hf_oxid_bindings,
 		{ "OxidBindings", "oxid_bindings", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},

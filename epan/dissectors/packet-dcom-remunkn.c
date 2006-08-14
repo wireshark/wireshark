@@ -40,14 +40,11 @@
 
 static int hf_remunk_opnum = -1;
 
-static int hf_remunk_ipid = -1;
+
 static int hf_remunk_refs = -1;
 static int hf_remunk_iids = -1;
-static int hf_remunk_iid = -1;
 
 static int hf_remunk_flags = -1;
-static int hf_remunk_oxid = -1;
-static int hf_remunk_oid = -1;
 static int hf_remunk_qiresult = -1;
 
 static gint ett_remunk_reminterfaceref = -1;
@@ -100,7 +97,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
-                        hf_remunk_ipid, &ipid);
+                        hf_dcom_ipid, &ipid);
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_remunk_refs, &u32Refs);
@@ -123,7 +120,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
 	for (u32ItemIdx = 0; u32ArraySize--; u32ItemIdx++) {
 		offset = dissect_dcom_append_UUID(tvb, offset, 	pinfo, tree, drep,
-			hf_remunk_iid, "IID", u32ItemIdx+1, &iid);
+			hf_dcom_iid, "IID", u32ItemIdx+1, &iid);
         if(call != NULL) {
 		    call->iids[u32ItemIdx] = iid;
         }
@@ -265,7 +262,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 		u32SubStart = offset;
 
 		offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
-							hf_remunk_ipid, &ipid);
+							hf_dcom_ipid, &ipid);
 
 		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
 							hf_remunk_public_refs, &u32PublicRefs);
@@ -335,24 +332,16 @@ proto_register_remunk (void)
         { &hf_remunk_opnum,
 	    { "Operation", "remunk_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 
-        { &hf_remunk_ipid,
-        { "IPID", "remunk_ipid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_refs,
 		{ "Refs", "remunk_refs", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_iids,
 		{ "IIDs", "remunk_iids", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        { &hf_remunk_iid,
-        { "IID", "remunk_iid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_qiresult,
 		{ "QIResult", "remunk_qiresult", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_flags,
 		{ "Flags", "remunk_flags",  FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_public_refs,
 		{ "PublicRefs", "remunk_public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_remunk_oxid,
-		{ "OXID", "remunk_oxid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_remunk_oid,
-		{ "OID", "remunk_oid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_reminterfaceref,
 		{ "RemInterfaceRef", "remunk_reminterfaceref",  FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_remunk_interface_refs,

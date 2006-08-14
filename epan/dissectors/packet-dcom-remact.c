@@ -51,19 +51,6 @@ static int hf_remact_interface_data = -1;
 static int hf_remact_oxid_bindings = -1;
 static int hf_remact_authn_hint = -1;
 
-static const value_string dcom_protseq_vals[] = {
-	{ 0x04, "NCACN_DNET_NSP" },
-	{ 0x07, "NCACN_IP_TCP" },
-	{ 0x08, "NCADG_IP_UDP" },
-	{ 0x09, "NCACN_IP" },
-	{ 0x0C, "NCACN_SPX" },
-	{ 0x0D, "NCACN_NB_IPX" },
-	{ 0x0E, "NCADG_IPX" },
-	{ 0x12, "NCACN_NB_NB" },
-	{ 0x1F, "NCACN_HTTP" },
-	{ 0,    NULL }
-};
-
 
 static int proto_remact = -1;
 static gint ett_remact = -1;

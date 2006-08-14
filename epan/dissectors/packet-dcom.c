@@ -215,9 +215,79 @@ static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
 
+static e_uuid_t uuid_debug_ext = { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
+static e_uuid_t uuid_ext_error_ext = { 0xf1f19681, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
 
 GList *dcom_machines;
 GList *dcom_interfaces;
+
+static const value_string dcom_thisthat_flag_vals[] = {
+    { 0, "INFO_NULL" },
+    { 0,  NULL }
+};
+
+
+typedef struct _guid_key {
+    e_guid_t guid;
+} guid_key;
+
+typedef struct _guid_value {
+    const gchar *name;
+    void *private_data;
+} guid_value;
+
+
+GHashTable *guids=NULL;
+
+static gint
+guid_equal (gconstpointer k1, gconstpointer k2)
+{
+    const guid_key *key1 = (const guid_key *)k1;
+    const guid_key *key2 = (const guid_key *)k2;
+    return ((memcmp (&key1->guid, &key2->guid, sizeof (e_guid_t)) == 0));
+}
+
+static guint
+guid_hash (gconstpointer k)
+{
+    const guid_key *key = (const guid_key *)k;
+    /* This isn't perfect, but the Data1 part of these is almost always
+       unique. */
+    return key->guid.data1;
+}
+
+
+void guid_add_name(e_guid_t *guid, gchar *name, void *private_data)
+{
+    guid_key *key = g_malloc (sizeof (*key));
+    guid_value *value = g_malloc (sizeof (*value));
+
+    key->guid = *guid;
+
+    value->name = name;
+    value->private_data = private_data;
+
+    g_hash_table_insert (guids, key, value);
+}
+
+
+/* try to get registered name for this guid */
+const gchar *guid_get_name(e_guid_t *guid)
+{
+    guid_key key;
+    guid_value *value;
+
+
+	/* try to get registered guid "name" of if_id */
+	key.guid = *guid;
+
+    if ((value = g_hash_table_lookup (guids, &key)) != NULL) {
+		return value->name;
+	}
+
+	return NULL;
+}
+
 
 void dcom_interface_dump(void) {
     dcom_machine_t *machine;
@@ -630,7 +700,7 @@ static const value_string dcom_dualstringarray_authn[] = {
     { 0, NULL}
 };
 
-static const value_string dcom_dualstringarray_tower_id_vals[] = {
+const value_string dcom_protseq_vals[] = {
 	{ 0x04, "NCACN_DNET_NSP" },
 	{ 0x07, "NCACN_IP_TCP" },
 	{ 0x08, "NCADG_IP_UDP" },
@@ -670,6 +740,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 
     guint32 u32ExtentSize;
 	e_uuid_t uuidExtend;
+    const char *uuid_name;
 
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
@@ -705,16 +776,39 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
         if(u32Pointer != 0) {
             u32VariableOffset = dissect_dcom_DWORD(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
                                 hf_dcom_extent_size, &u32ExtentSize);
-	        u32VariableOffset = dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+	        
+            dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, NULL, drep, 
                                 hf_dcom_extent_id, &uuidExtend);
+
+		    /* look for a registered uuid name */
+            if((uuid_name = guid_get_name( (e_guid_t *) &uuidExtend)) != NULL) {
+                proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
+	                offset, sizeof(e_uuid_t), (e_guid_t *) &uuidExtend, "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
+				                      uuid_name,
+                                      uuidExtend.Data1, uuidExtend.Data2, uuidExtend.Data3,
+                                      uuidExtend.Data4[0], uuidExtend.Data4[1],
+                                      uuidExtend.Data4[2], uuidExtend.Data4[3],
+                                      uuidExtend.Data4[4], uuidExtend.Data4[5],
+                                      uuidExtend.Data4[6], uuidExtend.Data4[7]);
+                u32VariableOffset += 16;
+            } else {
+	            u32VariableOffset = dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+                                    hf_dcom_extent_id, &uuidExtend);
+            }
+
 
 		    u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
 							    &u32ArraySize2);
 		    u32VariableOffset = dissect_dcom_tobedone_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, u32ArraySize2);
 
 		    /* update subtree header */
-		    proto_item_append_text(sub_item, "[%u]: Bytes=%u", 
-			    u32Idx, u32ArraySize2);
+            if(uuid_name != NULL) {
+		        proto_item_append_text(sub_item, "[%u]: %s, Bytes=%u", 
+			        u32Idx, uuid_name, u32ArraySize2);
+            } else {
+		        proto_item_append_text(sub_item, "[%u]: Bytes=%u", 
+			        u32Idx, u32ArraySize2);
+            }
 		    proto_item_set_len(sub_item, offset - u32SubStart);
         } else {
 		    /* update subtree header */
@@ -1685,7 +1779,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		proto_item_append_text(subsub_item, "[%u]: TowerId=%s, NetworkAddr=\"%s\"", 
 			u32StringBindings, 
-			val_to_str(u16TowerId, dcom_dualstringarray_tower_id_vals, "Unknown (0x%04x"),
+			val_to_str(u16TowerId, dcom_protseq_vals, "Unknown (0x%04x"),
 			szStr);
 		proto_item_set_len(subsub_item, offset - u32SubSubStart);
 	}
@@ -1932,7 +2026,7 @@ proto_register_dcom (void)
 		{ &hf_dcom_this_version_minor,
 		{ "VersionMinor", "dcom.this.version_minor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_this_flags,
-		{ "Flags", "dcom.this.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "Flags", "dcom.this.flags", FT_UINT32, BASE_HEX, VALS(dcom_thisthat_flag_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_this_res,
 		{ "Reserved", "dcom.this.res", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcom_this_cid,
@@ -1941,7 +2035,7 @@ proto_register_dcom (void)
 	
 	static hf_register_info hf_dcom_that_array[] = {
 		{ &hf_dcom_that_flags,
-		{ "Flags", "dcom.that.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }}
+		{ "Flags", "dcom.that.flags", FT_UINT32, BASE_HEX, VALS(dcom_thisthat_flag_vals), 0x0, "", HFILL }}
 	};
 
     static hf_register_info hf_dcom_extent_array[] = {
@@ -1954,7 +2048,7 @@ proto_register_dcom (void)
 		{ &hf_dcom_extent_size,
 		{ "Extension Size", "dcom.extent.size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_extent_id,
-		{ "Extension Id", "dcom.extent.id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ "Extension Id", "dcom.extent.id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }}
     };
 
 	static hf_register_info hf_dcom_array[] = {
@@ -2009,9 +2103,9 @@ proto_register_dcom (void)
 		{ &hf_dcom_objref_flags,
 		{ "Flags", "dcom.objref.flags", FT_UINT32, BASE_HEX, VALS(dcom_objref_flag_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_iid,
-		{ "IID", "dcom.iid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "IID", "dcom.iid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_clsid,
-		{ "CLSID", "dcom.clsid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "CLSID", "dcom.clsid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_objref_resolver_address,
 		{ "ResolverAddress", "dcom.objref.resolver_address", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_objref_cbextension,
@@ -2043,7 +2137,7 @@ proto_register_dcom (void)
 		{ &hf_dcom_dualstringarray_string,
 		{ "StringBinding", "dcom.dualstringarray.string", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_string_tower_id,
-		{ "TowerId", "dcom.dualstringarray.tower_id", FT_UINT16, BASE_HEX, VALS(dcom_dualstringarray_tower_id_vals), 0x0, "", HFILL }},
+		{ "TowerId", "dcom.dualstringarray.tower_id", FT_UINT16, BASE_HEX, VALS(dcom_protseq_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_string_network_addr,
 		{ "NetworkAddr", "dcom.dualstringarray.network_addr", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_security,
@@ -2168,7 +2262,10 @@ proto_register_dcom (void)
     proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
 
-
+    guids = g_hash_table_new (guid_hash, guid_equal);
+    guid_add_name( (e_guid_t *) &uuid_debug_ext, "Debug Information Body Extension", NULL);
+    guid_add_name( (e_guid_t *) &uuid_ext_error_ext, "Extended Error Info Body Extension", NULL);
+    
 	/* preferences */
 	dcom_module = prefs_register_protocol(proto_dcom, proto_reg_handoff_dcom);
 
