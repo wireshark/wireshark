@@ -31,6 +31,9 @@
 /*
  * RFC 2661 for L2TPv2
  * I-D draft-ietf-l2tpext-l2tp-base for L2TPv3
+ *
+ * Layer Two Tunneling Protocol "L2TP" number assignments:
+ *	http://www.iana.org/assignments/l2tp-parameters
  */
 
 static int proto_l2tp = -1;
@@ -258,8 +261,11 @@ static const value_string data_sequencing_vals[] = {
 };
 
 static const value_string l2_sublayer_vals[] = {
-  { 0, "No L2-Specific Sublayer Present" },
-  { 1, "Default L2-Specific is used" },
+  { 0, "No L2-Specific Sublayer" },
+  { 1, "Default L2-Specific Sublayer present" },
+  { 2, "ATM-Specific Sublayer present" },
+  { 3, "MPT-Specific Sublayer" },
+  { 4, "PSP-Specific Sublayer" },
   { 0, NULL }
 };
 
@@ -462,35 +468,20 @@ static const value_string cisco_avp_type_vals[] = {
   { 0,                         		NULL }
 };
 
-#define NUM_PW_TYPES  0x1A
-static const value_string pw_types_vals[NUM_PW_TYPES+1] = {
-	{ 0,  "End of PW Capability List" },
-	{ 1,  "Frame Relay DLCI (Martini Mode)" },
-	{ 2,  "ATM AAL5 SDU VCC transport" },
-	{ 3,  "ATM transparent cell transport" },
-	{ 4,  "Ethernet Tagged Mode" },
-	{ 5,  "Ethernet" },
-	{ 6,  "HDLC" },
-	{ 7,  "PPP" },
-	{ 8,  "SONET/SDH Circuit Emulation Service Over MPLS (CEM) [Note1]" },
-	{ 9,  "ATM n-to-one VCC cell transport" },
-	{ 10, "ATM n-to-one VPC cell transport" },
-	{ 11, "IP Layer2 Transport" },
-	{ 12, "ATM one-to-one VCC Cell Mode" },
-	{ 13, "ATM one-to-one VPC Cell Mode" },
-	{ 14, "ATM AAL5 PDU VCC transport" },
-	{ 15, "Frame-Relay Port mode" },
-	{ 16, "SONET/SDH Circuit Emulation over Packet (CEP)" },
-	{ 17, "Structure-agnostic E1 over Packet (SAToP)" },
-	{ 18, "Structure-agnostic T1 (DS1) over Packet (SAToP)" },
-	{ 19, "Structure-agnostic E3 over Packet (SAToP)" },
-	{ 20, "Structure-agnostic T3 (DS3) over Packet (SAToP)" },
-	{ 21, "CESoPSN basic mode" },
-	{ 22, "TDMoIP basic mode" },
-	{ 23, "CESoPSN TDM with CAS" },
-	{ 24, "TDMoIP TDM with CAS" },
-	{ 25, "Frame Relay DLCI" },
-	{ 0,  "NULL" },
+static const value_string pw_types_vals[] = {
+	{ 0x0001,  "Frame Relay DLCI" },
+	{ 0x0002,  "ATM AAL5 SDU VCC transport" },
+	{ 0x0003,  "ATM Cell transparent Port Mode" },
+	{ 0x0004,  "Ethernet VLAN" },
+	{ 0x0005,  "Ethernet" },
+	{ 0x0006,  "HDLC" },
+	{ 0x0007,  "PPP" },
+	{ 0x0009,  "ATM Cell transport VCC Mode" },
+	{ 0x000A,  "ATM Cell transport VPC Mode" },
+	{ 0x000B,  "IP Transport" },
+	{ 0x000C,  "MPEG-TS Payload Type (MPTPW)" },
+	{ 0x000D,  "Packet Streaming Protocol (PSPPW)" },
+	{ 0,  NULL },
 };
 
 static dissector_handle_t ppp_hdlc_handle;
@@ -627,8 +618,8 @@ static void process_control_avps(tvbuff_t *tvb,
 						proto_tree_add_text(l2tp_avp_tree_sub, tvb, index,
 								    2, "PW Type: (%u) %s",
 								    pw_type,
-								    (pw_type < NUM_PW_TYPES) ? 
-								    pw_types_vals[pw_type].strptr : "Unknown");
+								    val_to_str(pw_type, pw_types_vals,
+									       "Unknown (0x%04x)"));
 						index += 2;
 						avp_len -= 2;
 					}
@@ -659,7 +650,7 @@ static void process_control_avps(tvbuff_t *tvb,
 							    "Pseudowire Type: %u - %s",
 							    tvb_get_ntohs(tvb, index),
 							    val_to_str(tvb_get_ntohs(tvb, index),
-								       pw_types_vals, "Unknown (%u)"));
+								       pw_types_vals, "Unknown (0x%04x)"));
 					break;
 				case CISCO_CIRCUIT_STATUS:
 					bits = tvb_get_ntohs(tvb, index);
@@ -1162,8 +1153,8 @@ static void process_control_avps(tvbuff_t *tvb,
 					proto_tree_add_text(l2tp_avp_tree_sub, tvb, index,
 							    2, "PW Type: (%u) %s",
 							    pw_type,
-							    (pw_type < NUM_PW_TYPES) ?
-							    pw_types_vals[pw_type].strptr : "Unknown");
+							    val_to_str(pw_type, pw_types_vals,
+								       "Unknown (0x%04x)"));
 					index += 2;
 					avp_len -= 2;
 				}
@@ -1193,7 +1184,7 @@ static void process_control_avps(tvbuff_t *tvb,
 						    "Pseudowire Type: %u - %s",
 						    tvb_get_ntohs(tvb, index),
 						    val_to_str(tvb_get_ntohs(tvb, index),
-							       pw_types_vals, "Unknown"));
+							       pw_types_vals, "Unknown (0x%04x)"));
 				break;
 			case L2_SPECIFIC_SUBLAYER:
 				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
