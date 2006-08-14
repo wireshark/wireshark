@@ -445,7 +445,7 @@ gint default_nfs_fhandle_type=FHT_UNKNOWN;
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
-static se_tree_t *nfs_fhandle_frame_table = NULL;
+static emem_tree_t *nfs_fhandle_frame_table = NULL;
 
 
 /* file name snooping */
@@ -472,8 +472,8 @@ static GHashTable *nfs_name_snoop_unmatched = NULL;
 
 static GHashTable *nfs_name_snoop_matched = NULL;
 
-static se_tree_t *nfs_name_snoop_known = NULL;
-static se_tree_t *nfs_file_handles = NULL;
+static emem_tree_t *nfs_name_snoop_known = NULL;
+static emem_tree_t *nfs_file_handles = NULL;
 
 /* This function will store one nfs filehandle in our global tree of
  * filehandles.
@@ -492,7 +492,7 @@ static nfs_fhandle_data_t *
 store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 {
 	guint32 fhlen;
-	se_tree_key_t fhkey[3];
+	emem_tree_key_t fhkey[3];
 	nfs_fhandle_data_t *new_nfs_fh;
 
 	fhlen=nfs_fh->len/4;
@@ -772,7 +772,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
 			guint32 fhlen;
-			se_tree_key_t fhkey[3];
+			emem_tree_key_t fhkey[3];
 
 			fhlen=nns->fh_length;
 			fhkey[0].length=1;
@@ -798,7 +798,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	/* see if we know this mapping */
 	if(!nns){
 		guint32 fhlen;
-		se_tree_key_t fhkey[3];
+		emem_tree_key_t fhkey[3];
 
 		fhlen=fh_length;
 		fhkey[0].length=1;
@@ -8760,9 +8760,9 @@ proto_register_nfs(void)
 		nfs_fhandle_types,
 		FALSE);
 
-	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_name_snoop_known");
-	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_file_handles");
-	nfs_fhandle_frame_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
+	nfs_name_snoop_known=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_name_snoop_known");
+	nfs_file_handles=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_file_handles");
+	nfs_fhandle_frame_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
 	register_init_routine(nfs_name_snoop_init);
 
 }

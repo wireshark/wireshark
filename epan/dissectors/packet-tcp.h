@@ -142,7 +142,7 @@ typedef struct _tcp_flow_t {
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.
 	 */
-	se_tree_t *multisegment_pdus;
+	emem_tree_t *multisegment_pdus;
 } tcp_flow_t;
 	
 
@@ -178,7 +178,7 @@ struct tcp_analysis {
 	/* This structure contains a tree containing all the various ta's
 	 * keyed by frame number.
 	 */
-	se_tree_t *acked_table;
+	emem_tree_t *acked_table;
 };
 
 

@@ -252,10 +252,10 @@ typedef struct conv_tables {
         gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
 
 	/* track fid to fidstruct (filename/openframe/closeframe */
-	se_tree_t *fid_tree;
+	emem_tree_t *fid_tree;
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
-	se_tree_t *tid_tree;
+	emem_tree_t *tid_tree;
 } conv_tables_t;
 
 typedef struct smb_info {

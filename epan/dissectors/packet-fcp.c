@@ -97,7 +97,7 @@ static gint ett_fcp_taskmgmt = -1;
 static gint ett_fcp_rsp_flags = -1;
 
 typedef struct _fcp_conv_data_t {
-    se_tree_t *luns;
+    emem_tree_t *luns;
 } fcp_conv_data_t;
 
 static dissector_table_t fcp_dissector;
@@ -621,7 +621,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcp_conv_data=conversation_get_proto_data(fchdr->conversation, proto_fcp);
     if(!fcp_conv_data){
         fcp_conv_data=se_alloc(sizeof(fcp_conv_data_t));
-        fcp_conv_data->luns=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "FCP Luns");
+        fcp_conv_data->luns=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
         conversation_add_proto_data(fchdr->conversation, proto_fcp, fcp_conv_data);
     }
 

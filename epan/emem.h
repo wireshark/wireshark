@@ -158,20 +158,20 @@ void se_free_all(void);
 
 
 /**************************************************************
- * binary trees with SE allocation 
+ * binary trees 
  **************************************************************/
-#define SE_TREE_RB_COLOR_RED	0x00
-#define SE_TREE_RB_COLOR_BLACK	0x01
-typedef struct _se_tree_node_t {
-	struct _se_tree_node_t *parent;
-	struct _se_tree_node_t *left;
-	struct _se_tree_node_t *right;
+#define EMEM_TREE_RB_COLOR_RED		0x00
+#define EMEM_TREE_RB_COLOR_BLACK	0x01
+typedef struct _emem_tree_node_t {
+	struct _emem_tree_node_t *parent;
+	struct _emem_tree_node_t *left;
+	struct _emem_tree_node_t *right;
 	union {
 		guint32 rb_color;
 	} u;
 	guint32 key32;
 	void *data;
-} se_tree_node_t;
+} emem_tree_node_t;
 
 /* Right now we only do basic red/black trees   but in the future we might want
  * to try something different, such as a tree where each node keeps track
@@ -179,39 +179,39 @@ typedef struct _se_tree_node_t {
  * nodes bubble upwards in the tree using rotate_right/left.
  * That would probably be good for things like nfs filehandles 
  */
-#define SE_TREE_TYPE_RED_BLACK	1
-typedef struct _se_tree_t {
-	struct _se_tree_t *next;
+#define EMEM_TREE_TYPE_RED_BLACK	1
+typedef struct _emem_tree_t {
+	struct _emem_tree_t *next;
 	int type;
 	char *name;    /* just a string to make debugging easier */
-	se_tree_node_t *tree;
+	emem_tree_node_t *tree;
 	void *(*malloc)(size_t);
-} se_tree_t;
+} emem_tree_t;
 
-/* list of all se trees so they can all be reset automatically when
- * we free all se memory
+/* list of all trees with se allocation scope so that they can all be reset 
+ * automatically when we free all se memory
  */
-extern se_tree_t *se_trees;
+extern emem_tree_t *se_trees;
 
 
 /* This function is used to create a se based tree with monitoring.
  * When the SE heap is released back to the system the pointer to the 
  * tree is automatically reset to NULL.
  *
- * type is : SE_TREE_TYPE_RED_BLACK for a standard red/black tree.
+ * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
-se_tree_t *se_tree_create(int type, char *name);
+emem_tree_t *se_tree_create(int type, char *name);
 
 /* This function is used to insert a node indexed by a guint32 key value.
  * The data pointer should be allocated by SE allocators so that the
  * data will be released at the same time as the tree itself is destroyed.
  */
-void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+void se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
 
 /* This function will look up a node in the tree indexed by a guint32 integer
  * value.
  */
-void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+void *se_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
 /* This function will look up a node in the tree indexed by a guint32 integer
  * value.
@@ -219,7 +219,7 @@ void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
  * equal to or smaller than the search key, or NULL if no such key was
  * found.
  */
-void *se_tree_lookup32_le(se_tree_t *se_tree, guint32 key);
+void *se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
 
 
 /* This function is similar to the se_tree_create() call but with the
@@ -231,12 +231,14 @@ void *se_tree_lookup32_le(se_tree_t *se_tree, guint32 key);
  * another structure that is also se allocated so that when the structure is
  * released, the tree will be completely released as well.
  */
-se_tree_t *se_tree_create_non_persistent(int type, char *name);
+emem_tree_t *se_tree_create_non_persistent(int type, char *name);
 
-typedef struct _se_tree_key_t {
+
+
+typedef struct _emem_tree_key_t {
 	guint32 length;			/*length in guint32 words */
 	guint32 *key;
-} se_tree_key_t;
+} emem_tree_key_t;
 
 /* This function is used to insert a node indexed by a sequence of guint32 
  * key values.
@@ -256,7 +258,7 @@ typedef struct _se_tree_key_t {
  * The NFS dissector handles this by providing a guint32 containing the length
  * as the very first item in this vector :
  *
- *			se_tree_key_t fhkey[3];
+ *			emem_tree_key_t fhkey[3];
  *
  *			fhlen=nns->fh_length;
  *			fhkey[0].length=1;
@@ -265,26 +267,26 @@ typedef struct _se_tree_key_t {
  *			fhkey[1].key=nns->fh;
  *			fhkey[2].length=0;
  */
-void se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data);
+void se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
 
 /* This function will look up a node in the tree indexed by a sequence of
  * guint32 integer values.
  */
-void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
+void *se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 /*
  * A hash table with string keys based on the red/black tree
  */
-typedef struct _se_tree_t se_string_hash_t;
+typedef struct _emem_tree_t emem_string_hash_t;
 
 /* Create a new string based hash table */
 #define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
 
 /* Insert a new value under a string key */
-void se_tree_insert_string(se_string_hash_t* h, const gchar* k, void* v);
+void se_tree_insert_string(emem_string_hash_t* h, const gchar* k, void* v);
 
 /* Lookup the value under a string key */
-void* se_tree_lookup_string(se_string_hash_t* h, const gchar* k);
+void* se_tree_lookup_string(emem_string_hash_t* h, const gchar* k);
 
 
 #endif /* emem.h */

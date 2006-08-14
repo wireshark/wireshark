@@ -736,7 +736,7 @@ static guint slr = 0;
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 
-static se_tree_t* assocs = NULL;
+static emem_tree_t* assocs = NULL;
 sccp_assoc_info_t* assoc;
 sccp_assoc_info_t no_assoc = {0,0,0,0,FALSE,FALSE,SCCP_PLOAD_NONE,NULL};
 
@@ -756,7 +756,7 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         case MESSAGE_TYPE_CR:
         {
 			/* Calling and called is seen from initiator of CR */
-			se_tree_key_t key[] = {
+			emem_tree_key_t key[] = {
 				{1,NULL},
 				{1,NULL},
 				{1,NULL},
@@ -786,13 +786,13 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         case MESSAGE_TYPE_CC:
         {
 			/* Calling and called is seen from initiator of CR */
-			se_tree_key_t called_key[] = {
+			emem_tree_key_t called_key[] = {
 				{1,NULL},
 				{1,NULL},
 				{1,NULL},
 				{0,NULL}
 			};
-			se_tree_key_t calling_key[] = {
+			emem_tree_key_t calling_key[] = {
 				{1,NULL},
 				{1,NULL},
 				{1,NULL},
@@ -836,7 +836,7 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         }
         default:
         {
-			se_tree_key_t calling_key[] = {
+			emem_tree_key_t calling_key[] = {
 				{1,NULL},
 				{1,NULL},
 				{1,NULL},
@@ -850,7 +850,7 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
             assoc = se_tree_lookup32_array(assocs,calling_key);
 			/* Should a check be made on pinfo->p2p_dir ??? */
 			if (!assoc){
-				se_tree_key_t called_key[] = {
+				emem_tree_key_t called_key[] = {
 					{1,NULL},
 					{1,NULL},
 					{1,NULL},
@@ -2831,7 +2831,7 @@ proto_register_sccp(void)
 
   register_init_routine(&init_sccp);
   
-  assocs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "sccp_associations");
+  assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sccp_associations");
 
 }
 

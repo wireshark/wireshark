@@ -98,7 +98,7 @@ static gint ett_ctrl_pn_ci = -1;
 static gint ett_ctrl_pn_v24 = -1;
 
 
-static se_tree_t *dlci_table=NULL;
+static emem_tree_t *dlci_table=NULL;
 
 typedef struct _dlci_stream_t {
 	int len;
@@ -991,7 +991,7 @@ proto_register_btrfcomm(void)
 	proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	dlci_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
+	dlci_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
 }
 
 

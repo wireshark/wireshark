@@ -27,9 +27,9 @@ Please see README.malloc for a description of EmPhereal and SEasonal storage.
 
 2. Basic Usage
 For most users it will be sufficiant to only know and use three functions
-se_tree_t *se_tree_create(int type, char *name);
-void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
-void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+emem_tree_t *se_tree_create(int type, char *name);
+void se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
+void *se_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
 
 2.1 se_tree_create(int type, char *name);
@@ -49,11 +49,11 @@ proto_register_<yourprotocol>() function.
 Example (from packet-tcp.c):
 #include <epan/emem.h>
 ...
-static se_tree_t *tcp_pdu_time_table = NULL;
+static emem_tree_t *tcp_pdu_time_table = NULL;
 ...
 void proto_register_...(void) {
    ...
-   tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "PROTO_my_tree");
+   tcp_pdu_time_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "PROTO_my_tree");
    ...
 }
 
@@ -63,7 +63,7 @@ Everytime a new capture is loaded, all nodes allocated to the tree is
 automatically and the tree is reset without you having to do anything at all.
 
 
-2.2 se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+2.2 se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
 This function is used to add a new node into the tree. 
 This function is used for such trees where you always use a guint32 as the 
 identifier/key for the node. Most trees you want to use are likely in this 
@@ -110,7 +110,7 @@ If you dont think you should not use the if statement to protect the insert
 please reconsider and think it through one extra time.
 
 
-2.3 se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+2.3 se_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 This function is used to read back from the tree the data value that is 
 associated with this key.
 If no such node was found the function will return NULL.
@@ -154,12 +154,12 @@ In that case, this is the function you want.
 
 
 3.2 se_tree_insert32_array / se_tree_lookup32_array
-typedef struct _se_tree_key_t {
+typedef struct _emem_tree_key_t {
 	guint32 length;			/*length in guint32 words */
 	guint32 *key;
-} se_tree_key_t;
-void se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data);
-void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
+} emem_tree_key_t;
+void se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
+void *se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 NOTE: the *key parameter taken by these functions WILL be modified by
 these functions   so if you want to reuse the key for a second call
@@ -169,12 +169,12 @@ you will have to reinitialize key.
 These functions are used to insert and lookup a tree where nodes are NOT 
 indexed by a single guint32 but more like an array of guint32 elements.
 
-These functions take as key an array of guint32 vectors : se_tree_key_t.
+These functions take as key an array of guint32 vectors : emem_tree_key_t.
 The fucntions will use vector by vector to search further down the tree 
 until an array element where length==0 is found indicating the end of the 
 array.
 
-NOTE: you MUST terminate the se_tree_key_t array by {0, NULL}
+NOTE: you MUST terminate the emem_tree_key_t array by {0, NULL}
 If you forget to do this wireshark will immediately crash.
 
 NOTE: length indicates the number of guint32 values in the vector, not number 
@@ -183,7 +183,7 @@ of bytes.
 If your keys are always of exactly the same length, always, and you are willing
 to bet that there can never ever be a key of a different length you can
 get away with a simple :
-  se_tree_key_t key[2];
+  emem_tree_key_t key[2];
   key[0].length= LEN;
   key[0].key= KEY;
   key[1].length=0;
@@ -199,7 +199,7 @@ Specify the first index as 1 guint32 holding the total number of guints in the
 rest of the key.
 See NFS that does this to handle filehandes that may be of different lengths
 in the same tree :
-  se_tree_key_t fhkey[3];
+  emem_tree_key_t fhkey[3];
   guint32 tmplen;
 
   tmplen = <length of filehandle/4>;

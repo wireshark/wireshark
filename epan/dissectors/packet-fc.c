@@ -135,7 +135,7 @@ static dissector_handle_t data_handle;
 static int fc_tap = -1;
 
 typedef struct _fc_conv_data_t {
-    se_tree_t *exchanges;
+    emem_tree_t *exchanges;
 } fc_conv_data_t;
 
 
@@ -661,7 +661,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
         fc_conv_data=se_alloc(sizeof(fc_conv_data_t));
-        fc_conv_data->exchanges=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "FC Exchanges");
+        fc_conv_data->exchanges=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FC Exchanges");
         conversation_add_proto_data(conversation, proto_fc, fc_conv_data);
     }
 

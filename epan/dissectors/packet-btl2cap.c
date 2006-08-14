@@ -87,7 +87,7 @@ dissector_table_t l2cap_psm_dissector_table;
  * The same table is used both for SCID and DCID.
  * For received CIDs we mask the cid with 0x8000 in this table
  */
-static se_tree_t *cid_to_psm_table = NULL;
+static emem_tree_t *cid_to_psm_table = NULL;
 typedef struct _psm_data_t {
 	guint16		psm;
 } psm_data_t;
@@ -848,7 +848,7 @@ proto_register_btl2cap(void)
 	proto_register_field_array(proto_btl2cap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	cid_to_psm_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "btl2cap scid to psm");
+	cid_to_psm_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btl2cap scid to psm");
 
 }
 

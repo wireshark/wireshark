@@ -212,8 +212,8 @@ static gint ett_iscsi_ISID = -1;
 /* this structure contains session wide state for a specific tcp conversation */
 typedef struct _iscsi_session_t {
 	guint32 header_digest;
-	se_tree_t *itlq;	/* indexed by ITT */
-	se_tree_t *itl;		/* indexed by LUN */
+	emem_tree_t *itlq;	/* indexed by ITT */
+	emem_tree_t *itl;		/* indexed by LUN */
 } iscsi_session_t;
 
 
@@ -2199,8 +2199,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         if(!iscsi_session){
             iscsi_session=se_alloc(sizeof(iscsi_session_t));
             iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
-            iscsi_session->itlq=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI ITLQ");
-            iscsi_session->itl=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI ITL");
+            iscsi_session->itlq=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "iSCSI ITLQ");
+            iscsi_session->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "iSCSI ITL");
             conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
 
             /* DataOut PDUs are often mistaken by DCERPC heuristics to be

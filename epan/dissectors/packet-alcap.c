@@ -404,9 +404,9 @@ static int hf_alcap_leg_release_cause = -1;
 
 static gboolean keep_persistent_info = TRUE;
 
-se_tree_t* legs_by_dsaid = NULL;
-se_tree_t* legs_by_osaid = NULL;
-se_tree_t* legs_by_bearer = NULL;
+emem_tree_t* legs_by_dsaid = NULL;
+emem_tree_t* legs_by_osaid = NULL;
+emem_tree_t* legs_by_bearer = NULL;
 
 static gchar* dissect_fields_unknown(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,FALSE);
@@ -1788,9 +1788,9 @@ proto_register_alcap(void)
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
     
-	legs_by_dsaid = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
-	legs_by_osaid = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_osaid");
-	legs_by_bearer = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_bearer");
+	legs_by_dsaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
+	legs_by_osaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
+	legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
 	
 }
 

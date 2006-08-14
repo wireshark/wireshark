@@ -15432,8 +15432,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			smb_saved_info_equal_unmatched);
 		si->ct->raw_ntlmssp = 0;
 		
-		si->ct->fid_tree=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "SMB fid_tree");
-		si->ct->tid_tree=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "SMB tid_tree");
+		si->ct->fid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB fid_tree");
+		si->ct->tid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB tid_tree");
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 

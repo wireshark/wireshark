@@ -242,7 +242,7 @@ typedef struct _pana_transaction_t {
 } pana_transaction_t;
 
 typedef struct _pana_conv_info_t {
-        se_tree_t *pdus;
+        emem_tree_t *pdus;
 } pana_conv_info_t;
 
 /*
@@ -620,7 +620,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 * it to the list of information structures.
                 */
                pana_info = se_alloc(sizeof(pana_conv_info_t));
-               pana_info->pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "pana_pdus");
+               pana_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "pana_pdus");
 
                conversation_add_proto_data(conversation, proto_pana, pana_info);
        }

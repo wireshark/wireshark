@@ -737,7 +737,7 @@ void
 se_free_all(void)
 {
 	emem_chunk_t *npc;
-	se_tree_t *se_tree_list;
+	emem_tree_t *se_tree_list;
 #ifndef SE_DEBUG_FREE
 #ifdef DEBUG_USE_CANARIES
 	guint i;
@@ -830,19 +830,19 @@ void* ep_stack_pop(ep_stack_t stack) {
 
 
 #ifdef REMOVED
-void print_tree_item(se_tree_node_t *node, int level){
+void print_tree_item(emem_tree_node_t *node, int level){
 	int i;
 	for(i=0;i<level;i++){
 		printf("   ");
 	}
-	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->u.rb_color==SE_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
+	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->u.rb_color==EMEM_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
 	if(node->left)
 		print_tree_item(node->left,level+1);
 	if(node->right)
 		print_tree_item(node->right,level+1);
 }
 
-void print_tree(se_tree_node_t *node){
+void print_tree(emem_tree_node_t *node){
 	if(!node){
 		return;
 	}
@@ -856,14 +856,14 @@ void print_tree(se_tree_node_t *node){
 
 
 /* routines to manage se allocated red-black trees */
-se_tree_t *se_trees=NULL;
+emem_tree_t *se_trees=NULL;
 
-se_tree_t *
+emem_tree_t *
 se_tree_create(int type, char *name)
 {
-	se_tree_t *tree_list;
+	emem_tree_t *tree_list;
 
-	tree_list=malloc(sizeof(se_tree_t));
+	tree_list=malloc(sizeof(emem_tree_t));
 	tree_list->next=se_trees;
 	tree_list->type=type;
 	tree_list->tree=NULL;
@@ -877,9 +877,9 @@ se_tree_create(int type, char *name)
 
 
 void *
-se_tree_lookup32(se_tree_t *se_tree, guint32 key)
+se_tree_lookup32(emem_tree_t *se_tree, guint32 key)
 {
-	se_tree_node_t *node;
+	emem_tree_node_t *node;
 
 	node=se_tree->tree;
 
@@ -900,9 +900,9 @@ se_tree_lookup32(se_tree_t *se_tree, guint32 key)
 }
 
 void *
-se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
+se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key)
 {
-	se_tree_node_t *node;
+	emem_tree_node_t *node;
 
 	node=se_tree->tree;
 
@@ -988,16 +988,16 @@ se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 }
 
 
-static inline se_tree_node_t *
-emem_tree_parent(se_tree_node_t *node)
+static inline emem_tree_node_t *
+emem_tree_parent(emem_tree_node_t *node)
 {
 	return node->parent;
 }
 
-static inline se_tree_node_t *
-emem_tree_grandparent(se_tree_node_t *node)
+static inline emem_tree_node_t *
+emem_tree_grandparent(emem_tree_node_t *node)
 {
-	se_tree_node_t *parent;
+	emem_tree_node_t *parent;
 
 	parent=emem_tree_parent(node);
 	if(parent){
@@ -1005,10 +1005,10 @@ emem_tree_grandparent(se_tree_node_t *node)
 	}
 	return NULL;
 }
-static inline se_tree_node_t *
-emem_tree_uncle(se_tree_node_t *node)
+static inline emem_tree_node_t *
+emem_tree_uncle(emem_tree_node_t *node)
 {
-	se_tree_node_t *parent, *grandparent;
+	emem_tree_node_t *parent, *grandparent;
 
 	parent=emem_tree_parent(node);
 	if(!parent){
@@ -1024,11 +1024,11 @@ emem_tree_uncle(se_tree_node_t *node)
 	return grandparent->left;
 }
 
-static inline void rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node);
-static inline void rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node);
+static inline void rb_insert_case1(emem_tree_t *se_tree, emem_tree_node_t *node);
+static inline void rb_insert_case2(emem_tree_t *se_tree, emem_tree_node_t *node);
 
 static inline void
-rotate_left(se_tree_t *se_tree, se_tree_node_t *node)
+rotate_left(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
 	if(node->parent){
 		if(node->parent->left==node){
@@ -1049,7 +1049,7 @@ rotate_left(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rotate_right(se_tree_t *se_tree, se_tree_node_t *node)
+rotate_right(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
 	if(node->parent){
 		if(node->parent->left==node){
@@ -1070,15 +1070,15 @@ rotate_right(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
+rb_insert_case5(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
-	se_tree_node_t *grandparent;
-	se_tree_node_t *parent;
+	emem_tree_node_t *grandparent;
+	emem_tree_node_t *parent;
 
 	parent=emem_tree_parent(node);
 	grandparent=emem_tree_parent(parent);
-	parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
-	grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
+	parent->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
+	grandparent->u.rb_color=EMEM_TREE_RB_COLOR_RED;
 	if( (node==parent->left) && (parent==grandparent->left) ){
 		rotate_right(se_tree, grandparent);
 	} else {
@@ -1087,10 +1087,10 @@ rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node)
+rb_insert_case4(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
-	se_tree_node_t *grandparent;
-	se_tree_node_t *parent;
+	emem_tree_node_t *grandparent;
+	emem_tree_node_t *parent;
 
 	parent=emem_tree_parent(node);
 	grandparent=emem_tree_parent(parent);
@@ -1108,19 +1108,19 @@ rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
+rb_insert_case3(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
-	se_tree_node_t *grandparent;
-	se_tree_node_t *parent;
-	se_tree_node_t *uncle;
+	emem_tree_node_t *grandparent;
+	emem_tree_node_t *parent;
+	emem_tree_node_t *uncle;
 
 	uncle=emem_tree_uncle(node);
-	if(uncle && (uncle->u.rb_color==SE_TREE_RB_COLOR_RED)){
+	if(uncle && (uncle->u.rb_color==EMEM_TREE_RB_COLOR_RED)){
 		parent=emem_tree_parent(node);
-		parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
-		uncle->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+		parent->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
+		uncle->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
 		grandparent=emem_tree_grandparent(node);
-		grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
+		grandparent->u.rb_color=EMEM_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, grandparent);
 	} else {
 		rb_insert_case4(se_tree, node);
@@ -1128,26 +1128,26 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node)
+rb_insert_case2(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
-	se_tree_node_t *parent;
+	emem_tree_node_t *parent;
 
 	parent=emem_tree_parent(node);
 	/* parent is always non-NULL here */
-	if(parent->u.rb_color==SE_TREE_RB_COLOR_BLACK){
+	if(parent->u.rb_color==EMEM_TREE_RB_COLOR_BLACK){
 		return;
 	}
 	rb_insert_case3(se_tree, node);
 }
 
 static inline void
-rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
+rb_insert_case1(emem_tree_t *se_tree, emem_tree_node_t *node)
 {
-	se_tree_node_t *parent;
+	emem_tree_node_t *parent;
 
 	parent=emem_tree_parent(node);
 	if(!parent){
-		node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+		node->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
 		return;
 	}
 	rb_insert_case2(se_tree, node);
@@ -1156,18 +1156,18 @@ rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
 void
-se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
+se_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 {
-	se_tree_node_t *node;
+	emem_tree_node_t *node;
 
 	node=se_tree->tree;
 
 	/* is this the first node ?*/
 	if(!node){
-		node=se_tree->malloc(sizeof(se_tree_node_t));
+		node=se_tree->malloc(sizeof(emem_tree_node_t));
 		switch(se_tree->type){
-		case SE_TREE_TYPE_RED_BLACK:
-			node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+		case EMEM_TREE_TYPE_RED_BLACK:
+			node->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
 			break;
 		}
 		node->parent=NULL;
@@ -1191,8 +1191,8 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 		if(key<node->key32) {
 			if(!node->left){
 				/* new node to the left */
-				se_tree_node_t *new_node;
-				new_node=se_tree->malloc(sizeof(se_tree_node_t));
+				emem_tree_node_t *new_node;
+				new_node=se_tree->malloc(sizeof(emem_tree_node_t));
 				node->left=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1208,8 +1208,8 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 		if(key>node->key32) {
 			if(!node->right){
 				/* new node to the right */
-				se_tree_node_t *new_node;
-				new_node=se_tree->malloc(sizeof(se_tree_node_t));
+				emem_tree_node_t *new_node;
+				new_node=se_tree->malloc(sizeof(emem_tree_node_t));
 				node->right=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1226,24 +1226,24 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 
 	/* node will now point to the newly created node */
 	switch(se_tree->type){
-	case SE_TREE_TYPE_RED_BLACK:
-		node->u.rb_color=SE_TREE_RB_COLOR_RED;
+	case EMEM_TREE_TYPE_RED_BLACK:
+		node->u.rb_color=EMEM_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, node);
 		break;
 	}
 }
 
-static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud) {
-	se_tree_node_t *node;
+static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud) {
+	emem_tree_node_t *node;
 
 	node=se_tree->tree;
 
 	/* is this the first node ?*/
 	if(!node){
-		node=se_tree->malloc(sizeof(se_tree_node_t));
+		node=se_tree->malloc(sizeof(emem_tree_node_t));
 		switch(se_tree->type){
-			case SE_TREE_TYPE_RED_BLACK:
-				node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+			case EMEM_TREE_TYPE_RED_BLACK:
+				node->u.rb_color=EMEM_TREE_RB_COLOR_BLACK;
 				break;
 		}
 		node->parent=NULL;
@@ -1266,8 +1266,8 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 		if(key<node->key32) {
 			if(!node->left){
 				/* new node to the left */
-				se_tree_node_t *new_node;
-				new_node=se_tree->malloc(sizeof(se_tree_node_t));
+				emem_tree_node_t *new_node;
+				new_node=se_tree->malloc(sizeof(emem_tree_node_t));
 				node->left=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1283,8 +1283,8 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 		if(key>node->key32) {
 			if(!node->right){
 				/* new node to the right */
-				se_tree_node_t *new_node;
-				new_node=se_tree->malloc(sizeof(se_tree_node_t));
+				emem_tree_node_t *new_node;
+				new_node=se_tree->malloc(sizeof(emem_tree_node_t));
 				node->right=new_node;
 				new_node->parent=node;
 				new_node->left=NULL;
@@ -1301,8 +1301,8 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 
 	/* node will now point to the newly created node */
 	switch(se_tree->type){
-		case SE_TREE_TYPE_RED_BLACK:
-			node->u.rb_color=SE_TREE_RB_COLOR_RED;
+		case EMEM_TREE_TYPE_RED_BLACK:
+			node->u.rb_color=EMEM_TREE_RB_COLOR_RED;
 			rb_insert_case1(se_tree, node);
 			break;
 	}
@@ -1313,12 +1313,12 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 /* When the se data is released, this entire tree will dissapear as if it
  * never existed including all metadata associated with the tree.
  */
-se_tree_t *
+emem_tree_t *
 se_tree_create_non_persistent(int type, char *name)
 {
-	se_tree_t *tree_list;
+	emem_tree_t *tree_list;
 
-	tree_list=se_alloc(sizeof(se_tree_t));
+	tree_list=se_alloc(sizeof(emem_tree_t));
 	tree_list->next=NULL;
 	tree_list->type=type;
 	tree_list->tree=NULL;
@@ -1329,7 +1329,7 @@ se_tree_create_non_persistent(int type, char *name)
 }
 
 static void* create_sub_tree(void* d) {
-	se_tree_t *se_tree = d;
+	emem_tree_t *se_tree = d;
 	return se_tree_create_non_persistent(se_tree->type, "subtree");
 }
 
@@ -1337,9 +1337,9 @@ static void* create_sub_tree(void* d) {
  * then just replace the data for that node */
 
 void
-se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
+se_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
-	se_tree_t *next_tree;
+	emem_tree_t *next_tree;
 
 	if((key[0].length<1)||(key[0].length>100)){
 	        DISSECTOR_ASSERT_NOT_REACHED();
@@ -1361,9 +1361,9 @@ se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
 }
 
 void *
-se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
+se_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
-	se_tree_t *next_tree;
+	emem_tree_t *next_tree;
 
 	if((key[0].length<1)||(key[0].length>100)){
 	        DISSECTOR_ASSERT_NOT_REACHED();
@@ -1385,11 +1385,11 @@ se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
 }
 
 
-void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
+void se_tree_insert_string(emem_string_hash_t* se_tree, const gchar* k, void* v) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
-	se_tree_key_t key[] = {
+	emem_tree_key_t key[] = {
 		{1,NULL},
 		{0,NULL},
 		{1,NULL},
@@ -1425,11 +1425,11 @@ void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
 	se_tree_insert32_array(se_tree,key,v);
 }
 
-void* se_tree_lookup_string(se_string_hash_t* se_tree, const gchar* k) {
+void* se_tree_lookup_string(emem_string_hash_t* se_tree, const gchar* k) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
-	se_tree_key_t key[] = {
+	emem_tree_key_t key[] = {
 		{1,NULL},
 		{0,NULL},
 		{1,NULL},

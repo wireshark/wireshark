@@ -246,7 +246,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow1.nextseqframe=0;
 		tcpd->flow1.window=0;
 		tcpd->flow1.win_scale=-1;
-		tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+		tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->flow2.segments=NULL;
 		tcpd->flow2.base_seq=0;
 		tcpd->flow2.lastack=0;
@@ -259,8 +259,8 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow2.nextseqframe=0;
 		tcpd->flow2.window=0;
 		tcpd->flow2.win_scale=-1;
-		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
-		tcpd->acked_table=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
+		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+		tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 
 
 		conversation_add_proto_data(conv, proto_tcp, tcpd);

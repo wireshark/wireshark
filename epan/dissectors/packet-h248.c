@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -556,10 +556,10 @@ static GHashTable* h248_wild_terms = NULL;
 static dissector_table_t h248_package_bin_dissector_table=NULL;
 #endif
 
-static se_tree_t* msgs = NULL;
-static se_tree_t* trxs = NULL;
-static se_tree_t* ctxs_by_trx = NULL;
-static se_tree_t* ctxs = NULL;
+static emem_tree_t* msgs = NULL;
+static emem_tree_t* trxs = NULL;
+static emem_tree_t* ctxs_by_trx = NULL;
+static emem_tree_t* ctxs = NULL;
 
 static gboolean h248_prefs_initialized = FALSE;
 static gboolean keep_persistent_data = FALSE;
@@ -1556,7 +1556,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 	
 	
     if (keep_persistent_data) {
-		se_tree_key_t key[] = {
+		emem_tree_key_t key[] = {
 			{1,NULL},
 			{1,NULL},
 			{0,NULL},
@@ -1632,7 +1632,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
             DISSECTOR_ASSERT(! "a trx that should exist does not!" );
 
         } else {
-			se_tree_key_t key[] = {
+			emem_tree_key_t key[] = {
 				{1,NULL},
 				{1,NULL},
 				{1,NULL},
@@ -1700,14 +1700,14 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
     if ( !m || !t ) return NULL;
 
     if (keep_persistent_data) {
-		se_tree_key_t ctx_key[] = {
+		emem_tree_key_t ctx_key[] = {
 		{1,NULL},
 		{1,NULL},
 		{1,NULL},
 		{0,NULL}
 		};
 		
-		se_tree_key_t trx_key[] = {
+		emem_tree_key_t trx_key[] = {
 		{1,NULL},
 		{1,NULL},
 		{1,NULL},
@@ -7335,10 +7335,10 @@ void proto_register_h248(void) {
   
   register_init_routine( &h248_init );
 
-  msgs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_msgs");
-  trxs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_trxs");
-  ctxs_by_trx = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_ctxs_by_trx");
-  ctxs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_ctxs");
+  msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_msgs");
+  trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_trxs");
+  ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_ctxs_by_trx");
+  ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_ctxs");
 
 }
 

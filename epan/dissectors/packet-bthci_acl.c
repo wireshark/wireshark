@@ -67,10 +67,10 @@ typedef struct _multi_fragment_pdu_t {
 } multi_fragment_pdu_t;
 
 typedef struct _chandle_data_t {
-	se_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
+	emem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
 } chandle_data_t;
 
-static se_tree_t *chandle_tree=NULL;
+static emem_tree_t *chandle_tree=NULL;
 
 static const value_string pb_flag_vals[] = {
 	{1, "Continuing Fragment"},
@@ -125,7 +125,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	chandle_data=se_tree_lookup32(chandle_tree, acl_data->chandle);
 	if(!chandle_data){
 		chandle_data=se_alloc(sizeof(chandle_data_t));
-		chandle_data->start_fragments=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "bthci_acl fragment starts");
+		chandle_data->start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_acl fragment starts");
 		se_tree_insert32(chandle_tree, acl_data->chandle, chandle_data);
 	}
 
@@ -279,7 +279,7 @@ proto_register_btacl(void)
 	    "Whether the ACL dissector should reassemble fragmented PDUs",
 	    &acl_reassembly);
 
-	chandle_tree=se_tree_create(SE_TREE_TYPE_RED_BLACK, "bthci_acl chandles");
+	chandle_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "bthci_acl chandles");
 }
 
 
