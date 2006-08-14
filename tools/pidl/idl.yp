@@ -109,7 +109,7 @@ declare: 'declare' property_list decl_type identifier';'
         }}
 ;
 
-decl_type: decl_enum | decl_bitmap
+decl_type: decl_enum | decl_bitmap | decl_union
 ;
 
 decl_enum: 'enum' 
@@ -121,6 +121,12 @@ decl_enum: 'enum'
 decl_bitmap: 'bitmap' 
         {{
                      "TYPE" => "BITMAP"
+        }}
+;
+
+decl_union: 'union' 
+        {{
+                     "TYPE" => "UNION"
         }}
 ;
 
