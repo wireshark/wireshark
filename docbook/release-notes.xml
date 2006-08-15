@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.2pre1">
+  <!ENTITY WiresharkCurrentVersion "0.99.3pre1">
 
 ]>
 
@@ -35,33 +35,23 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	  The XXXXXX dissector could crash.
-	  <!-- Fixed in r#####, r##### -->
-	  <!-- Bug IDs: ### -->
-	  Versions affected: 0.99.0.
+	  The SCSI dissector could crash.
+	  <!-- Fixed in r18832 -->
+	  <!-- Bug IDs: 1034 -->
+	  Versions affected: 0.99.2.
         </para></listitem>
 
-      </itemizedlist>
-
-     <!-- Coverity bugs (r17489 and above) -->
-
-      Under a grant funded by the U.S. Department of Homeland Security,
-      <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered
-      a number of vulnerabilities in Wireshark:
-      <itemizedlist>
-
-        <!-- CID 1 - 149: Fixed for 0.99.0 -->
-        <!-- CID 150: Post-0.99.0 -->
-
-        <listitem><para>
-	  XXXX feature could crash Wireshark.
-	  <!-- Fixed in r##### -->
+	<listitem><para>
+	  If Wireshark was compiled with ESP decryption support, the
+	  IPsec ESP preference parser was susceptible to off-by-one
+	  errors.
+	  <!-- Fixed in r18856, r18915 -->
 	  <!-- Bug IDs: None -->
-          <!-- Coverity CID ### -->
-	  Versions affected: 0.9.16.
+	  Versions affected: 0.99.2.
         </para></listitem>
 
       </itemizedlist>
+
     </para>
 
     </section>
@@ -73,6 +63,14 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+	ESP, Kerberos, and SSL decryption are now supported in the
+	Windows installer.  (As as result, Wireshark is now subject to
+	United States export controls.)
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark can now generate ACL rules for several popular firewall
+        products.
         </para></listitem>
 
       </itemizedlist>
@@ -99,32 +97,11 @@ Wireshark Info
   </section>
 
   <section id="GettingWireshark"><title>Getting Wireshark</title>
-    <section><title>Microsoft Windows</title>
-      <para>
-	Download wireshark-setup-&WiresharkCurrentVersion;.exe from the
-	<ulink url="http://www.wireshark.org/download/win32/">Windows
-	download area</ulink> on the main web site.  Double-click the
-	installer executable.
-      </para>
-    </section>
-
-    <section><title>Sun Solaris</title>
-      <para>
-	Download the appropriate package from the
-	<ulink url="http://www.wireshark.org/download/solaris/">Solaris
-	download area</ulink> on the main web site.  Uncompress the package
-	using bzip2, and install it using pkgadd.
-      </para>
-    </section>
-
-    <section><title>Source Code</title>
-      <para>
-	Download wireshark-&WiresharkCurrentVersion;.tar.gz from the
-	<ulink url="http://www.wireshark.org/download/">main
-	download area</ulink> on the web site.  Extract the package
-	using tar and gzip.  Run "configure ; make ; make install".
-      </para>
-    </section>
+    <para>
+      Wireshark source code and installation packages are available from
+      the <ulink url="http://www.wireshark.org/download.html">download
+      page</ulink> on the main web site.
+    </para>
 
     <section><title>Vendor-supplied Packages</title>
       <para>
