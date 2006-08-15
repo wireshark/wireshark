@@ -934,10 +934,8 @@ class EthCtx:
     if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
     fx = self.output.file_open('hfarr')
     for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
-      if len(self.eth_hf[f]['ref']) == 1:
-        blurb = '"' + self.eth_hf[f]['ref'][0] + '"'
-      else:
-        blurb = '""'
+      t = self.eth_hf[f]['ethtype']
+      blurb = '"%s.%s"' % (self.eth_type[t]['proto'], t)
       attr = self.eth_hf[f]['attr'].copy()
       attr['ABBREV'] = '"%s.%s"' % (self.proto, attr['ABBREV'])
       if not attr.has_key('BLURB'):
