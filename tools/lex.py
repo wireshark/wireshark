@@ -186,7 +186,7 @@ scanner you have defined.
 # -----------------------------------------------------------------------------
 
 
-__version__ = "1.7"
+__version__ = "1.8"
 
 import re, types, sys, copy
 

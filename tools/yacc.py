@@ -48,7 +48,9 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__ = "1.7"
+__version__ = "1.8"
+
+import types
 
 #-----------------------------------------------------------------------------
 #                     === User configurable parameters ===
@@ -103,7 +105,10 @@ class YaccProduction:
         self.pbstack = []
 
     def __getitem__(self,n):
-        return self.slice[n].value
+        if type(n) == types.IntType:
+             return self.slice[n].value
+        else:
+             return [s.value for s in self.slice[n.start:n.stop:n.step]]
 
     def __setitem__(self,n,v):
         self.slice[n].value = v
@@ -200,6 +205,8 @@ class Parser:
             # Get the next symbol on the input.  If a lookahead symbol
             # is already set, we just use that. Otherwise, we'll pull
             # the next token off of the lookaheadstack or from the lexer
+            if debug > 1:
+                print 'state', statestack[-1]
             if not lookahead:
                 if not lookaheadstack:
                     lookahead = get_token()     # Get the next token
@@ -216,6 +223,12 @@ class Parser:
             ltype = lookahead.type
             t = actions.get((s,ltype),None)
 
+            if debug > 1:
+                print 'action', t
+            if t is None:
+                t = actions.get((s,'#'),None)
+                if debug > 1:
+                    print 'default action', t
             if t is not None:
                 if t > 0:
                     # shift a symbol on the stack
