@@ -1822,7 +1822,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 			
 		case HDR_HOST: 
-			stat_info->http_host = ep_strndup(value, value_len);
+			stat_info->http_host = se_strndup(value, value_len);
 			break;
 			
 		}
