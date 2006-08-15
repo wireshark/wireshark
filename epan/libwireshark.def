@@ -208,6 +208,7 @@ ep_alloc
 se_alloc
 ep_alloc0
 se_alloc0
+ep_free_all
 ep_strdup
 se_strdup
 ep_strdup_printf
