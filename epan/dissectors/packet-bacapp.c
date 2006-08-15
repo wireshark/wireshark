@@ -1375,6 +1375,8 @@ fSigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, gint64 *val)
 		data = tvb_get_guint8(tvb, offset);
 		if ((data & 0x80) != 0)
 			value = (-1 << 8) | data;
+		else
+			value = data;
 		for (i = 1; i < lvt; i++) {
 			data = tvb_get_guint8(tvb, offset+i);
 			value = (value << 8) + data;
@@ -4017,7 +4019,7 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			FAULT;
 			break;
 		case 4: /* Priority (only used for write) */
-			offset = fSignedTag (tvb, subtree, offset, "Priority: ");
+			offset = fUnsignedTag (tvb, subtree, offset, "Priority: ");
 			break;
 		default:
 			return offset;
@@ -4165,7 +4167,7 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			FAULT;
 			break;
 		case 4:  /* Priority */
-			offset = fSignedTag (tvb, subtree, offset, "Priority: ");
+			offset = fUnsignedTag (tvb, subtree, offset, "Priority: ");
 			break;
 		default:
 			break;
