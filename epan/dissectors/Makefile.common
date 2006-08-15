@@ -60,6 +60,7 @@ PIDL_DISSECTOR_INCLUDES = \
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
 	$(PIDL_DISSECTOR_SRC)	\
+	packet-2dparityfec.c	\
 	packet-3com-njack.c	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c	\

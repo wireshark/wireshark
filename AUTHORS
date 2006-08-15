@@ -2508,8 +2508,12 @@ Peter Racz		<racz [AT] ifi.unizh.ch> {
 	PANA support
 }
 
-Jakob Bratkovic		<j.bratkovic@iskratel.si> {
+Jakob Bratkovic		<j.bratkovic [AT] iskratel.si> {
 	Multicast stream analysis support
+}
+
+Mark Lewis		<mlewis [AT] altera.com> {
+	2dParityFec dissector
 }
 
 and by:
