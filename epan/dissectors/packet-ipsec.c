@@ -142,6 +142,11 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_SA_WILDCARDS_ANY '*'
 #define IPSEC_SA_SEPARATOR '|'
 #define IPSEC_SA_ADDR_LEN_SEPARATOR '/'
+#define IPSEC_IPV6_ADDR_MAX 40
+#define IPSEC_IPV4_ADDR_MAX 16
+#define IPSEC_SPI_LEN_MAX 10
+#define IPSEC_TYP_LEN_MAX 4
+#define IPSEC_ADDR_LEN_MAX 3
 
 /* Number of Security Associations */
 #define IPSEC_NB_SA 16
@@ -525,19 +530,19 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
       - guint *index_end : the last index of the address
 */
 #ifdef HAVE_LIBGCRYPT
-#define STRLEN_MAX 40
 static gboolean
 esp_sa_parse_ipv6addr(const gchar *sa, guint index_start, gchar **pt_ipv6addr, guint *index_end)
 {
   guint cpt = 0;
 
-  char addr_string[STRLEN_MAX];
+  char addr_string[IPSEC_IPV6_ADDR_MAX + 1];
   gboolean done_flag = FALSE;
 
-  if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
+  if((sa == NULL) || (strcmp(sa, "") == 0))  
+    return FALSE;
 
   /* Get Address */
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= STRLEN_MAX))
+  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_IPV6_ADDR_MAX))
     {
       if((sa[cpt + index_start] == IPSEC_SA_SEPARATOR)  || (sa[cpt + index_start] == IPSEC_SA_ADDR_LEN_SEPARATOR))
 	{
@@ -549,7 +554,8 @@ esp_sa_parse_ipv6addr(const gchar *sa, guint index_start, gchar **pt_ipv6addr, g
 
       else
 	{
-	  if((cpt == STRLEN_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) return FALSE;
+	  if((cpt >= IPSEC_IPV6_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+	    return FALSE;
 	  addr_string[cpt] = toupper(sa[cpt + index_start]);
 	  cpt ++;
 	}
@@ -582,13 +588,14 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
 {
   guint cpt = 0;
 
-  char addr_string[STRLEN_MAX];
+  char addr_string[IPSEC_IPV4_ADDR_MAX + 1];
   gboolean done_flag = FALSE;
 
-  if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
+  if((sa == NULL) || (strcmp(sa, "") == 0))
+    return FALSE;
 
   /* Get Address */
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= STRLEN_MAX))
+  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_IPV4_ADDR_MAX))
     {
       if((sa[cpt + index_start] == IPSEC_SA_SEPARATOR)  || (sa[cpt + index_start] == IPSEC_SA_ADDR_LEN_SEPARATOR))
 	{
@@ -600,7 +607,8 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
 
       else
 	{
-	  if((cpt == STRLEN_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) return FALSE;
+	  if((cpt == IPSEC_IPV4_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+	    return FALSE;
 	  addr_string[cpt] = toupper(sa[cpt + index_start]);
 	  cpt ++;
 	}
@@ -628,7 +636,6 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
       - guint *index_end : the last index of the address
 */
 #ifdef HAVE_LIBGCRYPT
-#define SPI_LEN_MAX 10
 static gboolean
 esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *index_end)
 {
@@ -636,13 +643,13 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
   guint32 spi = 0;
   guint i = 0;
 
-  gchar spi_string[SPI_LEN_MAX];
-  gchar spi_string_tmp[SPI_LEN_MAX];
+  gchar spi_string[IPSEC_SPI_LEN_MAX + 1];
+  gchar spi_string_tmp[IPSEC_SPI_LEN_MAX + 1];
   gboolean done_flag = FALSE;
 
   if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
 
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= SPI_LEN_MAX))
+  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_SPI_LEN_MAX))
     {
       spi_string[cpt] = toupper(sa[cpt + index_start]);
       cpt ++;
@@ -658,7 +665,7 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
 	{
 	  for(i = 0; i <= cpt - 2; i++) spi_string_tmp[i] = spi_string[i+2];
 	  sscanf(spi_string_tmp,"%x",&spi);
-	  g_snprintf(spi_string,SPI_LEN_MAX,"%i",spi);
+	  g_snprintf(spi_string, IPSEC_SPI_LEN_MAX, "%i", spi);
 	}
 
       *index_end = cpt + index_start - 1;
@@ -684,18 +691,17 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
       - guint *index_end : the last index of the protocol type
 */
 #ifdef HAVE_LIBGCRYPT
-#define TYP_LEN_MAX 4
 static gboolean
 esp_sa_parse_protocol_typ(const gchar *sa, guint index_start, gint *pt_protocol_typ, guint *index_end)
 {
   guint cpt = 0;
-  gchar typ_string[TYP_LEN_MAX];
+  gchar typ_string[IPSEC_TYP_LEN_MAX + 1];
   gboolean done_flag = FALSE;
 
   *pt_protocol_typ = IPSEC_SA_UNKNOWN;
   if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
 
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= TYP_LEN_MAX) && (sa[cpt + index_start] != IPSEC_SA_SEPARATOR))
+  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_TYP_LEN_MAX) && (sa[cpt + index_start] != IPSEC_SA_SEPARATOR))
     {
       typ_string[cpt] = toupper(sa[cpt + index_start]);
       cpt ++;
@@ -745,7 +751,7 @@ static gboolean
 esp_sa_parse_addr_len(const gchar *sa, guint index_start, gint *len, guint *index_end)
 {
   guint cpt = 0;
-  char len_string[STRLEN_MAX];
+  char len_string[IPSEC_ADDR_LEN_MAX + 1];
   gboolean done_flag = FALSE;
 
   *len = -1;
@@ -762,7 +768,7 @@ esp_sa_parse_addr_len(const gchar *sa, guint index_start, gint *len, guint *inde
   else if(sa[index_start] == IPSEC_SA_ADDR_LEN_SEPARATOR)
     {
       cpt ++;
-      while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= STRLEN_MAX + 1))
+      while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt < IPSEC_ADDR_LEN_MAX))
 	{
 	  if(sa[cpt + index_start] == IPSEC_SA_SEPARATOR)
 	    {
@@ -784,7 +790,8 @@ esp_sa_parse_addr_len(const gchar *sa, guint index_start, gint *len, guint *inde
 
 	  else
 	    {
-	      if((cpt == STRLEN_MAX) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) return FALSE;
+	      if((cpt == IPSEC_ADDR_LEN_MAX) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+		return FALSE;
 	      len_string[cpt -1] = sa[cpt + index_start];
 	      cpt ++;
 	    }
@@ -1166,10 +1173,10 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 {
   gboolean found = FALSE;
   gint i = 0;
-  gchar spi_string[SPI_LEN_MAX];
+  gchar spi_string[IPSEC_SPI_LEN_MAX];
   *entry_index = -1;
 
-  g_snprintf(spi_string, SPI_LEN_MAX,"%i", spi);
+  g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"%i", spi);
 
   while((found == FALSE) && (i < sad -> nb))
     {
@@ -1407,8 +1414,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint protocol_typ = IPSEC_SA_UNKNOWN;
   gint esp_crypt_algo = IPSEC_ENCRYPT_NULL;
   gint esp_auth_algo = IPSEC_AUTH_NULL;
-  gchar *esp_crypt_key;
-  gchar *esp_auth_key;
+  gchar *esp_crypt_key = NULL;
+  gchar *esp_auth_key = NULL;
   gint esp_iv_len = 0;
   gint esp_auth_len = 0;
   gint decrypted_len = 0;
