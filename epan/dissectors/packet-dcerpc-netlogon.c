@@ -162,6 +162,13 @@ static int hf_netlogon_country = -1;
 static int hf_netlogon_codepage = -1;
 static int hf_netlogon_flags = -1;
 static int hf_netlogon_trust_attribs = -1;
+static int hf_netlogon_trust_attribs_non_transitive = -1;
+static int hf_netlogon_trust_attribs_uplevel_only = -1;
+static int hf_netlogon_trust_attribs_quarantined_domain = -1;
+static int hf_netlogon_trust_attribs_forest_transitive = -1;
+static int hf_netlogon_trust_attribs_cross_organization = -1;
+static int hf_netlogon_trust_attribs_within_forest = -1;
+static int hf_netlogon_trust_attribs_treat_as_external = -1;
 static int hf_netlogon_trust_type = -1;
 static int hf_netlogon_trust_flags = -1;
 static int hf_netlogon_trust_flags_inbound = -1;
@@ -273,6 +280,7 @@ static gint ett_BLOB = -1;
 static gint ett_DS_DOMAIN_TRUSTS = -1;
 static gint ett_DOMAIN_TRUST_INFO = -1;
 static gint ett_trust_flags = -1;
+static gint ett_trust_attribs = -1;
 static gint ett_get_dcname_request_flags = -1;
 static gint ett_dc_flags = -1;
 
@@ -4587,6 +4595,80 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
 }
 
 
+
+static const true_false_string trust_attribs_non_transitive = {
+	"This is a NON TRANSITIVE trust relation",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_uplevel_only = {
+	"This is an UPLEVEL ONLY trust relation",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_quarantined_domain = {
+	"This is a QUARANTINED DOMAIN (so dont expect lookupsids to work)",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_forest_transitive = {
+	"This is a FOREST TRANSITIVE trust",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_cross_organization = {
+	"This is a CROSS ORGANIZATION trust",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_within_forest = {
+	"This is a WITHIN FOREST trust",
+	"This is a normal trust"
+};
+static const true_false_string trust_attribs_treat_as_external = {
+	"TREAT this trust AS an EXTERNAL trust",
+	"This is a normal trust"
+};
+
+static int
+netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+		hf_netlogon_trust_attribs, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_trust_attribs,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_trust_attribs);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_treat_as_external,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_within_forest,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_cross_organization,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_forest_transitive,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_quarantined_domain,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_uplevel_only,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_non_transitive,
+		tvb, offset-4, 4, mask);
+
+
+	return offset;
+}
+
+
 #define DS_FORCE_REDISCOVERY		0x00000001
 #define DS_DIRECTORY_SERVICE_REQUIRED	0x00000010
 #define DS_DIRECTORY_SERVICE_PREFERRED	0x00000020
@@ -5331,8 +5413,7 @@ netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_trust_type, &tmp);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_trust_attribs, &tmp);
+	offset = netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvb, offset, pinfo, tree, drep);
 
 	/* SID pointer */
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
@@ -7359,6 +7440,34 @@ static hf_register_info hf[] = {
 		{ "Trust Attributes", "netlogon.trust_attribs", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Trust Attributes", HFILL }},
 
+	{ &hf_netlogon_trust_attribs_non_transitive,
+	        { "Non Transitive", "netlogon.trust.attribs.non_transitive", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_non_transitive), 0x00000001, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_uplevel_only,
+	        { "Uplevel Only", "netlogon.trust.attribs.uplevel_only", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_uplevel_only), 0x00000002, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_quarantined_domain,
+	        { "Quarantined Domain", "netlogon.trust.attribs.quarantined_domain", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_quarantined_domain), 0x00000004, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_forest_transitive,
+	        { "Forest Transitive", "netlogon.trust.attribs.forest_transitive", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_forest_transitive), 0x00000008, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_cross_organization,
+	        { "Cross Organization", "netlogon.trust.attribs.cross_organization", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_cross_organization), 0x00000010, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_within_forest,
+	        { "Within Forest", "netlogon.trust.attribs.within_forest", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_within_forest), 0x00000020, "", HFILL }},
+
+	{ &hf_netlogon_trust_attribs_treat_as_external,
+	        { "Treat As External", "netlogon.trust.attribs.treat_as_external", FT_BOOLEAN, 32, 
+		TFS(&trust_attribs_treat_as_external), 0x00000040, "", HFILL }},
+
 	{ &hf_netlogon_trust_type,
 		{ "Trust Type", "netlogon.trust_type", FT_UINT32, BASE_DEC,
 		VALS(trust_type_vals), 0x0, "Trust Type", HFILL }},
@@ -7648,6 +7757,7 @@ static hf_register_info hf[] = {
 		&ett_BLOB,
 		&ett_DOMAIN_TRUST_INFO,
 		&ett_trust_flags,
+		&ett_trust_attribs,
 		&ett_get_dcname_request_flags,
 		&ett_dc_flags,
 		&ett_secchan_bind_creds,
