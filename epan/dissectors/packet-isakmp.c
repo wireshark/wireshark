@@ -556,6 +556,7 @@ static struct payload_func v1_plfunc[] = {
 };
 
 static struct payload_func v2_plfunc[] = {
+  {  0, "NONE",			NULL },
   {  2, "Proposal",		dissect_proposal  },
   {  3, "Transform",		dissect_transform2 },
   { 33, "Security Association",	dissect_sa        },
