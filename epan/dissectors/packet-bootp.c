@@ -116,6 +116,9 @@ static int hf_bootp_alcatel_vid = -1;
 static int hf_bootp_client_identifier_uuid = -1;
 static int hf_bootp_client_network_id_major_ver = -1;
 static int hf_bootp_client_network_id_minor_ver = -1;
+static int hf_bootp_option_type = -1;
+static int hf_bootp_option_length = -1;
+static int hf_bootp_option_value = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -640,6 +643,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    { OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
 	    { 0,                  NULL                                           } };
 
+	if (bp_tree != NULL) {
+		/* Normal cases */
+		text = bootp_get_opt_text(code);
+		ftype = bootp_get_opt_ftype(code);
+	}
+
 	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
 
@@ -747,7 +756,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 	optoff = voff+2;
 
-	text = bootp_get_opt_text(code);
 	/* Special cases */
 	switch (code) {
 
@@ -1290,10 +1298,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 	}
 
-	/* Normal cases */
-	text = bootp_get_opt_text(code);
-	ftype = bootp_get_opt_ftype(code);
-
 	if (ftype == special)
 		return consumed;
 	if (ftype == opaque) {
@@ -1302,7 +1306,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	}
 
 	vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
-	    "Option %d: %s", code, text);
+	    "Option: (%d) %s", code, text);
+	v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+	proto_tree_add_uint_format_value(v_tree, hf_bootp_option_type, tvb, voff, 1, code, "(%d) %s", code, text);
+	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, FALSE);
+	if (optlen > 0) {
+		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, FALSE);
+	}
+
 	switch (ftype) {
 	case ipv4:
 		if (optlen != 4) {
@@ -1321,7 +1332,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
 		} else {
 			/* > 1 IP addresses. Let's make a sub-tree */
-			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+// v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			for (i = optoff, optleft = optlen; optleft > 0;
 			    i += 4, optleft -= 4) {
 				if (optleft < 4) {
@@ -1409,7 +1420,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			    tvb_get_ntohs(tvb, optoff));
 		} else {
 			/* > 1 gushort */
-			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+// v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			for (i = optoff, optleft = optlen; optleft > 0;
 			    i += 2, optleft -= 2) {
 				if (optleft < 2) {
@@ -3351,6 +3362,22 @@ proto_register_bootp(void)
       { "Client Network ID Minor Version",    "bootp.client_network_id_minor",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Client Machine Identifier, Major Version", HFILL }},
+
+    { &hf_bootp_option_type,
+      { "Option",	"bootp.option.type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Bootp/Dhcp option type", HFILL }},
+
+    { &hf_bootp_option_length,
+      { "Length",	"bootp.option.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Bootp/Dhcp option length", HFILL }},
+
+    { &hf_bootp_option_value,
+      { "Value",	"bootp.option.value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Bootp/Dhcp option value", HFILL }},
+
   };
 
   static gint *ett[] = {
