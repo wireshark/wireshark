@@ -36,7 +36,7 @@ RC_WTAP_VERSION=0,3
 # If you're not building with WinPcap at all, don't set it (comment
 # out or remove the line that sets it).
 #
-WINPCAP_VERSION=4.0
+WINPCAP_VERSION=3.1
 
 # 
 # Directory, where your User's Guide reside, relative to the source dir.
@@ -202,7 +202,7 @@ LOCAL_LDFLAGS=/DEBUG
 PDB_FILE=vc*.pdb
 
 # Set up the path to the cygwin binaries
-CYGWIN_PATH=c:\Programmi\cygwin\bin
+CYGWIN_PATH=c:\cygwin\bin
 
 # Set up the path to some required DLLs
 DLL_PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin
@@ -222,9 +222,9 @@ POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
 # command for python (native windows version)
-PYTHON="C:/Programmi/python24/python.exe"
+#PYTHON="C:/python24/python.exe"
 # add native python to the path (not needed if cygwin's python is used)
-PATH=c:\Programmi\python24;$(PATH)
+#PATH=c:\python24;$(PATH)
 
 # command for python (typically cygwin's python package)
 PYTHON=env python
