@@ -411,98 +411,83 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS 
-FacilityReason            VAL_PTR = &value
-GatekeeperRejectReason    VAL_PTR = &value
-UnregRequestReason        VAL_PTR = &value
-UnregRejectReason         VAL_PTR = &value
-BandRejectReason          VAL_PTR = &value
-DisengageReason           VAL_PTR = &value
-DisengageRejectReason     VAL_PTR = &value
-AdmissionRejectReason     VAL_PTR = &value
-LocationRejectReason      VAL_PTR = &value
-RegistrationRejectReason  VAL_PTR = &value
-InfoRequestNakReason      VAL_PTR = &value
-ReleaseCompleteReason     VAL_PTR = &value
-#.END
-
-#.FN_BODY FacilityReason
+#.FN_BODY FacilityReason  VAL_PTR = &value
 	guint32 value;
 	
 %(DEFAULT_BODY)s
 	h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY GatekeeperRejectReason
+#.FN_BODY GatekeeperRejectReason  VAL_PTR = &value
   guint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY UnregRequestReason
+#.FN_BODY UnregRequestReason  VAL_PTR = &value
   guint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY UnregRejectReason
+#.FN_BODY UnregRejectReason  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY BandRejectReason
+#.FN_BODY BandRejectReason  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY DisengageReason
+#.FN_BODY DisengageReason  VAL_PTR = &value
   guint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #----------------------------------------------------------------------------------------
-#.FN_BODY DisengageRejectReason
-  guint32 value;
-	
-%(DEFAULT_BODY)s
-  h225_pi->reason = value;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY AdmissionRejectReason
-  guint32 value;
-
-%(DEFAULT_BODY)s
-  h225_pi->reason = value;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY LocationRejectReason
-  guint32 value;
-
-%(DEFAULT_BODY)s
-  h225_pi->reason = value;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY RegistrationRejectReason
-  guint32 value;
-
-%(DEFAULT_BODY)s
-  h225_pi->reason = value;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY InfoRequestNakReason
+#.FN_BODY DisengageRejectReason  VAL_PTR = &value
   guint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY ReleaseCompleteReason
+#.FN_BODY AdmissionRejectReason  VAL_PTR = &value
+  guint32 value;
+
+%(DEFAULT_BODY)s
+  h225_pi->reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY LocationRejectReason  VAL_PTR = &value
+  guint32 value;
+
+%(DEFAULT_BODY)s
+  h225_pi->reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY RegistrationRejectReason  VAL_PTR = &value
+  guint32 value;
+
+%(DEFAULT_BODY)s
+  h225_pi->reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY InfoRequestNakReason  VAL_PTR = &value
+  guint32 value;
+	
+%(DEFAULT_BODY)s
+  h225_pi->reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ReleaseCompleteReason  VAL_PTR = &value
   guint32 value;
 	
 %(DEFAULT_BODY)s
@@ -512,9 +497,13 @@ ReleaseCompleteReason     VAL_PTR = &value
 #.FN_BODY CallIdentifier/guid
   tvbuff_t *guid_tvb;
 
-  offset = dissect_per_octet_string(tvb,offset,%(ACTX)s,tree,hf_index,GUID_LEN,GUID_LEN,&guid_tvb);
+  %(ACTX)s->value_ptr = &guid_tvb;
+%(DEFAULT_BODY)s
   tvb_memcpy(guid_tvb,(guint8 *)&h225_pi->guid,0,GUID_LEN);
+  %(ACTX)s->value_ptr = NULL;
 #.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS GloballyUniqueID  VAL_PTR = %(ACTX)s->value_ptr
 #----------------------------------------------------------------------------------------
 #.FN_PARS RequestSeqNum  VAL_PTR = &(h225_pi->requestSeqNum)
 #----------------------------------------------------------------------------------------

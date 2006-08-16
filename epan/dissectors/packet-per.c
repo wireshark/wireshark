@@ -103,6 +103,7 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
   actx->aligned = aligned;
   actx->pinfo = pinfo;
   actx->created_item = NULL;
+  actx->value_ptr = NULL;
   actx->private_data = NULL;
 }
 

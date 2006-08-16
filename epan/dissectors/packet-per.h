@@ -40,6 +40,7 @@ typedef struct _asn1_ctx_t {
   gboolean aligned;
   packet_info *pinfo;
   proto_item *created_item;
+  void *value_ptr;
   void *private_data;
 } asn1_ctx_t;
 
