@@ -39,4 +39,23 @@ typedef struct _e_guid_t {
     guint8  data4[8];
 } e_guid_t;
 
+
+/* GUID "registry" */
+typedef struct _guid_key {
+    e_guid_t guid;
+} guid_key;
+
+typedef struct _guid_value {
+    const gchar *name;
+} guid_value;
+
+
+extern GHashTable *guids_new(void);
+
+/* add a GUID (don't forget to init the GHashTable) */
+extern void guids_add_guid(GHashTable *guids, e_guid_t *guid, gchar *name, void *private_data);
+
+/* try to get registered name for this guid */
+extern const gchar *guids_get_guid_name(GHashTable *guids, e_guid_t *guid);
+
 #endif /* __GUID_UTILS_H__ */

@@ -120,7 +120,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
 	for (u32ItemIdx = 0; u32ArraySize--; u32ItemIdx++) {
 		offset = dissect_dcom_append_UUID(tvb, offset, 	pinfo, tree, drep,
-			hf_dcom_iid, "IID", u32ItemIdx+1, &iid);
+			hf_dcom_iid, u32ItemIdx+1, &iid);
         if(call != NULL) {
 		    call->iids[u32ItemIdx] = iid;
         }

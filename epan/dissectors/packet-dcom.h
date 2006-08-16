@@ -36,6 +36,8 @@ extern int hf_dcom_oxid;
 extern int hf_dcom_oid;
 extern int hf_dcom_ipid;
 
+extern GHashTable *dcom_uuids;
+
 /* preferences */
 extern int dcom_prefs_display_unmarshalling_details;
 
@@ -88,7 +90,6 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 #define dissect_dcom_DWORD			dissect_ndr_uint32
 #define dissect_dcom_I8			dissect_ndr_uint64
 #define dissect_dcom_ID				dissect_ndr_duint32
-#define dissect_dcom_UUID			dissect_ndr_uuid_t
 #define dissect_dcom_FILETIME		dissect_ndr_duint32 /* ToBeDone */
 #define dissect_dcom_VARIANT_BOOL	dissect_ndr_uint16
 #define dissect_dcom_FLOAT			dissect_ndr_float
@@ -96,10 +97,17 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 #define dissect_dcom_DATE			dissect_ndr_double
 
 extern int
+dissect_dcom_UUID(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep,
+	int hfindex, e_uuid_t *uuid);
+
+extern int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
-	int hfindex, const gchar *field_name, int field_index, e_uuid_t *uuid);
-extern const gchar* dcom_uuid_to_str(e_uuid_t *uuid);
+	int hfindex, int field_index, e_uuid_t *uuid);
+
+extern const gchar* 
+dcom_uuid_to_str(e_uuid_t *uuid);
 
 extern int
 dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,

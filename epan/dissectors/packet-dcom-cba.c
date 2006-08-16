@@ -84,11 +84,7 @@ static int hf_cba_save_ldev_name = -1;
 static int hf_cba_save_result = -1;
 
 
-/* fake protocols (these are simply classes) */
-static int proto_coclass_CBAPhysicalDevice = -1;
-static gint ett_coclass_CBAPhysicalDevice = -1;
 static e_uuid_t uuid_coclass_CBAPhysicalDevice = { 0xcba00000, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_coclass_CBAPhysicalDevice = 0;
 
 
 /* CBA interfaces */
@@ -1122,12 +1118,6 @@ dissect_ICBAGroupError_GroupError_resp(tvbuff_t *tvb, int offset,
 }
 
 
-/* sub dissector table of ICBAPhysicalDevice class (fake only) */
-static dcerpc_sub_dissector coclass_ICBAPhysicalDevice_dissectors[] = {
-    { 0, NULL, NULL, NULL },
-};
-
-
 /* sub dissector table of ICBAPhysicalDevice / ICBAPhysicalDevice2 interface */
 static dcerpc_sub_dissector ICBAPhysicalDevice_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
@@ -1457,11 +1447,6 @@ proto_register_dcom_cba (void)
 		{ "OldGroupError", "cba.grouperror_old", FT_UINT16, BASE_HEX, VALS(cba_grouperror_vals), 0x0, "", HFILL }},
 	};
 
-
-	ett[0] = &ett_coclass_CBAPhysicalDevice;
-	proto_coclass_CBAPhysicalDevice = proto_register_protocol ("CBAPhysicalDevice", "CBAPDev", "cba_pdev_class");
-	proto_register_subtree_array (ett, array_length (ett));
-
 	ett[0] = &ett_ICBAPhysicalDevice;
 	proto_ICBAPhysicalDevice = proto_register_protocol ("ICBAPhysicalDevice", "ICBAPDev", "cba_pdev");
     proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_pdev_array, array_length(hf_cba_pdev_array));
@@ -1540,10 +1525,8 @@ proto_register_dcom_cba (void)
 void
 proto_reg_handoff_dcom_cba (void)
 {
-	/* Register the DCOM coclass */
-	dcom_register_server_coclass(proto_coclass_CBAPhysicalDevice, ett_coclass_CBAPhysicalDevice,
-		&uuid_coclass_CBAPhysicalDevice, ver_coclass_CBAPhysicalDevice,
-		coclass_ICBAPhysicalDevice_dissectors, hf_cba_opnum);
+    /* Register the CBA class ID */
+    guids_add_guid(dcom_uuids, (e_guid_t *) &uuid_coclass_CBAPhysicalDevice, "CBA", NULL);
 
 	/* Register the interfaces */
 	dcerpc_init_uuid(proto_ICBAPhysicalDevice, ett_ICBAPhysicalDevice,

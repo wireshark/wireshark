@@ -55,6 +55,7 @@ LIBWIRESHARK_SRC = 		\
 	follow.c		\
 	frame_data.c		\
 	funnel.c    \
+	guid-utils.c    \
 	h225-persistentdata.c	\
 	in_cksum.c		\
 	ipproto.c		\
@@ -135,6 +136,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	funnel.h		\
 	gnuc_format_check.h	\
 	greproto.h		\
+	guid-utils.h		\
 	h225-persistentdata.h	\
 	iax2_codec_type.h	\
 	in_cksum.h		\
@@ -142,7 +144,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	ipproto.h		\
 	ipv4.h			\
 	ipv6-utils.h		\
-	guid-utils.h		\
 	lapd_sapi.h		\
 	llcsaps.h		\
 	next_tvb.h		\

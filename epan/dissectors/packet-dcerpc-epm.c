@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 
@@ -78,6 +79,11 @@ static gint ett_epm_entry = -1;
 static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
 static guint16  ver_epm3 = 3;
 static guint16  ver_epm4 = 4;
+
+
+GHashTable *uuids=NULL;
+static e_uuid_t uuid_data_repr_proto = { 0x8a885d04, 0x1ceb, 0x11c9, { 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60 } };
+
 
 static const value_string ep_service[] = {
 	{ 0, "rpc_c_ep_all_elts" },
@@ -324,6 +330,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 {
     guint16 num_floors, i;
     dcerpc_info *di;
+    const char *uuid_name;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -341,6 +348,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         guint16 len;
 	guint8 proto_id;
         e_uuid_t uuid;
+        proto_item *pi;
 
         it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d  ", i);
         tr = proto_item_add_subtree(it, ett_epm_tower_floor);
@@ -356,20 +364,33 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         case PROTO_ID_UUID:
             dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
 
-            proto_tree_add_string_format (tr, hf_epm_uuid, tvb, offset+1, 16, "",
-                          "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                          uuid.Data1, uuid.Data2, uuid.Data3,
-                          uuid.Data4[0], uuid.Data4[1],
-                          uuid.Data4[2], uuid.Data4[3],
-                          uuid.Data4[4], uuid.Data4[5],
-                          uuid.Data4[6], uuid.Data4[7]);
+            uuid_name = guids_get_guid_name(uuids, (e_guid_t *) &uuid);
+
+            if(uuid_name != NULL) {
+                proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,
+                              "UUID: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
+                              uuid_name,
+                              uuid.Data1, uuid.Data2, uuid.Data3,
+                              uuid.Data4[0], uuid.Data4[1],
+                              uuid.Data4[2], uuid.Data4[3],
+                              uuid.Data4[4], uuid.Data4[5],
+                              uuid.Data4[6], uuid.Data4[7]);
+            } else {
+                proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,
+                              "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                              uuid.Data1, uuid.Data2, uuid.Data3,
+                              uuid.Data4[0], uuid.Data4[1],
+                              uuid.Data4[2], uuid.Data4[3],
+                              uuid.Data4[4], uuid.Data4[5],
+                              uuid.Data4[6], uuid.Data4[7]);
+            }
             proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+18));
 
 	    {
 		guint16 version = tvb_get_ntohs(tvb, offset+17); 
 		const char *service = dcerpc_get_proto_name(&uuid, version);
-		if (service)
-		    proto_item_append_text(tr, "UUID: %s", service);
+		if (service || uuid_name)
+            proto_item_append_text(tr, "UUID: %s", service ? service : uuid_name);
 		else
 		    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
 					   uuid.Data4[0], uuid.Data4[1],
@@ -384,7 +405,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         offset += len;
 
         len = tvb_get_letohs(tvb, offset);
-        proto_tree_add_uint(tr, hf_epm_tower_rhs_len, tvb, offset, 2, len);
+        pi = proto_tree_add_uint(tr, hf_epm_tower_rhs_len, tvb, offset, 2, len);
         offset += 2;
 
         switch(proto_id){
@@ -406,6 +427,11 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
 	case PROTO_ID_RPC_CO:
 	    proto_item_append_text(tr, "RPC connection-oriented protocol");
+	    break;
+
+	case PROTO_ID_RPC_CL:
+	    proto_item_append_text(tr, "RPC connectionless protocol");
+	    /* XXX - two (zero) bytes still undecoded, don't know what it is */
 	    break;
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
@@ -432,8 +458,10 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 			
         default:
             if(len){
+    	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "RightHandSide not decoded yet for proto_id 0x%x", 
+                    proto_id);
 		tvb_ensure_bytes_exist(tvb, offset, len);
-                proto_tree_add_text(tr, tvb, offset, len, "not decoded yet");
+                proto_tree_add_text(tr, tvb, offset, len, "RightHandSide not decoded yet for proto_id 0x%x", proto_id);
             }
         }
         offset += len;
@@ -677,9 +705,9 @@ proto_register_epm (void)
         { &hf_epm_inquiry_type,
           { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, VALS(ep_service), 0x0, "", HFILL }},
         { &hf_epm_object,
-          { "Object", "epm.object", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+          { "Object", "epm.object", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_epm_if_id,
-          { "Interface", "epm.if_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+          { "Interface", "epm.if_id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_epm_ver_maj,
           { "Version Major", "epm.ver_maj", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_ver_min,
@@ -693,7 +721,7 @@ proto_register_epm (void)
         { &hf_epm_num_ents,
           { "Num entries", "epm.num_ents", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_uuid,
-          { "UUID", "epm.uuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
+          { "UUID", "epm.uuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_epm_annotation,
           { "Annotation", "epm.annotation", FT_STRING, BASE_NONE, NULL, 0x0, "Annotation", HFILL }},
         { &hf_epm_proto_named_pipes,
@@ -739,6 +767,9 @@ proto_register_epm (void)
         &ett_epm_entry
     };
     
+    uuids = guids_new();
+    guids_add_guid(uuids, (e_guid_t *) &uuid_data_repr_proto, "Version 1.1 network data representation protocol", NULL);
+
     /* interface version 3 */
     proto_epm3 = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
     proto_register_field_array (proto_epm3, hf, array_length (hf));
