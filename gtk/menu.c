@@ -109,6 +109,9 @@ static void menus_init(void);
 static void set_menu_sensitivity (GtkItemFactory *, const gchar *, gint);
 static void main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
+#ifdef HAVE_AIRPCAP
+static void airpcap_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
+#endif
 static void packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
@@ -445,6 +448,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
+#ifdef HAVE_AIRPCAP
+	ITEM_FACTORY_ENTRY("/View/_Wireless Toolbar", NULL, airpcap_toolbar_show_cb, 0, "<CheckItem>", NULL),
+#endif
     ITEM_FACTORY_ENTRY("/View/_Statusbar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
@@ -1504,6 +1510,17 @@ filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
     main_widgets_show_or_hide();
 }
 
+#ifdef HAVE_AIRPCAP
+static void
+airpcap_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.airpcap_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_show_or_hide();
+}
+#endif
 
 static void
 packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -1774,6 +1791,9 @@ menu_recent_read_finished(void) {
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
+
+	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Statusbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);

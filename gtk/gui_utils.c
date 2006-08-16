@@ -573,6 +573,26 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
     return xpm_to_widget_from_parent(top_level, xpm);
 }
 
+/* Create a new hbox with an image packed into it
+ * and return the box. */
+GtkWidget *xpm_box( gchar **xpm )
+{
+    GtkWidget *box;
+    GtkWidget *image;
+
+    /* Create box for image */
+    box = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 3);
+
+    /* Now on to the image stuff */
+    image = xpm_to_widget (xpm);
+
+    /* Pack the image into the box */
+    gtk_box_pack_start (GTK_BOX (box), image, FALSE, FALSE, 3);
+
+    return box;
+}
+
 
 /* Set the name of the top-level window and its icon to the specified
    string. */

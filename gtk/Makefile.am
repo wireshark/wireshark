@@ -39,6 +39,8 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 
 noinst_HEADERS = \
 	about_dlg.h	\
+	airpcap_dlg.h \
+	airpcap_gui_utils.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
 	capture_if_details_dlg.h	\
@@ -124,6 +126,8 @@ endif
 libui_a_DEPENDENCIES = 
 
 EXTRA_DIST = \
+	airpcap_dlg.c \
+	airpcap_gui_utils.c \
 	capture_if_details_dlg.c	\
 	doxygen.cfg.in \
 	ethclist.c	\

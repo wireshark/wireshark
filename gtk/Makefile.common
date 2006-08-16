@@ -40,6 +40,8 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 #
 WIRESHARK_GTK_SRC = \
 	about_dlg.c	\
+	airpcap_dlg.c \
+	airpcap_gui_utils.c \
 	capture_dlg.c	\
 	capture_file_dlg.c	\
 	capture_if_dlg.c	\

@@ -153,6 +153,16 @@
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
 
+#ifdef HAVE_AIRPCAP
+#include <airpcap.h>
+#include "airpcap_loader.h"
+#include "airpcap_dlg.h"
+#include "airpcap_gui_utils.h"
+
+#include "./gtk/toolbar.h"
+
+#include "./image/toolbar/wep_closed_24.xpm"
+#endif
 
 /*
  * Files under personal and global preferences directories in which
@@ -173,6 +183,11 @@ static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
 static GtkWidget   *main_first_pane, *main_second_pane;
 static GtkWidget   *status_pane;
 static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
+
+#ifdef HAVE_AIRPCAP
+GtkWidget *airpcap_tb;
+#endif
+
 static GtkWidget	*info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *welcome_pane;
@@ -195,6 +210,7 @@ capture_options global_capture_opts;
 capture_options *capture_opts = &global_capture_opts;
 #endif
 
+gboolean block_toolbar_signals = FALSE;
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void show_main_window(gboolean);
@@ -203,8 +219,6 @@ static void main_save_window_geometry(GtkWidget *widget);
 
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
-
-
 
 /* Match selected byte pattern */
 static void
@@ -431,7 +445,7 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
 }
 
 /* This function allows users to right click in the details window and copy the text
- * information to the operating systems clipboard. 
+ * information to the operating systems clipboard.
  *
  * We first check to see if a string representation is setup in the tree and then
  * read the string. If not available then we try to grab the value. If all else
@@ -1993,6 +2007,11 @@ main(int argc, char *argv[])
   int                  optind_initial;
   int                  status;
 
+#ifdef HAVE_AIRPCAP
+  char			err_str[AIRPCAP_ERRBUF_SIZE];
+  gchar			*cant_get_if_list_errstr;
+#endif
+
 #define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
@@ -2244,6 +2263,31 @@ main(int argc, char *argv[])
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
+
+#ifdef HAVE_AIRPCAP
+   /* Load the airpcap.dll */
+  if(!load_airpcap())
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed to load airpcap.dll\nMake sure you have the right airpcap.dll installed!");
+	airpcap_if_active = NULL;
+	}
+  else
+	{
+	/* load the airpcap interfaces */
+	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+
+	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                  cant_get_if_list_errstr);
+    g_free(cant_get_if_list_errstr);
+	}
+
+	/* select the first ad default (THIS SHOULD BE CHANGED) */
+	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+	}
+#endif
+
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -3105,6 +3149,11 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(menubar);
     gtk_widget_ref(main_tb);
     gtk_widget_ref(filter_tb);
+
+#ifdef HAVE_AIRPCAP
+	gtk_widget_ref(airpcap_tb);
+#endif
+
     gtk_widget_ref(pkt_scrollw);
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
@@ -3137,6 +3186,11 @@ void main_widgets_rearrange(void) {
     if (!prefs.filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(main_vbox), filter_tb, FALSE, TRUE, 1);
     }
+
+#ifdef HAVE_AIRPCAP
+	/* airpcap toolbar */
+	gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
+#endif
 
     /* fill the main layout panes */
     switch(prefs.gui_layout_type) {
@@ -3208,6 +3262,11 @@ void main_widgets_rearrange(void) {
     if (prefs.filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(stat_hbox), filter_tb, FALSE, TRUE, 1);
     }
+
+#ifdef HAVE_AIRPCAP
+	/* airpcap toolbar */
+	gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
+#endif
 
     /* statusbar */
     gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane, TRUE, TRUE, 0);
@@ -3412,6 +3471,14 @@ main_widgets_show_or_hide(void)
         gtk_widget_hide(filter_tb);
     }
 
+#ifdef HAVE_AIRPCAP
+	if (recent.airpcap_toolbar_show) {
+        gtk_widget_show(airpcap_tb);
+    } else {
+        gtk_widget_hide(airpcap_tb);
+    }
+#endif
+
     if (recent.packet_list_show && have_capture_file) {
         gtk_widget_show(pkt_scrollw);
     } else {
@@ -3479,6 +3546,128 @@ window_state_event_cb (GtkWidget *widget _U_,
 }
 #endif
 
+#ifdef HAVE_AIRPCAP
+/*
+ * Changed callback for the channel combobox
+ */
+static void
+airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
+{
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+PAirpcapHandle ad;
+const gchar *s;
+int ch_num;
+
+  s = gtk_entry_get_text(GTK_ENTRY(data));
+
+if((data != NULL) && (w != NULL) )
+	{
+	s = gtk_entry_get_text(GTK_ENTRY(data));
+	if((g_strcasecmp("",s)))
+		{
+		sscanf(s,"%d",&ch_num);
+		if(airpcap_if_active != NULL)
+			{
+			ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, airpcap_if_active->description), ebuf);
+
+			if(ad)
+				{
+				airpcap_if_set_device_channel(ad,ch_num);
+				airpcap_if_active->channel = ch_num;
+				airpcap_if_close(ad);
+				}
+			}
+		}
+	}
+}
+#endif
+
+
+#ifdef HAVE_AIRPCAP
+/*
+ * Callback for the wrong crc combo
+ */
+static void
+airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data)
+{
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+PAirpcapHandle ad;
+
+if( !block_toolbar_signals && (airpcap_if_active != NULL))
+	{
+	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
+
+	if(ad)
+		{
+		airpcap_if_active->CrcValidationOn = airpcap_get_validation_type(gtk_entry_get_text(GTK_ENTRY(entry)));
+		airpcap_if_set_fcs_validation(ad,airpcap_if_active->CrcValidationOn);
+		/* Save configuration */
+		if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+			{
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+			}
+		airpcap_if_close(ad);
+		}
+	}
+}
+#endif
+
+#ifdef HAVE_AIRPCAP
+void
+airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data)
+{
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+PAirpcapHandle ad;
+
+if( !block_toolbar_signals && (airpcap_if_active != NULL))
+{
+	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
+
+	if(ad)
+		{
+		if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
+			{
+			airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
+			airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+			/* Save configuration */
+			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+				{
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+				}
+			airpcap_if_close(ad);
+			}
+		else
+			{
+			airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
+			airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+			/* Save configuration */
+			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+				{
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+				}
+			airpcap_if_close(ad);
+			}
+		}
+	}
+}
+#endif
+
+#ifdef HAVE_AIRPCAP
+/*
+ * Callback for the Advanced Wireless Settings button
+ */
+static void
+toolbar_display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
+{
+int *from_widget;
+
+    from_widget = (gint*)g_malloc(sizeof(gint));
+    *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+
+	display_airpcap_advanced_cb(w,data);
+}
+#endif
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
@@ -3490,8 +3679,28 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                   *filter_reset;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
+
     GtkAccelGroup *accel;
     gchar         *title;
+
+#ifdef HAVE_AIRPCAP
+    GtkWidget
+		  *advanced_bt,
+		  *interface_lb,
+		  *channel_lb,
+		  *channel_cm,
+		  *wrong_crc_lb,
+		  *encryption_ck,
+		  *wrong_crc_cm,
+                  *iconw;
+    GList	  *channel_list = NULL;
+    GList	  *linktype_list = NULL;
+    GList	  *link_list = NULL;
+    GtkTooltips	  *airpcap_tooltips;
+    gchar	  *if_label_text;
+    gint          *from_widget = NULL;
+#endif
+
     /* Display filter construct dialog has an Apply button, and "OK" not
        only sets our text widget, it activates it (i.e., it causes us to
        filter the capture). */
@@ -3510,6 +3719,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     g_free(title);
 
     tooltips = gtk_tooltips_new();
+
+#ifdef HAVE_AIRPCAP
+	airpcap_tooltips = gtk_tooltips_new();
+#endif
 
 #ifdef _WIN32
 #if GTK_MAJOR_VERSION < 2
@@ -3583,6 +3796,206 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(main_pane_h1);
     main_pane_h2 = gtk_hpaned_new();
     gtk_widget_show(main_pane_h2);
+
+#ifdef HAVE_AIRPCAP
+    /* airpcap toolbar */
+#if GTK_MAJOR_VERSION < 2
+    airpcap_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
+                               GTK_TOOLBAR_BOTH);
+#else
+    airpcap_tb = gtk_toolbar_new();
+    gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
+                                GTK_ORIENTATION_HORIZONTAL);
+#endif /* GTK_MAJOR_VERSION */
+       gtk_widget_show(airpcap_tb);
+
+	/* Interface Label */
+	if(airpcap_if_active != NULL)
+		{
+		if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_active));
+		interface_lb = gtk_label_new(if_label_text);
+		g_free(if_label_text);
+		}
+	else
+		{
+		interface_lb = gtk_label_new("No Wireless Interface Found  ");
+		}
+
+	/* Add the label to the toolbar */
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), interface_lb,
+        "Current Wireless Interface", "Private");
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
+	gtk_widget_show(interface_lb);
+	gtk_toolbar_insert_space(GTK_TOOLBAR(airpcap_tb),1);
+
+
+    /* Create the "802.11 Channel:" label */
+	channel_lb = gtk_label_new(" 802.11 Channel: ");
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
+        "Current 802.11 Channel", "Private");
+	gtk_widget_show(channel_lb);
+
+	#if GTK_MAJOR_VERSION < 2
+	gtk_widget_set_usize( GTK_WIDGET(channel_lb),
+                                  100,
+                                  28 );
+	#else
+	gtk_widget_set_size_request( GTK_WIDGET(channel_lb),
+                                  100,
+                                  28 );
+    #endif
+
+	/* Create the channel combo box */
+    channel_cm = gtk_combo_new();
+	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
+
+	channel_list = g_list_append(channel_list, "1");
+    channel_list = g_list_append(channel_list, "2");
+    channel_list = g_list_append(channel_list, "3");
+    channel_list = g_list_append(channel_list, "4");
+	channel_list = g_list_append(channel_list, "5");
+	channel_list = g_list_append(channel_list, "6");
+	channel_list = g_list_append(channel_list, "7");
+	channel_list = g_list_append(channel_list, "8");
+	channel_list = g_list_append(channel_list, "9");
+	channel_list = g_list_append(channel_list, "10");
+	channel_list = g_list_append(channel_list, "11");
+	channel_list = g_list_append(channel_list, "12");
+	channel_list = g_list_append(channel_list, "13");
+	channel_list = g_list_append(channel_list, "14");
+
+    gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list) ;
+
+	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
+		"Change the 802.11 RF channel",
+        NULL);
+
+	#if GTK_MAJOR_VERSION < 2
+	gtk_widget_set_usize( GTK_WIDGET(channel_cm),
+                                  45,
+                                  28 );
+	#else
+	gtk_widget_set_size_request( GTK_WIDGET(channel_cm),
+                                  45,
+                                  28 );
+    #endif
+
+	if(airpcap_if_active != NULL)
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), airpcap_get_channel_name(airpcap_if_active->channel));
+	else
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
+
+	/* callback for channel combo box */
+	SIGNAL_CONNECT(GTK_COMBO(channel_cm)->entry,"changed",airpcap_toolbar_channel_changed_cb,GTK_COMBO(channel_cm)->entry);
+    gtk_widget_show(channel_cm);
+
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_cm,
+        "802.11 Channel", "Private");
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+
+	/* Wrong CRC Label */
+	wrong_crc_lb = gtk_label_new(" FCS Filter: ");
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_lb,
+        "", "Private");
+	gtk_widget_show(wrong_crc_lb);
+
+	/* Wrong CRC combo */
+	wrong_crc_cm = gtk_combo_new();
+	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(wrong_crc_cm)->entry),FALSE);
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_WRONG_CRC_KEY,wrong_crc_cm);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
+        "", "Private");
+
+	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_ALL);
+	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRECT);
+    linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT);
+
+    gtk_combo_set_popdown_strings( GTK_COMBO(wrong_crc_cm), linktype_list) ;
+	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(wrong_crc_cm)->entry),
+	"Select the 802.11 FCS filter that the wireless adapter will apply.",
+    NULL);
+
+	if(airpcap_if_active != NULL)
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry), airpcap_get_validation_name(airpcap_if_active->CrcValidationOn));
+	else
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry),"");
+
+	SIGNAL_CONNECT(GTK_COMBO(wrong_crc_cm)->entry,"changed",airpcap_toolbar_wrong_crc_combo_cb,airpcap_tb);
+	gtk_widget_show(wrong_crc_cm);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+
+	/* encryption enabled box */
+
+	encryption_ck = gtk_toggle_button_new();
+	iconw = xpm_to_widget (wep_closed_24_xpm);
+    gtk_widget_show(iconw);
+    gtk_container_add(GTK_CONTAINER(encryption_ck),iconw);
+
+	#if GTK_MAJOR_VERSION < 2
+	gtk_widget_set_usize( GTK_WIDGET(encryption_ck),
+                                  28,
+                                  28 );
+	#else
+	gtk_widget_set_size_request( GTK_WIDGET(encryption_ck),
+                                  28,
+                                  28 );
+    #endif
+
+	OBJECT_SET_DATA(GTK_TOOLBAR(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,encryption_ck);
+
+	if(airpcap_if_active != NULL)
+		{
+		if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
+	    	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(encryption_ck),TRUE);
+		else
+	    	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(encryption_ck),FALSE);
+		}
+
+	SIGNAL_CONNECT(encryption_ck,"toggled",airpcap_toolbar_encryption_cb,airpcap_tb);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), encryption_ck,
+        "Enable the WEP decryption in the wireless driver", "Private");
+	gtk_widget_show(encryption_ck);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+
+	/* Advanced button */
+	advanced_bt = gtk_button_new_with_label("Advanced Wireless Settings...");
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
+
+	SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
+        "Set Advanced Wireless Settings...", "Private");
+	gtk_widget_show(advanced_bt);
+
+	/* select the default interface */
+	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+
+	/* If no airpcap interface is present, gray everything */
+	if(airpcap_if_active == NULL)
+		{
+    	if(airpcap_if_list == NULL)
+			{
+			/*No airpcap device found */
+			gtk_widget_set_sensitive(airpcap_tb,FALSE);
+			recent.airpcap_toolbar_show = FALSE;
+			}
+		else
+			{
+			/* default adapter is not airpcap... or is airpcap but is not found*/
+			airpcap_set_toolbar_stop_capture(airpcap_if_active);
+			gtk_widget_set_sensitive(airpcap_tb,FALSE);
+			recent.airpcap_toolbar_show = TRUE;
+			}
+		}
+    else
+		{
+        airpcap_set_toolbar_stop_capture(airpcap_if_active);
+		recent.airpcap_toolbar_show = TRUE;
+        }
+#endif
 
     /* filter toolbar */
 #if GTK_MAJOR_VERSION < 2

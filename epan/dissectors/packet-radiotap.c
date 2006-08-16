@@ -73,6 +73,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
+	IEEE80211_RADIOTAP_FCS = 14,
     IEEE80211_RADIOTAP_EXT = 31
 };
 
@@ -144,8 +145,10 @@ static int hf_radiotap_dbm_antnoise = -1;
 static int hf_radiotap_db_antnoise = -1;
 static int hf_radiotap_txpower = -1;
 static int hf_radiotap_preamble = -1;
-static int hf_radiotap_fcs = -1;
+static int hf_radiotap_flags_fcs = -1;
 static int hf_radiotap_datapad = -1;
+static int hf_radiotap_quality = -1;
+static int hf_radiotap_fcs = -1;
 
 static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
@@ -285,7 +288,7 @@ proto_register_radiotap(void)
 	FT_UINT32, BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
 
     /* XXX for debugging */
-    { &hf_radiotap_fcs,
+    { &hf_radiotap_flags_fcs,
       { "FCS", "radiotap.flags.fcs",
 	FT_UINT32, BASE_DEC, VALS(truefalse_type), 0x0, "", HFILL } },
     { &hf_radiotap_datapad,
@@ -295,6 +298,12 @@ proto_register_radiotap(void)
     { &hf_radiotap_mactime,
        { "MAC timestamp", "radiotap.mactime",
 	 FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_quality,
+       { "Signal Quality", "radiotap.quality",
+	 FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_fcs,
+       { "802.11 FCS", "radiotap.fcs",
+	 FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_channel_frequency,
       { "Channel frequency", "radiotap.channel.freq",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -388,6 +397,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 db, rflags;
     guint32 present, next_present;
     int bit;
+	gboolean has_fcs = FALSE;
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -455,7 +465,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (tree) {
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_preamble,
 			tvb, 0, 0, (rflags&IEEE80211_RADIOTAP_F_SHORTPRE) != 0);
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_flags_fcs,
 			tvb, 0, 0, (rflags&IEEE80211_RADIOTAP_F_FCS) != 0);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_datapad,
 			tvb, 0, 0, (rflags&IEEE80211_RADIOTAP_F_DATAPAD) != 0);
@@ -574,7 +584,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=4;
 	    break;
 	case IEEE80211_RADIOTAP_FHSS:
-	case IEEE80211_RADIOTAP_LOCK_QUALITY:
 	case IEEE80211_RADIOTAP_TX_ATTENUATION:
 	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
 	    if (length_remaining < 2)
@@ -595,6 +604,28 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset+=8;
 	    length_remaining-=8;
 	    break;
+	case IEEE80211_RADIOTAP_LOCK_QUALITY:
+	    if (length_remaining < 2)
+		break;
+	    if (tree) {
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_quality,
+				tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	    }
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+	case IEEE80211_RADIOTAP_FCS:
+	    /*
+	     * We don't show the FCS because, since it's already at the end of the frame,
+		 * it would be redundant.
+	     * However, we tell the 802.11 dissector that the packet does have fcs.
+	     */
+	    if (length_remaining < 2)
+		break;
+		has_fcs = TRUE;
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
 	default:
 	    /*
 	     * This indicates a field whose size we do not
@@ -605,8 +636,12 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
     }
 
-    if (rflags & IEEE80211_RADIOTAP_F_FCS)
+	/* does the frame contain the FCS? */
+	if ((has_fcs == TRUE) || (rflags & IEEE80211_RADIOTAP_F_FCS))
 	pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
+	else
+	pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
+
     /* dissect the 802.11 header next */
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
 	ieee80211_datapad_handle : ieee80211_handle,

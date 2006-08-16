@@ -291,6 +291,14 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  */
 extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
 
+/** Create a new hbox with an image packed into it
+ * and return the box.
+ *
+ * @param xpm the character array containing the picture
+ * @return a newly created GtkHBox containing the picture
+ */
+GtkWidget *xpm_box( gchar **xpm );
+
 /** Copy a GString to the clipboard.
  *
  * @param str GString that is to be copied to the clipboard.

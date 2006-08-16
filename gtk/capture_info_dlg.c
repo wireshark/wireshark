@@ -45,6 +45,13 @@
 #include "main.h"
 #include "capture-pcap-util.h"
 
+#ifdef HAVE_AIRPCAP
+#include <airpcap.h>
+#include "airpcap_loader.h"
+#include "airpcap_gui_utils.h"
+#include "airpcap_dlg.h"
+#endif
+
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
@@ -78,6 +85,10 @@ pct(gint num, gint denom) {
 
 static gboolean
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
+#ifdef HAVE_AIRPCAP
+  airpcap_set_toolbar_stop_capture(airpcap_if_active);
+#endif
+
   capture_stop(capture_opts);
   return TRUE;
 }

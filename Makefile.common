@@ -136,6 +136,7 @@ EXTRA_wireshark_INCLUDES =	\
 # wireshark specifics
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
+	airpcap_loader.c \
 	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
@@ -154,6 +155,7 @@ wireshark_SOURCES =	\
 
 # corresponding headers
 wireshark_INCLUDES =	\
+	airpcap_loader.h \
 	alert_box.h	\
 	capture.h	\
 	capture_info.h	\

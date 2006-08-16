@@ -61,6 +61,8 @@
 @WPCAP_CONSTIFIED@
 @HAVE_LIBWIRESHARKDLL@
 
+@HAVE_AIRPCAP@
+
 /* availability of pcap_freecode() is handled at runtime */
 #define HAVE_PCAP_FREECODE 1
 

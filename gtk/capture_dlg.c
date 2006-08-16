@@ -61,6 +61,15 @@
 #include "capture-wpcap.h"
 #endif
 
+#include "keys.h"
+
+#ifdef HAVE_AIRPCAP
+#include <airpcap.h>
+#include "airpcap_loader.h"
+#include "airpcap_gui_utils.h"
+#include "airpcap_dlg.h"
+#endif
+
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY             "cap_iface"
 #define E_CAP_IFACE_IP_KEY          "cap_iface_ip"
@@ -114,7 +123,6 @@
  */
 static GtkWidget *cap_open_w;
 
-
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
@@ -138,6 +146,10 @@ capture_dlg_prep(gpointer parent_w);
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+#ifdef HAVE_AIRPCAP
+	airpcap_set_toolbar_stop_capture(airpcap_if_active);
+#endif
+
     capture_stop(capture_opts);
 }
 
@@ -145,6 +157,10 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+#ifdef HAVE_AIRPCAP
+	airpcap_set_toolbar_start_capture(airpcap_if_active);
+#endif
+
     capture_restart(capture_opts);
 }
 
@@ -173,11 +189,30 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   int ips = 0;
   GSList *curr_ip;
   if_addr_t *ip_addr;
+#ifdef HAVE_AIRPCAP
+  GtkWidget *advanced_bt;
+#endif
 
   lt_menu = gtk_menu_new();
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
   if_name = get_if_name(if_text);
+
+#ifdef HAVE_AIRPCAP
+  /* is it an airpcap interface??? */
+  /* retrieve the advanced button pointer */
+  advanced_bt = OBJECT_GET_DATA(entry,AIRPCAP_OPTIONS_ADVANCED_KEY);
+  airpcap_if_selected = get_airpcap_if_by_name(airpcap_if_list,if_name);
+  gtk_widget_set_sensitive(airpcap_tb,FALSE);
+  if( airpcap_if_selected != NULL)
+	{
+	gtk_widget_set_sensitive(advanced_bt,TRUE);
+	}
+  else
+	{
+	gtk_widget_set_sensitive(advanced_bt,FALSE);
+	}
+#endif
 
   /*
    * If the interface name is in the list of known interfaces, get
@@ -482,6 +517,24 @@ guint32 value)
     }
 }
 
+#ifdef HAVE_AIRPCAP
+/*
+ * Sets the toolbar before calling the advanced dialog with for the right interface
+ */
+void
+options_airpcap_advanced_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+int *from_widget;
+
+from_widget = (gint*)g_malloc(sizeof(gint));
+*from_widget = AIRPCAP_ADVANCED_FROM_OPTIONS;
+OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+
+airpcap_if_active = airpcap_if_selected;
+gtk_widget_set_sensitive(airpcap_tb,FALSE);
+display_airpcap_advanced_cb(w,d);
+}
+#endif
 
 /* show capture prepare (options) dialog */
 void
@@ -497,6 +550,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
+				*advanced_hb,
 
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
@@ -517,7 +571,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
-                *help_bt;
+                *help_bt,
+				*advanced_bt;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -536,6 +591,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   guint32       value;
   gchar         *cap_title;
   gchar         *if_device;
+
+  gint *from_widget = NULL;
 
 
   if (cap_open_w != NULL) {
@@ -563,6 +620,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                   cant_get_if_list_errstr);
     g_free(cant_get_if_list_errstr);
   }
+
+#ifdef HAVE_AIRPCAP
+  /* update airpcap interface list */
+  	/* load the airpcap interfaces */
+	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+
+	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                  cant_get_if_list_errstr);
+    g_free(cant_get_if_list_errstr);
+	}
+
+	/* select the first ad default (THIS SHOULD BE CHANGED) */
+	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+#endif
 
   /* use user-defined title if preference is set */
   cap_title = create_user_window_title("Wireshark: Capture Options");
@@ -611,6 +684,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_opts->iface = g_strdup(get_if_name(if_device));
     g_free(if_device);
   }
+
+#ifdef HAVE_AIRPCAP
+	/* get the airpcap interface (if it IS an airpcap interface, and update the
+	  toolbar... and of course enable the advanced button...)*/
+	  airpcap_if_selected = get_airpcap_if_by_name(airpcap_if_list,capture_opts->iface);
+#endif
+
   if (capture_opts->iface != NULL) {
     if_device = build_capture_combo_name(if_list, capture_opts->iface);
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_device);
@@ -681,7 +761,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_sb, FALSE, FALSE, 0);
 
   buffer_size_lb = gtk_label_new("megabyte(s)");
-  gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_lb, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_lb, FALSE, FALSE, 6);
 #endif
 
   /* Promiscuous mode row */
@@ -766,6 +846,40 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* let an eventually capture filters dialog know the text entry to fill in */
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+
+  /* advanced row */
+  advanced_hb = gtk_hbox_new(FALSE,5);
+  gtk_box_pack_start(GTK_BOX(capture_vb), advanced_hb, FALSE, FALSE, 0);
+  advanced_bt = gtk_button_new();
+
+  /* set the text */
+  #if GTK_MAJOR_VERSION >= 2
+  /* XXX - find a way to set the GtkButton label in GTK 1.x */
+  gtk_button_set_label(GTK_BUTTON(advanced_bt), "Wireless Settings");
+  #else
+  /* Set the GtkButton label in GTK 1.x */
+  gtk_label_set_text(GTK_LABEL(GTK_BIN(advanced_bt)->child), "Wireless Settings");
+  #endif
+
+#ifdef HAVE_AIRPCAP
+  /* Both the callback and the data are global */
+  SIGNAL_CONNECT(advanced_bt,"clicked",options_airpcap_advanced_cb,airpcap_tb);
+  OBJECT_SET_DATA(GTK_ENTRY(GTK_COMBO(if_cb)->entry),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
+
+  if(airpcap_if_selected != NULL)
+	{
+	/* It is an airpcap interface */
+	gtk_widget_set_sensitive(advanced_bt,TRUE);
+	}
+  else
+	{
+	gtk_widget_set_sensitive(advanced_bt,FALSE);
+	}
+#endif
+
+  gtk_box_pack_start(GTK_BOX(linktype_hb),advanced_bt,FALSE,FALSE,0);
+  gtk_widget_show(advanced_bt);
+  gtk_widget_show(advanced_hb);
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture File(s)");
@@ -1236,6 +1350,11 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
 
+#ifdef HAVE_AIRPCAP
+  airpcap_if_active = airpcap_if_selected;
+  airpcap_set_toolbar_start_capture(airpcap_if_active);
+#endif
+
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
@@ -1548,6 +1667,11 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Note that we no longer have a "Capture Options" dialog box. */
   cap_open_w = NULL;
+
+#ifdef HAVE_AIRPCAP
+  /* update airpcap toolbar */
+  airpcap_set_toolbar_stop_capture(airpcap_if_active);
+#endif
 }
 
 /* user changed the interface entry */
@@ -1555,7 +1679,6 @@ static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
 {
   GtkWidget *linktype_om = argp;
-
   set_link_type_list(linktype_om, entry);
 }
 

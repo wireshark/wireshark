@@ -50,6 +50,7 @@
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
+#define RECENT_KEY_AIRPCAP_TOOLBAR_SHOW      "gui.airpcap_toolbar_show"
 #define RECENT_KEY_PACKET_LIST_SHOW         "gui.packet_list_show"
 #define RECENT_KEY_TREE_VIEW_SHOW           "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW           "gui.byte_view_show"
@@ -165,6 +166,13 @@ write_recent(void)
   fprintf(rf, RECENT_KEY_FILTER_TOOLBAR_SHOW ": %s\n",
 		  recent.filter_toolbar_show == TRUE ? "TRUE" : "FALSE");
 
+#ifdef HAVE_AIRPCAP
+  fprintf(rf, "\n# Wireless Settings Toolbar show (hide).\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_AIRPCAP_TOOLBAR_SHOW ": %s\n",
+		  recent.airpcap_toolbar_show == TRUE ? "TRUE" : "FALSE");
+#endif
+
   fprintf(rf, "\n# Packet list show (hide).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_KEY_PACKET_LIST_SHOW ": %s\n",
@@ -213,7 +221,7 @@ write_recent(void)
   		  recent.gui_geometry_main_width);
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  recent.gui_geometry_main_height);
-  
+
   fprintf(rf, "\n# Main window maximized (GTK2 only!).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
@@ -259,7 +267,7 @@ write_recent(void)
 
 
 /* write the geometry values of a window to recent file */
-void 
+void
 write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 {
     window_geometry_t *geom = value;
@@ -300,6 +308,13 @@ read_set_recent_pair_static(gchar *key, gchar *value)
     }
     else {
         recent.filter_toolbar_show = FALSE;
+    }
+  } else if (strcmp(key, RECENT_KEY_AIRPCAP_TOOLBAR_SHOW) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+        recent.airpcap_toolbar_show = TRUE;
+    }
+    else {
+        recent.airpcap_toolbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
     if (strcasecmp(value, "true") == 0) {
@@ -489,6 +504,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   /* set defaults */
   recent.main_toolbar_show      = TRUE;
   recent.filter_toolbar_show    = TRUE;
+  recent.airpcap_toolbar_show   = FALSE;
   recent.packet_list_show       = TRUE;
   recent.tree_view_show         = TRUE;
   recent.byte_view_show         = TRUE;

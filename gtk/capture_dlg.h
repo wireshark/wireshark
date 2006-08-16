@@ -26,6 +26,8 @@
 #ifndef __CAPTURE_DLG_H__
 #define __CAPTURE_DLG_H__
 
+extern GtkWidget* airpcap_tb;
+
 /** @file
  *  "Capture Options" dialog box.
  *  @ingroup dialog_group
@@ -69,6 +71,14 @@ void capture_start_confirmed(void);
  */
 void
 capture_if_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "Capture Airpcap" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void
+capture_air_cb(GtkWidget *widget, gpointer data);
 
 /** User requested the "Capture Interfaces" dialog box by menu or toolbar.
  *

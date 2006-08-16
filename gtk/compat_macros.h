@@ -187,6 +187,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_CAPTURE_INTERFACES       "Interfaces"
+#define WIRESHARK_STOCK_CAPTURE_AIRPCAP			 "Airpcap"
 #define WIRESHARK_STOCK_CAPTURE_OPTIONS          "Options"
 #define WIRESHARK_STOCK_CAPTURE_START            "Start"
 #define WIRESHARK_STOCK_CAPTURE_STOP             "Stop"
@@ -320,6 +321,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
+#define WIRESHARK_STOCK_LABEL_CAPTURE_AIRPCAP          "_Wireless"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_OPTIONS          "_Options"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_START            "_Start"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_STOP             "S_top"
@@ -358,6 +360,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_CAPTURE_INTERFACES       "Wireshark_Stock_CaptureInterfaces"
+#define WIRESHARK_STOCK_CAPTURE_AIRPCAP			 "Wireshark_Stock_CaptureAirpcap"
 #define WIRESHARK_STOCK_CAPTURE_OPTIONS          "Wireshark_Stock_CaptureOptionss"
 #define WIRESHARK_STOCK_CAPTURE_START            "Wireshark_Stock_CaptureStart"
 #define WIRESHARK_STOCK_CAPTURE_STOP             "Wireshark_Stock_CaptureStop"
