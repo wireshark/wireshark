@@ -1585,7 +1585,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		/* GUIDs */
 		{ &hf_nt_guid,
-		  { "GUID", "nt.guid", FT_STRING, BASE_NONE,
+		  { "GUID", "nt.guid", FT_GUID, BASE_NONE,
 		    NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
 
 		/* Policy handles */

@@ -1788,7 +1788,7 @@ proto_register_rs_pgo (void)
      {"hf_rs_timeval", "hf_rs_timeval", FT_RELATIVE_TIME, BASE_DEC, NULL,
       0x0, "", HFILL}},
     {&hf_rs_uuid1,
-     {"hf_rs_uuid1", "hf_rs_uuid1", FT_STRING, BASE_NONE, NULL, 0x0, "UUID",
+     {"hf_rs_uuid1", "hf_rs_uuid1", FT_GUID, BASE_NONE, NULL, 0x0, "UUID",
       HFILL}},
     {&hf_rs_var1,
      {"hf_rs_var1", "hf_rs_var1", FT_UINT32, BASE_DEC, NULL, 0x0, "",
