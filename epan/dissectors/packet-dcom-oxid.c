@@ -326,7 +326,7 @@ proto_register_oxid (void)
 		{ &hf_oxid_bindings,
 		{ "OxidBindings", "oxid_bindings", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_oxid_ipid,
-        { "IPID", "oxid_ipid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "IPID", "oxid_ipid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_oxid_authn_hint,
 		{ "AuthnHint", "oxid_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 

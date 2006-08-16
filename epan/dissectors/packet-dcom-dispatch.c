@@ -550,7 +550,7 @@ proto_register_dcom_dispatch(void)
 	    { "Operation", "dispatch_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 
 		{ &hf_dispatch_riid,
-		{ "RIID", "dispatch_riid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "RIID", "dispatch_riid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dispatch_name,
         { "Name", "hf_dispatch_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dispatch_names,
