@@ -208,6 +208,15 @@ static int hf_smb_file_access_mask_write_ea = -1;
 static int hf_smb_file_access_mask_execute = -1;
 static int hf_smb_file_access_mask_read_attribute = -1;
 static int hf_smb_file_access_mask_write_attribute = -1;
+static int hf_smb_dir_access_mask_list = -1;
+static int hf_smb_dir_access_mask_add_file = -1;
+static int hf_smb_dir_access_mask_add_subdir = -1;
+static int hf_smb_dir_access_mask_read_ea = -1;
+static int hf_smb_dir_access_mask_write_ea = -1;
+static int hf_smb_dir_access_mask_traverse = -1;
+static int hf_smb_dir_access_mask_delete_child = -1;
+static int hf_smb_dir_access_mask_read_attribute = -1;
+static int hf_smb_dir_access_mask_write_attribute = -1;
 static int hf_smb_copy_flags_file = -1;
 static int hf_smb_copy_flags_dir = -1;
 static int hf_smb_copy_flags_dest_mode = -1;
@@ -1014,6 +1023,33 @@ smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 m
 struct access_mask_info smb_file_access_mask_info = {
 	"FILE",				/* Name of specific rights */
 	smb_file_specific_rights,	/* Dissection function */
+	NULL,				/* Generic mapping table */
+	NULL				/* Standard mapping table */
+};
+
+
+static void
+smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
+{
+	mask&=0x0000ffff;
+	if(mask==0x000001ff){
+		proto_tree_add_text(tree, tvb, offset, 4, "[FULL CONTROL]");
+	}
+
+
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_write_attribute, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_read_attribute, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_delete_child, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_traverse, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_write_ea, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_read_ea, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_add_subdir, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_add_file, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_list, tvb, offset, 4, mask);
+}
+struct access_mask_info smb_dir_access_mask_info = {
+	"DIR",				/* Name of specific rights */
+	smb_dir_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
@@ -7738,6 +7774,9 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 			switch(ntd->fid_type){
 			case SMB_FID_TYPE_FILE:
 				ami= &smb_file_access_mask_info;
+				break;
+			case SMB_FID_TYPE_DIR:
+				ami= &smb_dir_access_mask_info;
 				break;
 			}
 		}
@@ -18085,6 +18124,42 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_access_mask_write_attribute,
 	  { "Write Attribute", "smb.file.accessmask.write_attribute", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000100, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_list,
+	  { "List", "smb.dir.accessmask.list", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000001, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_add_file,
+	  { "Add File", "smb.dir.accessmask.add_file", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_add_subdir,
+	  { "Add Subdir", "smb.dir.accessmask.add_subdir", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000004, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_read_ea,
+	  { "Read EA", "smb.dir.accessmask.read_ea", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000008, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_write_ea,
+	  { "Write EA", "smb.dir.accessmask.write_ea", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000010, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_traverse,
+	  { "Traverse", "smb.dir.accessmask.traverse", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000020, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_delete_child,
+	  { "Delete Child", "smb.dir.accessmask.delete_child", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000040, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_read_attribute,
+	  { "Read Attribute", "smb.dir.accessmask.read_attribute", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000080, "", HFILL }},
+
+	{ &hf_smb_dir_access_mask_write_attribute,
+	  { "Write Attribute", "smb.dir.accessmask.write_attribute", FT_BOOLEAN, 32,
 		TFS(&flags_set_truth), 0x00000100, "", HFILL }},
 
 	{ &hf_smb_unix_file_size,
