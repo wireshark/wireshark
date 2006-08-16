@@ -200,6 +200,14 @@ static int hf_smb_move_flags_file = -1;
 static int hf_smb_move_flags_dir = -1;
 static int hf_smb_move_flags_verify = -1;
 static int hf_smb_files_moved = -1;
+static int hf_smb_file_access_mask_read_data = -1;
+static int hf_smb_file_access_mask_write_data = -1;
+static int hf_smb_file_access_mask_append_data = -1;
+static int hf_smb_file_access_mask_read_ea = -1;
+static int hf_smb_file_access_mask_write_ea = -1;
+static int hf_smb_file_access_mask_execute = -1;
+static int hf_smb_file_access_mask_read_attribute = -1;
+static int hf_smb_file_access_mask_write_attribute = -1;
 static int hf_smb_copy_flags_file = -1;
 static int hf_smb_copy_flags_dir = -1;
 static int hf_smb_copy_flags_dest_mode = -1;
@@ -982,6 +990,35 @@ static GSList *conv_tables = NULL;
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    End of request/response matching functions
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+
+
+
+static void
+smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
+{
+	mask&=0x0000ffff;
+	if(mask==0x000001ff){
+		proto_tree_add_text(tree, tvb, offset, 4, "[FULL CONTROL]");
+	}
+
+
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_attribute, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_attribute, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_execute, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_ea, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_ea, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_append_data, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_write_data, tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_access_mask_read_data, tvb, offset, 4, mask);
+}
+struct access_mask_info smb_file_access_mask_info = {
+	"FILE",				/* Name of specific rights */
+	smb_file_specific_rights,	/* Dissection function */
+	NULL,				/* Generic mapping table */
+	NULL				/* Standard mapping table */
+};
+
+
 
 static const value_string buffer_format_vals[] = {
 	{1,     "Data Block"},
@@ -7140,6 +7177,7 @@ typedef struct _nt_trans_data {
 	int subcmd;
 	guint32 sd_len;
 	guint32 ea_len;
+	int fid_type;
 } nt_trans_data;
 
 
@@ -7659,6 +7697,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	smb_info_t *si;
 	int old_offset = offset;
 	guint16 bcp=bc; /* XXX fixme */
+	struct access_mask_info *ami=NULL;
 
 	si = (smb_info_t *)pinfo->private_data;
 
@@ -7695,8 +7734,16 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		break;
 	case NT_TRANS_SSD:
+		if(ntd){
+			switch(ntd->fid_type){
+			case SMB_FID_TYPE_FILE:
+				ami= &smb_file_access_mask_info;
+				break;
+			}
+		}
+
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, NULL, TRUE, bc, NULL);
+			tvb, offset, pinfo, tree, NULL, TRUE, bc, ami);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -7822,11 +7869,19 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		break;
 	case NT_TRANS_SSD: {
 		guint16 fid;
+		smb_fid_info_t *fid_info;
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, FALSE, FALSE);
+		fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, FALSE, FALSE);
 		offset += 2;
+		if(ntd){
+			if(fid_info){
+				ntd->fid_type=fid_info->type;
+			} else {
+				ntd->fid_type=SMB_FID_TYPE_UNKNOWN;
+			}
+		}
 
 		/* 2 reserved bytes */
 		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
@@ -17999,6 +18054,38 @@ proto_register_smb(void)
 	{ &hf_smb_unix_capability_posix_acl,
 	  { "POSIX ACL Capability", "smb.unix.capability.posix_acl", FT_BOOLEAN, 32,
 		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_read_data,
+	  { "Read Data", "smb.file.accessmask.read_data", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000001, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_write_data,
+	  { "Write Data", "smb.file.accessmask.write_data", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_append_data,
+	  { "Append Data", "smb.file.accessmask.append_data", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000004, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_read_ea,
+	  { "Read EA", "smb.file.accessmask.read_ea", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000008, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_write_ea,
+	  { "Write EA", "smb.file.accessmask.write_ea", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000010, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_execute,
+	  { "Execute", "smb.file.accessmask.execute", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000020, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_read_attribute,
+	  { "Read Attribute", "smb.file.accessmask.read_attribute", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000080, "", HFILL }},
+
+	{ &hf_smb_file_access_mask_write_attribute,
+	  { "Write Attribute", "smb.file.accessmask.write_attribute", FT_BOOLEAN, 32,
+		TFS(&flags_set_truth), 0x00000100, "", HFILL }},
 
 	{ &hf_smb_unix_file_size,
 	  { "File size", "smb.unix.file.size", FT_UINT64, BASE_DEC,
