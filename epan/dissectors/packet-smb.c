@@ -7213,7 +7213,6 @@ typedef struct _nt_trans_data {
 	int subcmd;
 	guint32 sd_len;
 	guint32 ea_len;
-	int fid_type;
 } nt_trans_data;
 
 
@@ -7726,7 +7725,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 
 
 static int
-dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd)
+dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd, smb_nt_transact_info_t *nti)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7770,8 +7769,8 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		break;
 	case NT_TRANS_SSD:
-		if(ntd){
-			switch(ntd->fid_type){
+		if(nti){
+			switch(nti->fid_type){
 			case SMB_FID_TYPE_FILE:
 				ami= &smb_file_access_mask_info;
 				break;
@@ -7914,11 +7913,11 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		fid = tvb_get_letohs(tvb, offset);
 		fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, FALSE, FALSE);
 		offset += 2;
-		if(ntd){
+		if(nti){
 			if(fid_info){
-				ntd->fid_type=fid_info->type;
+				nti->fid_type=fid_info->type;
 			} else {
-				ntd->fid_type=SMB_FID_TYPE_UNKNOWN;
+				nti->fid_type=SMB_FID_TYPE_UNKNOWN;
 			}
 		}
 
@@ -8183,6 +8182,10 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				nti->fid_type=SMB_FID_TYPE_UNKNOWN;
 				sip->extra_info = nti;
 				sip->extra_info_type = SMB_EI_NTI;
+			} else {
+				if(sip->extra_info_type == SMB_EI_NTI){
+					nti=sip->extra_info;
+				}
 			}
 		}
 	} else {
@@ -8238,7 +8241,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	if(dc){
 		CHECK_BYTE_COUNT(dc);
 		dissect_nt_trans_data_request(
-			tvb, pinfo, offset, tree, dc, &ntd);
+			tvb, pinfo, offset, tree, dc, &ntd, nti);
 		COUNT_BYTES(dc);
 	}
 
@@ -8258,17 +8261,11 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_nt_transact_info_t *nti;
 	guint16 bcp;
 	struct access_mask_info *ami=NULL;
 
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
-
-	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
-		nti = si->sip->extra_info;
-	else
-		nti = NULL;
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, len);
