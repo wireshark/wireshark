@@ -276,10 +276,24 @@ typedef struct smb_info {
 extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
     guint16 bc, guint16 datalen);
 
+
+#define SMB_FID_TYPE_UNKNOWN	0
+#define SMB_FID_TYPE_FILE	1
+#define SMB_FID_TYPE_DIR	2
+#define SMB_FID_TYPE_PIPE	3
+/* used for tracking fid/tid to filename/sharename openedframe closedframe */
+typedef struct _smb_fid_into_t {
+	int opened_in;
+	int closed_in;
+	char *filename;
+	int type;
+} smb_fid_info_t;
+
+
 /*
  * Dissect an smb FID
  */
-extern void dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed);
 
 /*

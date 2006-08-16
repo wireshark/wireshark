@@ -2501,14 +2501,6 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-/* used for tracking fid/tid to filename/sharename openedframe closedframe */
-typedef struct _smb_fid_into_t {
-	int opened_in;
-	int closed_in;
-	char *filename;
-} smb_fid_info_t;
-
-
 static int
 dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 tid, gboolean is_created, gboolean is_closed)
 {
@@ -2528,6 +2520,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		fid_info=se_alloc(sizeof(smb_fid_info_t));
 		fid_info->opened_in=pinfo->fd->num;
 		fid_info->closed_in=0;
+		fid_info->type=SMB_FID_TYPE_UNKNOWN;
 		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILENAME)){
 			fid_info->filename=si->sip->extra_info;
 		} else {
@@ -2933,7 +2926,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 /* fids are scoped by tcp session */
-void
+smb_fid_info_t *
 dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     int len, guint16 fid, gboolean is_created, gboolean is_closed)
 {
@@ -2953,6 +2946,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		fid_info=se_alloc(sizeof(smb_fid_info_t));
 		fid_info->opened_in=pinfo->fd->num;
 		fid_info->closed_in=0;
+		fid_info->type=SMB_FID_TYPE_UNKNOWN;
 		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILENAME)){
 			fid_info->filename=si->sip->extra_info;
 		} else {
@@ -2966,7 +2960,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		fid_info=se_tree_lookup32_le(si->ct->fid_tree, pinfo->fd->num);
 	}
 	if(!fid_info){
-		return;
+		return NULL;
 	}
 
 	if((!pinfo->fd->flags.visited) && is_closed){
@@ -2986,6 +2980,8 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		it=proto_tree_add_uint(tr, hf_smb_closed_in, tvb, 0, 0, fid_info->closed_in);
 		PROTO_ITEM_SET_GENERATED(it);
 	}		
+
+	return fid_info;
 }
 
 static int
@@ -9229,6 +9225,9 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint16 andxoffset=0;
 	guint16 bc;
 	guint16 fid;
+	guint16 ftype;
+	guint8  isdir;
+	smb_fid_info_t *fid_info=NULL;
 
 	WORD_COUNT;
 
@@ -9256,7 +9255,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE);
+	fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE);
 	offset += 2;
 
 	/* create action */
@@ -9290,6 +9289,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 8;
 
 	/* File Type */
+	ftype=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
 	offset += 2;
 
@@ -9297,8 +9297,29 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset = dissect_ipc_state(tvb, tree, offset, FALSE);
 
 	/* is directory */
+	isdir=tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
 	offset += 1;
+
+	/* Try to remember the type of this fid so that we can dissect
+	 * any future security descriptor (access mask) properly
+	 */
+	if(ftype==0){
+		if(isdir==0){
+			if(fid_info){
+				fid_info->type=SMB_FID_TYPE_FILE;
+			}
+		} else {
+			if(fid_info){
+				fid_info->type=SMB_FID_TYPE_DIR;
+			}
+		}
+	}
+	if(ftype==2){
+		if(fid_info){
+			fid_info->type=SMB_FID_TYPE_PIPE;
+		}
+	}		
 
 	BYTE_COUNT;
 
