@@ -179,6 +179,7 @@ WS_VAR_IMPORT const value_string nt_cmd_vals[];
 /* the information we need to keep around for NT transatcion commands */
 typedef struct {
 	int subcmd;
+	int fid_type;
 } smb_nt_transact_info_t;
 
 /* the information we need to keep around for transaction2 commands */
