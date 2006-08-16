@@ -663,7 +663,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		if (!first_pass) {
 			if (bp_tree != NULL) {
 				proto_tree_add_text(bp_tree, tvb, voff, i,
-				    "Padding");
+				    "Padding (%d byte%s)", i, (i>1)?"s":"");
 			}
 		}
 		consumed = i;
@@ -757,9 +757,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	optoff = voff+2;
 
 	vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
-	    "Option: (%d) %s", code, text);
+	    "Option: (t=%d,l=%d) %s", code, optlen, text);
 	v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-	proto_tree_add_uint_format_value(v_tree, hf_bootp_option_type, tvb, voff, 1, code, "(%d) %s", code, text);
+	proto_tree_add_uint_format_value(v_tree, hf_bootp_option_type,
+		tvb, voff, 1, code, "(%d) %s", code, text);
 	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, FALSE);
 	if (optlen > 0) {
 		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, FALSE);
@@ -859,8 +860,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			        optoff = dissect_vendor_cablelabs_suboption(v_tree,
 					tvb, optoff, optend);
 			}
-		} else {
-			proto_item_append_text(vti, " (%d bytes)", optlen);
 		}
 		break;
 
@@ -984,7 +983,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					    tvb, optoff + 1, 16, TRUE);
 		} else {
 			/* otherwise, it's opaque data */
-			proto_item_append_text(vti, " (%d bytes)", optlen);
 		}
 		break;
 
@@ -1066,7 +1064,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 82:        /* Relay Agent Information Option */
-		proto_item_append_text(vti, " (%d bytes)", optlen);
 		optend = optoff + optlen;
 		while (optoff < optend)
 			optoff = bootp_dhcp_decode_agent_info(v_tree, tvb, optoff, optend);
@@ -1286,7 +1283,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case opaque:
-		proto_item_append_text(vti, " (%d bytes)", optlen);
 		break;
 
 	case val_boolean:
@@ -1388,7 +1384,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	default:
-		proto_item_append_text(vti, " (%d bytes)", optlen);
 		break;
 	}
 
