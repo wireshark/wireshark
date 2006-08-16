@@ -633,7 +633,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 
 
 finished_fwd:
-	/* If this was NOT a dupack we must reset the dupack countres */
+	/* If this was NOT a dupack we must reset the dupack counters */
 	if( (!tcpd->ta) || !(tcpd->ta->flags&TCP_A_DUPLICATE_ACK) ){
 		tcpd->fwd->lastnondupack=pinfo->fd->num;
 		tcpd->fwd->dupacknum=0;
@@ -649,7 +649,8 @@ finished_fwd:
 	 * in the other direction.
 	 */
 	if( tcpd->rev->nextseq
-	&&  GT_SEQ(ack, tcpd->rev->nextseq )){
+	&&  GT_SEQ(ack, tcpd->rev->nextseq )
+	&&  (flags&(TH_ACK))!=0 ){
 /*QQQ tested*/
 		if(!tcpd->ta){
 			tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
