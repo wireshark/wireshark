@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-cdt.c                                                             */
+/* .\packet-cdt.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.c */
@@ -364,39 +364,39 @@ void proto_register_cdt (void) {
     { &hf_cdt_CompressedData_PDU,
       { "CompressedData", "cdt.CompressedData",
         FT_NONE, BASE_NONE, NULL, 0,
-        "CompressedData", HFILL }},
+        "cdt.CompressedData", HFILL }},
     { &hf_cdt_compressionAlgorithm,
       { "compressionAlgorithm", "cdt.compressionAlgorithm",
         FT_UINT32, BASE_DEC, VALS(cdt_CompressionAlgorithmIdentifier_vals), 0,
-        "CompressedData/compressionAlgorithm", HFILL }},
+        "cdt.CompressionAlgorithmIdentifier", HFILL }},
     { &hf_cdt_compressedContentInfo,
       { "compressedContentInfo", "cdt.compressedContentInfo",
         FT_NONE, BASE_NONE, NULL, 0,
-        "CompressedData/compressedContentInfo", HFILL }},
+        "cdt.CompressedContentInfo", HFILL }},
     { &hf_cdt_algorithmID_ShortForm,
       { "algorithmID-ShortForm", "cdt.algorithmID_ShortForm",
         FT_INT32, BASE_DEC, VALS(cdt_AlgorithmID_ShortForm_vals), 0,
-        "CompressionAlgorithmIdentifier/algorithmID-ShortForm", HFILL }},
+        "cdt.AlgorithmID_ShortForm", HFILL }},
     { &hf_cdt_algorithmID_OID,
       { "algorithmID-OID", "cdt.algorithmID_OID",
         FT_OID, BASE_NONE, NULL, 0,
-        "CompressionAlgorithmIdentifier/algorithmID-OID", HFILL }},
+        "cdt.OBJECT_IDENTIFIER", HFILL }},
     { &hf_cdt_contentType,
       { "contentType", "cdt.contentType",
         FT_UINT32, BASE_DEC, VALS(cdt_T_contentType_vals), 0,
-        "CompressedContentInfo/contentType", HFILL }},
+        "cdt.T_contentType", HFILL }},
     { &hf_cdt_contentType_ShortForm,
       { "contentType-ShortForm", "cdt.contentType_ShortForm",
         FT_INT32, BASE_DEC, VALS(cdt_ContentType_ShortForm_vals), 0,
-        "CompressedContentInfo/contentType/contentType-ShortForm", HFILL }},
+        "cdt.ContentType_ShortForm", HFILL }},
     { &hf_cdt_contentType_OID,
       { "contentType-OID", "cdt.contentType_OID",
         FT_OID, BASE_NONE, NULL, 0,
-        "CompressedContentInfo/contentType/contentType-OID", HFILL }},
+        "cdt.OBJECT_IDENTIFIER", HFILL }},
     { &hf_cdt_compressedContent,
       { "compressedContent", "cdt.compressedContent",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "CompressedContentInfo/compressedContent", HFILL }},
+        "cdt.CompressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
 #line 89 "packet-cdt-template.c"
