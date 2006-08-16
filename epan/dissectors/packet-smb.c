@@ -8345,6 +8345,9 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	int old_offset;
 	guint32 neo;
 	int padcnt;
+	smb_fid_info_t *fid_info=NULL;
+	guint16 ftype;
+	guint8  isdir;
 
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
@@ -8387,7 +8390,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE);
+		fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE);
 		offset += 2;
 
 		/* create action */
@@ -8426,6 +8429,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 8;
 
 		/* File Type */
+		ftype=tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
 		offset += 2;
 
@@ -8433,8 +8437,29 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_ipc_state(tvb, tree, offset, FALSE);
 
 		/* is directory */
+		isdir=tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
 		offset += 1;
+
+		/* Try to remember the type of this fid so that we can dissect
+		 * any future security descriptor (access mask) properly
+		 */
+		if(ftype==0){
+			if(isdir==0){
+				if(fid_info){
+					fid_info->type=SMB_FID_TYPE_FILE;
+				}
+			} else {
+				if(fid_info){
+					fid_info->type=SMB_FID_TYPE_DIR;
+				}
+			}
+		}
+		if(ftype==2){
+			if(fid_info){
+				fid_info->type=SMB_FID_TYPE_PIPE;
+			}
+		}		
 		break;
 	case NT_TRANS_IOCTL:
 		break;
