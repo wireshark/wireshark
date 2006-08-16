@@ -418,11 +418,11 @@ cba_pdev_find(packet_info *pinfo, const char *ip, e_uuid_t *ipid)
     if(interf != NULL) {
         pdev = interf->parent->private_data;
         if(pdev == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "pdev_find: no pdev for IP:%s IPID:%s", 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: no pdev for IP:%s IPID:%s", 
                 ip_to_str(ip), dcom_uuid_to_str(ipid));
         }
     } else {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "pdev_find: unknown interface of IP:%s IPID:%s", 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: unknown interface of IP:%s IPID:%s", 
             ip_to_str(ip), dcom_uuid_to_str(ipid));
         pdev = NULL;
     }
@@ -546,11 +546,11 @@ cba_ldev_find(packet_info *pinfo, const gchar *ip, e_uuid_t *ipid) {
             ldev = interf->parent->private_data;
         }
         if(ldev == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "ldev_find: no ldev for IP:%s IPID:%s", 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: no ldev for IP:%s IPID:%s", 
                 ip_to_str(ip), dcom_uuid_to_str(&info->call_data->object_uuid));
         }
     } else {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "ldev_find: unknown interface of IP:%s IPID:%s", 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: unknown interface of IP:%s IPID:%s", 
             ip_to_str(ip), dcom_uuid_to_str(&info->call_data->object_uuid));
         ldev = NULL;
     }
@@ -819,7 +819,7 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
         }
     }
 
-	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
         "find_by_provcrid: couldn't find provider frame for ProvCRID:0x%x", provcrid);
 
     return NULL;
@@ -983,7 +983,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cba_connection_t *conn;
 
     
-    for(conns = cons_ldev->consframes; conns != NULL; conns = g_list_next(conns)) {
+    for(conns = cons_ldev->consconns; conns != NULL; conns = g_list_next(conns)) {
         conn = conns->data;
 
         if( conn->provparentacco == prov_ldev && 
@@ -1274,7 +1274,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if(cons_interf == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "Server_Connect: consumer interface invalid");
     }
 
@@ -1430,7 +1430,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	if (u32Pointer) {
 	    offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
         if(cons_interf == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
                 "Server2_Connect2: consumer interface invalid");
         }
     } else {
@@ -1583,7 +1583,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "Server_Connect: return values ignored from #%u", 
             info->call_data->req_frame);
     }
@@ -1736,7 +1736,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "Server_Disconnect: return values ignored from #%u", 
             info->call_data->req_frame);
     }
@@ -2166,7 +2166,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if(cons_interf == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "ServerSRT_ConnectCR: consumer interface invalid");
     }
 
@@ -2282,7 +2282,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "ServerSRT_ConnectCR: return values ignored from #%u", 
             info->call_data->req_frame);
     }
@@ -2679,8 +2679,8 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
-            "ServerSRT_ConnectCR: return values ignored from #%u", info->call_data->req_frame);
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+            "ServerSRT_Connect: return values ignored from #%u", info->call_data->req_frame);
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
@@ -3403,7 +3403,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(cons_ldev == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
             "Server2_GCD: return values ignored from #%u", info->call_data->req_frame);
     }
 
