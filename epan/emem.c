@@ -1328,6 +1328,23 @@ se_tree_create_non_persistent(int type, char *name)
 	return tree_list;
 }
 
+/* This tree is PErmanent and will never be released
+ */
+emem_tree_t *
+pe_tree_create(int type, char *name)
+{
+	emem_tree_t *tree_list;
+
+	tree_list=g_malloc(sizeof(emem_tree_t));
+	tree_list->next=NULL;
+	tree_list->type=type;
+	tree_list->tree=NULL;
+	tree_list->name=name;
+	tree_list->malloc=g_malloc;
+
+	return tree_list;
+}
+
 /* create another (sub)tree using the same memory allocation scope
  * as the parent tree.
  */
