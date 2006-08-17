@@ -2707,7 +2707,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
           proto_tree_add_guid_format (iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, (e_guid_t *) &if_id, "Interface UUID: %s", uuid_str);
           proto_item_append_text(iface_item, "%s", uuid_str);
+#ifdef _WIN32
       }
+#endif
       }
       offset += 16;
 
