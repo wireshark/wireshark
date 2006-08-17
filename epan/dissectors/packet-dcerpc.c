@@ -48,10 +48,6 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
-#ifdef _WIN32
-#include <tchar.h>
-#endif
-
 static int dcerpc_tap = -1;
 
 
@@ -494,38 +490,6 @@ static const fragment_items dcerpc_frag_items = {
 /* list of hooks to be called when init_protocols is done */
 GHookList dcerpc_hooks_init_protos;
 
-#ifdef _WIN32
-int ResolveWin32UUID(e_uuid_t if_id, char *uuid_name, int uuid_name_max_len)
-{
-	TCHAR reg_uuid_name[MAX_PATH];
-	HKEY hKey = NULL;
-	DWORD uuid_max_size = MAX_PATH;
-	TCHAR reg_uuid_str[MAX_PATH];
-
-	if(uuid_name_max_len < 2)
-		return 0;
-	reg_uuid_name[0] = '\0';
-	_snwprintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
-			if_id.Data1, if_id.Data2, if_id.Data3,
-			if_id.Data4[0], if_id.Data4[1],
-			if_id.Data4[2], if_id.Data4[3],
-			if_id.Data4[4], if_id.Data4[5],
-			if_id.Data4[6], if_id.Data4[7]);
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, reg_uuid_str, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-	{
-		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH)
-			{
-			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
-			RegCloseKey(hKey);
-			return strlen(uuid_name);
-		}
-		RegCloseKey(hKey);
-	}
-	return 0; /* we didn't find anything anyhow. Please don't use the string! */
-
-}
-#endif
-
 static dcerpc_info *
 get_next_di(void)
 {
@@ -730,29 +694,10 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
 
     hf_info = proto_registrar_get_nth(opnum_hf);
     hf_info->strings = value_string_from_subdissectors(procs);
+
+    /* add this GUID to the global name resolving */
+    guids_add_uuid(uuid, proto_get_protocol_short_name (value->proto));
 }
-
-
-/* try to get registered name for this uuid */
-const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
-{
-    dcerpc_uuid_key key;
-    dcerpc_uuid_value *sub_proto;
-
-
-	/* try to get registered uuid "name" of if_id */
-	key.uuid = *uuid;
-	key.ver = ver;
-
-	if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) != NULL
-		 && proto_is_protocol_enabled(sub_proto->proto)) {
-
-		return sub_proto->name;
-	}
-
-	return NULL;
-}
-
 
 /* Function to find the name of a registered protocol
  * or NULL if the protocol/version is not known to wireshark.
@@ -1147,41 +1092,15 @@ dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                     int hfindex, e_uuid_t *pdata)
 {
     e_uuid_t uuid;
-#if 0
-	header_field_info* hfi;
-	gchar *uuid_name;
-#endif
 
 
-    dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
+    if (drep[0] & 0x10) {
+        tvb_get_letohguid (tvb, offset, (e_guid_t *) &uuid);
+    } else {
+        tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+    }
     if (tree) {
-#if 0
-		/* get name of protocol field to prepend it later */
-		hfi = proto_registrar_get_nth(hfindex);
-
-        /* XXX - get the name won't work correct, as we don't know the version of this uuid (if it has one) */
-		/* look for a registered uuid name */
-		uuid_name = dcerpc_get_uuid_name(&uuid, 0);
-
-		if (uuid_name) {
-			/* we know the name of this uuid */
-			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
-									  hfi->name, uuid_name,
-                                      uuid.Data1, uuid.Data2, uuid.Data3,
-                                      uuid.Data4[0], uuid.Data4[1],
-                                      uuid.Data4[2], uuid.Data4[3],
-                                      uuid.Data4[4], uuid.Data4[5],
-                                      uuid.Data4[6], uuid.Data4[7]);
-		} else {
-#endif
-			/* GUID have changed from FT_STRING to FT_GUID
-			   (XXX - have we changed all dissectors?).
-			 */
-		    proto_tree_add_guid(tree, hfindex, tvb, offset, 16, (e_guid_t *) &uuid);
-#if 0
-		}
-#endif
+		proto_tree_add_guid(tree, hfindex, tvb, offset, 16, (e_guid_t *) &uuid);
     }
     if (pdata) {
         *pdata = uuid;
@@ -1222,7 +1141,6 @@ dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, guint8 *drep, e_uuid_t *uuid)
         tvb_get_ntohguid (tvb, offset, (e_guid_t *) uuid);
     }
 }
-
 
 
 /* NDR arrays */
@@ -2210,9 +2128,6 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile stub_tvb;
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
-#ifdef _WIN32
-    char uuid_name[MAX_PATH];
-#endif
     proto_item *sub_item=NULL;
     proto_item *pi;
 
@@ -2230,20 +2145,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
 					  tvb, offset, 0, TRUE);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
-#ifdef _WIN32
-		if(ResolveWin32UUID(info->call_data->uuid, uuid_name, MAX_PATH))
-			col_append_fstr (pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
-				uuid_name, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
-				info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
-				info->call_data->uuid.Data4[4], info->call_data->uuid.Data4[5], info->call_data->uuid.Data4[6],
-				info->call_data->uuid.Data4[7], info->call_data->ver);
-else
-#endif
-		col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
-			info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
-			info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
-			info->call_data->uuid.Data4[4], info->call_data->uuid.Data4[5], info->call_data->uuid.Data4[6],
-			info->call_data->uuid.Data4[7], info->call_data->ver);
+		col_append_fstr (pinfo->cinfo, COL_INFO, " %s V%u",
+			guids_resolve_uuid_to_str(&info->call_data->uuid), info->call_data->ver);
 	}
 
         if (decrypted_tvb != NULL) {
@@ -2611,13 +2514,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     e_uuid_t trans_id;
     guint32 trans_ver;
     guint16 if_ver, if_ver_minor;
-    char uuid_str[DCERPC_UUID_STR_LEN];
-    int uuid_str_len;
     dcerpc_auth_info auth_info;
-    char *uuid_name = NULL;
-#ifdef _WIN32
-    char uuid_name2[MAX_PATH];
-#endif
+    char *uuid_str;
+    const char *uuid_name = NULL;
 	proto_item *iface_item;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -2683,33 +2582,17 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       iface_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_abstract_syntax, tvb, offset, 0, FALSE);
 	  iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
-	  uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-			          "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                  if_id.Data1, if_id.Data2, if_id.Data3,
-                                  if_id.Data4[0], if_id.Data4[1],
-                                  if_id.Data4[2], if_id.Data4[3],
-                                  if_id.Data4[4], if_id.Data4[5],
-                                  if_id.Data4[6], if_id.Data4[7]);
-
-	  if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-
-#ifdef _WIN32
-      if(ResolveWin32UUID(if_id, uuid_name2, MAX_PATH)) {
-        uuid_name = uuid_name2;
-      }
+      uuid_str = guid_to_str((e_guid_t*)&if_id);
+      uuid_name = guids_get_uuid_name(&if_id);
       if(uuid_name) {
 		  proto_tree_add_guid_format (iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, (e_guid_t *) &if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
           proto_item_append_text(iface_item, "%s", uuid_name);
       } else {
-#endif
           proto_tree_add_guid_format (iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, (e_guid_t *) &if_id, "Interface UUID: %s", uuid_str);
           proto_item_append_text(iface_item, "%s", uuid_str);
-#ifdef _WIN32
       }
-#endif
       }
       offset += 16;
 
@@ -2767,36 +2650,11 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
         if (check_col (pinfo->cinfo, COL_INFO)) {
-	  dcerpc_uuid_key key;
-	  dcerpc_uuid_value *value;
-
-	  key.uuid = if_id;
-	  key.ver = if_ver;
-
 	  if (num_ctx_items > 1)
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
 
-	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
-	  else
-#ifdef _WIN32
-		if(ResolveWin32UUID(if_id, uuid_name2, MAX_PATH))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
-                           uuid_name2, if_id.Data1, if_id.Data2, if_id.Data3,
-                           if_id.Data4[0], if_id.Data4[1],
-                           if_id.Data4[2], if_id.Data4[3],
-                           if_id.Data4[4], if_id.Data4[5],
-                           if_id.Data4[6], if_id.Data4[7],
-                           if_ver, if_ver_minor);
-	  else
-#endif
-			col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
-                           if_id.Data1, if_id.Data2, if_id.Data3,
-                           if_id.Data4[0], if_id.Data4[1],
-                           if_id.Data4[2], if_id.Data4[3],
-                           if_id.Data4[4], if_id.Data4[5],
-                           if_id.Data4[6], if_id.Data4[7],
-                           if_ver, if_ver_minor);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u",
+                       guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor);
         }
         saw_ctx_item = TRUE;
       }
@@ -2811,15 +2669,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, FALSE);
         trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
-	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                  "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                  trans_id.Data1, trans_id.Data2, trans_id.Data3,
-                                  trans_id.Data4[0], trans_id.Data4[1],
-                                  trans_id.Data4[2], trans_id.Data4[3],
-                                  trans_id.Data4[4], trans_id.Data4[5],
-                                  trans_id.Data4[6], trans_id.Data4[7]);
-            if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-                memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
+        uuid_str = guid_to_str((e_guid_t *) &trans_id);
             proto_tree_add_guid_format (trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
                                           offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", uuid_str);
             proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_str);
@@ -2859,8 +2709,6 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 reason;
     e_uuid_t trans_id;
     guint32 trans_ver;
-    char uuid_str[DCERPC_UUID_STR_LEN];
-    int uuid_str_len;
     dcerpc_auth_info auth_info;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -2917,17 +2765,9 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (ctx_tree) {
-	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                  "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                  trans_id.Data1, trans_id.Data2, trans_id.Data3,
-                                  trans_id.Data4[0], trans_id.Data4[1],
-                                  trans_id.Data4[2], trans_id.Data4[3],
-                                  trans_id.Data4[4], trans_id.Data4[5],
-                                  trans_id.Data4[6], trans_id.Data4[7]);
-	    if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_guid_format (ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
-                                          offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", uuid_str);
+                                          offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", 
+                                          guid_to_str((e_guid_t *) &trans_id));
         }
         offset += 16;
 
@@ -3334,8 +3174,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     e_uuid_t obj_id = DCERPC_UUID_NULL;
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
-    char uuid_str[DCERPC_UUID_STR_LEN];
-    int uuid_str_len;
     proto_item *pi;
     proto_item *parent_pi;
 
@@ -3373,21 +3211,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (hdr->flags & PFC_OBJECT_UUID) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
-	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                    "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                    obj_id.Data1, obj_id.Data2, obj_id.Data3,
-                                    obj_id.Data4[0],
-                                    obj_id.Data4[1],
-                                    obj_id.Data4[2],
-                                    obj_id.Data4[3],
-                                    obj_id.Data4[4],
-                                    obj_id.Data4[5],
-                                    obj_id.Data4[6],
-                                    obj_id.Data4[7]);
-	    if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-                                          offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s", uuid_str);
+                                          offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s", 
+                                          guid_to_str((e_guid_t *) &obj_id));
         }
         offset += 16;
     }
@@ -3527,8 +3353,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 alloc_hint;
     proto_item *pi;
     proto_item *parent_pi;
-    char uuid_str[DCERPC_UUID_STR_LEN];
-    int uuid_str_len;
     e_uuid_t obj_id_null = DCERPC_UUID_NULL;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -3625,21 +3449,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* (optional) "Object UUID" from request */
         if (value && dcerpc_tree && memcmp(&value->object_uuid, &obj_id_null, sizeof(obj_id_null)) != 0) {
-	        uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                        "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                        value->object_uuid.Data1, value->object_uuid.Data2, value->object_uuid.Data3,
-                                        value->object_uuid.Data4[0],
-                                        value->object_uuid.Data4[1],
-                                        value->object_uuid.Data4[2],
-                                        value->object_uuid.Data4[3],
-                                        value->object_uuid.Data4[4],
-                                        value->object_uuid.Data4[5],
-                                        value->object_uuid.Data4[6],
-                                        value->object_uuid.Data4[7]);
-	        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		      memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
                 pi = proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-                                              offset, 0, (e_guid_t *) &value->object_uuid, "Object UUID: %s", uuid_str);
+                                              offset, 0, (e_guid_t *) &value->object_uuid, "Object UUID: %s",
+                                              guid_to_str((e_guid_t *) &value->object_uuid));
                 PROTO_ITEM_SET_GENERATED(pi);
         }
 
@@ -4850,8 +4662,6 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     conversation_t *conv;
     int auth_level;
-    char uuid_str[DCERPC_UUID_STR_LEN];
-    int uuid_str_len;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -5005,59 +4815,23 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     if (tree) {
-	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                hdr.obj_id.Data1, hdr.obj_id.Data2, hdr.obj_id.Data3,
-                                hdr.obj_id.Data4[0],
-                                hdr.obj_id.Data4[1],
-                                hdr.obj_id.Data4[2],
-                                hdr.obj_id.Data4[3],
-                                hdr.obj_id.Data4[4],
-                                hdr.obj_id.Data4[5],
-                                hdr.obj_id.Data4[6],
-                                hdr.obj_id.Data4[7]);
-        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-            offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s", uuid_str);
+            offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s", 
+            guid_to_str((e_guid_t *) &hdr.obj_id));
     }
     offset += 16;
 
     if (tree) {
-	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                hdr.if_id.Data1, hdr.if_id.Data2, hdr.if_id.Data3,
-                                hdr.if_id.Data4[0],
-                                hdr.if_id.Data4[1],
-                                hdr.if_id.Data4[2],
-                                hdr.if_id.Data4[3],
-                                hdr.if_id.Data4[4],
-                                hdr.if_id.Data4[5],
-                                hdr.if_id.Data4[6],
-                                hdr.if_id.Data4[7]);
-        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
-                                      offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s", uuid_str);
+                                      offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s",
+                                      guid_to_str((e_guid_t *) &hdr.if_id));
     }
     offset += 16;
 
     if (tree) {
-	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN,
-                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                hdr.act_id.Data1, hdr.act_id.Data2, hdr.act_id.Data3,
-                                hdr.act_id.Data4[0],
-                                hdr.act_id.Data4[1],
-                                hdr.act_id.Data4[2],
-                                hdr.act_id.Data4[3],
-                                hdr.act_id.Data4[4],
-                                hdr.act_id.Data4[5],
-                                hdr.act_id.Data4[6],
-                                hdr.act_id.Data4[7]);
-        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
-		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
-                                      offset, 16, (e_guid_t *) &hdr.act_id, "Activity: %s", uuid_str);
+                                      offset, 16, (e_guid_t *) &hdr.act_id, "Activity: %s",
+                                      guid_to_str((e_guid_t *) &hdr.act_id));
     }
     offset += 16;
 
@@ -5569,6 +5343,9 @@ proto_register_dcerpc (void)
     dcerpc_tap=register_tap("dcerpc");
 
     g_hook_list_init(&dcerpc_hooks_init_protos, sizeof(GHook));
+
+    /* XXX - might better be located in a more general place than this */
+    guids_init();
 }
 
 void

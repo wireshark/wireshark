@@ -255,9 +255,6 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
-/* try to get protocol name registered for this uuid */
-const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
-
 /* Private data passed to subdissectors from the main DCERPC dissector. */
 typedef struct _dcerpc_call_value {
     e_uuid_t uuid;          /* interface UUID */

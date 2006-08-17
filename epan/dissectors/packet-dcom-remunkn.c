@@ -36,6 +36,7 @@
 #include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
+#include "guid-utils.h"
 
 
 static int hf_remunk_opnum = -1;
@@ -61,6 +62,8 @@ static gint ett_remunk = -1;
 static e_uuid_t uuid_remunk = { 0x00000131, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk = 0;
 static int proto_remunk = -1;
+
+static e_uuid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 
 /* There is a little bit confusion about the IRemUnknown2 interface UUIDs */
 /* DCOM documentation tells us: 0x00000142 (7 methods) */
@@ -273,7 +276,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 		/* update subtree */
 		proto_item_append_text(sub_item, "[%u]: IPID=%s, PublicRefs=%u, PrivateRefs=%u", 
 			u32ItemIdx,
-			dcom_uuid_to_str(&ipid),
+			guids_resolve_uuid_to_str(&ipid),
 			u32PublicRefs, u32PrivateRefs);
 		proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -368,6 +371,10 @@ proto_register_remunk (void)
 void
 proto_reg_handoff_remunk (void)
 {
+
+    /* Register the IPID */
+    guids_add_uuid(&ipid_remunk, "IPID-IRemUnknown");
+
 	/* Register the interfaces */
 	dcerpc_init_uuid(proto_remunk, ett_remunk, 
 		&uuid_remunk, ver_remunk, 

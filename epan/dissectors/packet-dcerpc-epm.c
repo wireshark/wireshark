@@ -81,7 +81,6 @@ static guint16  ver_epm3 = 3;
 static guint16  ver_epm4 = 4;
 
 
-GHashTable *uuids=NULL;
 static e_uuid_t uuid_data_repr_proto = { 0x8a885d04, 0x1ceb, 0x11c9, { 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60 } };
 
 
@@ -364,7 +363,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         case PROTO_ID_UUID:
             dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
 
-            uuid_name = guids_get_guid_name(uuids, (e_guid_t *) &uuid);
+            uuid_name = guids_get_uuid_name(&uuid);
 
             if(uuid_name != NULL) {
                 proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,
@@ -767,9 +766,6 @@ proto_register_epm (void)
         &ett_epm_entry
     };
     
-    uuids = guids_new();
-    guids_add_guid(uuids, (e_guid_t *) &uuid_data_repr_proto, "Version 1.1 network data representation protocol", NULL);
-
     /* interface version 3 */
     proto_epm3 = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
     proto_register_field_array (proto_epm3, hf, array_length (hf));
@@ -782,6 +778,9 @@ proto_register_epm (void)
 void
 proto_reg_handoff_epm (void)
 {
+    /* Register the UUIDs */
+    guids_add_uuid(&uuid_data_repr_proto, "Version 1.1 network data representation protocol");
+
     /* Register the protocol as dcerpc */
     dcerpc_init_uuid (proto_epm3, ett_epm, &uuid_epm, ver_epm3, epm_dissectors, hf_epm_opnum);
     dcerpc_init_uuid (proto_epm4, ett_epm, &uuid_epm, ver_epm4, epm_dissectors, hf_epm_opnum);

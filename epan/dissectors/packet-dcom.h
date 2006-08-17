@@ -106,9 +106,6 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
 	int hfindex, int field_index, e_uuid_t *uuid);
 
-extern const gchar* 
-dcom_uuid_to_str(e_uuid_t *uuid);
-
 extern int
 dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
@@ -199,9 +196,5 @@ dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
 extern int 
 dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
-
-void dcom_register_server_coclass(int proto, int ett,
-	e_uuid_t *uuid, guint16 ver, 
-	dcerpc_sub_dissector *sub_dissectors, int opnum_hf);
 
 #endif /* packet-dcerpc-dcom.h */

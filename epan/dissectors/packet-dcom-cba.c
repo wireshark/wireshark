@@ -1526,7 +1526,7 @@ void
 proto_reg_handoff_dcom_cba (void)
 {
     /* Register the CBA class ID */
-    guids_add_guid(dcom_uuids, (e_guid_t *) &uuid_coclass_CBAPhysicalDevice, "CBA", NULL);
+    guids_add_uuid(&uuid_coclass_CBAPhysicalDevice, "CBA");
 
 	/* Register the interfaces */
 	dcerpc_init_uuid(proto_ICBAPhysicalDevice, ett_ICBAPhysicalDevice,

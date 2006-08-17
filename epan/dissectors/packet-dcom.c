@@ -215,9 +215,11 @@ static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
 
+/* this/that extension UUIDs */
 static e_uuid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
 static e_uuid_t uuid_ext_error_ext ={ 0xf1f19681, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
 
+/* general DCOM UUIDs */
 static e_uuid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_uuid_t iid_unknown =       { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_uuid_t uuid_null =         { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
@@ -231,8 +233,6 @@ static const value_string dcom_thisthat_flag_vals[] = {
     { 0,  NULL }
 };
 
-
-GHashTable *dcom_uuids=NULL;
 
 
 void dcom_interface_dump(void) {
@@ -255,8 +255,8 @@ void dcom_interface_dump(void) {
             for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
                 interf = interfaces->data;
                 g_warning("  Interface(#%4u): iid:%s", 
-                    interf->first_packet, dcom_uuid_to_str(&interf->iid));
-                g_warning("            ipid:%s", dcom_uuid_to_str(&interf->ipid));
+                    interf->first_packet, guids_resolve_uuid_to_str(&interf->iid));
+                g_warning("            ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
             }
         }
     }    
@@ -727,7 +727,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
                                 hf_dcom_extent_id, &uuidExtend);
 
 		    /* look for a registered uuid name */
-            if((uuid_name = guids_get_guid_name(dcom_uuids, (e_guid_t *) &uuidExtend)) != NULL) {
+            if((uuid_name = guids_get_uuid_name(&uuidExtend)) != NULL) {
                 proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
 	                offset, sizeof(e_uuid_t), (e_guid_t *) &uuidExtend, "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
 				                      uuid_name,
@@ -807,11 +807,13 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ", V%u.%u, Causality ID: %s", 
-		u16VersionMajor, u16VersionMinor, dcom_uuid_to_str(&uuidCausality));
+		u16VersionMajor, u16VersionMinor, guids_resolve_uuid_to_str(&uuidCausality));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
     if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
-        pi = proto_tree_add_guid(tree, hf_dcom_ipid, tvb, offset, GUID_LEN, (e_guid_t *) &info->call_data->object_uuid);
+        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
+                (e_guid_t *) &info->call_data->object_uuid,
+                "Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         PROTO_ITEM_SET_GENERATED(pi);
     }
 
@@ -846,7 +848,9 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
     if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
-        pi = proto_tree_add_guid(tree, hf_dcom_ipid, tvb, offset, GUID_LEN, (e_guid_t *) &info->call_data->object_uuid);
+        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
+                (e_guid_t *) &info->call_data->object_uuid,
+                "Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         PROTO_ITEM_SET_GENERATED(pi);
     }
 
@@ -885,37 +889,6 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	}
 
 	return offset;
-}
-
-
-/* Tries to match uuid against its name.
-   Returns the associated string ptr on a match.
-   Formats uuid number and returns the resulting string, on failure.
-   (copied from val_to_str) */
-const gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
-  const gchar *ret;
-  static gchar  str[3][64];
-  static gchar *cur;
-
-
-  /* all DCOM interfaces are registered with version 0 */
-  ret = dcerpc_get_uuid_name(uuid, 0);
-  if (ret != NULL)
-    return ret;
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-  g_snprintf(cur, 64, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                      uuid->Data1, uuid->Data2, uuid->Data3,
-                      uuid->Data4[0], uuid->Data4[1],
-                      uuid->Data4[2], uuid->Data4[3],
-                      uuid->Data4[4], uuid->Data4[5],
-                      uuid->Data4[6], uuid->Data4[7]);
-  return cur;
 }
 
 
@@ -1432,57 +1405,35 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 	int hfindex, e_uuid_t *pdata)
 {
 	const gchar *uuid_name;
-    proto_item *pi;
     header_field_info *hfi;
     e_uuid_t uuid;
-#ifdef _WIN32
-    char uuid_name2[MAX_PATH];
-#endif
 
-    /* XXX - this is far from being performance optimized! */
 
     /* get the UUID, but don't put it into the tree */
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, NULL, drep, 
 						hfindex, &uuid);
 
-	/* look for a registered uuid name */
-	uuid_name = dcerpc_get_uuid_name(&uuid, 0);
-    if(uuid_name == NULL) {
-        uuid_name = guids_get_guid_name(dcom_uuids, (e_guid_t *) &uuid);
-    }
-
-#ifdef _WIN32
-    if(uuid_name == NULL && ResolveWin32UUID(uuid, uuid_name2, MAX_PATH)) {
-        uuid_name = uuid_name2;
-    }
-#endif
-
     /* add to the tree */
     hfi = proto_registrar_get_nth(hfindex);
-	pi = proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, "%s: ", hfi->name);
-
-    /* give an expert info, if UUID is not known and not of a "temporary" kind */
-    if( uuid_name == NULL && 
-        strcmp(hfi->name, "Causality ID") != 0 &&
-        strcmp(hfi->name, "IPID") != 0)
-    {
-    	expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "unknown %s: %s", 
-            hfi->name, guid_to_str( (e_guid_t *) &uuid));
-    }
-
+    uuid_name = guids_get_uuid_name(&uuid);
     if(uuid_name) {
-	    proto_item_append_text(pi, "%s (", uuid_name);
-    }
-
-    proto_item_append_text(pi, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+	    proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
+                          "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)", 
+                          hfi->name, uuid_name, 
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
                           uuid.Data4[2], uuid.Data4[3],
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
-
-    if(uuid_name) {
-	    proto_item_append_text(pi, ")", uuid_name);
+    } else {
+	    proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
+                          "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                          hfi->name,
+                          uuid.Data1, uuid.Data2, uuid.Data3,
+                          uuid.Data4[0], uuid.Data4[1],
+                          uuid.Data4[2], uuid.Data4[3],
+                          uuid.Data4[4], uuid.Data4[5],
+                          uuid.Data4[6], uuid.Data4[7]);
     }
 
     if(pdata != NULL) {
@@ -1501,9 +1452,6 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	const gchar *uuid_name;
     proto_item *pi;
     header_field_info *hfi;
-#ifdef _WIN32
-    char uuid_name2[MAX_PATH];
-#endif
 
 
     /* XXX - this is far from being performance optimized! */
@@ -1513,29 +1461,11 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 						hfindex, uuid);
 
 	/* look for a registered uuid name */
-	uuid_name = dcerpc_get_uuid_name(uuid, 0);
-    if(uuid_name == NULL) {
-        uuid_name = guids_get_guid_name(dcom_uuids, (e_guid_t *) uuid);
-    }
-
-#ifdef _WIN32
-    if(uuid_name == NULL && ResolveWin32UUID(uuid, uuid_name2, MAX_PATH)) {
-        uuid_name = uuid_name2;
-    }
-#endif
+    uuid_name = guids_get_uuid_name(uuid);
 
     /* add to the tree */
     hfi = proto_registrar_get_nth(hfindex);
 	pi = proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) uuid, "%s", hfi->name);
-
-    /* give an expert info, if UUID is not known and not of a "temporary" kind */
-    if( uuid_name == NULL && 
-        strcmp(hfi->name, "Causality ID") != 0 &&
-        strcmp(hfi->name, "IPID") != 0)
-    {
-    	expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "unknown %s: %s", 
-            hfi->name, guid_to_str( (e_guid_t *) uuid));
-    }
 
     if (field_index != -1) {
         proto_item_append_text(pi, "[%u]: ", field_index);
@@ -1916,7 +1846,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* append info to subtree header */
 	proto_item_append_text(sub_item, ": PublicRefs=%u IPID=%s",
-		u32PublicRefs, dcom_uuid_to_str(ipid));
+		u32PublicRefs, guids_resolve_uuid_to_str(ipid));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	return offset;
@@ -2059,17 +1989,6 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 	return offset;
-}
-
-
-
-void dcom_register_server_coclass(int proto _U_, int ett _U_, e_uuid_t *uuid _U_, guint16 ver _U_, 
-					dcerpc_sub_dissector *sub_dissectors _U_, int opnum_hf _U_) {
-
-	/* XXX: this must be simply the name registration of the UUID,
-	 * not a whole sub_dissector registration */
-    /* but this is currently not possible :-( */
-/*	dcerpc_init_uuid (proto, ett, uuid, ver, sub_dissectors, opnum_hf);*/
 }
 
 
@@ -2325,15 +2244,6 @@ proto_register_dcom (void)
     proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
 
-    /* register some "well known" UUID's */
-    dcom_uuids = guids_new();
-    guids_add_guid(dcom_uuids, (e_guid_t *) &uuid_debug_ext, "Debug Information Body Extension", NULL);
-    guids_add_guid(dcom_uuids, (e_guid_t *) &uuid_ext_error_ext, "Extended Error Info Body Extension", NULL);
-    guids_add_guid(dcom_uuids, (e_guid_t *) &ipid_rem_unknown, "IRemUnknown", NULL);
-    guids_add_guid(dcom_uuids, (e_guid_t *) &iid_unknown, "IUnknown", NULL);
-    guids_add_guid(dcom_uuids, (e_guid_t *) &uuid_null, "NULL", NULL);
-    guids_add_guid(dcom_uuids, (e_guid_t *) &iid_class_factory, "IClassFactory", NULL);
-
 	/* preferences */
 	dcom_module = prefs_register_protocol(proto_dcom, proto_reg_handoff_dcom);
 
@@ -2350,6 +2260,14 @@ proto_register_dcom (void)
 void
 proto_reg_handoff_dcom (void)
 {
+
+    /* register some "well known" UUID's */
+    guids_add_uuid(&uuid_debug_ext, "Debug Information Body Extension");
+    guids_add_uuid(&uuid_ext_error_ext, "Extended Error Info Body Extension");
+    guids_add_uuid(&ipid_rem_unknown, "IRemUnknown");
+    guids_add_uuid(&iid_unknown, "IUnknown");
+    guids_add_uuid(&uuid_null, "NULL");
+    guids_add_uuid(&iid_class_factory, "IClassFactory");
 
 	/* Currently, we have nothing to register for DCOM */
 }

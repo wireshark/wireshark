@@ -419,11 +419,11 @@ cba_pdev_find(packet_info *pinfo, const char *ip, e_uuid_t *ipid)
         pdev = interf->parent->private_data;
         if(pdev == NULL) {
 	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: no pdev for IP:%s IPID:%s", 
-                ip_to_str(ip), dcom_uuid_to_str(ipid));
+                ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         }
     } else {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: unknown interface of IP:%s IPID:%s", 
-            ip_to_str(ip), dcom_uuid_to_str(ipid));
+            ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         pdev = NULL;
     }
 
@@ -547,11 +547,11 @@ cba_ldev_find(packet_info *pinfo, const gchar *ip, e_uuid_t *ipid) {
         }
         if(ldev == NULL) {
 	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: no ldev for IP:%s IPID:%s", 
-                ip_to_str(ip), dcom_uuid_to_str(&info->call_data->object_uuid));
+                ip_to_str(ip), guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         }
     } else {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: unknown interface of IP:%s IPID:%s", 
-            ip_to_str(ip), dcom_uuid_to_str(&info->call_data->object_uuid));
+            ip_to_str(ip), guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         ldev = NULL;
     }
 

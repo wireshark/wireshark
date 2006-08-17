@@ -8,8 +8,6 @@
  *
  * Copyright 1998 Gerald Combs
  *
- * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -40,22 +38,26 @@ typedef struct _e_guid_t {
 } e_guid_t;
 
 
-/* GUID "registry" */
-typedef struct _guid_key {
-    e_guid_t guid;
-} guid_key;
+extern void guids_init(void);
 
-typedef struct _guid_value {
-    const gchar *name;
-} guid_value;
+/* add a GUID */
+extern void guids_add_guid(e_guid_t *guid, const gchar *name);
 
+/* try to get registered name for this GUID */
+extern const gchar *guids_get_guid_name(e_guid_t *guid);
 
-extern GHashTable *guids_new(void);
+/* resolve GUID to name (or if unknown to hex string) */
+/* (if you need hex string only, use guid_to_str instead) */
+extern const gchar* guids_resolve_guid_to_str(e_guid_t *guid);
 
-/* add a GUID (don't forget to init the GHashTable) */
-extern void guids_add_guid(GHashTable *guids, e_guid_t *guid, gchar *name, void *private_data);
+/* add a UUID (dcerpc_init_uuid() will call this too) */
+#define guids_add_uuid(uuid, name) guids_add_guid((e_guid_t *) (uuid), (name))
 
-/* try to get registered name for this guid */
-extern const gchar *guids_get_guid_name(GHashTable *guids, e_guid_t *guid);
+/* try to get registered name for this UUID */
+#define guids_get_uuid_name(uuid) guids_get_guid_name((e_guid_t *) (uuid))
+
+/* resolve UUID to name (or if unknown to hex string) */
+/* (if you need hex string only, use guid_to_str instead) */
+#define guids_resolve_uuid_to_str(uuid) guids_resolve_guid_to_str((e_guid_t *) (uuid))
 
 #endif /* __GUID_UTILS_H__ */
