@@ -58,6 +58,7 @@
 
 #include "version_info.h"
 #include "capture-pcap-util.h"
+#include "epan/strutil.h"
 
 #include "svnversion.h"
 
@@ -93,7 +94,7 @@ do_word_wrap(GString *str, gint point)
 		g_assert(str->str[point] == ' ');
 		str->str[point] = '\n';
 	}
-}	
+}
 
 /*
  * If the string doesn't end with a newline, append one.
@@ -106,7 +107,7 @@ end_string(GString *str)
 	point = strlen(str->str);
 	if (point == 0 || str->str[point - 1] != '\n')
 		g_string_append(str, "\n");
-}	
+}
 
 /*
  * Get various library compile-time versions and append them to
