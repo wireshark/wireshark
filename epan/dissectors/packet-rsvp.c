@@ -4674,9 +4674,9 @@ dissect_rsvp_fast_reroute (proto_tree *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4, 
 			    "Bandwidth: %.10g", tvb_get_ntohieee_float(tvb, offset+8));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+12, 4, 
-			    "Exclude-Any: 0x%0x", tvb_get_ntohl(tvb, offset+12));
+			    "Include-Any: 0x%0x", tvb_get_ntohl(tvb, offset+12));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+16, 4, 
-			    "Include-Any: 0x%0x", tvb_get_ntohl(tvb, offset+16));
+			    "Exclude-Any: 0x%0x", tvb_get_ntohl(tvb, offset+16));
 	if (type==1) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset+20, 4, 
 				"Include-All: 0x%0x", tvb_get_ntohl(tvb, offset+20));
