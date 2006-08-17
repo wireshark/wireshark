@@ -151,7 +151,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "CDP");
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Cisco Discovery Protocol");
+	col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree){
         ti = proto_tree_add_item(tree, proto_cdp, tvb, offset, -1, FALSE);
@@ -198,7 +198,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if(check_col(pinfo->cinfo, COL_INFO))
 		    col_append_fstr(pinfo->cinfo, COL_INFO,
-				    "  Device ID: %s",
+				    "Device ID: %s  ",
 				    tvb_format_stringzpad(tvb, offset + 4,
 							  length - 4));
 
@@ -232,7 +232,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if(check_col(pinfo->cinfo, COL_INFO))
 		    col_append_fstr(pinfo->cinfo, COL_INFO,
-				    "  Port ID: %s",
+				    "Port ID: %s  ",
 				    tvb_format_stringzpad(tvb, offset + 4,
 							  length - 4));
 
