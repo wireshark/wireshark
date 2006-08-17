@@ -360,6 +360,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_BER */
 	{ "ASN.1 Basic Encoding Rules", "ber" },
+
+	/* WTAP_ENCAP_JUNIPER_VP */
+	{ "Juniper Voice PIC", "juniper-vp" },
 };
 
 /* Name that should be somewhat descriptive. */

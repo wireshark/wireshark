@@ -1217,6 +1217,37 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
 }
 
+static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+
+  proto_item *ti;
+  guint      offset = 0;
+  int        bytes_processed;
+  guint8     flags;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Voice PIC");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+    
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Voice PIC");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  /*
+   * Right know IPv4 is the only protocol we may encounter.
+   * For the future there should be sufficient space in the 18-byte
+   * empty header before payload starts.
+   */
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_IP, offset+18);
+}
+
+
 /* list of Juniper supported PPP proto IDs */
 static gboolean
 ppp_heuristic_guess(guint16 proto) {
@@ -1450,6 +1481,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_frelay_handle;
   dissector_handle_t juniper_chdlc_handle;
   dissector_handle_t juniper_ggsn_handle;
+  dissector_handle_t juniper_vp_handle;
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
@@ -1474,6 +1506,7 @@ proto_reg_handoff_juniper(void)
   juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
   juniper_chdlc_handle = create_dissector_handle(dissect_juniper_chdlc, proto_juniper);
   juniper_ggsn_handle = create_dissector_handle(dissect_juniper_ggsn, proto_juniper);
+  juniper_vp_handle = create_dissector_handle(dissect_juniper_vp, proto_juniper);
     
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
@@ -1485,6 +1518,7 @@ proto_reg_handoff_juniper(void)
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN, juniper_ggsn_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_VP, juniper_vp_handle);
 
 }
 
