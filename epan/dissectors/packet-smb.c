@@ -8171,8 +8171,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				val_to_str(subcmd, nt_cmd_vals, "<unknown>"));
 		}
 		ntd.subcmd = subcmd;
-		if (!si->unidir) {
-			if(!pinfo->fd->flags.visited && sip){
+		if (!si->unidir && sip) {
+			if(!pinfo->fd->flags.visited){
 				/*
 				 * Allocate a new smb_nt_transact_info_t
 				 * structure.
