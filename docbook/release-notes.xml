@@ -50,9 +50,35 @@ Wireshark Info
 	  Versions affected: 0.99.2.
         </para></listitem>
 
+        <listitem><para>
+	  The DHCP dissector (and possibly others) in the Windows version of
+          Wireshark could trigger a bug in Glib and crash
+	  <!-- Fixed in r18883 -->
+	  <!-- Bug IDs: 1025 -->
+	  Versions affected: 0.10.13.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
+    
+    <para>
+    
+    The following bugs have been fixed:
+    
+    <itemizedlist>
+    
+      <listitem><para>
+        The VOIP call analysis feature could cause an assertion.
+      </listitem></para>
+
+      <listitem><para>
+        The RTP analysis feature could freeze for an extended period.
+      </listitem></para>
+
+      <listitem><para>
+        Selecting "Apply as Filter" wouldn't work for some tree items.
+      </listitem></para>
 
     </section>
 
@@ -69,8 +95,17 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+        The packet list context menu now includes a conversation filter.
+        </para></listitem>
+
+        <listitem><para>
         Wireshark can now generate ACL rules for several popular firewall
         products.
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark now supports AirPcap, including raw 802.11 captures
+        under Windows.
         </para></listitem>
 
       </itemizedlist>
@@ -80,10 +115,68 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+Daytime,
+JPEG (RTP payload),
+Pegasus Lightweight Stream Control,
+Pro-MPEG FEC,
+UMTS RRC,
+Veritas Low Latency Transport,
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+All ASN.1 dissectors,
+    
+3G A11,
+802.11,
+AIM SST,
+AJP13,
+ANSI 637,
+AVS WLAN,
+BACapp,
+BFD,
+Cisco WIDS,
+CDP,
+DCERPC (DCERPC, CONV, DFS, EPM, FLDB, NETLOGON, NT, PN-IO, RS_PGO),
+DCOM,
+DHCP,
+DIAMETER,
+DTLS,
+EAPOL,
+ESP,
+H.225,
+H.245,
+H.450,
+HTTP,
+IPv6,
+ISAKMP,
+Juniper,
+Kerberos,
+L2TP,
+LDAP,
+MSRP,
+NTLMSSP,
+PN-CBA,
+PN-RT,
+Prism,
+RSVP,
+RTCP,
+RUDP,
+SCTP,
+SCSI,
+SDP,
+SIP,
+SIPFRAG,
+Skinny,
+SMB,
+SSL,
+TCP,
+text/media,
+Time,
+XML,
+
 
     </para>
     </section>
@@ -91,6 +184,9 @@ Wireshark Info
     <section><title>New and Updated Capture File Support</title>
     <para>
 
+Catapult DCT2000,
+nettl,
+    
     </para>
     </section>
 
