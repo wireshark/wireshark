@@ -145,7 +145,7 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_IPV6_ADDR_MAX 40
 #define IPSEC_IPV4_ADDR_MAX 16
 #define IPSEC_SPI_LEN_MAX 10
-#define IPSEC_TYP_LEN_MAX 4
+#define IPSEC_TYP_LEN 4
 #define IPSEC_ADDR_LEN_MAX 3
 
 /* Number of Security Associations */
@@ -649,13 +649,14 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
 
   if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
 
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_SPI_LEN_MAX))
+  while(((cpt + index_start) < strlen(sa)) && (cpt < IPSEC_SPI_LEN_MAX))
     {
       spi_string[cpt] = toupper(sa[cpt + index_start]);
       cpt ++;
     }
 
-  if(cpt == 0) done_flag = FALSE;
+  if(cpt == 0)
+    done_flag = FALSE;
   else
     {
       spi_string[cpt] = '\0';
@@ -694,43 +695,32 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
 static gboolean
 esp_sa_parse_protocol_typ(const gchar *sa, guint index_start, gint *pt_protocol_typ, guint *index_end)
 {
-  guint cpt = 0;
-  gchar typ_string[IPSEC_TYP_LEN_MAX + 1];
   gboolean done_flag = FALSE;
 
   *pt_protocol_typ = IPSEC_SA_UNKNOWN;
-  if((sa == NULL) || (strcmp(sa, "") == 0))  return FALSE;
+  if((sa == NULL) || (strlen(&sa[index_start]) <= IPSEC_TYP_LEN) ||
+      (sa[index_start + IPSEC_TYP_LEN] != IPSEC_SA_SEPARATOR))
+    return FALSE;
 
-  while(((cpt + index_start) < strlen(sa)) && (done_flag == FALSE) && (cpt <= IPSEC_TYP_LEN_MAX) && (sa[cpt + index_start] != IPSEC_SA_SEPARATOR))
+  if(g_strncasecmp(&sa[index_start], "IPV6", IPSEC_TYP_LEN) == 0)
     {
-      typ_string[cpt] = toupper(sa[cpt + index_start]);
-      cpt ++;
+      *pt_protocol_typ = IPSEC_SA_IPV6;
+      done_flag = TRUE;
     }
-
-  if(cpt == 0) done_flag = FALSE;
+  else if (g_strncasecmp(&sa[index_start], "IPV4", IPSEC_TYP_LEN) == 0)
+    {
+      *pt_protocol_typ = IPSEC_SA_IPV4;
+      done_flag = TRUE;
+    }
   else
     {
-      typ_string[cpt] = '\0';
-      if(strcmp(typ_string, "IPV6") == 0)
-	{
-	  *pt_protocol_typ = IPSEC_SA_IPV6;
-	  done_flag = TRUE;
-	}
-      else if (strcmp(typ_string, "IPV4") == 0)
-	{
-	  *pt_protocol_typ = IPSEC_SA_IPV4;
-	  done_flag = TRUE;
-	}
-      else
-	{
-	  *pt_protocol_typ = IPSEC_SA_UNKNOWN;
-	  done_flag = FALSE;
-	}
-
-      *index_end = cpt + index_start + 1;
+      *pt_protocol_typ = IPSEC_SA_UNKNOWN;
+      done_flag = FALSE;
     }
 
+  *index_end = IPSEC_TYP_LEN + index_start + 1;
 
+g_warning("For %s returning %d, %c, %d", sa, *pt_protocol_typ, sa[*index_end], *index_end);
   return done_flag;
 }
 #endif

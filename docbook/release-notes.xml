@@ -45,7 +45,7 @@ Wireshark Info
 	  If Wireshark was compiled with ESP decryption support, the
 	  IPsec ESP preference parser was susceptible to off-by-one
 	  errors.
-	  <!-- Fixed in r18856, r18915 -->
+	  <!-- Fixed in r18856, r18915, r18943 -->
 	  <!-- Bug IDs: None -->
 	  Versions affected: 0.99.2.
         </para></listitem>
