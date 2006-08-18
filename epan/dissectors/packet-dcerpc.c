@@ -5343,9 +5343,6 @@ proto_register_dcerpc (void)
     dcerpc_tap=register_tap("dcerpc");
 
     g_hook_list_init(&dcerpc_hooks_init_protos, sizeof(GHook));
-
-    /* XXX - might better be located in a more general place than this */
-    guids_init();
 }
 
 void
