@@ -322,6 +322,10 @@
 #define ETHERTYPE_RTCFG		0x9022 	/* RTnet: Real-Time Configuration Protocol */
 #endif
 
+#ifndef ETHERTYPE_LLT
+#define ETHERTYPE_LLT           0xCAFE /* Veritas Low Latency Transport (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_FCFT
 /* type used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #define ETHERTYPE_FCFT          0xFCFC
