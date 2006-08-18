@@ -381,6 +381,10 @@ gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 guid_to_str
+guids_add_guid
+guids_init
+guids_get_guid_name
+guids_resolve_guid_to_str
 g_resolv_flags                  DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
