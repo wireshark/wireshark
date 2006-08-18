@@ -63,23 +63,11 @@ struct nettl_file_hdr {
     guint16	unknown;	/* just padding to 128 bytes? */
 };
 
-/* HP nettl record header for the SX25L2 subsystem - The FCS is not included in the file. */
-struct nettlrec_sx25l2_hdr {
-    guint8	xxa[8];
-    guint8	from_dce;
-    guint8	xxb[55];
-    guint8	caplen[2];
-    guint8	length[2];
-    guint8	xxc[4];
-    guint8	sec[4];
-    guint8	usec[4];
-    guint8	xxd[4];
-};
-
-/* HP nettl record header for the NS_LS_IP subsystem */
-/* This also works for BASE100 and GSC100BT */
+/* HP nettl record header */
 /* see /usr/include/sys/netdiag1.h for hints */
-struct nettlrec_ns_ls_ip_hdr {
+struct nettlrec_hdr {
+    guint16	hdr_len;
+    guint16	subsys;
     guint32	devid;
     guint8	xxa[4];
     guint32	kind;
@@ -93,19 +81,29 @@ struct nettlrec_ns_ls_ip_hdr {
     guint16	uid;
 };
 
-/* Full record header for writing out a nettl file */
-struct nettlrec_dump_hdr {
-    guint16	hdr_len;
-    guint16	subsys;
-    struct	nettlrec_ns_ls_ip_hdr hdr;
+/*
+ * This is what we treat as the minimum size of a record header.
+ * It is *not* necessarily the same as sizeof(struct nettlrec_hdr),
+ * because it doesn't include any padding added to the structure.
+ */
+#define NETTL_REC_HDR_LEN	64
+
+/* HP nettl record header for the SX25L2 subsystem - The FCS is not included
+   in the file. */
+struct nettlrec_sx25l2_hdr {
+    guint8	xxa[8];
+    guint8	from_dce;
+    guint8	xxb[55];
+    guint8	caplen[2];
+    guint8	length[2];
+    guint8	xxc[4];
+    guint8	sec[4];
+    guint8	usec[4];
     guint8	xxd[4];
 };
 
-/* header is followed by data and once again the total length (2 bytes) ! */
-
-
 /* NL_LS_DRIVER :
-The following shows what the header looks like for NS_LS_DRIVER
+The following shows what the header and subheader looks like for NS_LS_DRIVER
 The capture was taken on HPUX11 and for a 100baseT interface.
 
 000080 00 44 00 0b 00 00 00 02 00 00 00 00 20 00 00 00
@@ -113,41 +111,49 @@ The capture was taken on HPUX11 and for a 100baseT interface.
 0000a0 00 00 00 74 00 00 00 74 3c e3 76 19 00 06 34 63
 0000b0 ff ff ff ff 00 00 00 00 00 00 00 00 ff ff ff ff
 0000c0 00 00 00 00 00 00 01 02 00 5c 00 5c ff ff ff ff
-0000d0 3c e3 76 19 00 06 34 5a 00 0b 00 14 <here starts the MAC heder>
+0000d0 3c e3 76 19 00 06 34 5a 00 0b 00 14 <here starts the MAC header>
 
 Each entry starts with 0x0044000b
 
-The values 0x005c at position 0x0000c8 and 0x0000ca matches the number of bytes in
-the packet up to the next entry, which starts with 0x00440b again. These probably
-indicate the real and captured length of the packet (order unknown)
+The values 0x005c at position 0x0000c8 and 0x0000ca matches the number of
+bytes in the packet up to the next entry, which starts with 0x00440b again.
+These are the captured and real and captured length of the packet.
 
 The values 0x00000074 at positions 0x0000a0 and 0x0000a4 seems to indicate
 the same number as positions 0x0000c8 and 0x0000ca but added with 24.
 Perhaps we have here two layers of headers.
 The first layer is fixed and consists of all the bytes from 0x000084 up to and
 including 0x0000c3 which is a generic header for all packets captured from any
-device. This header might be of fixed size 64 bytes and there might be something in
-it which indicates the type of the next header which is link type specific.
-Following this header there is another header for the 100baseT interface which
-in this case is 24 bytes long spanning positions 0x0000c4 to 0x0000db.
+device. This header might be of fixed size 64 bytes (although the first two
+bytes appear to be the length of that header, in big-endian format) and there
+might be something in it which indicates the type of the next header which is
+link type specific. Following this header there is another header for the
+100baseT interface which in this case is 24 bytes long spanning positions
+0x0000c4 to 0x0000db.
 
-When someone reports that the loading of the captures breaks, we can compare
-this header above with what he/she got to learn how to distinguish between different
-types of link specific headers.
+In another capture, claimed to be taken on an HP-UX 8 box, but with a
+file header suggesting it was taken on HP-UX 10.20, the header for
+NS_LS_DRIVER looks like:
+
+000080   00 40 00 0b ff ff ff ff 00 00 00 00 00 00 00 00
+000090   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0000a0   00 00 00 51 00 00 00 51 42 02 5e bf 00 0e ab 7c
+0000b0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0000c0   00 02 01 00 00 3b 00 3b ff ff ff ff 42 02 5e bf
+0000d0   00 0e 8e 44 00 0b <here starts the MAC header>
+
+When someone reports that the loading of the captures breaks, we can
+compare this header above with what he/she got to learn how to
+distinguish between different types of link specific headers.
 
 
-For now:
-The first header seems to be
-	a normal nettlrec_ns_ls_ip_hdr
-
-The header for 100baseT seems to be
-	0-3	unknown
+For now, the subheader for 100baseT seems to be
 	4-5	captured length
 	6-7	actual length
 	8-11	unknown
 	12-15	secs
 	16-19	usecs
-	20-23	unknown
+	20-21	unknown
 */
 struct nettlrec_ns_ls_drv_eth_hdr {
     guint8	xxa[4];
@@ -156,9 +162,17 @@ struct nettlrec_ns_ls_drv_eth_hdr {
     guint8	xxb[4];
     guint8	sec[4];
     guint8	usec[4];
-    guint8	xxc[4];
+    guint8	xxc[2];
 };
 
+/*
+ * This is the size of an NS_LS_DRV_ETH header; it is *not* necessarily
+ * the same as sizeof(struct nettlrec_ns_ls_drv_eth_hdr), because it
+ * doesn't include any padding added to the structure.
+ */
+#define NS_LS_DRV_ETH_HDR_LEN	22
+
+/* header is followed by data and once again the total length (2 bytes) ! */
 
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		long *data_offset);
@@ -216,7 +230,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->subtype_read = nettl_read;
     wth->subtype_seek_read = nettl_seek_read;
     wth->subtype_close = nettl_close;
-    wth->snapshot_length = 0;	/* not available in header, only in frame */
+    wth->snapshot_length = 0;	/* not available */
 
     /* read the first header to take a guess at the file encap */
     bytes_read = file_read(dummy, 1, 4, wth->fh);
@@ -249,6 +263,10 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
         case NETTL_SUBSYS_NS_LS_UDP :
         case NETTL_SUBSYS_NS_LS_IPV6 :
 		wth->file_encap = WTAP_ENCAP_NETTL_RAW_IP;
+        case NETTL_SUBSYS_NS_LS_ICMP :
+		wth->file_encap = WTAP_ENCAP_NETTL_RAW_ICMP;
+        case NETTL_SUBSYS_NS_LS_ICMPV6 :
+		wth->file_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
 		break;
 	default:
 		/* If this assumption is bad, the read will catch it */
@@ -260,7 +278,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 	return -1;
     }
     wth->data_offset = FILE_HDR_SIZE;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     return 1;
 }
@@ -344,29 +362,49 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		gchar **err_info, gboolean *fddihack)
 {
     int bytes_read;
-    struct nettlrec_ns_ls_ip_hdr ip_hdr;
+    struct nettlrec_hdr rec_hdr;
+    guint16 hdr_len;
     struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
-    guint16 length;
+    guint16 length, caplen;
     int offset = 0;
     int subsys;
     int padlen;
-    guint16 dummy[2];
-    guchar dummyc[10];
+    guint8 dummyc[16];
 
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(dummy, 1, 4, fh);
-    if (bytes_read != 4) {
+    bytes_read = file_read(&rec_hdr.hdr_len, 1, sizeof rec_hdr.hdr_len, fh);
+    if (bytes_read != sizeof rec_hdr.hdr_len) {
 	*err = file_error(fh);
-	if (*err != 0) return -1;
+	if (*err != 0)
+	    return -1;
 	if (bytes_read != 0) {
 	    *err = WTAP_ERR_SHORT_READ;
 	    return -1;
 	}
 	return 0;
     }
-    offset += 4;
+    offset += 2;
+    hdr_len = g_ntohs(rec_hdr.hdr_len);
+    if (hdr_len < NETTL_REC_HDR_LEN) {
+    	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup_printf("nettl: record header length %u too short",
+	    hdr_len);
+	return -1;
+    }
+    bytes_read = file_read(&rec_hdr.subsys, 1, NETTL_REC_HDR_LEN - 2, fh);
+    if (bytes_read != NETTL_REC_HDR_LEN - 2) {
+	*err = file_error(fh);
+	if (*err == 0)
+	    *err = WTAP_ERR_SHORT_READ;
+	return -1;
+    }
+    offset += NETTL_REC_HDR_LEN - 2;
+    subsys = g_ntohs(rec_hdr.subsys);
+    hdr_len -= NETTL_REC_HDR_LEN;
+    if (file_seek(fh, hdr_len, SEEK_CUR, err) == -1)
+	return -1;
+    offset += hdr_len;
 
-    subsys = g_ntohs(dummy[1]);
     switch (subsys) {
 	case NETTL_SUBSYS_LAN100 :
 	case NETTL_SUBSYS_EISA100BT :
@@ -418,195 +456,143 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
 	    }
 
-	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
-	    if (bytes_read != sizeof ip_hdr) {
-		*err = file_error(fh);
-		if (*err != 0) return -1;
-		if (bytes_read != 0) {
-		    *err = WTAP_ERR_SHORT_READ;
-		    return -1;
-		}
-		return 0;
-	    }
-	    offset += sizeof ip_hdr;
-
-	    /* The packet header in HP-UX 11 nettl traces is 4 octets longer than
-	     * HP-UX 9 and 10 */
-	    if (wth->capture.nettl->is_hpux_11) {
-		if (file_seek(fh, 4, SEEK_CUR, err) == -1) return -1;
-		offset += 4;
-	    }
+	    length = pntohl(&rec_hdr.length);
+	    caplen = pntohl(&rec_hdr.caplen);
 
 	    /* HPPB FDDI has different inbound vs outbound trace records */
 	    if (subsys == NETTL_SUBSYS_HPPB_FDDI) {
-                if (pntohl(&ip_hdr.kind) == NETTL_HDR_PDUIN) {
-                   /* inbound is very strange...
-                      there are an extra 3 bytes after the DSAP and SSAP
-                      for SNAP frames ???
-                   */
-                   *fddihack=TRUE;
-		   length = pntohl(&ip_hdr.length);
-		   if (length <= 0) return 0;
-		   phdr->len = length;
-		   phdr->caplen = pntohl(&ip_hdr.caplen);
+                if (pntohl(&rec_hdr.kind) == NETTL_HDR_PDUIN) {
+                    /* inbound is very strange...
+                       there are an extra 3 bytes after the DSAP and SSAP
+                       for SNAP frames ???
+                    */
+                    *fddihack=TRUE;
+                    padlen = 0;
                 } else {
-	           /* outbound appears to have variable padding */
-		   bytes_read = file_read(dummyc, 1, 9, fh);
-		   if (bytes_read != 9) {
-		       *err = file_error(fh);
-		       if (*err != 0) return -1;
-		       if (bytes_read != 0) {
-			   *err = WTAP_ERR_SHORT_READ;
-			   return -1;
-		       }
-		       return 0;
-		   }
-                   /* padding is usually either a total 11 or 16 bytes??? */
-		   padlen = (int)dummyc[8];
-		   if (file_seek(fh, padlen, SEEK_CUR, err) == -1) return -1;
-		   padlen += 9;
-		   offset += padlen;
-		   length = pntohl(&ip_hdr.length);
-		   if (length <= 0) return 0;
-		   phdr->len = length - padlen;
-		   length = pntohl(&ip_hdr.caplen);
-		   phdr->caplen = length - padlen;
-               }
+	            /* outbound appears to have variable padding */
+		    bytes_read = file_read(dummyc, 1, 9, fh);
+		    if (bytes_read != 9) {
+			*err = file_error(fh);
+			if (*err == 0)
+			    *err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+                    /* padding is usually either a total 11 or 16 bytes??? */
+		    padlen = (int)dummyc[8];
+		    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
+			return -1;
+		    padlen += 9;
+		    offset += padlen;
+		}
 	    } else if ( (subsys == NETTL_SUBSYS_PCI_FDDI)
 	             || (subsys == NETTL_SUBSYS_EISA_FDDI)
 	             || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
 	        /* other flavor FDDI cards have an extra 3 bytes of padding */
-                if (file_seek(fh, 3, SEEK_CUR, err) == -1) return -1;
-		offset += 3;
-		length = pntohl(&ip_hdr.length);
-		if (length <= 0) return 0;
-		phdr->len = length - 3;
-		length = pntohl(&ip_hdr.caplen);
-		phdr->caplen = length - 3;
+                if (file_seek(fh, 3, SEEK_CUR, err) == -1)
+                    return -1;
+                padlen = 3;
+		offset += padlen;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK) {
 	        /* LOOPBACK has an extra 26 bytes of padding */
-                if (file_seek(fh, 26, SEEK_CUR, err) == -1) return -1;
-		offset += 26;
-		length = pntohl(&ip_hdr.length);
-		if (length <= 0) return 0;
-		phdr->len = length - 26;
-		length = pntohl(&ip_hdr.caplen);
-		phdr->caplen = length - 26;
+                if (file_seek(fh, 26, SEEK_CUR, err) == -1)
+                    return -1;
+                padlen = 26;
+		offset += padlen;
 	    } else {
-		length = pntohl(&ip_hdr.length);
-		if (length <= 0) return 0;
-		phdr->len = length;
-		phdr->caplen = pntohl(&ip_hdr.caplen);
+	    	padlen = 0;
 	    }
-
-	    phdr->ts.secs = pntohl(&ip_hdr.sec);
-	    phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
 	    break;
 
 	case NETTL_SUBSYS_NS_LS_DRIVER :
-	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
-	    if (bytes_read != sizeof ip_hdr) {
-		*err = file_error(fh);
-		if (*err != 0) return -1;
-		if (bytes_read != 0) {
-		    *err = WTAP_ERR_SHORT_READ;
-		    return -1;
-		}
-		return 0;
-	    }
-	    offset += sizeof ip_hdr;
-
-	    /* The packet header in HP-UX 11 nettl traces is 4 octets longer than
-	     * HP-UX 9 and 10 */
-	    if (wth->capture.nettl->is_hpux_11) {
-	        if (file_seek(fh, 4, SEEK_CUR, err) == -1) return -1;
-		offset += 4;
-	    }
-
 	    /* XXX we dont know how to identify this as ethernet frames, so
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
-	    bytes_read = file_read(&drv_eth_hdr, 1, sizeof drv_eth_hdr, fh);
-	    if (bytes_read != sizeof drv_eth_hdr) {
+	    bytes_read = file_read(&drv_eth_hdr, 1, NS_LS_DRV_ETH_HDR_LEN, fh);
+	    if (bytes_read != NS_LS_DRV_ETH_HDR_LEN) {
 		*err = file_error(fh);
-		if (*err != 0) return -1;
-		if (bytes_read != 0) {
+		if (*err == 0)
 		    *err = WTAP_ERR_SHORT_READ;
-		    return -1;
-		}
-		return 0;
+		return -1;
 	    }
-	    offset += sizeof drv_eth_hdr;
+	    offset += NS_LS_DRV_ETH_HDR_LEN;
 
 	    length = pntohs(&drv_eth_hdr.length); 
-	    if (length <= 0) return 0;
-	    phdr->len = length;
-	    phdr->caplen = pntohs(&drv_eth_hdr.caplen);
-
-	    phdr->ts.secs = pntohl(&ip_hdr.sec);
-	    phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
+	    caplen = pntohs(&drv_eth_hdr.caplen);
+	    /*
+	     * XXX - is there a length field that would give the length
+	     * of this header, so that we don't have to check for
+	     * nettl files from HP-UX 11?
+	     *
+	     * And what are the extra two bytes?
+	     */
+            if (wth->capture.nettl->is_hpux_11) {
+                if (file_seek(fh, 2, SEEK_CUR, err) == -1) return -1;
+	        offset += 2;
+            }
+	    padlen = 0;
 	    break;
 
 	case NETTL_SUBSYS_SX25L2:
 	case NETTL_SUBSYS_SX25L3:
-            bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
-            if (bytes_read != sizeof ip_hdr) {
-                *err = file_error(fh);
-                if (*err != 0) return -1;
-                if (bytes_read != 0) {
-                    *err = WTAP_ERR_SHORT_READ;
-                    return -1;
-                }
-                return 0;
-            }
-            offset += sizeof ip_hdr;
-            length = pntohl(&ip_hdr.length);
-            if (length <= 0) return 0;
-            phdr->len = length - 24;
-            phdr->caplen = pntohl(&ip_hdr.caplen) - 24;
-            phdr->ts.secs = pntohl(&ip_hdr.sec);
-            phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
-            if (wth->capture.nettl->is_hpux_11)
-                padlen = 28;
-	    else
-		padlen = 24;
-	    if (file_seek(fh, padlen, SEEK_CUR, err) == -1) return -1;
-            offset += padlen;
+	    /*
+	     * XXX - is the 24-byte padding actually a header with
+	     * packet lengths, time stamps, etc., just as is the case
+	     * for NETTL_SUBSYS_NS_LS_DRIVER?  It might be
+	     *
+	     *    guint8	caplen[2];
+	     *    guint8	length[2];
+	     *    guint8	xxc[4];
+	     *    guint8	sec[4];
+	     *    guint8	usec[4];
+	     *    guint8	xxd[4];
+	     *
+	     * or something such as that - if it has 4 bytes before that
+	     * (making it 24 bytes), it'd be like struct
+	     * nettlrec_ns_ls_drv_eth_hdr but with 2 more bytes at the end.
+	     *
+	     * And is "from_dce" at xxa[0] in the nettlrec_hdr structure?
+	     */
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_X25;
+	    length = pntohl(&rec_hdr.length);
+	    caplen = pntohl(&rec_hdr.caplen);
+	    padlen = 24;	/* sizeof (struct nettlrec_sx25l2_hdr) - NETTL_REC_HDR_LEN + 4 */
+	    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
+		return -1;
+            offset += padlen;
 	    break;
 
 	default:
 	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_UNKNOWN;
-            bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
-            if (bytes_read != sizeof ip_hdr) {
-                *err = file_error(fh);
-                if (*err != 0) return -1;
-                if (bytes_read != 0) {
-                    *err = WTAP_ERR_SHORT_READ;
-                    return -1;
-                }
-                return 0;
-            }
-            offset += sizeof ip_hdr;
-            length = pntohl(&ip_hdr.length);
-            if (length <= 0) return 0;
-            phdr->len = length;
-            phdr->caplen = pntohl(&ip_hdr.caplen);
-            phdr->ts.secs = pntohl(&ip_hdr.sec);
-            phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
-            if (wth->capture.nettl->is_hpux_11) {
-	       if (file_seek(fh, 4, SEEK_CUR, err) == -1) return -1;
-               offset += 4;
-            }
+            length = pntohl(&rec_hdr.length);
+            caplen = pntohl(&rec_hdr.caplen);
+            padlen = 0;
+            break;
     }
 
+    if (length <= padlen) {
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup_printf("nettl: packet length %u in record header too short, <= %u",
+	    length, padlen);
+	return -1;
+    }
+    phdr->len = length - padlen;
+    if (caplen <= padlen) {
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup_printf("nettl: captured length %u in record header too short, <= %u",
+	    caplen, padlen);
+	return -1;
+    }
+    phdr->caplen = caplen - padlen;
+    phdr->ts.secs = pntohl(&rec_hdr.sec);
+    phdr->ts.nsecs = pntohl(&rec_hdr.usec) * 1000;
+
     pseudo_header->nettl.subsys   = subsys;
-    pseudo_header->nettl.devid    = pntohl(&ip_hdr.devid);
-    pseudo_header->nettl.kind     = pntohl(&ip_hdr.kind);
-    pseudo_header->nettl.pid      = pntohl(&ip_hdr.pid);
-    pseudo_header->nettl.uid      = pntohs(&ip_hdr.uid);
+    pseudo_header->nettl.devid    = pntohl(&rec_hdr.devid);
+    pseudo_header->nettl.kind     = pntohl(&rec_hdr.kind);
+    pseudo_header->nettl.pid      = pntohl(&rec_hdr.pid);
+    pseudo_header->nettl.uid      = pntohs(&rec_hdr.uid);
 
     return offset;
 }
@@ -703,7 +689,7 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	memcpy(file_hdr.magic,nettl_magic_hpux10,sizeof(file_hdr.magic));
 	strcpy(file_hdr.file_name,"/tmp/wireshark.TRC000");
 	strcpy(file_hdr.tz,"UTC");
-	strcpy(file_hdr.host_name,"wshark");	/* XXX - leave blank? */
+	strcpy(file_hdr.host_name,"");
 	strcpy(file_hdr.os_vers,"B.11.11");
 	file_hdr.os_v=0x55;
 	strcpy(file_hdr.model,"9000/800");
@@ -728,27 +714,28 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	const union wtap_pseudo_header *pseudo_header _U_,
 	const guchar *pd, int *err)
 {
-	struct nettlrec_dump_hdr rec_hdr;
+	struct nettlrec_hdr rec_hdr;
 	size_t nwritten;
-	guint8 padding=0;
+	guint8 dummyc[24];
 
 	memset(&rec_hdr,0,sizeof(rec_hdr));
-	rec_hdr.hdr_len = g_htons(sizeof(rec_hdr));
-	rec_hdr.hdr.kind = g_htonl(NETTL_HDR_PDUIN);
-	rec_hdr.hdr.sec = g_htonl(phdr->ts.secs);
-	rec_hdr.hdr.usec = g_htonl(phdr->ts.nsecs/1000);
-	rec_hdr.hdr.caplen = g_htonl(phdr->caplen);
-	rec_hdr.hdr.length = g_htonl(phdr->len);
-	rec_hdr.hdr.devid = -1;
-	rec_hdr.hdr.pid = -1;
-	rec_hdr.hdr.uid = -1;
+        /* HP-UX 11.X header should be 68 bytes */
+	rec_hdr.hdr_len = g_htons(sizeof(rec_hdr) + 4);
+	rec_hdr.kind = g_htonl(NETTL_HDR_PDUIN);
+	rec_hdr.sec = g_htonl(phdr->ts.secs);
+	rec_hdr.usec = g_htonl(phdr->ts.nsecs/1000);
+	rec_hdr.caplen = g_htonl(phdr->caplen);
+	rec_hdr.length = g_htonl(phdr->len);
+	rec_hdr.devid = -1;
+	rec_hdr.pid = -1;
+	rec_hdr.uid = -1;
 
 	switch (phdr->pkt_encap) {
 
 		case WTAP_ENCAP_NETTL_FDDI:
 			/* account for pad bytes */
-			rec_hdr.hdr.caplen = g_htonl(phdr->caplen + 3);
-			rec_hdr.hdr.length = g_htonl(phdr->len + 3);
+			rec_hdr.caplen = g_htonl(phdr->caplen + 3);
+			rec_hdr.length = g_htonl(phdr->len + 3);
                         /* fall through and fill the rest of the fields */
 		case WTAP_ENCAP_NETTL_ETHERNET:
 		case WTAP_ENCAP_NETTL_TOKEN_RING:
@@ -757,10 +744,10 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 		case WTAP_ENCAP_NETTL_RAW_ICMPV6:
 		case WTAP_ENCAP_NETTL_UNKNOWN:
 			rec_hdr.subsys = g_htons(pseudo_header->nettl.subsys);
-			rec_hdr.hdr.devid = g_htonl(pseudo_header->nettl.devid);
-			rec_hdr.hdr.kind = g_htonl(pseudo_header->nettl.kind);
-			rec_hdr.hdr.pid = g_htonl(pseudo_header->nettl.pid);
-			rec_hdr.hdr.uid = g_htons(pseudo_header->nettl.uid);
+			rec_hdr.devid = g_htonl(pseudo_header->nettl.devid);
+			rec_hdr.kind = g_htonl(pseudo_header->nettl.kind);
+			rec_hdr.pid = g_htonl(pseudo_header->nettl.pid);
+			rec_hdr.uid = g_htons(pseudo_header->nettl.uid);
 			break;
 
 		case WTAP_ENCAP_RAW_IP:
@@ -774,8 +761,8 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 		case WTAP_ENCAP_FDDI_BITSWAPPED:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_FDDI);
 			/* account for pad bytes */
-			rec_hdr.hdr.caplen = g_htonl(phdr->caplen + 3);
-			rec_hdr.hdr.length = g_htonl(phdr->len + 3);
+			rec_hdr.caplen = g_htonl(phdr->caplen + 3);
+			rec_hdr.length = g_htonl(phdr->len + 3);
 			break;
 
 		case WTAP_ENCAP_TOKEN_RING:
@@ -783,13 +770,13 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 			break;
 /*	
 		case WTAP_ENCAP_NETTL_X25:
-			rec_hdr.hdr.caplen = g_htonl(phdr->caplen + 24);
-			rec_hdr.hdr.length = g_htonl(phdr->len + 24);
+			rec_hdr.caplen = g_htonl(phdr->caplen + 24);
+			rec_hdr.length = g_htonl(phdr->len + 24);
 			rec_hdr.subsys = g_htons(pseudo_header->nettl.subsys);
-			rec_hdr.hdr.devid = g_htonl(pseudo_header->nettl.devid);
-			rec_hdr.hdr.kind = g_htonl(pseudo_header->nettl.kind);
-			rec_hdr.hdr.pid = g_htonl(pseudo_header->nettl.pid);
-			rec_hdr.hdr.uid = g_htons(pseudo_header->nettl.uid);
+			rec_hdr.devid = g_htonl(pseudo_header->nettl.devid);
+			rec_hdr.kind = g_htonl(pseudo_header->nettl.kind);
+			rec_hdr.pid = g_htonl(pseudo_header->nettl.pid);
+			rec_hdr.uid = g_htons(pseudo_header->nettl.uid);
 			break;
 */
 		default:
@@ -808,10 +795,24 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += sizeof(rec_hdr);
 
+	/* Write out 4 extra bytes of unknown stuff for HP-UX11
+	 * header format.
+	 */
+	memset(dummyc, 0, sizeof dummyc);
+	nwritten = fwrite(dummyc, 1, 4, wdh->fh);
+	if (nwritten != 4) {
+		if (nwritten == 0 && ferror(wdh->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+	wdh->bytes_dumped += 4;
+
 	if ((phdr->pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) ||
 	    (phdr->pkt_encap == WTAP_ENCAP_NETTL_FDDI)) {
 		/* add those weird 3 bytes of padding */
-		nwritten = fwrite(&padding, 1, 3, wdh->fh);
+		nwritten = fwrite(dummyc, 1, 3, wdh->fh);
 		if (nwritten != 3) {
 			if (nwritten == 0 && ferror(wdh->fh))
 				*err = errno;
@@ -823,7 +824,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	}
 /*
 	} else if (phdr->pkt_encap == WTAP_ENCAP_NETTL_X25) {
-		nwritten = fwrite(&padding, 1, 24, wdh->fh);
+		nwritten = fwrite(dummyc, 1, 24, wdh->fh);
 		if (nwritten != 24) {
 			if (nwritten == 0 && ferror(wdh->fh))
 				*err = errno;
