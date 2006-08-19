@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -971,7 +972,8 @@ cba_connection_disconnect(packet_info *pinfo, cba_connection_t *conn)
     } 
     
     if(conn->packet_disconnect != pinfo->fd->num) {
-        g_warning("connection_disconnect#%u: already disconnected");
+        g_warning("connection_disconnect#%u: already disconnected",
+                  conn->packet_disconnect);
     }
 }
 
@@ -996,7 +998,8 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             
             if(conn->packet_disconnectme != pinfo->fd->num) {
-                g_warning("connection_disconnectme#%u: already disconnectme'd");
+                g_warning("connection_disconnectme#%u: already disconnectme'd",
+                          conn->packet_disconnectme);
             }
         }
     }
