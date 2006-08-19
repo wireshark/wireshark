@@ -250,7 +250,7 @@ void dcom_interface_dump(void) {
 
         for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
             object = objects->data;
-            g_warning(" Object(#%4u): OID:0x%x%x private:0x%x", object->first_packet, object->oid, object->private_data);
+            g_warning(" Object(#%4u): OID:0x%" PRIx64 " private:%p", object->first_packet, object->oid, object->private_data);
 
             for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
                 interf = interfaces->data;
@@ -1470,7 +1470,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
     if (field_index != -1) {
         proto_item_append_text(pi, "[%u]: ", field_index);
     } else {
-        proto_item_append_text(pi, ": ", field_index);
+        proto_item_append_text(pi, ": ");
     }
 
     if(uuid_name) {
@@ -1485,7 +1485,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
                           uuid->Data4[6], uuid->Data4[7]);
 
     if(uuid_name) {
-	    proto_item_append_text(pi, ")", uuid_name);
+	    proto_item_append_text(pi, ")");
     }
 
 	/* update column info now */
