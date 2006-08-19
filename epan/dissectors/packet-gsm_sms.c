@@ -1491,6 +1491,7 @@ char_is_escape(unsigned char value)
     return (value == GN_CHAR_ESCAPE);
 }
 
+static gunichar
 char_def_alphabet_ext_decode(unsigned char value)
 {
     switch (value)
