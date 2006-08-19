@@ -180,5 +180,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 void
 proto_do_register_windows_common(int proto_smb);
 
+const char *
+get_well_known_rid_name(guint32);
+
 #endif
 

@@ -1232,6 +1232,25 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	return offset;
 }
 
+
+static const value_string well_known_rids[] = {
+	{  9,	"Logon"},
+	{500,	"Administrator"},
+	{501,	"Guest"},
+	{512,	"Domain Administrators"},
+	{513,	"Domain Users"},
+	{516,	"Domain Controllers"},
+	{517,	"Cert Administrators"},
+	{518,	"Schema Administrators"},
+	{519,	"Enterprise Administrators"},
+	{0,NULL}
+};
+const char *
+get_well_known_rid_name(guint32 rid)
+{
+	return match_strval(rid, well_known_rids);
+}
+
 /* Dissect a NT SID.  Label it with 'name' and return a string version of
    the SID in the 'sid_str' parameter which must be freed by the caller.
    hf_sid can be -1 if the caller doesnt care what name is used and then 
@@ -1346,7 +1365,14 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str);
 
           if(rid_present){
-            proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
+            char *rid_name;
+            proto_item *it;
+
+            it=proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
+            rid_name=get_well_known_rid_name(rid);
+            if(it && rid_name){
+              proto_item_append_text(it, " (%s)",rid_name);
+            }
           }
 
           if(sid_str){
