@@ -1189,7 +1189,8 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	char *oid, *oidname;
+	char *oid;
+	const char *oidname;
 
 	/* tvb here contains an ascii string that is really an oid */
 /* XXX   we should convert the string oid into a real oid so we can use

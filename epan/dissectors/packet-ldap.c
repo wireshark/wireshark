@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ldap.c                                                            */
+/* ./packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -3428,7 +3428,8 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	char *oid, *oidname;
+	char *oid;
+	const char *oidname;
 
 	/* tvb here contains an ascii string that is really an oid */
 /* XXX   we should convert the string oid into a real oid so we can use
@@ -4236,7 +4237,7 @@ void proto_register_ldap(void) {
         "ldap.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1608 "packet-ldap-template.c"
+#line 1609 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4289,7 +4290,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1619 "packet-ldap-template.c"
+#line 1620 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
