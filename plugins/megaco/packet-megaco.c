@@ -55,6 +55,8 @@
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>
 #include <epan/dissectors/packet-tpkt.h>
+#include <epan/dissectors/packet-per.h>
+#include <epan/dissectors/packet-h245.h>
 
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
@@ -111,6 +113,7 @@ static int hf_megaco_requestid 					= -1;
 static int hf_megaco_pkgdname					= -1;
 static int hf_megaco_mId						= -1;
 static int hf_megaco_h245						= -1;
+static int hf_megaco_h223Capability				= -1;
 
 /* Define the trees for megaco */
 static int ett_megaco 							= -1;
@@ -1508,6 +1511,84 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 	}
 }
 
+static void
+dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, gchar *msg)
+{
+	guint8 buf[10240];
+	asn1_ctx_t actx;
+
+	/* arbitrary maximum length */
+	if(len<20480){
+		int i;
+		tvbuff_t *h245_tvb;
+
+		/* first, skip to where the encoded pdu starts, this is
+		   the first hex digit after the '=' char.
+		*/
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return;
+			}
+			if(*msg=='='){
+				msg++;
+				break;
+			}
+			msg++;
+		}
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return;
+			}
+			if( ((*msg>='0')&&(*msg<='9'))
+			||  ((*msg>='a')&&(*msg<='f'))
+			||  ((*msg>='A')&&(*msg<='F'))){
+				break;
+			}
+			msg++;
+		}
+		i=0;
+		while( ((*msg>='0')&&(*msg<='9'))
+		     ||((*msg>='a')&&(*msg<='f'))
+		     ||((*msg>='A')&&(*msg<='F'))  ){
+			int val;
+			if((*msg>='0')&&(*msg<='9')){
+				val=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val=(*msg)-'A'+10;
+			} else {
+				return;
+			}
+			val<<=4;
+			msg++;
+			if((*msg>='0')&&(*msg<='9')){
+				val|=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val|=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val|=(*msg)-'A'+10;
+			} else {
+				return;
+			}
+			msg++;
+
+			buf[i]=(guint8)val;
+			i++;
+		}
+		if(i==0){
+			return;
+		}
+		h245_tvb = tvb_new_real_data(buf,i,i);
+		tvb_set_child_real_data_tvbuff(tvb,h245_tvb);
+		add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
+		/* should go through a handle, however,  the two h245 entry
+		   points are different, one is over tpkt and the other is raw
+		*/
+		asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
+		dissect_h245_H223Capability(h245_tvb, 0, &actx, megaco_tree, hf_megaco_h223Capability);
+	}
+}
 
 static void
 dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line,  gint tvb_RBRKT, gint tvb_previous_offset)
@@ -2467,14 +2548,14 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 	guint token_name_len;
 	gint tvb_offset,tvb_help_offset;
 	gint token_index = 0;
-
+	gchar *msg;
 
 	proto_tree  *megaco_LocalControl_tree, *megaco_LocalControl_ti;
 
 	tokenlen		= 0;
 	tvb_offset		= 0;
 	tvb_help_offset = 0;
-
+	
 
 	tokenlen = tvb_next_offset - tvb_current_offset;
 
@@ -2538,16 +2619,26 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 				tokenlen));
 
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			tokenlen = tvb_offset - tvb_help_offset;
+			msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
+			dissect_megaco_h324_h223caprn(tvb, pinfo, megaco_LocalControl_tree, tvb_help_offset, tokenlen, msg);
 
 			break;
 
 		case H324_MUXTBL_IN: /* h324/muxtbl_in */
+			
+
 			proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_muxtbl_in, tvb,
 				tvb_current_offset, tokenlen,
 				tvb_format_text(tvb, tvb_current_offset,
 				tokenlen));
 
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+
+			tokenlen = tvb_offset - tvb_help_offset;
+			msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
+			/* Call the existing rotine with tree = NULL to avoid an entry to the tree */
+			dissect_megaco_h245(tvb, pinfo, NULL, tvb_help_offset, tokenlen, msg);
 
 			break;
 
@@ -2651,7 +2742,7 @@ proto_register_megaco(void)
 		{ "h324/muxtbl_in", "megaco.h324_muxtbl_in", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/muxtbl_in", HFILL }},
 		{ &hf_megaco_h324_h223caprn,
-		{ "h324/muxtbl_in", "megaco._h324_h223caprn", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "h324/h223caprn", "megaco._h324_h223caprn", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/h223caprn", HFILL }},
 		{ &hf_megaco_reserve_value,
 		{ "Reserve Value", "megaco.reservevalue", FT_STRING, BASE_DEC, NULL, 0x0,
@@ -2698,6 +2789,11 @@ proto_register_megaco(void)
 		{ &hf_megaco_h245,
 		{ "h245", "megaco.h245", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Embedded H.245 message", HFILL }},
+		    { &hf_megaco_h223Capability,
+      { "h223Capability", "megaco.h245.h223Capability",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "megaco.h245.H223Capability", HFILL }},
+
 
 		/* Add more fields here */
 	};

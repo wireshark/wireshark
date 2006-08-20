@@ -8,6 +8,7 @@ T38FaxProfile
 DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
 QOSCapability
+H223Capability
 
 #.PDU
 OpenLogicalChannel
