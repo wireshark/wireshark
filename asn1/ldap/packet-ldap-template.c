@@ -213,7 +213,6 @@ typedef struct ldap_conv_info_t {
   GHashTable *unmatched;
   GHashTable *matched;
   gboolean is_mscldap;
-  gboolean first_time;
   guint32  num_results;
 } ldap_conv_info_t;
 static ldap_conv_info_t *ldap_info_items;
@@ -544,7 +543,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 		     gboolean rest_is_pad, gboolean is_mscldap)
 {
   int offset = 0;
-  gboolean first_time = TRUE;
   guint length_remaining;
   guint msg_len = 0;
   int messageOffset = 0;
@@ -555,12 +553,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   gboolean pc, ind = 0;
   gint32 ber_tag;
 
-  while (tvb_reported_length_remaining(tvb, offset) > 0) {
-    /*
-     * This will throw an exception if we don't have any data left.
-     * That's what we want.  (See "tcp_dissect_pdus()", which is
-     * similar)
-     */
     length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
     if (rest_is_pad && length_remaining < 6) return;
@@ -621,8 +613,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
      * Now dissect the LDAP message.
      */
 
-    /*dissect_ldap_message(msg_tvb, 0, pinfo, msg_tree, msg_item, first_time, ldap_info, is_mscldap);*/
-	ldap_info->first_time= first_time;
 	ldap_info->is_mscldap = is_mscldap;
 	pinfo->private_data = ldap_info;
 	dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree);
@@ -630,8 +620,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 
     offset += msg_len;
 
-    first_time = FALSE;
-  }
 }
 
 static void
@@ -695,17 +683,6 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     }
   }
 
-  while (tvb_reported_length_remaining(tvb, offset) > 0) {
-
-    /*
-     * This will throw an exception if we don't have any data left.
-     * That's what we want.  (See "tcp_dissect_pdus()", which is
-     * similar, but doesn't have to deal with the SASL issues.
-     * XXX - can we make "tcp_dissect_pdus()" provide enough information
-     * to the "get_pdu_len" routine so that we could have one dealing
-     * with the SASL issues, have that routine deal with SASL and
-     * ASN.1, and just use "tcp_dissect_pdus()"?)
-     */
     length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
     /* It might still be a packet containing a SASL security layer
@@ -914,10 +891,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     } else {
 	/* plain LDAP, so dissect the payload */
 	dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, FALSE, is_mscldap);
-	/* dissect_ldap_payload() has it's own loop so go out here */
-	break;
     }
-  }
 }
 
 static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
@@ -1172,11 +1146,11 @@ get_normal_ldap_pdu_len(tvbuff_t *tvb, int offset)
 	int data_offset;
 
 	/* normal ldap is tag+len bytes plus the length
-	 * offset==0 is where the tag is
-	 * offset==1 is where length starts
+	 * offset is where the tag is
+	 * offset+1 is where length starts
 	 */
-	data_offset=get_ber_length(NULL, tvb, 1, &len, &ind);
-	return len+data_offset;
+	data_offset=get_ber_length(NULL, tvb, offset+1, &len, &ind);
+	return len+data_offset-offset;
 }
 
 static void
@@ -1322,71 +1296,84 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint32 sasl_len;
+	guint32 gss_len;
+	guint32 ldap_len;
+	int offset;
+	gboolean ind;
+
         ldm_tree = NULL;
 
-	/* Here we must take care of reassembly but this is tricky since
-	 * depending on whether SASL is present or not, the heuristics
-	 * will be very different.
+	/* This is a bit tricky. We have to find out whether SASL is used
+	 * so that we know how big a header we are supposed to pass
+	 * to tcp_dissect_pdus()
 	 */
-	if(ldap_desegment && (tvb_length(tvb)==tvb_reported_length(tvb))){
-		guint32 len;
-
-		/* check for a SASL header, i.e. four byte integer where the
-		 * first two bytes are 0x00 and the value is <64k and >2
-		 * (>2 to fight false positives, 0x00000000 is a common
-		 *     "random" tcp payload)
-		 * (no SASL ldap PDUs are ever going to be >64k in size?)
-		 *
-		 * Following the SASL header is a GSSAPI blob so the next byte
-		 * is always 0x60. (only true for MS SASL LDAP, there are other
-		 * blobs that may follow in real-world)
-		 */
-		len=tvb_get_ntohl(tvb, 0);
-		if( (len<65535)
-		&&  (len>2)
-		&&  (tvb_get_guint8(tvb, 4)==0x60)){
-			if(len<=tvb_length_remaining(tvb, 4)){
-				/* we have a full ldap pdu */
-				dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-				return;
-			} else {
-				/* we have to do reassembly */
-				tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
-				return;
-			}
-		}
-		/* check if it is a normal BER encoded LDAP packet
-		 * i.e. first byte is 0x30 followed by a length that is
-		 * <64k
-		 * (no ldap PDUs are ever >64kb? )
-		 */
-		if(tvb_get_guint8(tvb, 0)==0x30){
-			gboolean ind;
-			int data_offset;
-
-			/* check that length makes sense */
-			data_offset=get_ber_length(NULL, tvb, 1, &len, &ind);
-
-			/* dont check ind since indefinite length is never used for ldap (famous last words)*/
-			if(len<2 || len>65535){
-				return;
-			}
-
-			if(len<=tvb_length_remaining(tvb, data_offset)){
-				/* we have a full ldap pdu */
-				dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-				return;
-			} else {
-				/* we have to do reassembly */
-				tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
-				return;
-			}
-		}
+	/* check for a SASL header, i.e. assume it is SASL if 
+	 * 1, first four bytes (SASL length) is an integer 
+	 *    with a value that must be <64k and >2
+	 *    (>2 to fight false positives, 0x00000000 is a common
+	 *        "random" tcp payload)
+	 * (no SASL ldap PDUs are ever going to be >64k in size?)
+	 *
+	 * Following the SASL header is a GSSAPI blob so the next byte
+	 * is always 0x60. (only true for MS SASL LDAP, there are other
+	 * blobs that may follow in real-world)
+	 *
+	 * 2, Then one byte with the value 0x60 indicating the GSSAPI blob
+	 *
+	 * 3, Then X bytes describing the BER encoded lengtyh of the blob.
+	 *    This length should point to the same end-of-pdu as 1,
+	 *
+	 * 4, finally a byte 0x06 indicating that the next object is an OID
+	 */
+	sasl_len=tvb_get_ntohl(tvb, 0);
+ 
+	if( (sasl_len>65535) 
+	||  (sasl_len<2) ){
+		goto this_was_not_sasl;
 	}
 
-	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+	if(tvb_get_guint8(tvb, 4)!=0x60){
+		goto this_was_not_sasl;
+	}
+		
+	offset=get_ber_length(NULL, tvb, 5, &gss_len, &ind);
+	if(sasl_len!=(gss_len+offset-4)){
+		goto this_was_not_sasl;
+	}
+
+	if(tvb_get_guint8(tvb, offset)!=0x06){
+		goto this_was_not_sasl;
+	}
+
+	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
+
+
+this_was_not_sasl:
+	/* check if it is a normal BER encoded LDAP packet
+	 * i.e. first byte is 0x30 followed by a length that is
+	 * <64k
+	 * (no ldap PDUs are ever >64kb? )
+	 */
+	if(tvb_get_guint8(tvb, 0)!=0x30){
+		goto this_was_not_normal_ldap;
+	}
+
+	/* check that length makes sense */
+	offset=get_ber_length(NULL, tvb, 1, &ldap_len, &ind);
+
+	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
+	if(ldap_len<2 || ldap_len>65535){
+		goto this_was_not_normal_ldap;
+	}
+
+	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
+
+
+this_was_not_normal_ldap:
+
 	return;
 }
 
@@ -1628,7 +1615,7 @@ void proto_register_ldap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
 
-  register_dissector("ldap", dissect_ldap, proto_ldap);
+  register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
 
   ldap_module = prefs_register_protocol(proto_ldap, NULL);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
@@ -1658,7 +1645,7 @@ void
 proto_reg_handoff_ldap(void)
 {
 	dissector_handle_t ldap_handle, cldap_handle;
-	ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
+	ldap_handle = create_dissector_handle(dissect_ldap_tcp, proto_ldap);
 
 	dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
 	dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
