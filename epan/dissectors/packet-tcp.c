@@ -308,7 +308,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
         struct tcp_multisegment_pdu *msp=NULL;
 
 	if(!pinfo->fd->flags.visited){
-		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
 		if(msp){
 			/* If this segment is completely within a previous PDU
 			 * then we just skip this packet
@@ -326,7 +326,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 
 		}
 	} else {
-		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
 		if(msp){
 			if(pinfo->fd->num==msp->first_frame){
 				proto_item *item;
@@ -355,7 +355,6 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			}
 		}
 	}
-
 	return offset;
 }
 
@@ -1083,7 +1082,7 @@ again:
 	deseg_offset = offset;
 
 	/* find the most previous PDU starting before this sequence number */
-	msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+	msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
 	if(msp && msp->seq<=seq && msp->nxtpdu>seq){
 		int len;
 
@@ -1537,7 +1536,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       RETHROW;
     }
     CATCH(ReportedBoundsError) {
-      show_reported_bounds_error(tvb, pinfo, tree);
+     show_reported_bounds_error(tvb, pinfo, tree);
     }
     ENDTRY;
 
