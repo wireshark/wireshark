@@ -595,11 +595,14 @@ GList* popdown_if_list = NULL;
 GList* curr = NULL;
 
 	gchar* s;
-	airpcap_if_info_t* if_info;
+	airpcap_if_info_t* if_info = NULL;
 
+    if(prefs.capture_device != NULL)
+    {
 	s = g_strdup(get_if_name(prefs.capture_device));
 	if_info = get_airpcap_if_by_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
 	g_free(s);
+    }
 	return if_info;
 }
 
