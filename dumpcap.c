@@ -379,6 +379,7 @@ main(int argc, char *argv[])
   if (argc != 0) {
     /*
      * Extra command line arguments were specified; complain.
+     * XXX - interpret as capture filter, as tcpdump and tshark do?
      */
     cmdarg_err("Invalid argument: %s", argv[0]);
     arg_error = TRUE;
