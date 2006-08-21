@@ -3,6 +3,9 @@
  *
  * $Id$
  *
+ * Giorgio Tino <giorgio.tino@cacetech.com>
+ * Copyright (c) CACE Technologies, LLC 2006
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -46,23 +49,23 @@ typedef BOOL (*AirpcapGetReadEventHandler)(PAirpcapHandle AdapterHandle, HANDLE*
 typedef BOOL (*AirpcapReadHandler)(PAirpcapHandle AdapterHandle, PBYTE Buffer, UINT BufSize, PUINT PReceievedBytes);
 typedef BOOL (*AirpcapGetStatsHandler)(PAirpcapHandle AdapterHandle, PAirpcapStats PStats);
 typedef BOOL (*AirpcapTurnLedOnHandler)(PAirpcapHandle  AdapterHandle, UINT  LedNumber);
-typedef BOOL (*AirpcapTurnLedOffHandler)(PAirpcapHandle  AdapterHandle, UINT  LedNumber);  
-typedef BOOL (*AirpcapSetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, UINT  Channel); 
-typedef BOOL (*AirpcapGetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, PUINT PChannel);  
-typedef BOOL (*AirpcapSetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, BOOL  IsFcsPresent); 
-typedef BOOL (*AirpcapGetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, PBOOL PIsFcsPresent);  
-typedef BOOL (*AirpcapSetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, AirpcapValidationType ValidationType); 
-typedef BOOL (*AirpcapGetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, PAirpcapValidationType PValidationType);  
-typedef BOOL (*AirpcapSetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection); 
-typedef BOOL (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize); 
-typedef BOOL (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable); 
-typedef BOOL (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable); 
+typedef BOOL (*AirpcapTurnLedOffHandler)(PAirpcapHandle  AdapterHandle, UINT  LedNumber);
+typedef BOOL (*AirpcapSetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, UINT  Channel);
+typedef BOOL (*AirpcapGetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, PUINT PChannel);
+typedef BOOL (*AirpcapSetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, BOOL  IsFcsPresent);
+typedef BOOL (*AirpcapGetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, PBOOL PIsFcsPresent);
+typedef BOOL (*AirpcapSetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, AirpcapValidationType ValidationType);
+typedef BOOL (*AirpcapGetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, PAirpcapValidationType PValidationType);
+typedef BOOL (*AirpcapSetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+typedef BOOL (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+typedef BOOL (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+typedef BOOL (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 typedef BOOL (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
 /*
  * The list of interfaces returned by "get_airpcap_interface_list()" is
  * a list of these structures.
  */
-typedef struct {	
+typedef struct {
 	char					*name;				/* e.g. "eth0" */
 	char					*description;		/* from OS, e.g. "Local Area Connection" or NULL */
 	GSList					*ip_addr;			/* containing address values of if_addr_t */
@@ -102,7 +105,7 @@ gchar*
 airpcap_get_if_string_number_from_description(gchar* description);
 
 /*
- * Function used to free the airpcap interface list 
+ * Function used to free the airpcap interface list
  */
 void
 free_airpcap_interface_list(GList *if_list);
@@ -122,55 +125,55 @@ airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah);
 /*
  * Function used to load the WEP keys for a selected interface
  */
-BOOL 
+BOOL
 airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
  * Function used to save the WEP keys for a selected interface
  */
-void 
+void
 airpcap_if_save_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
  * Airpcap wrapper, used to get the fcs validation of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val);
 
 /*
  * Airpcap wrapper, used to set the fcs validation of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val);
 
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState val);
 
 /*
  * Airpcap wrapper, used to set the decryption enabling of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState val);
 
 /*
  * Airpcap wrapper, used to get the fcs presence of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL ch);
 
 /*
  * Airpcap wrapper, used to set the fcs presence of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL ch);
 
 /*
  * Airpcap wrapper, used to get the link type of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt);
 
 /*
@@ -182,13 +185,13 @@ airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt);
 /*
  * Airpcap wrapper, used to get the channel of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch);
 
 /*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
-BOOL 
+BOOL
 airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch);
 
 /*
@@ -219,8 +222,8 @@ airpcap_if_info_t* airpcap_if_info_new(char *name, char *description);
 /* HAVE_AIRPCAP_API */
 
 /*
- *  Used to dinamically load the airpcap library in order link it only when 
- *  it's present on the system. 
+ *  Used to dinamically load the airpcap library in order link it only when
+ *  it's present on the system.
  */
 BOOL load_airpcap(void);
 
@@ -241,7 +244,7 @@ get_airpcap_interface_list(int *err, char *err_str);
 /*
  * Returns the ASCII string of a key given the key bites
  */
-gchar* 
+gchar*
 airpcap_get_key_string(AirpcapKey key);
 
 /*
@@ -260,14 +263,14 @@ airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info);
  * Used to retrieve the name of the interface given the description
  * (the name is used in AirpcapOpen, the description is put in the combo box)
  */
-gchar* 
+gchar*
 get_airpcap_name_from_description(GList* if_list, gchar* description);
 
 /*
- * Used to retrieve the airpcap_if_info_t of the selected interface given the 
+ * Used to retrieve the airpcap_if_info_t of the selected interface given the
  * description (that is the entry of the combo box).
  */
-gpointer 
+gpointer
 get_airpcap_if_from_description(GList* if_list, const gchar* description);
 
 /*
@@ -277,7 +280,7 @@ gchar*
 airpcap_get_if_string_number(airpcap_if_info_t* if_info);
 
 /*
- * Returns the default airpcap interface of a list, NULL if list is empty 
+ * Returns the default airpcap interface of a list, NULL if list is empty
  */
 airpcap_if_info_t*
 airpcap_get_default_if(GList* airpcap_if_list);

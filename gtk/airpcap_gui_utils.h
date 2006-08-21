@@ -3,6 +3,9 @@
  *
  * $Id$
  *
+ * Giorgio Tino <giorgio.tino@cacetech.com>
+ * Copyright (c) CACE Technologies, LLC 2006
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -34,14 +37,14 @@
 #define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO	"802.11 + Radio"
 #define AIRPCAP_LINK_TYPE_NAME_UNKNOWN					"Unknown"
 
-/* 
+/*
  * set up the airpcap toolbar for the new capture interface
  */
-void 
+void
 airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info);
 
 /*
- * Set up the airpcap toolbar for the new capture interface 
+ * Set up the airpcap toolbar for the new capture interface
  */
 void
 airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info);
@@ -53,7 +56,7 @@ void
 airpcap_add_key_to_list(GtkWidget *keylist, gchar* s);
 
 /*
- * Fill the list with the keys 
+ * Fill the list with the keys
  */
 void
 airpcap_fill_key_list(GtkWidget *keylist,airpcap_if_info_t* if_info);
@@ -71,7 +74,7 @@ gchar*
 airpcap_get_validation_name(AirpcapValidationType vt);
 
 /*
- * Returns the AirpcapLinkType corresponding to the given string name. 
+ * Returns the AirpcapLinkType corresponding to the given string name.
  */
 AirpcapLinkType
 airpcap_get_link_type(const gchar* name);
