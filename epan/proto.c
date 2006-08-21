@@ -5265,6 +5265,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
+		case FT_UINT_STRING:
 		case FT_FLOAT:
 		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
