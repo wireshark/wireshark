@@ -202,17 +202,17 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
         rs->cmdset=program;
         switch(program){
 	case SCSI_DEV_SBC:
-		rs->prog="SBC";
+		rs->prog="SBC (disk)";
 		rs->cdbnames=scsi_sbc2_vals;
 		hf_name="scsi.sbc.opcode";
 		break;
 	case SCSI_DEV_SSC:
-		rs->prog="SSC";
+		rs->prog="SSC (tape)";
 		rs->cdbnames=scsi_ssc2_vals;
 		hf_name="scsi.ssc.opcode";
 		break;
 	case SCSI_DEV_CDROM:
-		rs->prog="MMC";
+		rs->prog="MMC (cd/dvd)";
 		rs->cdbnames=scsi_mmc_vals;
 		hf_name="scsi.mmc.opcode";
 		break;
@@ -326,7 +326,7 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Program label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
-	prog_label=gtk_label_new("Program:");
+	prog_label=gtk_label_new("Commandset:");
 	gtk_box_pack_start(GTK_BOX(prog_box), prog_label, FALSE, FALSE, 0);
 	gtk_widget_show(prog_label);
 
@@ -335,20 +335,20 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	prog_menu=gtk_menu_new();
 
 	/* SBC */
-	menu_item=gtk_menu_item_new_with_label("SBC");
+	menu_item=gtk_menu_item_new_with_label("SBC (disk)");
 	SIGNAL_CONNECT(menu_item, "activate", scsistat_program_select, SCSI_DEV_SBC);
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
 
 
 	/* SSC */
-	menu_item=gtk_menu_item_new_with_label("SSC");
+	menu_item=gtk_menu_item_new_with_label("SSC (tape)");
 	SIGNAL_CONNECT(menu_item, "activate", scsistat_program_select, SCSI_DEV_SSC);
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
 
 	/* MMC */
-	menu_item=gtk_menu_item_new_with_label("MMC");
+	menu_item=gtk_menu_item_new_with_label("MMC (cd/dvd)");
 	SIGNAL_CONNECT(menu_item, "activate", scsistat_program_select, SCSI_DEV_CDROM);
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
