@@ -1792,8 +1792,10 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 
+#ifdef HAVE_AIRPCAP
 	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
+#endif
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Statusbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
