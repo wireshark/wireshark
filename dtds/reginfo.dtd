@@ -8,7 +8,7 @@ $Id$
 -->
 
 <!ELEMENT reginfo (registration)* >
-<!ATTLIST reginfo xmlns CDATA #REQUIRED
+<!ATTLIST reginfo xmlns CDATA #IMPLIED
                   version CDATA #REQUIRED
                   state CDATA #REQUIRED>
 
