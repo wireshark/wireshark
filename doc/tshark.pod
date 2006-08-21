@@ -36,6 +36,7 @@ S<[ B<-x> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt>]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
+S<[ E<lt>capture filterE<gt> ]>
 
 =head1 DESCRIPTION
 
