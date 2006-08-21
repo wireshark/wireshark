@@ -57,6 +57,7 @@ Specs:
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 /* protocol handles */
 static int proto_njack = -1;
@@ -520,12 +521,14 @@ verify_password(tvbuff_t *tvb, const char *password)
 	gboolean is_valid = TRUE;
 	const guint8	*packetdata;
 	guint32 length;
-	guint8	workbuffer[32];
+	guint8	*workbuffer;
 	guint	i;
 	guint8	byte;
 	md5_state_t md_ctx;
-	md5_byte_t digest[16];
+	md5_byte_t *digest;
 
+	workbuffer=ep_alloc(32);
+	digest=ep_alloc(16);
 
 	length = tvb_get_ntohs(tvb, 6);
 	packetdata = tvb_get_ptr(tvb, 0, length);

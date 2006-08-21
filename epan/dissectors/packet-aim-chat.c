@@ -85,9 +85,13 @@ static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, pro
 
 static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree _U_)
 {
-	char buddyname[MAX_BUDDYNAME_LENGTH+1];
-	guchar msg[1000];
-	int buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
+	char *buddyname;
+	guchar *msg;
+	int buddyname_length;
+
+	buddyname=ep_alloc(MAX_BUDDYNAME_LENGTH+1);
+	msg=ep_alloc(1000);
+	buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
 
 	/* channel message from client */
 	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
@@ -102,11 +106,15 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
 {
-	char buddyname[MAX_BUDDYNAME_LENGTH+1];
-	guchar msg[1000];
+	char *buddyname;
+	guchar *msg;
 	/* channel message to client */
-	int buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
+	int buddyname_length;
 	
+	buddyname=ep_alloc(MAX_BUDDYNAME_LENGTH+1);
+	msg=ep_alloc(1000);
+	buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
+
 	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
 					 - 36 - buddyname_length );
 
