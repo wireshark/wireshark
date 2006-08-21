@@ -450,35 +450,12 @@ const char *rpc_prog_name(guint32 prog)
 /* end of Hash array with program names */
 /*--------------------------------------*/
 
-typedef struct _rpc_call_info_key {
-	guint32	xid;
-	conversation_t *conversation;
-} rpc_call_info_key;
-
-static GHashTable *rpc_calls = NULL;
-
-static GHashTable *rpc_indir_calls = NULL;
-
-/* compare 2 keys */
-static gint
-rpc_call_equal(gconstpointer k1, gconstpointer k2)
-{
-	const rpc_call_info_key* key1 = (const rpc_call_info_key*) k1;
-	const rpc_call_info_key* key2 = (const rpc_call_info_key*) k2;
-
-	return (key1->xid == key2->xid &&
-	    key1->conversation == key2->conversation);
-}
-
-
-/* calculate a hash key */
-static guint
-rpc_call_hash(gconstpointer k)
-{
-	const rpc_call_info_key* key = (const rpc_call_info_key*) k;
-
-	return key->xid + GPOINTER_TO_UINT(key->conversation);
-}
+/* One of these structures are created for each conversation that contains
+ * RPC and contains the state we need to maintain for the conversation.
+ */
+typedef struct _rpc_conv_info_t {
+        emem_tree_t *xids;
+} rpc_conv_info_t;
 
 
 unsigned int
@@ -1338,10 +1315,12 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /*
  * Dissect the arguments to an indirect call; used by the portmapper/RPCBIND
- * dissector.
+ * dissector for the CALLIT procedure.
  *
- * Record this call in a hash table, similar to the hash table for
- * direct calls, so we can find it when dissecting an indirect call reply.
+ * Record these in the same table as the direct calls
+ * so we can find it when dissecting an indirect call reply.
+ * (There should not be collissions between xid between direct and 
+ *  indirect calls.)
  */
 int
 dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1352,9 +1331,9 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
 	rpc_call_info_value *rpc_call;
-	rpc_call_info_key rpc_call_key;
-	rpc_call_info_key *new_rpc_call_key;
 	dissect_function_t *dissect_function = NULL;
+	rpc_conv_info_t *rpc_conv_info=NULL;
+	guint32 xid;
 
 	key.prog = prog;
 	key.vers = vers;
@@ -1414,30 +1393,37 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    0, NO_ADDR2|NO_PORT2);
 			}
 		}
+		/*
+		 * Do we already have a state structure for this conv
+		 */
+		rpc_conv_info = conversation_get_proto_data(conversation, proto_rpc);
+		if (!rpc_conv_info) {
+			/* No.  Attach that information to the conversation, and add
+			 * it to the list of information structures.
+			 */
+			rpc_conv_info = se_alloc(sizeof(rpc_conv_info_t));
+			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+
+			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
+		}
 
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
 		conversation_set_dissector(conversation,
 		    (pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
-		/* Prepare the key data.
-
-		   Dissectors for RPC procedure calls and replies shouldn't
+		/* Dissectors for RPC procedure calls and replies shouldn't
 		   create new tvbuffs, and we don't create one ourselves,
 		   so we should have been handed the tvbuff for this RPC call;
 		   as such, the XID is at offset 0 in this tvbuff. */
-		rpc_call_key.xid = tvb_get_ntohl(tvb, 0);
-		rpc_call_key.conversation = conversation;
-
 		/* look up the request */
-		rpc_call = g_hash_table_lookup(rpc_indir_calls, &rpc_call_key);
+		xid = tvb_get_ntohl(tvb, offset + 0);
+		rpc_call = se_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call == NULL) {
 			/* We didn't find it; create a new entry.
 			   Prepare the value data.
 			   Not all of it is needed for handling indirect
 			   calls, so we set a bunch of items to 0. */
-			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
-			*new_rpc_call_key = rpc_call_key;
 			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = 0;
@@ -1455,8 +1441,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->gss_svc = 0;
 			rpc_call->proc_info = value;
 			/* store it */
-			g_hash_table_insert(rpc_indir_calls, new_rpc_call_key,
-			    rpc_call);
+			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 	}
 	else {
@@ -1493,13 +1478,14 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, 0, NULL };
-	rpc_call_info_key rpc_call_key;
 	rpc_call_info_value *rpc_call;
 	char *procname=NULL;
 	dissect_function_t *dissect_function = NULL;
+	rpc_conv_info_t *rpc_conv_info=NULL;
+	guint32 xid;
 
-	/* Look for the matching call in the hash table of indirect
-	   calls.  A reply must match a call that we've seen, and the
+	/* Look for the matching call in the xid table.
+	   A reply must match a call that we've seen, and the
 	   reply must be sent to the same address that the call came
 	   from, and must come from the port to which the call was sent.
 
@@ -1539,11 +1525,22 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    offset);
 		return offset;
 	}
+	/*
+	 * Do we already have a state structure for this conv
+	 */
+	rpc_conv_info = conversation_get_proto_data(conversation, proto_rpc);
+	if (!rpc_conv_info) {
+		/* No.  Attach that information to the conversation, and add
+		 * it to the list of information structures.
+		 */
+		rpc_conv_info = se_alloc(sizeof(rpc_conv_info_t));
+		rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+		conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
+	}
 
 	/* The XIDs of the call and reply must match. */
-	rpc_call_key.xid = tvb_get_ntohl(tvb, 0);
-	rpc_call_key.conversation = conversation;
-	rpc_call = g_hash_table_lookup(rpc_indir_calls, &rpc_call_key);
+	xid = tvb_get_ntohl(tvb, 0);
+	rpc_call = se_tree_lookup32(rpc_conv_info->xids, xid);
 	if (rpc_call == NULL) {
 		/* The XID doesn't match a call from that
 		   conversation, so it's probably not an RPC reply.
@@ -1684,7 +1681,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 rpc_rm, gboolean first_pdu)
 {
 	guint32	msg_type;
-	rpc_call_info_key rpc_call_key;
 	rpc_call_info_value *rpc_call = NULL;
 	rpc_prog_info_value *rpc_prog = NULL;
 	rpc_prog_info_key rpc_prog_key;
@@ -1722,7 +1718,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *ptree = NULL;
 	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
 
-	rpc_call_info_key	*new_rpc_call_key;
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
@@ -1731,6 +1726,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	dissect_function_t *dissect_function = NULL;
 	gboolean dissect_rpc = TRUE;
+
+	rpc_conv_info_t *rpc_conv_info=NULL;
 
 
 	/*
@@ -1845,11 +1842,23 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   so we can't check for a reply to that call. */
 			return FALSE;
 		}
+		/*
+		 * Do we already have a state structure for this conv
+		 */
+		rpc_conv_info = conversation_get_proto_data(conversation, proto_rpc);
+		if (!rpc_conv_info) {
+			/* No.  Attach that information to the conversation, and add
+			 * it to the list of information structures.
+			 */
+			rpc_conv_info = se_alloc(sizeof(rpc_conv_info_t));
+			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+
+			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
+		}
 
 		/* The XIDs of the call and reply must match. */
-		rpc_call_key.xid = tvb_get_ntohl(tvb, offset + 0);
-		rpc_call_key.conversation = conversation;
-		rpc_call = g_hash_table_lookup(rpc_calls, &rpc_call_key);
+		xid = tvb_get_ntohl(tvb, offset + 0);
+		rpc_call = se_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
@@ -1861,8 +1870,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 			/* in parse-partials, so define a dummy conversation for this reply */
-			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
-			*new_rpc_call_key = rpc_call_key;
 			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = pinfo->fd->num;
@@ -1870,7 +1877,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->vers = 0;
 			rpc_call->proc = 0;
 			rpc_call->private_data = NULL;
-			rpc_call->xid = rpc_call_key.xid;
+			rpc_call->xid = xid;
 			rpc_call->flavor = FLAVOR_NOT_GSSAPI;  /* total punt */
 			rpc_call->gss_proc = 0;
 			rpc_call->gss_svc = 0;
@@ -1878,7 +1885,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
-			g_hash_table_insert(rpc_calls, new_rpc_call_key, rpc_call);
+			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 
 			/* and fake up a matching program */
 			rpc_prog_key.prog = rpc_call->prog;
@@ -2117,18 +2124,28 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    0, NO_ADDR2|NO_PORT2);
 			}
 		}
+		/*
+		 * Do we already have a state structure for this conv
+		 */
+		rpc_conv_info = conversation_get_proto_data(conversation, proto_rpc);
+		if (!rpc_conv_info) {
+			/* No.  Attach that information to the conversation, and add
+			 * it to the list of information structures.
+			 */
+			rpc_conv_info = se_alloc(sizeof(rpc_conv_info_t));
+			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+
+			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
+		}
+
 
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
 		conversation_set_dissector(conversation,
 			(pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
-		/* prepare the key data */
-		rpc_call_key.xid = xid;
-		rpc_call_key.conversation = conversation;
-
 		/* look up the request */
-		rpc_call = g_hash_table_lookup(rpc_calls, &rpc_call_key);
+		rpc_call = se_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call) {
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
@@ -2156,8 +2173,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   frame numbers are 1-origin, so we use 0
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
-			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
-			*new_rpc_call_key = rpc_call_key;
 			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = pinfo->fd->num;
 			rpc_call->rep_num = 0;
@@ -2173,8 +2188,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
-			g_hash_table_insert(rpc_calls, new_rpc_call_key,
-			    rpc_call);
+			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 
 		if(rpc_call && rpc_call->rep_num){
@@ -3516,21 +3530,11 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rpc_init_protocol(void)
 {
-	if (rpc_calls != NULL) {
-		g_hash_table_destroy(rpc_calls);
-		rpc_calls = NULL;
-	}
-	if (rpc_indir_calls != NULL) {
-		g_hash_table_destroy(rpc_indir_calls);
-		rpc_indir_calls = NULL;
-	}
 	if (rpc_reassembly_table != NULL) {
 		g_hash_table_destroy(rpc_reassembly_table);
 		rpc_reassembly_table = NULL;
 	}
 
-	rpc_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
-	rpc_indir_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
 	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
 	    rpc_fragment_equal);
 
