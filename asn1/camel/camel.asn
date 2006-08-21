@@ -2977,10 +2977,10 @@ ExtensionContainer ::=   SEQUENCE
 
 -- ReleaseSMSArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times
-ReleaseSMSArg ::=
+ReleaseSMSArg ::= RPCause
 
 
-OCTET STRING (SIZE (1))
+--OCTET STRING (SIZE (1))
 
 -- ApplyChargingGPRSArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times

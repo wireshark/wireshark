@@ -129,6 +129,23 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS RPCause
+	VAL_PTR = &camel_tvb
+
+#.FN_BODY RPCause
+
+       tvbuff_t *camel_tvb;
+       guint8 Cause_value;
+
+%(DEFAULT_BODY)s
+
+       if (camel_tvb)
+           dissect_RP_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_RP_Cause, &Cause_value);
+
+       return offset;
+#.END
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY DateAndTime
 
 

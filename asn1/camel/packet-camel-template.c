@@ -87,6 +87,8 @@ static int hf_camel_PDPTypeNumber_ietf = -1;
 static int hf_camel_PDPAddress_IPv4 = -1;
 static int hf_camel_PDPAddress_IPv6 = -1;
 static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
+static int hf_camel_RP_Cause = -1;
+
 #include "packet-camel-hf.c"
 static guint global_tcap_itu_ssn = 0;
 
@@ -122,6 +124,8 @@ static guint8 PDPTypeNumber;
 
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static guint8 dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, guint len,
+				  proto_tree *tree, int hf_cause_value, guint8 *cause_value);
 
 static const true_false_string camel_extension_value = {
   "No Extension",
@@ -182,6 +186,34 @@ static const value_string camel_number_plan_values[] = {
 };
 
 /* End includes from old" packet-camel.c */
+
+static const value_string camel_RP_Cause_values[] = {
+  { 1, "Unassigned (unallocated) number" },
+  { 8, "Operator determined barring" },
+  { 10, "Call barred" },
+  { 11, "Reserved" },
+  { 21, "Short message transfer rejected" },
+  { 27, "Destination out of order" },
+  { 28, "Unidentified subscriber" },
+  { 29, "Facility Rejected" },
+  { 30, "Unknown subscriber" },
+  { 38, "Network out of order" },
+  { 41, "Temporary failure" },
+  { 42, "Congestion" },
+  { 47, "Resources unavailable, unspecified" },
+  { 50, "Requested facility not subscribed" },
+  { 69, "Requested facility not implemented" },
+  { 81, "Invalid short message transfer reference value" },
+  { 95, "Semantically incorrect message" },
+  { 96, "Invalid mandatory information" },
+  { 97, " Message Type non-existent or not implemented" },
+  { 98, "Message not compatible with short message protocol state" },
+  { 99, "Information element non existent or not implemented" },
+  { 111, "Protocol error, unspecified" },
+  { 127, "Interworking, unspecified" },
+  { 22,"Memory capacity exceeded" },
+  { 0, NULL }
+};
 
 #include "packet-camel-fn.c"
 
@@ -250,6 +282,41 @@ char camel_number_to_char(int number)
    return (char) (number + 48 ); /* this is ASCII specific */
    else
    return (char) (number + 55 );
+}
+
+/*
+ * 24.011 8.2.5.4
+ */   
+static guint8
+dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, guint len,
+		    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
+{
+  guint8	oct;
+  guint32	curr_offset;
+  static char a_bigbuf[1024];
+  
+  curr_offset = offset;
+  oct = tvb_get_guint8(tvb, curr_offset);
+
+  *cause_value = oct & 0x7f; 
+  
+  other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+  proto_tree_add_uint_format(tree, hf_cause_value,
+			     tvb, curr_offset, 1, *cause_value,
+			     "%s : %s",
+			     a_bigbuf,
+			     val_to_str(*cause_value, camel_RP_Cause_values, 
+					"Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
+  curr_offset++;
+  
+  if ((oct & 0x80)) {
+    oct = tvb_get_guint8(tvb, curr_offset);
+    proto_tree_add_uint_format(tree, hf_cause_value,
+			       tvb, curr_offset, 1, oct,
+			       "Diagnostic : %u", oct);
+    curr_offset++;
+  }
+  return(curr_offset - offset);
 }
 
 static guint32 opcode=0;
@@ -360,7 +427,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     /* ContinueSMS: no arguments - do nothing */
     break;
   case 66: /*ReleaseSMS*/
-    offset=dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, pinfo, tree, hf_camel_RP_Cause);
     break;
   case 67: /*ResetTimerSMS*/
     offset=dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -722,10 +789,14 @@ void proto_register_camel(void) {
       { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
 	  FT_IPv6, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
-    { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
+   { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
       { "CellGlobalIdOrServiceAreaIdFixedLength", "camel.CellGlobalIdOrServiceAreaIdFixedLength",
         FT_BYTES, BASE_HEX, NULL, 0,
         "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
+  { &hf_camel_RP_Cause,
+      { "RP Cause",  "camel.RP_Cause",
+      FT_UINT8, BASE_DEC, NULL, 0,
+	"RP Cause Value", HFILL }},
 
 #ifdef REMOVED
 #endif
