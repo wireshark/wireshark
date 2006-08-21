@@ -1216,6 +1216,9 @@ static int hf_gsm_a_tft_security = -1;
 static int hf_gsm_a_tft_traffic_mask = -1;
 static int hf_gsm_a_tft_flow = -1;
 
+static int hf_gsm_a_apdu_protocol_id = -1;
+static int hf_gsm_a_lsa_id = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
 static gint ett_dtap_msg = -1;
@@ -1907,7 +1910,8 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, len - (curr_offset - offset),
-	"Key");
+			"Key: %s",
+			tvb_bytes_to_str(tvb, curr_offset, len-(curr_offset-offset) ));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -2835,7 +2839,7 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     
     /* no length check possible */
    	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-
+        curr_offset++;	
     return(curr_offset - offset);
 }
 
@@ -3132,8 +3136,22 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 }
 
 /*
- * [2] 3.2.2.68
+ * 3.2.2.68 3GPP TS 48.008 version 6.9.0 Release 6
  */
+
+/* BSSLAP the embedded message is as defined in 3GPP TS 48.071
+ * LLP the embedded message contains a Facility Information Element as defined in 3GPP TS 44.071
+ *		excluding the Facility IEI and length of Facility IEI octets defined in 3GPP TS 44.071.
+ * SMLCPP the embedded message is as defined in 3GPP TS 48.031
+ */
+static const value_string gsm_a_apdu_protocol_id_strings[] = {
+    { 0,	"reserved" },
+    { 1,	"BSSLAP" },
+    { 2,	"LLP" },
+    { 3,	"SMLCPP" },
+    { 0, NULL },
+};
+
 static guint8
 be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -3142,12 +3160,17 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
-	"APDU");
+	"APDU (not displayed)");
 
     /*
      * dissect the embedded APDU message
      * if someone writes a TS 09.31 dissector
+	 *
+	 * The APDU octets 4 to n are coded in the same way as the 
+	 * equivalent octet in the APDU element of 3GPP TS 49.031.
      */
+
+	proto_tree_add_item(tree, hf_gsm_a_apdu_protocol_id, tvb, curr_offset, 1, FALSE);
 
     curr_offset += len;
 
@@ -5304,7 +5327,8 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, AUTH_PARAM_RAND_LEN,
-	"RAND value");
+			"RAND value: %s",
+			tvb_bytes_to_str(tvb, curr_offset, AUTH_PARAM_RAND_LEN));
 
     curr_offset += AUTH_PARAM_RAND_LEN;
 
@@ -5325,7 +5349,8 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, len,
-	"AUTN value");
+	"AUTN value: %s",
+	tvb_bytes_to_str(tvb, curr_offset, len));
 
     curr_offset += len;
 
@@ -5348,13 +5373,14 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * 4 octets == 32 bits
  */
-#define	AUTH_PARAM_RESP_LEN	4
+#define	AUTH_PARAM_SRES_LEN	4
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, AUTH_PARAM_RESP_LEN,
-	"SRES value");
+	tvb, curr_offset, AUTH_PARAM_SRES_LEN,
+			"SRES value: %s",
+			tvb_bytes_to_str(tvb, curr_offset, AUTH_PARAM_SRES_LEN));
 
-    curr_offset += AUTH_PARAM_RESP_LEN;
+    curr_offset += AUTH_PARAM_SRES_LEN;
 
     /* no length check possible */
 
@@ -5373,7 +5399,8 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, len,
-	"RES (extension) value");
+	 "XRES value: %s",
+	 tvb_bytes_to_str(tvb, curr_offset, len));
 
     curr_offset += len;
 
@@ -5394,7 +5421,8 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, len,
-	"AUTS value");
+	"AUTS value: %s",
+	tvb_bytes_to_str(tvb, curr_offset, len));
 
     curr_offset += len;
 
@@ -5658,7 +5686,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 }
 
 /*
- * [3] 10.5.3.11
+ * [3] 10.5.3.11 3GPP TS 24.008 version 6.8.0 Release 6
  */
 static guint8
 de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -5667,9 +5695,11 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, len,
-	"LSA ID");
+	if (len == 0){
+		proto_tree_add_text(tree,tvb, curr_offset, len,"LSA ID not included");
+	}else{
+		proto_tree_add_item(tree, hf_gsm_a_lsa_id, tvb, curr_offset, 3, FALSE);
+	}
 
     curr_offset += len;
 
@@ -8210,7 +8240,7 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 }
 
 /*
- * [5] 8.1.4.1
+ * [5] 8.1.4.1 3GPP TS 24.011 version 6.1.0 Release 6
  */
 static guint8
 de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -8221,7 +8251,7 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
-	"RPDU");
+	"RPDU (not displayed)");
 
     /*
      * dissect the embedded RP message
@@ -8341,7 +8371,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
-	"TPDU");
+	"TPDU (not displayed)");
 
     /*
      * dissect the embedded TPDU message
@@ -13882,9 +13912,9 @@ bssmap_paging(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID_LIST].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID_LIST, "");
 
-    ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CHAN_NEEDED].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHAN_NEEDED, "");
+    ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHAN_NEEDED].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHAN_NEEDED, "");
 
-    ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_EMLPP_PRIO].value, BSSAP_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, "");
+    ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_EMLPP_PRIO].value, BSSAP_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -19109,6 +19139,16 @@ proto_register_gsm_a(void)
 	{ "P-TMSI Signature 2", "gsm_a.ptmsi_sig2", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"P-TMSI Signature 2", HFILL }},
 
+	{ &hf_gsm_a_apdu_protocol_id,
+		{ "Protocol ID", "gsm_a.apdu_protocol_id", 
+		FT_UINT8, BASE_DEC, VALS(gsm_a_apdu_protocol_id_strings), 0x0,
+		"APDU embedded protocol id", HFILL }
+	},
+	{ &hf_gsm_a_lsa_id,
+		{ "LSA Identifier", "gsm_a.lsa_id", 
+		FT_UINT24, BASE_HEX, NULL, 0x0,
+		"LSA Identifier", HFILL }
+	},
     };
 
     /* Setup protocol subtree array */
