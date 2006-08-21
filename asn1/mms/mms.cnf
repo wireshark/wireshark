@@ -30,3 +30,15 @@ MMSpdu
 
 #.FN_BODY ApplicationReference/ae-invocation-id
   offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, pinfo, tree, hf_mms_ae_invocation_id);
+
+#.FN_BODY MMSpdu
+  gint branch_taken;
+
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 MMSpdu_choice, hf_index, ett_mms_MMSpdu,
+                                 &branch_taken);
+
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", val_to_str(branch_taken, mms_MMSpdu_vals, "Unknown"));
+
+

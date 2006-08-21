@@ -3928,6 +3928,7 @@ dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, pinfo, tree, hf_mms_ae_invocation_id);
 
 
+
   return offset;
 }
 static int dissect_ae_invocation_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -9562,9 +9563,18 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 35 "mms.cnf"
+  gint branch_taken;
+
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  MMSpdu_choice, hf_index, ett_mms_MMSpdu,
-                                 NULL);
+                                 &branch_taken);
+
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(branch_taken, mms_MMSpdu_vals, "Unknown"));
+
+
+
 
   return offset;
 }
