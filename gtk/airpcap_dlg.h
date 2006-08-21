@@ -3,6 +3,9 @@
  *
  * $Id$
  *
+ * Giorgio Tino <giorgio.tino@cacetech.com>
+ * Copyright (c) CACE Technologies, LLC 2006
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -52,8 +55,8 @@ airpcap_ask_for_save(GtkWidget *entry _U_, gpointer data);
 
 /*
  * Function used to change the selected interface and advanced dialog box
- */ 
-void 
+ */
+void
 airpcap_change_if(GtkWidget *entry _U_, gpointer data);
 
 /*
@@ -106,12 +109,12 @@ key_sel_list_cb(GtkWidget *l, gpointer data _U_);
 
 /*
  * Callback function for WEP key list
- */ 
+ */
 static gint
 key_sel_list_button_cb(GtkWidget *widget, GdkEventButton *event,gpointer func_data);
 
 /*
- * Activate callback for the adapter combobox 
+ * Activate callback for the adapter combobox
  */
 static void
 combo_if_activate_cb(GtkWidget *w _U_, gpointer data);
@@ -123,7 +126,7 @@ static void
 airpcap_advanced_combo_if_changed_cb(GtkWidget *w _U_, gpointer data);
 
 /*
- * Pop-up window that appears when user confirms the "Save settings..." dialog 
+ * Pop-up window that appears when user confirms the "Save settings..." dialog
  */
 static void
 airpcap_dialog_save_cb(GtkWidget* dialog _U_, gint btn, gpointer data);

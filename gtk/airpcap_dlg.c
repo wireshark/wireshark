@@ -2,7 +2,8 @@
  *
  * $Id$
  *
- * Ulf Lamping <ulf.lamping@web.de>
+ * Giorgio Tino <giorgio.tino@cacetech.com>
+ * Copyright (c) CACE Technologies, LLC 2006
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
