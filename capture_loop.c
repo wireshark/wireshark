@@ -1112,6 +1112,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.packet_cb          = capture_loop_packet_cb;
 
 
+  /*
+   * Some older Linux versions of libpcap don't work right without
+   * a capture filter; if none was specified, use an empty string.
+   * (Yes, that's a libpcap bug, and has been fixed for a while.)
+   */
+  if (capture_opts->cfilter == NULL)
+    capture_opts->cfilter = g_strdup("");
+
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
