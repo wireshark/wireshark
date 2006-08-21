@@ -2052,16 +2052,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      length_remaining;
   gboolean   desegment_ok;
   struct tcpinfo tcpinfo;
-  static struct tcpheader tcphstruct[4], *tcph;
-  static int tcph_count=0;
+  struct tcpheader *tcph;
   proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
   struct tcp_analysis *tcpd=NULL;
 
-  tcph_count++;
-  if(tcph_count>=4){
-     tcph_count=0;
-  }
-  tcph=&tcphstruct[tcph_count];
+  tcph=ep_alloc(sizeof(struct tcpheader));
   SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&tcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
