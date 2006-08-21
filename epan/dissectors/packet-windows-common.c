@@ -1365,7 +1365,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str);
 
           if(rid_present){
-            char *rid_name;
+            const char *rid_name;
             proto_item *it;
 
             it=proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
