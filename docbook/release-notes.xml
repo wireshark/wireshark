@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.3pre1">
+  <!ENTITY WiresharkCurrentVersion "0.99.3">
 
 ]>
 
@@ -52,22 +52,23 @@ Wireshark Info
 
         <listitem><para>
 	  The DHCP dissector (and possibly others) in the Windows version of
-          Wireshark could trigger a bug in Glib and crash
+          Wireshark could trigger a bug in Glib and crash.
 	  <!-- Fixed in r18883 -->
 	  <!-- Bug IDs: 1025 -->
+          <!-- Gnome bug ID: 351034 -->
 	  Versions affected: 0.10.13.
         </para></listitem>
 
       </itemizedlist>
 
     </para>
-    
+
     <para>
-    
+
     The following bugs have been fixed:
-    
+
     <itemizedlist>
-    
+
       <listitem><para>
         The VOIP call analysis feature could cause an assertion.
       </listitem></para>
@@ -120,7 +121,7 @@ JPEG (RTP payload),
 Pegasus Lightweight Stream Control,
 Pro-MPEG FEC,
 UMTS RRC,
-Veritas Low Latency Transport,
+Veritas Low Latency Transport
 
     </para>
     </section>
@@ -128,7 +129,7 @@ Veritas Low Latency Transport,
     <section><title>Updated Protocol Support</title> <para>
 
 All ASN.1 dissectors,
-    
+
 3G A11,
 802.11,
 AIM SST,
@@ -137,8 +138,8 @@ ANSI 637,
 AVS WLAN,
 BACapp,
 BFD,
-Cisco WIDS,
 CDP,
+Cisco WIDS,
 DCERPC (DCERPC, CONV, DFS, EPM, FLDB, NETLOGON, NT, PN-IO, RS_PGO),
 DCOM,
 DHCP,
@@ -164,8 +165,8 @@ Prism,
 RSVP,
 RTCP,
 RUDP,
-SCTP,
 SCSI,
+SCTP,
 SDP,
 SIP,
 SIPFRAG,
@@ -175,7 +176,7 @@ SSL,
 TCP,
 text/media,
 Time,
-XML,
+XML
 
 
     </para>
@@ -185,8 +186,8 @@ XML,
     <para>
 
 Catapult DCT2000,
-nettl,
-    
+nettl
+
     </para>
     </section>
 
