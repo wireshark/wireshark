@@ -330,7 +330,6 @@ static int hf_rtcp_app_poc1_ssrc_granted	= -1;
 static int hf_rtcp_app_poc1_last_pkt_seq_no = -1;
 static int hf_rtcp_app_poc1_ignore_seq_no = -1;
 static int hf_rtcp_app_poc1_reason_code1	= -1;
-static int hf_rtcp_app_poc1_item_len		= -1;
 static int hf_rtcp_app_poc1_reason1_phrase	= -1;
 static int hf_rtcp_app_poc1_reason_code2	= -1;
 static int hf_rtcp_app_poc1_new_time_request	= -1;
@@ -968,17 +967,13 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					                           "Unknown"));
 				}
 
-				/* Item length, 8 bits */
-				item_len = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_item_len, tvb, offset, 1, FALSE );
-				offset++;
-				packet_len--;
-
 				/* Reason phrase */
+				item_len = tvb_get_guint8( tvb, offset );
 				if ( item_len != 0 )
-					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, item_len, FALSE );
-				offset += item_len;
-				packet_len -= item_len;
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, FALSE );
+
+				offset += (item_len+1);
+				packet_len -= (item_len+1);
 				}
 				break;
 
@@ -1138,7 +1133,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 				/* Show how many flags were set */
 				proto_item_append_text(content, " (%u items)", items_set);
-				
+
 				/* Session type */
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_session_type, tvb, offset + 2, 1, FALSE );
 
@@ -2930,23 +2925,11 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_app_poc1_item_len,
-			{
-				"Item length",
-				"rtcp.app.poc1.item.len",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"", HFILL
-			}
-		},
-		{
 			&hf_rtcp_app_poc1_reason1_phrase,
 			{
 				"Reason Phrase",
 				"rtcp.app.poc1.reason.phrase",
-				FT_STRING,
+				FT_UINT_STRING,
 				BASE_NONE,
 				NULL,
 				0x0,
