@@ -57,6 +57,8 @@
 #include "packet-gsm_a.h"
 #include "packet-e212.h"
 
+static void init_bssap(void);
+
 #define BSSAP 0
 #define BSAP  1
 
@@ -100,7 +102,8 @@ static const value_string bsap_pdu_type_acro_values[] = {
 #define SPARE_MASK		0x38
 #define SAPI_MASK		0x07
 
-#define SCCP_SSN_BSSAP_PLUS 98
+static guint global_bssap_ssn = 98;
+static guint global_bssap_old_ssn = 98;
 
 static const value_string bssap_cc_values[] = {
     { 0x00,		"not further specified" },
@@ -354,6 +357,7 @@ static gint ett_bssap_plmn = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_handle;
+static dissector_handle_t bssap_plus_handle;
 
 static dissector_table_t bssap_dissector_table;
 static dissector_table_t bsap_dissector_table;
@@ -2488,19 +2492,30 @@ proto_register_bssap(void)
 	bssap_or_bsap_options,
 	FALSE);
 
+    prefs_register_uint_preference(bssap_module, "ssn",
+				   "Subsystem number used for BSSAP",
+				   "Set Subsystem number used for BSSAP/BSSAP+",
+				   10, &global_bssap_ssn);
+    global_bssap_old_ssn=global_bssap_ssn;
     bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", FT_UINT8, BASE_DEC);
     bsap_dissector_table = register_dissector_table("bsap.pdu_type", "BSAP Message Type", FT_UINT8, BASE_DEC);
+    register_init_routine(&init_bssap);
+}
+
+static void init_bssap(void) {
+  dissector_delete("sccp.ssn", global_bssap_old_ssn, bssap_plus_handle); 
+  dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
+  global_bssap_old_ssn=global_bssap_ssn;
 }
 
 void
 proto_reg_handoff_bssap(void)
 {
-	dissector_handle_t	bssap_plus_handle;
 
     heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
 	/* BSSAP+ */
 	bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
-	dissector_add("sccp.ssn", SCCP_SSN_BSSAP_PLUS, bssap_plus_handle);
+	dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
 
     data_handle = find_dissector("data");
 	rrlp_handle = find_dissector("rrlp");
