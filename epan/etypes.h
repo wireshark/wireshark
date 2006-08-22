@@ -260,6 +260,10 @@
 #define ETHERTYPE_AOE           0x88A2
 #endif
 
+#ifndef ETHERTYPE_EPL_V2
+#define ETHERTYPE_EPL_V2        0x88AB
+#endif
+
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE
 #endif

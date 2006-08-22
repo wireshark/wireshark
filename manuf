@@ -6506,13 +6506,24 @@
 00:19:5D	ShenzhenXi             # ShenZhen XinHuaTong Opto Electronics Co.,Ltd
 00:19:5E	MotorolaCh             # Motorola CHS
 00:19:5F	ValemountN             # Valemount Networks Corporation
-00:19:60	Opticom                # Opticom Inc.
+00:19:60	Docomo                 # DoCoMo Systems, Inc.
 00:19:61	Blaupunkt              # Blaupunkt GmbH
 00:19:62	Commercian             # Commerciant, LP
 00:19:63	SonyEricss             # Sony Ericsson Mobile Communications AB
 00:19:64	Doorking               # Doorking Inc.
 00:19:65	YuhuaTelte             # YuHua TelTech (ShangHai) Co., Ltd.
 00:19:66	AsiarockTe             # Asiarock Technology Limited
+00:19:67	TeldatSpJ              # TELDAT Sp.J.
+00:19:68	DigitalVid             # Digital Video Networks(Shanghai) CO. LTD.
+00:19:69	Nortel
+00:19:6A	Mikrom                 # MikroM GmbH
+00:19:6B	Danpex                 # Danpex Corporation
+00:19:6C	Etrovision             # ETROVISION TECHNOLOGY
+00:19:6D	RaybitKore             # Raybit Systems Korea, Inc
+00:19:6E	Metacom
+00:19:6F	Sensopart              # SensoPart GmbH
+00:19:70	Z-Com                  # Z-Com, Inc.
+00:19:71	GuangzhouU             # Guangzhou Unicomp Technology Co.,Ltd
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
 00:20:01	DspSolutio             # DSP SOLUTIONS, INC.
@@ -9646,6 +9657,10 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 01-00-81-00-00-02	Synoptics-Network-Management
 01-00-81-00-01-00	Bay-Networks-(Synoptics)-autodiscovery
 01-00-81-00-01-01	Bay-Networks-(Synoptics)-autodiscovery
+01-11-1E-00-00-01	EPLv2_SoC
+01-11-1E-00-00-02	EPLv2_PRes
+01-11-1E-00-00-03	EPLv2_SoA
+01-11-1E-00-00-04	EPLv2_ASnd
 01-20-25/25		Control-Technology-Inc's-Industrial-Ctrl-Proto.
 01-80-24-00-00-00	Kalpana-Etherswitch-every-60-seconds
 01-80-C2-00-00-00/44	Spanning-tree-(for-bridges)
