@@ -60,8 +60,13 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  The Q.2931 dissector could use up available memory.
+	  If the SSCOP dissector has a port range configured
+	  <emphasis>and</emphasis> the SSCOP payload protocol is
+	  Q.2931, a malformed packet could make the Q.2931 dissector
+	  use up available memory.  No port range is configured
+	  by default.
 	  <!-- Fixed in r18992 -->
+	  <!-- Bug IDs: None -->
 	  Versions affected: 0.7.9 - 0.99.2.
         </para></listitem>
 
