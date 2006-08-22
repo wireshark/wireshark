@@ -841,7 +841,7 @@ void proto_register_iuup(void) {
         
         { &hf_iuup_delay, { "Delay", "iuup.delay", FT_UINT32, BASE_HEX, NULL,0x0,"",HFILL}},
         { &hf_iuup_advance, { "Advance", "iuup.advance", FT_UINT32, BASE_HEX, NULL,0x0,"",HFILL}},
-        { &hf_iuup_delta, { "Delta Time", "iuup.delta", FT_DOUBLE, BASE_DEC, NULL,0x0,"",HFILL}},
+        { &hf_iuup_delta, { "Delta Time", "iuup.delta", FT_FLOAT, BASE_DEC, NULL,0x0,"",HFILL}},
 
         { &hf_iuup_init_ti, { "TI", "iuup.ti", FT_UINT8, BASE_DEC, VALS(iuup_ti_vals),0x10,"Timing Information",HFILL}},
         { &hf_iuup_init_subflows_per_rfci, { "Subflows", "iuup.subflows", FT_UINT8, BASE_DEC, NULL,0x0e,"Number of Subflows",HFILL}},
