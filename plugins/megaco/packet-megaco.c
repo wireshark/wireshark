@@ -50,6 +50,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -391,13 +392,13 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_get_guint8(tvb, tvb_current_offset ) == '\r')
 		tvb_previous_offset++;
 
-	/* mId should follow here,								
-	 * mId = (( domainAddress / domainName ) [":" portNumber]) / mtpAddress / deviceName 	
-	 * domainAddress = "[" (IPv4address / IPv6address) "]"	
-	 * domainName = "<" (ALPHA / DIGIT) *63(ALPHA / DIGIT / "-" /".") ">"			
-	 * mtpAddress = MTPToken LBRKT 4*8 (HEXDIG) RBRKT		
-	 * MTPToken = ("MTP")									
-	 * deviceName = pathNAME								
+	/* mId should follow here,
+	 * mId = (( domainAddress / domainName ) [":" portNumber]) / mtpAddress / deviceName
+	 * domainAddress = "[" (IPv4address / IPv6address) "]"
+	 * domainName = "<" (ALPHA / DIGIT) *63(ALPHA / DIGIT / "-" /".") ">"
+	 * mtpAddress = MTPToken LBRKT 4*8 (HEXDIG) RBRKT
+	 * MTPToken = ("MTP")
+	 * deviceName = pathNAME
 	 * pathNAME = ["*"] NAME *("/" / "*"/ ALPHA / DIGIT /"_" / "$" )["@" pathDomainName ]
 	 */
 
@@ -410,7 +411,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
    /* Att this point we should point to the "\n" ending the mId element
-    * or to the next character after white space SEP 
+    * or to the next character after white space SEP
 	*/
 
 	if (tree)
@@ -420,28 +421,28 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tvb_previous_offset = tvb_next_offset;
 
-/* Next part is 										
- *	: messageBody = ( errorDescriptor / transactionList )					
- * 		errorDescriptor = ErrorToken EQUAL ErrorCode LBRKT [quotedString] RBRKT		
- * 			ErrorToken = ("Error" / "ER")						
+/* Next part is
+ *	: messageBody = ( errorDescriptor / transactionList )
+ * 		errorDescriptor = ErrorToken EQUAL ErrorCode LBRKT [quotedString] RBRKT
+ * 			ErrorToken = ("Error" / "ER")
  *
- *		transactionList = 1*( transactionRequest / transactionReply /			
- *					transactionPending / transactionResponseAck )		
+ *		transactionList = 1*( transactionRequest / transactionReply /
+ *					transactionPending / transactionResponseAck )
  *
- *		transactionResponseAck = ResponseAckToken LBRKT 				 
- *			transactionAck*(COMMA transactionAck) RBRKT				
- *				ResponseAckToken = ("TransactionResponseAck"/ "K") 		
+ *		transactionResponseAck = ResponseAckToken LBRKT
+ *			transactionAck*(COMMA transactionAck) RBRKT
+ *				ResponseAckToken = ("TransactionResponseAck"/ "K")
  *
- *		transactionPending = PendingToken EQUAL TransactionID LBRKT RBRKT		
- *			PendingToken = ("Pending" / "PN")					
+ *		transactionPending = PendingToken EQUAL TransactionID LBRKT RBRKT
+ *			PendingToken = ("Pending" / "PN")
  *
- *		transactionReply = ReplyToken EQUAL TransactionID LBRKT				
- *			[ ImmAckRequiredToken COMMA]( errorDescriptor / actionReplyList ) RBRKT 
- *			ReplyToken = ("Reply" / "P")						
+ *		transactionReply = ReplyToken EQUAL TransactionID LBRKT
+ *			[ ImmAckRequiredToken COMMA]( errorDescriptor / actionReplyList ) RBRKT
+ *			ReplyToken = ("Reply" / "P")
  *
- *		transactionRequest = TransToken EQUAL TransactionID LBRKT			
- *			actionRequest *(COMMA actionRequest) RBRKT				
- *			TransToken = ("Transaction" / "T")					
+ *		transactionRequest = TransToken EQUAL TransactionID LBRKT
+ *			actionRequest *(COMMA actionRequest) RBRKT
+ *			TransToken = ("Transaction" / "T")
  */
 	tempchar = tvb_get_guint8(tvb, tvb_previous_offset);
 
@@ -476,7 +477,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			return;
 			break;
-			/* transactionResponseAck 	
+			/* transactionResponseAck
 			 * transactionResponseAck = ResponseAckToken LBRKT transactionAck
              *                           *(COMMA transactionAck) RBRKT
 			 * transactionAck = transactionID / (transactionID "-" transactionID)
@@ -584,7 +585,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 			break;
 		} /* end switch */
-/* 		Only these remains now									
+/* 		Only these remains now
  *		transactionReply = ReplyToken EQUAL TransactionID LBRKT
  *			[ ImmAckRequiredToken COMMA]( errorDescriptor / actionReplyList ) RBRKT
  *			ReplyToken = ("Reply" / "P")
@@ -594,7 +595,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  *		transactionRequest = TransToken EQUAL TransactionID LBRKT
  *			actionRequest *(COMMA actionRequest) RBRKT
- *			TransToken = ("Transaction" / "T")						
+ *			TransToken = ("Transaction" / "T")
  */
 
 if(tree) {   /* Only do the rest if tree built */
@@ -1269,29 +1270,29 @@ dissect_megaco_multiplexdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_comman
 
 }
 
-/* mediaDescriptor = MediaToken LBRKT mediaParm *(COMMA mediaParm) RBRKT								
- *	MediaToken = ("Media" / "M")													
- *																	
- *		mediaParm = (streamParm / streamDescriptor /terminationStateDescriptor)							
- *																	
- *	; at-most one terminationStateDescriptor											
- *	; and either streamParm(s) or streamDescriptor(s) but not both									
- *			streamParm = ( localDescriptor / remoteDescriptor /localControlDescriptor )					
- *				localDescriptor = LocalToken LBRKT octetString RBRKT							
- *							LocalToken = ("Local" / "L")							
- *							octetString = *(nonEscapeChar)							
- *									nonEscapeChar = ( "\}" / %x01-7C / %x7E-FF )			
- *				remoteDescriptor = RemoteToken LBRKT octetString RBRKT							
- *							RemoteToken = ("Remote" / "R")							
- *				localControlDescriptor = LocalControlToken LBRKT localParm*(COMMA localParm) RBRKT			
- *							LocalControlToken = ("LocalControl" / "O")					
- *							localParm = ( streamMode / propertyParm / reservedValueMode			
- *			streamDescriptor = StreamToken EQUAL StreamID LBRKT streamParm*(COMMA streamParm) RBRKT				
- *							StreamToken = ("Stream" / "ST")							
- *			terminationStateDescriptor = TerminationStateToken LBRKTterminationStateParm 					
- *								*( COMMA terminationStateParm ) RBRKT					
- *							TerminationStateToken = ("TerminationState" / "TS")				
- *							terminationStateParm =(propertyParm / serviceStates / eventBufferControl )	
+/* mediaDescriptor = MediaToken LBRKT mediaParm *(COMMA mediaParm) RBRKT
+ *	MediaToken = ("Media" / "M")
+ *
+ *		mediaParm = (streamParm / streamDescriptor /terminationStateDescriptor)
+ *
+ *	; at-most one terminationStateDescriptor
+ *	; and either streamParm(s) or streamDescriptor(s) but not both
+ *			streamParm = ( localDescriptor / remoteDescriptor /localControlDescriptor )
+ *				localDescriptor = LocalToken LBRKT octetString RBRKT
+ *							LocalToken = ("Local" / "L")
+ *							octetString = *(nonEscapeChar)
+ *									nonEscapeChar = ( "\}" / %x01-7C / %x7E-FF )
+ *				remoteDescriptor = RemoteToken LBRKT octetString RBRKT
+ *							RemoteToken = ("Remote" / "R")
+ *				localControlDescriptor = LocalControlToken LBRKT localParm*(COMMA localParm) RBRKT
+ *							LocalControlToken = ("LocalControl" / "O")
+ *							localParm = ( streamMode / propertyParm / reservedValueMode
+ *			streamDescriptor = StreamToken EQUAL StreamID LBRKT streamParm*(COMMA streamParm) RBRKT
+ *							StreamToken = ("Stream" / "ST")
+ *			terminationStateDescriptor = TerminationStateToken LBRKTterminationStateParm
+ *								*( COMMA terminationStateParm ) RBRKT
+ *							TerminationStateToken = ("TerminationState" / "TS")
+ *							terminationStateParm =(propertyParm / serviceStates / eventBufferControl )
  */
 
 static void
@@ -1432,7 +1433,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 {
 	proto_item *item;
 	proto_tree *tree;
-	guint8 buf[10240];
+	guint8 *buf = ep_alloc(10240);
 
 	item=proto_tree_add_string(megaco_tree, hf_megaco_h245, tvb,
 		offset, len, msg );
@@ -1514,7 +1515,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 static void
 dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, gchar *msg)
 {
-	guint8 buf[10240];
+	guint8 *buf = ep_alloc(10240);
 	asn1_ctx_t actx;
 
 	/* arbitrary maximum length */
@@ -2516,7 +2517,7 @@ static const megaco_tokens_t megaco_localParam_names[] = {
 		{ "Mode",						"MO" }, /* 1 */
 		{ "ReservedValue",				"RV" }, /* 2 */
 		{ "ReservedGroup",				"RV" }, /* 3 */
-		/* propertyParm         = pkgdName parmValue 
+		/* propertyParm         = pkgdName parmValue
 		 * Add more package names as needed.
 		 */
 		{ "h324/h223capr",				NULL }, /* 4 */
@@ -2555,7 +2556,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 	tokenlen		= 0;
 	tvb_offset		= 0;
 	tvb_help_offset = 0;
-	
+
 
 	tokenlen = tvb_next_offset - tvb_current_offset;
 
@@ -2566,7 +2567,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 		tvb_help_offset	= tvb_current_offset;
 
-		/* 
+		/*
 		 * Find local parameter name
 		 */
 		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, ' ');
@@ -2574,11 +2575,13 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		token_index = find_megaco_localParam_names(tvb, tvb_current_offset, token_name_len);
 		/* Find start of parameter value */
 		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, '=');
+		if (tvb_offset < tvb_next_offset)
+			THROW(ReportedBoundsError);
 		tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 
 		/* find if there are more parameters or not */
 		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_offset, ',');
-		if ( tvb_offset == -1 || tvb_offset > tvb_next_offset ){
+		if ( tvb_offset < 0 || tvb_offset > tvb_next_offset ){
 			tvb_offset = tvb_next_offset;
 		}
 
@@ -2626,7 +2629,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 			break;
 
 		case H324_MUXTBL_IN: /* h324/muxtbl_in */
-			
+
 
 			proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_muxtbl_in, tvb,
 				tvb_current_offset, tokenlen,
