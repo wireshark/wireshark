@@ -57,6 +57,7 @@ static int hf_pn_mrp_time_stamp = -1;
 static int hf_pn_mrp_blocked = -1;
 static int hf_pn_mrp_manufacturer_oui = -1;
 static int hf_pn_mrp_domain_uuid = -1;
+static int hf_pn_mrp_oui = -1;
 
 static int hf_pn_mrp_data = -1;
 
@@ -79,6 +80,7 @@ static const value_string pn_mrp_block_type_vals[] = {
 
 static const value_string pn_mrp_oui_vals[] = {
 	{ OUI_PROFINET,         "PROFINET" },
+	{ OUI_SIEMENS,          "SIEMENS" },
 
 	{ 0, NULL }
 };
@@ -298,6 +300,50 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
 
 
 static int
+dissect_PNMRP_Option(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
+{
+    proto_item *unknown_item;
+	guint32 oui;
+
+
+	/* OUI (organizational unique id) */
+    offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
+    length -= 3;
+	
+	switch (oui)
+	{
+	case OUI_SIEMENS:
+        proto_item_append_text(item, "Option(SIEMENS)");
+        unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
+		    "Undecoded %u bytes of Siemens Option field", length);
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+		    "Undecoded %u bytes of Siemens Option field", length);
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, "Option(Siemens)");
+		break;
+	default:
+        proto_item_append_text(item, "Option(Unknown-OUI)");
+        unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
+            "Unknown OUI Data: %d bytes", length);
+        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
+			"Unknown OUI Data %u bytes", length);
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, "Option");
+	}
+
+    offset += length;
+
+    /* Padding */
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+
+    return offset;
+}
+
+
+static int
 dissect_PNMRP_PDU(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
@@ -355,6 +401,9 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             break;
         case(0x05):
             offset = dissect_PNMRP_LinkUp(tvb_new, offset, pinfo, tree, item);
+            break;
+        case(0x7f):
+            offset = dissect_PNMRP_Option(tvb_new, offset, pinfo, tree, item, length);
             break;
         default:
             unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb_new, offset, length, "data", 
@@ -438,6 +487,9 @@ proto_register_pn_mrp (void)
 		{ "ManufacturerOUI", "pn_mrp.manufacturer_oui", FT_UINT24, BASE_HEX, VALS(pn_mrp_oui_vals), 0x0, "", HFILL }},
 	{ &hf_pn_mrp_domain_uuid,
 		{ "DomainUUID", "pn_mrp.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_mrp_oui,
+		{ "Organizationally Unique Identifier",	"pn_mrp.oui", FT_UINT24, BASE_HEX,
+	   	VALS(pn_mrp_oui_vals), 0x0, "", HFILL }},
     };
 
 	static gint *ett[] = {
