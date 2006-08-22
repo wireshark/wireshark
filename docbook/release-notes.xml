@@ -56,7 +56,13 @@ Wireshark Info
 	  <!-- Fixed in r18883 -->
 	  <!-- Bug IDs: 1025 -->
           <!-- Gnome bug ID: 351034 -->
-	  Versions affected: 0.10.13.
+	  Versions affected: 0.10.13 - 0.99.2.
+        </para></listitem>
+
+        <listitem><para>
+	  The Q.2931 dissector could use up available memory.
+	  <!-- Fixed in r18992 -->
+	  Versions affected: 0.7.9 - 0.99.2.
         </para></listitem>
 
       </itemizedlist>
@@ -187,7 +193,6 @@ XML
 
 Catapult DCT2000,
 nettl
-
     </para>
     </section>
 

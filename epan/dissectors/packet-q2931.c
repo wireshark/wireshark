@@ -378,7 +378,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	}
 
-	while (len != 0) {
+	while (len >= 0) {
 		identifier = tvb_get_guint8(tvb, offset);
 		switch (identifier) {
 
@@ -567,7 +567,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 	guint8 identifier;
 	guint32 value;
 
-	while (len != 0) {
+	while (len >= 0) {
 		identifier = tvb_get_guint8(tvb, offset);
 		switch (identifier) {
 
@@ -1255,7 +1255,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
-		} while (len != 0);
+		} while (len >= 0);
 		break;
 
 	case Q2931_CAUSE_CELL_RATE_UNAVAIL:
@@ -1266,7 +1266,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
-		} while (len != 0);
+		} while (len >= 0);
 		break;
 
 	case Q2931_CAUSE_CHAN_NONEXISTENT:
@@ -1556,6 +1556,7 @@ dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
 	while (len >= 3) {
 		identifier = tvb_get_guint8(tvb, offset);
 		value = tvb_get_ntohs(tvb, offset + 1);
+		len -=3;
 		switch (identifier) {
 
 		case 0x01:	/* Cumulative transit delay identifier */
@@ -1673,7 +1674,7 @@ dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, int offset, int len,
 {
 	guint8 identifier;
 
-	while (len != 0) {
+	while (len >= 0) {
 		identifier = tvb_get_guint8(tvb, offset);
 		switch (identifier) {
 
