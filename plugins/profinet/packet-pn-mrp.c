@@ -306,17 +306,23 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     guint8 length;
     gint i = 0;
     proto_item *unknown_item;
+    tvbuff_t *tvb_new;
 
 
     /* MRP_Version */
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_version, &version);
 
+    /* the rest of the packet has 4byte alignment regarding to the beginning of the next TLV block! */
+    /* XXX - do we have to free this new tvb below? */
+    tvb_new = tvb_new_subset(tvb, offset, -1, -1);
+    offset = 0;
+
     while(tvb_length_remaining(tvb, offset) > 0) {
         /* MRP_TLVHeader.Type */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_mrp_type, &type);
+        offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_type, &type);
 
         /* MRP_TLVHeader.Length */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_mrp_length, &length);
+        offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_length, &length);
 
         if(i != 0) {
             if (check_col(pinfo->cinfo, COL_INFO))
@@ -336,22 +342,22 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             return offset;
             break;
         case(0x01):
-            offset = dissect_PNMRP_Common(tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_Common(tvb_new, offset, pinfo, tree, item);
             break;
         case(0x02):
-            offset = dissect_PNMRP_Test(tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_Test(tvb_new, offset, pinfo, tree, item);
             break;
         case(0x03):
-            offset = dissect_PNMRP_TopologyChange(tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_TopologyChange(tvb_new, offset, pinfo, tree, item);
             break;
         case(0x04):
-            offset = dissect_PNMRP_LinkDown(tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_LinkDown(tvb_new, offset, pinfo, tree, item);
             break;
         case(0x05):
-            offset = dissect_PNMRP_LinkUp(tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_LinkUp(tvb_new, offset, pinfo, tree, item);
             break;
         default:
-            unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
+            unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb_new, offset, length, "data", 
                 "PN-MRP Unknown TLVType 0x%x, Data: %d bytes", type, length);
             expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
 			    "Unknown TLVType 0x%x, %u bytes",
