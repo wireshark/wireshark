@@ -30,7 +30,8 @@ Wireshark Info
     <section><title>Bug Fixes</title>
     <para>
 
-      The following vulnerabilities have been fixed:
+      The following vulnerabilities have been fixed.  See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2006-02.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
