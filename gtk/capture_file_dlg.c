@@ -1393,6 +1393,10 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
 
   compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
 
+  /* XXX - if the user requests to save to an already existing filename, */
+  /* ask in a dialog if that's intended */
+  /* currently, cf_save() will simply deny it */
+
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
   if (cf_save(&cfile, cf_name, &range, filetype,

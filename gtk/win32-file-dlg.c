@@ -240,8 +240,11 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	g_sf_hwnd = NULL;
 	/* Write out the packets (all, or only the ones from the current
 	   range) to the file with the specified name. */
-	/* XXX - If we're overwriting a file, GetSaveFileName does the
-	   standard windows confirmation.  cf_save() then rejects the overwrite. */
+
+    /* GetSaveFileName() already asked the user if he wants to overwrite the old file, */
+    /* so if we are here, user already confirmed to overwrite - just delete the old file now */
+    unlink(file_name8->str);
+
 	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
 	    /* The write failed.  Try again. */
         g_string_free(file_name8, TRUE /* free_segment */);
