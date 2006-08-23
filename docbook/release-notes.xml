@@ -78,19 +78,22 @@ Wireshark Info
 
     The following bugs have been fixed:
 
-    <itemizedlist>
+      <itemizedlist>
 
-      <listitem><para>
-        The VOIP call analysis feature could cause an assertion.
-      </listitem></para>
+        <listitem><para>
+          The VOIP call analysis feature could cause an assertion.
+        </para></listitem>
 
-      <listitem><para>
-        The RTP analysis feature could freeze for an extended period.
-      </listitem></para>
+        <listitem><para>
+          The RTP analysis feature could freeze for an extended period.
+        </para></listitem>
 
-      <listitem><para>
-        Selecting "Apply as Filter" wouldn't work for some tree items.
-      </listitem></para>
+        <listitem><para>
+          Selecting "Apply as Filter" wouldn't work for some tree items.
+        </para></listitem>
+
+      </itemizedlist>
+    </para>
 
     </section>
 

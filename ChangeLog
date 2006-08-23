@@ -1,4 +1,108 @@
 ------------------------------------------------------------------------
+r19004 | gerald | 2006-08-23 09:19:32 -0500 (Wed, 23 Aug 2006) | 11 lines
+Changed paths:
+   M /trunk-0.99.3/asn1/snmp/snmp.cnf
+   M /trunk-0.99.3/epan/dissectors/packet-snmp.c
+
+Copy over r19002 from the trunk:
+
+User: sahlberg
+Date: 2006/08/23 08:05 AM
+
+Log:
+ Counter64 should be a FT_UINT64  and not a FT_UINT32
+ 
+ 
+ fixes bug 1047
+
+------------------------------------------------------------------------
+r19000 | gerald | 2006-08-22 17:10:56 -0500 (Tue, 22 Aug 2006) | 8 lines
+Changed paths:
+   M /trunk-0.99.3/plugins/profinet/packet-pn-mrp.c
+
+Copy over r18996 from the trunk:
+
+User: ulfl
+Date: 2006/08/22 07:42 PM
+
+Log:
+ fix TLB block alignment to be compatible with the current MRP draft. Would be nice if included in the 0.99.3
+
+------------------------------------------------------------------------
+r18994 | gerald | 2006-08-22 10:34:11 -0500 (Tue, 22 Aug 2006) | 3 lines
+Changed paths:
+   M /trunk-0.99.3/docbook/release-notes.xml
+
+Note that SSCOP must be configured in order to be vulnerable to the
+Q.2931 bug.
+
+------------------------------------------------------------------------
+r18993 | gerald | 2006-08-22 09:57:39 -0500 (Tue, 22 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/docbook/release-notes.xml
+   M /trunk-0.99.3/epan/dissectors/packet-q2931.c
+
+Copy over Florent's fix from r18992.
+
+------------------------------------------------------------------------
+r18983 | gerald | 2006-08-21 14:28:28 -0500 (Mon, 21 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/airpcap_loader.c
+   M /trunk-0.99.3/airpcap_loader.h
+   M /trunk-0.99.3/gtk/airpcap_dlg.c
+   M /trunk-0.99.3/gtk/airpcap_dlg.h
+   M /trunk-0.99.3/gtk/airpcap_gui_utils.c
+   M /trunk-0.99.3/gtk/airpcap_gui_utils.h
+
+Copy over copyright fixes from r18981.
+
+------------------------------------------------------------------------
+r18982 | gerald | 2006-08-21 14:25:38 -0500 (Mon, 21 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/docbook/release-notes.xml
+
+Minor updates.
+
+------------------------------------------------------------------------
+r18980 | gerald | 2006-08-21 11:28:25 -0500 (Mon, 21 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/FAQ
+   M /trunk-0.99.3/help/faq.txt
+   M /trunk-0.99.3/manuf
+
+Copy over manuf and FAQ updates from r18978 and r18979.
+
+------------------------------------------------------------------------
+r18977 | gerald | 2006-08-21 09:42:28 -0500 (Mon, 21 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/gtk/menu.c
+
+Copy over Florent Drouin's fix from r18976.
+
+------------------------------------------------------------------------
+r18963 | gerald | 2006-08-19 20:46:10 -0500 (Sat, 19 Aug 2006) | 2 lines
+Changed paths:
+   A /trunk-0.99.3/version.conf
+
+Add a version.conf file for the release.
+
+------------------------------------------------------------------------
+r18962 | gerald | 2006-08-19 20:38:41 -0500 (Sat, 19 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/Makefile.nmake
+   M /trunk-0.99.3/airpcap_loader.c
+
+Copy over AirPcap fixes (r18953 and r18961) from the trunk.
+
+------------------------------------------------------------------------
+r18952 | gerald | 2006-08-18 17:19:03 -0500 (Fri, 18 Aug 2006) | 2 lines
+Changed paths:
+   M /trunk-0.99.3/ChangeLog
+   M /trunk-0.99.3/docbook/release-notes.xml
+
+Updates for 0.99.3.
+
+------------------------------------------------------------------------
 r18951 | gerald | 2006-08-18 15:31:07 -0500 (Fri, 18 Aug 2006) | 1 line
 Changed paths:
    A /trunk-0.99.3 (from /trunk:18950)
