@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-snmp.c                                                            */
+/* ./packet-snmp.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
@@ -3109,7 +3109,7 @@ void proto_register_snmp(void) {
         "snmp.Opaque", HFILL }},
     { &hf_snmp_big_counter_value,
       { "big-counter-value", "snmp.big_counter_value",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "snmp.Counter64", HFILL }},
     { &hf_snmp_unsigned_integer_value,
       { "unsigned-integer-value", "snmp.unsigned_integer_value",
