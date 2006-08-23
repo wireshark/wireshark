@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
@@ -82,6 +83,9 @@ static int hf_dns_tsig_original_id = -1;
 static int hf_dns_tsig_algorithm_name = -1;
 static int hf_dns_tsig_other_len = -1;
 static int hf_dns_tsig_other_data = -1;
+static int hf_dns_response_in = -1;
+static int hf_dns_response_to = -1;
+static int hf_dns_time = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -101,6 +105,18 @@ static gboolean dns_desegment = TRUE;
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t ntlmssp_handle;
+
+/* Structure containing transaction specific information */
+typedef struct _dns_transaction_t {
+        guint32 req_frame;
+        guint32 rep_frame;
+        nstime_t req_time;
+} dns_transaction_t;
+
+/* Structure containing conversation specific information */
+typedef struct _dns_conv_info_t {
+        emem_tree_t *pdus;
+} dns_conv_info_t;
 
 /* DNS structs and definitions */
 
@@ -2323,6 +2339,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int bufpos;
   int cur_off;
   gboolean isupdate;
+  conversation_t *conversation;
+  dns_conv_info_t *dns_info;
+  dns_transaction_t *dns_trans;
 
   dns_data_offset = offset;
 
@@ -2373,6 +2392,81 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
 
     dns_tree = proto_item_add_subtree(ti, ett_dns);
+
+    /*
+     * Do we have a conversation for this connection?
+     */
+    conversation = find_conversation(pinfo->fd->num, 
+			&pinfo->src, &pinfo->dst,
+			pinfo->ptype, 
+			pinfo->srcport, pinfo->destport, 0);
+    if (conversation == NULL) {
+      /* We don't yet have a conversation, so create one. */
+      conversation = conversation_new(pinfo->fd->num, 
+			&pinfo->src, &pinfo->dst,
+			pinfo->ptype,
+			pinfo->srcport, pinfo->destport, 0);
+    }
+    /*
+     * Do we already have a state structure for this conv
+     */
+    dns_info = conversation_get_proto_data(conversation, proto_dns);
+    if (!dns_info) {
+      /* No.  Attach that information to the conversation, and add
+       * it to the list of information structures.
+       */
+      dns_info = se_alloc(sizeof(dns_conv_info_t));
+      dns_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "dns_pdus");
+      conversation_add_proto_data(conversation, proto_dns, dns_info);
+    }
+    if(!pinfo->fd->flags.visited){
+      if(!(flags&F_RESPONSE)){
+        /* This is a request */
+        dns_trans=se_alloc(sizeof(dns_transaction_t));
+        dns_trans->req_frame=pinfo->fd->num;
+        dns_trans->rep_frame=0;
+        dns_trans->req_time=pinfo->fd->abs_ts;
+        se_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
+      } else {
+        dns_trans=se_tree_lookup32(dns_info->pdus, id);
+        if(dns_trans){
+          dns_trans->rep_frame=pinfo->fd->num;
+        }
+      }
+    } else {
+      dns_trans=se_tree_lookup32(dns_info->pdus, id);
+    }
+    if(!dns_trans){
+      /* create a "fake" pana_trans structure */
+      dns_trans=ep_alloc(sizeof(dns_transaction_t));
+      dns_trans->req_frame=0;
+      dns_trans->rep_frame=0;
+      dns_trans->req_time=pinfo->fd->abs_ts;
+    }
+
+    /* print state tracking in the tree */
+    if(!(flags&F_RESPONSE)){
+      /* This is a request */
+      if(dns_trans->rep_frame){
+        proto_item *it;
+
+        it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+      }
+    } else {
+      /* This is a reply */
+      if(dns_trans->req_frame){
+        proto_item *it;
+        nstime_t ns;
+
+        it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+
+        nstime_delta(&ns, &pinfo->fd->abs_ts, &dns_trans->req_time);
+        it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(it);
+      }
+    }              
 
     if (is_tcp) {
       /* Put the length indication into the tree. */
@@ -2693,6 +2787,18 @@ proto_register_dns(void)
       { "Algorithm Name",      	"dns.tsig.algorithm_name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"Name of algorithm used for the MAC", HFILL }},
+    { &hf_dns_response_in,
+      { "Response In", "dns.response_in",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "The response to this DNS query is in this frame", HFILL }},
+    { &hf_dns_response_to,
+      { "Request In", "dns.response_to",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "This is a response to the DNS query in this frame", HFILL }},
+    { &hf_dns_time,
+      { "Time", "dns.time",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Query and the Response", HFILL }},
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
