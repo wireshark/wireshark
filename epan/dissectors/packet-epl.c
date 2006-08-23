@@ -39,9 +39,9 @@
 #endif
 
 #include <gmodule.h>
-#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/emem.h>
 
 #include "packet-epl.h"
 
