@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.3pre1">
+  <!ENTITY WiresharkCurrentVersion "0.99.3">
 
 ]>
 
@@ -30,7 +30,8 @@ Wireshark Info
     <section><title>Bug Fixes</title>
     <para>
 
-      The following vulnerabilities have been fixed:
+      The following vulnerabilities have been fixed.  See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2006-02.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -50,8 +51,49 @@ Wireshark Info
 	  Versions affected: 0.99.2.
         </para></listitem>
 
+        <listitem><para>
+	  The DHCP dissector (and possibly others) in the Windows version of
+          Wireshark could trigger a bug in Glib and crash.
+	  <!-- Fixed in r18883 -->
+	  <!-- Bug IDs: 1025 -->
+          <!-- Gnome bug ID: 351034 -->
+	  Versions affected: 0.10.13 - 0.99.2.
+        </para></listitem>
+
+        <listitem><para>
+	  If the SSCOP dissector has a port range configured
+	  <emphasis>and</emphasis> the SSCOP payload protocol is
+	  Q.2931, a malformed packet could make the Q.2931 dissector
+	  use up available memory.  No port range is configured
+	  by default.
+	  <!-- Fixed in r18992 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.7.9 - 0.99.2.
+        </para></listitem>
+
       </itemizedlist>
 
+    </para>
+
+    <para>
+
+    The following bugs have been fixed:
+
+      <itemizedlist>
+
+        <listitem><para>
+          The VOIP call analysis feature could cause an assertion.
+        </para></listitem>
+
+        <listitem><para>
+          The RTP analysis feature could freeze for an extended period.
+        </para></listitem>
+
+        <listitem><para>
+          Selecting "Apply as Filter" wouldn't work for some tree items.
+        </para></listitem>
+
+      </itemizedlist>
     </para>
 
     </section>
@@ -69,8 +111,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+        The packet list context menu now includes a conversation filter.
+        </para></listitem>
+
+        <listitem><para>
         Wireshark can now generate ACL rules for several popular firewall
         products.
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark now supports
+        <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>,
+        including raw 802.11 captures under Windows.
         </para></listitem>
 
       </itemizedlist>
@@ -80,10 +132,68 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+Daytime,
+JPEG (RTP payload),
+Pegasus Lightweight Stream Control,
+Pro-MPEG FEC,
+UMTS RRC,
+Veritas Low Latency Transport
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+All ASN.1 dissectors,
+
+3G A11,
+802.11,
+AIM SST,
+AJP13,
+ANSI 637,
+AVS WLAN,
+BACapp,
+BFD,
+CDP,
+Cisco WIDS,
+DCERPC (DCERPC, CONV, DFS, EPM, FLDB, NETLOGON, NT, PN-IO, RS_PGO),
+DCOM,
+DHCP,
+DIAMETER,
+DTLS,
+EAPOL,
+ESP,
+H.225,
+H.245,
+H.450,
+HTTP,
+IPv6,
+ISAKMP,
+Juniper,
+Kerberos,
+L2TP,
+LDAP,
+MSRP,
+NTLMSSP,
+PN-CBA,
+PN-RT,
+Prism,
+RSVP,
+RTCP,
+RUDP,
+SCSI,
+SCTP,
+SDP,
+SIP,
+SIPFRAG,
+Skinny,
+SMB,
+SSL,
+TCP,
+text/media,
+Time,
+XML
+
 
     </para>
     </section>
@@ -91,6 +201,8 @@ Wireshark Info
     <section><title>New and Updated Capture File Support</title>
     <para>
 
+Catapult DCT2000,
+nettl
     </para>
     </section>
 
@@ -137,36 +249,38 @@ Wireshark Info
       or become unusable.  Until the problem is fixed you can work around it
       by resizing the packet list or the main window.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
-      #220</ulink>)
+      220</ulink>)
     </para>
 
     <para>
       The <guibutton>Filter</guibutton> button is nonfunctional in the
       file dialogs under Windows.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942">Bug
+      942</ulink>)
     </para>
 
     <para>
       Trying to save flow data may crash Wireshark.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
-      #396</ulink>)
+      396</ulink>)
     </para>
 
     <para>
       It may not be possible to re-order coloring rules under Windows.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
-      #699</ulink>)
+      699</ulink>)
     </para>
 
     <para>
       Multiple tap interfaces may cause a crash under FreeBSD.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757">Bug
-      #757</ulink>)
+      757</ulink>)
     </para>
 
     <para>
       Wireshark may crash while viewing TCP streams.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug
-      #852</ulink>)
+      852</ulink>)
     </para>
 
   </section>
