@@ -13030,7 +13030,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  {
      if (ssn) {
  	delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
- 	add_itu_tcap_subdissector(ssn , ansi_map_handle);
+ 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
      }
  }
 
