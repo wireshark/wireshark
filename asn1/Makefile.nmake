@@ -199,6 +199,9 @@ clean:
 	cd rtse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd rrlp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd s4406
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
