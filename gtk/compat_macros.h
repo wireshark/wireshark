@@ -194,6 +194,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define WIRESHARK_STOCK_CAPTURE_RESTART          "Restart"
 #define WIRESHARK_STOCK_CAPTURE_FILTER           "CFilter"
 #define WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY     "Capture Filter:"
+#define WIRESHARK_STOCK_CAPTURE_DETAILS          "Details"
 #endif
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Filter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Filter:"
@@ -328,6 +329,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_LABEL_CAPTURE_RESTART          "_Restart"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
+#define WIRESHARK_STOCK_LABEL_CAPTURE_DETAILS          "_Details"
 #endif
 #define WIRESHARK_STOCK_LABEL_DISPLAY_FILTER           "_Filter"
 #define WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "_Filter:"
@@ -367,6 +369,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_CAPTURE_RESTART          "Wireshark_Stock_CaptureRestart"
 #define WIRESHARK_STOCK_CAPTURE_FILTER           "Wireshark_Stock_CaptureFilter"
 #define WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY     "Wireshark_Stock_CaptureFilter_Entry"
+#define WIRESHARK_STOCK_CAPTURE_DETAILS          "Wireshark_Stock_CaptureDetails"
 #endif
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Wireshark_Stock_DisplayFilter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Wireshark_Stock_DisplayFilter_Entry"

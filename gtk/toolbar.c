@@ -106,6 +106,7 @@
 #include "../image/toolbar/capture_stop_24.xpm"
 #include "../image/toolbar/capture_restart_24.xpm"
 #include "../image/toolbar/capture_filter_24.xpm"
+#include "../image/toolbar/capture_details_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/display_filter_24.xpm"
 /* these icons are standard stock icons, but used for Wireshark specific stock icon labels */
@@ -181,6 +182,7 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_CAPTURE_RESTART,       WIRESHARK_STOCK_LABEL_CAPTURE_RESTART,       0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER,        WIRESHARK_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_DETAILS,       WIRESHARK_STOCK_LABEL_CAPTURE_DETAILS,       0, 0, NULL },
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        WIRESHARK_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
@@ -221,6 +223,7 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_CAPTURE_RESTART,       capture_restart_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
+        { WIRESHARK_STOCK_CAPTURE_DETAILS,       capture_details_24_xpm },
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },

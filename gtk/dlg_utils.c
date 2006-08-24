@@ -97,7 +97,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *cancel       = NULL;
     const gchar *close        = NULL;
     const gchar *clear        = NULL;
-    const gchar *start        = NULL;
+    const gchar *cap_start    = NULL;
+    const gchar *cap_stop     = NULL;
     const gchar *stop         = NULL;
     const gchar *create_stat  = NULL;
     const gchar *help         = NULL;
@@ -106,6 +107,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *jump         = NULL;
     const gchar *yes          = NULL;
     const gchar *no           = NULL;
+    const gchar *filter_stream= NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -130,7 +132,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             clear = stock_id;
 #ifdef HAVE_LIBPCAP
         } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_START) == 0) {
-            start = stock_id;
+            cap_start = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_STOP) == 0) {
+            cap_stop = stock_id;
 #endif /* HAVE_LIBPCAP */
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
             stop = stock_id;
@@ -147,7 +151,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, GTK_STOCK_NO) == 0) {
             no = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_FILTER_OUT_STREAM) == 0) {
-            start = stock_id;
+            filter_stream = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();
@@ -245,6 +249,16 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, start);
             return hbox;
         }
+        if (cap_start && cancel) {
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, cap_start);
+            return hbox;
+        }
+        if (cap_stop && cancel) {
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, cap_stop);
+            return hbox;
+        }
     }
     if (buttons == 3) {
         if (ok && save && close) {
@@ -306,12 +320,14 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
     if (no      != NULL) dlg_button_new(hbox, button_hbox, no);
     if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
-    if (dont_save != NULL) dlg_button_new(hbox, button_hbox, dont_save);
-    if (start   != NULL) dlg_button_new(hbox, button_hbox, start);
+    if (dont_save   != NULL) dlg_button_new(hbox, button_hbox, dont_save);
+    if (cap_start   != NULL) dlg_button_new(hbox, button_hbox, cap_start);
+    if (cap_stop    != NULL) dlg_button_new(hbox, button_hbox, cap_stop);
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
     if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
+    if (filter_stream!= NULL) dlg_button_new(hbox, button_hbox, filter_stream);
 
     /* GTK2: we don't know that button combination, add it to the above list! */
     /* g_assert_not_reached(); */

@@ -408,6 +408,9 @@ topic_action(topic_action_e action)
     case(HELP_CAPTURE_INTERFACES_DIALOG):
         ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapInterfaceSection.html");
         break;
+    case(HELP_CAPTURE_INFO_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapRunningSection.html");
+        break;
     case(HELP_ENABLED_PROTOCOLS_DIALOG):
         ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
         break;

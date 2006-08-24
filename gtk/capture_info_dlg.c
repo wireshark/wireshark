@@ -44,6 +44,7 @@
 #include "gui_utils.h"
 #include "main.h"
 #include "capture-pcap-util.h"
+#include "help_dlg.h"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
@@ -113,11 +114,14 @@ const gchar     *iface)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
-  GtkWidget         *counts_fr, *running_tb, *running_label, *bbox;
+  GtkWidget         *counts_fr, *running_tb, *running_label, *bbox, *ci_help;
   capture_info_ui_t *info;
   gchar             *cap_w_title;
   gchar             *title_iface;
   gchar             *descr;
+  GtkTooltips       *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   info = g_malloc0(sizeof(capture_info_ui_t));
   info->counts[0].title = "Total";
@@ -245,16 +249,26 @@ const gchar     *iface)
 
   /* allow user to either click a stop button, or the close button on
 	the window to stop a capture in progress. */
-  bbox = dlg_button_row_new(GTK_STOCK_STOP, NULL);
+  if(topic_available(HELP_CAPTURE_INFO_DIALOG)) {
+      bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_HELP, NULL);
+  } else{
+      bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_STOP, NULL);
+  }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
   gtk_widget_show(bbox);
 
-  stop_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_STOP);
+  stop_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CAPTURE_STOP);
   window_set_cancel_button(info->cap_w, stop_bt, NULL);
   SIGNAL_CONNECT(stop_bt, "clicked", capture_info_delete_cb, capture_opts);
 
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
                  capture_opts);
+
+  if(topic_available(HELP_CAPTURE_INFO_DIALOG)) {
+      ci_help = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      gtk_tooltips_set_tip (tooltips, ci_help, ("Get help about this dialog"), NULL);
+      SIGNAL_CONNECT(ci_help, "clicked", topic_cb, HELP_CAPTURE_INFO_DIALOG);
+  }
 
   gtk_widget_show(info->cap_w);
   window_present(info->cap_w);

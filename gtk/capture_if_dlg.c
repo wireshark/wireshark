@@ -532,7 +532,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if_lb = gtk_label_new(" Packets/s ");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 5, 6, row, row+1);
 
-  stop_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_STOP);
+  stop_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_STOP);
   gtk_tooltips_set_tip(tooltips, stop_bt,
           "Stop a running capture.", NULL);
 #ifdef _WIN32
@@ -629,7 +629,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->last_lb, 5, 6, row, row+1);
 
       /* capture button */
-      if_dlg_data->capture_bt = gtk_button_new_with_label("Capture");
+      if_dlg_data->capture_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_START);
 	  SIGNAL_CONNECT(if_dlg_data->capture_bt, "clicked", capture_do_cb, if_dlg_data);
       tmp_str = g_strdup_printf("Immediately start a capture from this interface:\n\n%s", if_tool_str->str);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->capture_bt,
@@ -638,7 +638,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->capture_bt, 6, 7, row, row+1);
 
       /* prepare button */
-      if_dlg_data->prepare_bt = gtk_button_new_with_label("Prepare");
+      if_dlg_data->prepare_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_OPTIONS);
       SIGNAL_CONNECT(if_dlg_data->prepare_bt, "clicked", capture_prepare_cb, if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->prepare_bt,
           "Open the capture options dialog with this interface selected.", NULL);
@@ -646,7 +646,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
       /* details button */
 #ifdef _WIN32
-      if_dlg_data->details_bt = gtk_button_new_with_label("Details");
+      if_dlg_data->details_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_DETAILS);
 	  gtk_container_add (GTK_CONTAINER (if_dlg_data->details_bt), xpm_box(capture_details_16_xpm));
 	  SIGNAL_CONNECT(if_dlg_data->details_bt, "clicked", capture_details_cb, if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
@@ -687,8 +687,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
   /* height + static offset + what GTK-Wimp needs in addition per interface */
-  /* XXX - Modify or the window will become huge with many interfaces! */
-  height += requisition.height + 26 + 16;
+  height += requisition.height + 16 + ifs;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
