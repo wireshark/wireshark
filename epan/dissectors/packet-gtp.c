@@ -190,8 +190,10 @@ static int hf_gtp_ksi				= -1;
 static int hf_gtp_ext_length		= -1;
 static int hf_gtp_ext_apn_res		= -1;
 static int hf_gtp_ext_rat_type		= -1;
+static int hf_gtp_ext_geo_loc_type	= -1;
+static int hf_gtp_ext_sac			= -1;
 static int hf_gtp_ext_imeisv		= -1;
-static int hf_gtp_TargetID			= -1;
+static int hf_gtp_targetid			= -1;
 
 
 /* Initialize the subtree pointers */
@@ -1328,30 +1330,32 @@ static int decode_gtp_omc_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int decode_gtp_ran_tr_cont	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_pdp_cont_prio	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_add_rab_setup_inf	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_ssgn_no		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_common_flgs	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_apn_res		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_ssgn_no			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_common_flgs		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_apn_res			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_ra_prio_lcs		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_rat_type		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_imeisv		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_rat_type			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_usr_loc_inf		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_ms_time_zone		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_imeisv			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_camel_chg_inf_con	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_mbms_ue_ctx	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_tmgi			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_rim_ra		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_mbms_ue_ctx		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_tmgi				(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_rim_ra			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_mbms_prot_conf_opt	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_mbms_sa		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_mbms_sa				(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_src_rnc_pdp_ctx_inf	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_add_trs_inf	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_hop_count		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_sel_plmn_id	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_mbms_ses_id	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_mbms_2g_3g_ind(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_enh_nsapi		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_mbms_ses_dur	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_add_mbms_trs_inf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_add_trs_inf			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_hop_count			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_sel_plmn_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_mbms_ses_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_mbms_2g_3g_ind	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_enh_nsapi			(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_mbms_ses_dur		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_add_mbms_trs_inf	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_mbms_ses_id_rep_no(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_mbms_time_to_data_tr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static int decode_gtp_ps_ho_req_ctx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_ps_ho_req_ctx	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_bss_cont		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_cell_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_pdu_no		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -1426,7 +1430,9 @@ static const gtp_opt_t gtpopt[] = {
 	{ GTP_EXT_APN_RES,				decode_gtp_apn_res },					/* 3G */
 	{ GTP_EXT_RA_PRIO_LCS,			decode_gtp_ra_prio_lcs },				/* 7.7.25B */
 	{ GTP_EXT_RAT_TYPE,				decode_gtp_rat_type },					/* 3G */
-	{ GTP_EXT_IMEISV,				decode_gtp_imeisv },					/* 3G */
+	{ GTP_EXT_USR_LOC_INF,			decode_gtp_usr_loc_inf},				/* 7.7.51 */
+	{ GTP_EXT_MS_TIME_ZONE,			decode_gtp_ms_time_zone},				/* 7.7.52 */
+	{ GTP_EXT_IMEISV,				decode_gtp_imeisv },					/* 3G 7.7.53*/
 	{ GTP_EXT_CAMEL_CHG_INF_CON,	decode_gtp_camel_chg_inf_con },			/* 7.7.54 */
 	{ GTP_EXT_MBMS_UE_CTX,			decode_gtp_mbms_ue_ctx },				/* 7.7.55 */
 	{ GTP_EXT_TMGI,					decode_gtp_tmgi },						/* 7.7.56 */
@@ -1437,7 +1443,7 @@ static const gtp_opt_t gtpopt[] = {
 	{ GTP_EXT_ADD_TRS_INF,			decode_gtp_add_trs_inf },				/* 7.7.62 */
 	{ GTP_EXT_HOP_COUNT,			decode_gtp_hop_count },					/* 7.7.63 */
 	{ GTP_EXT_SEL_PLMN_ID,			decode_gtp_sel_plmn_id },				/* 7.7.64 */
-	{ GTP_EXT_MBMS_SES_ID,			decode_gtp_mbms_ses_id },					/* 7.7.65 */
+	{ GTP_EXT_MBMS_SES_ID,			decode_gtp_mbms_ses_id },				/* 7.7.65 */
 	{ GTP_EXT_MBMS_2G_3G_IND,		decode_gtp_mbms_2g_3g_ind },			/* 7.7.66 */
 	{ GTP_EXT_ENH_NSAPI,			decode_gtp_enh_nsapi },					/* 7.7.67 */
 	{ GTP_EXT_MBMS_SES_DUR,			decode_gtp_mbms_ses_dur },				/* 7.7.59 */
@@ -1448,7 +1454,7 @@ static const gtp_opt_t gtpopt[] = {
 	{ GTP_EXT_BSS_CONT,				decode_gtp_bss_cont },					/* 7.7.72 */
 	{ GTP_EXT_CELL_ID,				decode_gtp_cell_id },					/* 7.7.73 */
 	{ GTP_EXT_PDU_NO,				decode_gtp_pdu_no },					/* 7.7.74 */
-	{ GTP_EXT_BSSGP_CAUSE,			decode_gtp_bssgp_cause },					/* 7.7.75 */
+	{ GTP_EXT_BSSGP_CAUSE,			decode_gtp_bssgp_cause },				/* 7.7.75 */
 
 	{ GTP_EXT_REL_PACK,		decode_gtp_rel_pack },				/* charging */
 	{ GTP_EXT_CAN_PACK,		decode_gtp_can_pack },	 			/* charging */
@@ -4049,7 +4055,7 @@ decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 	next_tvb = tvb_new_subset (tvb, offset, length, length);
-	dissect_ranap_TargetID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_TargetID);
+	dissect_ranap_TargetID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetid);
 
 	return 3 + length;
 }
@@ -4380,7 +4386,7 @@ decode_gtp_rat_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	proto_item	*te;
 
 	length = tvb_get_ntohs(tvb, offset+1);
-	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_RAT_TYPE, gtp_val, "Unknown"));
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_RAT_TYPE, gtp_val, "Unknown"));
 	ext_tree_rat_type = proto_item_add_subtree(te, ett_gtp_ext_rat_type);
 	
 	offset++;
@@ -4403,16 +4409,30 @@ decode_gtp_usr_loc_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	guint16		length;
 	proto_tree	*ext_tree;
 	proto_item	*te;
+	guint8		geo_loc_type;
 
 	length = tvb_get_ntohs(tvb, offset+1);
-	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_USR_LOC_INF, gtp_val, "Unknown"));
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_USR_LOC_INF, gtp_val, "Unknown"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext_usr_loc_inf);
 	
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 	/* TODO add decoding of data */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* Geographic Location Type */
+	proto_tree_add_item(ext_tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, FALSE);
+	geo_loc_type = tvb_get_guint8(tvb,offset);
+	offset++;
+	
+	if (geo_loc_type == 0)
+		/* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
+		be_cell_id_aux(tvb, ext_tree, offset, length-1, NULL, 0, 0);
+	if (geo_loc_type == 1){
+		/* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
+		be_cell_id_aux(tvb, ext_tree, offset, length-1, NULL, 0, 4);
+		offset = offset + 5;
+		proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, FALSE);
+	}
 
 	return 3 + length;
 
@@ -4456,7 +4476,7 @@ decode_gtp_imeisv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 	proto_item	*te;
 
 	length = tvb_get_ntohs(tvb, offset+1);
-	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
 	ext_imeisv = proto_item_add_subtree(te, ett_gtp_ext_imeisv);
 	
 	offset++;
@@ -5186,17 +5206,21 @@ decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_PRIV_EXT, gtp_val, "Unknown message"));
 	ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
 
-	length = tvb_get_ntohs(tvb, offset+1);
+	offset++;
+	length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset+2;
 	if (length >= 2) {
-		ext_id = tvb_get_ntohs(tvb, offset+3);
-		proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset+3, 2, ext_id);
+		ext_id = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset, 2, ext_id);
+		offset = offset+2;
 
 		/*
 		 * XXX - is this always a text string?  Or should it be
 		 * displayed as hex data?
 		 */
 		if (length > 2)
-			proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset+5, length-2, FALSE);
+			proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length-2, FALSE);
 	}
 
 	return 3+length;
@@ -5444,7 +5468,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_chrg_ipv6, { "CG address IPv6", "gtp.chrg_ipv6", FT_IPv6, BASE_HEX, NULL, 0, "Charging Gateway address IPv6", HFILL }},
 		{ &hf_gtp_ext_flow_label, { "Flow Label Data I", "gtp.ext_flow_label", FT_UINT16, BASE_HEX, NULL, 0, "Flow label data", HFILL }},
 		{ &hf_gtp_ext_id, { "Extension identifier", "gtp.ext_id", FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0, "Extension Identifier", HFILL }},
-		{ &hf_gtp_ext_val, { "Extension value", "gtp.ext_val", FT_STRING, BASE_DEC, NULL, 0, "Extension Value", HFILL }},
+		{ &hf_gtp_ext_val, { "Extension value", "gtp.ext_val", FT_BYTES, BASE_HEX, NULL, 0, "Extension Value", HFILL }},
 		{ &hf_gtp_flags, { "Flags", "gtp.flags", FT_UINT8, BASE_HEX, NULL, 0, "Ver/PT/Spare...", HFILL }},
 		{ &hf_gtp_flags_ver,
 			{ "Version", "gtp.flags.version",
@@ -5594,13 +5618,23 @@ proto_register_gtp(void)
 			FT_UINT8, BASE_DEC, VALS(gtp_ext_rat_type_vals), 0x0,
 			"RAT Type", HFILL }
 		},
+		{ &hf_gtp_ext_geo_loc_type,
+			{ "Geographic Location Type", "gtp.ext_geo_loc_type",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Geographic Location Type", HFILL }
+		},
+		{ &hf_gtp_ext_sac,
+			{ "SAC", "gtp.ext_sac",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			"SAC", HFILL }
+		},
 		{ &hf_gtp_ext_imeisv,
 			{ "IMEI(SV)", "gtp.ext_imeisv",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"IMEI(SV)", HFILL }
 		},
-		{ &hf_gtp_TargetID,
-			{ "TargetID", "gtp.TargetID",
+		{ &hf_gtp_targetid,
+			{ "TargetID", "gtp.targetid",
 			FT_UINT32, BASE_DEC, VALS(ranap_TargetID_vals), 0,
 			"TargetID", HFILL }},
 

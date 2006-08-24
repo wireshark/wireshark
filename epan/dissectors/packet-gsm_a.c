@@ -2320,7 +2320,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [2] 3.2.2.17
  * Formats everything after the discriminator, shared function
  */
-static guint8
+guint8
 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
 {
     guint8	octs[3];
