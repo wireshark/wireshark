@@ -38,6 +38,7 @@
 #include <epan/emem.h>
 #include <prefs.h>
 
+#include "packet-bssgp.h"
 #include "packet-e212.h"
 #include "packet-gsm_a.h"
 
@@ -417,25 +418,6 @@ static const value_string tab_bssgp_ie_types[] = {
 #define BSSGP_IE_FORMAT_TV 2
 #define BSSGP_IE_FORMAT_TLV 3
 
-typedef struct {
-  guint8        iei;
-  const char   *name;
-  guint8        presence_req;
-  int           format;
-  gint16        value_length; /* in bytes (read from capture)*/
-  gint16        total_length; /* as specified, or 0 if unspecified */
-} bssgp_ie_t;
-
-typedef struct {
-  tvbuff_t     *tvb;
-  guint32       offset;
-  packet_info  *pinfo;
-  proto_tree   *bssgp_tree;
-  proto_tree   *parent_tree;
-  gboolean      dl_data;
-  gboolean      ul_data;
-  guint8		pdutype;
-} build_info_t;
 
 static guint8
 get_masked_guint8(guint8 value, guint8 mask) {
@@ -4025,19 +4007,31 @@ decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
     proto_item_append_text(ti, ": %s", rai_ci);
   }
 }
+/*
+ * 11.3.77 RIM Routing Information
+ */
+static const value_string ra_discriminator_vals[] = {
+    { 0, "A Cell Identifier is used to identify a GERAN cell" },
+    { 1, "A Global RNC-ID is used to identify a UTRAN RNC" },
+    { 0, NULL },
+  };
 
 static void 
 decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
+  guint8 data;
 
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_rim_routing_information);
 
 	proto_tree_add_item(tf, hf_bssgp_ra_discriminator, 
-		bi->tvb, bi->offset, 2, FALSE);
- 	bi->offset += 1;
+		bi->tvb, bi->offset, 1, FALSE);
+
+	data = tvb_get_guint8(bi->tvb, bi->offset);
+ 	
+	bi->offset += 1;
 
   	decode_rai(bi, tf);
 
@@ -6037,7 +6031,7 @@ proto_register_bssgp(void)
     },
     { &hf_bssgp_ra_discriminator,
       { "Routing Address Discriminator", "bssgp.rad",
-	FT_UINT8, BASE_DEC, NULL, 0x0f,
+	FT_UINT8, BASE_DEC, VALS(ra_discriminator_vals), 0x0f,
 	"Routing Address Discriminator", HFILL }
     },
     { &hf_bssgp_appid,

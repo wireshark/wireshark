@@ -23,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#ifndef __PACKET_GSM_A_H__
+#define __PACKET_GSM_A_H__
 
 /*
  * this enum must be kept in-sync with 'gsm_a_pd_str'
@@ -121,3 +123,4 @@ extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[]; 
 
+#endif /* __PACKET_GSM_A_H__ */
