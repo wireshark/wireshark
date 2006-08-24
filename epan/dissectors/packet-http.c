@@ -151,7 +151,7 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
 
-/* 
+/*
  * tcp alternate port
  */
 static guint http_alternate_tcp_port = 0;
@@ -208,7 +208,7 @@ static const value_string vals_status_code[] = {
 	{ 101, "Switching Protocols" },
 	{ 102, "Processing" },
 	{ 199, "Informational - Others" },
-	
+
 	{ 200, "OK"},
 	{ 201, "Created"},
 	{ 202, "Accepted"},
@@ -218,7 +218,7 @@ static const value_string vals_status_code[] = {
 	{ 206, "Partial Content"},
 	{ 207, "Multi-Status"},
 	{ 299, "Success - Others"},
-	
+
 	{ 300, "Multiple Choices"},
 	{ 301, "Moved Permanently"},
 	{ 302, "Found"},
@@ -227,7 +227,7 @@ static const value_string vals_status_code[] = {
 	{ 305, "Use Proxy"},
 	{ 307, "Temporary Redirect"},
 	{ 399, "Redirection - Others"},
-	
+
 	{ 400, "Bad Request"},
 	{ 401, "Unauthorized"},
 	{ 402, "Payment Required"},
@@ -250,7 +250,7 @@ static const value_string vals_status_code[] = {
 	{ 423, "Locked"},
 	{ 424, "Failed Dependency"},
 	{ 499, "Client Error - Others"},
-	
+
 	{ 500, "Internal Server Error"},
 	{ 501, "Not Implemented"},
 	{ 502, "Bad Gateway"},
@@ -259,7 +259,7 @@ static const value_string vals_status_code[] = {
 	{ 505, "HTTP Version not supported"},
 	{ 507, "Insufficient Storage"},
 	{ 599, "Server Error - Others"},
-	
+
 	{ 0, 	NULL}
 };
 
@@ -287,40 +287,40 @@ static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_
 	int resps_by_this_addr;
 	int i = v->response_code;
 	static gchar ip_str[256];
-	
-	
+
+
 	if (v->request_method) {
 		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->dst));
-		
+
 		tick_stat_node(st, st_str_reqs, 0, FALSE);
 		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
 		tick_stat_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
 		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, TRUE);
-		
+
 		if (v->http_host) {
 			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_reqs_by_http_host, TRUE);
 			tick_stat_node(st, ip_str, reqs_by_this_host, FALSE);
-			
+
 			tick_stat_node(st, v->http_host, reqs_by_this_addr, FALSE);
 		}
-		
+
 		return 1;
-		
+
 	} else if (i != 0) {
 		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->src));
-		
+
 		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
 		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
-		
+
 		if ( (i>100)&&(i<400) ) {
 			tick_stat_node(st, "OK", resps_by_this_addr, FALSE);
 		} else {
 			tick_stat_node(st, "KO", resps_by_this_addr, FALSE);
 		}
-		
+
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -335,21 +335,21 @@ static void http_req_stats_tree_init(stats_tree* st) {
 static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
 	const http_info_value_t* v = p;
 	int reqs_by_this_host;
-	
+
 	if (v->request_method) {
 		tick_stat_node(st, st_str_requests_by_host, 0, FALSE);
-		
+
 		if (v->http_host) {
 			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_requests_by_host, TRUE);
-			
+
 			if (v->request_uri) {
 				tick_stat_node(st, v->request_uri, reqs_by_this_host, TRUE);
 			}
 		}
-		
+
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -377,7 +377,7 @@ static int st_node_other = -1;
 
 
 static void http_stats_tree_init(stats_tree* st) {
-	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
 	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
 	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
 	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
@@ -395,12 +395,12 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 	int resp_grp;
 	const guint8* resp_str;
 	static gchar str[64];
-	
+
 	tick_stat_node(st, st_str_packets, 0, FALSE);
-	
+
 	if (i) {
 		tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
-		
+
 		if ( (i<100)||(i>=600) ) {
 			resp_grp = st_node_resp_broken;
 			resp_str = st_str_resp_broken;
@@ -420,17 +420,17 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 			resp_grp = st_node_resp_500;
 			resp_str = st_str_resp_500;
 		}
-		
+
 		tick_stat_node(st, resp_str, st_node_responses, FALSE);
-		
+
 		g_snprintf(str, sizeof(str),"%u %s",i,match_strval(i,vals_status_code));
 		tick_stat_node(st, str, resp_grp, FALSE);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
 	} else {
-		tick_stat_node(st, st_str_other, st_node_packets, FALSE);		
+		tick_stat_node(st, st_str_other, st_node_packets, FALSE);
 	}
-	
+
 	return 1;
 }
 
@@ -537,12 +537,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	
+
 	if(!conversation) {  /* Conversation does not exist yet - create it */
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 
-	/* Retrieve information from conversation 
+	/* Retrieve information from conversation
 	 * or add it if it isn't there yet
 	 */
 	stat_info = conversation_get_proto_data(conversation, proto_http);
@@ -563,7 +563,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tag = "SSDP";
 		break;
 
-	case TCP_PORT_DAAP:	
+	case TCP_PORT_DAAP:
 		proto = PROTO_DAAP;
 		proto_tag = "DAAP";
 		break;
@@ -785,13 +785,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    tvb_format_text(tvb, offset,
 				      next_offset - offset));
 			}
-			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT, 
+			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT,
 				"%s",
 				tvb_format_text(tvb, offset, next_offset - offset));
 			if (reqresp_dissector) {
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
 				else req_tree = NULL;
-				
+
 				reqresp_dissector(tvb, req_tree, offset, line, lineend);
 			}
 		} else {
@@ -1162,7 +1162,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	const guchar *next_token;
 	int tokenlen;
-	
+
 	/* The first token is the method. */
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
@@ -1197,7 +1197,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const guchar *next_token;
 	int tokenlen;
 	gchar response_chars[4];
-	
+
 	/* The first token is the version. */
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
@@ -1213,9 +1213,9 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 	memcpy(response_chars, line, 3);
 	response_chars[3] = '\0';
-	
+
 	stat_info->response_code = strtoul(response_chars,NULL,10);
-	
+
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 	    stat_info->response_code);
 }
@@ -1289,7 +1289,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		
+
 		if (chunk_size > datalen) {
 			/*
 			 * The chunk size is more than what's in the tvbuff,
@@ -1298,8 +1298,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			 */
 			chunk_size = datalen;
 		}
-		/* 
-		 * chunk_size is guaranteed to be >0 from here on 
+		/*
+		 * chunk_size is guaranteed to be >0 from here on
 		 */
 #if 0
 		  else if (new_tvb == NULL) {
@@ -1423,33 +1423,33 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
 
 		/* Grab the destination port number from the request URI to find the right subdissector */
 		strings = g_strsplit(stat_info->request_uri, ":", 2);
-		
-		if(strings[1] != NULL) { /* The string was successfuly split in two */
+
+		if(strings[0] != NULL && strings[1] != NULL) { /* The string was successfuly split in two */
 			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect hostname: %s", strings[0]);
 			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect port: %s", strings[1]);
-			
+
 			/* Replaces the pinfo->destport or srcport with the port the http connect was done to */
 			/* pinfo->srcport and destport are guint32 variables (epan/packet_info.h) */
 			if (pinfo->destport  == HTTP_PORTS)
 				ptr = &pinfo->destport;
 			else
 				ptr = &pinfo->srcport;
-			
+
 			*ptr = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
-			
+
 			dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
 					    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
 					    tree, tree, tcpd);
 		}
-		
+
 		g_strfreev(strings); /* Free the result of g_strsplit() above */
-		
+
 	} else {
 		/* Call the default data dissector */
 		   call_dissector(data_handle, next_tvb, pinfo, sub_tree);
 	}
 }
-		
+
 
 
 /*
@@ -1820,11 +1820,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		case HDR_TRANSFER_ENCODING:
 			eh_ptr->transfer_encoding = ep_strndup(value, value_len);
 			break;
-			
-		case HDR_HOST: 
+
+		case HDR_HOST:
 			stat_info->http_host = se_strndup(value, value_len);
 			break;
-			
+
 		}
 	}
 }
@@ -1946,15 +1946,15 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void reinit_http(void) {
 	if ( http_alternate_tcp_port != alternate_tcp_port ) {
-		
+
 		if (alternate_tcp_port)
 			dissector_delete("tcp.port", alternate_tcp_port, http_handle );
-		
+
 		if (http_alternate_tcp_port)
 			dissector_add("tcp.port", http_alternate_tcp_port, http_handle);
-		
+
 		alternate_tcp_port = http_alternate_tcp_port;
-	}	
+	}
 }
 
 void
@@ -2133,7 +2133,7 @@ proto_register_http(void)
 								   "Alternate TCP port",
 								   "Decode packets on this TCP port as HTTP",
 								   10,&http_alternate_tcp_port);
-	
+
 	http_handle = create_dissector_handle(dissect_http, proto_http);
 
 	/*
@@ -2213,11 +2213,11 @@ proto_reg_handoff_http(void)
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
-	
+
 	stats_tree_register("http","http","HTTP/Packet Counter", http_stats_tree_packet, http_stats_tree_init, NULL );
 	stats_tree_register("http","http_req","HTTP/Requests", http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
 	stats_tree_register("http","http_srv","HTTP/Load Distribution",http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
-	
+
 }
 
 /*
