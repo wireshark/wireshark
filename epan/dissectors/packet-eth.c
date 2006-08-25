@@ -294,10 +294,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
-    /* only dissect the lg bit for unicast addresses */
-    if(!(tvb_get_guint8(tvb, 0)&&0x01)){
-        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
-    }
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
@@ -305,10 +302,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
-    /* only dissect the lg bit for unicast addresses */
-    if(!(tvb_get_guint8(tvb, 6)&&0x01)){
-        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
-    }
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer, fcs_len);
@@ -337,10 +331,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
-    /* only dissect the lg bit for unicast addresses */
-    if(!(tvb_get_guint8(tvb, 0)&&0x01)){
-        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
-    }
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
@@ -348,10 +339,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
-    /* only dissect the lg bit for unicast addresses */
-    if(!(tvb_get_guint8(tvb, 6)&&0x01)){
-        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
-    }
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
 
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);
