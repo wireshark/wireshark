@@ -443,6 +443,7 @@ DISSECTOR_SRC =	\
 	packet-ms-mms.c	\
 	packet-mmse.c	\
 	packet-mount.c	\
+	packet-mp2t.c	\
 	packet-mpeg1.c	\
 	packet-mpls.c	\
 	packet-mpls-echo.c   \
