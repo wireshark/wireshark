@@ -49,8 +49,8 @@ static int hf_eth_src = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
 static int hf_eth_addr = -1;
-static int hf_eth_multicast = -1;
-static int hf_eth_local_admin = -1;
+static int hf_eth_ig = -1;
+static int hf_eth_lg = -1;
 static int hf_eth_trailer = -1;
 
 static gint ett_ieee8023 = -1;
@@ -64,13 +64,13 @@ static int eth_tap = -1;
 
 #define ETH_HEADER_SIZE	14
 
-static const true_false_string multicast_tfs = {
-	"This is a MULTICAST frame",
-	"This is a UNICAST frame"
+static const true_false_string ig_tfs = {
+	"Group address (multicast/broadcast)",
+	"Individual address (unicast)"
 };
-static const true_false_string local_admin_tfs = {
-	"This is NOT a factory default address",
-	"This is a FACTORY DEFAULT address"
+static const true_false_string lg_tfs = {
+	"Locally administered address (this is NOT the factory default)",
+	"Globally unique address (factory default)"
 };
 
 /* These are the Netware-ish names for the different Ethernet frame types.
@@ -293,16 +293,22 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
-    proto_tree_add_item(addr_tree, hf_eth_multicast, tvb, 0, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_local_admin, tvb, 0, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
+    /* only dissect the lg bit for unicast addresses */
+    if(!(tvb_get_guint8(tvb, 0)&&0x01)){
+        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
+    }
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
-    proto_tree_add_item(addr_tree, hf_eth_multicast, tvb, 6, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_local_admin, tvb, 6, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
+    /* only dissect the lg bit for unicast addresses */
+    if(!(tvb_get_guint8(tvb, 6)&&0x01)){
+        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
+    }
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer, fcs_len);
@@ -330,16 +336,22 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
-    proto_tree_add_item(addr_tree, hf_eth_multicast, tvb, 0, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_local_admin, tvb, 0, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
+    /* only dissect the lg bit for unicast addresses */
+    if(!(tvb_get_guint8(tvb, 0)&&0x01)){
+        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
+    }
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
-    proto_tree_add_item(addr_tree, hf_eth_multicast, tvb, 6, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_local_admin, tvb, 6, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
+    /* only dissect the lg bit for unicast addresses */
+    if(!(tvb_get_guint8(tvb, 6)&&0x01)){
+        proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
+    }
 
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);
@@ -484,15 +496,15 @@ proto_register_eth(void)
 		{ "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
 			"Ethernet Trailer or Checksum", HFILL }},
 
-                { &hf_eth_multicast,
-		{ "Multicast", "eth.multicast", FT_BOOLEAN, 24,
-			VALS(&multicast_tfs), 0x010000,
-			"Whether this is a multicast frame or not", HFILL }},
+                { &hf_eth_ig,
+		{ "IG bit", "eth.ig", FT_BOOLEAN, 24,
+		  VALS(&ig_tfs), 0x010000,
+		  "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
-                { &hf_eth_local_admin,
-		{ "Locally Administrated Address", "eth.local_admin", FT_BOOLEAN, 24,
-			VALS(&local_admin_tfs), 0x020000,
-			"Whether this is a \"factory default\" address or not", HFILL }},
+                { &hf_eth_lg,
+		{ "LG bit", "eth.lg", FT_BOOLEAN, 24,
+		  VALS(&lg_tfs), 0x020000,
+		  "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
 
 	};
 	static gint *ett[] = {
