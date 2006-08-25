@@ -49,6 +49,22 @@
 #include <epan/prefs.h>
 #include "help_dlg.h"
 
+
+/* XXX - ugly workaround for bug #699 */
+/* the "Up"/"Down" buttons of the GTK2.x version doesn't work properly */
+/* simply use the GTK1.x version of this dialog for now ... */
+#if GTK_MAJOR_VERSION >= 2
+#undef GTK_MAJOR_VERSION
+#define GTK_MAJOR_VERSION 1
+#define BUTTON_SIZE_X -1
+#define BUTTON_SIZE_Y -1
+#else
+#define BUTTON_SIZE_X 50
+#define BUTTON_SIZE_Y 20
+#endif
+/* XXX - ugly workaround for bug #699 */
+
+
 static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
 static void color_filter_up_cb(GtkButton *button, gpointer user_data);
@@ -238,20 +254,20 @@ colorize_dialog_new (char *filter)
 
   /* edit_vbox is first button column (containing: new, edit and such) */
   edit_vbox = gtk_vbutton_box_new();
-  gtk_button_box_set_child_size(GTK_BUTTON_BOX(edit_vbox), 50, 20);
+  gtk_button_box_set_child_size(GTK_BUTTON_BOX(edit_vbox), BUTTON_SIZE_X, BUTTON_SIZE_Y);
   gtk_container_set_border_width  (GTK_CONTAINER (edit_vbox), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vbox);
 
   color_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_new, 50, 20);
+  WIDGET_SET_SIZE(color_new, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
 
   color_props = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_props, 50, 20);
+  WIDGET_SET_SIZE(color_props, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_props, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_props, ("Edit the properties of the selected filter"), NULL);
@@ -260,7 +276,7 @@ colorize_dialog_new (char *filter)
   color_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_delete, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_delete, 50, 20);
+  WIDGET_SET_SIZE(color_delete, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete the selected filter"), NULL);
   gtk_widget_set_sensitive (color_delete, FALSE);
@@ -278,21 +294,21 @@ colorize_dialog_new (char *filter)
   color_export = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EXPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_export, 50, 20);
+  WIDGET_SET_SIZE(color_export, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to a file"), NULL);
 
   color_import = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_import, 50, 20);
+  WIDGET_SET_SIZE(color_import, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file"), NULL);
 
   color_clear = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
   gtk_box_pack_start(GTK_BOX (manage_vbox), color_clear, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_clear, 50, 20);
+  WIDGET_SET_SIZE(color_clear, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_tooltips_set_tip(tooltips, color_clear, ("Clear all filters in the user's colorfilters file and revert to system-wide default filter set"), NULL);
 
@@ -369,7 +385,7 @@ colorize_dialog_new (char *filter)
 
   color_filter_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_filter_up, 50, 20);
+  WIDGET_SET_SIZE(color_filter_up, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_up, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_up, ("Move filter higher in list"), NULL);
@@ -380,7 +396,7 @@ colorize_dialog_new (char *filter)
 
   color_filter_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
 #if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(color_filter_down, 50, 20);
+  WIDGET_SET_SIZE(color_filter_down, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_down, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_down, ("Move filter lower in list"), NULL);
