@@ -1036,19 +1036,21 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 				    tvb, offset+0, 4, opaque_length);
 	}
 	offset += 4;
-	length = tvb_length_remaining(tvb, offset);
-	reported_length = tvb_reported_length_remaining(tvb, offset);
-	DISSECTOR_ASSERT(length >= 0);
-	DISSECTOR_ASSERT(reported_length >= 0);
-	if (length > reported_length)
-		length = reported_length;
-	if ((guint32)length > opaque_length)
-		length = opaque_length;
-	if ((guint32)reported_length > opaque_length)
-		reported_length = opaque_length;
-	new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
-	len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
-	offset += len_consumed;
+	if (opaque_length != 0) {
+		length = tvb_length_remaining(tvb, offset);
+		reported_length = tvb_reported_length_remaining(tvb, offset);
+		DISSECTOR_ASSERT(length >= 0);
+		DISSECTOR_ASSERT(reported_length >= 0);
+		if (length > reported_length)
+			length = reported_length;
+		if ((guint32)length > opaque_length)
+			length = opaque_length;
+		if ((guint32)reported_length > opaque_length)
+			reported_length = opaque_length;
+		new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+		len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+		offset += len_consumed;
+	}
 	offset = rpc_roundup(offset);
 	return offset;
 }
