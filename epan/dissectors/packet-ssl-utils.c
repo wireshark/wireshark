@@ -1442,20 +1442,21 @@ ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 
 /* handling of association between tls/dtls ports and clear text protocol */
 void 
-ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp)
+ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp, gboolean from_key_list)
 {
 
   SslAssociation* assoc;
   assoc = g_malloc(sizeof(SslAssociation));
 
+  assoc->tcp = tcp;
+  assoc->ssl_port = port;
   assoc->info=g_malloc(strlen(protocol)+1);
   strcpy(assoc->info, protocol);
-  assoc->ssl_port = port;
-    
   assoc->handle = find_dissector(protocol); 
+  assoc->from_key_list = from_key_list;
 
-  ssl_debug_printf("association_add port %d protocol %s handle %p\n",
-		   port, protocol, assoc->handle);
+  ssl_debug_printf("association_add %s port %d protocol %s handle %p\n",
+		   (assoc->tcp)?"TCP":"UDP", port, protocol, assoc->handle);
 
   
   if(!assoc->handle){
@@ -1465,62 +1466,56 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
       dissector_add("tcp.port", port, handle);   
     else
       dissector_add("udp.port", port, handle);    
-    g_tree_insert(associations, (gpointer)port, assoc);
+    g_tree_insert(associations, assoc, assoc);
   }
 }
 
+void 
+ssl_association_remove(GTree* associations, SslAssociation *assoc)
+{
+  ssl_debug_printf("ssl_association_remove removing %s %u - %s handle %p\n",
+		   (assoc->tcp)?"TCP":"UDP", assoc->ssl_port, assoc->info, assoc->handle);
+  if (assoc->handle)
+    dissector_delete((assoc->tcp)?"tcp.port":"udp.port", assoc->ssl_port, assoc->handle);
+
+  g_tree_remove(associations, assoc);
+  g_free(assoc);
+}
 
 gint 
 ssl_association_cmp(gconstpointer a, gconstpointer b)
 {
-  return (gint)a-(gint)b;
+  const SslAssociation *assoc_a=a, *assoc_b=b;
+  if (assoc_a->tcp != assoc_b->tcp) return (assoc_a->tcp)?1:-1;
+  return assoc_a->ssl_port - assoc_b->ssl_port;
 }
 
 SslAssociation* 
-ssl_association_find(GTree * associations, guint port)
+ssl_association_find(GTree * associations, guint port, gboolean tcp)
 {
   register SslAssociation* ret;
-  ret = g_tree_lookup(associations, (gpointer)port);
+  SslAssociation assoc_tmp;
 
-  ssl_debug_printf("association_find: port %d found %p\n", port, ret);
+  assoc_tmp.tcp = tcp;
+  assoc_tmp.ssl_port = port;
+  ret = g_tree_lookup(associations, &assoc_tmp);
+
+  ssl_debug_printf("association_find: %s port %d found %p\n", (tcp)?"TCP":"UDP", port, ret);
   return ret;
 }
 
 gint 
-ssl_association_remove_handle_tcp (gpointer key _U_, 
-				   gpointer  data, gpointer  user_data _U_)
+ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
 {
-  SslAssociation* assoc;
-  assoc = (SslAssociation*) data;
-
-  ssl_debug_printf("association_remove_handle removing ptr %p handle %p\n",
-		   data, assoc->handle);
-  if (assoc->handle)
-    dissector_delete("tcp.port", assoc->ssl_port, assoc->handle);
-  g_free(data);
-  return 0;
-}
-
-gint 
-ssl_association_remove_handle_udp (gpointer key _U_, 
-				   gpointer  data, gpointer  user_data _U_)
-{
-  SslAssociation* assoc;
-  assoc = (SslAssociation*) data;
-
-  ssl_debug_printf("association_remove_handle removing ptr %p handle %p\n",
-		   data, assoc->handle);
-  if (assoc->handle)
-    dissector_delete("tcp.port", assoc->ssl_port, assoc->handle);
-  g_free(data);
-  return 0;
+  if (((SslAssociation*)data)->from_key_list)
+    ep_stack_push((ep_stack_t)user_data, data);
 }
 
 int 
-ssl_packet_from_server(GTree* associations, guint port)
+ssl_packet_from_server(GTree* associations, guint port, gboolean tcp)
 {
   register gint ret;
-  ret = ssl_association_find(associations, port) != 0;
+  ret = ssl_association_find(associations, port, tcp) != 0;
 
   ssl_debug_printf("packet_from_server: is from server %d\n", ret);    
   return ret;
@@ -1668,7 +1663,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
 		     filename);
     g_hash_table_insert(key_hash, service, private_key);
 	    
-    ssl_association_add(associations, handle, atoi(port), protocol, tcp);
+    ssl_association_add(associations, handle, atoi(port), protocol, tcp, TRUE);
 	    
   } while (end != NULL);
   free(tmp);  

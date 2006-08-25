@@ -657,9 +657,11 @@ typedef struct _SslDecryptSession {
 } SslDecryptSession;
 
 typedef struct _SslAssociation {
+  gboolean tcp;
   guint ssl_port;
   dissector_handle_t handle;
   gchar* info;
+  gboolean from_key_list;
 } SslAssociation;
 
 typedef struct _SslService {
@@ -754,24 +756,22 @@ ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_);
 
 /* handling of association between tls/dtls ports and clear text protocol */
 extern void 
-ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp);
+ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp, gboolean from_key_list);
+
+extern void 
+ssl_association_remove(GTree* associations, SslAssociation *assoc);
 
 extern gint 
 ssl_association_cmp(gconstpointer a, gconstpointer b);
 
 extern SslAssociation* 
-ssl_association_find(GTree * associations, guint port);
+ssl_association_find(GTree * associations, guint port, gboolean tcp);
 
 extern gint 
-ssl_association_remove_handle_tcp (gpointer key _U_, 
-				   gpointer  data, gpointer  user_data _U_);
+ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
 
 extern gint 
-ssl_association_remove_handle_udp (gpointer key _U_, 
-				   gpointer  data, gpointer  user_data _U_);
-
-extern gint 
-ssl_packet_from_server(GTree* associations, guint port);
+ssl_packet_from_server(GTree* associations, guint port, gboolean tcp);
 
 /* add to packet data a newly allocated tvb with the specified real data*/
 extern void

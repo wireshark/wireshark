@@ -164,20 +164,24 @@ dtls_init(void)
 static void 
 dtls_parse(void)
 {
+  ep_stack_t tmp_stack;
+  SslAssociation *tmp_assoc;
+
   if (dtls_key_hash)
     {
       g_hash_table_foreach(dtls_key_hash, ssl_private_key_free, NULL);
       g_hash_table_destroy(dtls_key_hash);
     }
-  if (dtls_associations)
-    {
-      g_tree_traverse(dtls_associations, ssl_association_remove_handle_udp, G_IN_ORDER, NULL);
-      g_tree_destroy(dtls_associations);
-    }
+
+  /* remove only associations created from key list */
+  tmp_stack = ep_stack_new();
+  g_tree_traverse(dtls_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
+  while (tmp_assoc = ep_stack_pop(tmp_stack)) {
+    ssl_association_remove(dtls_associations, tmp_assoc);
+  }
 
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
-  dtls_associations = g_tree_new(ssl_association_cmp);
     
   if (dtls_keys_list && (dtls_keys_list[0] != 0)) 
     {            
@@ -187,7 +191,7 @@ dtls_parse(void)
   ssl_set_debug(dtls_debug_file_name);
 
   /* [re] add dtls dissection to default port in openssl 0.9.8b implementation */
-  ssl_association_add(dtls_associations, dtls_handle, 4433, "http", FALSE);   
+  ssl_association_add(dtls_associations, dtls_handle, 4433, "http", FALSE,FALSE);   
 }
 
 /*
@@ -318,7 +322,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
             
     /* we need to know witch side of conversation is speaking */
-    if (ssl_packet_from_server(dtls_associations, pinfo->srcport)) {
+    if (ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
       dummy.addr = pinfo->src;
       dummy.port = pinfo->srcport;
     }
@@ -444,7 +448,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
     
   /* retrive decoder for this packet direction */    
-  if ((direction = ssl_packet_from_server(dtls_associations, pinfo->srcport)) != 0) {
+  if ((direction = ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
     decoder = &ssl->server;
   }
@@ -577,7 +581,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   record_length = tvb_get_ntohs(tvb, offset + 11);
 
   if(ssl){   
-    if(ssl_packet_from_server(dtls_associations, pinfo->srcport)){
+    if(ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)){
       ssl->server.seq=sequence_number;
       ssl->server.epoch=epoch;
     }
@@ -758,8 +762,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* we need dissector information when the selected packet is shown.
      * ssl session pointer is NULL at that time, so we can't access
      * info cached there*/         
-    association = ssl_association_find(dtls_associations, pinfo->srcport);
-    association = association ? association: ssl_association_find(dtls_associations, pinfo->destport);
+    association = ssl_association_find(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
+    association = association ? association: ssl_association_find(dtls_associations, pinfo->destport, pinfo->ptype == PT_TCP);
 
     proto_item_set_text(dtls_record_tree,
 			"%s Record Layer: %s Protocol: %s",
@@ -2147,7 +2151,10 @@ proto_register_dtls(void)
   }
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
+  dtls_handle = find_dissector("dtls");
     
+  dtls_associations = g_tree_new(ssl_association_cmp);
+
   register_init_routine(dtls_init);
   ssl_lib_init();
   dtls_tap = register_tap("dtls");
@@ -2162,7 +2169,6 @@ proto_register_dtls(void)
 void
 proto_reg_handoff_dtls(void)
 {
-  dtls_handle = find_dissector("dtls");
     
   /* add now dissector to default ports.*/
   dtls_parse();

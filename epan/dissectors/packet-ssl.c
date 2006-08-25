@@ -109,6 +109,7 @@
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 
 
@@ -230,6 +231,9 @@ static gint ssl_decrypted_data_avail = 0;
 static gchar* ssl_keys_list = NULL;
 static gchar* ssl_debug_file_name = NULL;
 
+/* Forward declaration we need below */
+void proto_reg_handoff_ssl(void);
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
 ssl_init(void)
@@ -241,6 +245,9 @@ ssl_init(void)
 static void
 ssl_parse(void)
 {
+	ep_stack_t tmp_stack;
+	SslAssociation *tmp_assoc;
+
     ssl_set_debug(ssl_debug_file_name);
 
     if (ssl_key_hash)
@@ -248,26 +255,22 @@ ssl_parse(void)
         g_hash_table_foreach(ssl_key_hash, ssl_private_key_free, NULL);
         g_hash_table_destroy(ssl_key_hash);
     }
-    if (ssl_associations)
-    {
-        g_tree_traverse(ssl_associations, ssl_association_remove_handle_tcp, G_IN_ORDER, NULL);
-        g_tree_destroy(ssl_associations);
-    }
+
+	/* remove only associations created from key list */
+	tmp_stack = ep_stack_new();
+    g_tree_traverse(ssl_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
+	while (tmp_assoc = ep_stack_pop(tmp_stack)) {
+		ssl_association_remove(ssl_associations, tmp_assoc);
+	}
 
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new(ssl_private_key_hash,ssl_private_key_equal);
-    ssl_associations = g_tree_new(ssl_association_cmp);
 
     if (ssl_keys_list && (ssl_keys_list[0] != 0))
     {
         ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
     }
 
-    /* [re] add ssl dissection to defaults ports */
-    ssl_association_add(ssl_associations, ssl_handle, 443, "http", TRUE);
-    ssl_association_add(ssl_associations, ssl_handle, 636, "ldap", TRUE);
-    ssl_association_add(ssl_associations, ssl_handle, 993, "imap", TRUE);
-    ssl_association_add(ssl_associations, ssl_handle, 995, "pop", TRUE);
 }
 
 /* function that save app_data during sub protocol reassembling */
@@ -312,8 +315,8 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 	      tvbuff_t* new_tvb;
 	      packet_info * pp;
 	      /* find out a dissector using server port*/
-	      association = ssl_association_find(ssl_associations, pinfo->srcport);
-	      association = association ? association: ssl_association_find(ssl_associations, pinfo->destport);
+	      association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
+	      association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
 	      /* create a copy of packet_info */
 	      pp=g_malloc(sizeof(packet_info));
 	      memcpy(pp, pinfo, sizeof(packet_info));
@@ -584,7 +587,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
 
         /* we need to know witch side of conversation is speaking*/
-        if (ssl_packet_from_server(ssl_associations, pinfo->srcport)) {
+        if (ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
             dummy.addr = pinfo->src;
             dummy.port = pinfo->srcport;
         }
@@ -765,7 +768,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     }
 
     /* retrive decoder for this packet direction*/
-    if ((direction = ssl_packet_from_server(ssl_associations, pinfo->srcport)) != 0) {
+    if ((direction = ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
         ssl_debug_printf("decrypt_ssl3_record: using server decoder\n");
         decoder = &ssl->server;
     }
@@ -1107,8 +1110,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* we need dissector information when the selected packet is shown.
          * ssl session pointer is NULL at that time, so we can't access
          * info cached there*/
-        association = ssl_association_find(ssl_associations, pinfo->srcport);
-        association = association ? association: ssl_association_find(ssl_associations, pinfo->destport);
+        association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
+        association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
 
         proto_item_set_text(ssl_record_tree,
             "%s Record Layer: %s Protocol: %s",
@@ -3713,7 +3716,7 @@ proto_register_ssl(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     {
-      module_t *ssl_module = prefs_register_protocol(proto_ssl, ssl_parse);
+      module_t *ssl_module = prefs_register_protocol(proto_ssl, proto_reg_handoff_ssl);
       prefs_register_bool_preference(ssl_module,
              "desegment_ssl_records",
              "Reassemble SSL records spanning multiple TCP segments",
@@ -3739,6 +3742,9 @@ proto_register_ssl(void)
     }
 
     register_dissector("ssl", dissect_ssl, proto_ssl);
+    ssl_handle = find_dissector("ssl");
+
+    ssl_associations = g_tree_new(ssl_association_cmp);
 
     register_init_routine(ssl_init);
     ssl_lib_init();
@@ -3754,9 +3760,26 @@ proto_register_ssl(void)
 void
 proto_reg_handoff_ssl(void)
 {
-    ssl_handle = find_dissector("ssl");
 
-    /* add now dissector to default ports.*/
+    /* parse key list */
     ssl_parse();
+
+    /* add ssl dissection to defaults ports */
+    ssl_dissector_add(443, "http", TRUE);
+    ssl_dissector_add(636, "ldap", TRUE);
+    ssl_dissector_add(993, "imap", TRUE);
+    ssl_dissector_add(995, "pop", TRUE);
 }
 
+void
+ssl_dissector_add(guint port, gchar *protocol, gboolean tcp)
+{
+	SslAssociation *assoc;
+
+	assoc = ssl_association_find(ssl_associations, port, tcp);
+	if (assoc) {
+		ssl_association_remove(ssl_associations, assoc);
+	}
+
+    ssl_association_add(ssl_associations, ssl_handle, port, protocol, tcp, FALSE);
+}

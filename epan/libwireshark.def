@@ -629,6 +629,7 @@ sid_name_table                  DATA
 smb_cmd_vals                    DATA
 smb2_cmd_vals                    DATA
 sminmpec_values                 DATA
+ssl_dissector_add
 start_requested_stats
 started_with_special_privs
 stats_tree_branch_max_namelen
