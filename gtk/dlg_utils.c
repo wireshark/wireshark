@@ -244,11 +244,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, create_stat);
             return hbox;
         }
-        if (start && cancel) {
-            dlg_button_new(hbox, button_hbox, cancel);
-            dlg_button_new(hbox, button_hbox, start);
-            return hbox;
-        }
         if (cap_start && cancel) {
             dlg_button_new(hbox, button_hbox, cancel);
             dlg_button_new(hbox, button_hbox, cap_start);
