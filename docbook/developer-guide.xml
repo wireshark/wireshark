@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.0">
+  <!ENTITY WiresharkCurrentVersion "0.99.3">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
@@ -68,8 +68,8 @@ FILE SECTION
 
 <!-- These refer to graphics files and figures contained in the document -->
 
-  <!ENTITY WiresharkLogo SYSTEM "./wsdg_graphics/wireshark-logo.png" NDATA PNG>
-  <!ENTITY WiresharkFunctionBlocks SYSTEM "./wsdg_graphics/ethereal-function-blocks.png" NDATA PNG>
+  <!ENTITY WiresharkLogo SYSTEM "./wsdg_graphics/ws-logo.png" NDATA PNG>
+  <!ENTITY WiresharkFunctionBlocks SYSTEM "./wsdg_graphics/ws-function-blocks.png" NDATA PNG>
 
 <!-- These are the actual files that make up the document -->
 

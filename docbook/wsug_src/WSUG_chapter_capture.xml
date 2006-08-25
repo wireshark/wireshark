@@ -214,11 +214,18 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>Prepare</command></term>
+	  <varlistentry><term><command>Options</command></term>
 	    <listitem>
 	      <para>
 		  Open the Capture Options dialog with this interface selected, see 
 		  <xref linkend="ChCapCaptureOptions"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Details (Win32 only)</command></term>
+	    <listitem>
+	      <para>
+		  Open a dialog with detailed information about the interface.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -963,7 +970,7 @@ tcp port 23 and not host 10.0.0.5
       <orderedlist>
 	<listitem>
 	  <para>Using the 
-	  "<inlinegraphic entityref="WiresharkToolbarStop" format="PNG"/>
+	  "<inlinegraphic entityref="WiresharkToolbarCaptureStop" format="PNG"/>
 	  Stop" button from the <command>Capture Info dialog box
 	  </command>.
 	  </para>

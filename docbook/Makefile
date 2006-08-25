@@ -70,77 +70,73 @@ WSUG_FILES =	\
 	wsug_src/WSUG_preface.xml
 
 WSUG_GRAPHICS =	\
-	wsug_graphics/ethereal-3pane.png			\
-	wsug_graphics/ethereal-analyze-menu.png		\
-	wsug_graphics/ethereal-bytes-pane-popup-menu.png	\
-	wsug_graphics/ethereal-bytes-pane-tabs.png		\
-	wsug_graphics/ethereal-bytes-pane.png		\
-	wsug_graphics/ethereal-capture-info.png		\
-	wsug_graphics/ethereal-capture-interfaces.png	\
-	wsug_graphics/ethereal-capture-menu.png		\
-	wsug_graphics/ethereal-capture-options.png		\
-	wsug_graphics/ethereal-capture-preferences.png	\
-	wsug_graphics/ethereal-choose-color-rule.png		\
-	wsug_graphics/ethereal-coloring-rules-dialog.png	\
-	wsug_graphics/ethereal-decode-as-show.png		\
-	wsug_graphics/ethereal-decode-as.png			\
-	wsug_graphics/ethereal-details-pane-popup-menu.png	\
-	wsug_graphics/ethereal-details-pane.png		\
-	wsug_graphics/ethereal-display-filter-tcp.png	\
-	wsug_graphics/ethereal-edit-color-rule-dialog.png	\
-	wsug_graphics/ethereal-edit-menu.png			\
-	wsug_graphics/ethereal-empty.png			\
-	wsug_graphics/ethereal-enabled-protocols.png		\
-	wsug_graphics/ethereal-error-file-exists.png		\
-	wsug_graphics/ethereal-error-open.png		\
-	wsug_graphics/ethereal-export-pdml.png		\
-	wsug_graphics/ethereal-export-plain.png		\
-	wsug_graphics/ethereal-export-ps.png			\
-	wsug_graphics/ethereal-export-psml.png		\
-	wsug_graphics/ethereal-export-selected.png		\
-	wsug_graphics/ethereal-file-menu.png			\
-	wsug_graphics/ethereal-file-set-dialog.png		\
-	wsug_graphics/ethereal-filter-add-expression.png	\
-	wsug_graphics/ethereal-filter-toolbar.png		\
-	wsug_graphics/ethereal-filters-2.png			\
-	wsug_graphics/ethereal-filters.png			\
-	wsug_graphics/ethereal-find-packet.png		\
-	wsug_graphics/ethereal-follow-stream.png		\
-	wsug_graphics/ethereal-go-menu.png			\
-	wsug_graphics/ethereal-goto-packet.png		\
-	wsug_graphics/ethereal-gui-colors-preferences.png	\
-	wsug_graphics/ethereal-gui-columns-preferences.png	\
-	wsug_graphics/ethereal-gui-font-preferences.png	\
-	wsug_graphics/ethereal-gui-layout-preferences.png	\
-	wsug_graphics/ethereal-gui-preferences.png		\
-	wsug_graphics/ethereal-help-menu.png			\
-	wsug_graphics/ethereal-list-pane.png			\
-	wsug_graphics/ethereal-main-toolbar.png		\
-	wsug_graphics/ethereal-menu.png			\
-	wsug_graphics/ethereal-merge.png			\
-	wsug_graphics/ethereal-nameresolution-preferences.png	\
-	wsug_graphics/ethereal-open.png			\
-	wsug_graphics/ethereal-packet-format.png		\
-	wsug_graphics/ethereal-packet-pane-popup-menu.png	\
-	wsug_graphics/ethereal-packet-range.png		\
-	wsug_graphics/ethereal-packet-selected.png		\
-	wsug_graphics/ethereal-packet-sep-win.png		\
-	wsug_graphics/ethereal-print.png			\
-	wsug_graphics/ethereal-printing-preferences.png	\
-	wsug_graphics/ethereal-save-as.png			\
-	wsug_graphics/ethereal-statistics-menu.png		\
-	wsug_graphics/ethereal-stats-conversations.png	\
-	wsug_graphics/ethereal-stats-endpoints.png		\
-	wsug_graphics/ethereal-stats-hierarchy.png		\
-	wsug_graphics/ethereal-stats-iographs.png		\
-	wsug_graphics/ethereal-stats-srt-dcerpc-filter.png	\
-	wsug_graphics/ethereal-stats-srt-dcerpc.png		\
-	wsug_graphics/ethereal-stats-summary.png		\
-	wsug_graphics/ethereal-statusbar-empty.png		\
-	wsug_graphics/ethereal-statusbar-loaded.png		\
-	wsug_graphics/ethereal-statusbar-selected.png	\
-	wsug_graphics/ethereal-time-reference.png		\
-	wsug_graphics/ethereal-view-menu.png			\
+	wsug_graphics/ws-analyze-menu.png		\
+	wsug_graphics/ws-bytes-pane-popup-menu.png	\
+	wsug_graphics/ws-bytes-pane-tabs.png		\
+	wsug_graphics/ws-bytes-pane.png		\
+	wsug_graphics/ws-capture-info.png		\
+	wsug_graphics/ws-capture-interfaces.png	\
+	wsug_graphics/ws-capture-menu.png		\
+	wsug_graphics/ws-capture-options.png		\
+	wsug_graphics/ws-capture-preferences.png	\
+	wsug_graphics/ws-choose-color-rule.png		\
+	wsug_graphics/ws-coloring-fields.png		\
+	wsug_graphics/ws-coloring-rules-dialog.png	\
+	wsug_graphics/ws-decode-as-show.png		\
+	wsug_graphics/ws-decode-as.png			\
+	wsug_graphics/ws-details-pane-popup-menu.png	\
+	wsug_graphics/ws-details-pane.png		\
+	wsug_graphics/ws-display-filter-tcp.png	\
+	wsug_graphics/ws-edit-color-rule-dialog.png	\
+	wsug_graphics/ws-edit-menu.png			\
+	wsug_graphics/ws-enabled-protocols.png		\
+	wsug_graphics/ws-export-pdml.png		\
+	wsug_graphics/ws-export-plain.png		\
+	wsug_graphics/ws-export-ps.png			\
+	wsug_graphics/ws-export-psml.png		\
+	wsug_graphics/ws-export-selected.png		\
+	wsug_graphics/ws-file-menu.png			\
+	wsug_graphics/ws-file-set-dialog.png		\
+	wsug_graphics/ws-filter-add-expression.png	\
+	wsug_graphics/ws-filter-toolbar.png		\
+	wsug_graphics/ws-filters.png			\
+	wsug_graphics/ws-find-packet.png		\
+	wsug_graphics/ws-follow-stream.png		\
+	wsug_graphics/ws-go-menu.png			\
+	wsug_graphics/ws-goto-packet.png		\
+	wsug_graphics/ws-gui-colors-preferences.png	\
+	wsug_graphics/ws-gui-columns-preferences.png	\
+	wsug_graphics/ws-gui-font-preferences.png	\
+	wsug_graphics/ws-gui-layout-preferences.png	\
+	wsug_graphics/ws-gui-preferences.png		\
+	wsug_graphics/ws-help-menu.png			\
+	wsug_graphics/ws-list-pane.png			\
+	wsug_graphics/ws-main-toolbar.png		\
+	wsug_graphics/ws-menu.png			\
+	wsug_graphics/ws-merge.png			\
+	wsug_graphics/ws-nameresolution-preferences.png	\
+	wsug_graphics/ws-open.png			\
+	wsug_graphics/ws-packet-format.png		\
+	wsug_graphics/ws-packet-pane-popup-menu.png	\
+	wsug_graphics/ws-packet-range.png		\
+	wsug_graphics/ws-packet-selected.png		\
+	wsug_graphics/ws-packet-sep-win.png		\
+	wsug_graphics/ws-print.png			\
+	wsug_graphics/ws-printing-preferences.png	\
+	wsug_graphics/ws-save-as.png			\
+	wsug_graphics/ws-statistics-menu.png		\
+	wsug_graphics/ws-stats-conversations.png	\
+	wsug_graphics/ws-stats-endpoints.png		\
+	wsug_graphics/ws-stats-hierarchy.png		\
+	wsug_graphics/ws-stats-iographs.png		\
+	wsug_graphics/ws-stats-srt-dcerpc-filter.png	\
+	wsug_graphics/ws-stats-srt-dcerpc.png		\
+	wsug_graphics/ws-stats-summary.png		\
+	wsug_graphics/ws-statusbar-empty.png		\
+	wsug_graphics/ws-statusbar-loaded.png		\
+	wsug_graphics/ws-statusbar-selected.png	\
+	wsug_graphics/ws-time-reference.png		\
+	wsug_graphics/ws-view-menu.png			\
 	wsug_graphics/note.png				\
 	wsug_graphics/tip.png				\
 	wsug_graphics/warning.png				\
@@ -155,7 +151,9 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/toolbar/display_filter_24.png		\
 	wsug_graphics/toolbar/resize_columns_24.png		\
 	wsug_graphics/toolbar/stock_add_24.png		\
+	wsug_graphics/toolbar/stock_apply_20.png		\
 	wsug_graphics/toolbar/stock_bottom_24.png		\
+	wsug_graphics/toolbar/stock_clear_24.png		\
 	wsug_graphics/toolbar/stock_close_24.png		\
 	wsug_graphics/toolbar/stock_colorselector_24.png	\
 	wsug_graphics/toolbar/stock_help_24.png		\
@@ -175,8 +173,8 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/toolbar/stock_zoom_1_24.png		\
 	wsug_graphics/toolbar/stock_zoom_in_24.png		\
 	wsug_graphics/toolbar/stock_zoom_out_24.png		\
-	wsug_graphics/wireshark-logo.png			\
-	wsug_graphics/wireshark-main.png
+	wsug_graphics/ws-logo.png			\
+	wsug_graphics/ws-main.png
 
 WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_build_intro.xml	\
@@ -192,13 +190,13 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_preface.xml
 
 WSDG_GRAPHICS =	\
-	wsdg_graphics/ethereal-capture-sync.dia		\
-	wsdg_graphics/ethereal-capture-sync.png		\
-	wsdg_graphics/ethereal-capture_internals.dia	\
-	wsdg_graphics/ethereal-capture_internals.png	\
-	wsdg_graphics/ethereal-function-blocks.dia	\
-	wsdg_graphics/ethereal-function-blocks.png	\
-	wsdg_graphics/wireshark-logo.png		\
+	wsdg_graphics/ws-capture-sync.dia		\
+	wsdg_graphics/ws-capture-sync.png		\
+	wsdg_graphics/ws-capture_internals.dia	\
+	wsdg_graphics/ws-capture_internals.png	\
+	wsdg_graphics/ws-function-blocks.dia	\
+	wsdg_graphics/ws-function-blocks.png	\
+	wsdg_graphics/ws-logo.png		\
 	wsdg_graphics/note.png				\
 	wsdg_graphics/tip.png				\
 	wsdg_graphics/warning.png

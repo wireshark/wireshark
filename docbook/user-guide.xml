@@ -73,7 +73,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.0">
+  <!ENTITY WiresharkCurrentVersion "0.99.3">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
@@ -128,76 +128,77 @@ FILE SECTION
 -->
 <!-- These refer to graphics files and figures contained in the document -->
   <!-- -->
-  <!ENTITY WiresharkLogo SYSTEM "./wsug_graphics/wireshark-logo.png" NDATA PNG>
+  <!ENTITY WiresharkLogo SYSTEM "./wsug_graphics/ws-logo.png" NDATA PNG>
   
   <!-- 1st Chapter -->
-  <!ENTITY WiresharkMain1 SYSTEM "./wsug_graphics/wireshark-main.png" NDATA PNG>
+  <!ENTITY WiresharkMain1 SYSTEM "./wsug_graphics/ws-main.png" NDATA PNG>
 
   <!-- 2nd Chapter -->
 
   <!-- Third Chapter -->
-  <!ENTITY WiresharkEmpty SYSTEM "./wsug_graphics/ethereal-empty.png" NDATA PNG>
-  <!ENTITY WiresharkThreePane1 SYSTEM "./wsug_graphics/wireshark-main.png" NDATA PNG>
-  <!ENTITY WiresharkMenuOnly SYSTEM "./wsug_graphics/ethereal-menu.png" NDATA PNG>
-  <!ENTITY WiresharkMainToolbar SYSTEM "./wsug_graphics/ethereal-main-toolbar.png" NDATA PNG>
-  <!ENTITY WiresharkFilterToolbar SYSTEM "./wsug_graphics/ethereal-filter-toolbar.png" NDATA PNG>
-  <!ENTITY WiresharkListPane SYSTEM "./wsug_graphics/ethereal-list-pane.png" NDATA PNG>
-  <!ENTITY WiresharkDetailsPane SYSTEM "./wsug_graphics/ethereal-details-pane.png" NDATA PNG>
-  <!ENTITY WiresharkBytesPane SYSTEM "./wsug_graphics/ethereal-bytes-pane.png" NDATA PNG>
-  <!ENTITY WiresharkBytesPaneTabs SYSTEM "./wsug_graphics/ethereal-bytes-pane-tabs.png" NDATA PNG>
-  <!ENTITY WiresharkStatusbarEmpty SYSTEM "./wsug_graphics/ethereal-statusbar-empty.png" NDATA PNG>
-  <!ENTITY WiresharkStatusbarLoaded SYSTEM "./wsug_graphics/ethereal-statusbar-loaded.png" NDATA PNG>
-  <!ENTITY WiresharkStatusbarSelected SYSTEM "./wsug_graphics/ethereal-statusbar-selected.png" NDATA PNG>
-  <!ENTITY WiresharkSaveAs SYSTEM "./wsug_graphics/ethereal-save-as.png" NDATA PNG>
-  <!ENTITY WiresharkOpen SYSTEM "./wsug_graphics/ethereal-open.png" NDATA PNG> 
-  <!ENTITY WiresharkPacketSelected1 SYSTEM "./wsug_graphics/ethereal-packet-selected.png" NDATA PNG>
-  <!ENTITY WiresharkPacketSepView SYSTEM "./wsug_graphics/ethereal-packet-sep-win.png" NDATA PNG>
-  <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ethereal-display-filter-tcp.png" NDATA PNG>  
-  <!ENTITY WiresharkColoringRulesDialog SYSTEM "./wsug_graphics/ethereal-coloring-rules-dialog.png" NDATA PNG>
-  <!ENTITY WiresharkEditColorDialog SYSTEM "./wsug_graphics/ethereal-edit-color-rule-dialog.png" NDATA PNG>
-  <!ENTITY WiresharkChooseColorDialog SYSTEM "./wsug_graphics/ethereal-choose-color-rule.png" NDATA PNG>
-  <!ENTITY WiresharkFollowStream SYSTEM "./wsug_graphics/ethereal-follow-stream.png" NDATA PNG>
-  <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ethereal-find-packet.png" NDATA PNG>  
-  <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ethereal-goto-packet.png" NDATA PNG>  
-  <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ethereal-print.png" NDATA PNG>
-  <!ENTITY WiresharkGUIPreferences SYSTEM "./wsug_graphics/ethereal-gui-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkGUILayoutPreferences SYSTEM "./wsug_graphics/ethereal-gui-layout-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkGUIColumnsPreferences SYSTEM "./wsug_graphics/ethereal-gui-columns-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkGUIFontPreferences SYSTEM "./wsug_graphics/ethereal-gui-font-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkGUIColorsPreferences SYSTEM "./wsug_graphics/ethereal-gui-colors-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkCapturePreferences SYSTEM "./wsug_graphics/ethereal-capture-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkPrintingPreferences SYSTEM "./wsug_graphics/ethereal-printing-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkNameResolutionPreferences SYSTEM "./wsug_graphics/ethereal-nameresolution-preferences.png" NDATA PNG>
-  <!ENTITY WiresharkFilters SYSTEM "./wsug_graphics/ethereal-filters.png" NDATA PNG>
-  <!ENTITY WiresharkFileMenu SYSTEM "./wsug_graphics/ethereal-file-menu.png" NDATA PNG>
-  <!ENTITY WiresharkEditMenu SYSTEM "./wsug_graphics/ethereal-edit-menu.png" NDATA PNG>
-  <!ENTITY WiresharkViewMenu SYSTEM "./wsug_graphics/ethereal-view-menu.png" NDATA PNG>
-  <!ENTITY WiresharkGoMenu SYSTEM "./wsug_graphics/ethereal-go-menu.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureMenu SYSTEM "./wsug_graphics/ethereal-capture-menu.png" NDATA PNG>
-  <!ENTITY WiresharkAnalyzeMenu SYSTEM "./wsug_graphics/ethereal-analyze-menu.png" NDATA PNG>
-  <!ENTITY WiresharkStatisticsMenu SYSTEM "./wsug_graphics/ethereal-statistics-menu.png" NDATA PNG>
-  <!ENTITY WiresharkHelpMenu SYSTEM "./wsug_graphics/ethereal-help-menu.png" NDATA PNG>
-  <!ENTITY WiresharkPacketPanePopupMenu SYSTEM "./wsug_graphics/ethereal-packet-pane-popup-menu.png" NDATA PNG>
-  <!ENTITY WiresharkDetailsPanePopupMenu SYSTEM "./wsug_graphics/ethereal-details-pane-popup-menu.png" NDATA PNG>
-  <!ENTITY WiresharkBytesPanePopupMenu SYSTEM "./wsug_graphics/ethereal-bytes-pane-popup-menu.png" NDATA PNG>
-  <!ENTITY WiresharkFilterAddExpression SYSTEM "./wsug_graphics/ethereal-filter-add-expression.png" NDATA PNG>
-  <!ENTITY WiresharkFilters2 SYSTEM "./wsug_graphics/ethereal-filters-2.png" NDATA PNG>
-  <!ENTITY WiresharkExportPlainDialog SYSTEM "./wsug_graphics/ethereal-export-plain.png" NDATA PNG>
-  <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ethereal-export-ps.png" NDATA PNG>
-  <!ENTITY WiresharkExportPSMLDialog SYSTEM "./wsug_graphics/ethereal-export-psml.png" NDATA PNG>
-  <!ENTITY WiresharkExportPDMLDialog SYSTEM "./wsug_graphics/ethereal-export-pdml.png" NDATA PNG>
-  <!ENTITY WiresharkExportSelectedDialog SYSTEM "./wsug_graphics/ethereal-export-selected.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ethereal-capture-interfaces.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ethereal-capture-options.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ethereal-capture-info.png" NDATA PNG>
-  <!ENTITY WiresharkMergeDialog SYSTEM "./wsug_graphics/ethereal-merge.png" NDATA PNG>
-  <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ethereal-packet-range.png" NDATA PNG>
-  <!ENTITY WiresharkPacketFormatFrame SYSTEM "./wsug_graphics/ethereal-packet-format.png" NDATA PNG>
-  <!ENTITY WiresharkTimeReference SYSTEM "./wsug_graphics/ethereal-time-reference.png" NDATA PNG>
-  <!ENTITY WiresharkEnabledProtocols SYSTEM "./wsug_graphics/ethereal-enabled-protocols.png" NDATA PNG>
-  <!ENTITY WiresharkDecodeAs SYSTEM "./wsug_graphics/ethereal-decode-as.png" NDATA PNG>
-  <!ENTITY WiresharkDecodeAsShow SYSTEM "./wsug_graphics/ethereal-decode-as-show.png" NDATA PNG>
-  <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ethereal-file-set-dialog.png" NDATA PNG>
+  <!ENTITY WiresharkEmpty SYSTEM "./wsug_graphics/ws-empty.png" NDATA PNG>
+  <!ENTITY WiresharkThreePane1 SYSTEM "./wsug_graphics/ws-main.png" NDATA PNG>
+  <!ENTITY WiresharkMenuOnly SYSTEM "./wsug_graphics/ws-menu.png" NDATA PNG>
+  <!ENTITY WiresharkMainToolbar SYSTEM "./wsug_graphics/ws-main-toolbar.png" NDATA PNG>
+  <!ENTITY WiresharkFilterToolbar SYSTEM "./wsug_graphics/ws-filter-toolbar.png" NDATA PNG>
+  <!ENTITY WiresharkListPane SYSTEM "./wsug_graphics/ws-list-pane.png" NDATA PNG>
+  <!ENTITY WiresharkDetailsPane SYSTEM "./wsug_graphics/ws-details-pane.png" NDATA PNG>
+  <!ENTITY WiresharkBytesPane SYSTEM "./wsug_graphics/ws-bytes-pane.png" NDATA PNG>
+  <!ENTITY WiresharkBytesPaneTabs SYSTEM "./wsug_graphics/ws-bytes-pane-tabs.png" NDATA PNG>
+  <!ENTITY WiresharkStatusbarEmpty SYSTEM "./wsug_graphics/ws-statusbar-empty.png" NDATA PNG>
+  <!ENTITY WiresharkStatusbarLoaded SYSTEM "./wsug_graphics/ws-statusbar-loaded.png" NDATA PNG>
+  <!ENTITY WiresharkStatusbarSelected SYSTEM "./wsug_graphics/ws-statusbar-selected.png" NDATA PNG>
+  <!ENTITY WiresharkSaveAs SYSTEM "./wsug_graphics/ws-save-as.png" NDATA PNG>
+  <!ENTITY WiresharkOpen SYSTEM "./wsug_graphics/ws-open.png" NDATA PNG> 
+  <!ENTITY WiresharkPacketSelected1 SYSTEM "./wsug_graphics/ws-packet-selected.png" NDATA PNG>
+  <!ENTITY WiresharkPacketSepView SYSTEM "./wsug_graphics/ws-packet-sep-win.png" NDATA PNG>
+  <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ws-display-filter-tcp.png" NDATA PNG>  
+  <!ENTITY WiresharkColoringRulesDialog SYSTEM "./wsug_graphics/ws-coloring-rules-dialog.png" NDATA PNG>
+  <!ENTITY WiresharkColoringFields SYSTEM "./wsug_graphics/ws-coloring-fields.png" NDATA PNG>
+  <!ENTITY WiresharkEditColorDialog SYSTEM "./wsug_graphics/ws-edit-color-rule-dialog.png" NDATA PNG>
+  <!ENTITY WiresharkChooseColorDialog SYSTEM "./wsug_graphics/ws-choose-color-rule.png" NDATA PNG>
+  <!ENTITY WiresharkFollowStream SYSTEM "./wsug_graphics/ws-follow-stream.png" NDATA PNG>
+  <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>  
+  <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ws-goto-packet.png" NDATA PNG>  
+  <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ws-print.png" NDATA PNG>
+  <!ENTITY WiresharkGUIPreferences SYSTEM "./wsug_graphics/ws-gui-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUILayoutPreferences SYSTEM "./wsug_graphics/ws-gui-layout-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUIColumnsPreferences SYSTEM "./wsug_graphics/ws-gui-columns-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUIFontPreferences SYSTEM "./wsug_graphics/ws-gui-font-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUIColorsPreferences SYSTEM "./wsug_graphics/ws-gui-colors-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkCapturePreferences SYSTEM "./wsug_graphics/ws-capture-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkPrintingPreferences SYSTEM "./wsug_graphics/ws-printing-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkNameResolutionPreferences SYSTEM "./wsug_graphics/ws-nameresolution-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkFilters SYSTEM "./wsug_graphics/ws-filters.png" NDATA PNG>
+  <!ENTITY WiresharkFileMenu SYSTEM "./wsug_graphics/ws-file-menu.png" NDATA PNG>
+  <!ENTITY WiresharkEditMenu SYSTEM "./wsug_graphics/ws-edit-menu.png" NDATA PNG>
+  <!ENTITY WiresharkViewMenu SYSTEM "./wsug_graphics/ws-view-menu.png" NDATA PNG>
+  <!ENTITY WiresharkGoMenu SYSTEM "./wsug_graphics/ws-go-menu.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureMenu SYSTEM "./wsug_graphics/ws-capture-menu.png" NDATA PNG>
+  <!ENTITY WiresharkAnalyzeMenu SYSTEM "./wsug_graphics/ws-analyze-menu.png" NDATA PNG>
+  <!ENTITY WiresharkStatisticsMenu SYSTEM "./wsug_graphics/ws-statistics-menu.png" NDATA PNG>
+  <!ENTITY WiresharkHelpMenu SYSTEM "./wsug_graphics/ws-help-menu.png" NDATA PNG>
+  <!ENTITY WiresharkPacketPanePopupMenu SYSTEM "./wsug_graphics/ws-packet-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY WiresharkDetailsPanePopupMenu SYSTEM "./wsug_graphics/ws-details-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY WiresharkBytesPanePopupMenu SYSTEM "./wsug_graphics/ws-bytes-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY WiresharkFilterAddExpression SYSTEM "./wsug_graphics/ws-filter-add-expression.png" NDATA PNG>
+  <!ENTITY WiresharkFilters2 SYSTEM "./wsug_graphics/ws-filters-2.png" NDATA PNG>
+  <!ENTITY WiresharkExportPlainDialog SYSTEM "./wsug_graphics/ws-export-plain.png" NDATA PNG>
+  <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ws-export-ps.png" NDATA PNG>
+  <!ENTITY WiresharkExportPSMLDialog SYSTEM "./wsug_graphics/ws-export-psml.png" NDATA PNG>
+  <!ENTITY WiresharkExportPDMLDialog SYSTEM "./wsug_graphics/ws-export-pdml.png" NDATA PNG>
+  <!ENTITY WiresharkExportSelectedDialog SYSTEM "./wsug_graphics/ws-export-selected.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialog SYSTEM "./wsug_graphics/ws-merge.png" NDATA PNG>
+  <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ws-packet-range.png" NDATA PNG>
+  <!ENTITY WiresharkPacketFormatFrame SYSTEM "./wsug_graphics/ws-packet-format.png" NDATA PNG>
+  <!ENTITY WiresharkTimeReference SYSTEM "./wsug_graphics/ws-time-reference.png" NDATA PNG>
+  <!ENTITY WiresharkEnabledProtocols SYSTEM "./wsug_graphics/ws-enabled-protocols.png" NDATA PNG>
+  <!ENTITY WiresharkDecodeAs SYSTEM "./wsug_graphics/ws-decode-as.png" NDATA PNG>
+  <!ENTITY WiresharkDecodeAsShow SYSTEM "./wsug_graphics/ws-decode-as-show.png" NDATA PNG>
+  <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ws-file-set-dialog.png" NDATA PNG>
 
   <!-- Third Chapter Toolbar-->
   <!ENTITY WiresharkToolbarCaptureInterfaces SYSTEM "./wsug_graphics/toolbar/capture_interfaces_24.png" NDATA PNG>
@@ -208,7 +209,9 @@ FILE SECTION
   <!ENTITY WiresharkToolbarCaptureFilters SYSTEM "./wsug_graphics/toolbar/capture_filter_24.png" NDATA PNG>
   <!ENTITY WiresharkToolbarDisplayFilters SYSTEM "./wsug_graphics/toolbar/display_filter_24.png" NDATA PNG>
   <!ENTITY WiresharkToolbarAdd SYSTEM "./wsug_graphics/toolbar/stock_add_24.png" NDATA PNG>
+  <!ENTITY WiresharkToolbarApply SYSTEM "./wsug_graphics/toolbar/stock_apply_20.png" NDATA PNG>
   <!ENTITY WiresharkToolbarGoLast SYSTEM "./wsug_graphics/toolbar/stock_bottom_24.png" NDATA PNG>
+  <!ENTITY WiresharkToolbarClear SYSTEM "./wsug_graphics/toolbar/stock_clear_24.png" NDATA PNG>
   <!ENTITY WiresharkToolbarClose SYSTEM "./wsug_graphics/toolbar/stock_close_24.png" NDATA PNG>
   <!ENTITY WiresharkToolbarColoringRules SYSTEM "./wsug_graphics/toolbar/stock_colorselector_24.png" NDATA PNG>
   <!ENTITY WiresharkToolbarHelp SYSTEM "./wsug_graphics/toolbar/stock_help_24.png" NDATA PNG>
@@ -233,22 +236,22 @@ FILE SECTION
   <!ENTITY WiresharkToolbarResizeColumns SYSTEM "./wsug_graphics/toolbar/resize_columns_24.png" NDATA PNG>
 
   <!-- Third Chapter Statistics -->
-  <!ENTITY WiresharkStatsSummary SYSTEM "./wsug_graphics/ethereal-stats-summary.png" NDATA PNG>
-  <!ENTITY WiresharkStatsHierarchy SYSTEM "./wsug_graphics/ethereal-stats-hierarchy.png" NDATA PNG>
-  <!ENTITY WiresharkStatsEndpoints SYSTEM "./wsug_graphics/ethereal-stats-endpoints.png" NDATA PNG>
-  <!ENTITY WiresharkStatsConversations SYSTEM "./wsug_graphics/ethereal-stats-conversations.png" NDATA PNG>
-  <!ENTITY WiresharkStatsIOGraphs SYSTEM "./wsug_graphics/ethereal-stats-iographs.png" NDATA PNG>
-  <!ENTITY WiresharkStatsSrtDcerpcFilter SYSTEM "./wsug_graphics/ethereal-stats-srt-dcerpc-filter.png" NDATA PNG>
-  <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ethereal-stats-srt-dcerpc.png" NDATA PNG>
+  <!ENTITY WiresharkStatsSummary SYSTEM "./wsug_graphics/ws-stats-summary.png" NDATA PNG>
+  <!ENTITY WiresharkStatsHierarchy SYSTEM "./wsug_graphics/ws-stats-hierarchy.png" NDATA PNG>
+  <!ENTITY WiresharkStatsEndpoints SYSTEM "./wsug_graphics/ws-stats-endpoints.png" NDATA PNG>
+  <!ENTITY WiresharkStatsConversations SYSTEM "./wsug_graphics/ws-stats-conversations.png" NDATA PNG>
+  <!ENTITY WiresharkStatsIOGraphs SYSTEM "./wsug_graphics/ws-stats-iographs.png" NDATA PNG>
+  <!ENTITY WiresharkStatsSrtDcerpcFilter SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc-filter.png" NDATA PNG>
+  <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 
   <!-- Fifth Chapter -->
 
   <!-- Sixth Chapter -->
 
   <!-- Appendices etc -->
-  <!ENTITY WiresharkFormatError SYSTEM "./wsug_graphics/ethereal-error-open.png" NDATA PNG>
-  <!ENTITY WiresharkFormatError SYSTEM "./wsug_graphics/ethereal-error-open.png" NDATA PNG>
-  <!ENTITY WiresharkSaveError SYSTEM "./wsug_graphics/ethereal-save-error.png" NDATA PNG>
+  <!ENTITY WiresharkFormatError SYSTEM "./wsug_graphics/ws-error-open.png" NDATA PNG>
+  <!ENTITY WiresharkFormatError SYSTEM "./wsug_graphics/ws-error-open.png" NDATA PNG>
+  <!ENTITY WiresharkSaveError SYSTEM "./wsug_graphics/ws-save-error.png" NDATA PNG>
 
 
 <!-- These are the actual files that make up the document -->

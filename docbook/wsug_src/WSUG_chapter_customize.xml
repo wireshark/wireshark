@@ -572,9 +572,14 @@ standard libpcap format.
 	filters being used in Wireshark. You may not like the color choices, 
 	however, feel free to choose your own.
     </para>
+    <para>
+	If you are uncertain which coloring rule actually took place for a 
+	specific packet, have a look at the [Coloring Rule Name: ...] and 
+	[Coloring Rule String: ...] fields.
+    </para>
     <figure id="ChCustColorFilterMany">
       <title>Using color filters with Wireshark</title>
-      <graphic entityref="WiresharkThreePane1" format="PNG"/>
+      <graphic entityref="WiresharkColoringFields" format="PNG"/>
     </figure>
   </section>
    

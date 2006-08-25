@@ -42,8 +42,11 @@
 	  <graphic entityref="WiresharkPacketSepView" format="PNG"/>
 	</figure>
     </para>
+  </section>
+  
+  <section id="ChWorkDisplayPopUpSection"><title>Pop-up menus</title>
     <para>
-      Finally, you can bring up a pop-up menu over either the "Packet List", 
+      You can bring up a pop-up menu over either the "Packet List", 
       "Packet Details" or "Packet Bytes" pane by clicking your right mouse button.
     </para>
 	  <para>
@@ -55,10 +58,10 @@
 	  <title>Function overview of the pop-up menus</title>
 	  <tgroup cols="6">
 		<colspec colnum="1" colwidth="80pt"/>
-		<colspec colnum="2" colwidth="20pt"/>
-		<colspec colnum="3" colwidth="20pt"/>
-		<colspec colnum="4" colwidth="20pt"/>
-		<colspec colnum="5" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="25pt"/>
+		<colspec colnum="3" colwidth="25pt"/>
+		<colspec colnum="4" colwidth="25pt"/>
+		<colspec colnum="5" colwidth="70pt"/>
 	    <thead>
 	      <row>
 		<entry>Item</entry>
@@ -77,17 +80,17 @@
 		<entry>-</entry>
 		<entry>Edit</entry>
 		<entry>
-	    <para>Mark a packet.</para>
+	    <para>Mark/unmark a packet.</para>
 		</entry>
 	      </row>
 	      <row>
-		<entry><command>Time Reference</command></entry>
+		<entry><command>Set Time Reference (toggle)</command></entry>
 		<entry>X</entry>
 		<entry>-</entry>
 		<entry>-</entry>
 		<entry>Edit</entry>
 		<entry>
-	    <para>Set/reset and find time references.</para>
+	    <para>Set/reset a time reference.</para>
 		</entry>
 	      </row>
 	      <row>
@@ -274,6 +277,8 @@
 		</tbody>
 		</tgroup>
 	</table>
+	
+  <section id="ChWorkPacketListPanePopUpMenuSection"><title>Pop-up menu of "Packet List" pane</title>
     <para>
       <figure id="ChWorkPacketListPanePopUpMenu">
 	<title>Pop-up menu of "Packet List" pane</title>
@@ -284,15 +289,15 @@
 	  <listitem>
 	    <para>
 	      This menu item is the same as the Edit menu item of the same 
-	      name. It allows you to mark a packet.
+	      name. It allows you to mark/unmark a packet.
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>Time Reference</command></term>
+	<varlistentry><term><command>Set Time Reference (toggle)</command></term>
 	  <listitem>
 	    <para>
 	      This menu item is the same as the Edit menu items of the same 
-	      name. It allows you to set and work with time references.
+	      name. It allows you to set/reset a time references.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -312,12 +317,37 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>Conversation Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item applies a display filter with the address information 
+		  from the selected packet. E.g. the IP menu entry will set a filter 
+		  between the two IP addresses of the current packet.
+		  XXX - add a new section describing this better.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>SCTP</command></term>
+	  <listitem>
+	    <para>
+		  XXX - add an explanation of this.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Follow TCP Stream</command></term>
 	  <listitem>
 	    <para>
 	      This menu item is the same as the Analyze menu item of 
 	      the same name. It allows you to view all the data on a TCP 
 	      stream between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Follow SSL Stream</command></term>
+	  <listitem>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -349,12 +379,22 @@
 	</varlistentry>
 	</variablelist>
     </para>
+  </section>
+  
+  <section id="ChWorkPacketDetailsPanePopUpMenuSection"><title>Pop-up menu of "Packet Details" pane</title>
     <para>
       <figure id="ChWorkPacketDetailsPanePopUpMenu">
 	<title>Pop-up menu of "Packet Details" pane</title>
 	<graphic entityref="WiresharkDetailsPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
+	<varlistentry><term><command>Copy</command></term>
+	  <listitem>
+	    <para>
+	      Copy the text of the selected field to the system clipboard. 
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Expand Subtrees</command></term>
 	  <listitem>
 	    <para>
@@ -402,6 +442,14 @@
 	      This menu item is the same as the Analyze menu item of the 
 	      same name. It allows you to view all the data on a TCP stream 
 	      between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Follow SSL Stream</command></term>
+	  <listitem>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -459,13 +507,23 @@
 	</varlistentry>
       </variablelist>
     </para>
+  </section>
+  
+  <section id="ChWorkPacketBytesPanePopUpMenuSection"><title>Pop-up menu of "Packet Bytes" pane</title>
     <para>
       <figure id="ChWorkPacketBytesPanePopUpMenu">
 	<title>Pop-up menu of "Packet Bytes" pane</title>
 	<graphic entityref="WiresharkBytesPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
-	<varlistentry><term><command>Copy</command></term>
+	<varlistentry><term><command>Copy/All Information</command></term>
+	  <listitem>
+	    <para>
+	      Copy the selected (XXX - all?) packet data to the clipboard (XXX - in which format).
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Copy/Text Only</command></term>
 	  <listitem>
 	    <para>
 	      Copy the selected packet data to the clipboard (XXX - in which format).
@@ -482,6 +540,8 @@
 	</varlistentry>
       </variablelist>
     </para>
+  </section>
+	
   </section>
   
   <section id="ChWorkDisplayFilterSection"><title>Filtering packets while viewing</title>

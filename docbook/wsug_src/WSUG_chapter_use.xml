@@ -517,34 +517,25 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Reference > Set Time Reference (toggle)</command></entry>
-		<entry>Ctrl+T</entry>
-		<entry><para>
-		    This menu item set a time reference on the currently selected
-			packet. See <xref linkend="ChWorkTimeReferencePacketSection"/> for more information
-		      about the time referenced packets.
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Time Reference > Find Next</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item tries to find the next time referenced packet.
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Time Reference > Find Previous</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item tries to find the previous time referenced packet.
-		  </para></entry>
-	      </row>
-	      <row>
 		<entry><command>Mark Packet (toggle)</command></entry>
 		<entry>Ctrl+M</entry>
 		<entry><para>
 		    This menu item "marks" the currently selected packet. See
 			<xref linkend="ChWorkMarkPacketSection"/> for details.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Next Mark</command></entry>
+		<entry>Shift+Ctrl+N</entry>
+		<entry><para>
+		    Find the next marked packet.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Previous Mark</command></entry>
+		<entry>Shift+Ctrl+B</entry>
+		<entry><para>
+		    Find the previous marked packet.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -558,6 +549,34 @@
 		<entry><command>Unmark All Packets</command></entry>
 		<entry></entry>
 		<entry><para>This menu item "unmarks" all marked packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Set Time Reference (toggle)</command></entry>
+		<entry>Ctrl+T</entry>
+		<entry><para>
+		    This menu item set a time reference on the currently selected
+			packet. See <xref linkend="ChWorkTimeReferencePacketSection"/> for more information
+		      about the time referenced packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Next Reference</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item tries to find the next time referenced packet.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Previous Reference</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item tries to find the previous time referenced packet.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1182,6 +1201,33 @@
 		    <xref linkend="ChAdvFollowTCPSection"/>
 		  </para></entry>
 	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry></entry>
+		<entry><para>
+			Same functionality as "Follow TCP Stream" but for SSL streams.
+			XXX - how to provide the SSL keys?
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Expert Info</command></entry>
+		<entry></entry>
+		<entry><para>
+			Open a dialog showing some expert information about the captured 
+			packets in a log style display. 
+			The amount of information will depend on the protocol and varies 
+			from  very detailed to none existing. This is currently a work in 
+			progress. XXX - add a new section about this and link from here
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Expert Info Composite</command></entry>
+		<entry></entry>
+		<entry><para>
+			Same information as in "Expert Info" but trying to group items 
+			together for faster analysis.
+		  </para></entry>
+	      </row>
 	    </tbody>
       </tgroup>
     </table>
@@ -1798,17 +1844,34 @@
       <title>The "Filter" toolbar</title>
       <graphic entityref="WiresharkFilterToolbar" format="PNG"/>
     </figure>
-      <itemizedlist>
-	<listitem>
+    <table id="ChUseFilterToolbar" frame="none">
+      <title>Filter toolbar items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="40pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Toolbar Icon</entry>
+		<entry>Toolbar Item</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><graphic entityref="WiresharkToolbarDisplayFilters" format="PNG"/></entry>
+		<entry><command>Filter:</command></entry>
+		<entry><para>
+	    Brings up the filter construction dialog, described in <xref linkend="FiltersDialog"/>.
+		  </para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry></entry>
+		<entry>Filter input</entry>
+		<entry>
 	  <para>
-	    The leftmost button labeled "Filter:" can be clicked to
-	    bring up the filter construction dialog, described in <xref linkend="FiltersDialog"/>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The left middle text box provides an area to enter or edit display
-	    filter strings, see <xref linkend="ChWorkBuildDisplayFilterSection"/>
+	    The area to enter or edit a display filter string, 
+		see <xref linkend="ChWorkBuildDisplayFilterSection"/>
 		. A syntax check of your filter string is done while you are typing.
 		The background will turn red if you enter an incomplete or invalid
 		string, and will become green when you enter a valid string. You can
@@ -1828,33 +1891,43 @@
 		This field is also where the current filter in effect is displayed.
 	  </para>
 	  </note>
-	</listitem>
-	<listitem>
-	  <para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="WiresharkToolbarAdd" format="PNG"/></entry>
+		<entry><command>Expression...</command></entry>
+		<entry><para>
 	    The middle button labeled "Add Expression..." opens a dialog box that lets
 		you edit a display filter from a list of protocol fields, described in
 		 <xref linkend="ChWorkFilterAddExpressionSection"/>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The right middle button labeled "Clear" resets the current
-	    display filter and clears the edit area.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The rightmost button labeled "Apply" applies the current
-	    value in the edit area as the new display filter.
-	  </para>
-	</listitem>
-      </itemizedlist>
+		  </para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="WiresharkToolbarClear" format="PNG"/></entry>
+		<entry><command>Clear</command></entry>
+		<entry><para>
+	    Reset the current display filter and clears the edit area.
+		  </para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="WiresharkToolbarApply" format="PNG"/></entry>
+		<entry><command>Apply</command></entry>
+		<entry><para>
+	    Apply the current value in the edit area as the new display filter.
+		  <note><title>Note!</title>
+		  <para>
+			Applying a display filter on large capture files might take quite a long time!
+		  </para>
+		  </note>
+		  </para>
+		  </entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
     </para>
-	  <note><title>Note!</title>
-	  <para>
-		Applying a display filter on large capture files might take quite a long time!
-	  </para>
-	  </note>
   </section>
 
   <section id="ChUsePacketListPaneSection"><title>The "Packet List" pane</title>
