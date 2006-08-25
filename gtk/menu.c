@@ -755,9 +755,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Copy/...All Information", NULL, copy_hex_cb,
+    ITEM_FACTORY_ENTRY("/Copy/All Information", NULL, copy_hex_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy/...Text Only", NULL, copy_hex_cb,
+    ITEM_FACTORY_ENTRY("/Copy/Text Only", NULL, copy_hex_cb,
                        1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
