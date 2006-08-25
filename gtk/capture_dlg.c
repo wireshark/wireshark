@@ -550,8 +550,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
-				*advanced_hb,
-
+				
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
                 *multi_tb, *multi_files_on_cb,
@@ -571,8 +570,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
-                *help_bt,
-				*advanced_bt;
+                *help_bt;
+#ifdef HAVE_AIRPCAP
+  GtkWidget     *advanced_hb, *advanced_bt;
+#endif
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -848,8 +849,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
 
   /* advanced row */
+#ifdef HAVE_AIRPCAP
   advanced_hb = gtk_hbox_new(FALSE,5);
   gtk_box_pack_start(GTK_BOX(capture_vb), advanced_hb, FALSE, FALSE, 0);
+
   advanced_bt = gtk_button_new();
 
   /* set the text */
@@ -861,7 +864,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_label_set_text(GTK_LABEL(GTK_BIN(advanced_bt)->child), "Wireless Settings");
   #endif
 
-#ifdef HAVE_AIRPCAP
   /* Both the callback and the data are global */
   SIGNAL_CONNECT(advanced_bt,"clicked",options_airpcap_advanced_cb,airpcap_tb);
   OBJECT_SET_DATA(GTK_ENTRY(GTK_COMBO(if_cb)->entry),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
@@ -875,11 +877,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 	{
 	gtk_widget_set_sensitive(advanced_bt,FALSE);
 	}
-#endif
 
   gtk_box_pack_start(GTK_BOX(linktype_hb),advanced_bt,FALSE,FALSE,0);
   gtk_widget_show(advanced_bt);
   gtk_widget_show(advanced_hb);
+#endif
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture File(s)");
