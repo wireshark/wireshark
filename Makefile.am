@@ -613,6 +613,7 @@ EXTRA_DIST = \
 	image/toolbar/capture_airpcap_16.xpm \
 	image/toolbar/capture_capture_16.xpm \
 	image/toolbar/capture_details_16.xpm \
+	image/toolbar/capture_details_24.xpm \
 	image/toolbar/capture_ethernet_16.xpm  \
 	image/toolbar/capture_filter_24.xpm	\
 	image/toolbar/capture_interfaces_24.xpm	\
