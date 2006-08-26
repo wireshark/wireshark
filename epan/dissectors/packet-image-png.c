@@ -59,6 +59,14 @@ static int hf_png_time_day = -1;
 static int hf_png_time_hour = -1;
 static int hf_png_time_minute = -1;
 static int hf_png_time_second = -1;
+static int hf_png_phys_horiz = -1;
+static int hf_png_phys_vert = -1;
+static int hf_png_phys_unit = -1;
+static int hf_png_bkgd_palette_index = -1;
+static int hf_png_bkgd_greyscale = -1;
+static int hf_png_bkgd_red = -1;
+static int hf_png_bkgd_green = -1;
+static int hf_png_bkgd_blue = -1;
 
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
@@ -147,6 +155,37 @@ dissect_png_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_png_time_second, tvb, 6, 1, FALSE);
 }
 
+static const value_string phys_unit_vals[] = {
+	{ 0,	"Unit is unknown"},
+	{ 1,	"Unit is METRE"},
+	{ 0, NULL }
+};
+static void
+dissect_png_phys(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_png_phys_horiz, tvb, 0, 4, FALSE);
+	proto_tree_add_item(tree, hf_png_phys_vert, tvb, 4, 4, FALSE);
+	proto_tree_add_item(tree, hf_png_phys_unit, tvb, 8, 1, FALSE);
+}
+
+static void
+dissect_png_bkgd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	switch(tvb_reported_length(tvb)){
+	case 1: /* colour type 3 */
+		proto_tree_add_item(tree, hf_png_bkgd_palette_index, tvb, 0, 1, FALSE);
+		break;
+	case 2: /* colour type 0, 4 */
+		proto_tree_add_item(tree, hf_png_bkgd_greyscale, tvb, 0, 2, FALSE);
+		break;
+	case 6: /* colour type 2, 6 */
+		proto_tree_add_item(tree, hf_png_bkgd_red, tvb, 0, 2, FALSE);
+		proto_tree_add_item(tree, hf_png_bkgd_green, tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_png_bkgd_blue, tvb, 4, 2, FALSE);
+		break;
+	}
+}
+
 typedef struct _chunk_dissector_t {
 	guint32 type;
 	char *name;
@@ -155,6 +194,9 @@ typedef struct _chunk_dissector_t {
 
 static chunk_dissector_t chunk_table[] = {
 	{ 0x49484452, "Image Header", dissect_png_ihdr }, 	/* IHDR */
+	{ 0x624b4744, "Background colour", dissect_png_bkgd }, 	/* bKGD */
+	{ 0x70485973, "Physical pixel dimensions",
+					dissect_png_phys }, 	/* pHYs */
 	{ 0x74455874, "Textual data", dissect_png_text }, 	/* tEXt */
 	{ 0x74494d45, "Image last-modification time",
 					dissect_png_time }, 	/* tIME */
@@ -339,6 +381,30 @@ proto_register_png(void)
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_second, {
 	  "Second", "png.time.second", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_phys_horiz, {
+	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_phys_vert, {
+	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_phys_unit, {
+	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC, 
+	  VALS(phys_unit_vals), 0, "", HFILL }},
+	{ &hf_png_bkgd_palette_index, {
+	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_bkgd_greyscale, {
+	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_bkgd_red, {
+	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_bkgd_green, {
+	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_bkgd_blue, {
+	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX, 
 	  NULL, 0, "", HFILL }},
 	};
 
