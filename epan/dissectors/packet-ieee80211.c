@@ -63,6 +63,7 @@
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
+#include <epan/oui.h>
 #include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
@@ -1561,8 +1562,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
 		"Tag length %u too short, must be > 0", tag_len);
         break;
-       }
-       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
+      }
+      tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
 
       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
@@ -1880,7 +1881,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		
 #define WPAWME_OUI	0x0050F2
 #define RSNOUI_VAL	0x000FAC
-#define AIRONET_VAL	0x004096
 
 		switch (oui) {
 		case WPAWME_OUI:
@@ -1889,7 +1889,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		case RSNOUI_VAL:
 			dissect_vendor_ie_rsn(ti, tree, tvb, offset + 2, tag_len, tag_val);
 			break;
-		case AIRONET_VAL:
+		case OUI_CISCOWL:	/* Cisco Wireless (Aironet) */
 			dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
 			break;
 		default:
