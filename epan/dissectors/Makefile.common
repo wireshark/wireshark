@@ -368,6 +368,7 @@ DISSECTOR_SRC =	\
 	packet-igrp.c	\
 	packet-image-gif.c	\
 	packet-image-jfif.c	\
+	packet-image-png.c	\
 	packet-imap.c	\
 	packet-inap.c	\
 	packet-ip.c	\
