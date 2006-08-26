@@ -151,7 +151,9 @@ static StringInfo dtls_decrypted_data = {NULL, 0};
 static gint dtls_decrypted_data_avail = 0;
 
 static gchar* dtls_keys_list = NULL;
+#ifdef HAVE_LIBGNUTLS
 static gchar* dtls_debug_file_name = NULL;
+#endif
 
 /* initialize/reset per capture state data (dtls sessions cache) */
 static void 
@@ -176,7 +178,7 @@ dtls_parse(void)
   /* remove only associations created from key list */
   tmp_stack = ep_stack_new();
   g_tree_traverse(dtls_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
-  while (tmp_assoc = ep_stack_pop(tmp_stack)) {
+  while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
     ssl_association_remove(dtls_associations, tmp_assoc);
   }
 
@@ -2135,9 +2137,9 @@ proto_register_dtls(void)
   proto_register_field_array(proto_dtls, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+#ifdef HAVE_LIBGNUTLS
   {
     module_t *dtls_module = prefs_register_protocol(proto_dtls, dtls_parse);
-#ifdef HAVE_LIBGNUTLS
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list",
 				     "semicolon separated list of private RSA keys used for DTLS decryption; "
 				     "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
@@ -2147,8 +2149,8 @@ proto_register_dtls(void)
 				     "redirect dtls debug to file name; leave empty to disable debug, "
 				     "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
 				     (const gchar **)&dtls_debug_file_name);
-#endif
   }
+#endif
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
