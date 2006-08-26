@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG2 (ISO/IEC 13818-1) Transport Stream dissection
  *
- * $Id:$
+ * $Id$
  *
  * Copyright 2006, Erwin Rol <erwin@erwinrol.com>
  *
@@ -277,7 +277,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
 			offset += 1;
 
 			proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6, 
-						"Program Clock Reference: base(%ld) * 300 + ext(%d) = %ld", 
+						"Program Clock Reference: base(%" PRIu64 ") * 300 + ext(%u) = %" PRIu64, 
 						pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
 		}
 
@@ -312,7 +312,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
 			offset += 1;
 
 			proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6, 
-						"Original Program Clock Reference: base(%ld) * 300 + ext(%d) = %ld", 
+						"Original Program Clock Reference: base(%" PRIu64 ") * 300 + ext(%u) = %" PRIu64, 
 						opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
 	
 			offset += 6;
