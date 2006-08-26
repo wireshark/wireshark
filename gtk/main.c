@@ -89,6 +89,8 @@
 #include "cmdarg_err.h"
 #include "version_info.h"
 #include "merge.h"
+#include "u3.h"
+
 
 #ifdef HAVE_LIBPCAP
 #include "capture-pcap-util.h"
@@ -2890,9 +2892,15 @@ main(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
   }
 
+  /* register our pid if we are being run from a U3 device */
+  u3_register_pid();
+
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */
+
+  /* deregister our pid */
+  u3_deregister_pid();
 
   epan_cleanup();
   g_free(rc_file);

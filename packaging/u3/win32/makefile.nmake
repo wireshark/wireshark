@@ -1,0 +1,308 @@
+#
+# $Id: Makefile.nmake 18526 2006-06-21 06:31:06Z jake $
+#
+
+include ../../../config.nmake
+include <win32.mak>
+
+CC 	= cl
+LINK	= link
+
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+DEVICE 	= device
+HOST 	= host
+MANIFEST= manifest
+DATA	= data
+
+TOPDIR	= ..\..\..
+COPY	= xcopy
+MKDIR	= mkdir
+COPY_FLAGS	= /d /y
+
+all:	package
+
+manifest.u3i:	manifest.tmpl $(TOPDIR)\config.nmake
+	sed -e 's/$$(VERSION)/$(VERSION)/g' < manifest.tmpl > manifest.u3i
+
+$(HOST):
+	$(MKDIR) $(HOST)
+	$(MKDIR) $(HOST)\etc
+	$(MKDIR) $(HOST)\etc\gtk-2.0
+	$(MKDIR) $(HOST)\etc\pango
+	$(MKDIR) $(HOST)\lib
+	$(MKDIR) $(HOST)\lib\gtk-2.0
+	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)
+	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
+	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	$(MKDIR) $(HOST)\lib\pango
+	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)
+	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
+
+$(DEVICE):
+	$(MKDIR) $(DEVICE)
+	$(MKDIR) $(DEVICE)\plugins
+	$(MKDIR) $(DEVICE)\plugins\$(VERSION)
+	$(MKDIR) $(DEVICE)\help
+	$(MKDIR) $(DEVICE)\share
+	$(MKDIR) $(DEVICE)\share\themes
+	$(MKDIR) $(DEVICE)\share\themes\Default
+	$(MKDIR) $(DEVICE)\share\themes\Default\gtk-2.0
+	$(MKDIR) $(DEVICE)\snmp
+	$(MKDIR) $(DEVICE)\snmp\mibs
+	$(MKDIR) $(DEVICE)\diameter
+	$(MKDIR) $(DEVICE)\dtds
+	$(MKDIR) $(DEVICE)\radius
+
+$(DATA):
+	$(MKDIR) $(DATA)
+
+$(MANIFEST):
+	$(MKDIR) $(MANIFEST)
+
+distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
+# manifest
+	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
+# device
+#
+# these files stay on the U3 device and should not cause Wireshark to become unstable 
+# if they are missing (e.g. U3 device removed)
+#
+	$(COPY) $(TOPDIR)\AUTHORS-SHORT $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\AUTHORS-SHORT-FORMAT $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\COPYING $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\FAQ $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\README $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\capinfos.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\chargecontrol.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\dictionary.dtd $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\dictionary.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\imscxdx.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\mobileipv4.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\nasreq.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\sunping.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\TGPPSh.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\dc.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\itunes.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\pocsettings.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\presence.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\reginfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\rss.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\smil.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\xcap-caps.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\watcherinfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\dumpcap.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\editcap.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\help\toc $(DEVICE)\help $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\help\overview.txt $(DEVICE)\help $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\help\getting_started.txt $(DEVICE)\help $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\help\capturing.txt $(DEVICE)\help $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\help\capture_filters.txt $(DEVICE)\help $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\help\display_filters.txt $(DEVICE)\help $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\help\faq.txt $(DEVICE)\help $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\manuf $(DEVICE) $(COPY_FLAGS)
+!IFDEF PCRE_DIR
+	$(COPY) $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(DEVICE) $(COPY_FLAGS)
+!ENDIF
+	$(COPY) $(TOPDIR)\doc\mergecap.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\acn\acn.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\agentx\agentx.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\artnet\artnet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\asn1\asn1.dll $(DEVICE)\plugins\$(VERSION)$(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\ciscosm\ciscosm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\docsis\docsis.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\enttec\enttec.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\giop\coseventcomm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\giop\cosnaming.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\giop\parlay.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\giop\tango.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\gryphon\gryphon.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\h223\h223.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\plugins\irda\irda.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\lwres\lwres.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\megaco\megaco.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\mgcp\mgcp.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\opsi\opsi.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\pcli\pcli.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\profinet\profinet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\rdm\rdm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\rlm\rlm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\rtnet\rtnet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\rudp\rudp.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\sbus\sbus.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\v5ua\v5ua.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\stats_tree\stats_tree.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\mate\mate.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+!IFDEF LUA_DIR
+	$(COPY) $(TOPDIR)\plugins\lua\lua.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+!ENDIF
+	$(COPY) $(TOPDIR)\radius\dictionary $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.3com $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.3gpp $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.3gpp2 $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.acc $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.alcatel $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.alteon $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.altiga $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.aptis $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.ascend $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.bay $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.bintec $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.bristol $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cablelabs $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cabletron $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cisco $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cisco.bbsm $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cisco.vpn3000 $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cisco.vpn5000 $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.colubris $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.columbia_university $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.compat $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.cosine $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.ericsson $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.erx $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.extreme $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.foundry $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.freeradius $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.gandalf $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.garderos $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.gemtek $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.itk $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.juniper $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.karlnet $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.livingston $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.localweb $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.merit $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.microsoft $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.mikrotik $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.navini $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.netscreen $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.nokia $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.nomadix $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.propel $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.quintum $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.redback $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.redcreek $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.shasta $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.shiva $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.sonicwall $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.springtide $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.t_systems_nova $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.telebit $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.trapeze $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.tunnel $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.unisphere $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.unix $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.usr $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.valemount $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.versanet $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.wispr $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\radius\dictionary.xedia $(DEVICE)\radius $(COPY_FLAGS)
+	$(COPY) $(GTK_THEME_DIR)\gtkrc $(DEVICE)\share\themes\Default\gtk-2.0 $(COPY_FLAGS)
+	$(COPY) $(NET_SNMP_DIR)\mibs\*.txt $(DEVICE)\snmp\mibs $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\text2pcap.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\tshark.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\wireshark.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\doc\wireshark-filter.html $(DEVICE) $(COPY_FLAGS)
+!IFDEF LUA_DIR
+	$(COPY) $(TOPDIR)\plugins\lua\init.lua $(DEVICE) $(COPY_FLAGS)
+!ENDIF
+# host
+#
+# these files are copy onto the U3 host and are required to make Wireshark stable
+#
+	$(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll $(HOST) $(COPY_FLAGS)	
+!IFDEF ENABLE_LIBWIRESHARK
+	$(COPY) $(TOPDIR)\epan\libwireshark.dll $(HOST) $(COPY_FLAGS)	
+!ENDIF
+	$(COPY) $(GLIB_DIR)\bin\libglib-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(ICONV_DIR)\bin\iconv.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GETTEXT_DIR)\bin\intl.dll $(HOST) $(COPY_FLAGS)
+!ifdef ZLIB_DIR
+	$(COPY) $(ZLIB_DIR)\zlib1.dll $(HOST) $(COPY_FLAGS)
+!endif
+!IFDEF ADNS_DIR
+	$(COPY) $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+!IFDEF PCRE_DIR
+	$(COPY) $(PCRE_DIR)\bin\pcre.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+!ifdef KFW_DIR
+	$(COPY) $(KFW_DIR)\bin\comerr32.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(KFW_DIR)\bin\krb5_32.dll $(HOST) $(COPY_FLAGS)
+!endif
+!ifdef GNUTLS_DIR
+	$(COPY) $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-14.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-extra-14.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-openssl-14.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libtasn1-3.dll $(HOST) $(COPY_FLAGS)
+!endif
+!IFDEF GTK2_DIR
+	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS) 
+# can't get /i to work with $(COPY) above to do the rename there
+	mv $(HOST)\wireshark-gtk2.exe $(HOST)\wireshark.exe
+	$(COPY) $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libatk-1.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libpango-1.0-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll $(HOST) $(COPY_FLAGS)
+!IFDEF NEED_CAIRO_DLL
+	$(COPY) $(GTK2_DIR)\bin\libcairo-2.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+!IFDEF NEED_LIBPNG_DLL
+	$(COPY) $(GTK2_DIR)\bin\libpng13.dll $(HOST) $(COPY_FLAGS)
+!ENDIF 
+	$(COPY) $(GTK2_DIR)\etc\gtk-2.0\*.* $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\etc\pango\pango.* $(HOST)\etc\pango $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
+	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	$(COPY) $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
+
+!IFDEF GTK_WIMP_DIR
+	$(COPY) $(GTK_WIMP_DIR)\libwimp.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK_THEME_DIR)\gtkrc $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
+!ENDIF
+!ELSE
+!IFDEF GTK1_DIR
+	$(COPY) $(TOPDIR)\wireshark.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK1_DIR)\lib\libgtk-0.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GTK1_DIR)\lib\libgdk-0.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+!ENDIF
+	$(COPY) $(TOPDIR)\capinfos.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dumpcap.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\editcap.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\mergecap.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\text2pcap.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\tshark.exe $(HOST) $(COPY_FLAGS)
+	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
+
+package:	distribution
+	zip -r wireshark.u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) 
+
+u3util_LIBS= user32.lib kernel32.lib
+
+u3util.exe:	u3util.obj
+	@echo Linking $@
+	$(LINK) /OUT:u3util.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console u3util.obj $(u3util_LIBS)
+	
+clean:
+	rm -rf manifest.u3i
+	rm -rf $(HOST)	
+	rm -rf $(DEVICE)	
+	rm -rf $(DATA)	
+	rm -rf $(MANIFEST)	
+	rm -rf u3util.{exe,obj}
+	rm -rf wireshark.u3p
+   	rm -rf *~
+
+distclean:	clean
+
+maintainer-clean:	distclean

@@ -74,6 +74,9 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 {
   GtkWidget *win;
   GtkFileChooserAction gtk_action;
+#ifdef _WIN32
+  char *u3devicedocumentpath;
+#endif 
   const gchar *ok_button_text;
 
   switch (action) {
@@ -118,7 +121,14 @@ file_selection_new(const gchar *title, file_selection_action_t action)
      in which that file resided. */
   if (last_open_dir)
     file_selection_set_current_folder(win, last_open_dir);
+#ifdef _WIN32
+  else {
+	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
+	if(u3devicedocumentpath != NULL)
+	  file_selection_set_current_folder(win, u3devicedocumentpath);
 
+  }
+#endif
   return win;
 }
 #else
@@ -126,7 +136,9 @@ GtkWidget *
 file_selection_new(const gchar *title, file_selection_action_t action _U_)
 {
   GtkWidget *win;
-
+#ifdef _WIN32
+  char *u3devicedocumentpath;
+#endif
   win = gtk_file_selection_new(title);
 #if GTK_MAJOR_VERSION >= 2
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -142,7 +154,14 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
      in which that file resided. */
   if (last_open_dir)
     file_selection_set_current_folder(win, last_open_dir);
+#ifdef _WIN32
+  else {
+	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
+	if(u3devicedocumentpath != NULL)
+	  file_selection_set_current_folder(win, u3devicedocumentpath);
 
+  }
+#endif
   return win;
 }
 #endif

@@ -371,6 +371,7 @@ get_systemfile_dir
 get_tcp_port
 get_tempfile_path
 get_udp_port
+getenv_utf8
 gsm_a_bssmap_msg_strings        DATA
 gsm_a_dtap_msg_cc_strings       DATA
 gsm_a_dtap_msg_gmm_strings      DATA
