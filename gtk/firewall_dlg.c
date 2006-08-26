@@ -687,39 +687,6 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
     g_free(rule_info);
 }
 
-/*
- * XXX - for text printing, we probably want to wrap lines at 80 characters;
- * (PostScript printing is doing this already), and perhaps put some kind of
- * dingbat (to use the technical term) to indicate a wrapped line, along the
- * lines of what's done when displaying this in a window, as per Warren Young's
- * suggestion.
- */
-static gboolean
-rule_print_text(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
-{
-    print_stream_t *stream = arg;
-    size_t i;
-    char *str;
-
-    /* convert non printable characters */
-    for (i = 0; i < nchars; i++) {
-        if (buffer[i] == '\n' || buffer[i] == '\r')
-            continue;
-        if (! isprint((guchar)buffer[i])) {
-            buffer[i] = '.';
-        }
-    }
-
-    /* convert unterminated char array to a zero terminated string */
-    str = g_malloc(nchars + 1);
-    memcpy(str, buffer, nchars);
-    str[nchars] = 0;
-    print_line(stream, /*indent*/ 0, str);
-    g_free(str);
-
-    return TRUE;
-}
-
 static void
 firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
