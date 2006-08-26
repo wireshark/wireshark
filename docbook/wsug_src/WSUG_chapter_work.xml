@@ -4,7 +4,8 @@
 <chapter id="ChapterWork">
   <title>Working with captured packets</title>
 
-  <section id="ChWorkViewPacketsSection"><title>Viewing packets you have captured</title>
+  <section id="ChWorkViewPacketsSection">
+    <title>Viewing packets you have captured</title>
     <para>
       Once you have captured some packets, or you have opened a previously 
       saved capture file, you can view the packets that are displayed in 
@@ -47,79 +48,217 @@
   <section id="ChWorkDisplayPopUpSection"><title>Pop-up menus</title>
     <para>
       You can bring up a pop-up menu over either the "Packet List", 
-      "Packet Details" or "Packet Bytes" pane by clicking your right mouse button.
-    </para>
+      "Packet Details" or "Packet Bytes" pane by clicking your right 
+	  mouse button at the corresponding pane.
+    </para>	
+  <section id="ChWorkPacketListPanePopUpMenuSection">
+    <title>Pop-up menu of the "Packet List" pane</title>
+    <para>
+      <figure id="ChWorkPacketListPanePopUpMenu">
+	<title>Pop-up menu of the "Packet List" pane</title>
+	<graphic entityref="WiresharkPacketPanePopupMenu" format="PNG"/>
+      </figure>
+	</para>
 	  <para>
 	  The following table gives an overview which functions are available 
-	  in the panes, where to find the corresponding function in the menu, and 
-	  a short description of each item.
+	  in this pane, where to find the corresponding function in the main menu, 
+	  and a short description of each item.
 	  </para>
-	<table id="PopupMenuTable">
-	  <title>Function overview of the pop-up menus</title>
-	  <tgroup cols="6">
+	<table id="PacketListPopupMenuTable">
+	  <title>The menu items of the "Packet List" pop-up menu</title>
+	  <tgroup cols="3">
 		<colspec colnum="1" colwidth="80pt"/>
-		<colspec colnum="2" colwidth="25pt"/>
-		<colspec colnum="3" colwidth="25pt"/>
-		<colspec colnum="4" colwidth="25pt"/>
-		<colspec colnum="5" colwidth="70pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
 	    <thead>
 	      <row>
 		<entry>Item</entry>
-		<entry>List</entry>
-		<entry>Details</entry>
-		<entry>Bytes</entry>
-		<entry>Menu</entry>
+		<entry>Identical to main menu's item:</entry>
 		<entry>Description</entry>
 	      </row>
 	    </thead>
 	    <tbody>
 	      <row>
 		<entry><command>Mark Packet (toggle)</command></entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
 		<entry>Edit</entry>
 		<entry>
-	    <para>Mark/unmark a packet.</para>
+	    <para>
+	      Mark/unmark a packet.
+	    </para>
 		</entry>
 	      </row>
 	      <row>
 		<entry><command>Set Time Reference (toggle)</command></entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
 		<entry>Edit</entry>
 		<entry>
-	    <para>Set/reset a time reference.</para>
+	    <para>
+	      Set/reset a time reference.
+	    </para>
 		</entry>
 	      </row>
 	      <row>
-		<entry><command>Expand Subtrees</command></entry>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare and apply a display filter based on the currently selected 
+		  item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Conversation Filter</command></entry>
 		<entry>-</entry>
-		<entry>X</entry>
+		<entry>
+	    <para>
+	      This menu item applies a display filter with the address information 
+		  from the selected packet. E.g. the IP menu entry will set a filter 
+		  to show the traffic between the two IP addresses of the current 
+		  packet.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>SCTP</command></entry>
 		<entry>-</entry>
+		<entry>
+	    <para>
+		  XXX - add an explanation of this.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow TCP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a TCP 
+	      stream between a pair of nodes.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Change or apply a new relation between two dissectors. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Print...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+		  Print packets.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Show Packet in New Window</command></entry>
 		<entry>View</entry>
 		<entry>
-	    <para>Expand the currently selected subtree.
-		</para>
+	    <para>
+		  Display the selected packet in a new window.
+	    </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+  </section>
+  
+  <section id="ChWorkPacketDetailsPanePopUpMenuSection">
+    <title>Pop-up menu of the "Packet Details" pane</title>
+    <para>
+      <figure id="ChWorkPacketDetailsPanePopUpMenu">
+	<title>Pop-up menu of the "Packet Details" pane</title>
+	<graphic entityref="WiresharkDetailsPanePopupMenu" format="PNG"/>
+      </figure>
+	  </para>
+	  <para>
+	  The following table gives an overview which functions are available 
+	  in this pane, where to find the corresponding function in the main menu, 
+	  and a short description of each item.
+	  </para>
+	<table id="PacketDetailsPopupMenuTable">
+	  <title>The menu items of the "Packet Details" pop-up menu</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>Identical to main menu's item:</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Copy</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      Copy the displayed text of the selected field to the system 
+		  clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Expand Subtrees</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Expand the currently selected subtree. 
+	    </para>
 		</entry>
 	      </row>
 	      <row>
 		<entry><command>Expand All</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
 		<entry>View</entry>
 		<entry>
-	    <para>Expand all subtrees in all packets in the capture.
-		</para>
+	    <para>
+	      Expand all subtrees in all packets in the capture. 
+	    </para>
 		</entry>
 	      </row>
 	      <row>
 		<entry><command>Collapse All</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
 		<entry>View</entry>
 		<entry>
 	    <para>
@@ -127,429 +266,203 @@
 	      expanded, and uses it to ensure that the correct subtrees 
 	      are expanded when you display a packet. This menu item 
 	      collapses the tree view of all packets in the capture list.  
-		</para>
+	    </para>
 		</entry>
 	      </row>
 	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Apply as Filter</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>-</entry>
 		<entry>Analyze</entry>
 		<entry>
-	    <para>.</para>
+	    <para>
+	      Prepare and apply a display filter based on the currently 
+			selected item. 
+	      name.
+	    </para>
 		</entry>
 	      </row>
 	      <row>
 		<entry><command>Prepare a Filter</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>-</entry>
 		<entry>Analyze</entry>
 		<entry>
-	    <para>.</para>
+	    <para>
+		  Prepare a display filter based on the currently selected item. 
+	    </para>
 		</entry>
 	      </row>
 	      <row>
-		<entry><command>Follow TCP stream</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>-</entry>
+		<entry><command>Follow TCP Stream</command></entry>
 		<entry>Analyze</entry>
 		<entry>
-	    <para>View all the data on a TCP stream between a pair of nodes.</para>
+	    <para>
+		  Allows you to view all the data on a TCP stream between a pair 
+		  of nodes.
+		</para>
 		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
 	      </row>
 	      <row>
 		<entry><command>Wiki Protocol Page</command></entry>
 		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
 		<entry>
-	    <para>Show the wiki page corresponding to the currently selected protocol in your web browser.
-		</para>
+	    <para>
+	      Show the wiki page corresponding to the currently selected protocol 
+		  in your web browser.
+	    </para>
 		</entry>
 	      </row>
 	      <row>
 		<entry><command>Filter Field Reference</command></entry>
 		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
 		<entry>
-	    <para>Show the filter field reference web page corresponding to the currently selected protocol in your web browser.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Protocol Preferences...</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>
-	    <para>The menu item takes you to the preferences dialog and selects 
-		the page corresponding to the protocol if there are settings 
-		associated with the highlighted field. More information on preferences 
-		can be found in <xref linkend="ChCustPreferencesSection"/>.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Decode As...</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>.</para>
-		</entry>
-	      </row>
-		  
-		  
-		  
-	      <row>
-		<entry><command>Print...</command></entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>File</entry>
-		<entry>
-	    <para>Print (the selected) packet(s).</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Show Packet in New Window</command></entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>View</entry>
-		<entry>
-	    <para>Display the selected packet in another window.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Resolve name</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>View/Name Resolution</entry>
-		<entry>
-	    <para>Cause a name resolution to be performed for the selected packet, 
-		but NOT for every packet in the capture.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Go to Corresponding Packet</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>Go</entry>
-		<entry>
-	    <para>If the selected field has a packet number in it, go to it. The 
-		corresponding packet will often be a response which is requested by 
-		this packet, or the request for which this packet is a response.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Copy</command></entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>
-	    <para>Copy the selected packet data to the clipboard (XXX - in which format).
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Export Selected Packet Bytes...</command></entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>File->Export</entry>
-		<entry>
-	    <para>Export raw packet bytes to a binary file.</para>
-		</entry>
-	      </row>
-		</tbody>
-		</tgroup>
-	</table>
-	
-  <section id="ChWorkPacketListPanePopUpMenuSection"><title>Pop-up menu of "Packet List" pane</title>
-    <para>
-      <figure id="ChWorkPacketListPanePopUpMenu">
-	<title>Pop-up menu of "Packet List" pane</title>
-	<graphic entityref="WiresharkPacketPanePopupMenu" format="PNG"/>
-      </figure>
-      <variablelist>
-	<varlistentry><term><command>Mark Packet (toggle)</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Edit menu item of the same 
-	      name. It allows you to mark/unmark a packet.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Set Time Reference (toggle)</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Edit menu items of the same 
-	      name. It allows you to set/reset a time references.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Apply as Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Prepare a Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Conversation Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item applies a display filter with the address information 
-		  from the selected packet. E.g. the IP menu entry will set a filter 
-		  between the two IP addresses of the current packet.
-		  XXX - add a new section describing this better.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>SCTP</command></term>
-	  <listitem>
-	    <para>
-		  XXX - add an explanation of this.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Follow TCP Stream</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of 
-	      the same name. It allows you to view all the data on a TCP 
-	      stream between a pair of nodes.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Follow SSL Stream</command></term>
-	  <listitem>
-	    <para>
-	      Same as "Follow TCP Stream" but for SSL.
-		  XXX - add a new section describing this better.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Decode As...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Print...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the File menu item of the same 
-	      name. It allows you to print packets.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term><command>Show Packet in New Window</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the View menu item of the 
-	      same name. It allows you to display the selected packet in 
-	      another window.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	</variablelist>
-    </para>
-  </section>
-  
-  <section id="ChWorkPacketDetailsPanePopUpMenuSection"><title>Pop-up menu of "Packet Details" pane</title>
-    <para>
-      <figure id="ChWorkPacketDetailsPanePopUpMenu">
-	<title>Pop-up menu of "Packet Details" pane</title>
-	<graphic entityref="WiresharkDetailsPanePopupMenu" format="PNG"/>
-      </figure>
-      <variablelist>
-	<varlistentry><term><command>Copy</command></term>
-	  <listitem>
-	    <para>
-	      Copy the text of the selected field to the system clipboard. 
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Expand Subtrees</command></term>
-	  <listitem>
-	    <para>
-	      This menu item expands the currently selected subtree. 
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Expand All</command></term>
-	  <listitem>
-	    <para>
-	      This menu item expands all subtrees in all packets in the 
-	      capture. 
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Collapse All</command></term>
-	  <listitem>
-	    <para>
-	      Wireshark keeps a list of all the protocol subtrees that are 
-	      expanded, and uses it to ensure that the correct subtrees 
-	      are expanded when you display a packet. This menu item 
-	      collapses the tree view of all packets in the capture list.  
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Apply as Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Prepare a Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Follow TCP Stream</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name. It allows you to view all the data on a TCP stream 
-	      between a pair of nodes.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Follow SSL Stream</command></term>
-	  <listitem>
-	    <para>
-	      Same as "Follow TCP Stream" but for SSL.
-		  XXX - add a new section describing this better.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Wiki Protocol Page</command></term>
-	  <listitem>
-	    <para>
-	      Show the wiki page corresponding to the currently selected protocol 
-		  in your web browser.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Filter Field Reference</command></term>
-	  <listitem>
 	    <para>
 		  Show the filter field reference web page corresponding to the 
 		  currently selected protocol in your web browser.
-		</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Protocol Properties...</command></term>
-	  <listitem>
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Protocol Properties...</command></entry>
+		<entry>-</entry>
+		<entry>
 	    <para>
 	      The menu item takes you to the properties dialog and selects the 
 		  page corresponding to the protocol if there are properties 
 		  associated with the highlighted field.  
 	      More information on preferences can be found in 
 	      <xref linkend="ChCustGUIPrefPage"/>.
-	      </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Decode As...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name.
 	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Resolve Name</command></term>
-	  <listitem>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>Analyze</entry>
+		<entry>
 	    <para>
-	      This menu item causes name resolution to be performed for 
+		  Change or apply a new relation between two dissectors. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Resolve Name</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Causes a name resolution to be performed for 
 	      the selected packet, but NOT every packet in the capture. 
 	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Go to Corresponding Packet</command></term>
-	  <listitem>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Go to Corresponding Packet</command></entry>
+		<entry>Go</entry>
+		<entry>
 	    <para>
 	      If the selected field has a corresponding packet, go to it. 
 		  Corresponding packets will usually be a request/response packet pair 
 		  or such.
 	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
-    </para>
+		</entry>
+	      </row>
+		</tbody>
+	  </tgroup>
+	</table>
   </section>
   
-  <section id="ChWorkPacketBytesPanePopUpMenuSection"><title>Pop-up menu of "Packet Bytes" pane</title>
+  <section id="ChWorkPacketBytesPanePopUpMenuSection">
+    <title>Pop-up menu of the "Packet Bytes" pane</title>
     <para>
       <figure id="ChWorkPacketBytesPanePopUpMenu">
-	<title>Pop-up menu of "Packet Bytes" pane</title>
+	<title>Pop-up menu of the "Packet Bytes" pane</title>
 	<graphic entityref="WiresharkBytesPanePopupMenu" format="PNG"/>
       </figure>
-      <variablelist>
-	<varlistentry><term><command>Copy/All Information</command></term>
-	  <listitem>
+	  </para>
+	  <para>
+	  The following table gives an overview which functions are available 
+	  in this pane, where to find the corresponding function in the main menu, 
+	  and a short description of each item.
+	  </para>
+	<table id="PacketBytesPopupMenuTable">
+	  <title>The menu items of the "Packet Bytes" pop-up menu</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>Identical to main menu's item:</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Copy/All Information</command></entry>
+		<entry>-</entry>
+		<entry>
 	    <para>
-	      Copy the selected (XXX - all?) packet data to the clipboard (XXX - in which format).
+	      Copy the selected (XXX - all?) packet data to the clipboard 
+		  (XXX - in which format).
 	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Copy/Text Only</command></term>
-	  <listitem>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/Text Only</command></entry>
+		<entry>-</entry>
+		<entry>
 	    <para>
-	      Copy the selected packet data to the clipboard (XXX - in which format).
+	      Copy the selected packet data to the clipboard 
+		  (XXX - in which format).
 	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Export Selected Packet Bytes...</command></term>
-	  <listitem>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>File</entry>
+		<entry>
 	    <para>
 	      This menu item is the same as the File menu item of the same 
 	      name. It allows you to export raw packet bytes to a binary file.
 	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
-    </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
   </section>
 	
   </section>
   
-  <section id="ChWorkDisplayFilterSection"><title>Filtering packets while viewing</title>
+  <section id="ChWorkDisplayFilterSection">
+    <title>Filtering packets while viewing</title>
     <para>
       Wireshark has two filtering languages: One used when capturing 
       packets, and one used when displaying packets.  In this section we 
       explore that second type of filter: Display filters.  The first one 
-      has already been dealt with in <xref linkend="ChCapCaptureFilterSection"/>.
+      has already been dealt with in 
+	  <xref linkend="ChCapCaptureFilterSection"/>.
     </para>
     <para>
       Display filters allow you to concentrate on the packets you are 
