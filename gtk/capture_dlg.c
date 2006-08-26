@@ -593,9 +593,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar         *cap_title;
   gchar         *if_device;
 
-  gint *from_widget = NULL;
-
-
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
     reactivate_window(cap_open_w);
