@@ -86,7 +86,10 @@
  * already a "Capture Interfaces" window up, we just pop up the existing
  * one, rather than creating a new one.
  */
-static GtkWidget *cap_if_w, *cap_air_w;
+static GtkWidget *cap_if_w;
+#ifdef HAVE_AIRPCAP
+static GtkWidget *cap_air_w;
+#endif
 
 GList           *if_data = NULL;
 
@@ -126,11 +129,11 @@ void update_if(if_dlg_data_t *if_dlg_data);
 static void
 capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 {
-if_dlg_data_t *if_dlg_data = if_data;
+  if_dlg_data_t *if_dlg_data = if_data;
 
 #ifdef HAVE_AIRPCAP
-airpcap_if_active = get_airpcap_if_from_description(airpcap_if_list, GTK_LABEL(if_dlg_data->descr_lb)->label);
-airpcap_if_selected = airpcap_if_active;
+  airpcap_if_active = get_airpcap_if_from_description(airpcap_if_list, GTK_LABEL(if_dlg_data->descr_lb)->label);
+  airpcap_if_selected = airpcap_if_active;
 #endif
 
   if (capture_opts->iface)
@@ -551,18 +554,17 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if_info = curr->data;
       if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
 
-
-	  /* Kind of adaptor (icon) */
+      /* Kind of adaptor (icon) */
 #ifdef HAVE_AIRPCAP
-	  if(get_airpcap_if_from_description(airpcap_if_list,if_info->description) != NULL)
-		icon = xpm_to_widget(capture_airpcap_16_xpm);
+      if(get_airpcap_if_from_description(airpcap_if_list,if_info->description) != NULL)
+        icon = xpm_to_widget(capture_airpcap_16_xpm);
       else
-		icon = xpm_to_widget(capture_ethernet_16_xpm);
+        icon = xpm_to_widget(capture_ethernet_16_xpm);
 #else
-		icon = xpm_to_widget(capture_ethernet_16_xpm);
+      icon = xpm_to_widget(capture_ethernet_16_xpm);
 #endif
 
-	  gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);
 
       /* device name */
       if_dlg_data->device_lb = gtk_label_new(if_info->name);
