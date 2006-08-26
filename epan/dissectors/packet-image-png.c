@@ -51,6 +51,14 @@ static int hf_png_ihdr_colour_type = -1;
 static int hf_png_ihdr_compression_method = -1;
 static int hf_png_ihdr_filter_method = -1;
 static int hf_png_ihdr_interlace_method = -1;
+static int hf_png_text_keyword = -1;
+static int hf_png_text_string = -1;
+static int hf_png_time_year = -1;
+static int hf_png_time_month = -1;
+static int hf_png_time_day = -1;
+static int hf_png_time_hour = -1;
+static int hf_png_time_minute = -1;
+static int hf_png_time_second = -1;
 
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
@@ -62,7 +70,7 @@ static const value_string colour_type_vals[] = {
 	{ 2,	"Truecolour"},
 	{ 3,	"Indexed-colour"},
 	{ 4,	"Greyscale with alpha"},
-	{ 5,	"Truecolour with alpha"},
+	{ 6,	"Truecolour with alpha"},
 	{ 0, NULL }
 };
 static const value_string compression_method_vals[] = {
@@ -108,6 +116,36 @@ dissect_png_ihdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	return;
 }
 
+static void
+dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset=1;
+
+	/* find the null that separates keyword and text string */
+	while(1){
+		if(!tvb_get_guint8(tvb, offset)){
+			break;
+		}
+		offset++;
+	}
+
+	proto_tree_add_item(tree, hf_png_text_keyword, tvb, 0, offset, FALSE);
+	offset++;
+
+	proto_tree_add_item(tree, hf_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+
+}
+
+static void
+dissect_png_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_png_time_year, tvb, 0, 2, FALSE);
+	proto_tree_add_item(tree, hf_png_time_month, tvb, 2, 1, FALSE);
+	proto_tree_add_item(tree, hf_png_time_day, tvb, 3, 1, FALSE);
+	proto_tree_add_item(tree, hf_png_time_hour, tvb, 4, 1, FALSE);
+	proto_tree_add_item(tree, hf_png_time_minute, tvb, 5, 1, FALSE);
+	proto_tree_add_item(tree, hf_png_time_second, tvb, 6, 1, FALSE);
+}
 
 typedef struct _chunk_dissector_t {
 	guint32 type;
@@ -117,6 +155,9 @@ typedef struct _chunk_dissector_t {
 
 static chunk_dissector_t chunk_table[] = {
 	{ 0x49484452, "Image Header", dissect_png_ihdr }, 	/* IHDR */
+	{ 0x74455874, "Textual data", dissect_png_text }, 	/* tEXt */
+	{ 0x74494d45, "Image last-modification time",
+					dissect_png_time }, 	/* tIME */
 	{ 0x49454e44, "Image Trailer", NULL }, 			/* IEND */
 	{ 0, NULL, NULL }
 };
@@ -275,6 +316,30 @@ proto_register_png(void)
 	{ &hf_png_ihdr_interlace_method, {
 	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC, 
 	  VALS(interlace_method_vals), 0, "", HFILL }},
+	{ &hf_png_text_keyword, {
+	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_text_string, {
+	  "String", "png.text.string", FT_STRING, BASE_NONE, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_year, {
+	  "Year", "png.time.year", FT_UINT16, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_month, {
+	  "Month", "png.time.month", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_day, {
+	  "Day", "png.time.day", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_hour, {
+	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_minute, {
+	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
+	{ &hf_png_time_second, {
+	  "Second", "png.time.second", FT_UINT8, BASE_DEC, 
+	  NULL, 0, "", HFILL }},
 	};
 
 	static gint *ett[] =
