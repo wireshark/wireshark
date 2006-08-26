@@ -1103,11 +1103,12 @@ main(int argc, char *argv[])
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
-      if (capture_opts.cfilter != NULL) {
+      if (capture_opts.has_cfilter) {
         cmdarg_err("Capture filters were specified both with \"-f\""
             " and with additional command-line arguments");
         exit(1);
       }
+      capture_opts.has_cfilter = TRUE;
       capture_opts.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
@@ -1147,7 +1148,7 @@ main(int argc, char *argv[])
      support in capture files we read). */
 #ifdef HAVE_LIBPCAP
   if (cf_name != NULL) {
-    if (capture_opts.cfilter != NULL) {
+    if (capture_opts.has_cfilter) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
       exit(1);
@@ -1560,14 +1561,6 @@ capture(void)
    * not special privileges.
    */
   relinquish_special_privs_perm();
-
-  /*
-   * Some older Linux versions of libpcap don't work right without
-   * a capture filter; if none was specified, use an empty string.
-   * (Yes, that's a libpcap bug, and has been fixed for a while.)
-   */
-  if (capture_opts.cfilter == NULL)
-    capture_opts.cfilter = g_strdup("");
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
   switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts.iface, capture_opts.cfilter)) {

@@ -44,58 +44,59 @@ typedef enum {
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    void     *cf;           /**< handle to cfile (note: untyped handle) */
-    gchar    *cfilter;      /**< Capture filter string */
-    gchar    *iface;        /**< the network interface to capture from */
+    void     *cf;                   /**< handle to cfile (note: untyped handle) */
+    gboolean has_cfilter;           /**< TRUE if capture filter specified on command line */
+    gchar    *cfilter;              /**< Capture filter string */
+    gchar    *iface;                /**< the network interface to capture from */
 
 #ifdef _WIN32
-    int      buffer_size;   /**< the capture buffer size (MB) */
+    int      buffer_size;           /**< the capture buffer size (MB) */
 #endif
-    gboolean has_snaplen;   /**< TRUE if maximum capture packet length
-                                 is specified */
-    int      snaplen;       /**< Maximum captured packet length */
-    gboolean promisc_mode;  /**< Capture in promiscuous mode */
-    int      linktype;      /**< Data link type to use, or -1 for
-                                 "use default" */
-    gboolean saving_to_file; /**< TRUE if capture is writing to a file */
-    gchar    *save_file;    /**< the capture file name */
+    gboolean has_snaplen;           /**< TRUE if maximum capture packet length
+                                         is specified */
+    int      snaplen;               /**< Maximum captured packet length */
+    gboolean promisc_mode;          /**< Capture in promiscuous mode */
+    int      linktype;              /**< Data link type to use, or -1 for
+                                         "use default" */
+    gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
+    gchar    *save_file;            /**< the capture file name */
 
     /* GUI related */
-    gboolean real_time_mode;    /**< Update list of packets in real time */
-    gboolean show_info;         /**< show the info dialog */
-    gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
-    gboolean restart;           /**< restart after closing is done */
+    gboolean real_time_mode;        /**< Update list of packets in real time */
+    gboolean show_info;             /**< show the info dialog */
+    gboolean quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
+    gboolean restart;               /**< restart after closing is done */
 
     /* multiple files (and ringbuffer) */
-    gboolean multi_files_on;    /**< TRUE if ring buffer in use */
+    gboolean multi_files_on;        /**< TRUE if ring buffer in use */
 
-    gboolean has_file_duration;    /**< TRUE if ring duration specified */
-    gint32 file_duration;       /* Switch file after n seconds */
-    gboolean has_ring_num_files;/**< TRUE if ring num_files specified */
-    guint32 ring_num_files;     /**< Number of multiple buffer files */
+    gboolean has_file_duration;     /**< TRUE if ring duration specified */
+    gint32 file_duration;           /**< Switch file after n seconds */
+    gboolean has_ring_num_files;    /**< TRUE if ring num_files specified */
+    guint32 ring_num_files;         /**< Number of multiple buffer files */
 
     /* autostop conditions */
-    gboolean has_autostop_files;/**< TRUE if maximum number of capture files
-                       are specified */
-    gint32 autostop_files;      /**< Maximum number of capture files */
+    gboolean has_autostop_files;    /**< TRUE if maximum number of capture files
+                                         are specified */
+    gint32 autostop_files;          /**< Maximum number of capture files */
 
-    gboolean has_autostop_packets;    /**< TRUE if maximum packet count is
-                       specified */
-    int autostop_packets;               /**< Maximum packet count */
-    gboolean has_autostop_filesize;     /**< TRUE if maximum capture file size
-                                             is specified */
-    gint32 autostop_filesize;           /**< Maximum capture file size */
-    gboolean has_autostop_duration;     /**< TRUE if maximum capture duration
-                                             is specified */
-    gint32 autostop_duration;           /**< Maximum capture duration */
+    gboolean has_autostop_packets;  /**< TRUE if maximum packet count is
+                                         specified */
+    int autostop_packets;           /**< Maximum packet count */
+    gboolean has_autostop_filesize; /**< TRUE if maximum capture file size
+                                         is specified */
+    gint32 autostop_filesize;       /**< Maximum capture file size */
+    gboolean has_autostop_duration; /**< TRUE if maximum capture duration
+                                         is specified */
+    gint32 autostop_duration;       /**< Maximum capture duration */
 
     /* internally used (don't touch from outside) */
-    int fork_child;                  /**< If not -1, in parent, process ID of child */
+    int fork_child;                 /**< If not -1, in parent, process ID of child */
 #ifdef _WIN32
-    int signal_pipe_write_fd;   /**< the pipe to signal the child */
+    int signal_pipe_write_fd;       /**< the pipe to signal the child */
 #endif
-    capture_state state;        /**< current state of the capture engine */
-    gboolean output_to_pipe;    /**< save_file is a pipe (named or stdout) */
+    capture_state state;            /**< current state of the capture engine */
+    gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
 } capture_options;
 
 

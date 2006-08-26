@@ -52,7 +52,7 @@ void
 capture_opts_init(capture_options *capture_opts, void *cfile)
 {
   capture_opts->cf                      = cfile;            
-  capture_opts->cfilter                 = NULL;             /* No capture filter string specified */
+  capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
 #ifdef _WIN32
   capture_opts->buffer_size             = 1;                /* 1 MB */
@@ -325,10 +325,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
         break;
     case 'f':        /* capture filter */
-        if (capture_opts->cfilter) {
+        if (capture_opts->has_cfilter) {
             cmdarg_err("More than one -f argument specified");
             return 1;
         }
+        capture_opts->has_cfilter = TRUE;
         capture_opts->cfilter = g_strdup(optarg);
         break;
     case 'H':        /* Hide capture info dialog box */
