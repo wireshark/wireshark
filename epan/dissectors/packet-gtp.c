@@ -50,6 +50,7 @@
 #include "packet-gsm_map.h"
 #include "packet-per.h"
 #include "packet-ranap.h"
+#include "packet-bssgp.h"
 
 static dissector_table_t ppp_subdissector_table;
 
@@ -194,6 +195,7 @@ static int hf_gtp_ext_geo_loc_type	= -1;
 static int hf_gtp_ext_sac			= -1;
 static int hf_gtp_ext_imeisv		= -1;
 static int hf_gtp_targetid			= -1;
+static int hf_gtp_bssgp_cause		= -1;
 
 
 /* Initialize the subtree pointers */
@@ -382,6 +384,26 @@ static const value_string pt_types[] = {
 #define GTP_MSG_FORW_SRNS_CNTXT		0x3A
 #define GTP_MSG_FORW_RELOC_ACK		0x3B
 #define GTP_MSG_FORW_SRNS_CNTXT_ACK	0x3C
+
+#define GTP_MSG_RAN_INFO_RELAY		70
+#define GTP_MBMS_NOTIFY_REQ			96
+#define GTP_MBMS_NOTIFY_RES			97
+#define GTP_MBMS_NOTIFY_REJ_REQ		98
+#define GTP_MBMS_NOTIFY_REJ_RES		99
+#define GTP_CREATE_MBMS_CNTXT_REQ	100
+#define GTP_CREATE_MBMS_CNTXT_RES	101
+#define GTP_UPD_MBMS_CNTXT_REQ		102
+#define GTP_UPD_MBMS_CNTXT_RES		103
+#define GTP_DEL_MBMS_CNTXT_REQ		104
+#define GTP_DEL_MBMS_CNTXT_RES		105
+#define GTP_MBMS_REG_REQ			112
+#define GTP_MBMS_REG_RES			113
+#define GTP_MBMS_DE_REG_REQ			114
+#define GTP_MBMS_DE_REG_RES			115
+#define GTP_MBMS_SES_START_REQ		116
+#define GTP_MBMS_SES_START_RES		117
+#define GTP_MBMS_SES_STOP_REQ		118
+#define GTP_MBMS_SES_STOP_RES		119
 #define GTP_MSG_DATA_TRANSF_REQ		0xF0
 #define GTP_MSG_DATA_TRANSF_RESP	0xF1
 #define GTP_MSG_TPDU				0xFF
@@ -430,6 +452,25 @@ static const value_string message_type[] = {
 	{ GTP_MSG_FORW_SRNS_CNTXT,		"Forward SRNS context" },
 	{ GTP_MSG_FORW_RELOC_ACK,		"Forward relocation complete acknowledge" },
 	{ GTP_MSG_FORW_SRNS_CNTXT_ACK,	"Forward SRNS context acknowledge" },
+	{ GTP_MSG_RAN_INFO_RELAY,		"RAN Information Relay" },
+	{ GTP_MBMS_NOTIFY_REQ,			"MBMS Notification Request" },
+	{ GTP_MBMS_NOTIFY_RES,			"MBMS Notification Response" },
+	{ GTP_MBMS_NOTIFY_REJ_REQ,		"MBMS Notification Reject Request" },
+	{ GTP_MBMS_NOTIFY_REJ_RES,		"MBMS Notification Reject Response" },
+	{ GTP_CREATE_MBMS_CNTXT_REQ,	"Create MBMS Context Request" },
+	{ GTP_CREATE_MBMS_CNTXT_RES,	"Create MBMS Context Response" },
+	{ GTP_UPD_MBMS_CNTXT_REQ,		"Update MBMS Context Request" },
+	{ GTP_UPD_MBMS_CNTXT_RES,		"Update MBMS Context Response" },
+	{ GTP_DEL_MBMS_CNTXT_REQ,		"Delete MBMS Context Request" },
+	{ GTP_DEL_MBMS_CNTXT_RES,		"Delete MBMS Context Response" },
+	{ GTP_MBMS_REG_REQ,				"MBMS Registration Request" },
+	{ GTP_MBMS_REG_RES,				"MBMS Registration Response" },
+	{ GTP_MBMS_DE_REG_REQ,			"MBMS De-Registration Request" },
+	{ GTP_MBMS_DE_REG_RES,			"MBMS De-Registration Response" },
+	{ GTP_MBMS_SES_START_REQ,		"MBMS Session Start Request" },
+	{ GTP_MBMS_SES_START_RES,		"MBMS Session Start Response" },
+	{ GTP_MBMS_SES_STOP_REQ,		"MBMS Session Stop Request" },
+	{ GTP_MBMS_SES_STOP_RES,		"MBMS Session Stop Response" },
 	{ GTP_MSG_DATA_TRANSF_REQ,		"Data record transfer request" },
 	{ GTP_MSG_DATA_TRANSF_RESP,		"Data record transfer response" },
 	{ GTP_MSG_TPDU,					"T-PDU" },
@@ -1791,12 +1832,12 @@ static _gtp_mess_items gprs_mess_items[] = {
 },
 {
 	GTP_MSG_SEND_ROUT_INFO_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
 		{ GTP_EXT_MAP_CAUSE,	GTP_OPTIONAL },
 		{ GTP_EXT_MS_REASON,	GTP_OPTIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
@@ -1908,7 +1949,7 @@ static _gtp_mess_items gprs_mess_items[] = {
  * UMTS messages
  * -----------------------------*/
 static _gtp_mess_items umts_mess_items[] = {
-
+	/* 7.2 Path Management Messages */
 {
 	GTP_MSG_ECHO_REQ, {
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
@@ -1927,6 +1968,13 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ 0,			0 }
 	}
 },
+{
+	GTP_MSG_SUPP_EXT_HDR, {
+		{ GTP_EXT_HDR_LIST,	GTP_MANDATORY },
+		{ 0,			0 }
+	}
+},
+	/* ??? */
 {
 	GTP_MSG_NODE_ALIVE_REQ, {
 		{ GTP_EXT_NODE_ADDR,	GTP_MANDATORY },
@@ -1953,9 +2001,12 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ 0,			0 }
 	}
 },
+	/* 7.3 Tunnel Management Messages */
 {
 	GTP_MSG_CREATE_PDP_REQ, {
 		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+			/* RAI is in TS 29.060 V6.11.0 */
+		{ GTP_EXT_RAI,			GTP_OPTIONAL },		/* Routeing Area Identity (RAI) Optional 7.7.3 */
 		{ GTP_EXT_RECOVER, 		GTP_OPTIONAL },
 		{ GTP_EXT_SEL_MODE, 	GTP_CONDITIONAL },
 		{ GTP_EXT_TEID,			GTP_MANDATORY },
@@ -2002,224 +2053,238 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_QOS_UMTS,		GTP_CONDITIONAL },
 		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },
 		/* TS 29.060 V6.11.0 */
-		/* Alternative Charging Gateway Address Optional 7.7.44 */
-		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
-		/* Common Flags Optional 7.7.48 */
+		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },		/* Alternative Charging Gateway Address Optional 7.7.44 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },	
+		{ GTP_EXT_COMMON_FLGS,	GTP_OPTIONAL },		/* Common Flags Optional 7.7.48 */
 		{ GTP_EXT_APN_RES,		GTP_OPTIONAL },		/* APN Restriction Optional 7.7.49 */
 		{ 0,			0 }
 	}
 },
 {	/* checked, SGSN -> GGSN */
 	GTP_MSG_UPDATE_PDP_REQ, {
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_RECOVER,	GTP_OPTIONAL },
-		{ GTP_EXT_TEID,		GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
-		{ GTP_EXT_NSAPI,	GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_RAI,			GTP_OPTIONAL },		/* Routeing Area Identity (RAI) Optional 7.7.3 */
+		{ GTP_EXT_RECOVER,		GTP_OPTIONAL },
+		{ GTP_EXT_TEID,			GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_NSAPI,		GTP_MANDATORY },
 		{ GTP_EXT_TRACE_REF,	GTP_OPTIONAL },
 		{ GTP_EXT_TRACE_TYPE,	GTP_OPTIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_QOS_UMTS,	GTP_MANDATORY },
-		{ GTP_EXT_TFT,		GTP_OPTIONAL },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },	/* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },	/* SGSN Address for User Traffic Mandatory GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_QOS_UMTS,		GTP_MANDATORY },
+		{ GTP_EXT_TFT,			GTP_OPTIONAL },
 		{ GTP_EXT_TRIGGER_ID,	GTP_OPTIONAL },
-		{ GTP_EXT_OMC_ID,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_OMC_ID,		GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ GTP_EXT_RAT_TYPE,		GTP_OPTIONAL },		/* RAT Type Optional 7.7.50 */
 		{ GTP_EXT_USR_LOC_INF,	GTP_OPTIONAL },		/* User Location Information Optional 7.7.51 */
 		{ GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL },		/* MS Time Zone Optional 7.7.52 */
 		{ GTP_EXT_ADD_TRS_INF,	GTP_OPTIONAL },		/* Additonal Trace Info Optional 7.7.62 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {	/* checked, GGSN -> SGSN */
 	GTP_MSG_UPDATE_PDP_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_RECOVER,	GTP_OPTIONAL },
-		{ GTP_EXT_TEID,		GTP_CONDITIONAL },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
-		{ GTP_EXT_CHRG_ID,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_QOS_UMTS,	GTP_CONDITIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_RECOVER,		GTP_OPTIONAL },
+		{ GTP_EXT_TEID,			GTP_CONDITIONAL },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_CHRG_ID,		GTP_CONDITIONAL },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_QOS_UMTS,		GTP_CONDITIONAL },
 		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },
-		/* Alternative Charging Gateway Address Optional 7.7.44 */
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
-		/* Common Flags Optional 7.7.48 */
-		/* APN Restriction Optional 7.7.49 */
+		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },		/* Alternative Charging Gateway Address Optional 7.7.44 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
+		{ GTP_EXT_COMMON_FLGS,	GTP_OPTIONAL },		/* Common Flags Optional 7.7.48 */
+		{ GTP_EXT_APN_RES,		GTP_OPTIONAL },		/* APN Restriction Optional 7.7.49 */
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_DELETE_PDP_REQ, {
-		{ GTP_EXT_TEAR_IND,	GTP_CONDITIONAL },
-		{ GTP_EXT_NSAPI,	GTP_MANDATORY },
-		/* Protocol Configuration Options Optional 7.7.31 */
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_TEAR_IND,		GTP_CONDITIONAL },
+		{ GTP_EXT_NSAPI,		GTP_MANDATORY },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_DELETE_PDP_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		/* Protocol Configuration Options Optional 7.7.31 */
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_ERR_IND, {
-		{ GTP_EXT_TEID,		GTP_MANDATORY },
-		/* GSN Address Mandatory 7.7.32 */
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_TEID,			GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },	/* GSN Address Mandatory 7.7.32 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_PDU_NOTIFY_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_MANDATORY },
 		{ GTP_EXT_USER_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_APN,		GTP_MANDATORY },
-		/* Protocol Configuration Options Optional 7.7.31 */
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_APN,			GTP_MANDATORY },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_PDU_NOTIFY_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_PDU_NOTIFY_REJ_REQ, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_MANDATORY },
 		{ GTP_EXT_USER_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_APN,		GTP_MANDATORY },
-		/* Protocol Configuration Options Optional 7.7.31 */
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_APN,			GTP_MANDATORY },
+		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },		/* Protocol Configuration Options Optional 7.7.31 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_PDU_NOTIFY_REJ_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
-{
-	GTP_MSG_SUPP_EXT_HDR, {
-		{ GTP_EXT_HDR_LIST,	GTP_MANDATORY },
-		{ 0,			0 }
-	}
-},
+	/* 7.4 Location Management Messages */
 {
 	GTP_MSG_SEND_ROUT_INFO_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SEND_ROUT_INFO_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
 		{ GTP_EXT_MAP_CAUSE,	GTP_OPTIONAL },
 		{ GTPv1_EXT_MS_REASON,	GTP_OPTIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FAIL_REP_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_FAIL_REP_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
 		{ GTP_EXT_MAP_CAUSE,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_MS_PRESENT_REQ, {
-		{ GTP_EXT_IMSI,		GTP_MANDATORY },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_IMSI,			GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_MS_PRESENT_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
+	/* 7.5 Mobility Management Messages */
 {
 	GTP_MSG_IDENT_REQ, {
-		{ GTP_EXT_RAI,		GTP_MANDATORY },
-		{ GTP_EXT_PTMSI,	GTP_MANDATORY },
+		{ GTP_EXT_RAI,			GTP_MANDATORY },
+		{ GTP_EXT_PTMSI,		GTP_MANDATORY },
 		{ GTP_EXT_PTMSI_SIG,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* SGSN Address for Control Plane Optional 7.7.32 */
+		{ GTP_EXT_HOP_COUNT,	GTP_OPTIONAL },		/* Hop Counter Optional 7.7.63 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_IDENT_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_AUTH_TRI,	GTP_CONDITIONAL },
-		{ GTP_EXT_AUTH_QUI,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_AUTH_TRI,		GTP_CONDITIONAL },
+		{ GTP_EXT_AUTH_QUI,		GTP_CONDITIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SGSN_CNTXT_REQ,	{
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_RAI,		GTP_MANDATORY },
-		{ GTP_EXT_TLLI,		GTP_CONDITIONAL },
-		{ GTP_EXT_PTMSI,	GTP_CONDITIONAL },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_RAI,			GTP_MANDATORY },
+		{ GTP_EXT_TLLI,			GTP_CONDITIONAL },
+		{ GTP_EXT_PTMSI,		GTP_CONDITIONAL },
 		{ GTP_EXT_PTMSI_SIG,	GTP_CONDITIONAL },
-		{ GTP_EXT_MS_VALID,	GTP_OPTIONAL },
-		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_MS_VALID,		GTP_OPTIONAL },
+		{ GTP_EXT_TEID_CP,		GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_OPTIONAL },		/* Alternative SGSN Address for Control Plane Optional 7.7.32 */
+		{ GTP_EXT_SSGN_NO,		GTP_OPTIONAL },		/* SGSN Number Optional 7.7.47 */
+		{ GTP_EXT_HOP_COUNT,	GTP_OPTIONAL },		/* Hop Counter Optional 7.7.63 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SGSN_CNTXT_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
-		{ GTP_EXT_RP_SMS,	GTP_OPTIONAL },
-		{ GTP_EXT_RP,		GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_RAB_CNTXT,	GTP_CONDITIONAL },	/* RAB Context Conditional 7.7.19 */
+		{ GTP_EXT_RP_SMS,		GTP_OPTIONAL },
+		{ GTP_EXT_RP,			GTP_OPTIONAL },
 		{ GTP_EXT_PKT_FLOW_ID,	GTP_OPTIONAL },
-		{ GTP_EXT_MM_CNTXT,	GTP_CONDITIONAL },
+		{ GTP_EXT_CHRG_CHAR,	GTP_OPTIONAL },		/* CharingCharacteristics Optional 7.7.23 */
+		{ GTP_EXT_RA_PRIO_LCS,	GTP_OPTIONAL },		/* Radio Priority LCS Optional 7.7.25B */
+		{ GTP_EXT_MM_CNTXT,		GTP_CONDITIONAL },
 		{ GTP_EXT_PDP_CNTXT,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_PDP_CONT_PRIO,GTP_OPTIONAL },		/* PDP Context Prioritization Optional 7.7.45 */
+		{ GTP_EXT_MBMS_UE_CTX,	GTP_OPTIONAL },		/* MBMS UE Context Optional 7.7.55 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SGSN_CNTXT_ACK, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_TEID_II,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_TEID_II,		GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
@@ -2228,11 +2293,19 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_IMSI,			GTP_MANDATORY },
 		{ GTP_EXT_TEID_CP,		GTP_MANDATORY },
 		{ GTP_EXT_RANAP_CAUSE,	GTP_MANDATORY },
+		{ GTP_EXT_CHRG_CHAR,	GTP_OPTIONAL },		/* CharingCharacteristics Optional 7.7.23 */
 		{ GTP_EXT_MM_CNTXT,		GTP_MANDATORY },
 		{ GTP_EXT_PDP_CNTXT,	GTP_CONDITIONAL },
 		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
 		{ GTP_EXT_TARGET_ID,	GTP_MANDATORY },
 		{ GTP_EXT_UTRAN_CONT,	GTP_MANDATORY },
+		{ GTP_EXT_PDP_CONT_PRIO,GTP_OPTIONAL },		/* PDP Context Prioritization Optional 7.7.45 */
+		{ GTP_EXT_MBMS_UE_CTX,	GTP_OPTIONAL },		/* MBMS UE Context Optional 7.7.55 */
+		{ GTP_EXT_SEL_PLMN_ID,	GTP_OPTIONAL },		/* Selected PLMN ID Optional 7.7.64 */
+		{ GTP_EXT_PS_HO_REQ_CTX,GTP_OPTIONAL },		/* PS Handover Request Context Optional 7.7.71 */
+		{ GTP_EXT_BSS_CONT,		GTP_OPTIONAL },		/* BSS Container Optional 7.7.72 */
+		{ GTP_EXT_CELL_ID,		GTP_OPTIONAL },		/* Cell Identification Optional 7.7.73 */
+		{ GTP_EXT_BSSGP_CAUSE,	GTP_OPTIONAL },		/* BSSGP Cause Optional 7.7.75 */
 		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ GTP_EXT_SSGN_NO,		GTP_OPTIONAL },
 		{ 0,			0 }
@@ -2242,10 +2315,12 @@ static _gtp_mess_items umts_mess_items[] = {
 	GTP_MSG_FORW_RELOC_RESP, {
 		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
 		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_TEID_II,		GTP_CONDITIONAL },	/* Tunnel Endpoint Identifier Data II Optional 7.7.15 */
 		{ GTP_EXT_RANAP_CAUSE,	GTP_CONDITIONAL },
 		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
 		{ GTP_EXT_UTRAN_CONT,	GTP_OPTIONAL },
 		{ GTP_EXT_RAB_SETUP,	GTP_CONDITIONAL },
+		{ GTP_EXT_ADD_RAB_SETUP_INF,	GTP_CONDITIONAL },	/* Additional RAB Setup Information Conditional 7.7.45A */
 		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
@@ -2278,16 +2353,245 @@ static _gtp_mess_items umts_mess_items[] = {
 	}
 },
 {
-	GTP_MSG_FORW_SRNS_CNTXT, {
-		{ GTP_EXT_RAB_CNTXT,	GTP_MANDATORY },
+	GTP_MSG_FORW_SRNS_CNTXT_ACK, {
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
 		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
-	GTP_MSG_FORW_SRNS_CNTXT_ACK, {
-		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
+	GTP_MSG_FORW_SRNS_CNTXT, {
+		{ GTP_EXT_RAB_CNTXT,			GTP_MANDATORY },
+		{ GTP_EXT_SRC_RNC_PDP_CTX_INF,	GTP_OPTIONAL },		/* Source RNC PDCP context info Optional 7.7.61 */
+		{ GTP_EXT_PDU_NO,				GTP_OPTIONAL },		/* PDU Numbers Optional 7.7.74 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+
+/*	7.5.14 RAN Information Management Messages */
+{
+		GTP_MSG_RAN_INFO_RELAY, {
+		{ GTP_EXT_RAN_TR_CONT,			GTP_MANDATORY },	/* RAN Transparent Container Mandatory 7.7.43 */
+		{ GTP_EXT_RIM_RA,				GTP_OPTIONAL },		/* RIM Routing Address Optional 7.7.57 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+/* 7.5A MBMS Messages 
+ * 7.5A.1 UE Specific MBMS Messages
+ */
+{
+		GTP_MBMS_NOTIFY_REQ, {
+		{ GTP_EXT_IMSI,					GTP_MANDATORY },	/* IMSI Mandatory 7.7.2 */
+		{ GTP_EXT_TEID_CP,				GTP_MANDATORY },	/* Tunnel Endpoint Identifier Control Plane Mandatory 7.7.14 */
+		{ GTP_EXT_NSAPI,				GTP_MANDATORY },	/* NSAPI Mandatory 7.7.17 */
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },	/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },	/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_GSN_ADDR,				GTP_MANDATORY },	/* GGSN Address for Control Plane Mandatory 7.7.32 */
+		{ GTP_EXT_MBMS_PROT_CONF_OPT,	GTP_OPTIONAL },		/* MBMS Protocol Configuration Options Optional 7.7.58 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },		/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_NOTIFY_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },	/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_NOTIFY_REJ_REQ, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },	/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_TEID_CP,				GTP_MANDATORY },	/* Tunnel Endpoint Identifier Control Plane Mandatory 7.7.14 */
+		{ GTP_EXT_NSAPI,				GTP_MANDATORY },	/* NSAPI Mandatory 7.7.17 */
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },	/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },	/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_NOTIFY_REJ_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_CREATE_MBMS_CNTXT_REQ, {
+		{ GTP_EXT_IMSI,					GTP_CONDITIONAL },		/* IMSI Conditional 7.7.2 */
+		{ GTP_EXT_RAI,					GTP_MANDATORY },		/* Routeing Area Identity (RAI) Mandatory 7.7.3 */
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },			/* Recovery Optional 7.7.11 */
+			/* Selection mode Conditional 7.7.12 */
+		{ GTP_EXT_TEID_CP,				GTP_CONDITIONAL },	/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+			/* Trace Reference Optional 7.7.24 */
+			/* Trace Type Optional 7.7.25 */
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },		/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },		/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_GSN_ADDR,				GTP_MANDATORY },		/* SGSN Address for signalling Mandatory GSN Address 7.7.32 */
+			/* MSISDN Conditional 7.7.33 */
+			/* Trigger Id Optional 7.7.41 */
+			/* OMC Identity Optional 7.7.42 */
+			/* RAT Type Optional 7.7.50 */
+			/* User Location Information Optional 7.7.51 */
+			/* MS Time Zone Optional 7.7.52 */
+			/* IMEI(SV) Optional 7.7.53 */
+		{ GTP_EXT_MBMS_PROT_CONF_OPT,	GTP_OPTIONAL },			/* MBMS Protocol Configuration Options Optional 7.7.58 */
+			/* Additonal Trace Info Optional 7.7.62 */
+		{ GTP_EXT_ENH_NSAPI,			GTP_MANDATORY },		/* Enhanced NSAPI Mandatory 7.7.67 */
+			/* Additional MBMS Trace Info Optional 7.7.68 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_CREATE_MBMS_CNTXT_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },			/* Recovery Optional 7.7.11 */
+		{ GTP_EXT_TEID_CP,				GTP_CONDITIONAL },		/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+			/* Charging ID Conditional 7.7.26 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+			/* Charging Gateway Address Optional 7.7.44 */
+			/* Alternative Charging Gateway Address Optional 7.7.44 */
+		{ GTP_EXT_MBMS_PROT_CONF_OPT,	GTP_OPTIONAL },			/* MBMS Protocol Configuration Options Optional 7.7.58 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_UPD_MBMS_CNTXT_REQ, {
+		{ GTP_EXT_IMSI,				GTP_CONDITIONAL },		/* IMSI Conditional 7.7.2 */
+		{ GTP_EXT_RAI,					GTP_MANDATORY },	/* Routeing Area Identity (RAI) Mandatory 7.7.3 */
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },		/* Recovery Optional 7.7.11 */
+		{ GTP_EXT_TEID_CP,				GTP_CONDITIONAL },	/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+			/* Trace Reference Optional 7.7.24 */
+			/* Trace Type Optional 7.7.25 */
+		{ GTP_EXT_GSN_ADDR,				GTP_MANDATORY },	/* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },	/* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+			/* Trigger Id Optional 7.7.41 */
+			/* OMC Identity Optional 7.7.42 */
+			/* RAT Type Optional 7.7.50 */
+			/* User Location Information Optional 7.7.51 */
+			/* MS Time Zone Optional 7.7.52 */
+			/* Additional Trace Info Optional 7.7.62 */
+		{ GTP_EXT_ENH_NSAPI,			GTP_MANDATORY },	/* Enhanced NSAPI Mandatory 7.7.67 */
+			/* Additional MBMS Trace Info Optional 7.7.68 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_UPD_MBMS_CNTXT_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },			/* Recovery Optional 7.7.11 */
+		{ GTP_EXT_TEID_CP,				GTP_MANDATORY },		/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+			/* Charging ID Conditional 7.7.26 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+			/* Charging Gateway Address Optional 7.7.44 */
+			/* Alternative Charging Gateway Address Optional 7.7.44 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_DEL_MBMS_CNTXT_REQ, {
+		{ GTP_EXT_IMSI,					GTP_CONDITIONAL },		/* IMSI Conditional 7.7.2 */
+		{ GTP_EXT_TEID_CP,				GTP_MANDATORY },		/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+		{ GTP_EXT_USER_ADDR,			GTP_CONDITIONAL },		/* End User Address Conditional 7.7.27 */
+		{ GTP_EXT_APN,					GTP_CONDITIONAL },		/* Access Point Name Conditional 7.7.30 */
+		{ GTP_EXT_MBMS_PROT_CONF_OPT,	GTP_OPTIONAL },			/* MBMS Protocol Configuration Options Optional 7.7.58 */
+		{ GTP_EXT_ENH_NSAPI,			GTP_MANDATORY },		/* Enhanced NSAPI Conditional 7.7.67 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_DEL_MBMS_CNTXT_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_MBMS_PROT_CONF_OPT,	GTP_OPTIONAL },			/* MBMS Protocol Configuration Options Optional 7.7.58 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_REG_REQ, {
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },		/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },		/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_REG_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+			/* Temporary Mobile Group Identity (TMGI) Conditional 7.7.56 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_DE_REG_REQ, {
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },		/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },		/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_DE_REG_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_SES_START_REQ, {
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },			/* Recovery Optional 7.7.11 */
+		{ GTP_EXT_TEID_CP,				GTP_CONDITIONAL },		/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },		/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },		/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+			/* Quality of Service Profile Mandatory 7.7.34 */
+			/* Common Flags Mandatory 7.7.48 */
+			/* Temporary Mobile Group Identity (TMGI) Mandatory 7.7.56 */
+			/* MBMS Session Duration Mandatory 7.7.59 */
+			/* MBMS Service Area Mandatory 7.7.60 */
+			/* MBMS Session Identifier Optional 7.7.65 */
+			/* MBMS 2G/3G Indicator Mandatory 7.7.66 */
+			/* MBMS Session Identity Repetition Number Optional 7.7.69 */
+			/* MBMS Time To Data Transfer Mandatory 7.7.70 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_SES_START_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_RECOVER,				GTP_OPTIONAL },			/* Recovery Optional 7.7.11 */
+			/* Tunnel Endpoint Identifier Data I Conditional 7.7.13 */
+			/* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_GSN_ADDR,				GTP_CONDITIONAL },		/* SGSN Address for user traffic Conditional GSN Address 7.7.32 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_SES_STOP_REQ, {
+		{ GTP_EXT_USER_ADDR,			GTP_MANDATORY },		/* End User Address Mandatory 7.7.27 */
+		{ GTP_EXT_APN,					GTP_MANDATORY },		/* Access Point Name Mandatory 7.7.30 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
+		{ 0,			0 }
+	}
+},
+{
+		GTP_MBMS_SES_STOP_RES, {
+		{ GTP_EXT_CAUSE,				GTP_MANDATORY },		/* Cause Mandatory 7.7.1 */
+		{ GTP_EXT_PRIV_EXT,				GTP_OPTIONAL },			/* Private Extension Optional 7.7.46 */
 		{ 0,			0 }
 	}
 },
@@ -4194,7 +4498,7 @@ decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.25
- * UMTS:	29.060 v4.0, chapter 7.7.43 ( 7.7.44 in v6 ).
+ * UMTS:	29.060 v6.11.0, chapter 7.7.44 Charging Gateway Address
  */
 static int
 decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
@@ -4302,7 +4606,8 @@ decode_gtp_add_rab_setup_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
   }
  
-/* GPRS:	?
+
+ /* GPRS:	?
  * UMTS:	29.060 v6.11.0, chapter 7.7.47 SGSN Number
  */
  static int
@@ -4449,6 +4754,8 @@ decode_gtp_ms_time_zone(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	guint16		length;
 	proto_tree	*ext_tree;
 	proto_item	*te;
+	guint8		data;
+	char		sign;
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_MS_TIME_ZONE, gtp_val, "Unknown"));
@@ -4457,9 +4764,25 @@ decode_gtp_ms_time_zone(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
+	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* 3GPP TS 23.040 version 6.6.0 Release 6 
+	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+	 * :
+	 * The Time Zone indicates the difference, expressed in quarters of an hour, 
+	 * between the local time and GMT. In the first of the two semi-octets, 
+	 * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
+	 * represents the algebraic sign of this difference (0: positive, 1: negative).
+	 */
+	/*
+    data = tvb_get_guint8(tvb, offset);
+    sign = (data & 0x08)?'-':'+';
+    data = (data >> 4) + (data & 0x07) * 10;
+
+    proto_tree_add_text(tree, tvb, offset, 1,"Timezone: GMT %c %d hours %d minutes",
+		sign, data / 4, data % 4 * 15);
+
+	*/
 	return 3 + length;
 
  }
@@ -4556,9 +4879,7 @@ decode_gtp_tmgi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data 
-	 * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
-	 */
+
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
 	return 3 + length;
@@ -4585,6 +4906,9 @@ decode_gtp_rim_ra(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 	offset = offset +2;
 	/* TODO add decoding of data */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/*  
+	 * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
+	 */
 
 	return 3 + length;
 
@@ -4959,6 +5283,9 @@ decode_gtp_bss_cont(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	offset = offset +2;
 	/* TODO add decoding of data */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/*
+	 * The content of this container is defined in 3GPP TS 48.018
+	 */
 
 	return 3 + length;
 
@@ -4984,6 +5311,13 @@ decode_gtp_cell_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	offset = offset +2;
 	/* TODO add decoding of data */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/*
+	 * for PS handover from A/Gb mode, the identification of a target cell (Cell ID 1) and the identification of the
+	 * source cell (Cell ID 2) as defined in 3GPP TS 48.018 [20].
+	 *
+	 * for PS handover from Iu mode, the identification of a target cell (Cell ID 1)) and the identification of the
+	 * source RNC (RNC-ID) as defined in 3GPP TS 48.018
+	 */
 
 	return 3 + length;
 
@@ -5032,8 +5366,11 @@ decode_gtp_bssgp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	
+	/* 	
+	 * The BSSGP Cause information element contains the cause as defined in 3GPP TS 48.018
+	 */
+	proto_tree_add_item(ext_tree, hf_gtp_bssgp_cause, tvb, offset, 2, FALSE);
 
 	return 3 + length;
 
@@ -5196,8 +5533,10 @@ decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.26
- * UMTS:	29.060 v4.0, chapter 7.7.44
+ * UMTS:	29.060 v4.0, chapter 7.7.46 Private Extension
+ * 
  */
+
 static int
 decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -5639,6 +5978,10 @@ proto_register_gtp(void)
 			{ "TargetID", "gtp.targetid",
 			FT_UINT32, BASE_DEC, VALS(ranap_TargetID_vals), 0,
 			"TargetID", HFILL }},
+		{ &hf_gtp_bssgp_cause,
+			{ "BSSGP Cause", "gtp.bssgp_cause",
+			FT_UINT8, BASE_DEC, VALS(tab_cause), 0,
+			"BSSGP Cause", HFILL }},
 
 	};
 

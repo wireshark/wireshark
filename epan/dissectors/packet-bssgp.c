@@ -1717,12 +1717,7 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
 }
 
-static void 
-decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  proto_item *ti;
-  guint8 value;
-
-  static const value_string tab_cause[] = {
+const value_string tab_cause[] = {
     { 0x00, "Processor overload" },
     { 0x01, "Equipment failure" },
     { 0x02, "Transit network service failure" },
@@ -1754,6 +1749,12 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     { 0,    NULL },
   };
 
+static void 
+decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+  proto_item *ti;
+  guint8 value;
+
+
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     value = tvb_get_guint8(bi->tvb, bi->offset);
@@ -1765,6 +1766,9 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
+/*
+ * 11.3.9 Cell Identifier 3GPP TS 48.018 version 6.7.0 Release 6
+ */
 static void 
 decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -1784,6 +1788,9 @@ decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
 
 }
 
+/*
+ * 11.3.10 Channel needed
+ */
 static void 
 decode_iei_channel_needed(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: 'If this IE is used for only one MS, the the first CHANNEL field 
@@ -1806,7 +1813,9 @@ decode_iei_channel_needed(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   }
   bi->offset += ie->value_length;
 }
-
+/*
+ * 11.3.11 DRX Parameters
+ */
 static void 
 decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CYCLE_LENGTH_COEFFICIENT = 0xf0;
@@ -1922,6 +1931,10 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   bi->offset++;
 }
 
+/*
+ * 11.3.12 eMLPP-Priority
+ */
+
 static void 
 decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CALL_PRIORITY = 0x07;
@@ -1949,6 +1962,9 @@ decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   }
   bi->offset += ie->value_length;
 }
+/*
+ * 11.3.13 Flush Action
+ */
 
 static void 
 decode_iei_flush_action(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
@@ -1972,12 +1988,17 @@ decode_iei_flush_action(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 }
+/*
+ * 11.3.16 LLC Frames Discarded
+ */
 
 static void 
 decode_iei_llc_frames_discarded(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   decode_simple_ie(ie, bi, ie_start_offset, "", " frames discarded", TRUE);
 }
-
+/*
+ * 11.3.17 Location Area
+ */
 static void 
 decode_iei_location_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -2581,7 +2602,9 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
     decode_msrac_value_part(tree, tvb, bo);
   }
 }
-
+/*
+ * 11.3.22 MS Radio Access Capability
+ */
 static void 
 decode_iei_ms_radio_access_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -2593,11 +2616,17 @@ decode_iei_ms_radio_access_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_s
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_ms_radio_access_capability);
-  
+  /* Rest of element coded as the value part defined in
+   * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and
+   * 3GPP TS 24.008 octet length indicator.
+   * 10.5.5.12a MS Radio Access capability
+   */
   decode_msrac_value_part(tf, bi->tvb, bi->offset * 8);
   bi->offset += ie->value_length;
 }
-
+/*
+ * 11.3.23 OMC Id
+ */
 static void 
 decode_iei_omc_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: Translation: where in 3GPP TS 12.20? */
@@ -2609,7 +2638,9 @@ decode_iei_omc_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 }
-
+/*
+ * 11.3.24 PDU In Error
+ */
 static void 
 decode_iei_pdu_in_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -2684,7 +2715,9 @@ decode_iei_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   
   bi->offset += ie->value_length;
 }
-
+/*
+ * 11.3.28 QoS Profile
+ */
 static void 
 decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CR_BIT = 0x20;
@@ -2763,7 +2796,9 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item_append_text(pi, " (%#x)", value);
   bi->offset++;
 }
-
+/*
+ * 11.3.29 Radio Cause
+ */
 static void 
 decode_iei_radio_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -4076,7 +4111,9 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   }
 }
 
-
+/* 
+ * 11.3.63.1.1 RAN-INFORMATION-REQUEST Application Container for the NACC Application
+ */
 static void 
 decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
@@ -4087,6 +4124,10 @@ decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_i
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
     
+	/*
+	 * Octet 3-10 Reporting Cell Identifier:
+	 * This field is encoded as the Cell Identifier defined in sub-clause 11.3.9
+	 */
     rai_ci = decode_rai_ci(bi, tf);
     proto_item_append_text(ti, ": %s", rai_ci);
 

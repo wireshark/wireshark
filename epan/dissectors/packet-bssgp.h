@@ -47,5 +47,6 @@ typedef struct {
   guint8		pdutype;
 } build_info_t;
 
+extern const value_string tab_cause[];
 
 #endif /* __PACKET_BSSGP_H__ */
