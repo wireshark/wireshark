@@ -649,7 +649,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       /* details button */
 #ifdef _WIN32
       if_dlg_data->details_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_DETAILS);
-	  gtk_container_add (GTK_CONTAINER (if_dlg_data->details_bt), xpm_box(capture_details_16_xpm));
 	  SIGNAL_CONNECT(if_dlg_data->details_bt, "clicked", capture_details_cb, if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
           "Open the capture details dialog of this interface.", NULL);
