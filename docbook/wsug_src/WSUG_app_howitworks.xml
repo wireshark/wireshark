@@ -11,7 +11,7 @@
 
   <section><title>Program start</title>
   <para>
-  When Etheral starts, a lot of things are done:
+  When Wireshark starts, a lot of things are done:
   <itemizedlist>
   <listitem>
   initialize the dissectors (register the protocol tree), including plugins

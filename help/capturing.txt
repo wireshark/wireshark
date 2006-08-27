@@ -53,7 +53,7 @@ High performance capturing
 --------------------------
 When your network traffic is high, you might need to take some steps to ensure Wireshark doesn't get behind on its capture, particularly if you're running it on a slow computer.
 
-When Etheral cannot keep up, packets are dropped. To help avoid this as much as possible:
+When Wireshark cannot keep up, packets are dropped. To help avoid this as much as possible:
 
 a) Don't use the "Update list of packets in real time" option (see above). This has a significant performance penalty.
 

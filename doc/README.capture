@@ -38,7 +38,7 @@ conditions.h
 
 Capture driver
 --------------
-Etheral doesn't have direct access to the capture hardware. Instead of this, 
+Wireshark doesn't have direct access to the capture hardware. Instead of this, 
 it uses the Libpcap/Winpcap library to capture data from network cards.
 
 On Win32, in capture-wpcap.c the function g_module_open("wpcap") is called 
