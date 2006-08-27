@@ -1,6 +1,6 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\acse-exp.cnf
+# ./acse-exp.cnf
 # ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn
 
 #.MODULE

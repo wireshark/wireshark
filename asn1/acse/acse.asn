@@ -234,7 +234,10 @@ ASO-qualifier ::= CHOICE {
   aso-qualifier-form1  ASO-qualifier-form1,
   aso-qualifier-form2  ASO-qualifier-form2,
   ...,
-  aso-qualifier-form3  ASO-qualifier-form3
+  aso-qualifier-form3  ASO-qualifier-form3,
+-- an alternative used by some systems from the days when ASO-qualifier 
+-- was an ANY
+  aso-qualifier-form-any-octets  ASO-qualifier-form-octets 
 }
 
 --  When both AP-title and AE-qualifier data values are present in an AARQ or AARE APDU, both must
@@ -256,6 +259,8 @@ ASO-qualifier-form2 ::= INTEGER
 AP-title-form3 ::= PrintableString
 
 ASO-qualifier-form3 ::= PrintableString
+
+ASO-qualifier-form-octets ::= OCTET STRING
 
 AE-title ::= CHOICE {
   ae-title-form1  AE-title-form1,

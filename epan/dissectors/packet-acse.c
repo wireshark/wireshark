@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-acse.c                                                            */
+/* ./packet-acse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -137,6 +137,7 @@ static int hf_acse_ap_title_form3 = -1;           /* AP_title_form3 */
 static int hf_acse_aso_qualifier_form1 = -1;      /* ASO_qualifier_form1 */
 static int hf_acse_aso_qualifier_form2 = -1;      /* ASO_qualifier_form2 */
 static int hf_acse_aso_qualifier_form3 = -1;      /* ASO_qualifier_form3 */
+static int hf_acse_aso_qualifier_form_any_octets = -1;  /* ASO_qualifier_form_octets */
 static int hf_acse_ae_title_form1 = -1;           /* AE_title_form1 */
 static int hf_acse_ae_title_form2 = -1;           /* AE_title_form2 */
 static int hf_acse_ASOI_tag_item = -1;            /* ASOI_tag_item */
@@ -629,11 +630,26 @@ static int dissect_aso_qualifier_form3(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
+static int
+dissect_acse_ASO_qualifier_form_octets(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_aso_qualifier_form_any_octets(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_ASO_qualifier_form_octets(FALSE, tvb, offset, pinfo, tree, hf_acse_aso_qualifier_form_any_octets);
+}
+
+
 const value_string acse_ASO_qualifier_vals[] = {
   {   0, "aso-qualifier-form1" },
   {   1, "aso-qualifier-form2" },
   {   2, "aso-qualifier-form3" },
-  {   3, "aso-qualifier-form3" },
+  {   3, "aso-qualifier-form-any-octets" },
+  {   4, "aso-qualifier-form3" },
+  {   5, "aso-qualifier-form-any-octets" },
   { 0, NULL }
 };
 
@@ -641,8 +657,11 @@ static const ber_choice_t ASO_qualifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form1 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form2 },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
   {   4, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
+  {   5, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
+  {   6, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
+  {   7, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2243,6 +2262,10 @@ void proto_register_acse(void) {
       { "aso-qualifier-form3", "acse.aso_qualifier_form3",
         FT_STRING, BASE_NONE, NULL, 0,
         "acse.ASO_qualifier_form3", HFILL }},
+    { &hf_acse_aso_qualifier_form_any_octets,
+      { "aso-qualifier-form-any-octets", "acse.aso_qualifier_form_any_octets",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "acse.ASO_qualifier_form_octets", HFILL }},
     { &hf_acse_ae_title_form1,
       { "ae-title-form1", "acse.ae_title_form1",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
