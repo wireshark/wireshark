@@ -106,6 +106,10 @@ FilterItem/substrings/type			sunstringType
 
 ModifyRights/_item/item/value			value-assertion
 
+TokenData/name		distinguished-name
+
+TokenData/time		utctime
+
 #.FN_BODY	T_initial
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
@@ -118,9 +122,6 @@ ModifyRights/_item/item/value			value-assertion
 	/* XXX: not yet implemented */
 
 #.FN_BODY	T_matchValue
-	/* XXX: not yet implemented */
-
-#.FN_BODY	T_bind_token
 	/* XXX: not yet implemented */
 
 #.FN_BODY	T_req

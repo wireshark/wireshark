@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-dap.c                                                             */
+/* ./packet-dap.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.c */
@@ -196,9 +196,19 @@ static int hf_dap_protected = -1;                 /* T_protected */
 static int hf_dap_protectedPassword = -1;         /* OCTET_STRING */
 static int hf_dap_algorithmIdentifier = -1;       /* AlgorithmIdentifier */
 static int hf_dap_encrypted = -1;                 /* BIT_STRING */
-static int hf_dap_bind_token = -1;                /* T_bind_token */
+static int hf_dap_bind_token = -1;                /* Token */
 static int hf_dap_req = -1;                       /* T_req */
 static int hf_dap_rep = -1;                       /* T_rep */
+static int hf_dap_algorithm = -1;                 /* AlgorithmIdentifier */
+static int hf_dap_utctime = -1;                   /* UTCTime */
+static int hf_dap_bindIntAlgorithm = -1;          /* SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier */
+static int hf_dap_bindIntAlgorithm_item = -1;     /* AlgorithmIdentifier */
+static int hf_dap_bindIntKeyInfo = -1;            /* BindKeyInfo */
+static int hf_dap_bindConfAlgorithm = -1;         /* SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier */
+static int hf_dap_bindConfAlgorithm_item = -1;    /* AlgorithmIdentifier */
+static int hf_dap_bindConfKeyInfo = -1;           /* BindKeyInfo */
+static int hf_dap_token_data = -1;                /* TokenData */
+static int hf_dap_algorithm_identifier = -1;      /* AlgorithmIdentifier */
 static int hf_dap_error = -1;                     /* T_error */
 static int hf_dap_serviceProblem = -1;            /* ServiceProblem */
 static int hf_dap_securityProblem = -1;           /* SecurityProblem */
@@ -491,6 +501,9 @@ static gint ett_dap_T_password = -1;
 static gint ett_dap_T_protected = -1;
 static gint ett_dap_StrongCredentials = -1;
 static gint ett_dap_SpkmCredentials = -1;
+static gint ett_dap_TokenData = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier = -1;
+static gint ett_dap_Token = -1;
 static gint ett_dap_Versions = -1;
 static gint ett_dap_DirectoryBindErrorData = -1;
 static gint ett_dap_T_error = -1;
@@ -743,6 +756,18 @@ static int dissect_externalProcedure(packet_info *pinfo, proto_tree *tree, tvbuf
 static int dissect_algorithmIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_algorithmIdentifier);
 }
+static int dissect_algorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_algorithm);
+}
+static int dissect_bindIntAlgorithm_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_bindIntAlgorithm_item);
+}
+static int dissect_bindConfAlgorithm_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_bindConfAlgorithm_item);
+}
+static int dissect_algorithm_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_algorithm_identifier);
+}
 static int dissect_requestor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_DistinguishedName(FALSE, tvb, offset, pinfo, tree, hf_dap_requestor);
 }
@@ -858,6 +883,9 @@ static int dissect_utcTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 static int dissect_utc(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dap_UTCTime(FALSE, tvb, offset, pinfo, tree, hf_dap_utc);
+}
+static int dissect_utctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_UTCTime(FALSE, tvb, offset, pinfo, tree, hf_dap_utctime);
 }
 
 
@@ -1220,7 +1248,7 @@ static const ber_choice_t Name_choice[] = {
 
 static int
 dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 252 "dap.cnf"
+#line 253 "dap.cnf"
 	const char *dn;
 
 	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1813,7 +1841,7 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 110 "dap.cnf"
+#line 114 "dap.cnf"
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
@@ -1830,7 +1858,7 @@ static int dissect_initial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 115 "dap.cnf"
+#line 119 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1845,7 +1873,7 @@ static int dissect_any(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 118 "dap.cnf"
+#line 122 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1939,7 +1967,7 @@ static int dissect_matchingRule(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_dap_T_matchValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "dap.cnf"
+#line 125 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2110,7 +2138,7 @@ static int dissect_newRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 165 "dap.cnf"
+#line 166 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
@@ -2301,7 +2329,7 @@ static const ber_sequence_t SimpleCredentials_sequence[] = {
 
 static int
 dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 155 "dap.cnf"
+#line 156 "dap.cnf"
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
@@ -2319,18 +2347,83 @@ static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_bindIntAlgorithm_item },
+};
 
 static int
-dissect_dap_T_bind_token(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 124 "dap.cnf"
-	/* XXX: not yet implemented */
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier);
+
+  return offset;
+}
+static int dissect_bindIntAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_bindIntAlgorithm);
+}
+static int dissect_bindConfAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_bindConfAlgorithm);
+}
 
 
+
+static int
+dissect_dap_BindKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_bindIntKeyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_BindKeyInfo(FALSE, tvb, offset, pinfo, tree, hf_dap_bindIntKeyInfo);
+}
+static int dissect_bindConfKeyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_BindKeyInfo(FALSE, tvb, offset, pinfo, tree, hf_dap_bindConfKeyInfo);
+}
+
+
+static const ber_sequence_t TokenData_sequence[] = {
+  { BER_CLASS_CON, 0, 0, dissect_algorithm },
+  { BER_CLASS_CON, 1, 0, dissect_distinguished_name },
+  { BER_CLASS_CON, 2, 0, dissect_utctime },
+  { BER_CLASS_CON, 3, 0, dissect_random },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_response },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_bindIntAlgorithm },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_bindIntKeyInfo },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_bindConfAlgorithm },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_bindConfKeyInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dap_TokenData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   TokenData_sequence, hf_index, ett_dap_TokenData);
+
+  return offset;
+}
+static int dissect_token_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_TokenData(FALSE, tvb, offset, pinfo, tree, hf_dap_token_data);
+}
+
+
+static const ber_sequence_t Token_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_token_data },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm_identifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dap_Token(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Token_sequence, hf_index, ett_dap_Token);
 
   return offset;
 }
 static int dissect_bind_token(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_T_bind_token(FALSE, tvb, offset, pinfo, tree, hf_dap_bind_token);
+  return dissect_dap_Token(FALSE, tvb, offset, pinfo, tree, hf_dap_bind_token);
 }
 
 
@@ -2357,7 +2450,7 @@ static int dissect_strong(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 127 "dap.cnf"
+#line 128 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2372,7 +2465,7 @@ static int dissect_req(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_rep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 130 "dap.cnf"
+#line 131 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2465,7 +2558,7 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 
 int
 dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 136 "dap.cnf"
+#line 137 "dap.cnf"
 
 	guint32 len;
 
@@ -2524,7 +2617,7 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 206 "dap.cnf"
+#line 207 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2563,7 +2656,7 @@ static const value_string dap_SecurityProblem_vals[] = {
 
 static int
 dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 194 "dap.cnf"
+#line 195 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3270,7 +3363,7 @@ static const ber_sequence_t T_subordinates_item_sequence[] = {
 
 static int
 dissect_dap_T_subordinates_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 262 "dap.cnf"
+#line 263 "dap.cnf"
 	proto_item *sub_item;
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
@@ -3317,7 +3410,7 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 230 "dap.cnf"
+#line 231 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3533,7 +3626,7 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 242 "dap.cnf"
+#line 243 "dap.cnf"
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5073,7 +5166,7 @@ dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_dap_T_spkmInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 133 "dap.cnf"
+#line 134 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -5235,7 +5328,7 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 218 "dap.cnf"
+#line 219 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -6043,7 +6136,7 @@ void proto_register_dap(void) {
     { &hf_dap_bind_token,
       { "bind-token", "dap.bind_token",
         FT_NONE, BASE_NONE, NULL, 0,
-        "dap.T_bind_token", HFILL }},
+        "dap.Token", HFILL }},
     { &hf_dap_req,
       { "req", "dap.req",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6052,6 +6145,46 @@ void proto_register_dap(void) {
       { "rep", "dap.rep",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.T_rep", HFILL }},
+    { &hf_dap_algorithm,
+      { "algorithm", "dap.algorithm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509af.AlgorithmIdentifier", HFILL }},
+    { &hf_dap_utctime,
+      { "time", "dap.time",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "dap.UTCTime", HFILL }},
+    { &hf_dap_bindIntAlgorithm,
+      { "bindIntAlgorithm", "dap.bindIntAlgorithm",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dap.SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier", HFILL }},
+    { &hf_dap_bindIntAlgorithm_item,
+      { "Item", "dap.bindIntAlgorithm_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509af.AlgorithmIdentifier", HFILL }},
+    { &hf_dap_bindIntKeyInfo,
+      { "bindIntKeyInfo", "dap.bindIntKeyInfo",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "dap.BindKeyInfo", HFILL }},
+    { &hf_dap_bindConfAlgorithm,
+      { "bindConfAlgorithm", "dap.bindConfAlgorithm",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dap.SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier", HFILL }},
+    { &hf_dap_bindConfAlgorithm_item,
+      { "Item", "dap.bindConfAlgorithm_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509af.AlgorithmIdentifier", HFILL }},
+    { &hf_dap_bindConfKeyInfo,
+      { "bindConfKeyInfo", "dap.bindConfKeyInfo",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "dap.BindKeyInfo", HFILL }},
+    { &hf_dap_token_data,
+      { "token-data", "dap.token_data",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.TokenData", HFILL }},
+    { &hf_dap_algorithm_identifier,
+      { "algorithm-identifier", "dap.algorithm_identifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509af.AlgorithmIdentifier", HFILL }},
     { &hf_dap_error,
       { "error", "dap.error",
         FT_UINT32, BASE_DEC, VALS(dap_T_error_vals), 0,
@@ -7041,6 +7174,9 @@ void proto_register_dap(void) {
     &ett_dap_T_protected,
     &ett_dap_StrongCredentials,
     &ett_dap_SpkmCredentials,
+    &ett_dap_TokenData,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier,
+    &ett_dap_Token,
     &ett_dap_Versions,
     &ett_dap_DirectoryBindErrorData,
     &ett_dap_T_error,

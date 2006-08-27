@@ -325,7 +325,7 @@ SimpleCredentials ::= SEQUENCE {
 
 StrongCredentials ::= SET {
   certification-path          [0]  CertificationPath OPTIONAL,
-  bind-token                  [1]  --Token-- ANY,
+  bind-token                  [1]  Token,
   name                        [2]  DistinguishedName OPTIONAL,
   attributeCertificationPath  [3]  AttributeCertificationPath OPTIONAL
 }
@@ -334,22 +334,30 @@ SpkmCredentials ::= CHOICE {req  [0]  -- SPKM-REQ -- ANY,
                             rep  [1]  -- SPKM-REP-TI-- ANY
 }
 
---Token ::=
+TokenData ::=
 --  SIGNED
---    {SEQUENCE {algorithm          [0]  AlgorithmIdentifier,
---               name               [1]  DistinguishedName,
---               time               [2]  UTCTime,
---               random             [3]  BIT STRING,
---               response           [4]  BIT STRING OPTIONAL,
---               bindIntAlgorithm
---                 [5]  SEQUENCE SIZE (1..MAX) OF AlgorithmIdentifier OPTIONAL,
---               bindIntKeyInfo     [6]  BindKeyInfo OPTIONAL,
---               bindConfAlgorithm
---                 [7]  SEQUENCE SIZE (1..MAX) OF AlgorithmIdentifier OPTIONAL,
---               bindConfKeyInfo
---                 [8]  BindKeyInfo- -,- -
---                   OPTIONAL - -	dirqop			[9]	OBJECT IDENTIFIER OPTIONAL- -
---    }}
+--    { --SEQUENCE {algorithm          [0]  AlgorithmIdentifier,
+               name               [1]  DistinguishedName,
+               time               [2]  UTCTime,
+               random             [3]  BIT STRING,
+               response           [4]  BIT STRING OPTIONAL,
+               bindIntAlgorithm
+                 [5]  SEQUENCE SIZE (1..MAX) OF AlgorithmIdentifier OPTIONAL,
+               bindIntKeyInfo     [6]  BindKeyInfo OPTIONAL,
+               bindConfAlgorithm
+                 [7]  SEQUENCE SIZE (1..MAX) OF AlgorithmIdentifier OPTIONAL,
+               bindConfKeyInfo
+                 [8]  BindKeyInfo--,--
+                   OPTIONAL --	dirqop			[9]	OBJECT IDENTIFIER OPTIONAL--
+    } --}
+
+-- expand SIGNED macro
+
+Token ::= SEQUENCE {
+  token-data			TokenData,
+  algorithm-identifier		AlgorithmIdentifier,
+  encrypted			BIT STRING
+}
 
 Versions ::= BIT STRING {v1(0), v2(1)}
 
@@ -374,7 +382,7 @@ DirectoryBindError ::= CHOICE {
 }
 
 
---BindKeyInfo ::= ENCRYPTED{- - BIT STRING - -
+BindKeyInfo ::= -- ENCRYPTED{-- BIT STRING --
 
 --directoryUnbind OPERATION ::= emptyUnbind
 
