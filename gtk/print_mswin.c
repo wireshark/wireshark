@@ -189,53 +189,71 @@ void print_file( char *file_name, HDC hdc) {
 
 
     fh1 = eth_fopen( file_name, "r" );
-    if( !fh1 )
+    if( !fh1 ) {
         perror( "open failed on input file" );
-
-     else {
-	while ((results = fread( &ch, 1, 1, fh1 )) != 0) {
-
-/* if end of line send buffer and more y position */
-
-	    if ( ch == 0x0a){
-                buf[ cnt] = 0;
-		TextOut(hdc, x_offset,y_pos, buf, strlen(buf));
-		y_pos += tm.tmHeight;
-		cnt = 0;
-		if ( ++y_cnt == max_lines){
-       /* Print one page. */
- 		    EndPage( hdc );
-		    StartPage( hdc );
-		    y_pos = y_offset;
-                    y_cnt = 0;
-		}
-
-/* if line buffer is full, dump it */
- 	    }else { if ( cnt == ( max_buf_size - 1)) {
-	        buf[ cnt] = 0;
-                TextOut(hdc, x_offset, y_pos, buf, strlen(buf));
-                y_pos += tm.tmHeight;
-                cnt = 0;
-
- 	        if ( ++y_cnt == max_lines){
-       /* Print one page. */
- 	            EndPage( hdc );
-		    StartPage( hdc );
-                    y_pos = y_offset;
-		    y_cnt = 0;
-	        }
-	    }
-
-	    buf[ cnt++] = ch;
-        }
+        return;
     }
-/*XXX  need feof test here ? */
 
-/* Print the last text if needed */
+    while ((results = fread( &ch, 1, 1, fh1 )) != 0) {
+
+        /* end of page (form feed)? */
+	if ( ch == 0x0c){
+            /* send buffer */
+            buf[ cnt] = 0;
+	    TextOut(hdc, x_offset,y_pos, buf, strlen(buf));
+	    y_pos += tm.tmHeight;
+	    cnt = 0;
+
+            /* reset page */
+ 	    EndPage( hdc );
+	    StartPage( hdc );
+	    y_pos = y_offset;
+            y_cnt = 0;
+            continue;
+        }
+
+        /* end of line (line feed)? */
+	if ( ch == 0x0a){
+            /* send buffer */
+            buf[ cnt] = 0;
+	    TextOut(hdc, x_offset,y_pos, buf, strlen(buf));
+	    y_pos += tm.tmHeight;
+	    cnt = 0;
+            /* last line on page? -> reset page */
+	    if ( ++y_cnt == max_lines){
+ 		EndPage( hdc );
+		StartPage( hdc );
+		y_pos = y_offset;
+                y_cnt = 0;
+	    }
+            continue;
+        }
+
+        /* buffer full? */
+ 	if ( cnt == ( max_buf_size - 1)) {
+            /* send buffer */
+	    buf[ cnt] = 0;
+            TextOut(hdc, x_offset, y_pos, buf, strlen(buf));
+            y_pos += tm.tmHeight;
+            cnt = 0;
+            /* last line on page? -> reset page */
+ 	    if ( ++y_cnt == max_lines){
+ 	        EndPage( hdc );
+		StartPage( hdc );
+                y_pos = y_offset;
+		y_cnt = 0;
+	    }
+            continue;
+	}
+
+	buf[ cnt++] = ch;
+    } /* while */
+
+    /* Print the remaining text if needed */
     if ( cnt > 0) {
 	buf[ cnt] = 0;
 	TextOut(hdc, 0,y_pos, buf, strlen(buf));
     }
+
     fclose(fh1);
-}
 }
