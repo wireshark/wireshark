@@ -380,6 +380,7 @@ proto_register_tpkt(void)
 	proto_tpkt_ptr = find_protocol_by_id(proto_tpkt);
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("tpkt", dissect_tpkt, proto_tpkt);
 
 	tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
 	prefs_register_bool_preference(tpkt_module, "desegment",
