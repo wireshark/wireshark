@@ -210,7 +210,7 @@ static void clear_node_pr(stat_node* n) {
 	}
 #else
 	if (n->pr->node) {
-		gtk_ctree_remove_node(n->st->pr->ctree,n->pr->node);
+		gtk_ctree_remove_node(GKT_CTREE(n->st->pr->ctree),n->pr->node);
 		n->pr->node = NULL;
 	}
 #endif

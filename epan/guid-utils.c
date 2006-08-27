@@ -43,6 +43,44 @@
 static emem_tree_t *guid_to_name_tree = NULL;
 
 
+#ifdef _WIN32
+/* try to resolve an DCE/RPC interface name to it's name using the Windows registry entries */
+/* XXX - might be better to fill all interfaces into our database at startup instead of searching each time */
+int 
+ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
+{
+	TCHAR *reg_uuid_name;
+	HKEY hKey = NULL;
+	DWORD uuid_max_size = MAX_PATH;
+	TCHAR *reg_uuid_str;
+
+	reg_uuid_name=ep_alloc(MAX_PATH*sizeof(TCHAR));
+	reg_uuid_str=ep_alloc(MAX_PATH*sizeof(TCHAR));
+
+	if(uuid_name_max_len < 2){
+		return 0;
+	}
+	reg_uuid_name[0] = '\0';
+	_snwprintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
+			if_id.data1, if_id.data2, if_id.data3,
+			if_id.data4[0], if_id.data4[1],
+			if_id.data4[2], if_id.data4[3],
+			if_id.data4[4], if_id.data4[5],
+			if_id.data4[6], if_id.data4[7]);
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, reg_uuid_str, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS) {
+		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH) {
+			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
+			RegCloseKey(hKey);
+			return strlen(uuid_name);
+		}
+		RegCloseKey(hKey);
+	}
+	return 0; /* we didn't find anything anyhow. Please don't use the string! */
+
+}
+#endif
+
+
 /* store a guid to name mapping */
 void 
 guids_add_guid(e_guid_t *guid, const gchar *name)
@@ -140,46 +178,6 @@ guids_init(void)
 	guid_to_name_tree=pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "guid_to_name");
 	/* XXX here is a good place to read a config file with wellknown guids */
 }
-
-
-
-#ifdef _WIN32
-/* try to resolve an DCE/RPC interface name to it's name using the Windows registry entries */
-/* XXX - might be better to fill all interfaces into our database at startup instead of searching each time */
-int 
-ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
-{
-	TCHAR *reg_uuid_name;
-	HKEY hKey = NULL;
-	DWORD uuid_max_size = MAX_PATH;
-	TCHAR *reg_uuid_str;
-
-	reg_uuid_name=ep_alloc(MAX_PATH*sizeof(TCHAR));
-	reg_uuid_str=ep_alloc(MAX_PATH*sizeof(TCHAR));
-
-	if(uuid_name_max_len < 2){
-		return 0;
-	}
-	reg_uuid_name[0] = '\0';
-	_snwprintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
-			if_id.data1, if_id.data2, if_id.data3,
-			if_id.data4[0], if_id.data4[1],
-			if_id.data4[2], if_id.data4[3],
-			if_id.data4[4], if_id.data4[5],
-			if_id.data4[6], if_id.data4[7]);
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, reg_uuid_str, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS) {
-		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH) {
-			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
-			RegCloseKey(hKey);
-			return strlen(uuid_name);
-		}
-		RegCloseKey(hKey);
-	}
-	return 0; /* we didn't find anything anyhow. Please don't use the string! */
-
-}
-#endif
-
 
 
 /* Tries to match a guid against its name.

@@ -155,8 +155,8 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*rsp_tree = NULL, *field_tree;
-	proto_item	*ti, *tf;
+	proto_tree	*rsp_tree = NULL/*, *field_tree*/;
+	proto_item	*ti/*, *tf*/;
 	tvbuff_t	*next_tvb;
 	int 		offset = 0;
 	

@@ -992,7 +992,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 			vendor->ett = no_vendor.ett;
             
 			g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(vendor->code),vendor);
-			g_hash_table_insert(dict->vendors_by_name,vendor->name,vendor);
+			g_hash_table_insert(dict->vendors_by_name,(gpointer)(vendor->name),vendor);
 		}
 		
 		dictionary_entry = g_hash_table_lookup(vendor->attrs_by_id,GUINT_TO_POINTER(attribute_id));
