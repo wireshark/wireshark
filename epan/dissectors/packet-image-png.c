@@ -256,7 +256,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		str[3]=tvb_get_guint8(tvb, offset+7);
 		str[4]=0;
 
-		if(tree){		
+		if(tree){
 			it=proto_tree_add_text(tree, tvb, offset, offset+8+len+4, "%s", str);
 			chunk_tree=proto_item_add_subtree(it, ett_png_chunk);
 		}
@@ -264,14 +264,15 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(chunk_tree, hf_png_chunk_len, tvb, offset, 4, FALSE);
 		offset+=4;
 
-		
+
 		it=proto_tree_add_item(chunk_tree, hf_png_chunk_type, tvb, offset, 4, FALSE);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, FALSE);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, FALSE);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_stc, tvb, offset, 4, FALSE);
 		offset+=4;
 
-		g_assert(len<1000000000);
+		if (len >= 1000000000)
+			THROW(ReportedBoundsError);
 		cd=&chunk_table[0];
 		while(1){
 			if(cd->type==0){
@@ -295,7 +296,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				proto_tree *cti=NULL;
 
 				next_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset), (int)len), len);
-				if(it){		
+				if(it){
 					cti=proto_item_add_subtree(it, ett_png_chunk_item);
 				}
 				cd->dissector(next_tvb, pinfo, cti);
@@ -314,97 +315,97 @@ proto_register_png(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_png_signature, {
-	  "PNG Signature", "png.signature", FT_BYTES, BASE_DEC, 
+	  "PNG Signature", "png.signature", FT_BYTES, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_chunk_type, {
-	  "Chunk", "png.chunk.type", FT_STRING, BASE_NONE, 
+	  "Chunk", "png.chunk.type", FT_STRING, BASE_NONE,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_chunk_data, {
-	  "Data", "png.chunk.data", FT_NONE, BASE_NONE, 
+	  "Data", "png.chunk.data", FT_NONE, BASE_NONE,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_chunk_len, {
-	  "Len", "png.chunk.len", FT_UINT32, BASE_DEC, 
+	  "Len", "png.chunk.len", FT_UINT32, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_chunk_crc, {
-	  "CRC", "png.chunk.crc", FT_UINT32, BASE_HEX, 
+	  "CRC", "png.chunk.crc", FT_UINT32, BASE_HEX,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_chunk_flag_anc, {
-	  "Ancillary", "png.chunk.flag.ancillary", FT_BOOLEAN, 32, 
+	  "Ancillary", "png.chunk.flag.ancillary", FT_BOOLEAN, 32,
 	  TFS(&png_chunk_anc), 0x20000000, "", HFILL }},
 	{ &hf_png_chunk_flag_priv, {
-	  "Private", "png.chunk.flag.private", FT_BOOLEAN, 32, 
+	  "Private", "png.chunk.flag.private", FT_BOOLEAN, 32,
 	  TFS(&png_chunk_priv), 0x00200000, "", HFILL }},
 	{ &hf_png_chunk_flag_stc, {
-	  "Safe To Copy", "png.chunk.flag.stc", FT_BOOLEAN, 32, 
+	  "Safe To Copy", "png.chunk.flag.stc", FT_BOOLEAN, 32,
 	  TFS(&png_chunk_stc), 0x00000020, "", HFILL }},
 	{ &hf_png_ihdr_width, {
-	  "Width", "png.ihdr.width", FT_UINT32, BASE_DEC, 
+	  "Width", "png.ihdr.width", FT_UINT32, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_ihdr_height, {
-	  "Height", "png.ihdr.height", FT_UINT32, BASE_DEC, 
+	  "Height", "png.ihdr.height", FT_UINT32, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_ihdr_bitdepth, {
-	  "Bit Depth", "png.ihdr.bitdepth", FT_UINT8, BASE_DEC, 
+	  "Bit Depth", "png.ihdr.bitdepth", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_ihdr_colour_type, {
-	  "Colour Type", "png.ihdr.colour_type", FT_UINT8, BASE_DEC, 
+	  "Colour Type", "png.ihdr.colour_type", FT_UINT8, BASE_DEC,
 	  VALS(colour_type_vals), 0, "", HFILL }},
 	{ &hf_png_ihdr_compression_method, {
-	  "Compression Method", "png.ihdr.compression_method", FT_UINT8, BASE_DEC, 
+	  "Compression Method", "png.ihdr.compression_method", FT_UINT8, BASE_DEC,
 	  VALS(compression_method_vals), 0, "", HFILL }},
 	{ &hf_png_ihdr_filter_method, {
-	  "Filter Method", "png.ihdr.filter_method", FT_UINT8, BASE_DEC, 
+	  "Filter Method", "png.ihdr.filter_method", FT_UINT8, BASE_DEC,
 	  VALS(filter_method_vals), 0, "", HFILL }},
 	{ &hf_png_ihdr_interlace_method, {
-	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC, 
+	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC,
 	  VALS(interlace_method_vals), 0, "", HFILL }},
 	{ &hf_png_text_keyword, {
-	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE, 
+	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_text_string, {
-	  "String", "png.text.string", FT_STRING, BASE_NONE, 
+	  "String", "png.text.string", FT_STRING, BASE_NONE,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_year, {
-	  "Year", "png.time.year", FT_UINT16, BASE_DEC, 
+	  "Year", "png.time.year", FT_UINT16, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_month, {
-	  "Month", "png.time.month", FT_UINT8, BASE_DEC, 
+	  "Month", "png.time.month", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_day, {
-	  "Day", "png.time.day", FT_UINT8, BASE_DEC, 
+	  "Day", "png.time.day", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_hour, {
-	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC, 
+	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_minute, {
-	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC, 
+	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_time_second, {
-	  "Second", "png.time.second", FT_UINT8, BASE_DEC, 
+	  "Second", "png.time.second", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_phys_horiz, {
-	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC, 
+	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_phys_vert, {
-	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC, 
+	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_phys_unit, {
-	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC, 
+	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC,
 	  VALS(phys_unit_vals), 0, "", HFILL }},
 	{ &hf_png_bkgd_palette_index, {
-	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC, 
+	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_bkgd_greyscale, {
-	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX, 
+	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_bkgd_red, {
-	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX, 
+	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_bkgd_green, {
-	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX, 
+	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX,
 	  NULL, 0, "", HFILL }},
 	{ &hf_png_bkgd_blue, {
-	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX, 
+	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX,
 	  NULL, 0, "", HFILL }},
 	};
 
