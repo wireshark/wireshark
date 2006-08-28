@@ -77,6 +77,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_PREFSW_NOTEBOOK_KEY   "prefsw_notebook"
 #define E_PAGE_ITER_KEY         "page_iter"
 #define E_PAGE_MODULE_KEY       "page_module"
+#define E_PAGESW_FRAME_KEY      "pagesw_frame"
 
 #define E_GUI_PAGE_KEY	        "gui_options_page"
 #define E_GUI_LAYOUT_PAGE_KEY	"gui_layout_page"
@@ -318,6 +319,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     frame = gtk_frame_new(module->title);
     gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
+    OBJECT_SET_DATA(main_sw, E_PAGESW_FRAME_KEY, frame);
 
     /* Main vertical box */
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -1521,7 +1523,7 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 }
 
 
-
+/* search the corresponding protocol page of the currently selected field */
 void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
@@ -1529,6 +1531,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
   const gchar *title;
   struct properties_data p;
   int page_num;
+  GtkWidget *sw;
   GtkWidget *frame;
   module_t *page_module;
 
@@ -1567,8 +1570,10 @@ properties_cb(GtkWidget *w, gpointer dummy)
   /* Search all the pages in that window for the one with the specified
      module. */
   for (page_num = 0;
-       (frame = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
+       (sw = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
+    /* Get the frame from the scrollable window */
+    frame = OBJECT_GET_DATA(sw, E_PAGESW_FRAME_KEY);
     /* Get the module for this page. */
     page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
     if (page_module == NULL)
