@@ -945,6 +945,68 @@ tcp port 23 and not host 10.0.0.5
 	</varlistentry>
       </variablelist>
     </para>
+  <section id="ChCapCaptureAutoFilterSection">
+    <title>Automatic Remote Traffic Filtering</title>
+    <para>
+	If Wireshark is running remotely (using e.g. SSH, an exported X11 window, 
+	a terminal server, ...), the remote content has to be transported over 
+	the network, adding a lot of (usually unimportant) packets to the actually 
+	interesting traffic.
+    </para>
+    <para>	
+	To avoid this, Wireshark tries to figure out if it's remotely connected 
+	(by looking at some specific environment variables) and automatically 
+	creates a capture filter that matches aspects of the connection.  
+    </para>
+    <para>		
+	The following environment variables are analyzed:
+    </para>
+      <variablelist>
+	<varlistentry>
+	  <term><command>SSH_CONNECTION</command> (ssh)</term>
+	  <listitem>
+    <para>	
+   	&lt;remote IP> &lt;remote port> &lt;local IP> &lt;local port>
+    </para>
+	  </listitem>
+	</varlistentry>
+	
+	<varlistentry>
+	  <term><command>SSH_CLIENT</command> (ssh)</term>
+	  <listitem>
+    <para>	
+   	&lt;remote IP> &lt;remote port> &lt;local port>
+    </para>
+	  </listitem>
+	</varlistentry>
+	
+	<varlistentry>
+	  <term><command>REMOTEHOST</command> (tcsh, others?)</term>
+	  <listitem>
+    <para>	
+   	&lt;remote name>
+    </para>
+	  </listitem>
+	</varlistentry>
+	
+	<varlistentry>
+	  <term><command>DISPLAY</command> (x11)</term>
+	  <listitem>
+    <para>	
+   	[remote name]:&lt;display num>
+    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>CLIENTNAME</command> (terminal server)</term>
+	  <listitem>
+    <para>	
+   	&lt;remote name>
+    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+  </section>
   </section>
 
   <section id="ChCapRunningSection"><title>While a Capture is running ...</title>
