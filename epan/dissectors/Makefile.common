@@ -718,7 +718,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
-	packet-bssgp.c	\
+	packet-bssgp.h	\
 	packet-bthci_acl.h	\
 	packet-btl2cap.h	\
 	packet-camel.h	\
