@@ -288,12 +288,12 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       switch (pinfo->src.type) {
 
       case AT_IPv4:
-	phdr[0] = g_htonl((ip_proto<<16) + udph->uh_ulen);
+	phdr[0] = g_htonl((ip_proto<<16) + reported_len);
 	cksum_vec[2].len = 4;
 	break;
 
       case AT_IPv6:
-        phdr[0] = g_htonl(udph->uh_ulen);
+        phdr[0] = g_htonl(reported_len);
         phdr[1] = g_htonl(ip_proto);
         cksum_vec[2].len = 8;
         break;
