@@ -152,6 +152,7 @@ static int hf_srvloc_url_urllen = -1;
 static int hf_srvloc_url_url = -1;
 static int hf_srvloc_url_numauths = -1;
 static int hf_srvloc_add_ref_ip = -1;
+static int hf_srvloc_srvrply_svcname = -1;
 
 
 static gint ett_srvloc = -1;
@@ -498,6 +499,11 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
  * The second digit is the socket type: 1 for socket stream (TCP), 2 for datagram (UDP and IPX).
  * The third is the protocol: 6 for TCP, 17 for UDP, and 1000 for IPX.
  * Last is the IP address, in hex, of the interface that is registered (or, in the case of IPX, an IPX network number).
+ *
+ * OpenSLP supports multiple attribute replies so we need to parse the attribute name and then decode accourdingly.
+ * We currently only parse the (non-utf8) attributes:
+ * svcname
+ * svcaddr
 */
 static void
 attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
@@ -533,70 +539,97 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     switch (encoding) {
 
     case CHARSET_ISO_10646_UCS_2:
-
-        tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, length/2, FALSE);
-        type_len = strcspn(tmp, "=");
-        attr_type = tvb_get_ephemeral_faked_unicode(tvb, offset+2, type_len-1, FALSE);
-        proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
-        i=1;
-        for (foffset = offset + ((type_len*2)+2); foffset<length; foffset += 2) {
-
-            ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
-            srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
-
-            svc = tvb_get_guint8(tvb, foffset+1);
-			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-				    "Service Type: %s", val_to_str(svc, srvloc_svc, "Unknown"));
-            ss = tvb_get_guint8(tvb, foffset+5);
-			proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
-				    "Communication Type: %s", val_to_str(ss, srvloc_ss, "Unknown"));
-            foffset += 9;
-            if (svc == 50) {
-                if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
-                    prot = tvb_get_guint8(tvb, foffset);
-                    proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
-                    foffset += 2;
+        while (offset+2<length) {
+            offset += 2;
+            /* If the length passed is longer then the actual payload then this must be an incomplete packet. */
+            if (tvb_length_remaining(tvb, 4)<length) {
+                proto_tree_add_text(tree, tvb, offset, -1, "Status: Too much data to pass inside this protocol. Resubmit request using a streaming protocol like TCP.");
+                proto_tree_add_text(tree, tvb, offset, -1, "Note: Protocol dissection is aborted due to packet overflow. See overflow flag.");
+                break;
+            }
+            /* Parse the attribute name */
+            tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, (length-offset)/2, FALSE);
+            type_len = strcspn(tmp, "=");
+            attr_type = tvb_get_ephemeral_faked_unicode(tvb, offset, type_len, FALSE);
+            proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
+            offset += (type_len*2)+2;
+            /* If this is the attribute svcname */
+            if (strcmp(attr_type, "svcname-ws")==0) {
+                tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, (length-offset)/2, FALSE);
+                type_len = strcspn(tmp, ")");
+                add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
+                offset += (type_len*2)+4;
+                strcpy(attr_type, "\0");
+            }
+            /* If this is the attribute svcaddr */
+            if (strcmp(attr_type, "svcaddr-ws")==0) {
+                i=1;
+                for (foffset = offset; foffset<length; foffset += 2) {
+        
+                    ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
+                    srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
+        
+                    svc = tvb_get_guint8(tvb, foffset+1);
+        			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
+        				    "Service Type: %s", val_to_str(svc, srvloc_svc, "Unknown"));
+                    ss = tvb_get_guint8(tvb, foffset+5);
+        			proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
+        				    "Communication Type: %s", val_to_str(ss, srvloc_ss, "Unknown"));
+                    foffset += 9;
+                    if (svc == 50) {
+                        if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
+                            prot = tvb_get_guint8(tvb, foffset);
+                            proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
+                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                            foffset += 2;
+                        }
+                        else
+                        {
+                            byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* UDP */
+                            prot = atol(byte_value);
+                            proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
+                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                            foffset += 4;
+                        }
+                    }
+                    else
+                    {
+                        byte_value = unicode_to_bytes(tvb, foffset, 8, FALSE); /* IPX */
+                        prot = atol(byte_value);
+                        proto_tree_add_text(srvloc_tree, tvb, foffset, 8,
+                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                        foffset += 8;
+                    }
+                    if (svc == 50) {
+                        byte_value = unicode_to_bytes(tvb, foffset, 16, TRUE); /* IP Address */
+                        sscanf(byte_value,"%x",&prot);
+                        proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+2, 16, prot);
+                        byte_value = unicode_to_bytes(tvb, foffset+18, 8, FALSE); /* Port */
+                        sscanf(byte_value,"%x",&prot);
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+18, 8, "Port: %d", prot);
+                    }
+                    else
+                    {
+                        byte_value = unicode_to_bytes(tvb, foffset+2, 16, FALSE); /* IPX Network Address */
+                        sscanf(byte_value,"%x",&prot);
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+2, 16, "Network: %s", byte_value);
+                        byte_value = unicode_to_bytes(tvb, foffset+18, 24, FALSE); /* IPX Node Address */
+                        sscanf(byte_value,"%x",&prot);
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+18, 24, "Node: %s", byte_value);
+                        byte_value = unicode_to_bytes(tvb, foffset+42, 8, FALSE);  /* Socket */
+                        sscanf(byte_value,"%x",&prot);
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+42, 8, "Socket: %s", byte_value);
+                    }
+                    i++;
+                    foffset += 57;
                 }
-                else
-                {
-                    byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* UDP */
-                    prot = atol(byte_value);
-                    proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
-                    foffset += 4;
-                }
+                offset = foffset;
+                strcpy(attr_type, "\0");
             }
-            else
-            {
-                byte_value = unicode_to_bytes(tvb, foffset, 8, FALSE); /* IPX */
-                prot = atol(byte_value);
-                proto_tree_add_text(srvloc_tree, tvb, foffset, 8,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
-                foffset += 8;
+            /* If there are no more supported attributes available then abort dissection */
+            if (strcmp(attr_type, "svcaddr-ws")!=0 && strcmp(attr_type, "svcname-ws")!=0 && strcmp(attr_type, "\0")!=0) {
+                break;
             }
-            if (svc == 50) {
-                byte_value = unicode_to_bytes(tvb, foffset, 16, TRUE); /* IP Address */
-                sscanf(byte_value,"%x",&prot);
-                proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+2, 16, prot);
-                byte_value = unicode_to_bytes(tvb, foffset+18, 8, FALSE); /* Port */
-                sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+18, 8, "Port: %d", prot);
-            }
-            else
-            {
-                byte_value = unicode_to_bytes(tvb, foffset+2, 16, FALSE); /* IPX Network Address */
-                sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+2, 16, "Network: %s", byte_value);
-                byte_value = unicode_to_bytes(tvb, foffset+18, 24, FALSE); /* IPX Node Address */
-                sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+18, 24, "Node: %s", byte_value);
-                byte_value = unicode_to_bytes(tvb, foffset+42, 8, FALSE);  /* Socket */
-                sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+42, 8, "Socket: %s", byte_value);
-            }
-            i++;
-            foffset += 57;
         }
         break;
 
@@ -1746,6 +1779,10 @@ proto_register_srvloc(void)
 	{ &hf_srvloc_add_ref_ip,
 	  { "IP Address", "srvloc.list.ipaddr", FT_IPv4, BASE_DEC, NULL, 0x0,
 	    "IP Address of SLP server", HFILL}
+	},
+	{ &hf_srvloc_srvrply_svcname,
+	  { "Service Name Value", "srvloc.srvrply.svcname", FT_STRING, BASE_NONE, NULL, 0x0,
+	    "", HFILL}
 	}
     };
 
