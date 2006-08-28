@@ -3174,6 +3174,16 @@ proto_tree_get_parent(proto_tree *tree) {
 	return (proto_item*) tree;
 }
 
+proto_tree*
+proto_tree_get_root(proto_tree *tree) {
+	/* dont bother if tree is not visible */
+	if( (!tree) || (!(PTREE_DATA(tree)->visible)) )
+		return (NULL);
+	while (tree->parent) {
+		tree = tree->parent;
+	}
+	return tree;
+}
 
 void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move)

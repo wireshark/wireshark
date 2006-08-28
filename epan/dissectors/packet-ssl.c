@@ -116,11 +116,6 @@
 static gboolean ssl_desegment = TRUE;
 static gboolean ssl_desegment_app_data = TRUE;
 
-/* we need to remember the top tree so that subdissectors we call are created
- * at the root and not deep down inside the SSL decode
- */
-static proto_tree *top_tree;
-
 
 /*********************************************************************
  *
@@ -548,8 +543,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
     first_record_in_frame = TRUE;
     ssl_session = NULL;
-
-    top_tree=tree;
 
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
@@ -1081,12 +1074,15 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* try to retrive and use decrypted handshake record, if any. */
         decrypted = ssl_get_record_info(proto_ssl, pinfo, offset);
-        if (decrypted)
+        if (decrypted) {
+		    /* add desegmented data to the data source list */
+		    add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
                  decrypted->length, conv_version, ssl, content_type);
-        else
+		} else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
                                record_length, conv_version, ssl, content_type);
+		}
         break;
     }
     case SSL_ID_APP_DATA:
@@ -1149,7 +1145,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_print_text_data("decrypted app data",pi->app_data.data,
                     pi->app_data.data_len);
 
-                call_dissector(association->handle, new_tvb, pinfo, top_tree);
+                call_dissector(association->handle, new_tvb, pinfo, proto_tree_get_root(tree));
             }
         }
         break;
@@ -3782,4 +3778,15 @@ ssl_dissector_add(guint port, gchar *protocol, gboolean tcp)
 	}
 
     ssl_association_add(ssl_associations, ssl_handle, port, protocol, tcp, FALSE);
+}
+
+void
+ssl_dissector_delete(guint port, gchar *protocol, gboolean tcp)
+{
+	SslAssociation *assoc;
+
+	assoc = ssl_association_find(ssl_associations, port, tcp);
+	if (assoc && (assoc->handle == find_dissector(protocol))) {
+		ssl_association_remove(ssl_associations, assoc);
+	}
 }

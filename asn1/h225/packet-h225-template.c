@@ -55,6 +55,7 @@
 #include "packet-h235.h"
 #include "packet-h245.h"
 #include "packet-q931.h"
+#include "packet-ssl.h"
 
 
 #define PNAME  "H323-MESSAGES"
@@ -64,6 +65,7 @@
 #define UDP_PORT_RAS1 1718
 #define UDP_PORT_RAS2 1719
 #define TCP_PORT_CS   1720
+#define TLS_PORT_CS   1300
 
 static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
@@ -103,7 +105,6 @@ static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
-static int hf_h225_fastStart_item_length = -1; 
 
 #include "packet-h225-hf.c"
 
@@ -112,11 +113,13 @@ static gint ett_h225 = -1;
 #include "packet-h225-ett.c"
 
 /* Preferences */
+static guint h225_tls_port = TLS_PORT_CS;
 static gboolean h225_reassembly = TRUE;
 static gboolean h225_h245_in_tree = TRUE;
 static gboolean h225_tp_in_tree = TRUE;
 
 /* Global variables */
+static guint saved_h225_tls_port;
 static guint32  ipv4_address;
 static guint32  ipv4_port;
 guint32 T38_manufacturer_code;
@@ -135,6 +138,9 @@ static const char *tpOID;
 
 #include "packet-h225-fn.c"
 
+
+/* Forward declaration we need below */
+void proto_reg_handoff_h225(void);
 
 static int
 dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -242,9 +248,6 @@ void proto_register_h225(void) {
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
-	{ &hf_h225_fastStart_item_length,
-		{ "fastStart item length", "h225.fastStart_item_length", FT_UINT32, BASE_DEC,
-		NULL, 0, "fastStart item length", HFILL }},
 
 #include "packet-h225-hfarr.c"
   };
@@ -262,7 +265,11 @@ void proto_register_h225(void) {
   proto_register_field_array(proto_h225, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  h225_module = prefs_register_protocol(proto_h225, NULL);
+  h225_module = prefs_register_protocol(proto_h225, proto_reg_handoff_h225);
+  prefs_register_uint_preference(h225_module, "tls.port",
+                                 "H.225 TLS Port",
+                                 "H.225 Server TLS Port",
+                                 10, &h225_tls_port);
   prefs_register_bool_preference(h225_module, "reassembly",
 		"Reassemble H.225 messages spanning multiple TCP segments",
 		"Whether the H.225 dissector should reassemble messages spanning multiple TCP segments."
@@ -297,7 +304,22 @@ void proto_register_h225(void) {
 void
 proto_reg_handoff_h225(void)
 {
-	h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
+	static gboolean h225_prefs_initialized = FALSE;
+
+    if (h225_prefs_initialized) {
+    } else {
+	  h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
+	  dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
+	  dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
+
+      ssl_dissector_delete(saved_h225_tls_port, "q931", TRUE);
+
+      h225_prefs_initialized = TRUE;
+    }
+
+    saved_h225_tls_port = h225_tls_port;
+    ssl_dissector_add(saved_h225_tls_port, "q931.tpkt", TRUE);
+
 	H323UserInformation_handle=find_dissector("h323ui");
 
 	h245_handle = find_dissector("h245");
@@ -305,8 +327,6 @@ proto_reg_handoff_h225(void)
 	h4501_handle = find_dissector("h4501");
 	data_handle = find_dissector("data");
 
-	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
-	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
 }
 
 

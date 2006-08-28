@@ -26,5 +26,6 @@
 #define __PACKET_SSL_H__
 
 extern void ssl_dissector_add(guint port, gchar *protocol, gboolean tcp);
+extern void ssl_dissector_delete(guint port, gchar *protocol, gboolean tcp);
 
 #endif  /* __PACKET_SSL_H__ */

@@ -427,6 +427,11 @@ proto_tree_prime_hfid(proto_tree *tree, int hfid);
  @return parent item */
 extern proto_item* proto_tree_get_parent(proto_tree *tree);
 
+/** Get the root tree from any subtree.
+ @param tree the tree to get the root from
+ @return root tree */
+extern proto_tree* proto_tree_get_root(proto_tree *tree);
+
 /** Move an existing item behind another existing item.
  @param tree the tree to which both items belong
  @param fixed_item the item which keeps it's position

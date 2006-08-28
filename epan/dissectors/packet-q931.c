@@ -145,6 +145,7 @@ static dissector_table_t ie_dissector_table;
 static gboolean q931_desegment = TRUE;
 
 static dissector_handle_t h225_handle;
+static dissector_handle_t q931_tpkt_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
 
 static void
@@ -2998,7 +2999,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
  * Q.931-over-TPKT-over-TCP.
  */
 static gboolean
-dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int lv_tpkt_len;
 
@@ -3065,6 +3066,12 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    q931_tpkt_pdu_handle);
 
 	return TRUE;
+}
+
+static void
+dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_q931_tpkt_heur(tvb, pinfo, tree);
 }
 
 static void
@@ -3279,6 +3286,8 @@ proto_register_q931(void)
 	register_init_routine(q931_init);
 
 	register_dissector("q931", dissect_q931, proto_q931);
+	register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
+	q931_tpkt_handle = find_dissector("q931.tpkt");
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
 	    proto_q931);
 	register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
@@ -3321,7 +3330,7 @@ proto_reg_handoff_q931(void)
 	/*
 	 * For H.323.
 	 */
-	heur_dissector_add("tcp", dissect_q931_tpkt, proto_q931);
+	heur_dissector_add("tcp", dissect_q931_tpkt_heur, proto_q931);
 }
 
 static void reset_q931_packet_info(q931_packet_info *pi)

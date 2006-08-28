@@ -565,6 +565,7 @@ proto_tree_add_uint64_format
 proto_tree_add_uint64_format_value
 proto_tree_children_foreach
 proto_tree_get_parent
+proto_tree_get_root
 proto_tree_move_item
 p_add_proto_data
 p_get_proto_data
@@ -631,6 +632,7 @@ smb_cmd_vals                    DATA
 smb2_cmd_vals                    DATA
 sminmpec_values                 DATA
 ssl_dissector_add
+ssl_dissector_delete
 start_requested_stats
 started_with_special_privs
 stats_tree_branch_max_namelen

@@ -64,12 +64,18 @@
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
+#define TLS_PORT_SIP 5061
 
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
+
+/* Dissectors */
+static dissector_handle_t sip_handle = NULL;
+static dissector_handle_t sip_tcp_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static gint proto_sip				= -1;
@@ -3019,6 +3025,9 @@ void proto_register_sip(void)
 	proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
 	                                        "Raw_SIP", "raw_sip");
 	new_register_dissector("sip", dissect_sip, proto_sip);
+	sip_handle = find_dissector("sip");
+	register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
+	sip_tcp_handle = find_dissector("sip.tcp");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_sip, hf, array_length(hf));
@@ -3068,15 +3077,13 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-	dissector_handle_t sip_handle, sip_tcp_handle;
 
-	sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
 	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 	dissector_add_string("media_type", "message/sip", sip_handle);
 	sigcomp_handle = find_dissector("sigcomp");
 
-	sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
 	dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
+    ssl_dissector_add(TLS_PORT_SIP, "sip.tcp", TRUE);
 
 	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
 	heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);

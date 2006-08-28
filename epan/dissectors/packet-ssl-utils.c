@@ -1509,6 +1509,7 @@ ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
 {
   if (((SslAssociation*)data)->from_key_list)
     ep_stack_push((ep_stack_t)user_data, data);
+  return FALSE;
 }
 
 int 
