@@ -230,6 +230,7 @@ GList *dcom_interfaces;
 
 static const value_string dcom_thisthat_flag_vals[] = {
     { 0, "INFO_NULL" },
+    { 1, "INFO_LOCAL" },
     { 0,  NULL }
 };
 
