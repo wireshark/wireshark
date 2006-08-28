@@ -2994,7 +2994,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       flags = tvb_get_guint8(tvb,offset) & PPPMUX_FLAGS_MASK;
 
-      if (flags && PPPMUX_LXT_BIT_SET ) {
+      if (flags & PPPMUX_LXT_BIT_SET ) {
 	length = tvb_get_ntohs(tvb,offset) & 0x3fff;
 	length_field = 2;
       } else {
@@ -3002,9 +3002,9 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length_field = 1;
       }
 
-      if (flags && PPPMUX_PFF_BIT_SET) {
+      if (flags & PPPMUX_PFF_BIT_SET) {
 	byte = tvb_get_guint8(tvb,offset + length_field);
-	if (byte && PFC_BIT) {		  /* Compressed PID field*/
+	if (byte & PFC_BIT) {		  /* Compressed PID field*/
 	  pid = byte;
 	  pid_field = 1;
 	} else {		  /*PID field is 2 bytes*/
@@ -3038,7 +3038,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       ti = proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
 
-      if (flags && PPPMUX_PFF_BIT_SET)
+      if (flags & PPPMUX_PFF_BIT_SET)
 	proto_tree_add_text(hdr_tree,tvb,offset + length_field,pid_field,"%s: %s(0x%02x)",
 			    "Protocol ID",val_to_str(pid,ppp_vals,"Unknown"), pid);
 
