@@ -585,7 +585,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
     return -1;
 
   len = 0;
-  while ((c = getc(fp)) != EOF && c != '\n') {
+  while ((c = getc(fp)) != EOF && c != '\r' && c != '\n') {
     if (len+1 >= *size) {
       if ((*buf = g_realloc(*buf, *size += BUFSIZ)) == NULL)
 	return -1;
