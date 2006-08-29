@@ -162,7 +162,7 @@ Don't fetch a little-endian value using "tvb_get_ntohs() or
 or "g_htonl()" on the resulting value - the g_ routines in question
 convert between network byte order (big-endian) and *host* byte order,
 not *little-endian* byte order; not all machines on which Wireshark runs
-are little-endian, even though PC's are.  Fetch those values using
+are little-endian, even though PCs are.  Fetch those values using
 "tvb_get_letohs()" and "tvb_get_letohl()".
 
 Don't put a comma after the last element of an enum - some compilers may
@@ -284,7 +284,7 @@ tmpnam is insecure and should not be used any more. Wireshark brings its
 own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
-The pointer retured by a call to "tvb_get_ptr()" is not guaranteed to be
+The pointer returned by a call to "tvb_get_ptr()" is not guaranteed to be
 aligned on any particular byte boundary; this means that you cannot
 safely cast it to any data type other than a pointer to "char",
 "unsigned char", "guint8", or other one-byte data types.  You cannot,
@@ -374,7 +374,7 @@ instead write the code as
 
 Use ep_ allocated buffers. They are very fast and nice. These buffers are all
 automatically free()d when the dissection of the current packet ends so you 
-dont have to worry about free()ing them explicitely in order to not leak memory.
+don't have to worry about free()ing them explicitly in order to not leak memory.
 Please read README.malloc .
 
 
@@ -790,7 +790,7 @@ proto_register_PROTOABBREV(void)
 /* Register a sample preference */        
         prefs_register_bool_preference(PROTOABBREV_module, "showHex", 
              "Display numbers in Hex",
-	     "Enable to display numerical values in hexidecimal.",
+	     "Enable to display numerical values in hexadecimal.",
 	     &gPREF_HEX );        
 }
 
@@ -1242,7 +1242,7 @@ be called at startup:
  
 	the "register" routine's name must appear in the source file
 	either at the beginning of the line, or preceded only by "void "
-	at the beginning of the line (that'd typically be the
+	at the beginning of the line (that would typically be the
 	definition) - other white space shouldn't cause a problem, e.g.:
  
 void proto_register_XXX(void) {
@@ -1415,7 +1415,7 @@ are:
 
 BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
 respectively. BASE_DEC_HEX and BASE_HEX_DEC display value in two bases 
-(the 1st representation folowed by the 2nd in parenthes)
+(the 1st representation followed by the 2nd in parenthesis)
 
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is
@@ -1568,7 +1568,7 @@ This way a filter expression can match a header field, irrespective of the
 representation of it in the specific protocol context. This is interesting
 for protocols with variable-width header fields.
 
-The HFILL macro at the end of the struct will set resonable default values
+The HFILL macro at the end of the struct will set reasonable default values
 for internally used fields.
 
 1.6.2 Adding Items and Values to the Protocol Tree.
@@ -1877,11 +1877,11 @@ if the value is little-endian and FALSE if it is big-endian.
 Now that definitions of fields have detailed information about bitfield
 fields, you can use proto_tree_add_item() with no extra processing to
 add bitfield values to your tree.  Here's an example.  Take the Format
-Identifer (FID) field in the Transmission Header (TH) portion of the SNA
+Identifier (FID) field in the Transmission Header (TH) portion of the SNA
 protocol.  The FID is the high nibble of the first byte of the TH.  The
 FID would be registered like this:
 
-	name		= "Format Identifer"
+	name		= "Format Identifier"
 	abbrev		= "sna.th.fid"
 	type		= FT_UINT8
 	display		= BASE_HEX
@@ -2511,14 +2511,14 @@ Where:
 	int proto	     = registered protocol number
 	
 "conversation" is the conversation created with conversation_new.  "proto"
-is a unique protocol number acreated with proto_register_protocol,
+is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.  The function
 returns a pointer to the data requested, or NULL if no data was found.
 
 
 2.2.6 The conversation_delete_proto_data function.
 
-After you are finished with a conversation, you can remove your assocation
+After you are finished with a conversation, you can remove your association
 with this function.  Please note that ONLY the conversation entry is
 removed.  If you have allocated any memory for your data, you must free it
 as well.
@@ -2532,7 +2532,7 @@ Where:
 	int proto	     = registered protocol number
 
 "conversation" is the conversation created with conversation_new.  "proto"
-is a unique protocol number acreated with proto_register_protocol,
+is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
 2.2.7 The example conversation code with GMemChunk's
@@ -2628,7 +2628,7 @@ my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
 2.2.8 An example conversation code that starts at a specific frame number
 
-Sometimes a disector has determined that a new conversation is needed that
+Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
 conversation that reuse the same src/dest ip/port pairs. You can use the
 compare the conversation->setup_frame returned by find_conversation with
@@ -2761,7 +2761,7 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 				src_port, dst_port, new_conv_info, 0);
 
 /* If there is no such conversation, or if there is one but for 
-   someone elses protocol then we just create a new conversation
+   someone else's protocol then we just create a new conversation
    and assign our protocol to it.
 */
         if( (conversation==NULL) 
@@ -2809,10 +2809,10 @@ to perform some discovery and later switch to use TFTP using the same port.
 In order to handle this properly we must first check whether such a 
 conversation already exists or not and if it exists we also check whether the
 registered dissector_handle for that conversation is "our" dissector or not.
-If not we create a new conversation ontop of the previous one and set this new 
+If not we create a new conversation on top of the previous one and set this new 
 conversation to use our protocol.
 Since wireshark keeps track of the frame number where a conversation started
-wireshark will still be able to keep the packets apart eventhough they do use
+wireshark will still be able to keep the packets apart even though they do use
 the same socketpair.
 		(See packet-tftp.c and packet-snmp.c for examples of this)
 
@@ -2854,7 +2854,7 @@ static dissector_handle_t sub_dissector_handle;
 				&server_src_addr, 0, protocol, 
 				server_src_port, 0, NO_ADDR2 | NO_PORT_B);
 /* If there is no such conversation, or if there is one but for 
-   someone elses protocol then we just create a new conversation
+   someone else's protocol then we just create a new conversation
    and assign our protocol to it.
 */
         if( (conversation==NULL) 
@@ -2870,7 +2870,7 @@ static dissector_handle_t sub_dissector_handle;
 2.5 Per packet information
 
 Information can be stored for each data packet that is processed by the dissector.
-The information is added with the p_add_proto_data function and retreived with the 
+The information is added with the p_add_proto_data function and retrieved with the 
 p_get_proto_data function.  The data pointers passed into the p_add_proto_data are
 not managed by the proto_data routines. If you use malloc or any other dynamic 
 memory allocation scheme, you must release the data when it isn't required.
@@ -3059,9 +3059,9 @@ The arguments to tcp_dissect_pdus are:
 
 2.7.2 Modifying the pinfo struct
 
-The second reassembly mode is prefered when the dissector cannot determine 
+The second reassembly mode is preferred when the dissector cannot determine 
 how many bytes it will need to read in order to determine the size of a PDU. 
-For this mode it is reccommended that your dissector be the newer dissector 
+For this mode it is recommended that your dissector be the newer dissector 
 type which returns "int" rather than the older type which returned "void".
 
 This reassembly mode relies on Wireshark's mechanism for processing multiple PDUs
