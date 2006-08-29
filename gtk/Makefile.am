@@ -105,6 +105,7 @@ noinst_HEADERS = \
 	supported_protos_dlg.h   \
 	text_page.h	\
 	toolbar.h	\
+	u3.h \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h
