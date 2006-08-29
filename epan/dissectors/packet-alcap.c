@@ -1286,7 +1286,6 @@ static const alcap_msg_type_info_t msg_types[] = {
     { "MOA ", PI_CHAT },
     { "MOR ", PI_CHAT },
     { "MOD ", PI_CHAT },
-    { NULL, 0 }
 };
 
 static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info_t* leg) {
