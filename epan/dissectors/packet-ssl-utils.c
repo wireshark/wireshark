@@ -1442,7 +1442,7 @@ ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 
 /* handling of association between tls/dtls ports and clear text protocol */
 void 
-ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, gchar *protocol, gboolean tcp, gboolean from_key_list)
+ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, const gchar *protocol, gboolean tcp, gboolean from_key_list)
 {
 
   SslAssociation* assoc;

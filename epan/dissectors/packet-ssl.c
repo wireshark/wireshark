@@ -3768,7 +3768,7 @@ proto_reg_handoff_ssl(void)
 }
 
 void
-ssl_dissector_add(guint port, gchar *protocol, gboolean tcp)
+ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp)
 {
 	SslAssociation *assoc;
 
@@ -3781,7 +3781,7 @@ ssl_dissector_add(guint port, gchar *protocol, gboolean tcp)
 }
 
 void
-ssl_dissector_delete(guint port, gchar *protocol, gboolean tcp)
+ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp)
 {
 	SslAssociation *assoc;
 
