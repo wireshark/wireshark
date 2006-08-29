@@ -40,6 +40,7 @@
 #include "packet-osi-options.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
+#include "packet-tpkt.h"
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
@@ -138,8 +139,13 @@ static const fragment_items cotp_frag_items = {
 };
 
 static dissector_handle_t clnp_handle;
+static dissector_handle_t clnp_tpkt_handle;
 static dissector_handle_t data_handle;
 
+/* desegmentation of OSI over TPKT over TCP */
+static gboolean tpkt_desegment = FALSE;
+int global_tcp_port_clnp_over_tpkt = 0;
+int tcp_port_clnp_over_tpkt = 0;
 /*
  * ISO 8473 OSI CLNP definition (see RFC994)
  *
@@ -162,7 +168,7 @@ static dissector_handle_t data_handle;
 
 #define CNF_TYPE		0x1f
 #define CNF_ERR_OK		0x20
-#define CNF_MORE_SEGS		0x40
+#define CNF_MORE_SEGS	0x40
 #define CNF_SEG_OK		0x80
 
 #define DT_NPDU			0x1C
@@ -1807,9 +1813,15 @@ static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle,tvb, pinfo, tree);
 }
 
+/* Dissect CLNP over TCP over TPKT */
+static void
+dissect_clnp_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, clnp_handle);
+}
 /*
  *  CLNP part / main entry point
-*/
+ */
 
 static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2119,13 +2131,14 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Continue with COTP if any data.
          XXX - if this isn't the first Derived PDU of a segmented Initial
          PDU, skip that? */
-
+		g_warning("Gotcha");
       if (nsel == (char)tp_nsap_selector || always_decode_transport) {
         if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE)) {
           pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */
         }
       }
+	  g_warning("Trying heuristic");
       if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
 				  pinfo, tree))	{
           pinfo->fragmented = save_fragmented;
@@ -2190,6 +2203,29 @@ cotp_reassemble_init(void)
   fragment_table_init(&cotp_segment_table);
   reassembled_table_init(&cotp_reassembled_table);
 }
+
+void
+proto_reg_handoff_clnp(void)
+{
+  static int clnp_prefs_initialized = FALSE;
+
+  data_handle = find_dissector("data");
+  if (!clnp_prefs_initialized) {
+	  clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
+	  clnp_tpkt_handle = create_dissector_handle(dissect_clnp_tpkt, proto_clnp);
+	  clnp_prefs_initialized = TRUE;
+  }else{
+	  dissector_delete("tcp.port", tcp_port_clnp_over_tpkt, clnp_tpkt_handle);
+  }
+
+  tcp_port_clnp_over_tpkt = global_tcp_port_clnp_over_tpkt;
+
+  dissector_add("osinl", NLPID_ISO8473_CLNP, clnp_handle);
+  dissector_add("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
+  dissector_add("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
+  dissector_add("tcp.port", global_tcp_port_clnp_over_tpkt, clnp_tpkt_handle);
+}
+
 
 void proto_register_clnp(void)
 {
@@ -2278,7 +2314,7 @@ void proto_register_clnp(void)
   register_init_routine(clnp_reassemble_init);
   register_init_routine(cotp_reassemble_init);
 
-  clnp_module = prefs_register_protocol(proto_clnp, NULL);
+  clnp_module = prefs_register_protocol(proto_clnp, proto_reg_handoff_clnp);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
 	"NSAP selector for Transport Protocol (last byte in hex)",
 	"NSAP selector for Transport Protocol (last byte in hex)",
@@ -2291,18 +2327,16 @@ void proto_register_clnp(void)
 	"Reassemble segmented CLNP datagrams",
 	"Whether segmented CLNP datagrams should be reassembled",
 	&clnp_reassemble);
+  prefs_register_uint_preference(clnp_module, "tpkt_port",
+	"TCP port for CLNP over TPKT",
+	"TCP port for CLNP over TPKT",
+       	10, &global_tcp_port_clnp_over_tpkt);
+  prefs_register_bool_preference(clnp_module, "tpkt_reassemble",
+	"Reassemble segmented TPKT datagrams",
+	"Whether segmented TPKT datagrams should be reassembled",
+	&tpkt_desegment);
 }
 
-void
-proto_reg_handoff_clnp(void)
-{
-  data_handle = find_dissector("data");
-
-  clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
-  dissector_add("osinl", NLPID_ISO8473_CLNP, clnp_handle);
-  dissector_add("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
-  dissector_add("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
-}
 
 void proto_register_cotp(void)
 {
