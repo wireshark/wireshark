@@ -1,12 +1,12 @@
 [Desktop Entry]
 # $Id$
 # The format of this file is specified at
-# http://freedesktop.org/Standards/desktop-entry-spec/
-# The entries are in the order they are listed in version 0.9.4
+# http://freedesktop.org/Standards/desktop-entry-spec
+# The entries are in the order they are listed in version 0.9.5
 Type=Application
-Version=1.0
-Encoding=UTF-8
+Version=0.9.5
 Name=Wireshark
+Name[vi]=Wireshark
 GenericName=Network Analyzer
 GenericName[af]=Netwerk Analiseerder
 GenericName[az]=Şəbəkə Analiz Proqramı
@@ -75,10 +75,4 @@ Path=
 Terminal=false
 MimeType=
 Categories=Application;GTK;Network;X-Red-Hat-Extra;
-# Found in Suse 9.1:
 X-KDE-SubstituteUID=true
-# Deprecated:
-# TerminalOptions=
-# BinaryPattern=wireshark
-# MapNotify=true
-# Protocols=
