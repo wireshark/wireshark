@@ -934,6 +934,7 @@ DISSECTOR_INCLUDES =	\
 	packet-snmp.h	\
 	packet-spray.h	\
 	packet-sscop.h \
+	packet-ssl.h	\
 	packet-ssl-utils.h	\
 	packet-stat-notify.h	\
 	packet-stat.h	\
