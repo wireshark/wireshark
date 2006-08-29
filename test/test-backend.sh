@@ -58,9 +58,9 @@ TEST_STEP_POST_CB=
 
 # level number of this test item (suite or step)
 test_level() {
-	LIMIT=100
+	LIMIT_LEVEL=100
 	
-	for ((a=0; a <= LIMIT ; a++)) 
+	for ((a=0; a <= LIMIT_LEVEL ; a++)) 
 	do
 		if [ ! $a -eq 0 ]; then
 			echo -n "."

@@ -111,8 +111,8 @@ do
 		exit 0
 	;;
 		"T" | "t" | "")
-LIMIT=1
-for ((a=1; a <= LIMIT ; a++))  # Double parentheses, and "LIMIT" with no "$".
+LIMIT_RUNS=1
+for ((a_runs=1; a_runs <= LIMIT_RUNS ; a_runs++))  # Double parentheses, and "LIMIT" with no "$".
 do
 		test_suite_run "${menu_title[MENU_LEVEL]}" "${menu_function[MENU_LEVEL]}"
 done
