@@ -67,6 +67,7 @@ static GtkWidget *fs_w;
 /* various widget related global data */
 int           row;
 GtkWidget     *fs_tb;
+GtkWidget     *fs_sw;
 GtkTooltips   *tooltips;
 GtkWidget     *fs_dir_lb;
 GtkWidget     *fs_first_rb;
@@ -169,7 +170,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
 
     created = fileset_dlg_name2date_dup(entry->name);
 	if(!created) {
-		/* if this file doesn't follow the fiel set pattern, */
+		/* if this file doesn't follow the file set pattern, */
 		/* use the creation time of that file */
 		local = localtime(&entry->ctime);
 		created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
@@ -218,9 +219,23 @@ fileset_dlg_add_file(fileset_entry *entry) {
     gtk_label_set(GTK_LABEL(fs_dir_lb), title);
     g_free(title);
 
-    row++;
-    
     gtk_widget_show_all(fs_tb);
+
+    /* resize the table until we use 18 rows (fits well into 800*600), if it's bigger use a scrollbar */
+    /* XXX - I didn't found a way to automatically shrink the table size again */
+    if(row <= 18) {
+      GtkRequisition requisition;
+
+      gtk_widget_size_request(fs_tb, &requisition);
+      WIDGET_SET_SIZE(GTK_WINDOW(fs_sw), -1, requisition.height);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+    }
+    
+    if(row == 18) {
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    }
+    
+    row++;
 
     g_free(created);
     g_free(modified);
@@ -244,16 +259,16 @@ fileset_init_table(GtkWidget *parent)
   fs_first_rb = NULL;
 
   fs_lb = gtk_label_new("Filename");
-  gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_lb, 0, 1, row, row+1);
+  gtk_table_attach(GTK_TABLE(fs_tb), fs_lb, 0, 1, row, row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
 
   fs_lb = gtk_label_new("Created");
-  gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_lb, 1, 2, row, row+1);
+  gtk_table_attach(GTK_TABLE(fs_tb), fs_lb, 1, 2, row, row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
 
   fs_lb = gtk_label_new("Last Modified");
-  gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_lb, 2, 3, row, row+1);
+  gtk_table_attach(GTK_TABLE(fs_tb), fs_lb, 2, 3, row, row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
 
   fs_lb = gtk_label_new("Size");
-  gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_lb, 3, 4, row, row+1);
+  gtk_table_attach(GTK_TABLE(fs_tb), fs_lb, 3, 4, row, row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
 
   gtk_widget_hide(fs_tb);
 
@@ -297,12 +312,16 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(fs_w), main_vb);
 
+  fs_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  gtk_box_pack_start(GTK_BOX(main_vb), fs_sw, TRUE, TRUE, 0);
+
   /* add a dummy container, so we can replace the table later */
   fs_tb_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(main_vb), fs_tb_vb);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(fs_sw), fs_tb_vb);
 
   fs_dir_lb = gtk_label_new("");
-  gtk_container_add(GTK_CONTAINER(main_vb), fs_dir_lb);
+  gtk_box_pack_start(GTK_BOX(main_vb), fs_dir_lb, FALSE, FALSE, 0);
 
   fileset_init_table(fs_tb_vb);
 
