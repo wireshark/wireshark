@@ -272,9 +272,7 @@ fileset_add_dir(const char *fname)
     } else {
         /* no, this is a "standalone file", just add this one */
         entry = fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
-        if(entry) {
-            fileset_dlg_add_file(entry);
-        }
+        /* don't add the file to the dialog here, this will be done in fileset_update_dlg() below */
     }
 
     g_string_free(dirname, TRUE /* free_segment */);
