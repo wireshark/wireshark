@@ -107,8 +107,8 @@ WIRESHARK_GTK_SRC = \
 	tap_dfilter_dlg.c	\
 	text_page.c	\
 	toolbar.c	\
-	voip_calls.c \
 	u3.c \
+	voip_calls.c \
 	webbrowser.c
 
 
