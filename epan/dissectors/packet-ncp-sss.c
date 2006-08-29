@@ -595,7 +595,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         break;
     case 2:
         proto_tree_add_item(ncp_tree, hf_frag_handle, tvb, foffset, 4, TRUE);
-        if (tvb_get_letohl(tvb, foffset)==0xffffffff) 
+        if (tvb_get_letohl(tvb, foffset)==0xffffffff) /* Fragment handle of -1 means no fragment. So process packet */
         {
             foffset += 4;
             proto_tree_add_item(ncp_tree, hf_buffer_size, tvb, foffset, 4, TRUE);
@@ -642,7 +642,14 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, TRUE);
+                    if (tvb_length_remaining(tvb, foffset) < msg_length)
+                    {
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, TRUE);
+                    }
+                    else
+                    {
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, TRUE);
+                    }
                 }
                 break;
             case 3:

@@ -591,8 +591,7 @@ class NCP:
 
 	def CalculateReqConds(self):
 		"""Returns a list of request conditions (dfilter text) used
-		in the reply records. A request condition is listed only once,
-		even it it used twice. """
+		in the reply records. A request condition is listed only once,"""
 		texts = {}
 		if self.reply_records:
 			for record in self.reply_records:
@@ -1522,10 +1521,9 @@ ConnectionsSupportedMax		= uint16("connections_supported_max", "Connections Supp
 ConnectionType			= val_string8("connection_type", "Connection Type", [
 	[ 0x00, "Not in use" ],
 	[ 0x02, "NCP" ],
-	[ 0x11, "UDP (for IP)" ],
+	[ 0x0b, "UDP (for IP)" ],
 ])
 ConnListLen			= uint8("conn_list_len", "Connection List Length")
-Copyright			= nstring8("copyright", "Copyright")
 connList                        = uint32("conn_list", "Connection List")
 ControlFlags			= val_string8("control_flags", "Control Flags", [
 	[ 0x00, "Forced Record Locking is Off" ],
@@ -1727,13 +1725,13 @@ DriveDefinitionString 		= fw_string("drive_definition_string", "Drive Definition
 DriveHeads 			= uint8("drive_heads", "Drive Heads")
 DriveMappingTable		= bytes("drive_mapping_table", "Drive Mapping Table", 32)
 DriveMirrorTable 		= bytes("drive_mirror_table", "Drive Mirror Table", 32)
-DriverBoardName                 = stringz("driver_board_name", "Driver Board Name")
+DriverBoardName         = stringz("driver_board_name", "Driver Board Name")
 DriveRemovableFlag 		= val_string8("drive_removable_flag", "Drive Removable Flag", [
 	[ 0x00, "Nonremovable" ],
 	[ 0xff, "Removable" ],
 ])
-DriverLogicalName               = stringz("driver_log_name", "Driver Logical Name")
-DriverShortName                 = stringz("driver_short_name", "Driver Short Name")
+DriverLogicalName       = stringz("driver_log_name", "Driver Logical Name")
+DriverShortName         = stringz("driver_short_name", "Driver Short Name")
 DriveSize 			= uint32("drive_size", "Drive Size")
 DstEAFlags			= val_string16("dst_ea_flags", "Destination EA Flags", [
 	[ 0x0000, "Return EAHandle,Information Level 0" ],
@@ -2638,6 +2636,13 @@ LockStatus			= val_string8("lock_status", "Lock Status", [
 	[ 0x02, "Logged" ],
 	[ 0x06, "Lock is Held by TTS"],
 ])
+ConnLockStatus			= val_string8("conn_lock_status", "Lock Status", [
+	[ 0x00, "Normal (connection free to run)" ],
+	[ 0x01, "Waiting on physical record lock" ],
+	[ 0x02, "Waiting on a file lock" ],
+	[ 0x03, "Waiting on a logical record lock"],
+	[ 0x04, "Waiting on a semaphore"],
+])
 LockType 			= val_string8("lock_type", "Lock Type", [
 	[ 0x00, "Locked" ],
 	[ 0x01, "Open Shareable" ],
@@ -3031,6 +3036,7 @@ NSSOVerb                        = val_string8("nsso_verb", "SecretStore Verb", [
         [ 0x09, "Get Service Information" ],
 ])
 NSSpecificInfo			= fw_string("ns_specific_info", "Name Space Specific Info", 512)
+NumberOfActiveTasks		= uint8("num_of_active_tasks", "Number of Active Tasks")
 NumberOfAllocs			= uint32("num_of_allocs", "Number of Allocations")
 NumberOfAttributes		= uint32("number_of_attributes", "Number of Attributes")
 NumberOfCPUs			= uint32("number_of_cpus", "Number of CPU's")
@@ -3419,6 +3425,7 @@ Reserved56			= bytes("reserved56", "Reserved", 56)
 Reserved64			= bytes("reserved64", "Reserved", 64)
 Reserved120			= bytes("reserved120", "Reserved", 120)
 ReservedOrDirectoryNumber	= uint32("reserved_or_directory_number", "Reserved or Directory Number (see EAFlags)")
+ReservedOrDirectoryNumber.Display("BASE_HEX")
 ResourceCount                   = uint32("resource_count", "Resource Count")
 ResourceForkSize		= uint32("resource_fork_size", "Resource Fork Size")
 ResourceName                    = stringz("resource_name", "Resource Name")
@@ -3613,6 +3620,7 @@ ServiceType			= val_string16("Service_type", "Service Type", [
 	[ 0x0021,	"NAS SNA gateway" ],
 	[ 0x0026,	"Remote bridge server" ],
 	[ 0x0027,	"TCP/IP gateway" ],
+    [ 0xffff,   "All Types" ],
 ])
 SetCmdCategory                  = val_string8("set_cmd_category", "Set Command Category", [
         [ 0x00, "Communications" ],
@@ -3763,6 +3771,12 @@ targetTransmitTime.Display("BASE_HEX")
 TaskNumByte			= uint8("task_num_byte", "Task Number")
 TaskNumber			= uint32("task_number", "Task Number")
 TaskNumberWord			= uint16("task_number_word", "Task Number")
+TaskState           = val_string8("task_state", "Task State", [
+        [ 0x00, "Normal" ],
+        [ 0x01, "TTS explicit transaction in progress" ],
+        [ 0x02, "TTS implicit transaction in progress" ],
+        [ 0x04, "Shared file set lock in progress" ],
+])
 TextJobDescription		= fw_string("text_job_description", "Text Job Description", 50)
 ThrashingCount			= uint16("thrashing_count", "Thrashing Count")
 TimeoutLimit			= uint16("timeout_limit", "Timeout Limit")
@@ -3789,7 +3803,7 @@ TotalCacheWrites 		= uint32("total_cache_writes", "Total Cache Writes")
 TotalChangedFATs		= uint32("total_changed_fats", "Total Changed FAT Entries")
 TotalCommonCnts                 = uint32("total_common_cnts", "Total Common Counts")
 TotalCntBlocks                  = uint32("total_cnt_blocks", "Total Count Blocks")
-TotalDataStreamDiskSpaceAlloc	= uint32("total_stream_size_struct_space_alloc", "Total Data Stream Disk Space Alloc")
+TotalDataStreamDiskSpaceAlloc	= uint32("ttl_data_str_size_space_alloc", "Total Data Stream Disk Space Alloc")
 TotalDirectorySlots		= uint16("total_directory_slots", "Total Directory Slots")
 TotalDirectoryEntries		= uint32("total_dir_entries", "Total Directory Entries")
 TotalDynamicSpace 		= uint32("total_dynamic_space", "Total Dynamic Space")
@@ -3958,8 +3972,8 @@ VolumeRemovableFlag 		= val_string8("volume_removable_flag", "Volume Removable F
 	[ 0xff, "Disk Can be Removed from Server" ],
 ])
 VolumeRequestFlags		= val_string16("volume_request_flags", "Volume Request Flags", [
-	[ 0x0000, "Return name with volume number" ],
-	[ 0x0001, "Do not return name with volume number" ],
+	[ 0x0000, "Do not return name with volume number" ],
+	[ 0x0001, "Return name with volume number" ],
 ])
 VolumeSizeInClusters		= uint32("volume_size_in_clusters", "Volume Size in Clusters")
 VolumesSupportedMax		= uint16("volumes_supported_max", "Volumes Supported Max")
@@ -4262,7 +4276,7 @@ CreationDateStruct              = struct("creation_date_struct", [
 CreationInfoStruct		= struct("creation_info_struct", [
 	CreationTime,
 	CreationDate,
-	CreatorID,
+	endian(CreatorID, LE),
 ], "Creation Information")
 CreationTimeStruct              = struct("creation_time_struct", [
         CreationTime,
@@ -4449,9 +4463,6 @@ MacTimeStruct                   = struct("mac_time_struct", [
 LastAccessedTimeStruct          = struct("last_access_time_struct", [
         LastAccessedTime,
 ])
-
-
-
 FileAttributesStruct		= struct("file_attributes_struct", [
 	AttributesDef32,
 ])
@@ -4459,7 +4470,7 @@ FileInfoStruct                  = struct("file_info_struct", [
         ParentID,
         DirectoryEntryNumber,
         TotalBlocksToDecompress,
-        CurrentBlockBeingDecompressed,
+        #CurrentBlockBeingDecompressed,
 ], "File Information")
 FileInstance                    = struct("file_instance", [
         SearchSequenceWord,
@@ -4713,7 +4724,7 @@ LoginTime                       = struct("login_time", [
 	DayOfWeek,
 ], "Login Time")
 LogLockStruct			= struct("log_lock_struct", [
-	TaskNumByte,
+	TaskNumberWord,
 	LockStatus,
 	LockName,
 ], "Logical Locks")
@@ -4768,7 +4779,7 @@ MLIDBoardInfo                   = struct("mlid_board_info", [
 ModifyInfoStruct		= struct("modify_info_struct", [
 	ModifiedTime,
 	ModifiedDate,
-	ModifierID,
+	endian(ModifierID, LE),
 	LastAccessedDate,
 ], "Modification Information")
 nameInfo                        = struct("name_info_struct", [
@@ -4836,8 +4847,8 @@ NLMInformation			= struct("nlm_information", [
 	NumberOfReferencedPublics,
 ], "NLM Information")
 NSInfoStruct			= struct("ns_info_struct", [
-	NameSpace,
-	Reserved3,
+	CreatorNameSpaceNumber,
+    Reserved3,
 ])
 NWAuditStatus			= struct("nw_audit_status", [
 	AuditVersionDate,
@@ -5036,7 +5047,7 @@ SemaInfoStruct			= struct("sema_info_struct", [
 SemaStruct			= struct("sema_struct", [
 	OpenCount,
 	SemaphoreValue,
-	TaskNumByte,
+	TaskNumberWord,
 	SemaphoreName,
 ], "Semaphore Information")
 ServerInfo			= struct("server_info", [
@@ -5104,6 +5115,10 @@ statsInfo                       = struct("stats_info_struct", [
         TotalBytesWritten,
         TotalRequest,
 ], "Statistics")
+TaskStruct                       = struct("task_struct", [
+        TaskNumberWord,
+        TaskState,
+], "Task Information")
 theTimeStruct                   = struct("the_time_struct", [
         UTCTimeInSeconds,
         FractionalSeconds,
@@ -5120,7 +5135,7 @@ timeInfo                        = struct("time_info", [
         uint32("login_expiration_time", "Login Expiration Time"),
 ])
 TotalStreamSizeStruct		= struct("total_stream_size_struct", [
-	TotalDataStreamDiskSpaceAlloc,
+    TtlDSDskSpaceAlloc,
 	NumberOfDataStreams,
 ])
 TrendCounters			= struct("trend_counters", [
@@ -5230,11 +5245,13 @@ VolInfo2Struct                  = struct("vol_info_struct_2", [
         uint32("outstanding_compression_ios", "Outstanding Compression IOs"),
         uint32("compression_ios_limit", "Compression IOs Limit"),
 ], "Extended Volume Information")
-VolumeStruct                    = struct("volume_struct", [
+VolumeWithNameStruct                    = struct("volume_with_name_struct", [
         VolumeNumberLong,
         VolumeNameLen,
 ])
-
+VolumeStruct                    = struct("volume_struct", [
+        VolumeNumberLong,
+])
 DataStreamsStruct               = struct("number_of_data_streams_struct", [
     NumberOfDataStreamsLong,
 ])
@@ -5286,6 +5303,7 @@ def define_errors():
     	errors[0x0107] = "Invalid Number of Minutes to Delay"
         errors[0x0108] = "Invalid Start or Network Number"
         errors[0x0109] = "Cannot Obtain License"
+        errors[0x010a] = "No Purgable Files Available"
 
     	errors[0x0200] = "One or more clients in the send list are not logged in"
     	errors[0x0201] = "Queue server cannot attach"
@@ -5296,6 +5314,7 @@ def define_errors():
     	errors[0x0401] = "Queue server cannot service job"
 
     	errors[0x7300] = "Revoke Handle Rights Not Found"
+        errors[0x7700] = "Buffer Too Small"
         errors[0x7900] = "Invalid Parameter in Request Packet"
         errors[0x7901] = "Nothing being Compressed"
     	errors[0x7a00] = "Connection Already Temporary"
@@ -5376,6 +5395,7 @@ def define_errors():
     	errors[0x9c01] = "The resulting file path is not valid"
     	errors[0x9c02] = "The resulting directory path is not valid"
     	errors[0x9c03] = "Invalid path"
+        errors[0x9c04] = "No more trustees found, based on requested search sequence number"
 
     	errors[0x9d00] = "A directory handle was not available for allocation"
 
@@ -5473,7 +5493,7 @@ def define_errors():
 
     	errors[0xd900] = "The file server cannot accept another connection as it has reached its limit"
     	errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
-    	errors[0xd902] = "Station is not a server"
+    	errors[0xd902] = "Queue Station is not a server"
     	errors[0xd903] = "Bad EDS Signature"
         errors[0xd904] = "Attempt to log in using an account which has limits on the number of concurrent connections and that number has been reached."
     
@@ -6155,6 +6175,9 @@ static int hf_nds_segment_overlap_conflict = -1;
 static int hf_nds_segment_multiple_tails = -1;
 static int hf_nds_segment_too_long_segment = -1;
 static int hf_nds_segment_error = -1;
+static int hf_nds_verb2b_req_flags = -1;
+static int hf_ncp_ip_address = -1;
+static int hf_ncp_copyright = -1;
 
 static proto_item *expert_item = NULL;
 
@@ -6423,7 +6446,7 @@ static proto_item *expert_item = NULL;
 		else:
 			req_cond_size = pkt.ReqCondSize()
 			if req_cond_size == None:
-				msg.write("NCP packet %s nees a ReqCondSize*() call\n" \
+				msg.write("NCP packet %s needs a ReqCondSize*() call\n" \
 					% (pkt.CName(),))
 				sys.exit(1)
 
@@ -6567,6 +6590,14 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 0,  NULL }
 };
 
+static const value_string connection_status_vals[] = {
+        { 0x00, "Ok" },
+        { 0x01, "Bad Service Connection" },
+        { 0x10, "File Server is Down" },
+        { 0x40, "Broadcast Message Pending" },
+    	{ 0,	NULL }
+};
+
 void
 proto_register_ncp2222(void)
 {
@@ -6635,7 +6666,7 @@ proto_register_ncp2222(void)
 	 * underneath it?
 	 */
 	{ &hf_ncp_connection_status,
-	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, VALS(connection_status_vals), 0x0, "", HFILL }},
 
 	{ &hf_ncp_req_frame_num,
 	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_FRAMENUM, BASE_NONE,
@@ -6645,11 +6676,11 @@ proto_register_ncp2222(void)
 	{ "Time from Request", "ncp.time", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "Time between request and response in seconds", HFILL }},
 
-        { &hf_nds_flags,
-        { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-
-
-	{ &hf_nds_reply_depth,
+    { &hf_nds_flags,
+    { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 
+    
+    { &hf_nds_reply_depth,
 	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
         { &hf_nds_reply_rev,
@@ -6658,7 +6689,7 @@ proto_register_ncp2222(void)
 	{ &hf_nds_reply_flags,
 	{ "Flags", "ncp.ndsflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
-        { &hf_nds_p1type,
+    { &hf_nds_p1type,
 	{ "NDS Parameter Type", "ncp.p1type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
         { &hf_nds_uint32value,
@@ -7900,6 +7931,15 @@ proto_register_ncp2222(void)
           { "NDS Fragments",	"nds.fragments", FT_NONE, BASE_NONE,
     		NULL, 0x0, "NDPS Fragments", HFILL }},
 
+        { &hf_nds_verb2b_req_flags,
+        { "Flags", "ncp.nds_verb2b_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+        { &hf_ncp_ip_address,
+	{ "IP Address", "ncp.ip_addr", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_copyright,
+	{ "Copyright", "ncp.copyright", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+
  """
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
@@ -8786,7 +8826,7 @@ def define_ncp2222():
 		rec( 16, 2, ChangeBits ),
 		rec( 18, 2, Reserved2 ),
 		rec( 20, 4, Subdirectory ),
-                srec(DOSDirectoryEntryStruct, req_cond="ncp.search_att_sub == TRUE"),
+                #srec(DOSDirectoryEntryStruct, req_cond="ncp.search_att_sub == TRUE"),
                 srec(DOSFileEntryStruct, req_cond="ncp.search_att_sub == FALSE"),
 	])
 	pkt.Reply(8)
@@ -9032,7 +9072,7 @@ def define_ncp2222():
 	pkt.Reply( 10, [
 		rec( 8, 2, TrusteeRights ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0x9b00, 0x9c03])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x9b00, 0x9c03, 0xfc06])
 	# 2222/1633, 22/51
 	pkt = NCP(0x1633, "Get Extended Volume Information", 'file')
 	pkt.Request( 11, [
@@ -9051,12 +9091,14 @@ def define_ncp2222():
 		rec( 14, 4, VolumeRequestFlags, LE ),
 		rec( 18, 4, SrcNameSpace ),
 	])
-	pkt.Reply( 34, [
+	pkt.Reply( NO_LENGTH_CHECK, [
 		rec( 8, 4, ItemsInPacket, var="x" ),
 		rec( 12, 4, NextVolumeNumber ),
-		rec( 16, 18, VolumeStruct, repeat="x"),
+        srec( VolumeStruct, req_cond="ncp.volume_request_flags==0x0000", repeat="x" ),
+        srec( VolumeWithNameStruct, req_cond="ncp.volume_request_flags==0x0001", repeat="x" ),
         ])
-	pkt.CompletionCodes([0x0000])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x9802])
     # 2222/1635, 22/53
 	pkt = NCP(0x1635, "Get Volume Capabilities", 'file')
 	pkt.Request( 18, [
@@ -9314,25 +9356,12 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd904, 0xda00,
 			     0xdb00, 0xdc00, 0xde00, 0xff00])
 	# 2222/171A, 23/26
-	#
-	# XXX - for NCP-over-IP, the NetworkAddress field appears to be
-	# an IP address, rather than an IPX network address, and should
-	# be dissected as an FT_IPv4 value; the NetworkNodeAddress and
-	# NetworkSocket are 0.
-	#
-	# For NCP-over-IPX, it should probably be dissected as an
-	# FT_IPXNET value.
-	#
 	pkt = NCP(0x171A, "Get Internet Address", 'connection')
 	pkt.Request(12, [
 		rec( 10, 2, TargetConnectionNumber ),
 	])
-	pkt.Reply(21, [
-		rec( 8, 4, NetworkAddress, BE ),
-		rec( 12, 6, NetworkNodeAddress ),
-		rec( 18, 2, NetworkSocket, BE ),
-		rec( 20, 1, ConnectionType ),
-	])
+    # Dissect reply in packet-ncp2222.inc
+	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000])
 	# 2222/171B, 23/27
 	pkt = NCP(0x171B, "Get Object Connection List", 'connection')
@@ -9341,9 +9370,9 @@ def define_ncp2222():
 		rec( 14, 2, ObjectType, BE ),
 		rec( 16, (1,48), ObjectName ),
 	], info_str=(ObjectName, "Get Object Connection List: %s", ", %s"))
-	pkt.Reply( (10,137), [
+	pkt.Reply( (13), [
 		rec( 8, 1, ConnListLen, var="x" ),
-		rec( 9, (1,128), ConnectionNumberList, repeat="x" ),
+		rec( 9, 4, ConnectionNumber, LE, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xf001, 0xfc06, 0xfe07, 0xff00])
 	# 2222/171C, 23/28
@@ -9412,7 +9441,7 @@ def define_ncp2222():
 		rec( 8, 4, ReturnInfoCount, var="x" ),
 		rec( 12, 16, GUID, repeat="x" ),
 	])
-	pkt.CompletionCodes([0x0000])
+	pkt.CompletionCodes([0x0000, 0x7e01])
     # 2222/1722, 23/34
 	pkt = NCP(0x1722, "Set Connection Language Encoding", 'connection')
 	pkt.Request( 22, [
@@ -9911,10 +9940,10 @@ def define_ncp2222():
 			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
 	# 2222/1772, 23/114
 	pkt = NCP(0x1772, "Finish Servicing Queue Job", 'qms')
-	pkt.Request(20, [
+	pkt.Request(18, [
 		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
-		rec( 16, 4, ChargeInformation, BE ),
+		rec( 16, 2, ChargeInformation, BE ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
@@ -9976,10 +10005,10 @@ def define_ncp2222():
 		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
-	pkt.Reply(20, [
+	pkt.Reply(18, [
 		rec( 8, 4, QueueID ),
-		rec( 12, 4, JobNumberLong ),
-		rec( 16, 4, FileSize, BE ),
+		rec( 12, 2, JobNumber, BE ),
+		rec( 14, 4, FileSize, BE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
@@ -10017,7 +10046,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xea02, 0xfc07, 0xff00])
 	# 2222/177C, 23/124
 	pkt = NCP(0x177C, "Service Queue Job", 'qms')
 	pkt.Request(16, [
@@ -10029,7 +10058,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc05, 0xff00])
 	# 2222/177D, 23/125
 	pkt = NCP(0x177D, "Read Queue Current Status", 'qms')
 	pkt.Request(14, [
@@ -10112,7 +10141,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc05, 0xff00])
 	# 2222/1784, 23/132
 	pkt = NCP(0x1784, "Abort Servicing Queue Job", 'qms')
 	pkt.Request(18, [
@@ -10122,7 +10151,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff18])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc05, 0xff18])
 	# 2222/1785, 23/133
 	pkt = NCP(0x1785, "Change To Client Rights", 'qms')
 	pkt.Request(18, [
@@ -10159,7 +10188,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc05, 0xff00])
 	# 2222/1788, 23/136
 	pkt = NCP(0x1788, "Move Queue Job From Src Q to Dst Q", 'qms')
 	pkt.Request(22, [
@@ -10184,7 +10213,7 @@ def define_ncp2222():
 		rec( 12, 4, JobCount, var="x" ),
 		rec( 16, 4, JobNumberLong, repeat="x" ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfc06])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xd300, 0xfc06])
 	# 2222/178A, 23/138
 	pkt = NCP(0x178A, "Service Queue Job By Form List", 'qms')
 	pkt.Request(24, [
@@ -10196,7 +10225,7 @@ def define_ncp2222():
 	pkt.Reply(94, [
            rec( 8, 86, JobStructNew ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfc06])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xd902, 0xfc06, 0xff00])
 	# 2222/1796, 23/150
 	pkt = NCP(0x1796, "Get Current Account Status", 'accounting')
 	pkt.Request((13,60), [
@@ -10318,8 +10347,8 @@ def define_ncp2222():
 	# 2222/17CD, 23/205
 	pkt = NCP(0x17CD, "Get File Server Login Status", 'fileserver')
 	pkt.Request(10)
-	pkt.Reply(12, [
-		rec( 8, 4, UserLoginAllowed ),
+	pkt.Reply(9, [
+		rec( 8, 1, UserLoginAllowed ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xfb01])
 	# 2222/17CF, 23/207
@@ -10733,10 +10762,10 @@ def define_ncp2222():
 	pkt.Request(12, [
 		rec( 10, 2, ConnectionNumber ),
 	])
- 	pkt.Reply(18, [
-		rec( 8, 2, NextRequestRecord ),
-		rec( 10, 4, NumberOfAttributes, var="x" ),
-		rec( 14, 4, Attributes, repeat="x" ),
+ 	pkt.Reply(13, [
+		rec( 8, 1, ConnLockStatus ),
+		rec( 9, 1, NumberOfActiveTasks, var="x" ),
+		rec( 10, 3, TaskStruct, repeat="x" ),
  	 ])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])
 	# 2222/17EB, 23/235
@@ -10784,7 +10813,7 @@ def define_ncp2222():
 	])
  	pkt.Reply(23, [
 		rec( 8, 2, NextRequestRecord ),
-		rec( 10, 2, NumberOfLocks, var="x" ),
+		rec( 10, 2, NumberOfLocks, LE, var="x" ),
 		rec( 12, 11, LockStruct, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])
@@ -10798,7 +10827,7 @@ def define_ncp2222():
 	])
  	pkt.Reply(30, [
 		rec( 8, 2, NextRequestRecord ),
-		rec( 10, 2, NumberOfLocks, var="x" ),
+		rec( 10, 2, NumberOfLocks, LE, var="x" ),
 		rec( 12, 18, PhyLockStruct, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])
@@ -10948,7 +10977,7 @@ def define_ncp2222():
 		rec( 18, 4, LockAreaLen, BE ),
 	], info_str=(LockAreaLen, "Clear Lock Record - Length of %d", "%d"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
 	# 2222/1F, 31
 	pkt = NCP(0x1F, "Clear Physical Record Set", 'sync')
 	pkt.Request(8, [
@@ -11519,7 +11548,7 @@ def define_ncp2222():
 	pkt.Reply(12, [
 		rec( 8, 4, NCPdataSize ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00, 0xff20])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/25, 37
 	pkt = NCP(0x25, "Execute NCP Extension", 'extension')
 	pkt.Request(11, [
@@ -11866,7 +11895,7 @@ def define_ncp2222():
 		rec( 16, 4, NewEAHandle ),
 	])
 	pkt.CompletionCodes([0x0000, 0xc800, 0xc900, 0xcb00, 0xce00, 0xcf00, 0xd101,
-			     0xd203, 0xd301, 0xd402])
+			     0xd203, 0xd301, 0xd402, 0xda02, 0xdc01, 0xef00, 0xff00])
 	# 2222/5603, 86/03
 	pkt = NCP(0x5603, "Read Extended Attribute", 'extended', has_length=0 )
 	pkt.Request((28,538), [
@@ -11884,8 +11913,8 @@ def define_ncp2222():
 		rec( 20, 4, EAAccessFlag ),
 		rec( 24, (2,512), EAValue ),
 	])
-	pkt.CompletionCodes([0x0000, 0xc900, 0xce00, 0xcf00, 0xd101,
-			     0xd301])
+	pkt.CompletionCodes([0x0000, 0x8800, 0x9c03, 0xc900, 0xce00, 0xcf00, 0xd101,
+			     0xd301, 0xd503])
 	# 2222/5604, 86/04
 	pkt = NCP(0x5604, "Enumerate Extended Attribute", 'extended', has_length=0 )
 	pkt.Request((26,536), [
@@ -11903,8 +11932,8 @@ def define_ncp2222():
 		rec( 20, 4, TtlEAsKeySize ),
 		rec( 24, 4, NewEAHandle ),
 	])
-	pkt.CompletionCodes([0x0000, 0x8800, 0x8c01, 0xc900, 0xce00, 0xcf00, 0xd101,
-			     0xd301])
+	pkt.CompletionCodes([0x0000, 0x8800, 0x8c01, 0xc800, 0xc900, 0xce00, 0xcf00, 0xd101,
+			     0xd301, 0xd503, 0xfb08, 0xff00])
 	# 2222/5605, 86/05
 	pkt = NCP(0x5605, "Duplicate Extended Attributes", 'extended', has_length=0 )
 	pkt.Request(28, [
@@ -11920,7 +11949,7 @@ def define_ncp2222():
 		rec( 12, 4, EADataSizeDuplicated ),
 		rec( 16, 4, EAKeySizeDuplicated ),
 	])
-	pkt.CompletionCodes([0x0000, 0xd101])
+	pkt.CompletionCodes([0x0000, 0x8800, 0xd101])
 	# 2222/5701, 87/01
 	pkt = NCP(0x5701, "Open/Create File or Subdirectory", 'file', has_length=0)
 	pkt.Request((30, 284), [
@@ -11992,7 +12021,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9400, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xa901, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9900, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
 	pkt.Request( (18,272), [
@@ -12097,8 +12126,8 @@ def define_ncp2222():
 	], info_str=(Path, "Rename or Move: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
-			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
+			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9100, 0x9200, 0x9600,
+			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0x9e00, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
 	pkt = NCP(0x5705, "Scan File or Subdirectory for Trustees", 'file', has_length=0)
 	pkt.Request((24, 278), [
@@ -12119,7 +12148,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c04, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5706, 87/06
 	pkt = NCP(0x5706, "Obtain File or SubDirectory Information", 'file', has_length=0)
 	pkt.Request((24,278), [
@@ -12274,8 +12303,8 @@ def define_ncp2222():
 	], info_str=(Path, "Add Trustee Set to: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfc01, 0xfd00, 0xff16])
+			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xa901, 0xbf00, 0xfc01, 0xfd00, 0xff16])
 	# 2222/570B, 87/11
 	pkt = NCP(0x570B, "Delete Trustee Set from File or SubDirectory", 'file', has_length=0)
 	pkt.Request((27,281), [
@@ -12291,7 +12320,7 @@ def define_ncp2222():
 	], info_str=(Path, "Delete Trustee Set from: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/570C, 87/12
 	pkt = NCP(0x570C, "Allocate Short Directory Handle", 'file', has_length=0)
@@ -12311,7 +12340,7 @@ def define_ncp2222():
 	])
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0x9d00, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5710, 87/16
 	pkt = NCP(0x5710, "Scan Salvageable Files", 'file', has_length=0)
@@ -12387,7 +12416,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xbf00, 0xfe02, 0xfd00, 0xff16])
 	# 2222/5712, 87/18
 	pkt = NCP(0x5712, "Purge Salvageable Files", 'file', has_length=0)
 	pkt.Request(22, [
@@ -12398,7 +12427,7 @@ def define_ncp2222():
 		rec( 18, 4, DirectoryBase ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x010a, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5713, 87/19
@@ -12442,58 +12471,8 @@ def define_ncp2222():
 		rec( 18, 9, SearchSequence ),
 		rec( 27, (1,255), SearchPattern ),
 	])
+    # The reply packet is dissected in packet-ncp2222.inc
 	pkt.Reply(NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
-		rec( 17, 1, MoreFlag ),
-		rec( 18, 2, InfoCount ),
-            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
-            srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
-            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
-            srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
-            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
-            srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
-            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
-            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
-            srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
-            srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
-            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
-            srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
-            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
-            srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
-            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
-            srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
-            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
-            srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
-            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
-            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
-            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
-            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
-            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
-            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
-            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
-            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
-            srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
-            srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
-            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
-            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
-            srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
-            srec( DOSNameStruct, req_cond="ncp.ext_info_dos_name == 1" ),
-            srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
-            srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
-            srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
-            srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
-            srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
-            srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
-            srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
-            srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
-            srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
@@ -12757,7 +12736,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbe00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/571F, 87/31
 	pkt = NCP(0x571F, "Get File Information", 'file', has_length=0)
 	pkt.Request(15, [
@@ -12869,39 +12848,62 @@ def define_ncp2222():
 		rec( 32, 1, PathCount, var="x" ),
 		rec( 33, (1,255), Path, repeat="x" ),
 	], info_str=(FilePath, "Open or Create II with Op-Lock: %s", "/%s"))
-	pkt.Reply((91,345), [
+	pkt.Reply(NO_LENGTH_CHECK, [
 		rec( 8, 4, FileHandle ),
 		rec( 12, 1, OpenCreateAction ),
 		rec( 13, 1, OCRetFlags ),
-		rec( 14, 4, DataStreamSpaceAlloc ),
-		rec( 18, 6, AttributesStruct ),
-		rec( 24, 4, DataStreamSize ),
-		rec( 28, 4, TtlDSDskSpaceAlloc ),
-		rec( 32, 2, NumberOfDataStreams ),
-		rec( 34, 2, CreationTime ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 4, CreatorID, BE ),
-		rec( 42, 2, ModifiedTime ),
-		rec( 44, 2, ModifiedDate ),
-		rec( 46, 4, ModifierID, BE ),
-		rec( 50, 2, LastAccessedDate ),
-		rec( 52, 2, ArchivedTime ),
-		rec( 54, 2, ArchivedDate ),
-		rec( 56, 4, ArchiverID, BE ),
-		rec( 60, 2, InheritedRightsMask ),
-		rec( 62, 4, DirectoryEntryNumber ),
-		rec( 66, 4, DOSDirectoryEntryNumber ),
-		rec( 70, 4, VolumeNumberLong ),
-		rec( 74, 4, EADataSize ),
-		rec( 78, 4, EACount ),
-		rec( 82, 4, EAKeySize ),
-		rec( 86, 1, CreatorNameSpaceNumber ),
-                rec( 87, 3, Reserved3 ),
-		rec( 90, (1,255), FileName ),
+        srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+        srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+        srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+        srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+        srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+        srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+        srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+        srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+        srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+        srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+        srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+        srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+        srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+        srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+        srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+        srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+        srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+        srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+        srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+        srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+        srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+        srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+        srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+        srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+        srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+        srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+        srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+        srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+        srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+        srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+        srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+        srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+        srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+        srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+        srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+        srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+        srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+        srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+        srec( DOSNameStruct, req_cond="ncp.ext_info_dos_name == 1" ),
+        srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+        srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+        srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+        srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+        srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+        srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+        srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+        srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
 	])
+	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbe00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5722, 87/34
 	pkt = NCP(0x5722, "Open CallBack Control (Op-Lock)", 'file', has_length=0)
 	pkt.Request(13, [
@@ -13348,7 +13350,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xde00, 0xfd00, 0xff16])
 	# 2222/5817, 88,23
 	pkt = NCP(0x5817, "Return Old Audit File List", "auditing", has_length=0)
 	pkt.Request(8)
@@ -13465,7 +13467,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
 						0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-						0x9804, 0x9b03, 0x9c03, 0xa901, 0xa500, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+						0x9804, 0x9900, 0x9b03, 0x9c03, 0xa901, 0xa500, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5902, 89/02
 	pkt = NCP(0x5902, "Initialize Search", 'enhanced', has_length=0)
 	pkt.Request( (25,278), [
@@ -13765,7 +13767,7 @@ def define_ncp2222():
 	], info_str=(Path16, "Add Trustee Set to: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfc01, 0xfd00, 0xff16])
 	# 2222/590B, 89/11
 	pkt = NCP(0x590B, "Delete Trustee Set from File or SubDirectory", 'enhanced', has_length=0)
@@ -13773,18 +13775,18 @@ def define_ncp2222():
 		rec( 8, 1, NameSpace ),
 		rec( 9, 1, Reserved ),
 		rec( 10, 2, ObjectIDCount, var="y" ),
-		rec( 12, 4, DirectoryBase ),
-		rec( 16, 1, VolumeNumber ),
-		rec( 17, 1, HandleFlag ),
-        rec( 18, 1, DataTypeFlag ),
-        rec( 19, 5, Reserved5 ),
-		rec( 24, 1, PathCount, var="x" ),
-		rec( 25, (2,255), Path16, repeat="x" ),
-		rec( -1, 7, TrusteeStruct, repeat="y" ),
+		rec( 12, 7, TrusteeStruct, repeat="y" ),
+		rec( 19, 4, DirectoryBase ),
+		rec( 23, 1, VolumeNumber ),
+		rec( 24, 1, HandleFlag ),
+        rec( 25, 1, DataTypeFlag ),
+        rec( 26, 5, Reserved5 ),
+		rec( 31, 1, PathCount, var="x" ),
+		rec( 32, (2,255), Path16, repeat="x" ),
 	], info_str=(Path16, "Delete Trustee Set from: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/590C, 89/12
 	pkt = NCP(0x590C, "Allocate Short Directory Handle", 'enhanced', has_length=0)
@@ -13929,58 +13931,8 @@ def define_ncp2222():
         rec( 27, 1, DataTypeFlag ),
 		rec( 28, (2,255), SearchPattern16 ),
 	])
+    # The reply packet is dissected in packet-ncp2222.inc
 	pkt.Reply(NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
-		rec( 17, 1, MoreFlag ),
-		rec( 18, 2, InfoCount ),
-            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
-            srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
-            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
-            srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
-            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
-            srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
-            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
-            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
-            srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
-            srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
-            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
-            srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
-            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
-            srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
-            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
-            srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
-            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
-            srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
-            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
-            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
-            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
-            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
-            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
-            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
-            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
-            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
-            srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
-            srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
-            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
-            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
-            srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
-            srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
-            srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
-            srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
-            srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
-            srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
-            srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
-            srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
-            srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
-            srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
-            srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
@@ -14908,7 +14860,7 @@ def define_ncp2222():
 	pkt = NCP(0x6805, "Monitor NDS Connection", "nds", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0xfb00, 0xfe0c, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7700, 0xfb00, 0xfe0c, 0xff00])
 	# 2222/6806, 104/06
 	pkt = NCP(0x6806, "Return NDS Statistics", "nds", has_length=0)
 	pkt.Request(10, [
@@ -15142,6 +15094,11 @@ def define_ncp2222():
 		rec( 9, 1, SemaphoreShareCount ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xfe04, 0xff01])
+	## 2222/1125
+	pkt = NCP(0x70, "Clear and Get Waiting Lock Completion", 'sync')
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x9b00, 0x9c03, 0xff1a])
 	# 2222/7201, 114/01
 	pkt = NCP(0x7201, "Timesync Get Time", 'tsync')
 	pkt.Request(10)
@@ -15354,16 +15311,18 @@ def define_ncp2222():
 	pkt.Request(14, [
 		rec(10, 4, NLMNumber ),
         ])
-	pkt.Reply((79,841), [
+	pkt.Reply(NO_LENGTH_CHECK, [
 		rec(8, 4, CurrentServerTime ),
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
 		rec(14, 2, Reserved2 ),
 		rec(16, 60, NLMInformation ),
-		rec(76, (1,255), FileName ),
-		rec(-1, (1,255), Name ),
-		rec(-1, (1,255), Copyright ),
+        # The remainder of this dissection is manually decoded in packet-ncp2222.inc
+		#rec(-1, (1,255), FileName ),
+		#rec(-1, (1,255), Name ),
+		#rec(-1, (1,255), Copyright ),
 	])
+	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0C, 123/12
 	pkt = NCP(0x7B0C, "Get Directory Cache Information", 'stats')
@@ -15466,15 +15425,16 @@ def define_ncp2222():
 	pkt.Request(14, [
                 rec(10, 4, SearchNumber ),
         ])
-	pkt.Reply(60, [
+	pkt.Reply(36, [
 		rec(8, 4, CurrentServerTime ),
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
 		rec(14, 2, ServerInfoFlags ),
-                rec(16, 16, GUID ),
-                rec(32, 4, NextSearchNum ),
-                rec(36, 4, ItemsInPacket, var="x"),
-                rec(40, 20, NCPNetworkAddress, repeat="x" ),
+        rec(16, 16, GUID ),
+        rec(32, 4, NextSearchNum ),
+        # The following two items are dissected in packet-ncp2222.inc
+        #rec(36, 4, ItemsInPacket, var="x"),
+        #rec(40, 20, NCPNetworkAddress, repeat="x" ),
         ])
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb01, 0xff00])
 	# 2222/7B14, 123/20
@@ -15544,13 +15504,16 @@ def define_ncp2222():
 	pkt.Request(14, [
                 rec(10, 4, BoardNumber ),
         ])
-	pkt.Reply(19, [
+	pkt.Reply(NO_LENGTH_CHECK, [
 		rec(8, 4, CurrentServerTime ),
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
 		rec(14, 2, Reserved2 ),      
-        rec(16, 3, BoardNameStruct ),
+        rec(16, PROTO_LENGTH_UNKNOWN, DriverBoardName ),
+        rec(-1, PROTO_LENGTH_UNKNOWN, DriverShortName ),
+        rec(-1, PROTO_LENGTH_UNKNOWN, DriverLogicalName ),
         ])
+	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B19, 123/25
 	pkt = NCP(0x7B19, "LSL Information", 'stats')
@@ -15652,7 +15615,7 @@ def define_ncp2222():
                 rec(16, 4, NumOfSegments, var="x" ),
                 rec(20, 12, Segments, repeat="x" ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0x9801, 0xfb06, 0xff00])
 	# 2222/7B22, 123/34
 	pkt = NCP(0x7B22, "Get Volume Information by Level", 'stats')
 	pkt.Request(15, [
@@ -15923,8 +15886,8 @@ def define_ncp2222():
                 rec(29, 3, Reserved3 ),
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
-                rec(36, 100, SetCmdName ),
-                rec(136, 4, SetCmdValueNum ),
+                rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
+                rec(-1, 4, SetCmdValueNum ),
         ])                
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
@@ -15984,17 +15947,17 @@ def define_ncp2222():
                 rec(48, 4, originalSize ),
                 rec(52, 4, compressVolume ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0x7901, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7e00, 0x7901, 0x9801, 0xfb06, 0xff00])
 	# 2222/7B47, 123/71
 	pkt = NCP(0x7B47, "Get Current DeCompressing File Info List", 'stats')
 	pkt.Request(14, [
                 rec(10, 4, VolumeNumberLong ),
         ])
-	pkt.Reply(28, [
-		rec(8, 4, FileListCount ),
-		rec(12, 16, FileInfoStruct ),
+	pkt.Reply(24, [
+		#rec(8, 4, FileListCount ),
+		rec(8, 16, FileInfoStruct ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7e00, 0x9801, 0xfb06, 0xff00])
 	# 2222/7B48, 123/72
 	pkt = NCP(0x7B48, "Get Compression and Decompression Time and Counts", 'stats')
 	pkt.Request(14, [
@@ -16003,6 +15966,36 @@ def define_ncp2222():
 	pkt.Reply(64, [
 		rec(8, 56, CompDeCompStat ),
         ])
+	pkt.CompletionCodes([0x0000, 0x7e00, 0x9801, 0xfb06, 0xff00])
+	# 2222/7BF9, 123/249
+	pkt = NCP(0x7BF9, "Set Alert Notification", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	# 2222/7BFB, 123/251
+	pkt = NCP(0x7BFB, "Get Item Configuration Information", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	# 2222/7BFC, 123/252
+	pkt = NCP(0x7BFC, "Get Subject Item ID List", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	# 2222/7BFD, 123/253
+	pkt = NCP(0x7BFD, "Get Subject Item List Count", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	# 2222/7BFE, 123/254
+	pkt = NCP(0x7BFE, "Get Subject ID List", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	# 2222/7BFF, 123/255
+	pkt = NCP(0x7BFF, "Get Number of NetMan Subjects", 'stats')
+	pkt.Request(10)
+	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
 	# 2222/8301, 131/01
 	pkt = NCP(0x8301, "RPC Load an NLM", 'remote')
@@ -16014,7 +16007,7 @@ def define_ncp2222():
 	pkt.Reply(12, [
                 rec(8, 4, RPCccode ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7c00, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8302, 131/02
 	pkt = NCP(0x8302, "RPC Unload an NLM", 'remote')
 	pkt.Request(NO_LENGTH_CHECK, [
@@ -16024,7 +16017,7 @@ def define_ncp2222():
 	pkt.Reply(12, [
                 rec(8, 4, RPCccode ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7c00, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8303, 131/03
 	pkt = NCP(0x8303, "RPC Mount Volume", 'remote')
 	pkt.Request(NO_LENGTH_CHECK, [

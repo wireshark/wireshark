@@ -46,9 +46,10 @@
 gboolean        nds_defragment = TRUE;
 gboolean        nds_echo_eid = TRUE;
 gboolean        ncp_echo_err = TRUE;
-gboolean        ncp_echo_conn = TRUE;
+gboolean        ncp_echo_conn = FALSE;
 gboolean        ncp_echo_server = TRUE;
-gboolean        ncp_echo_file = TRUE;
+gboolean        ncp_echo_file = FALSE;
+gboolean        ncp_newstyle = TRUE;
 
 extern dissector_handle_t nds_data_handle;
 typedef struct {
@@ -1341,6 +1342,11 @@ static const value_string nds_reply_errors[] = {
 	{ 0,	NULL }
 };
 
+static const value_string nds_verb2b_flag_vals[] = {
+	{ 0, "Request Flags (0x0000) - Retain old object name" },
+	{ 1, "Request Flags (0x0001) - Delete old object name" },
+	{ 0,  NULL }
+};
 
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
@@ -1457,9 +1463,15 @@ ncp_req_eid_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U
 static void
 ncp_init_protocol(void)
 {
+    int i;
+
   	/* fragment */
   	fragment_table_init(&nds_fragment_table);
   	reassembled_table_init(&nds_reassembled_table);
+
+    for (i = 0; i < 99; i++) {
+        frags[i].nds_frag = 0xfffffff0;
+    }
         
 	if (ncp_req_hash) {
 		g_hash_table_foreach(ncp_req_hash, ncp_req_hash_cleanup, NULL);
@@ -2152,19 +2164,19 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 }
 
 static const ncp_record ncp1111_request =
-	{ 0xf1, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
+	{ 0x1, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncp5555_request =
-	{ 0xf5, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
+	{ 0x5, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncpbbbb_request =
-	{ 0xfb, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
+	{ 0xb, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };                
 
 static const ncp_record ncplip_echo =
-	{ 0xfa, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
+	{ 0x1f, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 /* Wrapper around proto_tree_free() */
@@ -2464,15 +2476,23 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * and their associated values. Store results in passed buffer.
  */
 static void
-build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_lookup)
+build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_lookup, gboolean search_structs)
 {
 	proto_tree		*tree_pointer;
 	proto_tree		*tree_loc;
+	proto_tree		*struct_tree_pointer;
     char            temp_buffer[256]="\0";
+    gboolean        in_struct=FALSE;
        
     tree_loc = ncp_tree->first_child;
 	for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
 	{
+        /* We currently only go one structure deap in our search for values */
+        if (tree_pointer->first_child && !in_struct && search_structs) {
+            struct_tree_pointer = tree_pointer;
+            tree_pointer = tree_pointer->first_child;
+            in_struct=TRUE;
+        }
 		if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
 		{
 			switch (tree_pointer->finfo->hfinfo->type)
@@ -2522,6 +2542,10 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
                 break;
             }
 		}
+        if (tree_pointer->next==NULL && in_struct && search_structs) {
+                tree_pointer = struct_tree_pointer;
+                in_struct=FALSE;
+        }
 	}
     if (strlen(buffer)==0) {
         buffer = "No Value\0";
@@ -2542,7 +2566,6 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
 {   
     if (ncp_rec == NULL)
         return;
-
     /* Request == 0, Reply == 1 */
     if (request_reply==0) {
         if (ncp_echo_file) {
@@ -2550,7 +2573,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             if (ncp_rec->func == 66) { 
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Close file handle %s", p_filehandle);
             }
@@ -2561,16 +2584,16 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char p_rights[2]="\0";
                 char p_path_count[2]="\0";
 
-                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction, 0);
-                build_expert_data(ncp_tree, "ncp.desired_access_rights", p_rights, 0);
-                build_expert_data(ncp_tree, "ncp.path_count", p_path_count, 0);
+                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.desired_access_rights", p_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.path_count", p_path_count, 0, FALSE);
 
                 if (ncp_rec->func == 87) {
-                    build_expert_data(ncp_tree, "ncp.path", p_filename, atoi(p_path_count));
+                    build_expert_data(ncp_tree, "ncp.path", p_filename, atoi(p_path_count), FALSE);
                 }
                 else
                 {
-                    build_expert_data(ncp_tree, "ncp.path16", p_filename, atoi(p_path_count));
+                    build_expert_data(ncp_tree, "ncp.path16", p_filename, atoi(p_path_count), FALSE);
                 }
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)", match_strval((atoi(oaction) & 0xeb), open_create_mode_vals), p_filename, match_strval((atoi(p_rights) & 0x5f), ncp_rights_vals));
@@ -2580,8 +2603,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char cc_function[2]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.cc_file_handle", p_filehandle, 0);
-                build_expert_data(ncp_tree, "ncp.cc_function", cc_function, 0);
+                build_expert_data(ncp_tree, "ncp.cc_file_handle", p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.cc_function", cc_function, 0, FALSE);
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle %s - %s", p_filehandle, match_strval(atoi(cc_function), ncp_cc_function_vals));
             }
@@ -2591,9 +2614,9 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char n_rights[20]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
-                build_expert_data(ncp_tree, "ncp.access_rights_mask_word", p_rights, 0);
-                build_expert_data(ncp_tree, "ncp.new_access_rights_mask", n_rights, 0);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.access_rights_mask_word", p_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.new_access_rights_mask", n_rights, 0, FALSE);
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Change handle %s rights from:(%s) to:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals), match_strval((atoi(n_rights) & 0x1ff), access_rights_vals));
             }
         }
@@ -2608,15 +2631,15 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char oplockflg[2]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.open_create_action", oaction, 0);
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+                build_expert_data(ncp_tree, "ncp.open_create_action", oaction, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
 
                 if (ncp_rec->subfunc == 1) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle);
                 }
                 else
                 {
-                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags", oplockflg, 0);
+                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags", oplockflg, 0, FALSE);
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s, %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle, match_strval(atoi(oplockflg), ncp_o_c_ret_flags_vals));
                 }
             }
@@ -2625,8 +2648,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char p_rights[20]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
-                build_expert_data(ncp_tree, "ncp.effective_rights", p_rights, 0);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.effective_rights", p_rights, 0, FALSE);
                 expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Handle %s effective rights:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals));
             }
         }
@@ -2639,11 +2662,11 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             char p_lang[3]="\0";
 
             /* Get Server name and version info */
-            build_expert_data(ncp_tree, "ncp.server_name", fsname, 0);
-            build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver, 0);
-            build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver, 0);
-            build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev, 0);
-            build_expert_data(ncp_tree, "ncp.os_language_id", p_lang, 0);
+            build_expert_data(ncp_tree, "ncp.server_name", fsname, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.os_language_id", p_lang, 0, FALSE);
             expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, version %s.%s, support pack %s, language %s", fsname, 
                                    p_maj_ver, p_min_ver, p_rev, p_lang);
         }
@@ -2718,8 +2741,9 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                        voffset += align_4(tvb, voffset);
                                }            
                                break;
-                       case 0x00000007:        /* Boolean */
-                               value1 = tvb_get_letohl(tvb, voffset); /* length of field */
+                        case 0x00000007:        /* Boolean */
+                               voffset+=4;                            /* this is always just a parameter count of 1, so ignore */
+                               value1 = tvb_get_guint8(tvb, voffset); /* Boolean value */
                                if (value1==0)
                                {
                                        vvalues->vstring = "False";
@@ -2728,10 +2752,11 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                {
                                        vvalues->vstring = "True";
                                }
-                               tvb_ensure_bytes_exist(tvb, voffset, value1);
+                               tvb_ensure_bytes_exist(tvb, voffset, 1);
                                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
-                                           value1, vvalues->vstring);
-                               voffset=voffset+8;
+                                           1, vvalues->vstring);
+                               voffset=voffset+1;
+                               voffset += align_4(tvb, voffset);
                                break;
                        case 0x00000009:        /* Binary String */
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
@@ -3058,6 +3083,33 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset + 4;
                                if (strcmp(vvalues->vstring, "zendmSearchOrder")==0) {
                                    get_string(tvb, voffset, value1, vvalues->vstring);
+                                   if (strcmp(vvalues->vstring, "0")==0) {
+                                       vvalues->vstring = "Value (0) = Object";
+                                   }
+                                   if (strcmp(vvalues->vstring, "1")==0) {
+                                       vvalues->vstring = "Value (1) = Group";
+                                   }
+                                   if (strcmp(vvalues->vstring, "2")==0) {
+                                       vvalues->vstring = "Value (2) = Container";
+                                   }
+                                   if (strcmp(vvalues->vstring, "01")==0) {
+                                       vvalues->vstring = "Value (01) = Object, Group";
+                                   }
+                                   if (strcmp(vvalues->vstring, "02")==0) {
+                                       vvalues->vstring = "Value (02) = Object, Container";
+                                   }
+                                   if (strcmp(vvalues->vstring, "10")==0) {
+                                       vvalues->vstring = "Value (10) = Group, Object";
+                                   }
+                                   if (strcmp(vvalues->vstring, "12")==0) {
+                                       vvalues->vstring = "Value (12) = Group, Container";
+                                   }
+                                   if (strcmp(vvalues->vstring, "20")==0) {
+                                       vvalues->vstring = "Value (20) = Container, Object";
+                                   }
+                                   if (strcmp(vvalues->vstring, "21")==0) {
+                                       vvalues->vstring = "Value (21) = Container, Group";
+                                   }
                                    if (strcmp(vvalues->vstring, "012")==0) {
                                        vvalues->vstring = "Value (012) = Object, Group, Container";
                                    }
@@ -5061,6 +5113,433 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         }
 }
 
+void
+dissect_ncp_123_11_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree, ncp_req_hash_value *request_value)
+{
+    int string_len, loffset;
+
+    loffset = 76;
+    if (request_value->length == 7) {
+        /* Undocumented, if request value length is 7 then the reply is offset by 8 bytes.
+         * Unknown what these 8 bytes represent */
+        loffset += 8;
+    }
+    string_len = tvb_get_guint8(tvb, loffset);
+    proto_tree_add_item(ncp_tree, hf_ncp_file_name_12, tvb, loffset+1, string_len, TRUE);
+    loffset += string_len+1;
+    string_len = tvb_get_guint8(tvb, loffset);
+    proto_tree_add_item(ncp_tree, hf_ncp_name12, tvb, loffset+1, string_len, TRUE);
+    loffset += string_len+1;
+    string_len = tvb_get_guint8(tvb, loffset);
+    proto_tree_add_item(ncp_tree, hf_ncp_copyright, tvb, loffset+1, string_len, TRUE);
+}
+
+void
+dissect_ncp_123_17_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
+{
+    proto_tree              *atree;
+    proto_item              *aitem;
+    guint32 loffset, number_of_items, addr_type;
+    guint16 x;
+
+    number_of_items = tvb_get_letohl(tvb, 36);
+    proto_tree_add_item(ncp_tree, hf_ncp_items_in_packet, tvb, 36, 4, TRUE);
+    loffset = 40;
+    for (x = 1; x <= number_of_items; x++) 
+    {
+        aitem = proto_tree_add_text(ncp_tree, tvb, loffset, -1, "Network Address - %d", x);
+        atree = proto_item_add_subtree(aitem, ett_ncp);
+
+        addr_type = tvb_get_guint8(tvb, loffset);
+        proto_tree_add_item(atree, hf_ncp_transport_type, tvb, loffset, 1, TRUE);
+        /* The address type is one byte of a 4 byte value. The next 4 bytes are
+         * the length of the address. Since we already know the length based upon
+         * the type of address, we can skip this value. So set the offset accourdingly */
+        loffset += 8;
+
+        switch (addr_type)
+        { 
+                case 1:
+                    proto_tree_add_item(atree, hf_nds_net, tvb, loffset, 4, FALSE);
+                    proto_tree_add_item(atree, hf_nds_node, tvb, loffset+4, 6, FALSE);
+                    proto_tree_add_item(atree, hf_nds_socket, tvb, loffset+10, 2, FALSE);
+                    loffset += 12;
+                    break;
+                case 5:
+                    proto_tree_add_item(atree, hf_nds_port, tvb, loffset, 2, FALSE);
+                    proto_tree_add_item(atree, hf_add_ref_udp, tvb, loffset+2, 4, FALSE);
+                    loffset += 6;
+                    break;
+                case 6:
+                    proto_tree_add_item(atree, hf_nds_port, tvb, loffset, 2, FALSE);
+                    proto_tree_add_item(atree, hf_add_ref_tcp, tvb, loffset+2, 4, FALSE);
+                    loffset += 6;
+                    break;
+                default:
+                    proto_tree_add_text(atree, tvb, loffset, -1, "Unknown Address Type");
+                    /* unknown type so read the length field and then 
+                    * just skip the record and move on to the next */
+                    loffset += tvb_get_letohl(tvb, loffset - 4);
+                    break;
+        }
+        proto_item_set_end(aitem, tvb, loffset);
+        if(tvb_length_remaining(tvb, loffset) < 4 )
+        {
+                break;
+        }
+    }
+}
+                                
+void
+dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
+{
+    /* For an IP-only server, the 4-byte IP address is placed into the 4-byte NetworkAddress
+     * field of the NetworkAddressStruct, while the NetworkNodeAddress and NetworkSocket 
+     * fields are left blank. */
+    if (tvb_get_letohl(tvb, 12)==0) {
+        /* IP Address */
+        proto_tree_add_item(ncp_tree, hf_ncp_ip_address, tvb, 8, 4, FALSE);
+    }
+    else
+    {
+        /* IPX Address */
+        proto_tree_add_item(ncp_tree, hf_nds_net, tvb, 8, 4, FALSE);
+        proto_tree_add_item(ncp_tree, hf_nds_node, tvb, 12, 6, FALSE);
+        proto_tree_add_item(ncp_tree, hf_nds_socket, tvb, 18, 2, FALSE);
+    }
+    proto_tree_add_item(ncp_tree, hf_ncp_connection_type, tvb, 20, 1, TRUE);
+}
+
+void
+dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree, 
+                      const ncp_record	*ncp_rec, ncp_req_hash_value *request_value)
+{
+    guint16 x;
+    guint32 loffset, number_of_items, str_length;
+	ptvcursor_t			*ptvc = NULL;
+    proto_tree              *atree, *btree;
+    proto_item              *aitem, *bitem;
+
+    proto_tree_add_item(ncp_tree, hf_ncp_search_sequence, tvb, 8, 9, TRUE);
+    proto_tree_add_item(ncp_tree, hf_ncp_more_flag, tvb, 17, 1, TRUE);
+    number_of_items = tvb_get_letohs(tvb, 18);
+    proto_tree_add_item(ncp_tree, hf_ncp_info_count, tvb, 18, 2, TRUE);
+    loffset = 20;
+    for (x = 1; x <= number_of_items; x++ )
+    {
+        aitem = proto_tree_add_text(ncp_tree, tvb, loffset, -1, "Information Item %d", x);
+        atree = proto_item_add_subtree(aitem, ett_ncp);
+        /* Data Stream Space Allocated */
+        if (request_value->req_mask & 0x0002) {
+            proto_tree_add_item(atree, hf_ncp_data_stream_space_alloc, tvb, loffset, 4, TRUE);
+            loffset += 4;
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 4;
+            }
+        }
+        /* Attributes */
+        if (request_value->req_mask & 0x0004) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Attributes");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_attributes_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 6;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 6;
+            }
+        }
+        /* Data Stream Size */
+        if (request_value->req_mask & 0x0008) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Data Stream Size");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            proto_tree_add_item(btree, hf_ncp_data_stream_size, tvb, loffset, 4, TRUE);
+            loffset += 4;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 4;
+            }
+        }
+        /* Total Stream Size */
+        if (request_value->req_mask & 0x0010) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Total Stream Size");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            proto_tree_add_item(btree, hf_ncp_ttl_ds_disk_space_alloc, tvb, loffset, 4, TRUE);
+            proto_tree_add_item(btree, hf_ncp_number_of_data_streams, tvb, loffset+4, 2, TRUE);
+            loffset += 6;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 6;
+            }
+        }
+        /* Extended Attributes new style location*/
+        if (request_value->req_mask & 0x0020 && ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Extended Attributes");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 12;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && ncp_newstyle) {
+                loffset += 12;
+            }
+        }
+        /* Creation Information old style location */
+        if (request_value->req_mask & 0x0100 && !ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Creation");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
+                loffset += 8;
+            }
+        }
+        /* Modification Information */
+        if (request_value->req_mask & 0x0080) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Modification");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_modify_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 10;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 10;
+            }
+        }
+        /* Creation Information new style location */
+        if (request_value->req_mask & 0x0100 && ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Creation");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && ncp_newstyle) {
+                loffset += 8;
+            }
+        }
+        /* Archive Information */
+        if (request_value->req_mask & 0x0040) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Archive");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_archive_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 8;
+            }
+        }
+        /* Rights Information */
+        if (request_value->req_mask & 0x0800) {
+            ptvc = ptvcursor_new(atree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_rights_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 2;
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 2;
+            }
+        }
+        /* Directory Entry */
+        if (request_value->req_mask & 0x0400) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Directory Entry");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_dir_entry_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 12;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 12;
+            }
+        }
+        /* Extended Attributes oldstyle location*/
+        if (request_value->req_mask & 0x0020 && !ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Extended Attributes");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 12;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
+                loffset += 12;
+            }
+        }
+        /* Name Space Information */
+        if (request_value->req_mask & 0x0200) {
+            proto_tree_add_item(atree, hf_ncp_creator_name_space_number, tvb, loffset, 1, TRUE);
+            loffset += 4;
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
+                loffset += 4;
+            }
+        }
+        if (request_value->req_mask & 0x1000) {
+            proto_tree_add_item(atree, hf_ncp_curr_ref_id, tvb, loffset, 2, TRUE);
+            loffset += 2;
+        }
+        if (request_value->req_mask & 0x2000) {
+            proto_tree_add_item(atree, hf_ncp_attr_def_32, tvb, loffset, 1, TRUE);
+            loffset += 4;
+        }
+        if (request_value->req_mask & 0x4000) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Actual");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            proto_tree_add_item(btree, hf_ncp_data_stream_num_long, tvb, loffset, 4, TRUE);
+            proto_tree_add_item(btree, hf_ncp_data_stream_fat_blks, tvb, loffset+4, 4, TRUE);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        if (request_value->req_mask & 0x8000) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Logical");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            proto_tree_add_item(btree, hf_ncp_data_stream_num_long, tvb, loffset, 4, TRUE);
+            proto_tree_add_item(btree, hf_ncp_data_stream_size, tvb, loffset+4, 4, TRUE);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        if (request_value->req_mask_ext & 0x0001 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_sec_rel_to_y2k, tvb, loffset, 4, TRUE);
+            loffset += 4;
+        }
+        if (request_value->req_mask_ext & 0x0002 && ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "DOS Name");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            if (ncp_rec->func == 0x57) {
+                str_length = tvb_get_guint8(tvb, loffset);
+                loffset += 1;
+            }
+            else
+            {
+                str_length = tvb_get_letohs(tvb, loffset);
+                loffset += 2;
+            }
+            proto_tree_add_item(btree, hf_ncp_file_name_12, tvb, loffset, str_length, FALSE);
+            loffset += str_length;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        if (request_value->req_mask_ext & 0x0004 && ncp_newstyle) {
+            ptvc = ptvcursor_new(atree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_flush_time_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 4;
+        }
+        if (request_value->req_mask_ext & 0x0008 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_parent_base_id, tvb, loffset, 4, TRUE);
+            loffset += 4;
+        }
+        if (request_value->req_mask_ext & 0x0010 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_mac_finder_info, tvb, loffset, 32, TRUE);
+            loffset += 32;
+        }
+        if (request_value->req_mask_ext & 0x0020 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_sibling_count, tvb, loffset, 4, TRUE);
+            loffset += 4;
+        }
+        if (request_value->req_mask_ext & 0x0040 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_effective_rights, tvb, loffset, 1, TRUE);
+            loffset += 4;
+        }
+        if (request_value->req_mask_ext & 0x0080 && ncp_newstyle) {
+            bitem = proto_tree_add_text(atree, tvb, loffset, -1, "Mac Date");
+            btree = proto_item_add_subtree(bitem, ett_ncp);
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_mac_time_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        if (request_value->req_mask_ext & 0x0100 && ncp_newstyle) {
+            ptvc = ptvcursor_new(atree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_last_access_time_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 2;
+        }
+        if (request_value->req_mask_ext & 0x0400 && ncp_newstyle) {
+            proto_tree_add_item(atree, hf_ncp_f_size_64bit, tvb, loffset, 8, TRUE);
+            loffset += 8;
+        }
+        /* We always return the file name */
+        if (ncp_rec->func == 0x57) {
+            str_length = tvb_get_guint8(tvb, loffset);
+            loffset += 1;
+        }
+        else
+        {
+            str_length = tvb_get_letohs(tvb, loffset);
+            loffset += 2;
+        }
+        proto_tree_add_item(atree, hf_ncp_file_name_12, tvb, loffset, str_length, FALSE);
+        loffset += str_length;
+
+        proto_item_set_end(aitem, tvb, loffset);
+
+        if(tvb_length_remaining(tvb, loffset) < 4 )
+        {
+                break;
+        }
+    }
+}
+
 /*
  * Defrag logic 
  *
@@ -5141,6 +5620,11 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
     /* If this isn't an NDS packet then just return */
     if (!request_value->ncp_rec ||
          request_value->ncp_rec->func!=104 || request_value->ncp_rec->subfunc!=2) {
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
+        return;
+    }
+    /* Check to see if there is at least enough packet info to get the fragment flag */
+    if (tvb_reported_length_remaining(tvb, 12) < 4) {
         dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
         return;
     }
@@ -5340,10 +5824,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree		*temp_tree = NULL;
 	volatile gboolean	run_req_cond = FALSE;
 	volatile gboolean	run_info_str = FALSE;
-        guint32                 length_remaining;
-        guint32                 testvar;
-        unsigned long           except_code;
-        const char              *message;
+    guint32                 length_remaining;
+    guint32                 testvar;
+    unsigned long           except_code;
+    const char              *message;
 
 	func = tvb_get_guint8(tvb, 6);
 
@@ -5419,11 +5903,13 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         			col_add_fstr(pinfo->cinfo, COL_INFO,
         				"C Unknown Function %u %u (0x%02X/0x%02x)",
         				func, subfunc, func, subfunc);
+                    return;
         		}
         		else {
         			col_add_fstr(pinfo->cinfo, COL_INFO,
         				"C Unknown Function %u (0x%02x)",
         				func, func);
+                    return;
         		}
         	}
         }
@@ -5446,7 +5932,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
 		request_value->req_frame_num = pinfo->fd->num;
-		request_value->req_frame_time=pinfo->fd->abs_ts;
+		request_value->req_frame_time = pinfo->fd->abs_ts;
 
 		/* If this is the first time we're examining the packet,
 		 * check to see if this NCP type uses a "request condition".
@@ -5525,12 +6011,17 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 				; /* nothing */
 				break;
 		}
-
+        if (request_value) {
+            request_value->length = 0;
+        }
 		if (requires_subfunc) {
 			if (has_length) {
+                if (request_value && func==123) {
+                    request_value->length = tvb_get_ntohs(tvb, 7);
+                }
 				proto_tree_add_item(ncp_tree, hf_ncp_length, tvb, 7,
 					2, FALSE);
-				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 9, 1,
+                proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 9, 1,
 					subfunc, "SubFunction: %u (0x%02x)",
 					subfunc, subfunc);
 				ptvc = ptvcursor_new(ncp_tree, tvb, 10);
@@ -5546,7 +6037,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			ptvc = ptvcursor_new(ncp_tree, tvb, 7);
 		}
 
-		/* The group is not part of the packet, but it's useful
+        /* The group is not part of the packet, but it's useful
 		 * information to display anyway. Put it in the tree for filtering and tap use*/
 		if (ncp_rec) {
 	        proto_tree_add_uint_format(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "Group: %s", ncp_groups[ncp_rec->group]);
@@ -5712,7 +6203,16 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
 			}
 		}
-
+        /* Store NCP request specific flags for manual dissection */
+        if ((func == 0x57 || func == 0x59) && subfunc == 0x14 && ncp_tree && request_value) {
+            char ret_info_string[16];
+            char ret_info_string_ext[16];
+            
+            build_expert_data(ncp_tree, "ncp.ret_info_mask", ret_info_string, 0, FALSE);
+            request_value->req_mask = atoi(ret_info_string);
+            build_expert_data(ncp_tree, "ncp.ext_info", ret_info_string_ext, 0, FALSE);
+            request_value->req_mask_ext = atoi(ret_info_string_ext);
+        }
         /* Check to see if we need to report to the expert table */
         trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 0);
 		/* Free the temporary proto_tree */
@@ -6159,10 +6659,10 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[1].vtype = VTYPE_UINT32;
                                                         pvalues[1].vdesc = "Entry ID: 0x%08x";
-                                                        add_eid = TRUE;
+                                                        /*add_eid = TRUE;
                                                         resolve_eid = TRUE;
                                                         global_eid = pvalues[1].vvalue;
-                                                        strcpy(global_object_name, request_value->object_name);
+                                                        strcpy(global_object_name, request_value->object_name);*/
                                                         pvalues[1].vlength = 4;
                                                         pvalues[1].voffset = nds_offset;
                                                         pvalues[1].hfname = hf_nds_eid;
@@ -7038,7 +7538,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
         if (type == NCP_SERVICE_REPLY && ncp_rec && ncp_rec->func==0x68 &&
-            ncp_rec->subfunc==0x02)
+            ncp_rec->subfunc==0x02 && (tvb_reported_length_remaining(tvb, 8) >= 8))
         {
                 nds_offset = 8;
                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
@@ -7105,8 +7605,23 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if (ncp_tree) {
-		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
+        guint8    conn_stat;
+
+        conn_stat = tvb_get_guint8(tvb, 7);
+		expert_item = proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
 		    7, 1, FALSE);
+        if (conn_stat != 0 && conn_stat != 0x40 ) {
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_set_str(pinfo->cinfo, COL_INFO,
+                    "Error: Bad Connection Status");
+            }
+            if (ncp_echo_err) {
+                expert_add_info_format(pinfo, expert_item,
+                    PI_RESPONSE_CODE, PI_ERROR,
+                    "Error: Bad Connection Status");
+            }
+            return;
+        }
 	}
 	/*
 	 * Unless this is a successful reply, that's all there
@@ -7138,11 +7653,15 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         dissect_nds_reply(tvb, pinfo, ncp_tree, nds_error_code,
                             nds_error_string, request_value, conversation);
                 }
-                /* Echo expert data for connection request/reply */
-                /*if (ncp_rec->func == 241 && ncp_echo_conn) {
-                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection %d Established", nw_connection);
-                } */
-                if (ncp_rec->func == 245 && ncp_echo_conn) {
+                /* Due to lack of group repeat fields in reply structure, decode this ncp 87/20 reply manually here. */
+                if ((ncp_rec->func == 0x57 || ncp_rec->func == 0x59) && ncp_rec->subfunc == 0x14) {
+                        dissect_ncp_8x20reply(tvb, ncp_tree, ncp_rec, request_value);
+                }
+                /* Process ncp 23/26 address records manually to format correctly. */
+                if (ncp_rec->func == 0x17 && ncp_rec->subfunc == 0x1a) {
+                        dissect_ncp_23_26_reply(tvb, ncp_tree);
+                }
+                if (ncp_rec->func == 5 && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed");
                 }
                 if (ncp_rec->reply_ptvc) {
@@ -7182,6 +7701,31 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         process_ptvc_record(ptvc, ncp_rec->reply_ptvc,
                                 req_cond_results, TRUE, ncp_rec);
                         ptvcursor_free(ptvc);
+
+                        /* Echo the NDS EID and name for NCP 22,51 replies to expert tap */
+                        if (!pinfo->fd->flags.visited && ncp_rec->func == 0x16 && ncp_rec->subfunc == 0x33) {
+
+                            char    eid_string[10];
+                            char    global_object_name[256];
+                            
+                            build_expert_data(ncp_tree, "ncp.directory_services_object_id", eid_string, 0, TRUE);
+                            build_expert_data(ncp_tree, "ncp.volume_name_len", global_object_name, 0, FALSE);
+                            
+                            /* Echo EID data to expert Chat window */
+                            if (nds_echo_eid) {
+                                expert_add_info_format(pinfo, NULL,
+                                    PI_RESPONSE_CODE, PI_CHAT,
+                                    "EID (%s) = %s", eid_string, global_object_name);
+                            }
+                        }
+                        /* Process ncp 123/17 address records manually to format correctly. */
+                        if (ncp_rec->func == 0x7b && ncp_rec->subfunc == 0x11) {
+                                dissect_ncp_123_17_reply(tvb, ncp_tree);
+                        }
+                        /* Process ncp 123/11 NLM names manually to format correctly. */
+                        if (ncp_rec->func == 0x7b && ncp_rec->subfunc == 0x0b && request_value) {
+                                dissect_ncp_123_11_reply(tvb, ncp_tree, request_value);
+                        }
                 }
                 /* Check to see if we need to report to the expert table */
                 trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 1);
@@ -9177,10 +9721,125 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2a:    
-                                pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
+                                pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
+                                nds_version = pvalues[0].vvalue;
+                                pvalues[0].vtype = VTYPE_UINT32;
+                                pvalues[0].vdesc = "Version: %u";
+                                pvalues[0].vlength = 4;
+                                pvalues[0].hfname = hf_nds_ver;
+                                pvalues[0].voffset = foffset;
+                                foffset = foffset+pvalues[0].vlength;
+                                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                nds_version = pvalues[1].vvalue;
+                                pvalues[1].vtype = VTYPE_UINT32;
+                                pvalues[1].vdesc = "Flags: 0x%08x";
+                                pvalues[1].vlength = 4;
+                                pvalues[1].hfname = hf_nds_req_flags;
+                                pvalues[1].voffset = foffset;
+                                foffset = foffset+pvalues[1].vlength;
+                                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[2].vtype = VTYPE_UINT32;
+                                pvalues[2].vdesc = "Destination Parent Entry ID: 0x%08x";
+                                pvalues[2].vlength = 4;
+                                resolve_eid = TRUE;
+                                global_eid = pvalues[2].vvalue;
+                                pvalues[2].voffset = foffset;
+                                pvalues[2].hfname= hf_nds_eid;
+                                foffset = foffset+pvalues[2].vlength;
+                                resolve_eid = TRUE;
+                                global_eid = pvalues[2].vvalue;
+                                pvalues[3].vtype = VTYPE_STRING;
+                                pvalues[3].vdesc = "New RDN: %s";
+                                pvalues[3].mvtype = 0;
+                                pvalues[3].vvalue = 0;
+                                pvalues[3].vlength = 256;
+                                pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
+                                pvalues[3].voffset = foffset+4;
+                                foffset = foffset + 4;
+                                get_string(tvb, pvalues[3].voffset, pvalues[3].vlength, pvalues[3].vstring);
+                                pvalues[3].hfname= hf_nds_new_rdn;
+                                foffset = foffset+pvalues[3].vlength;
+                                foffset += align_4(tvb, foffset);
+                                pvalues[4].vtype = VTYPE_STRING;
+                                pvalues[4].vdesc = "Source Server Name: %s";
+                                pvalues[4].mvtype = 0;
+                                pvalues[4].vvalue = 0;
+                                pvalues[4].vlength = 256;
+                                pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
+                                if (pvalues[4].vlength == 0x00)
+                                {
+                                        pvalues[4].vtype = VTYPE_NONE;
+                                        break;
+                                }
+                                pvalues[4].voffset = foffset+4;
+                                foffset = foffset + 4;
+                                get_string(tvb, pvalues[4].voffset, pvalues[4].vlength, pvalues[4].vstring);
+                                pvalues[4].hfname= hf_nds_target_name;
                                 break;
                         case 0x2b:    
-                                pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
+                                pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
+                                nds_version = pvalues[0].vvalue;
+                                pvalues[0].vtype = VTYPE_UINT32;
+                                pvalues[0].vdesc = "Version: %u";
+                                pvalues[0].vlength = 4;
+                                pvalues[0].hfname = hf_nds_ver;
+                                pvalues[0].voffset = foffset;
+                                foffset = foffset+pvalues[0].vlength;
+                                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                nds_version = pvalues[1].vvalue;
+                                pvalues[1].vtype = VTYPE_UINT32;
+                                pvalues[1].vdesc = (char *)match_strval(pvalues[1].vvalue, nds_verb2b_flag_vals);
+                                if(pvalues[1].vdesc == NULL)
+                                {
+                                        pvalues[1].vdesc = "No Flag Definition Found";
+                                }
+                                pvalues[1].vlength = 4;
+                                pvalues[1].hfname = hf_nds_verb2b_req_flags;
+                                pvalues[1].voffset = foffset;
+                                foffset = foffset+pvalues[1].vlength;
+                                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[2].vtype = VTYPE_UINT32;
+                                pvalues[2].vdesc = "Source Entry ID: 0x%08x";
+                                pvalues[2].vlength = 4;
+                                resolve_eid = TRUE;
+                                global_eid = pvalues[2].vvalue;
+                                pvalues[2].voffset = foffset;
+                                pvalues[2].hfname= hf_nds_eid;
+                                foffset = foffset+pvalues[2].vlength;
+                                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[3].vtype = VTYPE_UINT32;
+                                pvalues[3].vdesc = "Destination Parent Entry ID: 0x%08x";
+                                pvalues[3].vlength = 4;
+                                pvalues[3].voffset = foffset;
+                                pvalues[3].hfname= hf_nds_eid;
+                                foffset = foffset+pvalues[3].vlength;
+                                pvalues[4].vtype = VTYPE_STRING;
+                                pvalues[4].vdesc = "New RDN: %s";
+                                pvalues[4].mvtype = 0;
+                                pvalues[4].vvalue = 0;
+                                pvalues[4].vlength = 256;
+                                pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
+                                pvalues[4].voffset = foffset+4;
+                                foffset = foffset + 4;
+                                get_string(tvb, pvalues[4].voffset, pvalues[4].vlength, pvalues[4].vstring);
+                                pvalues[4].hfname= hf_nds_new_rdn;
+                                foffset = foffset+pvalues[4].vlength;
+                                foffset += align_4(tvb, foffset);
+                                pvalues[5].vtype = VTYPE_STRING;
+                                pvalues[5].vdesc = "Source Server Name: %s";
+                                pvalues[5].mvtype = 0;
+                                pvalues[5].vvalue = 0;
+                                pvalues[5].vlength = 256;
+                                pvalues[5].vlength = tvb_get_letohl(tvb, foffset);
+                                if (pvalues[5].vlength == 0x00)
+                                {
+                                        pvalues[5].vtype = VTYPE_NONE;
+                                        break;
+                                }
+                                pvalues[5].voffset = foffset+4;
+                                foffset = foffset + 4;
+                                get_string(tvb, pvalues[5].voffset, pvalues[5].vlength, pvalues[5].vstring);
+                                pvalues[5].hfname= hf_nds_target_name;
                                 break;
                         case 0x2c:    
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */

@@ -68,6 +68,7 @@ extern gboolean ncp_echo_err;
 extern gboolean ncp_echo_conn;
 extern gboolean ncp_echo_server;
 extern gboolean ncp_echo_file;
+extern gboolean ncp_newstyle;
 
 struct _sub_ptvc_record {
 	gint			*ett;
@@ -118,6 +119,7 @@ typedef struct {
 	gboolean		*req_cond_results;
 	guint32			req_frame_num;
 	nstime_t		req_frame_time;
+    guint16         length;
 	guint32			req_nds_flags;
 	guint8			nds_request_verb;
 	guint8			nds_version;
@@ -125,6 +127,8 @@ typedef struct {
 	gboolean		nds_frag;
 	guint32			nds_end_frag;
     guint32         nds_frag_num;
+    guint16         req_mask;
+    guint16         req_mask_ext;
 } ncp_req_hash_value;
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,

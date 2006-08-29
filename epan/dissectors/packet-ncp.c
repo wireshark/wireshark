@@ -354,8 +354,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         /* Check to see if this is a valid offset, otherwise increment for packet signature */
         if (match_strval(tvb_get_ntohs(tvb, commhdr), ncp_type_vals)==NULL) {
-            proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, FALSE);
-            commhdr += 8;
+            /* Check to see if we have a valid type after packet signature length */
+            if (match_strval(tvb_get_ntohs(tvb, commhdr+8), ncp_type_vals)!=NULL) {
+                proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, FALSE);
+                commhdr += 8;
+            }
         }
     }
     header.type		    = tvb_get_ntohs(tvb, commhdr);
@@ -1067,6 +1070,10 @@ proto_register_ncp(void)
     "Reassemble fragmented NDS messages spanning multiple reply packets",
     "Whether the NCP dissector should defragment NDS messages spanning multiple reply packets.",
      &nds_defragment);
+  prefs_register_bool_preference(ncp_module, "newstyle",
+    "Dissect New Netware Information Structure",
+    "Dissect the NetWare Information Structure as NetWare 5.x or higher or as older NetWare 3.x.",
+     &ncp_newstyle);
   prefs_register_bool_preference(ncp_module, "eid_2_expert",
     "Expert: EID to Name lookups?",
     "Whether the NCP dissector should echo the NDS Entry ID to name resolves to the expert table.",
@@ -1085,7 +1092,7 @@ proto_register_ncp(void)
     &ncp_echo_server);
   prefs_register_bool_preference(ncp_module, "file_2_expert",
     "Expert: File Information?",
-    "Whether the NCP dissector should echo file information to the expert table.",
+    "Whether the NCP dissector should echo file open/close/oplock information to the expert table.",
     &ncp_echo_file);
   register_init_routine(&mncp_init_protocol);
   ncp_tap.stat=register_tap("ncp_srt");
