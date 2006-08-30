@@ -391,6 +391,10 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Previous File", NULL, fileset_previous_cb, 0, WIRESHARK_STOCK_FILE_SET_PREVIOUS),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+    ITEM_FACTORY_ENTRY("/File/Export/File...", NULL, export_text_cmd_cb,
+                         0, NULL, NULL),
+#else
     ITEM_FACTORY_ENTRY("/File/Export/as \"Plain _Text\" file...", NULL, export_text_cmd_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as \"_PostScript\" file...", NULL, export_ps_cmd_cb,
@@ -403,6 +407,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/File/Export/as XML - \"P_DML\" (packet details) file...", NULL, export_pdml_cmd_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+#endif
     ITEM_FACTORY_ENTRY("/File/Export/Selected Packet _Bytes...", "<control>H", savehex_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
