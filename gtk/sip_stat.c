@@ -140,6 +140,7 @@ static const value_string vals_status_code[] = {
     { 489, "Bad Event"},
     { 491, "Request Pending"},
     { 493, "Undecipherable"},
+    { 494, "Security Agreement Required"},
     { 499, "Client Error - Others"},
 
     { 500, "Server Internal Error"},
@@ -159,6 +160,9 @@ static const value_string vals_status_code[] = {
 
     { 0, 	NULL}
 };
+
+void register_tap_listener_gtksipstat(void);
+
 
 /* Create tables for responses and requests */
 static void

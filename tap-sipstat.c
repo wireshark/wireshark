@@ -118,6 +118,7 @@ static const value_string vals_status_code[] = {
     { 489, "Bad Event"},
     { 491, "Request Pending"},
     { 493, "Undecipherable"},
+    { 494, "Security Agreement Required"},
     { 499, "Client Error - Others"},
 
     { 500, "Server Internal Error"},
