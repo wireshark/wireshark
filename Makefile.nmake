@@ -237,7 +237,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
-	    -e "s/@HAVE_PORTAUDIO@/$(AIRPCAP_CONFIG)/" \
+	    -e "s/@HAVE_PORTAUDIO@/$(PORTAUTO_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
