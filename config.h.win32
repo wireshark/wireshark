@@ -220,6 +220,9 @@
 @HAVE_LUA@
 @HAVE_LUA_5_1@
 
+/* Define to use Portaudio library */
+@HAVE_PORTAUDIO@
+
 #ifndef WIN32
 #define WIN32			1
 #endif

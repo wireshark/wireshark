@@ -28,6 +28,7 @@ noinst_LIBRARIES = libui.a
 CLEANFILES = \
 	libui.a		\
 	*~
+SUBDIRS = codecs
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
@@ -91,6 +92,7 @@ noinst_HEADERS = \
 	range_utils.h \
 	recent.h	\
 	rtp_analysis.h	\
+	rtp_player.h 	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	mcast_stream.h  \
@@ -111,10 +113,18 @@ noinst_HEADERS = \
 	webbrowser.h
 
 if USE_GTK2
+if HAVE_LIBPORTAUDIO
+libui_a_SOURCES = \
+	$(WIRESHARK_GTK_SRC) \
+	$(noinst_HEADERS) \
+	$(WIRESHARK_TAP_SRC) \
+	rtp_player.c
+else
 libui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
+endif
 else
 libui_a_SOURCES = \
 	ethclist.c	\

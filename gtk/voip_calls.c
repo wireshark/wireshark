@@ -124,6 +124,13 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	GList* list;
 	GList* list2;
 
+	/* reset the RTP player */
+#if GTK_MAJOR_VERSION >= 2
+#ifdef PORTAUDIO_DIR
+	reset_rtp_player();
+#endif
+#endif
+
 	/* free the data items first */
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
@@ -190,7 +197,6 @@ void graph_analysis_data_init(void){
 	the_tapinfo_struct.graph_analysis = g_malloc(sizeof(graph_analysis_info_t));
 	the_tapinfo_struct.graph_analysis->nconv = 0;
 	the_tapinfo_struct.graph_analysis->list = NULL;
-
 }
 
 /****************************************************************************/
@@ -466,7 +472,7 @@ static void voip_rtp_reset(void *ptr _U_)
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
 static int 
-RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *RTPinfo)
+RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void const *RTPinfo)
 {
 	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
 	voip_rtp_stream_info_t *tmp_listinfo;
@@ -481,7 +487,14 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		return 0;
 	}
 
-	/* check whether we already have a RTP stream with this setup frame and ssrc in the list */
+	/* add this RTP for future listening using the RTP Player*/
+#if GTK_MAJOR_VERSION >= 2
+#ifdef PORTAUDIO_DIR
+	add_rtp_packet(pi, pinfo);
+#endif
+#endif
+	
+	/* check wether we already have a RTP stream with this setup frame and ssrc in the list */
 	list = g_list_first(tapinfo->list);
 	while (list)
 	{
@@ -658,6 +671,10 @@ remove_tap_listener_rtp(void)
 
 	have_RTP_tap_listener=FALSE;
 }
+
+/* XXX just copied from gtk/rpc_stat.c */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
 /******************************TAP for T38 **********************************/

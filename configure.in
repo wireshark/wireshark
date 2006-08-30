@@ -821,6 +821,41 @@ fi
 AM_CONDITIONAL(HAVE_LIBLUA, test x$want_lua = xyes)
 
 
+dnl portaudio check
+AC_MSG_CHECKING(whether to use libportaudio for the rtp_player)
+
+AC_ARG_WITH(portaudio,
+[  --with-portaudio[[=DIR]]  use libportaudio (located in directory DIR, if supplied) for the rtp_player.  [[default=no]]],
+[
+	if test $withval = no
+	then
+		want_portaudio=no
+	elif test $withval = yes
+	then
+		want_portaudio=yes
+	else
+		want_portaudio=yes
+		portaudio_dir=$withval
+	fi
+],[
+	#
+	# Don't use libportaudio by default
+	#
+	want_portaudio=no
+	portaudio_dir=
+])
+if test "x$want_portaudio" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_LIBPORTAUDIO_CHECK
+	if test "x$want_portaudio" = "xno" ; then
+		AC_MSG_RESULT(libportaudio not found - disabling support for the rtp_player)
+	fi
+fi
+AM_CONDITIONAL(HAVE_LIBPORTAUDIO, test x$want_portaudio = xyes)
+
+
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
 [  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],enable_ipv6=$enableval,enable_ipv6=yes)
@@ -1313,6 +1348,7 @@ AC_OUTPUT(
   epan/dissectors/Makefile
   epan/ftypes/Makefile
   gtk/Makefile
+  gtk/codecs/Makefile
   gtk/doxygen.cfg
   help/Makefile
   packaging/Makefile
@@ -1381,6 +1417,12 @@ else
 	lua_message="no"
 fi
 
+if test "x$want_portaudio" = "xyes" ; then
+	portaudio_message="yes"
+else
+	portaudio_message="no"
+fi
+
 if test "x$want_ssl" = "xno" ; then
 	ssl_message="no"
 else
@@ -1423,6 +1465,7 @@ echo ""
 echo "                     Install setuid : $setuid_message"
 echo "                        Use plugins : $have_plugins"
 echo "                   Build lua plugin : $lua_message"
+echo "                   Build rtp_player : $portaudio_message"
 echo "                Use GTK+ v2 library : $enable_gtk2"
 if test "x$enable_gtk2" = "xyes" ; then
 echo "                       Use threads : $enable_threads"

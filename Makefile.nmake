@@ -237,6 +237,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
+	    -e "s/@HAVE_PORTAUDIO@/$(AIRPCAP_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -529,6 +530,11 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. gnutls-1.5.0-1.zip
 !ENDIF
+!IFDEF PORTAUDIO_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		. portaudio_v18_1.zip
+!ENDIF
+
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \

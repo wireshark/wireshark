@@ -285,6 +285,7 @@ wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
 # linked into the wireshark executable.
 wireshark_additional_libs = \
 	gtk/libui.a		\
+	gtk/codecs/libcodec.a	\
 	wiretap/libwiretap.la	\
 	epan/libwireshark.la
 
@@ -317,7 +318,8 @@ wireshark_LDADD = \
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@
+	@LIBGNUTLS_LIBS@		\
+	@PORTAUDIO_LIBS@
 
 # Additional libs that I know how to build. These will be
 # linked into the tshark executable.

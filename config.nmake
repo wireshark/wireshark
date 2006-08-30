@@ -177,6 +177,16 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 
 #
+# If you have the PORTAUDIO library (used por rtp_player), 
+# set this to the pathname of the directory in which the PORTAUDIO
+# package has been extracted.
+#
+# If you don't have PORTAUDIO, comment this line out, so that 
+# PORTAUDIO_DIR isn't defined.
+#
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+
+#
 # Set ICONV_DIR to the pathname of the directory in which the
 # ICONV include files and library resides.
 #
@@ -479,6 +489,13 @@ LUA_VERSION=^#define HAVE_LUA_5_1 1
 LUA_CFLAGS=
 LUA_LIBS=
 LUA_CONFIG=
+!ENDIF
+
+!IFDEF PORTAUDIO_DIR
+# Nmake uses carets to escape special characters
+PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
+!else
+PORTAUDIO_CONFIG=
 !ENDIF
 
 # Construct the path

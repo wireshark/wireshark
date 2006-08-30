@@ -961,6 +961,133 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 ])
 
 #
+# AC_WIRESHARK_LIBPORTAUDIO_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
+
+	if test "x$portaudio_dir" != "x"
+	then
+		#
+		# The user specified a directory in which libportaudio
+		# resides, so add the "include" subdirectory of that directory to
+		# the include file search path and the "lib" subdirectory
+		# of that directory to the library search path.
+		#
+		# XXX - if there's also a libportaudio in a directory that's
+		# already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+		# make us find the version in the specified directory,
+		# as the compiler and/or linker will search that other
+		# directory before it searches the specified directory.
+		#
+		wireshark_save_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS -I$portaudio_dir/include"
+		wireshark_save_CPPFLAGS="$CPPFLAGS"
+		CPPFLAGS="$CPPFLAGS -I$portaudio_dir/include"
+		wireshark_save_LIBS="$LIBS"
+		LIBS="$LIBS -L$portaudio_dir/lib -lportaudio"
+		wireshark_save_LDFLAGS="$LDFLAGS"
+		LDFLAGS="$LDFLAGS -L$portaudio_dir/lib"
+	else 
+		#
+		# The user specified no directory in which libportaudio resides,
+		# so just add "-lportaudio" to the used libs.
+		#
+		wireshark_save_CFLAGS="$CFLAGS"
+		wireshark_save_CPPFLAGS="$CPPFLAGS"
+		wireshark_save_LDFLAGS="$LDFLAGS"
+		wireshark_save_LIBS="$LIBS"
+		LIBS="$LIBS -lportaudio"
+	fi
+
+	#
+	# Make sure we have "portaudio.h".  If we don't, it means we probably
+	# don't have libportaudio, so don't use it.
+	#
+	AC_CHECK_HEADERS(portaudio.h,,
+	[
+		if test "x$portaudio_dir" != "x"
+		then
+			#
+			# The user used "--with-portaudio=" to specify a directory
+			# containing libportaudio, but we didn't find the header file
+			# there; that either means they didn't specify the
+			# right directory or are confused about whether libportaudio
+			# is, in fact, installed.  Report the error and give up.
+			#
+			AC_MSG_ERROR([libportaudio header not found in directory specified in --with-portaudio])
+		else
+			if test "x$want_portaudio" = "xyes"
+			then
+				#
+				# The user tried to force us to use the library, but we
+				# couldn't find the header file; report an error.
+				#
+				AC_MSG_ERROR(Header file portaudio.h not found.)
+			else
+				#
+				# We couldn't find the header file; don't use the
+				# library, as it's probably not present.
+				#
+				want_portaudio=no
+			fi
+		fi
+	])
+
+	if test "x$want_portaudio" != "xno"
+	then
+		#
+		# Well, we at least have the portaudio header file.
+		#
+		# let's check if the libs are there
+		#
+
+		AC_CHECK_LIB(portaudio, Pa_Initialize,
+		[
+			if test "x$portaudio_dir" != "x"
+			then
+				#
+				# Put the "-I" and "-L" flags for portaudio at
+				# the beginning of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS.
+				#
+				PORTAUDIO_LIBS="-L$portaudio_dir/lib -lportaudio"
+				PORTAUDIO_INCLUDES="-I$portaudio_dir/include"
+			else
+				PORTAUDIO_LIBS="-lportaudio"
+				PORTAUDIO_INCLUDES=""
+			fi
+			AC_DEFINE(HAVE_LIBPORTAUDIO, 1, [Define to use libportaudio library])
+		],[  
+			#
+			# Restore the versions of CFLAGS, CPPFLAGS,
+			# LDFLAGS, and LIBS before we added the
+			# "--with-portaudio=" directory, as we didn't
+			# actually find portaudio there.
+			#
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
+			PORTAUDIO_LIBS=""
+			# User requested --with-portaudio but it isn't available
+			if test "x$want_portaudio" = "xyes"
+			then
+				AC_MSG_ERROR(Linking with libportaudio failed.)
+			fi
+			want_portaudio=no
+		])
+
+	CFLAGS="$wireshark_save_CFLAGS"
+	CPPFLAGS="$wireshark_save_CPPFLAGS"
+	LDFLAGS="$wireshark_save_LDFLAGS"
+	LIBS="$wireshark_save_LIBS"
+	AC_SUBST(PORTAUDIO_LIBS)
+	AC_SUBST(PORTAUDIO_INCLUDES)
+
+	fi
+])
+
+#
 # AC_WIRESHARK_NETSNMP_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_NETSNMP_CHECK],

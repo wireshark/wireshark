@@ -44,7 +44,7 @@ case "$1" in
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath --unix "$2"`
+	DEST_PATH=`cygpath --dos "$2"`
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
