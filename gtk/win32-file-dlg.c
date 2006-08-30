@@ -66,6 +66,7 @@
 #include "capture_dlg.h"
 
 #include "win32-file-dlg.h"
+#include "help_dlg.h"
 
 typedef enum {
     merge_append,
@@ -127,6 +128,8 @@ static print_args_t   print_args;
  *       being opened/saved/etc., even on GTK+ 1.2[.x]).
  */
 static HWND           g_sf_hwnd = NULL;
+char *dfilter_open_str = NULL;
+char *dfilter_merge_str = NULL;
 
 gboolean
 win32_open_file (HWND h_wnd) {
@@ -134,6 +137,7 @@ win32_open_file (HWND h_wnd) {
     TCHAR  file_name[MAX_PATH] = _T("");
     int    err;
     char  *dirname;
+    dfilter_t *dfp;
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
        where appropriate */
@@ -153,7 +157,6 @@ win32_open_file (HWND h_wnd) {
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
-    /* XXX - Assuming that we're using UTF8 elsewhere. */
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
 	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
@@ -163,11 +166,12 @@ win32_open_file (HWND h_wnd) {
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
+    if(topic_available(HELP_OPEN_WIN32_DIALOG)) {
+        ofn.Flags |= OFN_SHOWHELP;
+    }
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = open_file_hook_proc;
     ofn.lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
-
-    /* XXX - Get our filter */
 
     if (GetOpenFileName(&ofn)) {
     g_free( (void *) ofn.lpstrFilter);
@@ -175,6 +179,12 @@ win32_open_file (HWND h_wnd) {
 	if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
 	    return FALSE;
 	}
+
+        /* apply our filter */
+        if (dfilter_compile(dfilter_open_str, &dfp)) {
+            cf_set_rfcode(&cfile, dfp);
+        }
+
 	switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
@@ -219,6 +229,9 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+    if(topic_available(HELP_SAVE_WIN32_DIALOG)) {
+        ofn.Flags |= OFN_SHOWHELP;
+    }
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = save_as_file_hook_proc;
     ofn.lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
@@ -302,6 +315,7 @@ win32_merge_file (HWND h_wnd) {
     char       *in_filenames[2];
     int         err;
     char       *tmpname;
+    dfilter_t *dfp;
 
     /* XXX - Check for temp file and prompt accordingly */
 
@@ -328,6 +342,9 @@ win32_merge_file (HWND h_wnd) {
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
+    if(topic_available(HELP_MERGE_WIN32_DIALOG)) {
+        ofn.Flags |= OFN_SHOWHELP;
+    }
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = merge_file_hook_proc;
     ofn.lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
@@ -365,8 +382,6 @@ win32_merge_file (HWND h_wnd) {
 	if(merge_status != CF_OK) {
 	    /* merge failed */
             g_free(tmpname);
-//	    if (rfcode != NULL)
-//		dfilter_free(rfcode);
 	    return;
 	}
 
@@ -378,15 +393,13 @@ win32_merge_file (HWND h_wnd) {
 	       just leave it around so that the user can, after they
 	       dismiss the alert box popped up for the open error,
 	       try again. */
-//	    if (rfcode != NULL)
-//		dfilter_free(rfcode);
             return;
 	}
 
-	/* Attach the new read filter to "cf" ("cf_open()" succeeded, so
-	   it closed the previous capture file, and thus destroyed any
-	   previous read filter attached to "cf"). */
-//	cfile.rfcode = rfcode;
+        /* apply our filter */
+        if (dfilter_compile(dfilter_merge_str, &dfp)) {
+            cf_set_rfcode(&cfile, dfp);
+        }
 
 	switch (cf_read(&cfile)) {
             case CF_READ_OK:
@@ -427,10 +440,13 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Export");
+    ofn.lpstrTitle = _T("Wireshark: Export File");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+    if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
+        ofn.Flags |= OFN_SHOWHELP;
+    }
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = export_file_hook_proc;
     ofn.lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
@@ -512,7 +528,6 @@ win32_export_raw_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_RAW;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -530,6 +545,9 @@ win32_export_raw_file(HWND h_wnd) {
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+    if(topic_available(HELP_EXPORT_BYTES_WIN32_DIALOG)) {
+        ofn.Flags |= OFN_SHOWHELP;
+    }
     ofn.lpstrDefExt = NULL;
     ofn.lCustData = cfile.finfo_selected->length;
     ofn.lpfnHook = export_raw_file_hook_proc;
@@ -574,7 +592,6 @@ win32_export_color_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -615,7 +632,6 @@ win32_import_color_file(HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    /* XXX - Grab the rest of the extension list from wireshark.nsi. */
     ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
@@ -891,7 +907,30 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 
 }
 
-// XXX - Copied from "filter-util.c" in the wireshark-win32 branch
+
+char *
+filter_tb_get(HWND hwnd) {
+    TCHAR     *strval = NULL;
+    gint       len;
+    char *ret;
+
+    /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
+     * the window */
+    len = GetWindowTextLength(hwnd);
+    if (len > 0) {
+        len++;
+        strval = g_malloc(len*sizeof(TCHAR));
+        len = GetWindowText(hwnd, strval, len);
+        ret = utf_16to8(strval);
+        g_free(strval);
+        return ret;
+    } else {
+        return "";
+    }
+}
+
+
+/* XXX - Copied from "filter-util.c" in the wireshark-win32 branch */
 /* XXX - The only reason for the "filter_text" parameter is to be able to feed
  * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
  */
@@ -911,8 +950,8 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         len = GetWindowTextLength(hwnd);
         if (len > 0) {
             len++;
-            strval = g_malloc(len);
-            GetWindowText(hwnd, strval, len);
+            strval = g_malloc(len*sizeof(TCHAR));
+            len = GetWindowText(hwnd, strval, len);
         }
     }
 
@@ -942,7 +981,11 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
 	case WM_INITDIALOG:
-	    /* XXX - Retain the filter text, and fill it in. */
+	    /* Retain the filter text, and fill it in. */
+            if(dfilter_open_str != NULL) {
+                cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
+                SetWindowText(cur_ctrl, utf_8to16(dfilter_open_str));
+            }
 
 	    /* Fill in our resolution values */
 	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
@@ -957,7 +1000,10 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	case WM_NOTIFY:
 	    switch (notify->hdr.code) {
 		case CDN_FILEOK:
-		    /* XXX - Fetch the read filter */
+		    /* Fetch the read filter */
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
+                    dfilter_open_str = filter_tb_get(cur_ctrl);
+
 		    /* Fetch our resolution values */
 		    g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
 		    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
@@ -977,6 +1023,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
 		    preview_set_filename(of_hwnd, utf_16to8(sel_name));
 		    break;
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_OPEN_WIN32_DIALOG);
+                    break;
 		default:
 		    break;
 	    }
@@ -1222,6 +1271,15 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		    break;
 	    }
 	    break;
+	case WM_NOTIFY:
+	    switch (notify->hdr.code) {
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_SAVE_WIN32_DIALOG);
+                    break;
+		default:
+		    break;
+	    }
+	    break;
 	default:
 	    break;
     }
@@ -1409,7 +1467,11 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
 	case WM_INITDIALOG:
-	    /* XXX - Retain the filter text, and fill it in. */
+	    /* Retain the filter text, and fill it in. */
+            if(dfilter_merge_str != NULL) {
+                cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
+                SetWindowText(cur_ctrl, utf_8to16(dfilter_merge_str));
+            }
 
 	    /* Append by default */
 	    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
@@ -1421,7 +1483,9 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	case WM_NOTIFY:
 	    switch (notify->hdr.code) {
 		case CDN_FILEOK:
-		    /* XXX - Fetch the read filter */
+		    /* Fetch the read filter */
+                    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
+                    dfilter_merge_str = filter_tb_get(cur_ctrl);
 
 		    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
 		    if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
@@ -1441,6 +1505,9 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
 		    preview_set_filename(mf_hwnd, utf_16to8(sel_name));
 		    break;
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_MERGE_WIN32_DIALOG);
+                    break;
 		default:
 		    break;
 	    }
@@ -1498,7 +1565,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			print_args.format = PR_FMT_TEXT;
 		    else
 			print_args.format = PR_FMT_PS;
-		    if (index == 3 || index == 4)
+		    if (index == 3 || index == 4 || index == 5)
 			pkt_fmt_enable = FALSE;
 		    else
 			pkt_fmt_enable = TRUE;
@@ -1507,6 +1574,9 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			EnableWindow(cur_ctrl, pkt_fmt_enable);
 		    }
 		    break;
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_EXPORT_FILE_WIN32_DIALOG);
+                    break;
 		default:
 		    break;
 	    }
@@ -1522,6 +1592,7 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
     TCHAR         raw_msg[100];
+    OFNOTIFY      *notify = (OFNOTIFY *) l_param;
 
     switch(msg) {
 	case WM_INITDIALOG:
@@ -1530,6 +1601,14 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
 	    cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
 	    SetWindowText(cur_ctrl, raw_msg);
 	    break;
+	case WM_NOTIFY:
+	    switch (notify->hdr.code) {
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_EXPORT_BYTES_WIN32_DIALOG);
+                    break;
+                default:
+                    break;
+            }
 	default:
 	    break;
     }
