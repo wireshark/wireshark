@@ -688,7 +688,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
   /* height + static offset + what GTK-Wimp needs in addition per interface */
-  height += requisition.height + 16 + ifs;
+  height += requisition.height + 20 + ifs;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
