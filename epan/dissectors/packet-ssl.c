@@ -211,6 +211,7 @@ static gint ett_ssl_extension         = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_dnames            = -1;
+static gint ett_ssl_random            = -1;
 static gint ett_pct_cipher_suites	  = -1;
 static gint ett_pct_hash_suites		  = -1;
 static gint ett_pct_cert_suites		  = -1;
@@ -1502,6 +1503,9 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
     /* show the client's random challenge */
     nstime_t gmt_unix_time;
     guint8  session_id_length;
+	proto_item *ti_rnd;
+	proto_tree *ssl_rnd_tree;
+
     session_id_length = 0;
 
     if (ssl)
@@ -1539,16 +1543,19 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
     if (tree)
     {
+		ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
+		ssl_rnd_tree = proto_item_add_subtree(ti_rnd, ett_ssl_random);
+
         /* show the time */
         gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
         gmt_unix_time.nsecs = 0;
-        proto_tree_add_time(tree, hf_ssl_handshake_random_time,
+        proto_tree_add_time(ssl_rnd_tree, hf_ssl_handshake_random_time,
                                      tvb, offset, 4, &gmt_unix_time);
         offset += 4;
 
         /* show the random bytes */
-        proto_tree_add_item(tree, hf_ssl_handshake_random_bytes,
-                            tvb, offset, 28, 0);
+        proto_tree_add_item(ssl_rnd_tree, hf_ssl_handshake_random_bytes,
+                            tvb, offset, 28, FALSE);
         offset += 28;
 
         /* show the session id */
@@ -3413,13 +3420,13 @@ proto_register_ssl(void)
             "Version selected by server", HFILL }
         },
         { &hf_ssl_handshake_random_time,
-          { "Random.gmt_unix_time", "ssl.handshake.random_time",
-            FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+          { "gmt_unix_time", "ssl.handshake.random_time",
+            FT_ABSOLUTE_TIME, 0, NULL, 0x0,
             "Unix time field of random structure", HFILL }
         },
         { &hf_ssl_handshake_random_bytes,
-          { "Random.bytes", "ssl.handshake.random",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+          { "random_bytes", "ssl.handshake.random_bytes",
+            FT_BYTES, 0, NULL, 0x0,
             "Random challenge used to authenticate server", HFILL }
         },
         { &hf_ssl_handshake_cipher_suites_len,
@@ -3696,6 +3703,7 @@ proto_register_ssl(void)
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_dnames,
+        &ett_ssl_random,
 	&ett_pct_cipher_suites,
 	&ett_pct_hash_suites,
 	&ett_pct_cert_suites,
