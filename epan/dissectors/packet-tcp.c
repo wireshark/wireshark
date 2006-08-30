@@ -2242,7 +2242,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
 	"Header length: %u bytes", tcph->th_hlen);
     tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 13, 1,
-	tcph->th_flags, "Flags: 0x%04x (%s)", tcph->th_flags, flags);
+	tcph->th_flags, "Flags: 0x%02x (%s)", tcph->th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, tvb, offset + 13, 1, tcph->th_flags);
