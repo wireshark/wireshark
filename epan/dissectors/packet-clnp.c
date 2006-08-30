@@ -2131,14 +2131,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Continue with COTP if any data.
          XXX - if this isn't the first Derived PDU of a segmented Initial
          PDU, skip that? */
-		g_warning("Gotcha");
       if (nsel == (char)tp_nsap_selector || always_decode_transport) {
         if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE)) {
           pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */
         }
       }
-	  g_warning("Trying heuristic");
       if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
 				  pinfo, tree))	{
           pinfo->fragmented = save_fragmented;
