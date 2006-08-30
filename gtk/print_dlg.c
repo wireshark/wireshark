@@ -762,9 +762,23 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   window_set_cancel_button(main_win, cancel_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel and exit dialog", NULL);
 
-  if(topic_available(HELP_PRINT_DIALOG)) {
-    help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PRINT_DIALOG);
+  if(action == output_action_print) {
+    if(topic_available(HELP_PRINT_DIALOG)) {
+      help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PRINT_DIALOG);
+    }
+  } else {
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+    if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
+      help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_FILE_WIN32_DIALOG);
+    }
+#else
+    if(topic_available(HELP_EXPORT_FILE_DIALOG)) {
+      help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_FILE_DIALOG);
+    }
+#endif
   }
 
   gtk_widget_grab_default(ok_bt);

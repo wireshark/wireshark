@@ -447,6 +447,26 @@ topic_action(topic_action_e action)
     case(HELP_PREFERENCES_DIALOG):
         ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustPreferencesSection.html");
         break;
+    case(HELP_EXPORT_FILE_DIALOG):
+    case(HELP_EXPORT_FILE_WIN32_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOExportSection.html");
+        break;
+    case(HELP_EXPORT_BYTES_DIALOG):
+    case(HELP_EXPORT_BYTES_WIN32_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOExportSection.html#ChIOExportSelectedDialog");
+        break;
+    case(HELP_OPEN_DIALOG):
+    case(HELP_OPEN_WIN32_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOOpenSection.html");
+        break;
+    case(HELP_MERGE_DIALOG):
+    case(HELP_MERGE_WIN32_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOMergeSection.html");
+        break;
+    case(HELP_SAVE_DIALOG):
+    case(HELP_SAVE_WIN32_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOSaveSection.html");
+        break;
 #else
     /* only some help pages are available for offline reading */
     case(HELP_CONTENT):
