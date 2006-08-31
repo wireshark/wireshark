@@ -2129,9 +2129,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!pinfo->fragmented && !pinfo->in_error_pkt) {
     if (reported_len < tcph->th_hlen) {
-      proto_tree_add_text(tcp_tree, tvb, offset, 0,
+      proto_item *pi;
+      pi = proto_tree_add_text(tcp_tree, tvb, offset, 0,
         "Short segment. Segment/fragment does not contain a full TCP header"
         " (might be NMAP or someone else deliberately sending unusual packets)");
+      PROTO_ITEM_SET_GENERATED(pi);
+      expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, "Short segment");
       tcph->th_have_seglen = FALSE;
     } else {
       /* Compute the length of data in this segment. */
