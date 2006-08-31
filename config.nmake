@@ -1,74 +1,50 @@
 # $Id$
 
 # Some more informations about the settings in this file, can be found 
-# in the file README.win32.
+# in the file README.win32 and the Developer's Guide (available online).
+
+
+
+##### Versions #####
 
 # The current Wireshark version
-# VERSION_EXTRA can be used for custom builds, e.g. "-SVN-12345"
+# It's highly recommended to leave MAJOR/MINOR/MICRO unchanged
 VERSION_MAJOR=0
 VERSION_MINOR=99
 VERSION_MICRO=4
+# It's recommended to change VERSION_EXTRA for your own custom builds
+# e.g. "-SVN-12345"
 VERSION_EXTRA=
-VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)$(VERSION_EXTRA)
 
-#
-# The RC_VERSION should be comma-separated, not dot-separated, 
-# as per Graham Bloice's message in
-#
-#	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
-#
-# "The RC_VERSION variable in config.nmake should be comma separated. 
-# This allows the resources to be built correctly and the version
-# number to be correctly displayed in the explorer properties dialog
-# for the executables, and XP's tooltip, rather than 0.0.0.0."
-#
-RC_VERSION=$(VERSION_MAJOR),$(VERSION_MINOR),$(VERSION_MICRO)
+# The version of the wiretap library (recommended: leave unchanged)
+WTAP_VERSION_MAJOR=0
+WTAP_VERSION_MINOR=3
 
-# The version of the wiretap library
-WTAP_VERSION=0.3
-RC_WTAP_VERSION=0,3
 
-#
-# If you're building with WinPcap 2.3, set WINPCAP_VERSION to 2.3; if
-# you're building with WinPcap 3.0, set it to 3.0; if you're building
-# with WinPcap 3.1, set it to 3.1.
-#
-# If you're not building with WinPcap at all, don't set it (comment
-# out or remove the line that sets it).
-#
-WINPCAP_VERSION=3.1
 
-# 
-# Directory, where your User's Guide reside, relative to the source dir.
-# (currently unused)
-#
-# If you don't have the User's Guide, comment this line out, so that 
-# WIRESHARK_EUG_DIR isn't defined.
-#
-#WIRESHARK_EUG_DIR=docbook/eug_html_chunked
+##### Libraries #####
 
 # 
 # Base directory, where your libraries reside, which needs to be 
-# compiling the sources. This is only inside this file.
+# compiling the sources. This setting is used only inside this file.
 #
 WIRESHARK_LIBS=C:\wireshark-win32-libs
 
 #
+# Mandatory: GLib settings
+#
 # Current versions of GTK+ 1.3 require GLib 2.0.  Earlier versions of
 # GTK+ 1.3 are buggy; we don't recommend using them, and we don't
-# support them.  Upgrade to the current version.
+# support them.  Upgrade to at least GLib 2.0.
 #
 GLIB_VERSION=2.0
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
-# This presumes that GTK+ 1.3 packages put header files and libraries
-# directly in a "gtk+" directory, while GTK+ 2.x developer's packages
-# put header files in an "include\gtk-{version}" directory and libraries
-# in a "lib\gtk-{version}" directory.
+# Mandatory: GTK (& related) settings
 #
 # It's possible, to build both GTK version 1 and 2 at the same time,
-# or only one of the versions. GTK version 1 is currently recommended.
+# or only one of the versions. GTK version 2 is recommended.
 # 
 # If you want building with GTK+ 1.3, set GTK1_DIR to the pathname of the 
 # "gtk+" directory; if you want building with GTK+ 2.x, set GTK2_DIR to 
@@ -79,13 +55,9 @@ GTK1_DIR=$(WIRESHARK_LIBS)\gtk+
 GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 
 #
-# If you have gnutls set this to the pathname where the lib and include files
-# are stored.
-# This enable ssl decryption
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.0-1
-
-# Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
-# but without MICRO version number) 
+# Mandatory for GTK >= 2: Version numbers of gtk2 and pango.
+#
+# (MAJOR + MINOR Version number but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
 #
 #GTK2_INST_VERSION=2.2
@@ -113,29 +85,57 @@ GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 
 #
-# If you have Zlib, set this to the pathname of the directory in
-# which the Zlib headers and .lib file are stored.
+# Optional: WinPcap developer's pack to capture network traffic.
 #
-# If you don't have Zlib, comment this line out, so that Zlib isn't
+# The WinPcap developer's pack version Wireshark is build with.
+#
+# If you're building with WinPcap 3.0, set WINPCAP_VERSION to 3.0;
+# if you're building with WinPcap 3.1, set WINPCAP_VERSION to 3.1.
+# XXX - what to set for 4.0 beta 1?
+#
+# If you don't have the WPdpack, comment this line out, so that 
+# WINPCAP_VERSION isn't defined.
+#
+WINPCAP_VERSION=3.1
+#
+# If you have the WinPcap developer's pack, set this to the directory 
+# in which the WinPcap developer's pack resides.
+#
+# If you don't have the WPdpack, comment this line out, so that 
+# PCAP_DIR isn't defined.
+#
+PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+
+#
+# Optional: The ZLib enables unzipping of gzip compressed capture files 
+# "on the fly".
+#
+# If you have Zlib, set this to directory in which the Zlib headers 
+# and .lib file are stored.
+#
+# If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
 
 #
-# Set PCAP_DIR to the pathname of the directory in which the WinPcap
-# developer's pack resides
+# Optional: The Net-SNMP library enables SNMP OID to name resolvings
+# for the MIBs available.
 #
-PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
-
+# If you have Net-SNMP, set this to the pathname of the directory in
+# which the Net-SNMP headers and .lib file are stored.
 #
-# Set NET_SNMP_DIR to the pathname of the directory in which the
-# Net-SNMP include files and library resides.
+# If you don't have Net-SNMP, comment this line out, so that NET_SNMP_DIR
+# isn't defined.
 #
 NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.3.1
 
 #
-# If you have GNU ADNS, set this to the pathname of the directory in
-# which the GNU ADNS .lib file is stored.
+# Optional: the ADNS library enables asynchronous (nonblocking) DNS 
+# name resolvings.
+#
+# If you have GNU ADNS, set this to the directory in which the GNU ADNS 
+# .lib file is stored.
 #
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
@@ -143,24 +143,44 @@ NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.3.1
 ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05
 
 #
-# If you have the PCRE (Perl Compatible Regular Expressions) library,
-# set this to the pathname of the directory in which the GNUWIN32
-# pcre-lib package has been extracted.
+# Optional: the PCRE (Perl Compatible Regular Expressions) library 
+# enables regular expressions for display filters.
+#
+# If you have the PCRE library, set this to the directory in which 
+# the GNUWIN32 pcre-lib package is stored.
 #
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
 PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 
-# If you have kerberos for windows (mit),
-# set this pathname to the directory where the kfw package has been
-# extracted
-# to enable kerberos/sasl/dcerpc decryption support
+#
+# Optional: the GNUTLS library enables ssl decryption.
+#
+# If you have the GNUTLS library, set this to the directory where 
+# the lib and include files are stored.
+#
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# isn't defined.
+#
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.0-1
+
+#
+# Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
+#
+# If you have the kerberos for windows (mit) library, set this to the 
+# directory where the kfw package is stored.
+#
+# If you don't have KFW, comment this line out, so that KFW_DIR
+# isn't defined.
+#
 KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 
 #
-# If you have the Nettle encryption library, set this to the pathname
-# of the directory in which the nettle package has been extracted.
+# Optional: the Nettle library enables ??? decryption.
+#
+# If you have the Nettle encryption library, set this to the 
+# directory in which the nettle package is stored.
 #
 # If you don't have Nettle, comment this line out, so that NETTLE_DIR
 # isn't defined.
@@ -168,8 +188,10 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 # NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
 
 #
-# If you have the LUA library, set this to the pathname
-# of the directory in which the LUA package has been extracted.
+# Optional: the LUA library enables scripting support.
+#
+# If you have the LUA library, set this to the directory in which 
+# the LUA package is stored.
 #
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
@@ -177,9 +199,10 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 
 #
-# If you have the PORTAUDIO library (used por rtp_player), 
-# set this to the pathname of the directory in which the PORTAUDIO
-# package has been extracted.
+# Optional: the PORTAUDIO library enables audio output for RTP streams.
+#
+# If you have the PORTAUDIO library (used for rtp_player), set this to 
+# the directory in which the PORTAUDIO library is stored.
 #
 # If you don't have PORTAUDIO, comment this line out, so that 
 # PORTAUDIO_DIR isn't defined.
@@ -187,16 +210,95 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 #PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
 
 #
-# Set ICONV_DIR to the pathname of the directory in which the
+# Mandatory for GTK >= 2: Iconv
+#
+# Set ICONV_DIR to the directory in which the
 # ICONV include files and library resides.
 #
 ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 
 #
-# Set GETTEXT_DIR to the pathname of the directory in which the
+# Mandatory for GTK >= 2: Gettext
+#
+# Set GETTEXT_DIR to the directory in which the
 # GETTEXT include files and library resides.
 #
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
+
+
+
+##### Tools #####
+
+# Set the following mandatory commands to find the tools.
+# The easiest way is to use the corresponding packages from cygwin.
+
+# command for a shell (cygwin's bash package recommended)
+SH=bash
+
+# command for perl (cygwin's perl package recommended)
+PERL=perl
+
+# command for pod2man and pod2html 
+# (part of the perl package, usually leave these unchanged)
+POD2MAN=$(SH) pod2man
+POD2HTML=$(SH) pod2html
+
+# command for python (cygwin's python package recommended)
+PYTHON=env python
+
+# command for native windows python (not recommended)
+#PYTHON="C:/python24/python.exe"
+# add native python to the path (not needed if cygwin's python is used)
+#PATH=c:\python24;$(PATH)
+
+# command for lex/flexx (cygwin's flex recommended)
+LEX=flex
+
+# command for yacc/bison (cygwin's bison recommended)
+YACC=bison
+
+#
+# Optional: To build the NSIS installer.
+#
+# If you have the NSIS package, set this to the NSIS executable.
+#
+# If you don't have NSIS, comment this line out, so that MAKENSIS
+# isn't defined.
+#
+MAKENSIS="C:/program files/nsis/makensis.exe"
+
+#
+# Optional: To build the developers documentation with doxygen and dot.
+# Currently experimental only.
+#
+# You will have to download and install:
+# Doxygen from: www.doxygen.org
+# Graphviz from: http://www.research.att.com/sw/tools/graphviz/
+#
+# If you have doxygen, set this to the doxygen executable.
+#
+# If you don't want the developers documentation (or don't have the tools),
+# comment this line out, so that DOXYGEN isn't defined.
+#
+#DOXYGEN="C:/program files/doxygen/bin/doxygen.exe"
+
+#
+# Optional: To build compressed html help format .chm and use it as online help format.
+# You will have to download and install the html help compiler from:
+#
+# http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
+# /hwMicrosoftHTMLHelpDownloads.asp 
+#
+# Then point HHC_DIR to the html help dir (where hhc.exe resides).
+#
+# If you don't want the online help (or don't have the tools),
+# comment this line out, so that HHC_DIR isn't defined.
+#
+#HHC_DIR="C:/Program Files/HTML Help Workshop/"
+
+
+
+##### Flags, PATHs and Miscellaneous #####
 
 # Compiler flags
 # /W3  warning level 3 (0 less - 4 most, 1 default)
@@ -214,66 +316,16 @@ PDB_FILE=vc*.pdb
 # Set up the path to the cygwin binaries
 CYGWIN_PATH=c:\cygwin\bin
 
-# Set up the path to some required DLLs
-DLL_PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin
-
-
-# Set the following commands to find the tools.
-# The easiest way is to use the corresponding packages from cygwin.
-
-# command for a shell (typically cygwin's bash package)
-SH=bash
-
-# command for perl (typically cygwin's perl package)
-PERL=perl
-
-# command for pod2man and pod2html (part of the perl package)
-POD2MAN=$(SH) pod2man
-POD2HTML=$(SH) pod2html
-
-# command for python (native windows version)
-#PYTHON="C:/python24/python.exe"
-# add native python to the path (not needed if cygwin's python is used)
-#PATH=c:\python24;$(PATH)
-
-# command for python (typically cygwin's python package)
-PYTHON=env python
-
-# command for lex/flexx (typically cygwin's flex package)
-LEX=flex
-
-# command for yacc/bison (typically cygwin's bison package)
-YACC=bison
-
-# To build the installer
-MAKENSIS="C:/program files/nsis/makensis.exe"
-
-# To build the developers documentation with doxygen and dot.
-# Currently experimental only.
-# You will have to download and install:
+# 
+# Optional: Directory, where your User's Guide reside, 
+# relative to the source dir. (currently experimental)
 #
-# Doxygen from: www.doxygen.org
-# Graphviz from: http://www.research.att.com/sw/tools/graphviz/
+# If you don't have the User's Guide, comment this line out, so that 
+# WIRESHARK_EUG_DIR isn't defined.
 #
-# If you don't want the developers documentation (or don't have the tools),
-# comment this line out, so that DOXYGEN isn't defined.
-#
-#DOXYGEN="C:/program files/doxygen/bin/doxygen.exe"
+#WIRESHARK_EUG_DIR=docbook/eug_html_chunked
 
-# To build compressed html help format .chm and use it as online help format.
-# Currently experimental only.
-# You will have to download and install the html help compiler from:
 #
-# http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
-# /hwMicrosoftHTMLHelpDownloads.asp 
-#
-# Then point HHC_DIR to the html help dir (where hhc.exe resides).
-#
-# If you don't want the online help (or don't have the tools),
-# comment this line out, so that HHC_DIR isn't defined.
-#
-#HHC_DIR="C:/Program Files/HTML Help Workshop/"
-
 # According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403
 # XCOPY under Windows NT doesn't support the "/Y" flag.  This works
 # around that bug.
@@ -282,15 +334,14 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 # It looks like we'll have to call "set copycmd=/y" before we run xcopy.
 COPYCMD=/y
 
+#
 # If you don't want to build libwireshark.dll, you should comment out the
 # following line. (Note: for plugin support this option must stay activated)
 ENABLE_LIBWIRESHARK=USE
 
-!IFDEF ENABLE_LIBWIRESHARK
-# Uncomment next line to link plugins with the import library of libwireshark.dll 
-LINK_PLUGINS_WITH_LIBWIRESHARK=USE
-!ENDIF
 
+
+##############################################################################
 #
 # You should not have to change anything below this comment.
 # If you do, it's a deficiency in the Makefile.nmake files;
@@ -300,6 +351,32 @@ LINK_PLUGINS_WITH_LIBWIRESHARK=USE
 # send us the patches, along with details of why the change
 # was necessary.
 #
+##############################################################################
+
+!IFDEF ENABLE_LIBWIRESHARK
+# Uncomment next line to link plugins with the import library of libwireshark.dll 
+LINK_PLUGINS_WITH_LIBWIRESHARK=USE
+!ENDIF
+
+#
+# The RC_VERSION should be comma-separated, not dot-separated, 
+# as per Graham Bloice's message in
+#
+#	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
+#
+# "The RC_VERSION variable in config.nmake should be comma separated. 
+# This allows the resources to be built correctly and the version
+# number to be correctly displayed in the explorer properties dialog
+# for the executables, and XP's tooltip, rather than 0.0.0.0."
+#
+
+VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)$(VERSION_EXTRA)
+RC_VERSION=$(VERSION_MAJOR),$(VERSION_MINOR),$(VERSION_MICRO)
+
+WTAP_VERSION=$(WTAP_VERSION_MAJOR).$(WTAP_VERSION_MINOR)
+RC_WTAP_VERSION=$(WTAP_VERSION_MAJOR),$(WTAP_VERSION_MINOR)
+
+
 GLIB_CFLAGS=/I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
 	/I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
 GCC_GLIB_CFLAGS=-I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
@@ -490,4 +567,4 @@ PORTAUDIO_CONFIG=
 !ENDIF
 
 # Construct the path
-PATH=$(PATH);$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH)
+PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
