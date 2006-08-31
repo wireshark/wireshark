@@ -285,7 +285,6 @@ wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
 # linked into the wireshark executable.
 wireshark_additional_libs = \
 	gtk/libui.a		\
-	gtk/codecs/libcodec.a	\
 	wiretap/libwiretap.la	\
 	epan/libwireshark.la
 

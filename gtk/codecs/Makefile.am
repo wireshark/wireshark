@@ -3,7 +3,7 @@
 #
 # $Id$
 
-include ..\..\config.nmake
+#include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
