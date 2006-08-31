@@ -11,7 +11,7 @@ CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
 	/I$(PCAP_DIR)\include /I$(NET_SNMP_DIR)\include \
-	/I$(NET_SNMP_DIR)\win32 /Zm800 -D_U_="" -D_NEED_VAR_IMPORT_ $(LOCAL_CFLAGS) \
+	/I$(NET_SNMP_DIR)\win32 /Zm800 -D_U_="" -D_NEED_VAR_IMPORT_ $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
