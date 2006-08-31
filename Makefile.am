@@ -843,7 +843,7 @@ srpm-package: dist
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		ln -s ../../../wireshark.desktop ; \
-		ln -s ../../../image/elogo3d64x64.png wireshark.png ; \
+		ln -s ../../../image/wsicon64.png wireshark.png ; \
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/SRPMS." ; \
