@@ -26,13 +26,13 @@ codecs.lib	:  $(CODEC_OBJECTS)
 
 
 G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
-        $(CC) $(CFLAGS) -c /Zi /W1 /Od G711a\G711adecode.c -o $@
+	$(CC) $(CFLAGS) -c /Zi /W1 /Od G711a\G711adecode.c -o $@
 
 G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
-        $(CC) $(CFLAGS) -c /Zi /W1 /Od G711u\G711udecode.c -o $@
+	$(CC) $(CFLAGS) -c /Zi /W1 /Od G711u\G711udecode.c -o $@
 
 clean:
-        rm -f $(CODEC_OBJECTS) codecs.lib *.pdb
+	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb
 
 distclean: clean
 
