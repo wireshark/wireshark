@@ -34,7 +34,8 @@ libwireshark_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
-INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
+INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) \
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)	\
