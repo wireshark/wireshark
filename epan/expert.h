@@ -29,6 +29,7 @@
 
 #include "gnuc_format_check.h"
 #include <epan/proto.h>
+#include "value_string.h"
 
 
 /** only for internal and display use */
@@ -41,12 +42,17 @@ typedef struct expert_info_s {
     proto_item *pitem;
 } expert_info_t;
 
+WS_VAR_IMPORT const value_string expert_severity_vals[];
+WS_VAR_IMPORT const value_string expert_group_vals[];
 
 extern void
 expert_init(void);
 
 extern void
 expert_cleanup(void);
+
+extern int
+expert_get_highest_severity(void);
 
 /** Add an expert info.
 

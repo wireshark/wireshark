@@ -55,6 +55,7 @@
 
 #include <epan/reassemble.h>
 #include <epan/stream.h>
+#include <epan/expert.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -148,8 +149,11 @@ init_dissection(void)
 	   data structures that "reassemble_init()" frees. */
 	reassemble_init();
 
-	/* Initialise the stream-handling tables */
+	/* Initialize the stream-handling tables */
 	stream_init();
+
+	/* Initialize the expert infos */
+	expert_init();
 }
 
 void

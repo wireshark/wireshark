@@ -63,31 +63,11 @@
 
 
 
-static const value_string expert_severity_vals[] = {
-	{ PI_ERROR,		"Error" },
-	{ PI_WARN,		"Warn" },
-	{ PI_NOTE,		"Note" },
-	{ PI_CHAT,		"Chat" },
-	{ 0, NULL }
-};
-
 static const value_string expert_severity_om_vals[] = {
 	{ PI_ERROR,		"Errors only" },
 	{ PI_WARN,		"Error+Warn" },
 	{ PI_NOTE,		"Error+Warn+Note" },
 	{ PI_CHAT,		"Error+Warn+Note+Chat" },
-	{ 0, NULL }
-};
-
-static const value_string expert_group_vals[] = {
-	{ PI_CHECKSUM,		"Checksum" },
-	{ PI_SEQUENCE,		"Sequence" },
-	{ PI_RESPONSE_CODE, "Response" },
-    { PI_REQUEST_CODE,  "Request" },
-	{ PI_UNDECODED,		"Undecoded" },
-	{ PI_MALFORMED,		"Malformed" },
-	{ PI_REASSEMBLE,	"Reassemble" },
-/*	{ PI_SECURITY,		"Security" },*/
 	{ 0, NULL }
 };
 

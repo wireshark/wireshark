@@ -36,6 +36,30 @@
 
 
 static int expert_tap = -1;
+static int highest_severity = 0;
+
+
+const value_string expert_group_vals[] = {
+	{ PI_CHECKSUM,		"Checksum" },
+	{ PI_SEQUENCE,		"Sequence" },
+	{ PI_RESPONSE_CODE,	"Response" },
+	{ PI_REQUEST_CODE,	"Request" },
+	{ PI_UNDECODED,		"Undecoded" },
+	{ PI_MALFORMED,		"Malformed" },
+	{ PI_REASSEMBLE,	"Reassemble" },
+/*	{ PI_SECURITY,		"Security" },*/
+	{ 0, NULL }
+};
+
+const value_string expert_severity_vals[] = {
+	{ PI_ERROR,		"Error" },
+	{ PI_WARN,		"Warn" },
+	{ PI_NOTE,		"Note" },
+	{ PI_CHAT,		"Chat" },
+	{ 0,			"Ok" },
+	{ 0, NULL }
+};
+
 
 
 void
@@ -44,12 +68,22 @@ expert_init(void)
 	if(expert_tap == -1) {
 		expert_tap = register_tap("expert");
 	}
+
+	highest_severity = 0;
 }
+
 
 void
 expert_cleanup(void)
 {
 	/* memory cleanup will be done by se_... */
+}
+
+
+int
+expert_get_highest_severity(void)
+{
+	return highest_severity;
 }
 
 
@@ -81,6 +115,10 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		return;
 	}
 
+        if(severity > highest_severity) {
+            highest_severity = severity;
+        }
+
 	/* XXX - use currently nonexistant se_vsnprintf instead */
 	ret = g_vsnprintf(formatted, sizeof(formatted), format, ap);
 	if ((ret == -1) || (ret >= sizeof(formatted)))
@@ -92,7 +130,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	ei->severity	= severity;
 	ei->protocol	= ep_strdup(pinfo->current_proto);
 	ei->summary		= ep_strdup(formatted);
-    ei->pitem       = NULL;
+	ei->pitem       = NULL;
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if(pi != NULL && pi->finfo != NULL) {	

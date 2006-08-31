@@ -1,6 +1,13 @@
 ; libwireshark.def
 ; $Id$
 
+; Add symbols that should be exported out of libwireshark.dll,
+; e.g. when used inside the GUI.
+;
+; DATA symbols must be declared WS_VAR_IMPORT in the header file!
+;
+; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
+;
 EXPORTS
 abs_time_to_str
 address_to_str
@@ -262,6 +269,9 @@ except_throwd
 except_throwf
 except_unhandled_catcher
 expert_add_info_format
+expert_get_highest_severity
+expert_group_vals               DATA
+expert_severity_vals            DATA
 FacilityReason_vals             DATA
 fc_fc4_val                      DATA
 file_open_error_message
