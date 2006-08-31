@@ -47,6 +47,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 
 static int proto_icq = -1;
 static int hf_icq_uin = -1;
@@ -2172,7 +2173,8 @@ static void dissect_icq(tvbuff_t *tvb,
       dissect_icqv2(tvb, pinfo, tree);
       break;
   default:
-      fprintf(stderr, "ICQ: Unknown version (0x%x)\n", version);
+      expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
+		"Unknown version (0x%x)\n", version);
       break;
   }
 }
