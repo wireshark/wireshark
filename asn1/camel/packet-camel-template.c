@@ -90,7 +90,6 @@ static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 static int hf_camel_RP_Cause = -1;
 
 #include "packet-camel-hf.c"
-static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_camel = -1;
@@ -631,6 +630,30 @@ static const ber_choice_t camelPDU_choice[] = {
 static guint8 camel_pdu_type = 0;
 static guint8 camel_pdu_size = 0;
 
+static void dissect_camelext_CAPGPRSReferenceNumber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
+  proto_item    *item=NULL;
+  proto_tree    *tree=NULL;
+  proto_item    *camel_item=NULL;
+  proto_tree    *camel_tree=NULL;
+
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Camel");
+  }
+
+  /* create display subtree for the protocol */
+  if(parent_tree){
+    camel_item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, FALSE);
+    camel_tree = proto_item_add_subtree(camel_item, ett_camel);
+  }
+  /* create display subtree for the protocol */
+  if(camel_tree){
+    item = proto_tree_add_text(camel_tree, tvb, 0, -1, "GPRS Reference Number");
+    tree = proto_item_add_subtree(item, ett_camel_CAPGPRSReferenceNumber);
+  }
+  dissect_camel_CAPGPRSReferenceNumber(FALSE, tvb, 0, pinfo, tree, -1);
+}
+
 static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
@@ -698,10 +721,16 @@ static void range_add_callback(guint32 ssn)
 void proto_reg_handoff_camel(void) {
 
   static int camel_prefs_initialized = FALSE;
-  
   if (!camel_prefs_initialized) {
     camel_prefs_initialized = TRUE;
     camel_handle = create_dissector_handle(dissect_camel, proto_camel);
+
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
+
+    register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_camelext_CAPGPRSReferenceNumber, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
   } else {
     range_foreach(ssn_range, range_delete_callback);
   }
@@ -820,21 +849,11 @@ void proto_register_camel(void) {
 	&ett_camel_pdptypenumber,
 #include "packet-camel-ettarr.c"
   };
-
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
-
-  add_oid_str_name("0.4.0.0.1.1.5.2","iitu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
-
-    
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */
