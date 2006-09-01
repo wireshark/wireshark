@@ -1,40 +1,42 @@
-## Makefile for building codecs.lib with Microsoft C and nmake
-## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+# Makefile.am
+# Automake file for the codecs for Wireshark
 #
 # $Id$
-
-#include ..\..\config.nmake
-
-############### no need to modify below this line #########
-
-CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
-	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
-	/I$(PCAP_DIR)\include /I$(NET_SNMP_DIR)\include \
-	/I$(NET_SNMP_DIR)\win32 /Zm800 -D_U_="" -D_NEED_VAR_IMPORT_ $(LOCAL_CFLAGS)
-
-.c.obj::
-	$(CC) $(CFLAGS)  -Fd.\ -c $<
-
-CODEC_OBJECTS= \
-        G711udecode.obj \
-	G711adecode.obj
-
-
-codecs.lib	:  $(CODEC_OBJECTS) 
-	link /lib /out:codecs.lib $(CODEC_OBJECTS) 
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@xxxxxxxxxxxxx>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
-	$(CC) $(CFLAGS) -c /Zi /W1 /Od G711a\G711adecode.c -o $@
+noinst_LIBRARIES = libcodec.a
 
-G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
-	$(CC) $(CFLAGS) -c /Zi /W1 /Od G711u\G711udecode.c -o $@
+CLEANFILES = \
+       libcodec.a	\
+       *~
 
-clean:
-	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb
+MAINTAINERCLEANFILES =	\
+       Makefile.in
 
-distclean: clean
+libcodec_a_SOURCES = \
+       G711a/G711adecode.c G711a/G711adecode.h G711a/G711atable.h	\
+       G711u/G711udecode.c G711u/G711udecode.h G711u/G711utable.h 
 
-maintainer-clean: distclean
+libcodec_a_DEPENDENCIES = 
+
+EXTRA_DIST = \
+       Makefile.nmake 
 
