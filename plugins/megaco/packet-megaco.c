@@ -107,7 +107,7 @@ static int hf_megaco_Event_Buffer_Control		= -1;
 static int hf_megaco_mode						= -1;
 static int hf_megaco_reserve_group				= -1;
 static int hf_megaco_h324_muxtbl_in				= -1;
-static int hf_megaco_h324_h223caprn				= -1;
+static int hf_megaco_h324_h223capr				= -1;
 static int hf_megaco_reserve_value				= -1;
 static int hf_megaco_streamid 					= -1;
 static int hf_megaco_requestid 					= -1;
@@ -2568,16 +2568,20 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		 */
 		/* Find token length */
 		for (tvb_offset=tvb_current_offset; tvb_offset < tvb_next_offset; tvb_offset++){
-			if (!isalpha(tvb_get_guint8(tvb, tvb_offset ))){
-				break;
+			guint8 octet;
+			octet = tvb_get_guint8(tvb, tvb_offset);
+			if (!isalnum(octet)){
+				if (octet!='/'){
+					break;
+				}
 			}
 		}
 		token_name_len = tvb_offset - tvb_current_offset;
 		/* Debug Code
+		 */
 		proto_tree_add_text(megaco_LocalControl_tree, tvb, tvb_current_offset, token_name_len,
 				"%s", tvb_format_text(tvb,tvb_current_offset,token_name_len));
 
-		 */
 		token_index = find_megaco_localParam_names(tvb, tvb_current_offset, token_name_len);
 		/* Find start of parameter value */
 		tvb_offset = tvb_find_guint8(tvb, tvb_offset , tvb_next_offset, '=');
@@ -2628,7 +2632,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 			break;
 
 		case H324_H223CAPR: /* h324/h223capr */
-			proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_h223caprn, tvb,
+			proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_h223capr, tvb,
 				tvb_current_offset, tokenlen,
 				tvb_format_text(tvb, tvb_current_offset,
 				tokenlen));
@@ -2756,9 +2760,9 @@ proto_register_megaco(void)
 		{ &hf_megaco_h324_muxtbl_in,
 		{ "h324/muxtbl_in", "megaco.h324_muxtbl_in", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/muxtbl_in", HFILL }},
-		{ &hf_megaco_h324_h223caprn,
-		{ "h324/h223caprn", "megaco._h324_h223caprn", FT_STRING, BASE_DEC, NULL, 0x0,
-		"h324/h223caprn", HFILL }},
+		{ &hf_megaco_h324_h223capr,
+		{ "h324/h223capr", "megaco._h324_h223capr", FT_STRING, BASE_DEC, NULL, 0x0,
+		"h324/h223capr", HFILL }},
 		{ &hf_megaco_reserve_value,
 		{ "Reserve Value", "megaco.reservevalue", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Reserve Value on or off", HFILL }},
