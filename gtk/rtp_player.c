@@ -20,10 +20,6 @@
 *  - When the user click the check box to listen one of the Audio channels, the structure rtp_channels is filled 
 *    to play one or two RTP channels (a max of two channels can be listened at a given moment)
 *
-*
-*
-* 
-*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1999 Gerald Combs
@@ -220,7 +216,7 @@ static rtp_play_channles_t *rtp_channels = NULL;
 
 /****************************************************************************/
 static void 
-rtp_key_destroy(gchar *key)
+rtp_key_destroy(gpointer key)
 {
 	g_free(key);
 	key = NULL;
@@ -228,8 +224,10 @@ rtp_key_destroy(gchar *key)
 
 /****************************************************************************/
 static void 
-rtp_channel_value_destroy(rtp_channel_info_t *rci)
+rtp_channel_value_destroy(gpointer rci_arg)
 {
+	rtp_channel_info_t *rci = rci_arg;
+
 	g_array_free(rci->samples, TRUE);
 	g_free(rci);
 	rci = NULL;
@@ -237,8 +235,9 @@ rtp_channel_value_destroy(rtp_channel_info_t *rci)
 
 /****************************************************************************/
 static void 
-rtp_stream_value_destroy(rtp_stream_info_t *rsi)
+rtp_stream_value_destroy(gpointer rsi_arg)
 {
+	rtp_stream_info_t *rsi = rsi_arg;
 	GList*  rtp_packets_list;
 	rtp_packet_t *rp;
 
@@ -721,11 +720,11 @@ h_scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 	return TRUE;
 }
 
-static gboolean draw_cursors(gpointer *data);
+static gboolean draw_cursors(gpointer data);
 
 /****************************************************************************/
 static void
-stop_channels() 
+stop_channels(void) 
 {	
 	PaError err;
 	GtkWidget *dialog;
@@ -890,11 +889,8 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 /* Move and draw the cursor in the graph 
  */
 static gboolean 
-draw_cursors(gpointer *data)
+draw_cursors(gpointer data)
 {
-	static GdkPixbuf*  pixbuf = NULL;
-	static PaTimestamp prev;
-
 	if (!rtp_channels) return FALSE;
 
 	/* Draw and move each of the two channels */
@@ -907,8 +903,8 @@ draw_cursors(gpointer *data)
 }
 
 /****************************************************************************/
-void
-init_rtp_channels_vals()
+static void
+init_rtp_channels_vals(void)
 {
 	rtp_play_channles_t *rpci = rtp_channels; 
 	
@@ -1404,7 +1400,7 @@ count_channel_frames(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ 
 
 /****************************************************************************/
 static void
-play_channels() 
+play_channels(void) 
 {	
 	PaError err;
 	GtkWidget *dialog;
@@ -1471,7 +1467,7 @@ play_channels()
 
 /****************************************************************************/
 static void
-pause_channels() 
+pause_channels(void) 
 {	
 	rtp_channels->pause = !(rtp_channels->pause);
 
@@ -1487,7 +1483,7 @@ pause_channels()
 
 /****************************************************************************/
 static void 
-reset_rtp_channels()
+reset_rtp_channels(void)
 {
 	rtp_channels->channel = 0;
 	rtp_channels->rci[0] = NULL;
@@ -1517,7 +1513,7 @@ remove_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr 
 
 /****************************************************************************/
 static void
-reset_channels()
+reset_channels(void)
 {
 
 	/* Remove the channels from the main window if there are there */
@@ -1537,7 +1533,7 @@ reset_channels()
 
 /****************************************************************************/
 void
-reset_rtp_player()
+reset_rtp_player(void)
 {
 	/* Destroy the rtp channels */
 	reset_channels();
@@ -1558,7 +1554,7 @@ reset_rtp_player()
 
 /****************************************************************************/
 static void
-decode_streams() 
+decode_streams(void) 
 {	
 	guint statusbar_context;
 	guint counter;
@@ -1682,7 +1678,8 @@ jitter_spinner_value_changed (GtkSpinButton *spinner, gpointer user_data _U_)
 }
 
 /****************************************************************************/
-static void rtp_player_dlg_create()
+static void
+rtp_player_dlg_create(void)
 {
 	GtkWidget *main_vb;
 	GtkWidget *hbuttonbox;
@@ -1765,17 +1762,17 @@ static void rtp_player_dlg_create()
 	hbuttonbox = gtk_hbutton_box_new ();
 
 	/* Filter/status hbox */
-    stat_hbox = gtk_hbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
+	stat_hbox = gtk_hbox_new(FALSE, 1);
+	gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
 
 	/* statusbar */
 	info_bar = gtk_statusbar_new();
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), TRUE);
 
-    gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
 
 	/* statusbar hbox */
-    gtk_box_pack_start(GTK_BOX(main_vb), stat_hbox, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), stat_hbox, FALSE, TRUE, 0);
 
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(TRUE, FALSE, FALSE, FALSE);

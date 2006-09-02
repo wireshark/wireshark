@@ -34,8 +34,7 @@
  */
 
 #if GTK_MAJOR_VERSION >= 2
-static void listen_rtp_main(voip_calls_tapinfo_t *voip_calls_tap,struct _rtp_info *rtp_info, packet_info *pinfo);
 void rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap);
 void add_rtp_packet(struct _rtp_info *rtp_info, packet_info *pinfo);
-void reset_rtp_player();
+void reset_rtp_player(void);
 #endif
