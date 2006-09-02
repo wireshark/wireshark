@@ -124,7 +124,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
-all: config.h tools image wiretap epan $(EXECUTABLES) $(RESOURCES) doc
+all: config.h tools image codecs wiretap epan $(EXECUTABLES) $(RESOURCES) doc
 
 packaging: all
 	cd packaging
