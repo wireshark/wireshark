@@ -43,18 +43,68 @@
 #include <epan/dissectors/packet-frame.h>
 #include "epan/conversation.h"
 #include "epan/emem.h"
+#include "epan/prefs.h"
+#include "epan/reassemble.h"
 #include "packet-ber.h"
 #include "to_str.h"
 
 static int proto_gssapi = -1;
 
 static int hf_gssapi_oid = -1;
+static int hf_gssapi_segments = -1;
+static int hf_gssapi_segment = -1;
+static int hf_gssapi_segment_overlap = -1;
+static int hf_gssapi_segment_overlap_conflict = -1;
+static int hf_gssapi_segment_multiple_tails = -1;
+static int hf_gssapi_segment_too_long_fragment = -1;
+static int hf_gssapi_segment_error = -1;
+static int hf_gssapi_reassembled_in = -1;
 
 static gint ett_gssapi = -1;
+static gint ett_gssapi_segment = -1;
+static gint ett_gssapi_segments = -1;
+
+static gboolean gssapi_reassembly = TRUE;
 
 typedef struct _gssapi_conv_info_t {
 	gssapi_oid_value *oid;
+
+        emem_tree_t *frags;
+
+	gboolean do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
+	int first_frame;
+	int frag_offset;	
 } gssapi_conv_info_t;
+
+typedef struct _gssapi_frag_info_t {
+	guint32 first_frame;
+	guint32 reassembled_in;
+} gssapi_frag_info_t;
+
+static const fragment_items gssapi_frag_items = {
+	&ett_gssapi_segment,
+	&ett_gssapi_segments,
+
+	&hf_gssapi_segments,
+	&hf_gssapi_segment,
+	&hf_gssapi_segment_overlap,
+	&hf_gssapi_segment_overlap_conflict,
+	&hf_gssapi_segment_multiple_tails,
+	&hf_gssapi_segment_too_long_fragment,
+	&hf_gssapi_segment_error,
+	NULL,
+
+	"fragments"
+};
+
+
+static GHashTable *gssapi_fragment_table = NULL;
+
+static void
+gssapi_reassembly_init(void)
+{
+	fragment_table_init(&gssapi_fragment_table);
+}
 
 /*
  * Subdissectors
@@ -134,9 +184,12 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint32 tag;
 	guint32 len1;
 	const char *oid;
+	fragment_data *fd_head=NULL;
+	gssapi_frag_info_t *fi;
+	tvbuff_t *gss_tvb=NULL;
 
 	start_offset=0;
-	offset=start_offset;
+	offset=0;
 
 	/*
 	 * We don't know whether the data is encrypted, so say it's
@@ -163,6 +216,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (!gss_info) {
 		gss_info = se_alloc(sizeof(gssapi_conv_info_t));
 		gss_info->oid=NULL;
+		gss_info->do_reassembly=FALSE;
+		gss_info->frags=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "gssapi_frags");
 
 		conversation_add_proto_data(conversation, proto_gssapi, gss_info);
 	}
@@ -186,10 +241,68 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * exception.
 	 */
 	TRY {
+		gss_tvb=tvb;
+
+
+		/* First of all, if its the first time we see this packet
+		 * then check whether we are in the middle of reassembly or not
+		 */
+		if( (!pinfo->fd->flags.visited)
+		&&  (gss_info->do_reassembly)
+		&&  (gssapi_reassembly) ){
+			fi=se_tree_lookup32(gss_info->frags, gss_info->first_frame);
+			if(!fi){
+				goto done;
+			}
+			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+			fd_head=fragment_add(tvb, 0, pinfo, fi->first_frame,
+				gssapi_fragment_table, gss_info->frag_offset,
+				tvb_length(tvb), TRUE);
+			gss_info->frag_offset+=tvb_length(tvb);
+
+			/* we need more fragments */
+			if(!fd_head){
+				goto done;
+			}
+
+			/* this blob is now fully reassembled */
+			gss_info->do_reassembly=FALSE;
+			fi->reassembled_in=pinfo->fd->num;
+
+			gss_tvb=tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+			tvb_set_child_real_data_tvbuff(tvb, gss_tvb);
+			add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
+		}
+		/* We have seen this packet before.
+		 * Is this blob part of reassembly or a normal blob ?
+		 */
+		if( (pinfo->fd->flags.visited)
+		&&  (gssapi_reassembly) ){	
+			fi=se_tree_lookup32(gss_info->frags, pinfo->fd->num);
+			if(fi){
+				fd_head=fragment_get(pinfo, fi->first_frame, gssapi_fragment_table);
+				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
+					if(pinfo->fd->num==fi->reassembled_in){
+					        proto_item *frag_tree_item;
+						gss_tvb=tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+						tvb_set_child_real_data_tvbuff(tvb, gss_tvb);
+						add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
+						show_fragment_tree(fd_head, &gssapi_frag_items, tree, pinfo, tvb, &frag_tree_item);
+					} else {
+						proto_item *it;
+						it=proto_tree_add_uint(tree, hf_gssapi_reassembled_in, tvb, 0, 0, fi->reassembled_in);
+					        PROTO_ITEM_SET_GENERATED(it);
+						goto done;
+					}
+				}
+			}
+		}
+
 		/* Read header */
-		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-		
+		offset = get_ber_identifier(gss_tvb, offset, &class, &pc, &tag);
+		offset = get_ber_length(tree, gss_tvb, offset, &len1, &ind_field);
+
+
 		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
 		  /* 
 		   * If we do not recognise an Application class,
@@ -223,27 +336,27 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  {
 		    /* It could be NTLMSSP, with no OID.  This can happen 
 		       for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
-		    if (tvb_strneql(tvb, start_offset, "NTLMSSP", 7) == 0) {
-		      call_dissector(ntlmssp_handle, tvb_new_subset(tvb, start_offset, -1, -1), pinfo, subtree);
+		    if (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0) {
+		      call_dissector(ntlmssp_handle, tvb_new_subset(gss_tvb, start_offset, -1, -1), pinfo, subtree);
 		    } else {
-		      proto_tree_add_text(subtree, tvb, start_offset, 0,
+		      proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
 					  "Unknown header (class=%d, pc=%d, tag=%d)",
 					  class, pc, tag);
 		    }
-		    return_offset = tvb_length(tvb);
+		    return_offset = tvb_length(gss_tvb);
 		    goto done;
 
 		  } else {
 		    tvbuff_t *oid_tvb;
 
-		    oid_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+		    oid_tvb = tvb_new_subset(gss_tvb, start_offset, -1, -1);
 		    if (is_verifier)
 			handle = oidvalue->wrap_handle;
 		    else
 			handle = oidvalue->handle;
 		    len = call_dissector(handle, oid_tvb, pinfo, subtree);
 		    if (len == 0)
-			return_offset = tvb_length(tvb);
+			return_offset = tvb_length(gss_tvb);
 		    else
 			return_offset = start_offset + len;
 		    goto done; /* We are finished here */
@@ -252,8 +365,42 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Read oid */
 		oid_start_offset=offset;
-		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, &oid);
+		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, gss_tvb, offset, hf_gssapi_oid, &oid);
 		oidvalue = gssapi_lookup_oid_str(oid);
+
+
+		/* Check if we need reassembly of this blob.
+		 * Only try reassembly for OIDs we recognize
+		 * and when we have the entire tvb
+		 *
+		 * SMB will sometimes split one large GSSAPI blob
+		 * across multiple SMB/SessionSetup commands.
+		 * While we should look at the uid returned in the response
+		 * to the first SessionSetup and use that as a key
+		 * instead for simplicity we assume there will not be several
+		 * such authentication at once on a single tcp session
+		 */
+		if( (!pinfo->fd->flags.visited)
+		&&  (oidvalue)
+		&&  (tvb_length(gss_tvb)==tvb_reported_length(gss_tvb))
+		&&  (len1>(guint32)tvb_length_remaining(gss_tvb, oid_start_offset))
+		&&  (gssapi_reassembly) ){	
+			fi=se_alloc(sizeof(gssapi_frag_info_t));
+			fi->first_frame=pinfo->fd->num;
+			fi->reassembled_in=0;
+			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+
+			fragment_add(gss_tvb, 0, pinfo, pinfo->fd->num,
+				gssapi_fragment_table, 0,
+				tvb_length(gss_tvb), TRUE);
+			fragment_set_tot_len(pinfo, pinfo->fd->num, gssapi_fragment_table, len1+oid_start_offset);
+
+			gss_info->do_reassembly=TRUE;
+			gss_info->first_frame=pinfo->fd->num;
+			gss_info->frag_offset=tvb_length(gss_tvb);
+			goto done;
+		}
+
 
 		/*
 		 * Hand off to subdissector.
@@ -262,10 +409,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if ((oidvalue == NULL) ||
 		    !proto_is_protocol_enabled(oidvalue->proto)) {
 			/* No dissector for this oid */
-			proto_tree_add_text(subtree, tvb, oid_start_offset, -1,
+			proto_tree_add_text(subtree, gss_tvb, oid_start_offset, -1,
 					    "Token object");
 
-			return_offset = tvb_length(tvb);
+			return_offset = tvb_length(gss_tvb);
 			goto done;
 		}
 
@@ -284,32 +431,32 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (is_verifier) {
 			handle = oidvalue->wrap_handle;
 			if (handle != NULL) {
-				oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				oid_tvb = tvb_new_subset(gss_tvb, offset, -1, -1);
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
-					return_offset = tvb_length(tvb);
+					return_offset = tvb_length(gss_tvb);
 				else
 					return_offset = offset + len;
 			} else {
-				proto_tree_add_text(subtree, tvb, offset, -1,
+				proto_tree_add_text(subtree, gss_tvb, offset, -1,
 				    "Authentication verifier");
-				return_offset = tvb_length(tvb);
+				return_offset = tvb_length(gss_tvb);
 			}
 		} else {
 			handle = oidvalue->handle;
 			if (handle != NULL) {
-				oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				oid_tvb = tvb_new_subset(gss_tvb, offset, -1, -1);
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
-					return_offset = tvb_length(tvb);
+					return_offset = tvb_length(gss_tvb);
 				else
 					return_offset = offset + len;
 			} else {
-				proto_tree_add_text(subtree, tvb, offset, -1,
+				proto_tree_add_text(subtree, gss_tvb, offset, -1,
 				    "Authentication credentials");
-				return_offset = tvb_length(tvb);
+				return_offset = tvb_length(gss_tvb);
 			}
 		}
 
@@ -318,7 +465,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} CATCH(BoundsError) {
 		RETHROW;
 	} CATCH(ReportedBoundsError) {
-		show_reported_bounds_error(tvb, pinfo, tree);
+		show_reported_bounds_error(gss_tvb, pinfo, tree);
 	} ENDTRY;
 
 	proto_item_set_len(item, return_offset);
@@ -341,19 +488,52 @@ void
 proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_gssapi_oid, {
-		    "OID", "gss-api.OID", FT_STRING, BASE_NONE,
-		    NULL, 0, "This is a GSS-API Object Identifier", HFILL }},
+	{ &hf_gssapi_oid, 
+	    	{ "OID", "gssapi.OID", FT_STRING, BASE_NONE,
+		  NULL, 0, "This is a GSS-API Object Identifier", HFILL }},
+	{ &hf_gssapi_segment,
+		{ "GSSAPI Segment", "gssapi.segment", FT_FRAMENUM, BASE_NONE, 
+		  NULL, 0x0, "GSSAPI Segment", HFILL }},
+	{ &hf_gssapi_segments,
+		{ "GSSAPI Segments", "gssapi.segment.segments", FT_NONE, BASE_NONE, 
+		  NULL, 0x0, "GSSAPI Segments", HFILL }},
+	{ &hf_gssapi_segment_overlap,
+		{ "Fragment overlap",	"gssapi.segment.overlap", FT_BOOLEAN, BASE_NONE, 
+		   NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+	{ &hf_gssapi_segment_overlap_conflict,
+		{ "Conflicting data in fragment overlap",	"gssapi.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, 
+		  NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+	{ &hf_gssapi_segment_multiple_tails,
+		{ "Multiple tail fragments found",	"gssapi.segment.multipletails", FT_BOOLEAN, BASE_NONE, 
+		  NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+	{ &hf_gssapi_segment_too_long_fragment,
+		{ "Fragment too long",	"gssapi.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, 
+		  NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+	{ &hf_gssapi_segment_error,
+		{ "Defragmentation error", "gssapi.segment.error", FT_FRAMENUM, BASE_NONE, 
+		  NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+	{ &hf_gssapi_reassembled_in,
+		{ "Reassembled In", "gssapi.reassembled_in", FT_FRAMENUM, BASE_DEC, 
+		  NULL, 0x0, "The frame where this pdu is reassembled", HFILL }},
+
 	};
 
 	static gint *ett[] = {
 		&ett_gssapi,
+		&ett_gssapi_segment,
+		&ett_gssapi_segments,
 	};
+	module_t *gssapi_module;
 
 	proto_gssapi = proto_register_protocol(
 		"GSS-API Generic Security Service Application Program Interface",
 		"GSS-API", "gss-api");
 
+	gssapi_module = prefs_register_protocol(proto_gssapi, NULL);
+	prefs_register_bool_preference(gssapi_module, "gssapi_reassembly",
+		"Reassemble fragmented GSSAPI blobs",
+		"Whether or not to try reassembling GSSAPI blobs spanning multiple (SMB/SessionSetup) PDUs",
+		&gssapi_reassembly);
 	proto_register_field_array(proto_gssapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -361,6 +541,7 @@ proto_register_gssapi(void)
 	new_register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
+	register_init_routine(gssapi_reassembly_init);
 }
 
 static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset, 
