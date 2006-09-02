@@ -447,6 +447,30 @@ add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
 	return client_size;
 }
 
+static int
+add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
+{
+	guint count;
+	guint i;
+	guint64 session_id;
+	header_field_info *hfinfo; 
+
+	count = tvb_get_guint8(tvb, offset);
+	if (count == 0)
+		proto_tree_add_string (tree, hf_str, tvb, offset, count+1, "NULL");
+	else if (count <= 8) {
+		session_id = 0;
+		for (i = 0; i < count; i++)
+			session_id = (session_id << 8) | tvb_get_guint8(tvb, offset + i);
+		proto_tree_add_uint64 (tree, hf, tvb, offset, count+1, session_id);
+	} else {
+		hfinfo = proto_registrar_get_nth(hf);
+		proto_tree_add_text (tree, tvb, offset, count+1, "%s: %s",
+		    hfinfo->name, tvb_bytes_to_str(tvb, offset+1, count));
+	}
+	return offset+1+count;
+}
+
 static void
 dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint count)
 {
@@ -495,34 +519,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_random,
 					tvb,offset,12,bo_big_endian);
 			offset+=12;
-			count = tvb_get_guint8(tvb, offset);
-                        switch(count) {
-                                case 0:
-                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session_str,
-                                                                        tvb,offset,count+1,"NULL");
-                                        break;
-                                case 1 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_guint8(tvb,offset+1));
-                                        break;
-                                case 2 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntohs(tvb,offset+1));
-                                        break;
-                                case 3 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntoh24(tvb,offset+1));
-                                        break;
-                                case 4 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntohl(tvb,offset+1));
-                                        break;
-                                default:
-                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session_str,
-                                                                        tvb,offset,count+1,"Too big");
-                                        break;
-                        }
-			offset+=1+count;
+			offset = add_session_id (wtls_msg_type_item_tree,
+			    hf_wtls_hands_cli_hello_session,
+			    hf_wtls_hands_cli_hello_session_str,
+			    tvb, offset);
 
 			/* process client_key_ids structure */
 			count = tvb_get_ntohs (tvb, offset);
@@ -862,34 +862,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_random,
 					tvb,offset,12,bo_big_endian);
 			offset+=12;
-			count = tvb_get_guint8(tvb, offset);
-                        switch(count) {
-                                case 0:
-                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session_str,
-                                                                        tvb,offset,count+1,"NULL");
-                                        break;
-                                case 1 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_guint8(tvb,offset+1));
-                                        break;
-                                case 2 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntohs(tvb,offset+1));
-                                        break;
-                                case 3 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntoh24(tvb,offset+1));
-                                        break;
-                                case 4 :
-                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
-                                                                        tvb,offset,count+1,tvb_get_ntohl(tvb,offset+1));
-                                        break;
-                                default:
-                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session_str,
-                                                                        tvb,offset,count+1,"Too big");
-                                        break;
-                        }
-			offset+=1+count;
+			offset = add_session_id (wtls_msg_type_item_tree,
+			    hf_wtls_hands_serv_hello_session,
+			    hf_wtls_hands_serv_hello_session_str,
+			    tvb, offset);
 			ti = proto_tree_add_item(wtls_msg_type_item_tree,
 					hf_wtls_hands_serv_hello_cli_key_id,
 					tvb,offset,1,bo_big_endian);
@@ -1189,7 +1165,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_session,
 			{ 	"Session ID",
 				"wtls.handshake.client_hello.sessionid",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				 FT_UINT64, BASE_HEX_DEC, NULL, 0x00,
 				"Session ID", HFILL
 			}
 		},
@@ -1357,7 +1333,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_session,
 			{ 	"Session ID",
 				"wtls.handshake.server_hello.sessionid",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				 FT_UINT64, BASE_HEX_DEC, NULL, 0x00,
 				"Session ID", HFILL
 			}
 		},
