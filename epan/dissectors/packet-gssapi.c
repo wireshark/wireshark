@@ -117,10 +117,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	volatile int return_offset = 0;
+	int return_offset = 0;
 	gssapi_oid_value *value;
-	volatile dissector_handle_t handle;
-	conversation_t *volatile conversation;
+	dissector_handle_t handle;
+	conversation_t *conversation;
 	tvbuff_t *oid_tvb;
 	int len, offset, start_offset, oid_start_offset;
 	gint8 class;
@@ -255,14 +255,6 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return_offset = tvb_length(tvb);
 			goto done;
 		}
-
-		/*
-		 * This is not needed, as the sub-dissector adds a tree
-		sub_item = proto_tree_add_item(subtree, value->proto, tvb,
-					       offset, -1, FALSE);
-
-		oid_subtree = proto_item_add_subtree(sub_item, value->ett);
-		*/
 
 		/* Save a pointer to the data for the OID for the
 		 * GSSAPI protocol for this conversation.
