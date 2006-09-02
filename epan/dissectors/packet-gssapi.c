@@ -241,12 +241,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Read oid */
 		oid_start_offset=offset;
 		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, &oid);
+		value = gssapi_lookup_oid_str(oid);
 
 		/*
 		 * Hand off to subdissector.
 		 */
 
-		if (((value = gssapi_lookup_oid_str(oid)) == NULL) ||
+		if ((value == NULL) ||
 		    !proto_is_protocol_enabled(value->proto)) {
 			/* No dissector for this oid */
 			proto_tree_add_text(subtree, tvb, oid_start_offset, -1,
