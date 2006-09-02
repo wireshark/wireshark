@@ -42,6 +42,7 @@
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-frame.h>
 #include "epan/conversation.h"
+#include "epan/emem.h"
 #include "packet-ber.h"
 #include "to_str.h"
 
@@ -50,6 +51,10 @@ static int proto_gssapi = -1;
 static int hf_gssapi_oid = -1;
 
 static gint ett_gssapi = -1;
+
+typedef struct _gssapi_conv_info_t {
+	gssapi_oid_value *oid;
+} gssapi_conv_info_t;
 
 /*
  * Subdissectors
@@ -118,7 +123,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *item;
 	proto_tree *subtree;
 	int return_offset = 0;
-	gssapi_oid_value *value;
+	gssapi_conv_info_t *gss_info;
+	gssapi_oid_value *oidvalue;
 	dissector_handle_t handle;
 	conversation_t *conversation;
 	tvbuff_t *oid_tvb;
@@ -152,6 +158,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					  pinfo->ptype, 
 					  pinfo->srcport, 
 					  pinfo->destport, 0);
+	}
+	gss_info = conversation_get_proto_data(conversation, proto_gssapi);
+	if (!gss_info) {
+		gss_info = se_alloc(sizeof(gssapi_conv_info_t));
+		gss_info->oid=NULL;
+
+		conversation_add_proto_data(conversation, proto_gssapi, gss_info);
 	}
 
 
@@ -197,17 +210,16 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * pointer; it just treats it as an opaque pointer, it
 		   * doesn't dereference it or free what it points to.)
 		   */
-		  value = p_get_proto_data(pinfo->fd, proto_gssapi);
-		  if (!value && !pinfo->fd->flags.visited)
+		  oidvalue = p_get_proto_data(pinfo->fd, proto_gssapi);
+		  if (!oidvalue && !pinfo->fd->flags.visited)
 		  {
 		    /* No handle attached to this frame, but it's the first */
 		    /* pass, so it'd be attached to the conversation. */
-		    value = conversation_get_proto_data(conversation, 
-							   proto_gssapi);
-		    if (value)
-		      p_add_proto_data(pinfo->fd, proto_gssapi, value);
+		    oidvalue = gss_info->oid;
+		    if (gss_info->oid)
+		      p_add_proto_data(pinfo->fd, proto_gssapi, gss_info->oid);
 		  }
-		  if (!value)
+		  if (!oidvalue)
 		  {
 		    /* It could be NTLMSSP, with no OID.  This can happen 
 		       for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
@@ -226,9 +238,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		    oid_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
 		    if (is_verifier)
-			handle = value->wrap_handle;
+			handle = oidvalue->wrap_handle;
 		    else
-			handle = value->handle;
+			handle = oidvalue->handle;
 		    len = call_dissector(handle, oid_tvb, pinfo, subtree);
 		    if (len == 0)
 			return_offset = tvb_length(tvb);
@@ -241,14 +253,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Read oid */
 		oid_start_offset=offset;
 		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, &oid);
-		value = gssapi_lookup_oid_str(oid);
+		oidvalue = gssapi_lookup_oid_str(oid);
 
 		/*
 		 * Hand off to subdissector.
 		 */
 
-		if ((value == NULL) ||
-		    !proto_is_protocol_enabled(value->proto)) {
+		if ((oidvalue == NULL) ||
+		    !proto_is_protocol_enabled(oidvalue->proto)) {
 			/* No dissector for this oid */
 			proto_tree_add_text(subtree, tvb, oid_start_offset, -1,
 					    "Token object");
@@ -265,15 +277,12 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * Now add the proto data ... 
 		 * but only if it is not already there.
 		 */
-
-		if (!conversation_get_proto_data(conversation,
-						 proto_gssapi)) {
-		  conversation_add_proto_data(conversation,
-					      proto_gssapi, value);
+		if(!gss_info->oid){
+		  gss_info->oid=oidvalue;
 		}
 
 		if (is_verifier) {
-			handle = value->wrap_handle;
+			handle = oidvalue->wrap_handle;
 			if (handle != NULL) {
 				oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
 				len = call_dissector(handle, oid_tvb, pinfo,
@@ -288,7 +297,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				return_offset = tvb_length(tvb);
 			}
 		} else {
-			handle = value->handle;
+			handle = oidvalue->handle;
 			if (handle != NULL) {
 				oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
 				len = call_dissector(handle, oid_tvb, pinfo,
