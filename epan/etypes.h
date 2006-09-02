@@ -88,6 +88,10 @@
 #define ETHERTYPE_IP		0x0800
 #endif
 
+#ifndef ETHERTYPE_EPL_V1
+#define ETHERTYPE_EPL_V1	0x3E3F
+#endif
+
 #ifndef ETHERTYPE_X25L3
 #define ETHERTYPE_X25L3		0x0805
 #endif

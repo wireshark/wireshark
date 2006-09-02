@@ -2517,6 +2517,14 @@ Mark Lewis		<mlewis [AT] altera.com> {
 	2dParityFec dissector
 }
 
+Dominic Bechaz		<bdo [AT] zhwin.ch> {
+	EPL v1 support
+}
+
+David Buechi		<bhd [AT] zhwin.ch> {
+	EPL v1 support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

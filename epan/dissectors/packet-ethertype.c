@@ -52,6 +52,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_XNS_IDP,				"XNS Internet Datagram Protocol" },
     {ETHERTYPE_X25L3,				"X.25 Layer 3"			},
     {ETHERTYPE_ARP,					"ARP"				},
+    {ETHERTYPE_EPL_V1,					"EPL_V1"				},
     {ETHERTYPE_REVARP,				"RARP"				},
     {ETHERTYPE_DEC_LB,				"DEC LanBridge"			},
     {ETHERTYPE_ATALK,				"Appletalk"			},
