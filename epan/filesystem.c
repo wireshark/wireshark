@@ -507,17 +507,16 @@ get_datafile_dir(void)
 #endif
 	static char *datafile_dir = NULL;
 
-	if(datafile_dir != NULL)
+	if (datafile_dir != NULL)
 		return datafile_dir;
 
 #ifdef _WIN32
 
 	u3deviceexecpath = getenv_utf8("U3_DEVICE_EXEC_PATH");
 
-	if(u3deviceexecpath != NULL) {
+	if (u3deviceexecpath != NULL) {
 		datafile_dir = u3deviceexecpath;
 	} else {
-
 		/*
 		 * Do we have the pathname of the program?  If so, assume we're
 		 * running an installed version of the program.  If we fail,
@@ -529,14 +528,18 @@ get_datafile_dir(void)
 		 * If so, perhaps we should read that from the registry,
 		 * instead.
 		 */
-		if (progfile_dir != NULL)
-			datafile_dir = progfile_dir;
-		else 
+		if (progfile_dir != NULL) {
 			/*
-			* No, we don't.
-			* Fall back on the default installation directory.
-			*/
+			 * Yes, we do; use that.
+			 */
+			datafile_dir = progfile_dir;
+		} else {
+			/*
+			 * No, we don't.
+			 * Fall back on the default installation directory.
+			 */
 			datafile_dir = "C:\\Program Files\\Wireshark\\";
+		}
 	}
 #else
 	/*
@@ -648,26 +651,23 @@ get_persconffile_dir(void)
 		return pf_dir;
 
 #ifdef _WIN32
-
 	/*
-	 * See if we are running in a U3 environment 
+	 * See if we are running in a U3 environment.
 	 */
-
 	u3appdatapath = getenv_utf8("U3_APP_DATA_PATH");	
-		
-	if(u3appdatapath != NULL) {
-
-		pf_dir = u3appdatapath;
-
-	} else {
-	
+	if (u3appdatapath != NULL) {
 		/*
-		 * Use %APPDATA% or %USERPROFILE%, so that configuration files are
-		 * stored in the user profile, rather than in the home directory.
-		 * The Windows convention is to store configuration information
-		 * in the user profile, and doing so means you can use
-		 * Wireshark even if the home directory is an inaccessible
-		 * network drive.
+		 * We are; use the U3 application data path.
+		 */
+		pf_dir = u3appdatapath;
+	} else {
+		/*
+		 * Use %APPDATA% or %USERPROFILE%, so that configuration
+		 * files are stored in the user profile, rather than in
+		 * the home directory.  The Windows convention is to store
+		 * configuration information in the user profile, and doing
+		 * so means you can use Wireshark even if the home directory
+		 * is an inaccessible network drive.
 		 */
 		appdatadir = getenv_utf8("APPDATA");
 		if (appdatadir != NULL) {
@@ -675,7 +675,7 @@ get_persconffile_dir(void)
 			 * Concatenate %APPDATA% with "\Wireshark".
 			 */
 			pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-				appdatadir, PF_DIR);
+			    appdatadir, PF_DIR);
 		} else {
 			/*
 			 * OK, %APPDATA% wasn't set, so use
@@ -683,9 +683,9 @@ get_persconffile_dir(void)
 			 */
 			userprofiledir = getenv_utf8("USERPROFILE");
 			if (userprofiledir != NULL) {
-					pf_dir = g_strdup_printf(
-					    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
-					    userprofiledir, PF_DIR);
+				pf_dir = g_strdup_printf(
+				    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
+				    userprofiledir, PF_DIR);
 			} else {
 				/*
 				 * Give up and use "C:".
