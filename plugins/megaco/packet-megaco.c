@@ -1027,7 +1027,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 	gint		tvb_len, len;
 	gint		tvb_current_offset,tvb_previous_offset,tokenlen;
 	gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
-	guint8	  tempchar;
+	guint8		tempchar;
 	tvb_len  	= tvb_length(tvb);
 
 
@@ -2516,7 +2516,7 @@ static const megaco_tokens_t megaco_localParam_names[] = {
 		/* streamMode */
 		{ "Mode",						"MO" }, /* 1 */
 		{ "ReservedValue",				"RV" }, /* 2 */
-		{ "ReservedGroup",				"RV" }, /* 3 */
+		{ "ReservedGroup",				"RG" }, /* 3 */
 		/* propertyParm         = pkgdName parmValue
 		 * Add more package names as needed.
 		 */
@@ -2570,14 +2570,26 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		/*
 		 * Find local parameter name
 		 */
-		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, ' ');
+		/* Find token length */
+		for (tvb_offset=tvb_current_offset; tvb_offset < tvb_next_offset; tvb_offset++){
+			if (!isalpha(tvb_get_guint8(tvb, tvb_offset ))){
+				break;
+			}
+		}
 		token_name_len = tvb_offset - tvb_current_offset;
+		/* Debug Code
+		proto_tree_add_text(megaco_LocalControl_tree, tvb, tvb_current_offset, token_name_len,
+				"%s", tvb_format_text(tvb,tvb_current_offset,token_name_len));
+
+		 */
 		token_index = find_megaco_localParam_names(tvb, tvb_current_offset, token_name_len);
 		/* Find start of parameter value */
-		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, '=');
-		if (tvb_offset < tvb_next_offset)
+		tvb_offset = tvb_find_guint8(tvb, tvb_offset , tvb_next_offset, '=');
+		if (tvb_offset == -1)
 			THROW(ReportedBoundsError);
-		tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+		/* Start search after '=' in case there is no SP*/
+		tvb_offset++;
+		tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset);
 
 		/* find if there are more parameters or not */
 		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_offset, ',');
@@ -2586,7 +2598,11 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		}
 
 		tokenlen = tvb_offset - tvb_current_offset;
+		/* Debug Code
+		proto_tree_add_text(megaco_LocalControl_tree, tvb, tvb_current_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_current_offset,tokenlen));
 
+		 */
 		switch ( token_index ){
 
 		case MODETOKEN: /* Mode */
