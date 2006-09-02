@@ -2578,10 +2578,10 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		}
 		token_name_len = tvb_offset - tvb_current_offset;
 		/* Debug Code
-		 */
 		proto_tree_add_text(megaco_LocalControl_tree, tvb, tvb_current_offset, token_name_len,
 				"%s", tvb_format_text(tvb,tvb_current_offset,token_name_len));
 
+		 */
 		token_index = find_megaco_localParam_names(tvb, tvb_current_offset, token_name_len);
 		/* Find start of parameter value */
 		tvb_offset = tvb_find_guint8(tvb, tvb_offset , tvb_next_offset, '=');
