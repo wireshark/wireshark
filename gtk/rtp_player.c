@@ -70,8 +70,8 @@
 #include <epan/dissectors/packet-rtp.h>
 
 #include "rtp_player.h"
-#include "gtk/codecs/G711a/G711adecode.h"
-#include "gtk/codecs/G711u/G711udecode.h"
+#include "codecs/G711a/G711adecode.h"
+#include "codecs/G711u/G711udecode.h"
 #include <math.h>
 
 #ifndef min

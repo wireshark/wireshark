@@ -285,6 +285,7 @@ wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
 # linked into the wireshark executable.
 wireshark_additional_libs = \
 	gtk/libui.a		\
+	codecs/libcodec.a	\
 	wiretap/libwiretap.la	\
 	epan/libwireshark.la
 
@@ -716,7 +717,7 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 doc epan gtk help packaging plugins tools wiretap
+DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap
 
 if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging help @wireshark_SUBDIRS@

@@ -51,8 +51,8 @@ WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
 WIRESHARK_WIN32_GTK_OBJECTS = $(WIRESHARK_WIN32_GTK_SRC:.c=.obj)
 	
 
-libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) ..\gtk\codecs\codecs.lib
-	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib ..\gtk\codecs\codecs.lib 
+libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
+	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
 
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.common
 	@echo Making wireshark-tap-register.c
@@ -63,11 +63,6 @@ pa_lib.obj: $(PORTAUDIO_DIR)\pa_common\pa_lib.c
 
 pa_win_wmme.obj: $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c
 	$(CC) -c /Zi /W1 /Od /I$(PORTAUDIO_DIR)\pa_common $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c -o $@
-
-..\gtk\codecs\codecs.lib: 
-        cd codecs
-        $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-        cd ..
 
 clean:
 	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*

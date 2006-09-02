@@ -152,20 +152,20 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
 !ELSE
-wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\libcodec.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK1_LIBS) gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK1_LIBS) codecs\libcodec.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
 !IFNDEF GTK2_DIR
 wireshark-gtk2.exe	: 
 !ELSE
-wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\libcodec.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK2_LIBS) codecs\libcodec.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
@@ -304,6 +304,8 @@ clean: gtk2_distclean
 	cd ..
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../codecs
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../epan
@@ -327,6 +329,8 @@ clean: gtk2_distclean
 distclean: clean gtk2_distclean
 	rm -f config.h $(BUILT_SOURCES)
 	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -352,6 +356,8 @@ distclean: clean gtk2_distclean
 maintainer-clean: distclean
 	rm -f $(GENERATED_FILES)
 	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -385,6 +391,11 @@ wiretap::
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
+
+codecs:: help config.h svnversion.h AUTHORS-SHORT doxygen
+        cd codecs
+        $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+        cd ..
 
 gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk

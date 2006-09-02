@@ -28,7 +28,6 @@ noinst_LIBRARIES = libui.a
 CLEANFILES = \
 	libui.a		\
 	*~
-SUBDIRS = codecs
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\

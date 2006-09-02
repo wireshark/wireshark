@@ -431,7 +431,7 @@ if test "$GTK_OK" = "no" ; then
 else
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
-        wireshark_SUBDIRS="gtk"
+        wireshark_SUBDIRS="codecs gtk"
 	# Honor GLIB_CFLAGS
 	if test "$GTK_OK" = "two" ; then
 		AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
@@ -1347,8 +1347,8 @@ AC_OUTPUT(
   epan/dfilter/Makefile
   epan/dissectors/Makefile
   epan/ftypes/Makefile
+  codecs/Makefile
   gtk/Makefile
-  gtk/codecs/Makefile
   gtk/doxygen.cfg
   help/Makefile
   packaging/Makefile
