@@ -2192,28 +2192,29 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          * Put the operation number into the tree along with
          * the operation's name.
          */
-    if(sub_dissect == NULL)
-	if (sub_proto->opnum_hf != -1)
-            proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
-                                       tvb, 0, 0, info->call_data->opnum,
-                                       "Operation: %s (%u)",
-                                       name, info->call_data->opnum);
-	else
-            proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
-                                       0, 0, info->call_data->opnum,
-                                       "Operation: %s (%u)",
-                                       name, info->call_data->opnum);
+        if(sub_dissect == NULL) {
+	    if (sub_proto->opnum_hf != -1)
+                proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
+                                           tvb, 0, 0, info->call_data->opnum,
+                                           "Operation: %s (%u)",
+                                           name, info->call_data->opnum);
+            else
+                proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
+                                           0, 0, info->call_data->opnum,
+                                           "Operation: %s (%u)",
+                                           name, info->call_data->opnum);
+	}
 
-    if(info->ptype == PDU_REQ && info->call_data->rep_frame!=0) {
-		pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,
-				    tvb, 0, 0, info->call_data->rep_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
-    }
-    if(info->ptype == PDU_RESP && info->call_data->req_frame!=0) {
-		pi = proto_tree_add_uint(sub_tree, hf_dcerpc_request_in,
-				    tvb, 0, 0, info->call_data->req_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
-    }
+        if(info->ptype == PDU_REQ && info->call_data->rep_frame!=0) {
+            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,
+                                     tvb, 0, 0, info->call_data->rep_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+	}
+        if(info->ptype == PDU_RESP && info->call_data->req_frame!=0) {
+            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_request_in,
+                                     tvb, 0, 0, info->call_data->req_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+	}
     } /* tree */
 
     if (decrypted_tvb != NULL) {
