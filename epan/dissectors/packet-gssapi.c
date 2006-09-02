@@ -139,13 +139,21 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	pinfo->gssapi_data_encrypted = FALSE;
 
-	/*
-	 * We need this later, so lets get it now ...
-	 */
 
+	/*
+	 * We need a conversation for later
+	 */
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					 pinfo->ptype, pinfo->srcport,
 					 pinfo->destport, 0);
+	if(!conversation){
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+					  &pinfo->dst, 
+					  pinfo->ptype, 
+					  pinfo->srcport, 
+					  pinfo->destport, 0);
+	}
+
 
 	item = proto_tree_add_item(
 		tree, proto_gssapi, tvb, offset, -1, FALSE);
@@ -194,15 +202,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  {
 		    /* No handle attached to this frame, but it's the first */
 		    /* pass, so it'd be attached to the conversation. */
-		    /* If we have a conversation, try to get the handle, */
-		    /* and if we get one, attach it to the frame. */
-		    if (conversation)
-		    {
-		      value = conversation_get_proto_data(conversation, 
+		    value = conversation_get_proto_data(conversation, 
 							   proto_gssapi);
-		      if (value)
-			p_add_proto_data(pinfo->fd, proto_gssapi, value);
-		    }
+		    if (value)
+		      p_add_proto_data(pinfo->fd, proto_gssapi, value);
 		  }
 		  if (!value)
 		  {
@@ -261,19 +264,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		oid_subtree = proto_item_add_subtree(sub_item, value->ett);
 		*/
 
-		/* 
-		 * Here we should create a conversation if needed and 
-		 * save a pointer to the data for that OID for the
-		 * GSSAPI protocol.
+		/* Save a pointer to the data for the OID for the
+		 * GSSAPI protocol for this conversation.
 		 */
-
-		if (!conversation) { /* Create one */
-		  conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-						  &pinfo->dst, 
-						  pinfo->ptype, 
-						  pinfo->srcport, 
-						  pinfo->destport, 0);
-		}
 
 		/*
 		 * Now add the proto data ... 
