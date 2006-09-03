@@ -1,44 +1,54 @@
 /* rtp_player.c
-* RTP Player
-*
-*  (c) 2006, Alejandro Vaquero <alejandrovaquero@yahoo.com>
-*
-* Here is a summary on how this works:
-*  - The VoipCalls will call add_rtp_packet() every time there is an RTP packet
-*  - add_rtp_packet() will add the RTP packet in a RTP stream struct, and create the RTP stream if it is the 
-*    first RTP in the stream.
-*  - Each new RTP stream will be added to a list of RTP stream, called rtp_streams_list
-*  - When the user clicks "Player" in the VoipCall dialogue, rtp_player_init() is called.
-*  - rtp_player_init() create the main dialog, and it calls:
-*    + mark_rtp_stream_to_play() to mark the RTP streams that needs to be displayed. These are the RTP stream
-*      that match the selected calls in the VoipCall dlg.
-*    + decode_rtp_stream() this will decode the RTP packets in each RTP stream, and will also create 
-*      the RTP channles. An RTP channel is a group of RTP stream that have in common the source and destination
-*      IP and UPD ports. The RTP channels is what the user will listen in one of the two Audio channles. 
-*      The RTP channels are stored in the hash table rtp_channels_hash
-*    + add_channel_to_window() will create and add the Audio graphic representation in the main window
-*  - When the user click the check box to listen one of the Audio channels, the structure rtp_channels is filled 
-*    to play one or two RTP channels (a max of two channels can be listened at a given moment)
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1999 Gerald Combs
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ *
+ * $Id$
+ *
+ *  Copyright 2006, Alejandro Vaquero <alejandrovaquero@yahoo.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1999 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
+/*
+ * Here is a summary on how this works:
+ *  - The VoipCalls will call add_rtp_packet() every time there is an RTP
+ *    packet
+ *  - add_rtp_packet() will add the RTP packet in a RTP stream struct, and
+ *    create the RTP stream if it is the  first RTP in the stream.
+ *  - Each new RTP stream will be added to a list of RTP stream, called
+ *    rtp_streams_list
+ *  - When the user clicks "Player" in the VoipCall dialogue,
+ *    rtp_player_init() is called.
+ *  - rtp_player_init() create the main dialog, and it calls:
+ *    + mark_rtp_stream_to_play() to mark the RTP streams that needs to be
+ *      displayed. These are the RTP stream that match the selected calls in
+ *      the VoipCall dlg.
+ *    + decode_rtp_stream() this will decode the RTP packets in each RTP
+ *      stream, and will also create  the RTP channles. An RTP channel is a
+ *      group of RTP stream that have in common the source and destination
+ *      IP and UPD ports. The RTP channels is what the user will listen in
+ *      one of the two Audio channles. 
+ *      The RTP channels are stored in the hash table rtp_channels_hash
+ *    + add_channel_to_window() will create and add the Audio graphic
+ *      representation in the main window
+ *  - When the user click the check box to listen one of the Audio channels,
+ *    the structure rtp_channels is filled  to play one or two RTP channels
+ *    (a max of two channels can be listened at a given moment)
+ */
 
 
 #ifdef HAVE_CONFIG_H
@@ -835,7 +845,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		}
 
 	}
-*/
+ */
 	if (!rci->cursor_catch) {
 		if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
@@ -870,7 +880,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->h_scrollbar_adjustment->value = index/MULT;
 		}
 	}
-*/
+ */
 
 /*	if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
@@ -879,9 +889,9 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	} else {
 		rci->h_scrollbar_adjustment->value = index/MULT - rci->h_scrollbar_adjustment->page_size/2;
 	}
-*/
+ */
 /*	gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
-*/
+ */
 	rci->cursor_prev = index;
 }
 
