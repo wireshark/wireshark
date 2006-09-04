@@ -55,6 +55,8 @@
 #include "config.h"
 #endif
 
+ifdef HAVE_LIBPORTAUDIO
+
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
 #include <string.h>
@@ -1833,5 +1835,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	rtp_player_dlg_create();
 	
 }
+
+#endif
  
 #endif

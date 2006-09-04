@@ -112,18 +112,10 @@ noinst_HEADERS = \
 	webbrowser.h
 
 if USE_GTK2
-if HAVE_LIBPORTAUDIO
-libui_a_SOURCES = \
-	$(WIRESHARK_GTK_SRC) \
-	$(noinst_HEADERS) \
-	$(WIRESHARK_TAP_SRC) \
-	rtp_player.c
-else
 libui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
-endif
 else
 libui_a_SOURCES = \
 	ethclist.c	\
