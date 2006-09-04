@@ -1287,10 +1287,16 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 static guint16 annex_e_parameter_id;
 
 static int
+dissect_h248_Name(gboolean, tvbuff_t *, int, packet_info *, proto_tree *, int);
+
+static int
+dissect_h248_Value(gboolean, tvbuff_t *, int, packet_info *, proto_tree *, int);
+
+static int
 dissect_h248_EventOrSigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
 	guint16 name_major;
-    tvbuff_t *new_tvb;
+	tvbuff_t *new_tvb;
 
 	name_major = packageandid >> 16;
 

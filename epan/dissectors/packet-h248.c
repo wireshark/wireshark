@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -1695,10 +1695,16 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 static guint16 annex_e_parameter_id;
 
 static int
+dissect_h248_Name(gboolean, tvbuff_t *, int, packet_info *, proto_tree *, int);
+
+static int
+dissect_h248_Value(gboolean, tvbuff_t *, int, packet_info *, proto_tree *, int);
+
+static int
 dissect_h248_EventOrSigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
 	guint16 name_major;
-    tvbuff_t *new_tvb;
+	tvbuff_t *new_tvb;
 
 	name_major = packageandid >> 16;
 
@@ -6203,7 +6209,7 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 2164 "packet-h248-template.c"
+#line 2170 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -7578,7 +7584,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2490 "packet-h248-template.c"
+#line 2496 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7733,7 +7739,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2512 "packet-h248-template.c"
+#line 2518 "packet-h248-template.c"
   };
 
   module_t *h248_module;
