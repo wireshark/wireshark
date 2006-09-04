@@ -348,12 +348,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 
 	/* Build the info tree if we've been given a root */
-	if (tree){
-		/* Create megaco subtree */
-		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
-		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
+	/* Create megaco subtree */
+	ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+	megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 
-	}
 	if(global_megaco_dissect_tree)
 		my_proto_tree_add_string = proto_tree_add_string;
 	else
@@ -598,7 +596,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *			TransToken = ("Transaction" / "T")
  */
 
-if(tree) {   /* Only do the rest if tree built */
 		/* Find Context */
 nextcontext:
 		tvb_previous_offset = tvb_find_guint8(tvb, tvb_current_offset,
@@ -1015,7 +1012,6 @@ nextcontext:
 
 			}
 		} while ( tvb_command_end_offset < tvb_len );
-	}
 	if(global_megaco_raw_text){
 		tvb_raw_text_add(tvb, megaco_tree);
 	}
