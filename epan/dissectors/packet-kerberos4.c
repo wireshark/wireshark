@@ -282,7 +282,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	return offset;
 }
 
-static int
+static gboolean
 dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree;
@@ -295,7 +295,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 */
 	version=tvb_get_guint8(tvb, offset);
 	if((version!=4)&&(version!=TRANSARC_SPECIAL_VERSION)){ 
-		return 0;
+		return FALSE;
 	}
 
 	opcode=tvb_get_guint8(tvb, offset+1);
@@ -311,7 +311,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case AUTH_MSG_DIE:
 		break;
 	default:
-		return 0;
+		return FALSE;
 	}
 
 	/* create a tree for krb4 */
@@ -348,7 +348,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case AUTH_MSG_DIE:
 		break;
 	}
-	return tvb_length(tvb);
+	return TRUE;
 }
 
 void

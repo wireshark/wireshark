@@ -4207,7 +4207,10 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
     if(tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0)<=0x10){
       if(krb4_handle){ 
-	return call_dissector(krb4_handle, tvb, pinfo, tree);
+	gboolean res;
+
+	res=call_dissector_only(krb4_handle, tvb, pinfo, tree);
+	return res;
       }else{
         return 0;
       }
