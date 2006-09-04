@@ -3012,6 +3012,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  pid_field = 2;
 	}
       } else {
+	pid_field = 0;   /*PID field is 0 bytes*/
 	if (!pid){	 /*No Last PID, hence use the default */
 	  if (pppmux_def_prot_id)
 	    pid = pppmux_def_prot_id;
@@ -3034,7 +3035,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
 			  decode_boolean_bitfield(flags,0x80,8,"PID Present","PID not present"));
       proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
-			  decode_boolean_bitfield(flags,0x40,8,"2 bytes ength field ","1 byte length field"));
+			  decode_boolean_bitfield(flags,0x40,8,"2 bytes length field ","1 byte length field"));
 
       ti = proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
 
@@ -3050,7 +3051,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       sub_ti = proto_tree_add_text(sub_tree,tvb,offset,length,"Information Field");
       info_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_info);
 
-      next_tvb = tvb_new_subset(tvb,offset,length,-1);
+      next_tvb = tvb_new_subset(tvb,offset,length,length);
 
       if (!dissector_try_port(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
 	call_dissector(data_handle, next_tvb, pinfo, info_tree);
