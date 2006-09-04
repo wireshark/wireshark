@@ -1043,7 +1043,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 	#
 	if test "x$want_portaudio" != "xno"
 	then
-		AC_MSG_CHECKING(whether PortAudioStream is defined in portaudio.h)
 		AC_CHECK_TYPE(PortAudioStream,,
 		[
 			CFLAGS="$wireshark_save_CFLAGS"
@@ -1058,7 +1057,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 				want_portaudio=no	
 			fi
 		],
-		[INCLUDES=portaudio.h])
+		[#include <portaudio.h>])
 	fi
 
 	if test "x$want_portaudio" != "xno"
