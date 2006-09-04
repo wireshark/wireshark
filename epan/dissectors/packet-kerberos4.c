@@ -298,6 +298,22 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return 0;
 	}
 
+	opcode=tvb_get_guint8(tvb, offset+1);
+	switch(opcode>>1){
+	case AUTH_MSG_KDC_REQUEST:
+	case AUTH_MSG_KDC_REPLY:
+	case AUTH_MSG_APPL_REQUEST:
+	case AUTH_MSG_APPL_REQUEST_MUTUAL:
+	case AUTH_MSG_ERR_REPLY:
+	case AUTH_MSG_PRIVATE:
+	case AUTH_MSG_SAFE:
+	case AUTH_MSG_APPL_ERR:
+	case AUTH_MSG_DIE:
+		break;
+	default:
+		return 0;
+	}
+
 	/* create a tree for krb4 */
 	item = proto_tree_add_item(parent_tree, proto_krb4, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_krb4);
@@ -312,7 +328,6 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset++;
 
 	/* auth_msg_type */
-	opcode=tvb_get_guint8(tvb, offset);
 	offset = dissect_krb4_auth_msg_type(pinfo, tree, tvb, offset, version);
 
 	switch(opcode>>1){
