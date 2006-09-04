@@ -1053,7 +1053,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			PORTAUDIO_LIBS=""
 			if test x$want_portaudio = xyes;
 			then
-				AC_MSG_ERROR(Wrong version of portaudio includes)
+				AC_MSG_ERROR([Wrong version of portaudio, need <= 18])
 			else
 				want_portaudio=no	
 			fi
