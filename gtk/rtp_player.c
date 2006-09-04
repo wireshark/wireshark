@@ -1836,6 +1836,6 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	
 }
 
-#endif
+#endif /* GTK_MAJOR_VERSION >= 2 */
  
-#endif
+#endif /* HAVE_LIBPORTAUDIO */
