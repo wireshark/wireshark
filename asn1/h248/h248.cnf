@@ -17,6 +17,13 @@ SignalName
 EventName
 ContextID
 ErrorCode
+EventParameter/eventParameterName
+EventParameter/value
+SigParameter/sigParameterName
+SigParameter/value
+StatisticsParameter/statName
+PropertyParm/propertyName
+StatisticsParameter/statValue
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
@@ -26,6 +33,13 @@ TransactionRequest/transactionId		transactionId
 TransactionPending/transactionId		transactionId
 TransactionReply/transactionId			transactionId
 TransactionResponseAck/transactionId    transactionId
+EventParameter/eventParameterName		EventOrSigParameterName
+EventParameter/value				EventOrSigParameterValue
+SigParameter/sigParameterName			EventOrSigParameterName
+SigParameter/value				EventOrSigParameterValue
+StatisticsParameter/statName		StatName
+StatisticsParameter/statValue			StatValue
+PropertyParm/propertyName		PropertyName
 
 #.FIELD_RENAME
 IP4Address/address		iP4Address
@@ -67,6 +81,9 @@ NotifyRequest/terminationID			terminationIDList
 NotifyReply/terminationID			terminationIDList
 ServiceChangeRequest/terminationID			terminationIDList
 ServiceChangeReply/terminationID			terminationIDList
+EventParameter/value				eventParameterValue
+SigParameter/value				sigParameterValue
+IndAudStatisticsDescriptor/statName		iAStatName
 
 
 #.FN_HDR Message
