@@ -41,4 +41,4 @@ void add_rtp_packet(struct _rtp_info *rtp_info, packet_info *pinfo);
 void reset_rtp_player(void);
 #endif
 
-#endif
+#endif /* HAVE_LIBPORTAUDIO */

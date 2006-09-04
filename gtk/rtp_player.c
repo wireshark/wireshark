@@ -55,7 +55,7 @@
 #include "config.h"
 #endif
 
-ifdef HAVE_LIBPORTAUDIO
+#ifdef HAVE_LIBPORTAUDIO
 
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
@@ -93,9 +93,9 @@ ifdef HAVE_LIBPORTAUDIO
 /*#define HAVE_G729_G723 1*/
 
 #ifdef HAVE_G729_G723
-#include "gtk/codecs/G729/G729decode.h"
-#include "gtk/codecs/G723/G723decode.h"
-#endif
+#include "codecs/G729/G729decode.h"
+#include "codecs/G723/G723decode.h"
+#endif /* HAVE_G729_G723 */
 
 static gboolean initialized = FALSE;
 
@@ -465,7 +465,7 @@ decode_rtp_packet(rtp_packet_t *rp, rtp_channel_info_t *rci, SAMPLE **out_buff)
 		decodeG723(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break;
-#endif
+#endif /* HAVE_G729_G723 */
 	} 
 
 	*out_buff = tmp_buff;
@@ -1823,7 +1823,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	/* Initialize the G729 and G723 decoders */
 	initG723();
 	initG729();
-#endif
+#endif /* HAVE_G729_G723 */
 
 	if (!rtp_channels) {
 		rtp_channels = g_malloc(sizeof(rtp_play_channles_t));
