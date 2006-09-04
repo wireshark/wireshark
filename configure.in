@@ -825,7 +825,7 @@ dnl portaudio check
 AC_MSG_CHECKING(whether to use libportaudio for the rtp_player)
 
 AC_ARG_WITH(portaudio,
-[  --with-portaudio[[=DIR]]  use libportaudio (located in directory DIR, if supplied) for the rtp_player.  [[default=no]]],
+[  --with-portaudio[[=DIR]]  use libportaudio (located in directory DIR, if supplied) for the rtp_player.  [[default=yes, if available]]],
 [
 	if test $withval = no
 	then
@@ -839,9 +839,9 @@ AC_ARG_WITH(portaudio,
 	fi
 ],[
 	#
-	# Don't use libportaudio by default
+	# Use libportaudio by default
 	#
-	want_portaudio=no
+	want_portaudio=ifavailable
 	portaudio_dir=
 ])
 if test "x$want_portaudio" = "xno" ; then

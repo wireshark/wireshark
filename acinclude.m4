@@ -605,7 +605,7 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 				# zlib there, or didn't find a zlib that
 				# contains gzgets there.
 				#
-			        CFLAGS="$wireshark_save_CFLAGS"
+				CFLAGS="$wireshark_save_CFLAGS"
 				CPPFLAGS="$wireshark_save_CPPFLAGS"
 				LIBS="$wireshark_save_LIBS"
 			fi
@@ -636,7 +636,7 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		CFLAGS="$CFLAGS $GTK_CFLAGS"
 		LIBS="$GTK_LIBS -lz $LIBS"
 		AC_MSG_CHECKING([for gzgets missing when linking with X11])
-	        AC_TRY_LINK_FUNC(gzgets, AC_MSG_RESULT(no),
+		AC_TRY_LINK_FUNC(gzgets, AC_MSG_RESULT(no),
 		  [
 		    AC_MSG_RESULT(yes)
 		    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
@@ -895,22 +895,22 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				    #
 				    if test "x$lua_dir" != "x"
 				    then
-				        #
-				        # Restore the versions of CFLAGS, CPPFLAGS,
-				        # LDFLAGS, and LIBS before we added the
-				        # "--with-lua=" directory, as we didn't
-				        # actually find lua there.
-				        #
-				        CFLAGS="$wireshark_save_CFLAGS"
-				        CPPFLAGS="$wireshark_save_CPPFLAGS"
-				        LDFLAGS="$wireshark_save_LDFLAGS"
-				        LIBS="$wireshark_save_LIBS"
-				        LUA_LIBS=""
+					#
+					# Restore the versions of CFLAGS, CPPFLAGS,
+					# LDFLAGS, and LIBS before we added the
+					# "--with-lua=" directory, as we didn't
+					# actually find lua there.
+					#
+					CFLAGS="$wireshark_save_CFLAGS"
+					CPPFLAGS="$wireshark_save_CPPFLAGS"
+					LDFLAGS="$wireshark_save_LDFLAGS"
+					LIBS="$wireshark_save_LIBS"
+					LUA_LIBS=""
 				    fi
 				    # User requested --with-lua but it isn't available
 				    if test "x$want_lua" = "xyes"
 				    then
-				        AC_MSG_ERROR(Linking with liblualib failed.)
+					AC_MSG_ERROR(Linking with liblualib failed.)
 				    fi
 				    want_lua=no
 				])
@@ -1016,6 +1016,11 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			#
 			AC_MSG_ERROR([libportaudio header not found in directory specified in --with-portaudio])
 		else
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
+			PORTAUDIO_LIBS=""
 			if test "x$want_portaudio" = "xyes"
 			then
 				#
@@ -1032,6 +1037,29 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			fi
 		fi
 	])
+
+	#
+	# Check whether we have the right version of portaudio
+	#
+	if test "x$want_portaudio" != "xno"
+	then
+		AC_MSG_CHECKING(whether PortAudioStream is defined in portaudio.h)
+		AC_CHECK_TYPE(PortAudioStream,,
+		[
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
+			PORTAUDIO_LIBS=""
+			if test x$want_portaudio = xyes;
+			then
+				AC_MSG_ERROR(Wrong version of portaudio includes)
+			else
+				want_portaudio=no	
+			fi
+		],
+		[INCLUDES=portaudio.h])
+	fi
 
 	if test "x$want_portaudio" != "xno"
 	then
@@ -1100,9 +1128,9 @@ AC_DEFUN([AC_WIRESHARK_NETSNMP_CHECK],
 		#
 		AC_PATH_PROG(NETSNMPCONFIG, net-snmp-config)
 	else
-		NETSNMPCONFIG=$netsnmpconfig
+		NETSNMPCNFIG=$netsnmpconfig
 		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
-		        NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
+			ETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
 			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
 				AC_MSG_ERROR(Invalid net-snmp-config: $netsnmpconfig)
 			fi
