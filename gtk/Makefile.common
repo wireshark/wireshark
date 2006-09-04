@@ -92,6 +92,7 @@ WIRESHARK_GTK_SRC = \
 	proto_hier_stats_dlg.c	\
 	range_utils.c \
 	recent.c	\
+	rtp_player.c	\
 	rtp_stream.c	\
 	mcast_stream.c	\
 	sctp_stat.c	\
