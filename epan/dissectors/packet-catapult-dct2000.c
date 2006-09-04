@@ -27,12 +27,15 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/proto.h>
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 
 #include <wiretap/catapult_dct2000.h>
+#include "packet-umts_fp.h"
 
 /* Protocol and registered fields. */
 static int proto_catapult_dct2000 = -1;
@@ -74,8 +77,18 @@ static const value_string encap_vals[] = {
 };
 
 
+#define MAX_OUTHDR_VALUES 32
+
+static guint outhdr_values[MAX_OUTHDR_VALUES];
+static gint outhdr_values_found = 0;
+
+extern int proto_fp;
+
+
 void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
+
+static dissector_handle_t look_for_dissector(char *protocol_name);
 
 
 /* Look for the protocol data within an ipprim packet.
@@ -305,6 +318,20 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     {
         return find_dissector("http");
     }
+    else
+    if ((strcmp(protocol_name, "fp") == 0) ||
+        (strcmp(protocol_name, "fp_r4") == 0) ||
+        (strcmp(protocol_name, "fp_r5") == 0) ||
+        (strcmp(protocol_name, "fp_r6") == 0))
+    {
+        return find_dissector("fp");
+    }
+    else
+    if ((strcmp(protocol_name, "iuup_rtp_r5") == 0) ||
+        (strcmp(protocol_name, "iuup_rtp_r6") == 0))
+    {
+        return find_dissector("rtp");
+    }
 
     /* Try for an exact match */
     else
@@ -314,14 +341,111 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 }
 
 
+/* Populate outhdr_values array with numbers found in outhdr_string */
+void parse_outhdr_string(char *outhdr_string)
+{
+    int n = 0;
+
+    /* Populate values array */
+    for (outhdr_values_found=0; n < MAX_OUTHDR_VALUES; )
+    {
+        guint start_i = n;
+        guint digits;
+
+        /* Find digits */
+        for (digits = 0; digits < strlen(outhdr_string); digits++, n++)
+        {
+            if (!isdigit(outhdr_string[n]))
+            {
+                break;
+            }
+        }
+
+        if (digits == 0)
+        {
+            /* No more numbers left */
+            break;
+        }
+
+        /* Convert digits into value */
+        outhdr_values[outhdr_values_found++] =
+            atoi(format_text(outhdr_string+start_i, digits));
+
+        /* Skip comma */
+        n++;
+    }
+}
+
+/* Fill in an FP packet info struct and attach it to the packet for the FP
+   dissector to use */
+void attach_fp_info(packet_info *pinfo, gboolean received)
+{
+    int i=0;
+    int chan;
+    int tf_start, num_chans_start;
+
+    /* Allocate & zero struct */
+    struct _fp_info *p_fp_info = se_alloc(sizeof(struct _fp_info));
+    if (!p_fp_info)
+    {
+        return;
+    }
+    memset(p_fp_info, 0, sizeof(struct _fp_info));
+
+    /* Read values from array into their places */
+    if (outhdr_values_found < 5)
+    {
+        return;
+    }
+
+    /* Channel type */
+    p_fp_info->channel = outhdr_values[i++];
+
+    /* Node type */
+    p_fp_info->node_type = outhdr_values[i++];
+    
+    p_fp_info->is_uplink = (( received  && (p_fp_info->node_type == 2)) ||
+                            (!received  && (p_fp_info->node_type == 1)));
+
+    /* DCH CRC present */
+    p_fp_info->dch_crc_present = outhdr_values[i++];
+
+    /* How many paging indications (if PCH data) */
+    p_fp_info->paging_indications = outhdr_values[i++];
+
+    /* Number of channels (for coordinated channels) */
+    p_fp_info->num_chans = outhdr_values[i++];
+
+    /* TF size for each channel */
+    tf_start = i;
+    for (chan=0; chan < p_fp_info->num_chans; chan++)
+    {
+        p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
+    }
+
+    /* Number of TBs for each channel */
+    num_chans_start = tf_start + p_fp_info->num_chans;
+    for (chan=0; chan < p_fp_info->num_chans; chan++)
+    {
+        p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
+    }
+
+    /* TODO: EDCH info */
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
+}
+
+
+
 /*****************************************/
 /* Main dissection function.             */
 /*****************************************/
 static void
 dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*dct2000_tree;
-    proto_item	*ti;
+    proto_tree  *dct2000_tree;
+    proto_item  *ti;
     gint        offset = 0;
     gint        context_length;
     guint8      port_number;
@@ -339,6 +463,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissector_handle_t protocol_handle = 0;
     dissector_handle_t heur_protocol_handle = 0;
     int sub_dissector_result = 0;
+    char        *protocol_name;
 
     /* Protocol name */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -416,13 +541,25 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_set_len(dct2000_tree, offset);
 
     /* Add useful details to protocol tree label */
+    protocol_name = tvb_get_ephemeral_string(tvb, protocol_start, protocol_length);
     proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
                            tvb_get_ephemeral_string(tvb, 0, context_length),
                            port_number,
                            tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
                            (direction == 0) ? 'S' : 'R',
-                           tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
+                           protocol_name,
                            tvb_get_ephemeral_string(tvb, variant_start, variant_length));
+
+
+    /* FP protocols need info from outhdr attached */
+    if ((strcmp(protocol_name, "fp") == 0) ||
+        (strcmp(protocol_name, "fp_r4") == 0) ||
+        (strcmp(protocol_name, "fp_r5") == 0) ||
+        (strcmp(protocol_name, "fp_r6") == 0))
+    {
+        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        attach_fp_info(pinfo, direction);
+    }
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
@@ -465,6 +602,23 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             protocol_handle = find_dissector("mtp2");
             break;
         case DCT2000_ENCAP_UNHANDLED:
+            /* Show context.port in src or dest column as appropriate */
+            if (check_col(pinfo->cinfo, COL_DEF_SRC) && direction == 0)
+            {
+                col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+                             "%s.%u",
+                             tvb_get_ephemeral_string(tvb, 0, context_length),
+                             port_number);
+            }
+            else
+            if (check_col(pinfo->cinfo, COL_DEF_DST) && direction == 1)
+            {
+                col_add_fstr(pinfo->cinfo, COL_DEF_DST,
+                             "%s.%u",
+                             tvb_get_ephemeral_string(tvb, 0, context_length),
+                             port_number);
+            }
+
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol names match, try to find the UDP/TCP data inside them and
                pass that offset to dissector
@@ -475,8 +629,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (catapult_dct2000_try_ipprim_heuristic)
             {
                 heur_protocol_handle =
-                    look_for_dissector((char*)tvb_get_ephemeral_string(tvb, protocol_start,
-                                                                       protocol_length));
+                    look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
                     find_ipprim_data_offset(tvb, &offset))
                 {
@@ -487,9 +640,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Try SCTP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic)
             {
-                heur_protocol_handle =
-                    look_for_dissector(tvb_get_ephemeral_string(tvb, protocol_start,
-                                                                protocol_length));
+                heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
                     (find_sctpprim_variant1_data_offset(tvb, &offset) ||
                      find_sctpprim_variant3_data_offset(tvb, &offset)))
@@ -661,8 +812,5 @@ void proto_register_catapult_dct2000(void)
                                    "dissector matching the DCT2000 protocol name, "
                                    "try parsing the payload using that dissector",
                                    &catapult_dct2000_try_sctpprim_heuristic);
-
-
-
 }
 

@@ -143,9 +143,8 @@ static void set_pseudo_header_info(wtap *wth,
                                    int pkt_encap,
                                    long file_offset,
                                    union wtap_pseudo_header *pseudo_header,
-                                   gint length,
                                    packet_direction_t direction);
-static void set_aal_info(union wtap_pseudo_header *pseudo_header, gint length,
+static void set_aal_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction);
 static void set_isdn_info(union wtap_pseudo_header *pseudo_header,
                           packet_direction_t direction);
@@ -395,7 +394,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Set pseudo-header if necessary */
             set_pseudo_header_info(wth, encap, this_offset, &wth->pseudo_header,
-                                   data_chars/2, direction);
+                                   direction);
 
             /* OK, we have packet details to return */
             *err = errno;
@@ -468,7 +467,7 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
         }
 
         /* Set packet pseudo-header if necessary */
-        set_pseudo_header_info(wth, encap, seek_off, pseudo_header, data_chars/2, direction);
+        set_pseudo_header_info(wth, encap, seek_off, pseudo_header, direction);
 
         *err = errno = 0;
         return TRUE;
@@ -1163,7 +1162,6 @@ void set_pseudo_header_info(wtap *wth,
                             int pkt_encap,
                             long file_offset,
                             union wtap_pseudo_header *pseudo_header,
-                            gint length,
                             packet_direction_t direction)
 {
     pseudo_header->dct2000.seek_off = file_offset;
@@ -1172,7 +1170,7 @@ void set_pseudo_header_info(wtap *wth,
     switch (pkt_encap)
     {
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-            set_aal_info(pseudo_header, length, direction);
+            set_aal_info(pseudo_header, direction);
             break;
         case WTAP_ENCAP_ISDN:
             set_isdn_info(pseudo_header, direction);
@@ -1191,8 +1189,7 @@ void set_pseudo_header_info(wtap *wth,
 /*********************************************/
 /* Fill in atm pseudo-header with known info */
 /*********************************************/
-void set_aal_info(union wtap_pseudo_header *pseudo_header, gint length,
-                  packet_direction_t direction)
+void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t direction)
 {
     /* 'aal_head_chars' has this format (for AAL2 at least):
        Global Flow Control (4 bits) | VPI (8 bits) | VCI (16 bits) |
@@ -1212,7 +1209,7 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, gint length,
     /* Assume always AAL2 for FP */
     pseudo_header->dct2000.inner_pseudo_header.atm.aal = AAL_2;
 
-    pseudo_header->dct2000.inner_pseudo_header.atm.type = TRAF_UNKNOWN;
+    pseudo_header->dct2000.inner_pseudo_header.atm.type = TRAF_UMTS_FP;
     pseudo_header->dct2000.inner_pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 
     /* vpi is 8 bits (2nd & 3rd nibble) */
@@ -1229,10 +1226,6 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, gint length,
 
     /* 0 means we don't know how many cells the frame comprises. */
     pseudo_header->dct2000.inner_pseudo_header.atm.cells = 0;
-
-    pseudo_header->dct2000.inner_pseudo_header.atm.aal5t_u2u = 0;
-    pseudo_header->dct2000.inner_pseudo_header.atm.aal5t_len = length;
-    pseudo_header->dct2000.inner_pseudo_header.atm.aal5t_chksum = 0;
 }
 
 

@@ -66,6 +66,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
 static dissector_handle_t lane_handle;
 static dissector_handle_t ilmi_handle;
+static dissector_handle_t fp_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -1014,7 +1015,8 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
 		reported_length/48);
     }
-    if (length >= reported_length) {
+    if (pinfo->pseudo_header->atm.aal == AAL_5 &&
+        length >= reported_length) {
       /*
        * XXX - what if the packet is truncated?  Can that happen?
        * What if you capture with Windows Sniffer on an ATM link
@@ -1051,23 +1053,23 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (tree) {
             if (pad_length > 0) {
               proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
-  		"Padding");
+                                  "Padding");
             }
             proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
-		tvb_get_guint8(tvb, length - 8));
+                                tvb_get_guint8(tvb, length - 8));
             proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
-		tvb_get_guint8(tvb, length - 7));
+                                tvb_get_guint8(tvb, length - 7));
             proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
-		aal5_length);
+                                aal5_length);
             crc = tvb_get_ntohl(tvb, length - 4);
             calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
-		length);
+                                  length);
             proto_tree_add_text(atm_tree, tvb, length - 4, 4,
-		"AAL5 CRC: 0x%08X (%s)", crc,
-		(calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
-	  }
+                                "AAL5 CRC: 0x%08X (%s)", crc,
+                                (calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
+          }
           next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
-	}
+        }
       }
     }
   }
@@ -1103,6 +1105,31 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         call_dissector(data_handle, next_tvb, pinfo, tree);
         break;
       }
+    }
+    break;
+
+  case AAL_2:
+    switch (pinfo->pseudo_header->atm.type) {
+      case TRAF_UMTS_FP:
+        /* Skip first 4 bytes of message
+        - CID
+        - length
+        - UUI (always 26 to indicate last data received)
+        TODO: should they be:
+        - stripped earlier?
+        - dissected as SSSAR sublayer? */
+        next_tvb = tvb_new_subset(tvb, 4,
+                                  tvb_length_remaining(tvb, 4),
+                                  tvb_length_remaining(tvb, 4));
+        call_dissector(fp_handle, next_tvb, pinfo, tree);
+        break;
+
+      default:
+        if (tree) {
+          /* Dump it as raw data. */
+          call_dissector(data_handle, next_tvb, pinfo, tree);
+          break;
+        }
     }
     break;
 
@@ -1673,6 +1700,7 @@ proto_reg_handoff_atm(void)
 	lane_handle = find_dissector("lane");
 	ilmi_handle = find_dissector("ilmi");
 	data_handle = find_dissector("data");
+	fp_handle = find_dissector("fp");
 
 	atm_handle = create_dissector_handle(dissect_atm, proto_atm);
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
