@@ -1221,10 +1221,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
-    transport_info->encoding_name = tvb_get_ephemeral_string(tvb, offset,
+	/* get_string is needed here as the string is "saved" in a hashtable */
+    transport_info->encoding_name = tvb_get_string(tvb, offset,
                                                              tokenlen);
-    proto_tree_add_text(sdp_media_attribute_tree, tvb, offset, tokenlen,
-                        "MIME type: %s", transport_info->encoding_name);
 
     key=g_malloc( sizeof(gint) );
     *key=atol(payload_type);
