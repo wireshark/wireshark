@@ -815,6 +815,7 @@ void proto_register_smrse(void) {
 
   /* Register protocol */
   proto_smrse = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  	register_dissector("smrse", dissect_smrse, proto_smrse);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_smrse, hf, array_length(hf));

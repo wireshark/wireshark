@@ -1149,6 +1149,7 @@ proto_register_radius(void)
 	radius_vendors = (value_string*) ri.vend_vs->data;
 	
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
+	register_dissector("radius", dissect_radius, proto_radius);
 	
 	proto_register_field_array(proto_radius,(hf_register_info*)(ri.hf->data),ri.hf->len);
 	proto_register_subtree_array((gint**)(ri.ett->data), ri.ett->len);
