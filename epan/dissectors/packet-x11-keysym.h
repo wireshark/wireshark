@@ -3,6 +3,9 @@
  * $Id$
  *
  * Put there so as to make packet-x11.c lighter. See packet-x11.c
+ *
+ * This file is also used by packet-vnc.c
+ *
  */
 
 #ifndef __PACKET_X11_KEYSYM_H__
