@@ -1,3 +1,6 @@
+/* TODO: dissect_nt_sid() should be changed to return ep memory
+ * and not gmalloc memory.
+ */
 /* packet-windows-common.c
  * Routines for dissecting various Windows data types
  *
@@ -1281,6 +1284,11 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	size_t returned_length;
 	unsigned long str_index;;
 
+
+	if(sid_str){
+		*sid_str=NULL;
+	}
+
 	sid_string=ep_alloc(MAX_STR_LEN);
 	if(hf_sid==-1){
 		hf_sid=hf_nt_sid;
@@ -1384,6 +1392,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           }
 	}
 
+	if(sid_str && !(*sid_str)){
+		*sid_str=g_strdup("corrupted sid");
+	}
 
 	return offset;
 }
