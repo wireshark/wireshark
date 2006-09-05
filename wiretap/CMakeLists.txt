@@ -1,0 +1,40 @@
+ADD_LIBRARY(wiretap SHARED 
+        5views.c                
+        airopeek9.c             
+        ascend.c                
+        atm.c                   
+        ber.c                   
+        buffer.c                
+        catapult_dct2000.c      
+        cosine.c                
+        csids.c                 
+        dbs-etherwatch.c        
+        erf.c                   
+        etherpeek.c             
+        eyesdn.c                
+        file_access.c           
+        file_wrappers.c         
+        hcidump.c               
+        i4btrace.c              
+        iptrace.c               
+        iseries.c               
+        k12.c                   
+        lanalyzer.c             
+        libpcap.c               
+        netmon.c                
+        nettl.c                 
+        network_instruments.c   
+        netxray.c               
+        ngsniffer.c             
+        pppdump.c               
+        radcom.c                
+        snoop.c                 
+        toshiba.c               
+        visual.c                
+        vms.c                   
+        wtap.c
+
+        ascend-grammar.c        
+        ascend-scanner.c
+)
+
