@@ -33,8 +33,17 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
+#include <epan/expert.h>
+
+/* Things we may want to remember for a whole conversation */
+typedef struct _tftp_conv_info_t {
+	guint16 blocksize;
+} tftp_conv_info_t;
+
 
 static int proto_tftp = -1;
 static int hf_tftp_opcode = -1;
@@ -81,20 +90,22 @@ static const value_string tftp_error_code_vals[] = {
   { 0, NULL }
 };
 
-static void tftp_dissect_options(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo,
+	int offset, proto_tree *tree, tftp_conv_info_t *tftp_info);
 
 static void
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*tftp_tree = NULL;
-	proto_item	*ti;
-	conversation_t  *conversation;
-	gint		offset = 0;
-	guint16		opcode;
-	guint16		bytes;
-	guint16		blocknum;
-	guint           i1;
-	guint16         error;
+	proto_tree	 *tftp_tree = NULL;
+	proto_item	 *ti;
+	conversation_t   *conversation;
+	gint		 offset = 0;
+	guint16		 opcode;
+	guint16		 bytes;
+	guint16		 blocknum;
+	guint            i1;
+	guint16	         error;
+	tftp_conv_info_t *tftp_info;
 
 	/*
 	 * The first TFTP packet goes to the TFTP port; the second one
@@ -122,6 +133,16 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    pinfo->srcport, 0, NO_PORT2);
             conversation_set_dissector(conversation, tftp_handle);
 	  }
+	} else {
+	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	  DISSECTOR_ASSERT(conversation);
+	}
+	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
+        if (!tftp_info) {
+       		tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+		tftp_info->blocksize = 512; /* TFTP default block size */
+       		conversation_add_proto_data(conversation, proto_tftp, tftp_info);
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -172,7 +193,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += i1;
 
 	  if (tree)
-	    tftp_dissect_options(tvb, offset, tftp_tree);
+	    tftp_dissect_options(tvb, pinfo,  offset, tftp_tree, tftp_info);
 	  break;
 
 	case TFTP_WRQ:
@@ -199,7 +220,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += i1;
 
 	  if (tree)
-	    tftp_dissect_options(tvb, offset, tftp_tree);
+	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree, tftp_info);
 	  break;
 
 	case TFTP_DATA:
@@ -215,7 +236,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
 		    blocknum,
-		    (bytes < 512)?" (last)":"" );
+		    (bytes < tftp_info->blocksize)?" (last)":"" );
 	  }
 
 	  if (bytes != 0) {
@@ -263,7 +284,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case TFTP_OACK:
 	  if (tree)
-	    tftp_dissect_options(tvb, offset, tftp_tree);
+	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree, tftp_info);
 	  break;
 
 	default:
@@ -277,20 +298,36 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-tftp_dissect_options(tvbuff_t *tvb, int offset, proto_tree *tree)
+tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
+	proto_tree *tree, tftp_conv_info_t *tftp_info)
 {
 	int option_len, value_len;
 	int value_offset;
+	guint8 *optionname;
+	guint8 *optionvalue;
 
 	while (tvb_offset_exists(tvb, offset)) {
 	  option_len = tvb_strsize(tvb, offset);	/* length of option */
 	  value_offset = offset + option_len;
 	  value_len = tvb_strsize(tvb, value_offset);	/* length of value */
+	  optionname = tvb_get_ptr(tvb, offset, option_len);
+	  optionvalue = tvb_get_ptr(tvb, value_offset, value_len);
 	  proto_tree_add_text(tree, tvb, offset, option_len+value_len,
-	          "Option: %s = %s",
-		  tvb_get_ptr(tvb, offset, option_len),
-		  tvb_get_ptr(tvb, value_offset, value_len));
+	          "Option: %s = %s", optionname, optionvalue);
 	  offset += option_len + value_len;
+
+	  /* Special code to handle individual options */
+	  if (!strcmp(optionname, "blksize")) { /* rfc 2348: TFTP Blocksize Option */
+		gint blocksize = strtol(optionvalue, NULL, 10);
+		if (blocksize < 8 || blocksize > 65464) {
+			/* FIXME: Do we need a new category for parameters out of range? */
+			expert_add_info_format(pinfo, NULL, PI_MALFORMED,
+				PI_ERROR, "TFTP blocksize out of range");
+
+		} else {
+                	tftp_info->blocksize = blocksize;
+		}
+	  }
 	}
 }
 
