@@ -1451,7 +1451,7 @@ dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     guint32 val;
     guint pack_len;
 
-    str = v2_aft2str(aft);
+    str = v2_aft2str(type);
 
     if (aft & 0x8000) {
       val = tvb_get_ntohs(tvb, offset + 2);
