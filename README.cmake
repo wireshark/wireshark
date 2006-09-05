@@ -19,6 +19,7 @@ How to get started with cmake?
 Why cmake?
 Why not cmake?
 What needs to be done?
+Links regarding cmake
 
 How to get started with cmake?
 ==============================
@@ -69,4 +70,24 @@ autofoo having been run before:
 - Autocreated source files in wiretap need to be build from .l, .y files.
 
 All other tools and libs still need to be built.
+
+Links regarding cmake
+=====================
+The home page of the cmake project
+	http://www.cmake.org/
+
+The home page of the cmake project documentation
+	http://www.cmake.org/Wiki/CMake
+
+About cmake in general and why KDE4 uses it
+	http://lwn.net/Articles/188693/
+
+Introductory arcticle in Linux Journal
+	http://www.linuxjournal.com/node/6700/print
+
+Useful variables
+	http://www.cmake.org/Wiki/CMake_Useful_Variables
+
+cmake FAQ
+	http://www.cmake.org/Wiki/CMake_FAQ
 
