@@ -238,6 +238,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
+	    -e "s/@HAVE_PORTAUDIO_API@/$(PORTAUDIO_API_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -326,7 +327,7 @@ clean: gtk2_distclean
 
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
-distclean: clean gtk2_distclean
+distclean: clean gtk2_distclean clean-deps
 	rm -f config.h $(BUILT_SOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean

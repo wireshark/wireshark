@@ -222,6 +222,8 @@
 
 /* Define to use Portaudio library */
 @HAVE_PORTAUDIO@
+/* Define  version of of the Portaudio library API */
+@HAVE_PORTAUDIO_API@
 
 #ifndef WIN32
 #define WIN32			1
