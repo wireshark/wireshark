@@ -1,4 +1,6 @@
-Placeholder for cmake development stuff :-)
+          Explain the cmake build system for wireshark
+
+   $Id$
 
                            Notice 
 
