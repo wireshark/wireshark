@@ -317,7 +317,7 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	  offset += option_len + value_len;
 
 	  /* Special code to handle individual options */
-	  if (!strcmp(optionname, "blksize")) { /* rfc 2348: TFTP Blocksize Option */
+	  if (!strcasecmp(optionname, "blksize")) { /* rfc 2348: TFTP Blocksize Option */
 		gint blocksize = strtol(optionvalue, NULL, 10);
 		if (blocksize < 8 || blocksize > 65464) {
 			/* FIXME: Do we need a new category for parameters out of range? */
