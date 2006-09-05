@@ -1043,20 +1043,10 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 	#
 	if test "x$want_portaudio" != "xno"
 	then
-		AC_CHECK_TYPE(PortAudioStream,,
-		[
-			CFLAGS="$wireshark_save_CFLAGS"
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
-			LDFLAGS="$wireshark_save_LDFLAGS"
-			LIBS="$wireshark_save_LIBS"
-			PORTAUDIO_LIBS=""
-			if test x$want_portaudio = xyes;
-			then
-				AC_MSG_ERROR([Wrong version of portaudio, need <= 18])
-			else
-				want_portaudio=no	
-			fi
-		],
+		AC_MSG_CHECKING([whether include is (old) API version 1])
+		AC_CHECK_TYPE(PortAudioStream,
+		AC_DEFINE(PORTAUDIO_API_1, 1, [Define if we are using version of of the Portaudio library API]),
+		,
 		[#include <portaudio.h>])
 	fi
 

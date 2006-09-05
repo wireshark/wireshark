@@ -1,4 +1,4 @@
-/* rtp_player.c
+ /* rtp_player.c
  *
  * $Id$
  *
@@ -155,7 +155,11 @@ typedef struct _sample_t {
 #define HEIGHT_TIME_LABEL 18
 #define MAX_NUM_COL_CONV 10
 
+#if PORTAUDIO_API_1
 PortAudioStream *pa_stream;
+#else /* PORTAUDIO_API_1 */
+PaStream *pa_stream;
+#endif /* PORTAUDIO_API_1 */
 
 /* TODO: The RTP Player it is only supported for GTK >=2 */
 #if GTK_MAJOR_VERSION >= 2
@@ -194,7 +198,11 @@ typedef struct _rtp_channel_info {
 	GdkPixmap *pixmap;
 	GtkAdjustment *h_scrollbar_adjustment;
 	GdkPixbuf* cursor_pixbuf;
+#if PORTAUDIO_API_1
 	PaTimestamp cursor_prev;
+#else /* PORTAUDIO_API_1 */
+	PaTime cursor_prev;
+#endif /* PORTAUDIO_API_1 */
 	GdkGC *bg_gc[MAX_NUM_COL_CONV+1];
 	gboolean cursor_catch;
 	rtp_stream_info_t *first_stream;	/* This is the first RTP stream in the channel */
@@ -219,7 +227,11 @@ typedef struct _rtp_play_channles {
 	gboolean pause;
 	gboolean stop;
 	gint32 pause_duration;
+#if PORTAUDIO_API_1
 	PaTimestamp out_diff_time;
+#else /* PORTAUDIO_API_1 */
+	PaTime out_diff_time;
+#endif /* PORTAUDIO_API_1 */
 } rtp_play_channles_t;
 
 /* The two RTP channles to play */
@@ -786,12 +798,24 @@ stop_channels(void)
 static void 
 draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 {
+#if PORTAUDIO_API_1
 	PaTimestamp index;
+#else /* PORTAUDIO_API_1 */
+	PaTime index;
+#endif /* PORTAUDIO_API_1 */
 	int i;
 
 	if (!rci) return;
 
+#if PORTAUDIO_API_1
 	index = Pa_StreamTime( pa_stream ) - rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
+#else  /* PORTAUDIO_API_1 */
+	/*
+	Pa_StreamTime has changed significantly into Pa_GetStreamTime
+	 */
+	/* remove once new api is implemented */
+	index = 0;
+#endif  /* PORTAUDIO_API_1 */
 
 
 	/* If we finished playing both channels, then stop them */
@@ -963,13 +987,30 @@ init_rtp_channels_vals(void)
  * It may called at interrupt level on some machines so don't do anything
  * that could mess up the system like calling malloc() or free().
  */
+#if PORTAUDIO_API_1
+
 static int paCallback(   void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
                              PaTimestamp outTime, void *userData)
 {
+#else /* PORTAUDIO_API_1 */
+static int paCallback(
+	    const void *input, void *output,
+	    unsigned long frameCount,
+	    const PaStreamCallbackTimeInfo* timeInfo,
+	    PaStreamCallbackFlags statusFlags,
+	    void *userData )
+
+{
+	/* Remove once this has been properly impelented */
+	void *inputBuffer;
+	void *outputBuffer;
+        unsigned long framesPerBuffer;
+        PaTime outTime;
+#endif /* PORTAUDIO_API_1 */
     rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
     SAMPLE *wptr = (SAMPLE*)outputBuffer;
-	sample_t sample;
+    sample_t sample;
     unsigned int i;
     int finished;
     unsigned int framesLeft;
@@ -985,7 +1026,13 @@ static int paCallback(   void *inputBuffer, void *outputBuffer,
 		return 0;
 	}
 
+#if PORTAUDIO_API_1
 	rpci->out_diff_time = outTime -  Pa_StreamTime(pa_stream) ;
+#else /* PORTAUDIO_API_1 */
+	/*
+	Pa_StreamTime has changed significantly into Pa_GetStreamTime
+	 */
+#endif /* PORTAUDIO_API_1 */
 
 
 	/* set the values if this is the first time */
@@ -1430,6 +1477,7 @@ play_channels(void)
 
 	/* if not PAUSE, then start to PLAY */
 	} else {
+#if PORTAUDIO_API_1
 		err = Pa_OpenStream(
 			  &pa_stream,
 			  paNoDevice,     /* default input device */
@@ -1446,6 +1494,27 @@ play_channels(void)
 			  paClipOff,      /* we won't output out of range samples so don't bother clipping them */
 			  paCallback,
 			  rtp_channels );
+#else /* PORTAUDIO_API_1 */
+	/*
+		set up PaStreamParameters for output stream
+		err = Pa_OpenStream(
+                       PaStream** stream,
+                       const PaStreamParameters *inputParameters,
+                       const PaStreamParameters *outputParameters,
+                       double sampleRate,
+                       unsigned long framesPerBuffer,
+                       PaStreamFlags streamFlags,
+                       PaStreamCallback *streamCallback,
+                       void *userData );
+	*/
+		/* remove once things work */
+		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+		  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+		  "PortAudio Library API 2 not supported (PortAudio version >= 19.\n");
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+		return;
+#endif /* PORTAUDIO_API_1 */
 
 		if( err != paNoError ) {
 			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
@@ -1460,7 +1529,7 @@ play_channels(void)
 		if( err != paNoError ) {
 			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-								  "Can not Start Stream in PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+								  "Can not Start Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 			gtk_dialog_run (GTK_DIALOG (dialog));
 			gtk_widget_destroy (dialog);
 			return;
