@@ -1415,8 +1415,8 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
 	gchar **strings; /* An array for spitting the request URI into hostname and port */
 
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	if(stat_info->request_method != NULL && stat_info->response_code == 200 &&
-	   strncmp(stat_info->request_method, "CONNECT", 7) == 0) {
+	if(stat_info->request_uri && stat_info->response_code == 200 &&
+	   stat_info->request_method && strncmp(stat_info->request_method, "CONNECT", 7) == 0) {
 
 		/* Call a subdissector to handle HTTP CONNECT's traffic */
 		tcpd=get_tcp_conversation_data(pinfo);
