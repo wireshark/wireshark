@@ -42,6 +42,7 @@ static int proto_atm = -1;
 static int hf_atm_aal = -1;
 static int hf_atm_vpi = -1;
 static int hf_atm_vci = -1;
+static int hf_atm_cid = -1;
 static int proto_atm_lane = -1;
 static int proto_ilmi = -1;
 static int proto_aal1 = -1;
@@ -1112,12 +1113,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (pinfo->pseudo_header->atm.type) {
       case TRAF_UMTS_FP:
         /* Skip first 4 bytes of message
-        - CID
+        - side
         - length
         - UUI (always 26 to indicate last data received)
-        TODO: should they be:
-        - stripped earlier?
-        - dissected as SSSAR sublayer? */
+        Ignoring for now... */
+        proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
+                            pinfo->pseudo_header->atm.aal2_cid);
         next_tvb = tvb_new_subset(tvb, 4,
                                   tvb_length_remaining(tvb, 4),
                                   tvb_length_remaining(tvb, 4));
@@ -1652,6 +1653,11 @@ proto_register_atm(void)
 		{ &hf_atm_vci,
 		{ "VCI",		"atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
+
+		{ &hf_atm_cid,
+		{ "CID",		"atm.cid", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_atm,

@@ -364,6 +364,7 @@ struct atm_phdr {
 	guint8	subtype;	/* traffic subtype */
 	guint16	vpi;		/* virtual path identifier */
 	guint16	vci;		/* virtual circuit identifier */
+	guint8	aal2_cid;	/* channel id */
 	guint16	channel;	/* link: 0 for DTE->DCE, 1 for DCE->DTE */
 	guint16	cells;		/* number of cells */
 	guint16	aal5t_u2u;	/* user-to-user indicator */

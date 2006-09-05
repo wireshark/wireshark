@@ -1226,6 +1226,12 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t di
 
     /* 0 means we don't know how many cells the frame comprises. */
     pseudo_header->dct2000.inner_pseudo_header.atm.cells = 0;
+
+    /* cid is last byte */
+    pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
+        ((hex_from_char(aal_header_chars[10]) << 4) |
+          hex_from_char(aal_header_chars[11]));
+
 }
 
 

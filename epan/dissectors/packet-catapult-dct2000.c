@@ -33,6 +33,7 @@
 #include <epan/proto.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/addr_resolv.h>
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
@@ -49,6 +50,7 @@ static int hf_catapult_dct2000_outhdr = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
+
 
 /* Variables used for preferences */
 gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
@@ -93,7 +95,9 @@ static dissector_handle_t look_for_dissector(char *protocol_name);
 
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
-static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
+static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset,
+                                        guint32 *source_addr, guint32 *dest_addr,
+                                        guint16 *source_port, guint16 *dest_port)
 {
     guint8 length;
     int offset = *data_offset;
@@ -133,6 +137,29 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset)
         {
             /* Read length in next byte */
             length = tvb_get_guint8(tvb, offset++);
+
+            if (tag == 0x31 && length >=4 && length <= 6)
+            {
+                /* Source IP address */
+                *source_addr = tvb_get_ipv4(tvb, offset);
+
+                /* Source port follows (if present) */
+                if (length > 4)
+                {
+                    *source_port = tvb_get_ntohs(tvb, offset+4);
+                }
+            }
+            if (tag == 0x32 && length == 4)
+            {
+                /* Dest IP address */
+                *dest_addr = tvb_get_ipv4(tvb, offset);
+            }
+            if (tag == 0x33 && length == 2)
+            {
+                /* Get dest port */
+                *dest_port = tvb_get_ntohs(tvb, offset);
+            }
+
             /* Skip the following value */
             offset += length;
         }
@@ -628,12 +655,27 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Try IP Prim heuristic if configured to */
             if (catapult_dct2000_try_ipprim_heuristic)
             {
+                guint32 source_addr = 0, dest_addr = 0;
+                guint16 source_port = 0, dest_port = 0;
+
                 heur_protocol_handle =
                     look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
-                    find_ipprim_data_offset(tvb, &offset))
+                    find_ipprim_data_offset(tvb, &offset, &source_addr, &dest_addr,
+                                            &source_port, &dest_port))
                 {
                     protocol_handle = heur_protocol_handle;
+
+                    if (source_addr && check_col(pinfo->cinfo, COL_DEF_SRC))
+                    {
+                        col_append_fstr(pinfo->cinfo, COL_DEF_SRC,
+                                        "(%s:%u)", (char*)get_hostname(source_addr), source_port);
+                    }
+                    if (dest_addr && check_col(pinfo->cinfo, COL_DEF_DST))
+                    {
+                        col_append_fstr(pinfo->cinfo, COL_DEF_DST,
+                                        "(%s:%u)", (char*)get_hostname(dest_addr), dest_port);
+                    }
                 }
             }
 
@@ -681,7 +723,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "Unparsed protocol data (context=%s.%u   t=%s   %c   prot=%s (v=%s))",
+                         "Not dissected  (context=%s.%u   t=%s   %c   prot=%s (v=%s))",
                          tvb_get_ephemeral_string(tvb, 0, context_length),
                          port_number,
                          tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
