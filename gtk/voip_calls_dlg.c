@@ -42,12 +42,6 @@
 
 #include "register.h"
 
-#if GTK_MAJOR_VERSION >= 2
-#ifdef HAVE_LIBPORTAUDIO
-#include "rtp_player.h"
-#endif /* HAVE_LIBPORTAUDIO */
-#endif
-
 #include "graph_analysis.h"
 #include "voip_calls_dlg.h"
 #include "voip_calls.h"
@@ -74,6 +68,13 @@
 #include <ctype.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+#include "rtp_analysis.h"
+#include "rtp_player.h"
+#endif
+#endif /* HAVE_LIBPORTAUDIO */
 
 static const gchar FWD_LABEL_TEXT[] = "Select one call.";
 
