@@ -1297,7 +1297,7 @@ v2_tid2encstr(guint16 tid)
     { 0,	"RESERVED" },
     { 1,	"ENCR_DES_IV64" },
     { 2,	"ENCR_DES" },
-    { 3,	"ENCR_3DE" },
+    { 3,	"ENCR_3DES" },
     { 4,	"ENCR_RC5" },
     { 5,	"ENCR_IDEA" },
     { 6,	"ENCR_CAST" },
