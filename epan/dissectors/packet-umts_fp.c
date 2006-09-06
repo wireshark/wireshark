@@ -41,6 +41,7 @@ static int hf_fp_header_crc = -1;
 static int hf_fp_ft = -1;
 static int hf_fp_cfn = -1;
 static int hf_fp_pch_cfn = -1;
+static int hf_fp_pch_toa = -1;
 static int hf_fp_cfn_control = -1;
 static int hf_fp_toa = -1;
 static int hf_fp_tfi = -1;
@@ -104,7 +105,7 @@ static const value_string channel_type_vals[] =
     { CHANNEL_IUR_FACH,     "IUR FACH" },
     { CHANNEL_IUR_DSCH,     "IUR DSCH" },
     { CHANNEL_EDCH,         "EDCH" },
-    { CHANNEL_RACH_TDD_128, "CHANNEL_RACH_TDD_128" },
+    { CHANNEL_RACH_TDD_128, "RACH_TDD_128" },
     { 0, NULL }
 };
 
@@ -350,14 +351,16 @@ static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /***********************************************************/
 /* Common control message types                            */
 
-void dissect_common_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                       int offset, struct _fp_info *p_fp_info)
 {
-    gint32 toa;
-
     if (p_fp_info->channel != CHANNEL_PCH)
     {
+        guint8 cfn;
+        gint16 toa;
+
         /* CFN control */
+        cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
         offset++;
 
@@ -368,12 +371,29 @@ void dissect_common_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbu
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   ToA=%u", toa);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
         }
     }
     else
     {
-        /* TODO: PCH case */
+        guint16 cfn;
+        gint32 toa;
+
+        /* PCH CFN is 12 bits */
+        cfn = (tvb_get_ntohs(tvb, offset) >> 4);
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        /* 4 bits of padding follow... */
+
+        /* 20 bits of ToA (followed by 4 padding bits) */
+        toa = ((int)(tvb_get_ntoh24(tvb, offset) << 8)) / 4096;
+        proto_tree_add_int(tree, hf_fp_pch_toa, tvb, offset, 3, toa);
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
+        }
     }
 }
 
@@ -415,6 +435,38 @@ void dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u T2=%u, T3=%u",
                         t1, t2, t3);
     }
+}
+
+void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                      tvbuff_t *tvb, int offset, struct _fp_info *p_fp_info)
+{
+    guint16 cfn;
+
+    if (p_fp_info->channel != CHANNEL_PCH)
+    {
+        /* CFN control */
+        cfn = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    }
+    else
+    {
+        /* PCH CFN is 12 bits */
+        cfn = (tvb_get_ntohs(tvb, offset) >> 4);
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+
+        /* 4 bits of padding follow... */
+    }
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u", cfn);
+    }
+}
+
+void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                      tvbuff_t *tvb, int offset, struct _fp_info *p_fp_info)
+{
+    dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
 }
 
 void dissect_common_timing_advance(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -537,11 +589,13 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case COMMON_OUTER_LOOP_POWER_CONTROL:
             break;
         case COMMON_TIMING_ADJUSTMENT:
-            dissect_common_timing_adjustment(tree, pinfo, tvb, offset, p_fp_info);
+            dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_SYNCHRONISATION:
+            dissect_common_dl_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
+            break;
         case COMMON_UL_SYNCHRONISATION:
-            /* TODO: */
+            dissect_common_ul_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_NODE_SYNCHRONISATION:
             dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
@@ -825,25 +879,6 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
     }
 
-    /* 12-bit CFN value */
-    proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
-    pch_cfn = (tvb_get_ntohs(tvb, offset) & 0xfff0) >> 4;
-    offset++;
-
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%04u ", pch_cfn);
-    }
-
-    /* Paging indication */
-    proto_tree_add_item(tree, hf_fp_pch_pi, tvb, offset, 1, FALSE);
-    paging_indication = tvb_get_guint8(tvb, offset) & 0x01;
-    offset++;
-
-    /* 5-bit TFI */
-    proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, FALSE);
-    offset++;
-
     if (is_control_frame)
     {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
@@ -853,6 +888,25 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         int num_tbs = 0;
 
         /* DATA */
+
+        /* 12-bit CFN value */
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+        pch_cfn = (tvb_get_ntohs(tvb, offset) & 0xfff0) >> 4;
+        offset++;
+    
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%04u ", pch_cfn);
+        }
+    
+        /* Paging indication */
+        proto_tree_add_item(tree, hf_fp_pch_pi, tvb, offset, 1, FALSE);
+        paging_indication = tvb_get_guint8(tvb, offset) & 0x01;
+        offset++;
+    
+        /* 5-bit TFI */
+        proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, FALSE);
+        offset++;
 
         /* Optional paging indications */
         if (paging_indication)
@@ -1334,6 +1388,12 @@ void proto_register_fp(void)
             { "CFN (PCH)",
               "fp.pch.cfn", FT_UINT16, BASE_DEC, NULL, 0xfff0,
               "PCH Connection Frame Number", HFILL
+            }
+        },
+        { &hf_fp_pch_toa,
+            { "ToA (PCH)",
+              "fp.pch.toa", FT_INT24, BASE_DEC, NULL, 0x0,
+              "PCH Time of Arrival", HFILL
             }
         },
         { &hf_fp_cfn_control,
