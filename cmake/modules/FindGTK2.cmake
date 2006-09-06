@@ -286,7 +286,9 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
                         ${GTK2_LIBRARIES}
                         ${GTK2_GTHREAD_LIBRARY}
                       )
-                    SET(GTK2_LIBRARIES ${GTK2_LIBRARIES} CACHE INTERNAL "The libraries for GTK2"
+                    SET(GTK2_LIBRARIES ${GTK2_LIBRARIES}
+			CACHE INTERNAL "The libraries for GTK2"
+		    )
                     ENDIF(GTK2_GTHREAD_LIBRARY)
                   ELSE(GTK2_CAIRO_INCLUDE_PATH)
                     MESSAGE(STATUS "Can not find cairo")
