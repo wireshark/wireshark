@@ -2561,13 +2561,17 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 		/*
 		 * Find local parameter name
+		 * localParm            = ( streamMode / propertyParm / reservedValueMode / reservedGroupMode )
+		 * pkgdName             = (PackageName SLASH ItemID) ;specific item
+		 *                    / (PackageName SLASH "*") ;all events in package
+		 *                    / ("*" SLASH "*") ; all events supported by the MG
 		 */
 		/* Find token length */
 		for (tvb_offset=tvb_current_offset; tvb_offset < tvb_next_offset; tvb_offset++){
 			guint8 octet;
 			octet = tvb_get_guint8(tvb, tvb_offset);
 			if (!isalnum(octet)){
-				if (octet!='/'){
+				if ((octet!='/')&&(octet!='_')){
 					break;
 				}
 			}
@@ -2641,7 +2645,6 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 			break;
 
 		case H324_MUXTBL_IN: /* h324/muxtbl_in */
-
 
 			proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_muxtbl_in, tvb,
 				tvb_current_offset, tokenlen,
