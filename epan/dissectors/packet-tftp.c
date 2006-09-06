@@ -4,6 +4,8 @@
  * Richard Sharpe <rsharpe@ns.aus.com>
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
+ * Joerg Mayer (see AUTHORS file)
+ *      RFC2348 TFTP Blocksize Option
  *
  * $Id$
  *
@@ -26,6 +28,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/* Documentation:
+ * RFC 1350: THE TFTP PROTOCOL (REVISION 2)
+ * RFC 2090: TFTP Multicast Option
+ *           (not yet implemented)
+ * RFC 2347: TFTP Option Extension
+ * RFC 2348: TFTP Blocksize Option
+ * RFC 2349: TFTP Timeout Interval and Transfer Size Options
+ *           (not yet implemented)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,8 +65,11 @@ static int hf_tftp_transfer_type = -1;
 static int hf_tftp_blocknum = -1;
 static int hf_tftp_error_code = -1;
 static int hf_tftp_error_string = -1;
+static int hf_tftp_option_name = -1;
+static int hf_tftp_option_value = -1;
 
 static gint ett_tftp = -1;
+static gint ett_tftp_option = -1;
 
 static dissector_handle_t tftp_handle;
 
@@ -83,15 +98,60 @@ static const value_string tftp_error_code_vals[] = {
   { 2, "Access violation" },
   { 3, "Disk full or allocation exceeded" },
   { 4, "Illegal TFTP Operation" },
-  { 5, "Unknown transfer ID" },
+  { 5, "Unknown transfer ID" },		/* Does not cause termination */
   { 6, "File already exists" },
   { 7, "No such user" },
   { 8, "Option negotiation failed" },
   { 0, NULL }
 };
 
-static void tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo,
-	int offset, proto_tree *tree, tftp_conv_info_t *tftp_info);
+static void
+tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
+	proto_tree *tree, guint16 opcode, tftp_conv_info_t *tftp_info)
+{
+	int option_len, value_len;
+	int value_offset;
+	const guint8 *optionname;
+	const guint8 *optionvalue;
+	proto_item *opt_item;
+	proto_tree *opt_tree;
+
+	while (tvb_offset_exists(tvb, offset)) {
+	  option_len = tvb_strsize(tvb, offset);	/* length of option */
+	  value_offset = offset + option_len;
+	  value_len = tvb_strsize(tvb, value_offset);	/* length of value */
+	  optionname = tvb_get_ptr(tvb, offset, option_len);
+	  optionvalue = tvb_get_ptr(tvb, value_offset, value_len);
+	  opt_item = proto_tree_add_text(tree, tvb, offset, option_len+value_len,
+	          "Option: %s = %s", optionname, optionvalue);
+
+	  opt_tree = proto_item_add_subtree(opt_item, ett_tftp_option);
+	  proto_tree_add_item(opt_tree, hf_tftp_option_name, tvb, offset,
+		option_len, FALSE);
+	  proto_tree_add_item(opt_tree, hf_tftp_option_value, tvb, value_offset,
+		value_len, FALSE);
+
+	  offset += option_len + value_len;
+
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s=%s",
+			    optionname, optionvalue);
+	  }
+
+	  /* Special code to handle individual options */
+	  if (!strcasecmp((const char *)optionname, "blksize") &&
+	      opcode == TFTP_OACK) {
+		gint blocksize = strtol((const char *)optionvalue, NULL, 10);
+		if (blocksize < 8 || blocksize > 65464) {
+			expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
+				PI_WARN, "TFTP blocksize out of range");
+
+		} else {
+                	tftp_info->blocksize = blocksize;
+		}
+	  }
+	}
+}
 
 static void
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -193,7 +253,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += i1;
 
 	  if (tree)
-	    tftp_dissect_options(tvb, pinfo,  offset, tftp_tree, tftp_info);
+	    tftp_dissect_options(tvb, pinfo,  offset, tftp_tree,
+		opcode, tftp_info);
 	  break;
 
 	case TFTP_WRQ:
@@ -220,7 +281,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += i1;
 
 	  if (tree)
-	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree, tftp_info);
+	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+		opcode,  tftp_info);
 	  break;
 
 	case TFTP_DATA:
@@ -280,11 +342,14 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
+	  expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
+		PI_NOTE, "TFTP blocksize out of range");
 	  break;
 
 	case TFTP_OACK:
 	  if (tree)
-	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree, tftp_info);
+	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+		opcode, tftp_info);
 	  break;
 
 	default:
@@ -294,40 +359,6 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  break;
 
-	}
-}
-
-static void
-tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
-	proto_tree *tree, tftp_conv_info_t *tftp_info)
-{
-	int option_len, value_len;
-	int value_offset;
-	guint8 *optionname;
-	guint8 *optionvalue;
-
-	while (tvb_offset_exists(tvb, offset)) {
-	  option_len = tvb_strsize(tvb, offset);	/* length of option */
-	  value_offset = offset + option_len;
-	  value_len = tvb_strsize(tvb, value_offset);	/* length of value */
-	  optionname = tvb_get_ptr(tvb, offset, option_len);
-	  optionvalue = tvb_get_ptr(tvb, value_offset, value_len);
-	  proto_tree_add_text(tree, tvb, offset, option_len+value_len,
-	          "Option: %s = %s", optionname, optionvalue);
-	  offset += option_len + value_len;
-
-	  /* Special code to handle individual options */
-	  if (!strcasecmp(optionname, "blksize")) { /* rfc 2348: TFTP Blocksize Option */
-		gint blocksize = strtol(optionvalue, NULL, 10);
-		if (blocksize < 8 || blocksize > 65464) {
-			/* FIXME: Do we need a new category for parameters out of range? */
-			expert_add_info_format(pinfo, NULL, PI_MALFORMED,
-				PI_ERROR, "TFTP blocksize out of range");
-
-		} else {
-                	tftp_info->blocksize = blocksize;
-		}
-	  }
 	}
 }
 
@@ -368,10 +399,22 @@ proto_register_tftp(void)
     { &hf_tftp_error_string,
       { "Error message",      "tftp.error.message",
 	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"Error string in case of TFTP error message", HFILL }}
+      	"Error string in case of TFTP error message", HFILL }},
+
+    { &hf_tftp_option_name,
+      { "Option name",              "tftp.option.name",
+	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_tftp_option_value,
+      { "Option value",              "tftp.option.value",
+	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
   };
   static gint *ett[] = {
     &ett_tftp,
+    &ett_tftp_option,
   };
 
   proto_tftp = proto_register_protocol("Trivial File Transfer Protocol",
