@@ -21,19 +21,19 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-PROJECT(dumpcap C)
+project(wireshark C)
 
-SET(dumpcap_LIBS wiretap)
+set(dumpcap_LIBS wiretap)
 
-SET(CMAKE_VERBOSE_MAKEFILE ON)
-SET(BUILD_SHARED_LIBS ON)
-SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(BUILD_SHARED_LIBS ON)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-SET(PLATFORM_SRC
+set(dumpcap_PLATFORM_SRC
 	capture-pcap-util-unix.c
 )
 
-SET(dumpcap_FILES
+set(dumpcap_FILES
         capture_opts.c
         capture_loop.c
         capture-pcap-util.c
@@ -47,28 +47,69 @@ SET(dumpcap_FILES
         tempfile.c
         version_info.c
 
-	${PLATFORM_SRC}
+	${dumpcap_PLATFORM_SRC}
 )
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/wiretap)
+include_directories(${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/wiretap)
 
-ADD_DEFINITIONS(-DHAVE_CONFIG_H -D_U_=\"__attribute__\(\(unused\)\)\")
+add_definitions(-DHAVE_CONFIG_H -D_U_=\"__attribute__\(\(unused\)\)\")
 
-LINK_DIRECTORIES(wiretap)
+link_directories(wiretap)
 
-ADD_EXECUTABLE(dumpcap ${dumpcap_FILES})
+add_executable(dumpcap ${dumpcap_FILES})
 
-FIND_PACKAGE(GTK2)
-INCLUDE_DIRECTORIES(${GTK2_INCLUDE_DIR})
-SET(dumpcap_LIBS ${dumpcap_LIBS} ${GTK2_LIBRARIES})
+option(BUILD_WITH_GLIB2 "Build using gtk2/glib2 instead of gtk/glib" ON)
+option(BUILD_WIRESHARK  "Build the GUI version of Wireshark" OFF)
+option(ENABLE_STATIC	"Build a static version of Wireshark" ON)
 
-FIND_PACKAGE(ZLIB)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
-SET(dumpcap_LIBS ${dumpcap_LIBS} ${ZLIB_LIBRARIES})
+if (BUILD_WITH_GLIB2)
+	if (BUILD_WIRESHARK)
+		find_package(GTK2)
+		if (GTK2_FOUND)
+			message(GTK2_FOUND)
+			include_directories(${GTK2_INCLUDE_DIR})
+			set(dumpcap_LIBS ${dumpcap_LIBS} ${GTK2_LIBRARIES})
+		endif (GTK2_FOUND)
+	else (BUILD_WIRESHARK)
+		find_package(GLIB2)
+		if (GLIB2_FOUND)
+			message(GLIB2_FOUND)
+			include_directories(${GLIB2_INCLUDE_DIR})
+			set(dumpcap_LIBS ${dumpcap_LIBS} ${GLIB2_LIBRARIES})
+		endif (GLIB2_FOUND)
+	endif (BUILD_WIRESHARK)
+else (BUILD_WITH_GLIB2)
+	if (BUILD_WIRESHARK)
+		find_package(GTK)
+		if (GTK_FOUND)
+			message(GTK_FOUND)
+			include_directories(${GTK_INCLUDE_DIR})
+			set(dumpcap_LIBS ${dumpcap_LIBS} ${GTK_LIBRARIES})
+		endif (GTK_FOUND)
+	else (BUILD_WIRESHARK)
+		find_package(GLIB REQUIRED)
+		if (GLIB_FOUND)
+			message(GLIB_FOUND)
+			include_directories(${GLIB_INCLUDE_DIR})
+			set(dumpcap_LIBS ${dumpcap_LIBS} ${GLIB_LIBRARIES})
+		endif (GLIB_FOUND)
+	endif (BUILD_WIRESHARK)
+endif (BUILD_WITH_GLIB2)
 
-FIND_PACKAGE(Pcap)
-INCLUDE_DIRECTORIES(${PCAP_INCLUDE_DIR})
-SET(dumpcap_LIBS ${dumpcap_LIBS} ${PCAP_LIBRARIES})
+set(PACKAGELIST ZLIB PCAP)
 
-TARGET_LINK_LIBRARIES(dumpcap ${dumpcap_LIBS})
+foreach(PACKAGE ${PACKAGELIST})
+	find_package(${PACKAGE})
+	message(${PACKAGE}_FOUND)
+	if (${PACKAGE}_FOUND)
+		include_directories(${${PACKAGE}_INCLUDE_DIR})
+		set(dumpcap_LIBS ${dumpcap_LIBS} ${${PACKAGE}_LIBRARIES})
+	endif (${PACKAGE}_FOUND)
+endforeach(PACKAGE)
+
+configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
+
+target_link_libraries(dumpcap ${dumpcap_LIBS})
 

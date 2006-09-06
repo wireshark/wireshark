@@ -1,0 +1,309 @@
+/* cmakeconfig.h.in */
+
+/* Directory for data */
+#cmakedefine DATAFILE_DIR
+
+/* Link plugins statically into Wireshark */
+#cmakedefine ENABLE_STATIC
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#cmakedefine HAVE_ARPA_INET_H
+
+/* Define to 1 if you have the <arpa/nameser.h> header file. */
+#cmakedefine HAVE_ARPA_NAMESER_H
+
+/* Define to 1 if you have the <direct.h> header file. */
+#cmakedefine HAVE_DIRECT_H
+
+/* Define to 1 if you have the <dirent.h> header file. */
+#cmakedefine HAVE_DIRENT_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#cmakedefine HAVE_FCNTL_H
+
+/* Define to 1 if you have the `gethostbyname2' function. */
+#cmakedefine HAVE_GETHOSTBYNAME2
+
+/* Define to 1 if you have the `getprotobynumber' function. */
+#cmakedefine HAVE_GETPROTOBYNUMBER
+
+/* Define to use GNU ADNS library */
+#cmakedefine HAVE_GNU_ADNS
+
+/* Define to use heimdal kerberos */
+#cmakedefine HAVE_HEIMDAL_KERBEROS
+
+/* Define if you have the iconv() function. */
+#cmakedefine HAVE_ICONV
+
+/* Define if inet_ntop() prototype exists */
+#cmakedefine HAVE_INET_NTOP_PROTO
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `issetugid' function. */
+#cmakedefine HAVE_ISSETUGID
+
+/* Define to use kerberos */
+#cmakedefine HAVE_KERBEROS
+
+/* Define if krb5.h defines KEYTYPE_ARCFOUR_56 */
+#cmakedefine HAVE_KEYTYPE_ARCFOUR_56
+
+/* Define to 1 if you have the <lauxlib.h> header file. */
+#cmakedefine HAVE_LAUXLIB_H
+
+/* Define to use libgcrypt */
+#cmakedefine HAVE_LIBGCRYPT
+
+/* Define to use gnutls library */
+#cmakedefine HAVE_LIBGNUTLS
+
+/* Define to use libpcap library */
+#cmakedefine HAVE_LIBPCAP
+
+/* Define to use libpcre library */
+#cmakedefine HAVE_LIBPCRE
+
+/* Define to use libportaudio library */
+#cmakedefine HAVE_LIBPORTAUDIO
+
+/* Define to use libz library */
+#cmakedefine HAVE_LIBZ
+
+/* Define to 1 if you have the <lua5.1/lauxlib.h> header file. */
+#cmakedefine HAVE_LUA5_1_LAUXLIB_H
+
+/* Define to 1 if you have the <lua5.1/lualib.h> header file. */
+#cmakedefine HAVE_LUA5_1_LUALIB_H
+
+/* Define to 1 if you have the <lua5.1/lua.h> header file. */
+#cmakedefine HAVE_LUA5_1_LUA_H
+
+/* Define to 1 if you have the <lualib.h> header file. */
+#cmakedefine HAVE_LUALIB_H
+
+/* Define to use Lua 5.1 */
+#cmakedefine HAVE_LUA_5_1
+
+/* Define to 1 if you have the <lua.h> header file. */
+#cmakedefine HAVE_LUA_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#cmakedefine HAVE_MEMORY_H
+
+/* Define to use MIT kerberos */
+#cmakedefine HAVE_MIT_KERBEROS
+
+/* Define to 1 if you have the `mmap' function. */
+#cmakedefine HAVE_MMAP
+
+/* Define to 1 if you have the `mprotect' function. */
+#cmakedefine HAVE_MPROTECT
+
+/* Define to 1 if you have the <netdb.h> header file. */
+#cmakedefine HAVE_NETDB_H
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#cmakedefine HAVE_NETINET_IN_H
+
+/* Define to enable support for Net-SNMP */
+#cmakedefine HAVE_NET_SNMP
+
+/* Define to 1 if you have the <net-snmp/library/default_store.h> header file.
+   */
+#cmakedefine HAVE_NET_SNMP_LIBRARY_DEFAULT_STORE_H
+
+/* Define to 1 if you have the <net-snmp/net-snmp-config.h> header file. */
+#cmakedefine HAVE_NET_SNMP_NET_SNMP_CONFIG_H
+
+/* Define to 1 if you have OS X frameworks */
+#cmakedefine HAVE_OS_X_FRAMEWORKS
+
+/* Define to 1 if you have the `pcap_breakloop' function. */
+#cmakedefine HAVE_PCAP_BREAKLOOP
+
+/* Define to 1 if you have the `pcap_datalink_name_to_val' function. */
+#cmakedefine HAVE_PCAP_DATALINK_NAME_TO_VAL
+
+/* Define to 1 if you have the `pcap_datalink_val_to_name' function. */
+#cmakedefine HAVE_PCAP_DATALINK_VAL_TO_NAME
+
+/* Define to 1 if you have the `pcap_findalldevs' function and a pcap.h that
+   declares pcap_if_t. */
+#cmakedefine HAVE_PCAP_FINDALLDEVS
+
+/* Define to 1 if you have the `pcap_freecode' function. */
+#cmakedefine HAVE_PCAP_FREECODE
+
+/* Define to 1 if you have the `pcap_get_selectable_fd' function. */
+#cmakedefine HAVE_PCAP_GET_SELECTABLE_FD
+
+/* Define to 1 if you have the `pcap_lib_version' function. */
+#cmakedefine HAVE_PCAP_LIB_VERSION
+
+/* Define to 1 if you have the `pcap_list_datalinks' function. */
+#cmakedefine HAVE_PCAP_LIST_DATALINKS
+
+/* Define to 1 if you have the `pcap_open_dead' function. */
+#cmakedefine HAVE_PCAP_OPEN_DEAD
+
+/* Define to 1 if you have the `pcap_set_datalink' function. */
+#cmakedefine HAVE_PCAP_SET_DATALINK
+
+/* Define if libpcap version is known */
+#cmakedefine HAVE_PCAP_VERSION
+
+/* Define if plugins are enabled */
+#cmakedefine HAVE_PLUGINS
+
+/* Define to 1 if you have the <portaudio.h> header file. */
+#cmakedefine HAVE_PORTAUDIO_H
+
+/* Define if sa_len field exists in struct sockaddr */
+#cmakedefine HAVE_SA_LEN
+
+/* Define to 1 if some SNMP support is to be used */
+#cmakedefine HAVE_SOME_SNMP
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#cmakedefine HAVE_STDARG_H
+
+/* Define to 1 if you have the <stddef.h> header file. */
+#cmakedefine HAVE_STDDEF_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H
+
+/* Define to 1 if you have the `sysconf' function. */
+#cmakedefine HAVE_SYSCONF
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#cmakedefine HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/param.h> header file. */
+#cmakedefine HAVE_SYS_PARAM_H
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#cmakedefine HAVE_SYS_SOCKET_H
+
+/* Define to 1 if you have the <sys/sockio.h> header file. */
+#cmakedefine HAVE_SYS_SOCKIO_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#cmakedefine HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/utsname.h> header file. */
+#cmakedefine HAVE_SYS_UTSNAME_H
+
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#cmakedefine HAVE_SYS_WAIT_H
+
+/* Define to enable support for UCD-SNMP */
+#cmakedefine HAVE_UCD_SNMP
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H
+
+/* HTML viewer, e.g. mozilla */
+#cmakedefine HTML_VIEWER
+
+/* Define as const if the declaration of iconv() needs const. */
+#cmakedefine ICONV_CONST
+
+/* Define if <inttypes.h> defines PRI[doxu]64 macros */
+#cmakedefine INTTYPES_H_DEFINES_FORMATS
+
+/* Define if getopt.h needs to be included */
+#cmakedefine NEED_GETOPT_H
+
+/* Define if g_ascii_strtoull.h needs to be included */
+#cmakedefine NEED_G_ASCII_STRTOULL_H
+
+/* Define if inet/aton.h needs to be included */
+#cmakedefine NEED_INET_ATON_H
+
+/* Define if inet/v6defs.h needs to be included */
+#cmakedefine NEED_INET_V6DEFS_H
+
+/* Define if strerror.h needs to be included */
+#cmakedefine NEED_STRERROR_H
+
+/* Define if strptime.h needs to be included */
+#cmakedefine NEED_STRPTIME_H
+
+/* Name of package */
+#cmakedefine PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#cmakedefine PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#cmakedefine PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#cmakedefine PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION
+
+/* Plugin installation directory */
+#cmakedefine PLUGIN_DIR
+
+/* Define if we are using version of of the Portaudio library API */
+#cmakedefine PORTAUDIO_API_1
+
+/* Format for printing 64-bit unsigned hexadecimal numbers (upper-case) */
+#cmakedefine PRIX64
+
+/* Format for printing 64-bit signed decimal numbers */
+#cmakedefine PRId64
+
+/* Format for printing 64-bit unsigned octal numbers */
+#cmakedefine PRIo64
+
+/* Format for printing 64-bit unsigned decimal numbers */
+#cmakedefine PRIu64
+
+/* Format for printing 64-bit unsigned hexadecimal numbers (lower-case) */
+#cmakedefine PRIx64
+
+/* Define to 1 if you have the ANSI C header files. */
+#cmakedefine STDC_HEADERS
+
+/* Version number of package */
+#cmakedefine VERSION
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#cmakedefine WORDS_BIGENDIAN
+
+/* Define as the string to precede external variable declarations in
+   dynamically-linked libraries */
+#cmakedefine WS_VAR_IMPORT
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#cmakedefine YYTEXT_POINTER
