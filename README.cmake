@@ -91,3 +91,5 @@ Useful variables
 cmake FAQ
 	http://www.cmake.org/Wiki/CMake_FAQ
 
+Additional cmake modules
+	http://code.google.com/p/cmake-modules/
