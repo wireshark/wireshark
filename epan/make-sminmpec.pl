@@ -22,12 +22,53 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 use strict;
+use Getopt::Long;
+
+my $opt_gen;
+GetOptions("gen" => \$opt_gen );
 
 my $in = shift;
 my $out = shift;
 
-open IN, "< $in";
+if (! defined $in && ! defined $out and $opt_gen) {
+		$in = "http://www.iana.org/assignments/enterprise-numbers";
+		$out = "sminmpec.c";
+}
+
+my @in_lines;
+
 open OUT, "> $out";
+
+if($in =~ m/^http:/i) {
+  eval "require LWP::UserAgent;";
+  if ( $@ ) {
+    die "LWP isn't installed. It is part of the standard Perl\n" .
+      " module libwww.  Bailing.\n";
+  }
+  my $agent    = LWP::UserAgent->new;
+
+  warn "starting to fetch $in ...\n";
+  
+  my $request  = HTTP::Request->new(GET => $in);
+  my $result   = $agent->request($request);
+
+  warn "done fetching $in ...\n";
+
+  @in_lines = split /\n/, $result->content;
+} else {
+  open IN, "< $in";
+  @in_lines = <IN>;
+  close IN;
+}
+
+if ($opt_gen) {
+  for (@in_lines) {
+    chomp;
+    print OUT "$_\n";
+  }
+  exit;
+}
+
 
 my $body = '';
 my $code;
@@ -37,7 +78,7 @@ sub escape_non_ascii {
     return sprintf '\0%.3o',$val;
 }
 
-while(<IN>) {
+for(@in_lines) {
 	s/[\000-\037]//g;
 	s/\\/\\\\/g;
 	s/"/\\"/g;
@@ -50,8 +91,6 @@ while(<IN>) {
 		$body .= "\t{ $code,\t\"$name\" },\n";
 	}
 }
-
-close IN;
 
 print OUT <<"_SMINMPEC";
 /*
