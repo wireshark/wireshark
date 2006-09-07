@@ -266,7 +266,9 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
 #define PROTO_ID_IP		0x09
 #define PROTO_ID_RPC_CL		0x0a
 #define PROTO_ID_RPC_CO		0x0b
+#define PROTO_ID_SPX		0x0c    /* from DCOM spec (is this correct?) */
 #define PROTO_ID_UUID		0x0d
+#define PROTO_ID_IPX		0x0e    /* from DCOM spec (is this correct?) */
 #define PROTO_ID_NAMED_PIPES	0x0f
 #define PROTO_ID_NAMED_PIPES_2	0x10
 #define PROTO_ID_NETBIOS	0x11
@@ -297,7 +299,9 @@ static const value_string proto_id_vals[] = {
 	{ PROTO_ID_IP,			"DOD IP"},
 	{ PROTO_ID_RPC_CL,		"RPC connectionless protocol"},
 	{ PROTO_ID_RPC_CO,		"RPC connection-oriented protocol"},
+	{ PROTO_ID_SPX,		        "SPX?"},
 	{ PROTO_ID_UUID,		"UUID"},
+	{ PROTO_ID_IPX,		        "IPX?"},
 	{ PROTO_ID_NAMED_PIPES,		"Named Pipes"}, 
 	{ PROTO_ID_NAMED_PIPES_2,	"Named Pipes"},
 	{ PROTO_ID_NETBIOS,		"NetBIOS"},
