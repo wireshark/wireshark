@@ -182,9 +182,14 @@ extern int
 dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, guint32 *pu32pointer);
 
-/* mark things to be done */
+/* mark things as "to be done" */
 extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, int length);
+
+/* mark things "no specification available" */
+extern int
+dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, int length);
 
 /* very simple parameter-profiles dissectors (for very simple requests ;-) */

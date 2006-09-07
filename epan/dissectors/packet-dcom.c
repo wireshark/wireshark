@@ -118,7 +118,7 @@ static int hf_dcom_extent_id = -1;
 
 static int hf_dcom_hresult = -1;
 static int hf_dcom_tobedone = -1;
-static int hf_dcom_tobedone_len = -1;
+static int hf_dcom_nospec = -1;
 static int hf_dcom_array_size = -1;
 static int hf_dcom_pointer_val = -1;
 
@@ -533,6 +533,8 @@ const value_string dcom_hresult_vals[] = {
 	{ 0x80020009, "DISP_E_EXCEPTION" },
 	{ 0x8002000A, "DISP_E_OVERFLOW" },
 
+	{ 0x8002801D, "TYPE_E_LIBNOTREGISTERED" },
+
 	{ 0x80040154, "REGDB_E_CLASSNOTREG" },
 	{ 0x80040201, "CO_E_FAILEDTOGETSECCTX" },
 
@@ -746,7 +748,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 
 		    u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
 							    &u32ArraySize2);
-		    u32VariableOffset = dissect_dcom_tobedone_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, u32ArraySize2);
+		    u32VariableOffset = dissect_dcom_nospec_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, u32ArraySize2);
 
 		    /* update subtree header */
             if(uuid_name != NULL) {
@@ -940,11 +942,31 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 {
 	proto_item *item;
 
-    proto_tree_add_uint(tree, hf_dcom_tobedone_len, tvb, offset, length, length);
 
 	item = proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length, 
 		tvb_get_ptr(tvb, offset, length));
-	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%u bytes still undecoded", length);
+        PROTO_ITEM_SET_GENERATED(item);
+	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Dissection incomplete", length);
+
+	offset += length;
+
+	return offset;
+}
+
+
+/* mark data as "No Specification Available" */
+/* XXX: handout data to generic "unkown data" dissector? */
+extern int
+dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
+	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
+{
+	proto_item *item;
+
+
+	item = proto_tree_add_bytes(tree, hf_dcom_nospec, tvb, offset, length, 
+		tvb_get_ptr(tvb, offset, length));
+        PROTO_ITEM_SET_GENERATED(item);
+	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible", length);
 
 	offset += length;
 
@@ -1911,7 +1933,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                                 hf_dcom_objref_size, &u32Size);
             /* the following data depends on the CLSID, no docs available on this */
-			offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, sub_tree, drep, u32Size);
+			offset = dissect_dcom_nospec_data(tvb, offset, pinfo, sub_tree, drep, u32Size);
 		break;
 	}
 
@@ -2050,9 +2072,9 @@ proto_register_dcom (void)
 		{ &hf_dcom_actual_count,
 		{ "ActualCount", "dcom.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_tobedone,
-		{ "ToBeDone", "dcom.tobedone", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_dcom_tobedone_len,
-		{ "ToBeDoneLen", "dcom.tobedone_len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "To Be Done", "dcom.tobedone", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_nospec,
+		{ "No Specification Available", "dcom.nospec", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_variant,
 		{ "Variant", "dcom.variant", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_variant_type,

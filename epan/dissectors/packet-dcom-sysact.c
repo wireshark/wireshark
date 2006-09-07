@@ -54,7 +54,7 @@ dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
     /* XXX - what is this? */
-    offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcom_nospec_data(tvb, offset, pinfo, tree, drep, 
         4);
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 
