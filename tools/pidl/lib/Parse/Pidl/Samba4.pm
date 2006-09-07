@@ -18,7 +18,7 @@ $VERSION = '0.01';
 
 sub is_intree()
 {
-	return -f "include/smb.h";
+	return -f "kdc/kdc.c";
 }
 
 # Return an #include line depending on whether this build is an in-tree

@@ -174,7 +174,7 @@ enum_element: identifier
 	      | identifier '=' anytext { "$_[1]$_[2]$_[3]" }
 ;
 
-bitmap_body: '{' bitmap_elements '}' { $_[2] };
+bitmap_body: '{' opt_bitmap_elements '}' { $_[2] };
 opt_bitmap_body: | bitmap_body;
 bitmap: 'bitmap' optional_identifier opt_bitmap_body
         {{
@@ -188,6 +188,8 @@ bitmap_elements:
       bitmap_element                    { [ $_[1] ] }            
     | bitmap_elements ',' bitmap_element  { push(@{$_[1]}, $_[3]); $_[1] }
 ;
+
+opt_bitmap_elements: | bitmap_elements;
 
 bitmap_element: identifier '=' anytext { "$_[1] ( $_[3] )" }
 ;

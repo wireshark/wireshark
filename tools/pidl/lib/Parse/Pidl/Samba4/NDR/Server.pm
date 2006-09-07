@@ -30,7 +30,7 @@ sub gen_dispatch_switch($)
 		next if not defined($fn->{OPNUM});
 
 		pidl "\tcase $fn->{OPNUM}: {\n";
-		pidl "\t\tstruct $fn->{NAME} *r2 = r;\n";
+		pidl "\t\tstruct $fn->{NAME} *r2 = (struct $fn->{NAME} *)r;\n";
 		pidl "\t\tif (DEBUGLEVEL >= 10) {\n";
 		pidl "\t\t\tNDR_PRINT_FUNCTION_DEBUG($fn->{NAME}, NDR_IN, r2);\n";
 		pidl "\t\t}\n";
@@ -56,7 +56,7 @@ sub gen_reply_switch($)
 		next if not defined($fn->{OPNUM});
 
 		pidl "\tcase $fn->{OPNUM}: {\n";
-		pidl "\t\tstruct $fn->{NAME} *r2 = r;\n";
+		pidl "\t\tstruct $fn->{NAME} *r2 = (struct $fn->{NAME} *)r;\n";
 		pidl "\t\tif (dce_call->state_flags & DCESRV_CALL_STATE_FLAG_ASYNC) {\n";
 		pidl "\t\t\tDEBUG(5,(\"function $fn->{NAME} replied async\\n\"));\n";
 		pidl "\t\t}\n";

@@ -1122,7 +1122,7 @@ sub ParsePtrPull($$$$)
 		# We allocate an array twice
 		# - once just to indicate that it's there,
 		# - then the real allocation...
-		pidl "NDR_PULL_ALLOC_SIZE($ndr, $var_name, 1);";
+		pidl "NDR_PULL_ALLOC($ndr, $var_name);";
 	}
 
 	#pidl "memset($var_name, 0, sizeof($var_name));";
