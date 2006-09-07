@@ -22,53 +22,60 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 use strict;
-use Getopt::Long;
-
-my $opt_gen;
-GetOptions("gen" => \$opt_gen );
 
 my $in = shift;
-my $out = shift;
 
-if (! defined $in && ! defined $out and $opt_gen) {
-		$in = "http://www.iana.org/assignments/enterprise-numbers";
-		$out = "sminmpec.c";
-}
+$in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
 
-open OUT, "> $out";
-
 if($in =~ m/^http:/i) {
-  eval "require LWP::UserAgent;";
-  if ( $@ ) {
-    die "LWP isn't installed. It is part of the standard Perl\n" .
-      " module libwww.  Bailing.\n";
-  }
-  my $agent    = LWP::UserAgent->new;
+	eval "require LWP::UserAgent;";
+	die "LWP isn't installed. It is part of the standard Perl module libwww." if $@;
+		
+	my $agent    = LWP::UserAgent->new;
 
-  warn "starting to fetch $in ...\n";
-  
-  my $request  = HTTP::Request->new(GET => $in);
-  my $result   = $agent->request($request);
+	warn "starting to fetch $in ...\n";
 
-  warn "done fetching $in ...\n";
+	my $request  = HTTP::Request->new(GET => $in);
 
-  @in_lines = split /\n/, $result->content;
+		
+	if (-f "enterprise-numbers") {
+		my $mtime;
+		(undef,undef,undef,undef,undef,undef,undef,undef,undef,$mtime,undef,undef,undef) = stat("enterprise-numbers");
+		$request->if_modified_since( $mtime );
+	}
+	
+	my $result   = $agent->request($request);
+
+	if ($result->code eq 200) {
+		warn "done fetching $in\n";
+		@in_lines = split /\n/, $result->content;
+		open ENFILE, "> enterprise-numbers";
+		
+		for (@in_lines) {
+			chomp;
+			print ENFILE "$_\n";
+		}
+		
+		close ENFILE;
+	} elsif ($result->code eq 304) {
+		warn "enterprise-numbers was up-to-date\n";
+		open IN, "< enterprise-numbers";
+		@in_lines = <IN>;
+		close IN;
+	} else {
+		die "request for $in failed with result code:" . $result->code;
+	}
+
 } else {
   open IN, "< $in";
   @in_lines = <IN>;
   close IN;
 }
 
-if ($opt_gen) {
-  for (@in_lines) {
-    chomp;
-    print OUT "$_\n";
-  }
-  exit;
-}
 
+open OUT, "> sminmpec.c";
 
 my $body = '';
 my $code;
