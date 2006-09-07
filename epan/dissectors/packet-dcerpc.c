@@ -3061,8 +3061,8 @@ end_cn_stub:
 	    pinfo->fragmented = FALSE;
 
 		expert_add_info_format(pinfo, frag_tree_item, PI_REASSEMBLE, PI_CHAT,
-			"%s fragment, %u bytes reassembled here in #%u",
-			fragment_type(hdr->flags), fd_head->len, fd_head->reassembled_in);
+			"%s fragment, reassembled",
+			fragment_type(hdr->flags));
 
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 		next_tvb, hdr->drep, di, auth_info);
@@ -3331,8 +3331,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* no bind information, simply show stub data */
         pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
         PROTO_ITEM_SET_GENERATED(pi);
-	    expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u (Call ID:%u)", 
-            ctx_id, hdr->call_id);
+	    expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u", 
+            ctx_id);
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
@@ -3482,8 +3482,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* no bind information, simply show stub data */
             pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
             PROTO_ITEM_SET_GENERATED(pi);
-	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u (Call ID:%u)", 
-                ctx_id, hdr->call_id);
+	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u", 
+                ctx_id);
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }

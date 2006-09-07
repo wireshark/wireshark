@@ -547,17 +547,14 @@ cba_ldev_find(packet_info *pinfo, const gchar *ip, e_uuid_t *ipid) {
             ldev = interf->parent->private_data;
         }
         if(ldev == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: no ldev for IP:%s IPID:%s", 
-                ip_to_str(ip), guids_resolve_uuid_to_str(&info->call_data->object_uuid));
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown LDev of %s", 
+                ip_to_str(ip));
         }
     } else {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "ldev_find: unknown interface of IP:%s IPID:%s", 
-            ip_to_str(ip), guids_resolve_uuid_to_str(&info->call_data->object_uuid));
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown IPID of %s", 
+            ip_to_str(ip));
         ldev = NULL;
     }
-
-    /*g_warning("cba_ldev_find#%u: private:0x%x parent:0x%x", 
-        pinfo->fd->num, interf->private_data, interf->parent ? interf->parent->private_data: NULL);*/
 
     return ldev;
 }
@@ -821,7 +818,7 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
     }
 
 	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-        "find_by_provcrid: couldn't find provider frame for ProvCRID:0x%x", provcrid);
+        "Unknown provider frame with ProvCRID:0x%x", provcrid);
 
     return NULL;
 }
@@ -1587,8 +1584,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 
     if(call == NULL) {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-            "Server_Connect: return values ignored from #%u", 
-            info->call_data->req_frame);
+            "No request info, response data ignored");
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
@@ -1740,8 +1736,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
 
     if(call == NULL) {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-            "Server_Disconnect: return values ignored from #%u", 
-            info->call_data->req_frame);
+            "No request info, response data ignored");
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
@@ -2286,8 +2281,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 
     if(call == NULL) {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-            "ServerSRT_ConnectCR: return values ignored from #%u", 
-            info->call_data->req_frame);
+            "No request info, response data ignored");
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
@@ -2683,7 +2677,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 
     if(call == NULL) {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-            "ServerSRT_Connect: return values ignored from #%u", info->call_data->req_frame);
+            "No request info, response data ignored");
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
@@ -3407,7 +3401,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 
     if(cons_ldev == NULL) {
 	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-            "Server2_GCD: return values ignored from #%u", info->call_data->req_frame);
+            "No request info, response data ignored");
     }
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);

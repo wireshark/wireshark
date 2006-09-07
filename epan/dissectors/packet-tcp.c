@@ -947,8 +947,8 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
 				tvb, 0, 0, ta->dupack_frame);
 			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u) to ACK in packet #%u",
-				ta->dupack_num, ta->dupack_frame);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u)",
+				ta->dupack_num);
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, "This is a TCP zero-window-probe");
@@ -2264,18 +2264,18 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(tcph->th_flags & TH_SYN) {
     if(tcph->th_flags & TH_ACK)
-      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): %s -> %s",
-                             get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): server port %s",
+                             get_tcp_port(tcph->th_sport));
     else
-      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): %s -> %s",
-                             get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): server port %s",
+                             get_tcp_port(tcph->th_dport));
   }
   if(tcph->th_flags & TH_FIN)
-    expert_add_info_format(pinfo, tf_fin, PI_SEQUENCE, PI_CHAT, "Connection finish (FIN): %s -> %s",
-                           get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+    /* XXX - find a way to know the server port and output only that one */
+    expert_add_info_format(pinfo, tf_fin, PI_SEQUENCE, PI_CHAT, "Connection finish (FIN)");
   if(tcph->th_flags & TH_RST)
-    expert_add_info_format(pinfo, tf_rst, PI_SEQUENCE, PI_CHAT, "Connection reset (RST): %s -> %s",
-                           get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+    /* XXX - find a way to know the server port and output only that one */
+    expert_add_info_format(pinfo, tf_rst, PI_SEQUENCE, PI_CHAT, "Connection reset (RST)");
 
   /* Supply the sequence number of the first byte and of the first byte
      after the segment. */
