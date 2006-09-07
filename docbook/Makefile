@@ -67,7 +67,8 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_use.xml \
 	wsug_src/WSUG_chapter_work.xml \
 	wsug_src/WSUG_meta_info.xml \
-	wsug_src/WSUG_preface.xml
+	wsug_src/WSUG_preface.xml \
+	ws.css
 
 WSUG_GRAPHICS =	\
 	wsug_graphics/ws-analyze-menu.png		\
@@ -187,7 +188,8 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_userinterface.xml	\
 	wsdg_src/WSDG_chapter_works.xml		\
 	wsdg_src/WSDG_meta_info.xml		\
-	wsdg_src/WSDG_preface.xml
+	wsdg_src/WSDG_preface.xml		\
+	ws.css
 
 WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-capture-sync.dia		\
@@ -205,6 +207,7 @@ WSDG_GRAPHICS =	\
 WSUG_SOURCE =	\
 	user-guide.xml		\
 	svn_version.xml		\
+	Makefile		\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)
 
@@ -212,12 +215,14 @@ WSUG_SOURCE =	\
 WSDG_SOURCE =	\
 	developer-guide.xml	\
 	svn_version.xml		\
+	Makefile		\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.xml	\
-	svn_version.xml
+	svn_version.xml		\
+	Makefile
 
 CLEANFILES =	\
 	*.chm			\
@@ -243,7 +248,7 @@ CLEANFILES =	\
 	svn_version.xml		\
 
 
-all: wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
+all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -256,10 +261,10 @@ clean:
 # FORCE is the portable version of .PHONY
 FORCE:
 
-svn_version.xml: FORCE
-	echo -n '<!ENTITY SvnVersion "' > svn_version.xml
-	svnversion -n .                   >> svn_version.xml
-	echo '">'   >> svn_version.xml
+svn_version_check: FORCE
+	@ check_svn_version.sh
+
+svn_version.xml: svn_version_check
 
 
 wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
@@ -271,17 +276,21 @@ wsug.validated: $(WSUG_SOURCE)
 	touch $@
 
 # create html single page file
-user-guide.html: $(WSUG_SOURCE)
+user-guide.html: wsug_html/user-guide.html
+
+wsug_html/user-guide.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp wsug_graphics/*.* wsug_html/wsug_graphics
 	cp wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar
 	cp ws.css wsug_html
-	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsug_html/$@
+	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
 	-chmod -R og+rX wsug_html
-	
+
 # create html chunked page files
-wsug_html_chunked: $(WSUG_SOURCE)
+wsug_html_chunked: wsug_html_chunked/index.html
+
+wsug_html_chunked/index.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
 	cp wsug_graphics/*.* wsug_html_chunked/wsug_graphics
@@ -330,16 +339,20 @@ wsdg.validated: $(WSDG_SOURCE)
 	touch $@
 
 # create html single page file
-developer-guide.html: $(WSDG_SOURCE)
+developer-guide.html: wsdg_html/developer-guide.html
+
+wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	mkdir -p wsdg_html/wsdg_graphics
 	cp wsdg_graphics/* wsdg_html/wsdg_graphics
 	cp ws.css wsdg_html
-	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > wsdg_html/$@
+	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
 	-chmod -R og+rX wsdg_html
-	
+
 # create html chunked page files
-wsdg_html_chunked: $(WSDG_SOURCE)
+wsdg_html_chunked: wsdg_html_chunked/index.html
+
+wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked
 	mkdir -p wsdg_html_chunked/wsdg_graphics
