@@ -16,7 +16,6 @@
 	declare bitmap security_secinfo;
 
 	typedef [bitmap32bit] bitmap {
-		CANT_HAVE_EMPTY_BITMAP_PIDL_BUG = 0x00000001
 	} winreg_AccessMask;
 
 	typedef [v1_enum] enum {

@@ -76,7 +76,6 @@ static gint hf_winreg_winreg_QueryInfoKey_num_values = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdown_reboot = -1;
 static gint hf_winreg_winreg_CreateKey_new_handle = -1;
 static gint hf_winreg_winreg_QueryValue_type = -1;
-static gint hf_winreg_winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG = -1;
 static gint hf_winreg_KeySecurityData_data = -1;
 static gint hf_winreg_QueryMultipleValue_length = -1;
 static gint hf_winreg_winreg_LoadKey_keyname = -1;
@@ -141,10 +140,6 @@ static e_uuid_t uuid_dcerpc_winreg = {
 };
 static guint16 ver_dcerpc_winreg = 1;
 
-static const true_false_string winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG_tfs = {
-   "CANT_HAVE_EMPTY_BITMAP_PIDL_BUG is SET",
-   "CANT_HAVE_EMPTY_BITMAP_PIDL_BUG is NOT SET",
-};
 const value_string winreg_winreg_Type_vals[] = {
 	{ REG_NONE, "REG_NONE" },
 	{ REG_SZ, "REG_SZ" },
@@ -375,7 +370,6 @@ static int winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, pa
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG, tvb, offset, 4, access);
 }
 struct access_mask_info winreg_access_mask_info = {
 	"WINREG",		/* Name of specific rights */
@@ -415,7 +409,6 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 /* IDL: typedef bitmap { */
-/* IDL: 	CANT_HAVE_EMPTY_BITMAP_PIDL_BUG =  0x00000001 , */
 /* IDL: } winreg_AccessMask; */
 
 /* IDL: typedef enum { */
@@ -3624,8 +3617,6 @@ void proto_register_dcerpc_winreg(void)
 	  { "New Handle", "winreg.winreg_CreateKey.new_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryValue_type, 
 	  { "Type", "winreg.winreg_QueryValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
-	{ &hf_winreg_winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG, 
-	  { "Cant Have Empty Bitmap Pidl Bug", "winreg.winreg_AccessMask.CANT_HAVE_EMPTY_BITMAP_PIDL_BUG", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_CANT_HAVE_EMPTY_BITMAP_PIDL_BUG_tfs), ( 0x00000001 ), "", HFILL }},
 	{ &hf_winreg_KeySecurityData_data, 
 	  { "Data", "winreg.KeySecurityData.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_QueryMultipleValue_length, 
