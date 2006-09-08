@@ -58,8 +58,6 @@ HMAC-SHA256 : any keylen
 
 */
 
-/* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -77,6 +75,7 @@ HMAC-SHA256 : any keylen
 
 #include <ctype.h>
 
+/* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
 
 #ifdef _WIN32
@@ -1130,13 +1129,85 @@ filter_spi_match(gchar *spi, gchar *filter)
 #endif
 
 
+/*
+   Name : static gint compute_ascii_key(gchar **ascii_key, gchar *key)
+   Description : Allocate memory for the key and transform the key if it is hexadecimal
+   Return : Return the key length 
+   Params:
+      - gchar **ascii_key : the resulting ascii key allocated here
+      - gchar *key : the key to compute
+*/
+#ifdef HAVE_LIBGCRYPT
+static gint
+compute_ascii_key(gchar **ascii_key, gchar *key)
+{
+  guint key_len = 0;
+  gchar key_char[5];
+  guint i = 0;
+
+  if(key != NULL)
+    {
+      if((strlen(key) > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+	{
+	  if(strlen(key) %2  == 0)
+	    {
+	      key_len = (strlen(key) - 2) / 2;
+	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	      for(i = 2; i < (strlen(key) -1) ; i+=2)
+		{
+		  key_char[0] = key[i];
+		  key_char[1] = key[i+1];
+		  key_char[2] = '\0';
+		  sprintf(*ascii_key + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
+		}	  
+	    }
+
+	  else
+	    /* give a chance to omit the first 0, in order to have a key in 8-bit unit  */ 
+	    {
+	      key_len = (strlen(key) - 2) / 2 + 1;
+	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	      key_char[0] = '0';
+	      key_char[1] = key[2];
+	      key_char[2] = '\0';
+	      sprintf(*ascii_key, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
+	      for(i = 3; i < (strlen(key) -1) ; i+=2)
+		{
+		  key_char[0] = key[i];
+		  key_char[1] = key[i+1];
+		  key_char[2] = '\0';
+		  sprintf(*ascii_key + 1 + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
+		}	  
+	    }	    
+	}
+      
+      else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+	{
+	  return 0;
+	}
+      
+      else
+	{
+	  key_len = strlen(key);
+	  *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	  memcpy(*ascii_key, key, key_len + 1);
+	}
+    }
+
+  return key_len;
+}
+#endif
+
 
 /*
    Name : static goolean get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
            gint *entry_index
 	   gint *encryption_algo,
 	   gint *authentication_algo,
-	   gchar **encryption_key
+	   gchar **encryption_key,
+	   guint *encryption_key_len, 
+	   gchar **authentication_key,
+	   guint *authentication_key_len
 
    Description : Give Encryption Algo, Key and Authentification Algo for a Packet if a corresponding SA is available in a Security Association database
    Return: If the SA is not present, FALSE is then returned.
@@ -1149,7 +1220,11 @@ filter_spi_match(gchar *spi, gchar *filter)
       - gint *entry_index : the index of the SA that matches
       - gint *encryption_algo : the Encryption Algorithm to apply the packet
       - gint *authentication_algo : the Authentication Algorithm to apply to the packet
-      - gchar **encryption_key : the Encryption Key to apply the packet
+      - gchar **encryption_key : the Encryption Key to apply to the packet
+      - guint *encryption_key_len : the Encryption Key length to apply to the packet 
+      - gchar **authentication_key : the Authentication Key to apply to the packet
+      - guint *authentication_key_len : the Authentication Key len to apply to the packet
+
 */
 #ifdef HAVE_LIBGCRYPT
 static gboolean
@@ -1157,7 +1232,9 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 	   gint *encryption_algo,
 	   gint *authentication_algo,
 	   gchar **encryption_key,
-	   gchar **authentication_key
+	   guint *encryption_key_len, 
+	   gchar **authentication_key,
+	   guint *authentication_key_len
 	   )
 
 {
@@ -1189,8 +1266,9 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 	      *entry_index = i;
 	      *encryption_algo = sad -> table[i].encryption_algo;
 	      *authentication_algo = sad -> table[i].authentication_algo;
-	      *authentication_key = (gchar *)sad -> table[i].authentication_key;
-	      *encryption_key = (gchar *)sad -> table[i].encryption_key;
+	      *authentication_key_len = compute_ascii_key(authentication_key, (gchar *)sad -> table[i].authentication_key);
+	      *encryption_key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);	      	      
+
 	      found = TRUE;
 
 	      /* Debugging Purpose */
@@ -1406,6 +1484,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint esp_auth_algo = IPSEC_AUTH_NULL;
   gchar *esp_crypt_key = NULL;
   gchar *esp_auth_key = NULL;
+  guint esp_crypt_key_len = 0;
+  guint esp_auth_key_len = 0;
   gint esp_iv_len = 0;
   gint esp_auth_len = 0;
   gint decrypted_len = 0;
@@ -1585,17 +1665,16 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /*
 	    PARSE the SAD and fill it. It may take some time since it will
 	    be called every times an ESP Payload is found.
-	    It would have been better to do it in the proto registration,
-	    but because there is no way to add a crossbar, you have to do
-	    a parsing and have a SA Rule.
 	  */
 
-	  if((sad_is_present = get_esp_sa(&g_esp_sad, protocol_typ, ip_src,  ip_dst, spi, &entry_index, &esp_crypt_algo, &esp_auth_algo, &esp_crypt_key, &esp_auth_key)))
+	  if((sad_is_present = get_esp_sa(&g_esp_sad, protocol_typ, ip_src, ip_dst, spi, &entry_index, 
+					  &esp_crypt_algo, &esp_auth_algo, 
+					  &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len)))
 	    {
 
 	      /* Get length of whole ESP packet. */
 	      len = tvb_reported_length(tvb);
-
+	  
 	      switch(esp_auth_algo)
 		{
 
@@ -1618,11 +1697,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  }
 
 		  /*
-				 case IPSEC_AUTH_AES_XCBC_MAC_96:
-				 {
-				 esp_auth_len = 12;
-				 break;
-				 }
+		    case IPSEC_AUTH_AES_XCBC_MAC_96:
+		    {
+		    esp_auth_len = 12;
+		    break;
+		    }
 		  */
 
 		case IPSEC_AUTH_HMAC_MD5_96:
@@ -1674,13 +1753,13 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      }
 
 		      /*
-					     case IPSEC_AUTH_AES_XCBC_MAC_96:
-					     {
-					     auth_algo_libgcrypt =
-					     authentication_check_using_libgcrypt = TRUE;
-					     break;
-					     }
-		       */
+			case IPSEC_AUTH_AES_XCBC_MAC_96:
+			{
+			auth_algo_libgcrypt =
+			authentication_check_using_libgcrypt = TRUE;
+			break;
+			}
+		      */
 
 		    case IPSEC_AUTH_HMAC_SHA256:
 		      {
@@ -1753,7 +1832,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			  else
 			    {
-			      gcry_md_setkey( md_hd, esp_auth_key, strlen(esp_auth_key) );
+			      gcry_md_setkey( md_hd, esp_auth_key, esp_auth_key_len );
 
 			      gcry_md_write (md_hd, esp_data, len - esp_auth_len);
 
@@ -1833,9 +1912,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    if (strlen(esp_crypt_key) != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				decrypt_ok = FALSE;
 			      }
 			    else
@@ -1869,7 +1948,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    switch(strlen(esp_crypt_key) * 8)
+			    switch(esp_crypt_key_len * 8)
 			      {
 			      case 128:
 				{
@@ -1891,7 +1970,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			      default:
 				{
-				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				  decrypt_ok = FALSE;
 				}
 			      }
@@ -1924,9 +2003,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    if (strlen(esp_crypt_key) != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				decrypt_ok = FALSE;
 			      }
 			    else
@@ -1962,7 +2041,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    switch(strlen(esp_crypt_key) * 8)
+			    switch(esp_crypt_key_len * 8)
 			      {
 			      case 160:
 				{
@@ -1984,7 +2063,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			      default:
 				{
-				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CTR : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CTR : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				  decrypt_ok = FALSE;
 				}
 			      }
@@ -2016,7 +2095,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    switch(strlen(esp_crypt_key) * 8)
+			    switch(esp_crypt_key_len * 8)
 			      {
 			      case 128:
 				{
@@ -2032,7 +2111,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			      default:
 				{
-				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				  decrypt_ok = FALSE;
 				}
 			      }
@@ -2068,9 +2147,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    else
 			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-			    if (strlen(esp_crypt_key) != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits)\n",strlen(esp_crypt_key) * 8);
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
 				decrypt_ok = FALSE;
 			      }
 			    else
@@ -2124,7 +2203,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		      else
 			{
-			  err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, strlen(esp_crypt_key));
+			  err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
 			  if (err)
 			    {
 			      fprintf(stderr,"<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey failed: %s\n",
@@ -2257,7 +2336,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	      g_free(ip_src);
 	      g_free(ip_dst);
-
+	      if(esp_auth_key_len != 0) g_free(esp_auth_key);
+	      if(esp_crypt_key_len != 0) g_free(esp_crypt_key);		
+	    
 	    }
 	}
     }
@@ -2559,12 +2640,12 @@ proto_register_ipsec(void)
 				       "This field uses the following syntax : \042Protocol|Source Address|Destination Adress|SPI\042. "
 					   "<Protocol>: either IPv4, IPv6 (upper and/or lowercase letters). <SPI> : the Security Parameter Index "
 					   "of the Security Association. You may indicate it in decimal (ex: 123) or in hexadecimal (ex: 0x45). "
-					   "The special keywords '*' may be used to match any SPI.Nevertheless, if you use more than one '*', "
+					   "The special keywords '*' may be used to match any SPI. Nevertheless, if you use more than one '*', "
 					   "it will restrict the length of the SPI in decimal to as many '*' as indicated. For example '**' will "
 					   "match 23 but not 234. 234 will be match by '***'. No checking will be done on the SPI value. Thus you"
 					   "have to take into account that the SPI is 4 bytes length. <Addresses> : In this field we may have IPv6 "
 					   "or IPv4 address. Any address is a combination of an address or a prefix and a Prefixlen/Netmask separated "
-					   "by '/'. You may omit the Prefixlen/Netmask, assuming that the Adress is 128 bits length for IPv6 and 32 "
+					   "by '/'. You may omit the Prefixlen/Netmask, assuming that the Address is 128 bits length for IPv6 and 32 "
 					   "bits length for IPv4. The character '*' used at the Prefixlen/Netmask position will be as if you had omit it."
 					   " <IPv6 Addresses> : Any valid IPv6 address is accepted. ex: 3FFE::1/128, 3FFE:4:5:6666::/64, ::1/128, 3FFE:4::5 ."
 					   "If your address is incorrect and longer than 16 bytes, only the last 16 bytes will be taken into account. You also "
@@ -2609,7 +2690,8 @@ proto_register_ipsec(void)
 
       prefs_register_string_preference(esp_module, str_encryption_key,
 				       str_encryption_key_comment,
-				       "The key sizes supported are the following : [TripleDES-CBC] : 192 bits. [AES-CBC] : 128/192/256 bits. [AES-CTR] : 160/224/288 bits. The remaining 32 bits will be used as nonce. [DES-CBC] : 64 bits. [BLOWFISH-CBC] : 128 bits. [TWOFISH-CBC] : 128/256 bits",
+				       "The key sizes supported are the following : [TripleDES-CBC] : 192 bits. [AES-CBC] : 128/192/256 bits. [AES-CTR] : 160/224/288 bits. The remaining 32 bits will be used as nonce. [DES-CBC] : 64 bits. [BLOWFISH-CBC] : 128 bits. [TWOFISH-CBC] : 128/256 bits."
+				       "Keys may be written in Ascii or in Hexadecimal beginning with 0x.",
 				       &g_esp_sad.table[i].encryption_key);
 
 
@@ -2622,6 +2704,7 @@ proto_register_ipsec(void)
       prefs_register_string_preference(esp_module, str_authentication_key,
 				       str_authentication_key_comment,
 				       "The key sizes supported are the following : [HMAC-SHA1-96] : Any. [HMAC-SHA256] : Any. [HMAC-MD5] : Any."
+				       "Keys may be written in Ascii or in Hexadecimal beginning with 0x."
 				       ,
 				       &g_esp_sad.table[i].authentication_key);
 
