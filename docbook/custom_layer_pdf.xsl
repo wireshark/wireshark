@@ -10,6 +10,9 @@
 <!-- create pdf bookmarks -->
 <xsl:param name="fop.extensions" select="1"/>
 
+<!-- don't use the draft mode (no loading of image from the web) -->
+<xsl:param name="draft.mode" select="no"/>
+
 <!-- use graphics for admons (note, tip, ...) -->
 <xsl:param name="admon.graphics" select="1"/>
 <xsl:param name="admon.graphics.path">wsug_graphics/</xsl:param>
