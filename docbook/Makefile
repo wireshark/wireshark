@@ -301,7 +301,7 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE)
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-user-guide-us.fo: $(WSUG_SOURCE)
+user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
@@ -309,7 +309,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(WSUG_SOURCE)
+user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
@@ -363,7 +363,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-developer-guide-us.fo: $(WSDG_SOURCE)
+developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
@@ -371,7 +371,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-developer-guide-a4.fo: $(WSDG_SOURCE)
+developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
@@ -411,7 +411,7 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-release-notes-us.fo: $(RELEASE_NOTES_SOURCE)
+release-notes-us.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- RELEASE NOTES - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
@@ -419,7 +419,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-release-notes-a4.fo: $(RELEASE_NOTES_SOURCE)
+release-notes-a4.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
