@@ -126,7 +126,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 
 	/* reset the RTP player */
 #if GTK_MAJOR_VERSION >= 2
-#ifdef PORTAUDIO_DIR
+#ifdef HAVE_LIBPORTAUDIO
 	reset_rtp_player();
 #endif
 #endif
@@ -489,7 +489,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void con
 
 	/* add this RTP for future listening using the RTP Player*/
 #if GTK_MAJOR_VERSION >= 2
-#ifdef PORTAUDIO_DIR
+#ifdef HAVE_LIBPORTAUDIO
 	add_rtp_packet(pi, pinfo);
 #endif
 #endif
