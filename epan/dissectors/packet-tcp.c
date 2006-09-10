@@ -2266,10 +2266,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tf_rst = proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
     tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
     tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
-    if(tcp_relative_seq && (tcph->th_win!=real_window)){
+    if(tcp_relative_seq 
+    && (tcph->th_win!=real_window) 
+    && !(tcph->th_flags&TH_SYN) ){   /* SYNs are never scaled */
       proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
     } else {
-      proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
+      proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
     }
   }
 
