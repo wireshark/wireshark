@@ -48,6 +48,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gchar		*header_val;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
+	gboolean	content_type_found = FALSE;
 	gboolean	chunked_encoding = FALSE;
 
 	/*
@@ -154,6 +155,9 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					    == 1)
 						content_length_found = TRUE;
 					g_free(header_val);
+				} else if (tvb_strncaseeql(tvb, next_offset_sav,
+				    "Content-Type:", 13) == 0) {
+					content_type_found = TRUE;
 				} else if (tvb_strncaseeql(tvb,
 					    next_offset_sav,
 					    "Transfer-Encoding:", 18) == 0) {
@@ -329,6 +333,27 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 
 			}
+		} else if (content_type_found && pinfo->can_desegment) {
+			/* We found a content-type but no content-length.
+			 * This is probably a HTTP header for a session with
+			 * only one HTTP PDU and where the content spans
+			 * until the end of the tcp session.
+			 * Set up tcp reassembly until the end of this session.
+			 */
+			length_remaining = tvb_length_remaining(tvb, next_offset);
+			reported_length_remaining = tvb_reported_length_remaining(tvb, next_offset);
+			if (length_remaining < reported_length_remaining) {
+				/*
+				 * It's a waste of time asking for more
+				 * data, because that data wasn't captured.
+				 */
+				return TRUE;
+			}
+
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
+
+			return FALSE;
 		}
 
 	}

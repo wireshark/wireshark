@@ -85,7 +85,17 @@ typedef struct _packet_info {
 				   finished setting things up, so the TCP
 				   desegmentor can desegment its payload). */
   int desegment_offset;		/* offset to stuff needing desegmentation */
-  guint32 desegment_len;	/* requested desegmentation additional length */
+#define DESEGMENT_ONE_MORE_SEGMENT 0x0fffffff
+#define DESEGMENT_UNTIL_FIN        0x0ffffffe
+  guint32 desegment_len;	/* requested desegmentation additional length
+				   or 
+				   DESEGMENT_ONE_MORE_SEGMENT:
+				     Desegment one more full segment 
+				     (not yet implemented)
+				   DESEGMENT_UNTIL_FIN:
+				     Desgment all data for this tcp session 
+				     until the FIN segment.
+				*/
   guint16 want_pdu_tracking;	/* >0 if the subdissector has specified
 				   a value in 'bytes_until_next_pdu'.
 				   When a dissector detects that the next PDU

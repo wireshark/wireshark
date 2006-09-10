@@ -246,6 +246,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow1.nextseqframe=0;
 		tcpd->flow1.window=0;
 		tcpd->flow1.win_scale=-1;
+		tcpd->flow1.flags=0;
 		tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->flow2.segments=NULL;
 		tcpd->flow2.base_seq=0;
@@ -259,6 +260,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow2.nextseqframe=0;
 		tcpd->flow2.window=0;
 		tcpd->flow2.win_scale=-1;
+		tcpd->flow2.flags=0;
 		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 
@@ -1291,6 +1293,16 @@ again:
 	}
 
 	if (must_desegment) {
+	    /* If the dissector requested "reassemble until FIN"
+	     * just set this flag for the flow and let reassembly
+	     * proceed at normal.  We will check/pick up these
+	     * reassembled PDUs later down in dissect_tcp() when checking
+	     * for the FIN flag.
+	     */
+	    if(pinfo->desegment_len==DESEGMENT_UNTIL_FIN){
+		tcpd->fwd->flags|=TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+	    }
+
 	    /*
 	     * The sequence number at which the stuff to be desegmented
 	     * starts is the sequence number of the byte at an offset
@@ -1303,19 +1315,18 @@ again:
 	     */
 	    deseg_seq = seq + (deseg_offset - offset);
 
-	    if ((nxtseq - deseg_seq) <= 1024*1024) {
-		if(!pinfo->fd->flags.visited){		
-		    msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
-				nxtseq + pinfo->desegment_len, tcpd);
+	    if( ((nxtseq - deseg_seq) <= 1024*1024)
+	    &&  (!pinfo->fd->flags.visited) ){
+		msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+			nxtseq + pinfo->desegment_len, tcpd);
 
-		    /* add this segment as the first one for this new pdu */
-		    fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
-		        tcp_fragment_table,
-		        0,
-		        nxtseq - deseg_seq,
-		        LT_SEQ(nxtseq, msp->nxtpdu));
+		/* add this segment as the first one for this new pdu */
+		fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
+			tcp_fragment_table,
+			0,
+			nxtseq - deseg_seq,
+			LT_SEQ(nxtseq, msp->nxtpdu));
 		}
-	    }
 	}
 
 	if (!called_dissector || pinfo->desegment_len != 0) {
@@ -2464,6 +2475,52 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd);
   }
   tap_queue_packet(tcp_tap, pinfo, tcph);
+
+
+  /* A FIN packet might complete reassembly so we need to explicitely
+   * check for this here.
+   * If this segment completes reassembly we add the FIN as a final dummy
+   * byte to the reassembled PDU and check if reassembly completed successfully
+   */
+  if( (tcph->th_flags & TH_FIN)
+  &&  (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ){
+    struct tcp_multisegment_pdu *msp;
+
+    /* find the most previous PDU starting before this sequence number */
+    msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
+    if(msp){
+      fragment_data *ipfd_head;
+
+      ipfd_head = fragment_add(tvb, offset-1, pinfo, msp->first_frame,
+			tcp_fragment_table,
+			tcph->th_seq - msp->seq,
+			1,
+			FALSE );
+      if(ipfd_head){
+        tvbuff_t *next_tvb;
+
+        /* create a new TVB structure for desegmented data
+         * datalen-1 to strip the dummy FIN byte off
+         */
+        next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen-1, ipfd_head->datalen-1);
+
+        /* add this tvb as a child to the original one */
+        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+        /* add desegmented data to the data source list */
+        add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
+
+        /* call the payload dissector
+         * but make sure we dont offer desegmentation any more
+         */
+	pinfo->can_desegment = 0;
+
+        process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
+
+        return;
+      }
+    }
+  }
 
   /*
    * XXX - what, if any, of this should we do if this is included in an

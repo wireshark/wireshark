@@ -137,6 +137,11 @@ typedef struct _tcp_flow_t {
 				 */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we dont know */
+/* This tcp flow/session contains only one single PDU and should
+ * be reassembled until the final FIN segment.
+ */
+#define TCP_FLOW_REASSEMBLE_UNTIL_FIN	0x0001
+	guint16 flags;
 	guint32 lastsegmentflags;
 
 	/* This tree is indexed by sequence number and keeps track of all
