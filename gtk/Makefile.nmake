@@ -67,7 +67,6 @@ pa_win_wmme.obj: $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c
 clean:
 	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*
 	if exist html rmdir html
-	cd ..
 
 distclean: clean
 

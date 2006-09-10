@@ -393,7 +393,7 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-codecs:: help config.h svnversion.h AUTHORS-SHORT doxygen
+codecs::
         cd codecs
         $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
         cd ..
