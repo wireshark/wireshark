@@ -1,6 +1,7 @@
 /* packet-vrrp.c
  * Routines for the Virtual Router Redundancy Protocol (VRRP)
  * RFC2338
+ * draft-ietf-vrrp-ipv6-spec-07.txt
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
@@ -105,7 +106,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *vrrp_tree, *ver_type_tree;
-                guint8 priority, ip_count = 0, auth_type;
+                guint8 priority, ip_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
                 guint16 cksum, computed_cksum;
                 guint8 auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
@@ -133,6 +134,11 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
                 offset++;
 
+		ip_count = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb,
+		    offset, 1, ip_count);
+		offset++;
+
 		switch(hi_nibble(ver_type)) {
 		case 3:
 			/* Skip reserve field */
@@ -140,16 +146,11 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 2:
 		default:
-			ip_count = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb,
-			    offset, 1, ip_count);
+			auth_type = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, FALSE);
 			offset++;
 			break;
 		}
-
-                auth_type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, FALSE);
-                offset++;
 
                 proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, FALSE);
                 offset++;
