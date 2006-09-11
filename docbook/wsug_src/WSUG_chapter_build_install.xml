@@ -539,9 +539,15 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	<command>Tree Statistics Plugins</command> - Plugins with some extended statistics.
 	</para></listitem>
 	<listitem><para>
-	<command>Mate - Meta Analysis and Tracing Engine</command> - user 
-	configurable extension(s) of the display filter engine, see 
+	<command>Mate - Meta Analysis and Tracing Engine (experimental)</command> 
+	- user configurable extension(s) of the display filter engine, see 
 	<ulink url="&WiresharkWikiPage;/Mate">&WiresharkWikiPage;/Mate</ulink>
+	for details.
+	</para></listitem>
+	<listitem><para>
+	<command>Lua Plugin (experimental)</command> 
+	- a language for prototyping and scripting, see 
+	<ulink url="&WiresharkWikiPage;/Lua">&WiresharkWikiPage;/Lua</ulink>
 	for details.
 	</para></listitem>
 	<listitem><para>
