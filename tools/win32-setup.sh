@@ -51,7 +51,8 @@ case "$1" in
 	echo "****** $PACKAGE ******"
 	if [ -z "$http_proxy" -a -z "$HTTP_PROXY" ] ; then
 		echo "No HTTP proxy specified (http_proxy and HTTP_PROXY are empty)."
-		use_proxy="-Y off"
+		# a proxy might also be specified using .wgetrc, so don't switch off the proxy
+		#use_proxy="-Y off"
 	else
 		use_proxy="-Y on"
 		if [ -z "$http_proxy" ] ; then
