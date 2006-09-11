@@ -47,7 +47,7 @@ EXTRA_OBJECTS = \
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
-	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
+	$(NET_SNMP_LIBS) \
 !IFDEF HHC_DIR
 	$(HHC_DIR)\lib\htmlhelp.lib \
 !ENDIF
@@ -67,7 +67,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
+	$(NET_SNMP_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -99,7 +99,7 @@ dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
+	$(NET_SNMP_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -115,7 +115,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
+	$(NET_SNMP_LIBS)
 
 EXECUTABLES=wireshark.exe wireshark-gtk2.exe tshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
@@ -152,27 +152,27 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
 !ELSE
-wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
 !IFNDEF GTK2_DIR
 wireshark-gtk2.exe	: 
 !ELSE
-wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) $(command_line_OBJECTS) codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj $(command_line_OBJECTS) codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
-tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) $(command_line_OBJECTS) epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj $(command_line_OBJECTS) epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) $(command_line_OBJECTS) image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj $(command_line_OBJECTS) image\tshark.res
 <<
 
 capinfos.exe	: config.h capinfos.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
@@ -205,10 +205,10 @@ dftest.exe	: $(dftest_OBJECTS) epan
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 
-randpkt.exe	: $(randpkt_OBJECTS) $(command_line_OBJECTS)
+randpkt.exe	: $(randpkt_OBJECTS) getopt.obj $(command_line_OBJECTS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) $(command_line_OBJECTS)
+		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) getopt.obj $(command_line_OBJECTS)
 <<
 
 dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
@@ -239,6 +239,8 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@HAVE_PORTAUDIO_API@/$(PORTAUDIO_API_CONFIG)/" \
+	    -e "s/@HAVE_NET_SNMP@/$(HAVE_NET_SNMP)/" \
+	    -e "s/@HAVE_SOME_SNMP@/$(HAVE_SOME_SNMP)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
