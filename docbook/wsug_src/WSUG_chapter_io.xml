@@ -629,7 +629,7 @@
 	  <para>
 	    Export packet data into PDML. This is an XML based format including 
 		the packet details. The PDML file specification is available at: 
-		<ulink url="http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm">
+		<ulink url="http://www.nbee.org/Docs/NetPDL/PDML.htm">
 		PDML specification</ulink>.
 		<note><title></title>
 		<para>

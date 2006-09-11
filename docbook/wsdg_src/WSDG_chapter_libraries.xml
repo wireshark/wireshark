@@ -31,7 +31,7 @@
 	<para>
 	Win32: All required libraries for the MSVC
 	generation are available at: 
-	<ulink	url="http://www.wireshark.org/distribution/win32/development/"/>,
+	<ulink	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>,
 	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
 	libraries.
 	</para>
@@ -225,7 +225,7 @@
   </section>
   
   <section id="ChLibsSNMP">
-	<title>Net SNMP (previously known as "ucd-snmp")</title>
+	<title>Net SNMP (optional, previously known as "ucd-snmp")</title>
 	<para>
 	"Various tools relating to the Simple Network Management Protocol"
 	</para>
@@ -283,7 +283,7 @@ utilities."
   
 
   <section id="ChLibsPCRE">
-	<title>PCRE(optional)</title>
+	<title>PCRE (optional)</title>
 	<para>
 	"Perl compatible regular expressions"
 	</para>
@@ -362,6 +362,137 @@ utilities."
 	<para>
 	You can get the "Windows packet capture library" at:
 	<ulink url="http://www.winpcap.org/install/default.htm"/>
+	</para>
+	</section>
+
+  </section>
+
+
+  <section id="ChLibsGNUTLS">
+	<title>GNUTLS (optional)</title>
+	<para>
+	The "GNU Transport Layer Security Library" is used to dissect SSL and TLS 
+	protocols (aka: HTTPS).
+	</para>
+	
+	<section id="ChLibsUnixGNUTLS">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/gnutls/download.html"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32GNUTLS">
+	<title>Win32 MSVC</title>
+	<para>
+	We roll our own version using: 
+	<ulink url="http://josefsson.org/gnutls4win/"/>
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChLibsGcrypt">
+	<title>Gcrypt (optional)</title>
+	<para>
+	The "Gcrypt Library" is Low-level encryption library and provides 
+	support for many ciphers, such as DES, 3DES, AES, Blowfish, and others..
+	</para>
+	
+	<section id="ChLibsUnixGcrypt">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://directory.fsf.org/security/libgcrypt.html"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32Gcrypt">
+	<title>Win32 MSVC</title>
+	<para>
+	Part of our homemade GnuTLS package.
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChLibsKerberos">
+	<title>Kerberos (optional)</title>
+	<para>
+	The Kerberos library is used to dissect Kerberos, sealed DCERPC and 
+	secureLDAP protocols.
+	</para>
+	
+	<section id="ChLibsUnixKerberos">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://web.mit.edu/Kerberos/dist/"/>.
+	</para>
+	<para>
+	XXX - Is it supported on *NIX at all?
+	</para>
+	</section>
+
+	<section id="ChLibsWin32Kerberos">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version of KfW "Kerberos for Windows" at: 
+	<ulink url="http://web.mit.edu/Kerberos/dist/"/>
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChLibsLua">
+	<title>LUA (optional)</title>
+	<para>
+	The LUA library is used to add scripting support to Wireshark.
+	</para>
+	
+	<section id="ChLibsUnixLua">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.lua.org/download.html"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32Lua">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://luaforge.net/frs/?group_id=110"/>
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChLibsPortAudio">
+	<title>PortAudio (optional)</title>
+	<para>
+	The PortAudio library enables audio output for RTP streams.
+	</para>
+	
+	<section id="ChLibsUnixPortAudio">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.portaudio.com/download.html"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32PortAudio">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://www.portaudio.com/download.html"/>
 	</para>
 	</section>
 

@@ -78,12 +78,12 @@ Wireshark Info
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
   <!ENTITY WiresharkBinariesPage "&WiresharkWebSite;/download.html#releases">
-  <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/introduction.html#authors">
+  <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/about.html">
   <!ENTITY WiresharkProtocolsPage "&WiresharkWebSite;/docs/dfref/">
   <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
-  <!ENTITY WiresharkFAQPromiscPage "&WiresharkWebSite;/faq#promiscsniff">
-  <!ENTITY WiresharkMediaPage "&WiresharkWebSite;/media.html">
+  <!ENTITY WiresharkFAQPromiscPage "&WiresharkWebSite;/faq.html#promiscsniff">
   <!ENTITY WiresharkWikiPage "http://wiki.wireshark.org">
+  <!ENTITY WiresharkMediaPage "&WiresharkWikiPage;/CaptureSetup/NetworkMedia">
   <!ENTITY WiresharkWikiCaptureFiltersPage "&WiresharkWikiPage;/CaptureFilters">
   <!ENTITY WiresharkWikiDisplayFiltersPage "&WiresharkWikiPage;/DisplayFilters">
   <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">

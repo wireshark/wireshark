@@ -1339,7 +1339,7 @@ written by Larry Wall and Paul Eggert]]>
 	If GNU unzip isn't already installed and also not available as a package 
 	for your platform (well, for Win32 it is available as a Cygwin package), 
 	you can get it at: 
-	<ulink url="http://www.gnu.org/software/unzip/unzip.html"/>.
+	<ulink url="http://gnuwin32.sourceforge.net/packages/unzip.htm"/>.
 	</para>
 	</section>
 
