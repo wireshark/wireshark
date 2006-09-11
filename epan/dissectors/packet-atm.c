@@ -917,6 +917,7 @@ update_crc(guint32 crc_accum, const guint8 *data_blk_ptr, int data_blk_size)
 
 static void
 dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_item *atm_ti,
     proto_tree *atm_tree, gboolean truncated)
 {
   guint        length, reported_length;
@@ -1115,10 +1116,15 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Skip first 4 bytes of message
         - side
         - length
-        - UUI (always 26 to indicate last data received)
+        - UUI
         Ignoring for now... */
         proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
                             pinfo->pseudo_header->atm.aal2_cid);
+        proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
+                               pinfo->pseudo_header->atm.vpi,
+                               pinfo->pseudo_header->atm.vci,
+                               pinfo->pseudo_header->atm.aal2_cid);
+
         next_tvb = tvb_new_subset(tvb, 4,
                                   tvb_length_remaining(tvb, 4),
                                   tvb_length_remaining(tvb, 4));
@@ -1551,7 +1557,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean truncated)
 {
   proto_tree   *atm_tree = NULL;
-  proto_item   *ti = NULL;
+  proto_item   *atm_ti = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
@@ -1588,8 +1594,8 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
-    atm_tree = proto_item_add_subtree(ti, ett_atm);
+    atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+    atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     switch (pinfo->pseudo_header->atm.channel) {
 
@@ -1618,11 +1624,11 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   if (pinfo->pseudo_header->atm.flags & ATM_RAW_CELL) {
     /* This is a single cell, with the cell header at the beginning. */
-    proto_item_set_len(ti, 5);
+    proto_item_set_len(atm_ti, 5);
     dissect_atm_cell(tvb, pinfo, tree, atm_tree);
   } else {
     /* This is a reassembled PDU. */
-    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, truncated);
+    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated);
   }
 }
 

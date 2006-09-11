@@ -374,7 +374,7 @@ void parse_outhdr_string(char *outhdr_string)
     int n = 0;
 
     /* Populate values array */
-    for (outhdr_values_found=0; n < MAX_OUTHDR_VALUES; )
+    for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; )
     {
         guint start_i = n;
         guint digits;
@@ -405,7 +405,7 @@ void parse_outhdr_string(char *outhdr_string)
 
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-void attach_fp_info(packet_info *pinfo, gboolean received)
+void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name)
 {
     int i=0;
     int chan;
@@ -425,12 +425,35 @@ void attach_fp_info(packet_info *pinfo, gboolean received)
         return;
     }
 
+    /* 3gpp release (99, 4, 5, 6) */
+    if (strcmp(protocol_name, "fp") == 0)
+    {
+        p_fp_info->release = 99;
+    }
+    else if (strcmp(protocol_name, "fp_r4") == 0)
+    {
+        p_fp_info->release = 4;
+    }
+    else if (strcmp(protocol_name, "fp_r5") == 0)
+    {
+        p_fp_info->release = 5;
+    }
+    else if (strcmp(protocol_name, "fp_r6") == 0)
+    {
+        p_fp_info->release = 6;
+    }
+    else
+    {
+        return;
+    }
+
+
     /* Channel type */
     p_fp_info->channel = outhdr_values[i++];
 
     /* Node type */
     p_fp_info->node_type = outhdr_values[i++];
-    
+
     p_fp_info->is_uplink = (( received  && (p_fp_info->node_type == 2)) ||
                             (!received  && (p_fp_info->node_type == 1)));
 
@@ -443,21 +466,41 @@ void attach_fp_info(packet_info *pinfo, gboolean received)
     /* Number of channels (for coordinated channels) */
     p_fp_info->num_chans = outhdr_values[i++];
 
-    /* TF size for each channel */
-    tf_start = i;
-    for (chan=0; chan < p_fp_info->num_chans; chan++)
+    if (p_fp_info->channel != CHANNEL_EDCH)
     {
-        p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
-    }
+        /* TF size for each channel */
+        tf_start = i;
+        for (chan=0; chan < p_fp_info->num_chans; chan++)
+        {
+            p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
+        }
 
-    /* Number of TBs for each channel */
-    num_chans_start = tf_start + p_fp_info->num_chans;
-    for (chan=0; chan < p_fp_info->num_chans; chan++)
+        /* Number of TBs for each channel */
+        num_chans_start = tf_start + p_fp_info->num_chans;
+        for (chan=0; chan < p_fp_info->num_chans; chan++)
+        {
+            p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
+        }
+    }
+    /* EDCH info */
+    else
     {
-        p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
-    }
+        int n;
 
-    /* TODO: EDCH info */
+        p_fp_info->no_ddi_entries = outhdr_values[i++];
+
+        /* DDI values */
+        for (n=0; n < p_fp_info->no_ddi_entries; n++)
+        {
+            p_fp_info->edch_ddi[n] = outhdr_values[i++];
+        }
+
+        /* Corresponding MAC-d sizes */
+        for (n=0; n < p_fp_info->no_ddi_entries; n++)
+        {
+            p_fp_info->edch_macd_pdu_size[n] = outhdr_values[i++];
+        }
+    }
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
@@ -585,7 +628,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r6") == 0))
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
-        attach_fp_info(pinfo, direction);
+        attach_fp_info(pinfo, direction, protocol_name);
     }
 
 

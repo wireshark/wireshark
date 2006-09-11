@@ -61,6 +61,17 @@ static int hf_fp_quality_estimate = -1;
 static int hf_fp_payload_crc = -1;
 static int hf_fp_edch_header_crc = -1;
 static int hf_fp_edch_fsn = -1;
+static int hf_fp_edch_subframe = -1;
+static int hf_fp_edch_number_of_subframes = -1;
+static int hf_fp_edch_harq_retransmissions = -1;
+static int hf_fp_edch_subframe_number = -1;
+static int hf_fp_edch_number_of_mac_es_pdus = -1;
+static int hf_fp_edch_ddi = -1;
+static int hf_fp_edch_subframe_header = -1;
+static int hf_fp_edch_number_of_mac_d_pdus = -1;
+static int hf_fp_edch_pdu_padding = -1;
+static int hf_fp_edch_tsn = -1;
+static int hf_fp_edch_mac_es_pdu = -1;
 static int hf_fp_cmch_pi = -1;
 static int hf_fp_user_buffer_size = -1;
 static int hf_fp_hsdsch_credits = -1;
@@ -84,6 +95,18 @@ static int hf_fp_t3 = -1;
 static int ett_fp = -1;
 static int ett_fp_data = -1;
 static int ett_fp_crcis = -1;
+static int ett_fp_edch_subframe_header = -1;
+static int ett_fp_edch_subframe = -1;
+
+
+/* E-DCH channel header information */
+struct subframe_info
+{
+    guint8  subframe_number;
+    guint8  number_of_mac_es_pdus;
+    guint8  ddi[64];
+    guint16 number_of_mac_d_pdus[64];
+};
 
 
 static const value_string channel_type_vals[] =
@@ -184,6 +207,75 @@ static const value_string common_control_frame_type_vals[] = {
     { COMMON_HS_DSCH_Capacity_Allocation,      "HS-DSCH Capacity Allocation" },
     { 0,   NULL },
 };
+
+/* Dissect message parts */
+static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                           int offset, struct _fp_info *p_fp_info, int *num_tbs);
+static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                 int offset, guint16 length, guint8 number_of_pdus);
+static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int num_tbs, int offset);
+
+/* Dissect common control messages */
+static void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                             int offset, struct _fp_info *p_fp_info);
+static void dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                                   tvbuff_t *tvb, int offset);
+static void dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                                   tvbuff_t *tvb, int offset);
+static void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                             tvbuff_t *tvb, int offset,
+                                             struct _fp_info *p_fp_info);
+static void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                             tvbuff_t *tvb, int offset,
+                                             struct _fp_info *p_fp_info);
+static void dissect_common_timing_advance(proto_tree *tree, tvbuff_t *tvb, int offset);
+static void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
+                                           tvbuff_t *tvb, int offset);
+static void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
+                                              tvbuff_t *tvb, int offset);
+static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                   int offset, struct _fp_info *p_fp_info);
+
+/* Dissect common channel types */
+static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      int offset, struct _fp_info *p_fp_info);
+static void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      int offset, struct _fp_info *p_fp_info);
+static void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      int offset, struct _fp_info *p_fp_info);
+static void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      int offset, struct _fp_info *p_fp_info);
+static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                     int offset, struct _fp_info *p_fp_info);
+static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                          int offset, struct _fp_info *p_fp_info _U_);
+static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                        int offset, struct _fp_info *p_fp_info);
+
+
+/* Dissect DCH control messages */
+static void dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo,
+                                          tvbuff_t *tvb, int offset);
+static void dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset);
+static void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                           tvbuff_t *tvb, int offset);
+static void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                           tvbuff_t *tvb, int offset);
+
+/* Dissect a DCH channel */
+static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                     int offset, struct _fp_info *p_fp_info);
+
+/* Dissect dedicated channels */
+static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                int offset, struct _fp_info *p_fp_info);
+static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+void proto_register_fp(void);
+void proto_reg_handoff_fp(void);
+
+
 
 
 /* Dissect the TBs of a data frame */
@@ -308,8 +400,8 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 /* Dissect CRCI bits (uplink) */
-static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             int num_tbs, int offset)
+int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                      int num_tbs, int offset)
 {
     int n;
     proto_item *ti;
@@ -786,7 +878,7 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* PDSCH Set Id */
         proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
         offset++;
-        
+
         /* Transmit power level. TODO: units are 0.1dB */
         proto_tree_add_item(tree, hf_fp_transmit_power_level, tvb, offset, 1, FALSE);
         offset++;
@@ -893,17 +985,17 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
         pch_cfn = (tvb_get_ntohs(tvb, offset) & 0xfff0) >> 4;
         offset++;
-    
+
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%04u ", pch_cfn);
         }
-    
+
         /* Paging indication */
         proto_tree_add_item(tree, hf_fp_pch_pi, tvb, offset, 1, FALSE);
         paging_indication = tvb_get_guint8(tvb, offset) & 0x01;
         offset++;
-    
+
         /* 5-bit TFI */
         proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, FALSE);
         offset++;
@@ -1148,12 +1240,17 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
+
 /**********************************/
 /* Dissect an E-DCH channel       */
 void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                int offset, struct _fp_info *p_fp_info _U_)
+                                int offset, struct _fp_info *p_fp_info)
 {
     gboolean is_control_frame;
+    guint8   number_of_subframes;
+    guint8   cfn;
+    int      n;
+    struct   subframe_info subframes[8];
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_edch_header_crc, tvb, offset, 2, FALSE);
@@ -1162,13 +1259,6 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
     proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
     offset++;
-
-    /* FSN */
-    proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, FALSE);
-    offset++;
-
-    /* CFN */
-
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
@@ -1182,7 +1272,225 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     else
     {
         /********************************/
-        /* TODO: E-DCH data here        */
+        /* E-DCH data here        */
+
+        guint  bit_offset = 0;
+        guint  total_bits = 0;
+
+        /* FSN */
+        proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* Number of subframes (3 bits) */
+        number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x07);
+        proto_tree_add_item(tree, hf_fp_edch_number_of_subframes, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* EDCH subframe header list */
+        for (n=0; n < number_of_subframes; n++)
+        {
+            int i;
+            proto_item *subframe_header_ti;
+            proto_tree *subframe_header_tree;
+
+            /* Add subframe header subtree */
+            subframe_header_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
+                                                              "", "Subframe");
+            subframe_header_tree = proto_item_add_subtree(subframe_header_ti, ett_fp_edch_subframe_header);
+
+            /* Number of HARQ Retransmissions */
+            proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
+                                offset, 1, FALSE);
+
+            /* Subframe number */
+            subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
+            proto_tree_add_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
+                                offset, 1, FALSE);
+            offset++;
+
+            /* Number of MAC-es PDUs */
+            subframes[n].number_of_mac_es_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+            proto_tree_add_item(subframe_header_tree, hf_fp_edch_number_of_mac_es_pdus,
+                                tvb, offset, 1, FALSE);
+            bit_offset = 4;
+
+            proto_item_append_text(subframe_header_ti, " %u header (%u MAC-es PDUs)",
+                                   subframes[n].subframe_number,
+                                   subframes[n].number_of_mac_es_pdus);
+
+            /* Details of each MAC-es PDU */
+            for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
+            {
+                guint8 ddi;
+                int    ddi_offset;
+                guint8 n_pdus;
+                int    n_pdus_offset;
+
+                /* DDI (6 bits) */
+                ddi_offset = offset + (bit_offset / 8);
+
+                switch (bit_offset%8)
+                {
+                    case 0:
+                        ddi = (tvb_get_guint8(tvb, ddi_offset) >> 2);
+                        break;
+                    case 2:
+                        ddi = (tvb_get_guint8(tvb, ddi_offset) & 0x3f);
+                        break;
+                    case 4:
+                        ddi = (tvb_get_ntohs(tvb, ddi_offset) >> 6) & 0x003f;
+                        break;
+                    case 6:
+                        ddi = (tvb_get_ntohs(tvb, ddi_offset) >> 4) & 0x003f;
+                        break;
+                    default:
+                        /* Can't get here, but avoid warning */
+                        return;
+                }
+
+                proto_tree_add_uint(subframe_header_tree, hf_fp_edch_ddi, tvb, ddi_offset,
+                                    ((bit_offset%8) <= 2) ? 1 : 2, ddi);
+
+                subframes[n].ddi[i] = ddi;
+                bit_offset += 6;
+
+                /* Number of MAC-d PDUs (6 bits) */
+                n_pdus_offset = offset + (bit_offset / 8);
+                switch (bit_offset%8)
+                {
+                    case 0:
+                        n_pdus = (tvb_get_guint8(tvb, n_pdus_offset) >> 2);
+                        break;
+                    case 2:
+                        n_pdus = (tvb_get_guint8(tvb, n_pdus_offset) & 0x3f);
+                        break;
+                    case 4:
+                        n_pdus = (tvb_get_ntohs(tvb, n_pdus_offset) >> 6) & 0x003f;
+                        break;
+                    case 6:
+                        n_pdus = (tvb_get_ntohs(tvb, n_pdus_offset) >> 4) & 0x003f;
+                        break;
+                    default:
+                        /* Can't get here, but avoid warning */
+                        return;
+                }
+                proto_tree_add_uint(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb, n_pdus_offset,
+                                    ((bit_offset%8) <= 2) ? 1 : 2, n_pdus);
+
+                subframes[n].number_of_mac_d_pdus[i] = n_pdus;
+                bit_offset += 6;
+            }
+
+            /* Tree should cover entire subframe header */
+            proto_item_set_len(subframe_header_ti, bit_offset/8);
+
+            offset += ((bit_offset+7)/8);
+        }
+
+        /* EDCH subframes */
+        bit_offset = 0;
+        for (n=0; n < number_of_subframes; n++)
+        {
+            int i;
+            proto_item *subframe_ti;
+            proto_tree *subframe_tree;
+            guint bits_in_subframe = 0;
+            guint mac_d_pdus_in_subframe = 0;
+
+            bit_offset = 0;
+
+            /* Add subframe subtree */
+            subframe_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe, tvb, offset, 0,
+                                                       "", "Subframe %u", subframes[n].subframe_number);
+            subframe_tree = proto_item_add_subtree(subframe_ti, ett_fp_edch_subframe);
+
+            for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
+            {
+                int m;
+                guint8 size = 0;
+                guint  send_size;
+                proto_item *ti;
+
+                /* Look up mac-d pdu size for this ddi */
+                for (m=0; m < p_fp_info->no_ddi_entries; m++)
+                {
+                    if (subframes[n].ddi[i] == p_fp_info->edch_ddi[m])
+                    {
+                        size = p_fp_info->edch_macd_pdu_size[m];
+                        break;
+                    }
+                }
+
+                if (m == p_fp_info->no_ddi_entries)
+                {
+                    /* Not found.  Oops */
+                    return;
+                }
+
+                /* Send MAC-dd PDUs together as one MAC-es PDU */
+                send_size = size * subframes[n].number_of_mac_d_pdus[i];
+
+                /* 2 bits spare */
+                proto_tree_add_item(subframe_tree, hf_fp_edch_pdu_padding, tvb,
+                                    offset + (bit_offset/8),
+                                    1, FALSE);
+                bit_offset += 2;
+
+                /* TSN */
+                proto_tree_add_item(subframe_tree, hf_fp_edch_tsn, tvb,
+                                    offset + (bit_offset/8),
+                                    1, FALSE);
+                bit_offset += 6;
+
+                /* PDU */
+                ti = proto_tree_add_item(subframe_tree, hf_fp_edch_mac_es_pdu, tvb,
+                                         offset + (bit_offset/8),
+                                         ((bit_offset % 8) + send_size + 7) / 8,
+                                         FALSE);
+                proto_item_append_text(ti, " (%u * %u = %u bits, subframe %d)",
+                                       size, subframes[n].number_of_mac_d_pdus[i],
+                                       send_size, n);
+                bits_in_subframe += send_size;
+                mac_d_pdus_in_subframe += subframes[n].number_of_mac_d_pdus[i];
+
+                bit_offset += send_size;
+
+                /* Pad out to next byte */
+                if (bit_offset % 8)
+                {
+                    bit_offset += (8 - (bit_offset % 8));
+                }
+            }
+
+            /* Tree should cover entire subframe */
+            proto_item_set_len(subframe_ti, bit_offset/8);
+
+            /* Append summary info to subframe label */
+            proto_item_append_text(subframe_ti, " (%u bits in %u MAC-d PDUs)",
+                                   bits_in_subframe, mac_d_pdus_in_subframe);
+            total_bits += bits_in_subframe;
+
+            offset += (bit_offset/8);
+        }
+
+        /* Report number of subframes in info column */
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " CFN = %u   (%u bits in %u subframes)",
+                            cfn, total_bits, number_of_subframes);
+        }
+
+        /* Payload CRC (optional) */
+        if (p_fp_info->dch_crc_present)
+        {
+            proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
+        }
     }
 }
 
@@ -1241,6 +1549,13 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset, pdu_length,
                                        number_of_pdus);
 
+        /* Extra R6 stuff */
+        if (p_fp_info->release == 6)
+        {
+            /* TODO */
+            offset += 3;
+        }
+
         /* TODO: may be spare extension to skip */
 
         /* Payload CRC */
@@ -1253,8 +1568,7 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /*****************************/
 /* Main dissection function. */
-static void
-dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree       *fp_tree;
     proto_item       *ti;
@@ -1561,7 +1875,73 @@ void proto_register_fp(void)
         { &hf_fp_edch_fsn,
             { "FSN",
               "fp.edch.fsn", FT_UINT8, BASE_DEC, 0, 0x0f,
-              "E-DCH CFN", HFILL
+              "E-DCH FSN", HFILL
+            }
+        },
+        { &hf_fp_edch_number_of_subframes,
+            { "No of subframes",
+              "fp.edch.no-of-subgrames", FT_UINT8, BASE_DEC, 0, 0x07,
+              "E-DCH Number of subframes", HFILL
+            }
+        },
+        { &hf_fp_edch_harq_retransmissions,
+            { "No of HARQ Retransmissions",
+              "fp.edch.no-of-harq-retransmissions", FT_UINT8, BASE_DEC, 0, 0x78,
+              "E-DCH Number of HARQ retransmissions", HFILL
+            }
+        },
+        { &hf_fp_edch_subframe_number,
+            { "Subframe number",
+              "fp.edch.subframe-number", FT_UINT8, BASE_DEC, 0, 0x07,
+              "E-DCH Subframe number", HFILL
+            }
+        },
+        { &hf_fp_edch_number_of_mac_es_pdus,
+            { "Number of Mac-es PDUs",
+              "fp.edch.number-of-mac-es-pdus", FT_UINT8, BASE_DEC, 0, 0xf0,
+              "Number of Mac-es PDUs", HFILL
+            }
+        },
+        { &hf_fp_edch_ddi,
+            { "DDI",
+              "fp.edch.ddi", FT_UINT8, BASE_DEC, 0, 0x0,
+              "E-DCH Data Description Indicator", HFILL
+            }
+        },
+        { &hf_fp_edch_subframe,
+            { "Subframe",
+              "fp.edch.subframe", FT_STRING, BASE_NONE, NULL, 0x0,
+              "EDCH Subframe", HFILL
+            }
+        },
+        { &hf_fp_edch_subframe_header,
+            { "Subframe header",
+              "fp.edch.subframe-header", FT_STRING, BASE_NONE, NULL, 0x0,
+              "EDCH Subframe header", HFILL
+            }
+        },
+        { &hf_fp_edch_number_of_mac_d_pdus,
+            { "Number of Mac-d PDUs",
+              "fp.edch.number-of-mac-d-pdus", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Number of Mac-d PDUs", HFILL
+            }
+        },
+        { &hf_fp_edch_pdu_padding,
+            { "Padding",
+              "fp.edch-data-padding", FT_UINT8, BASE_DEC, 0, 0xc0,
+              "E-DCH padding before PDU", HFILL
+            }
+        },
+        { &hf_fp_edch_tsn,
+            { "TSN",
+              "fp.edch-tsn", FT_UINT8, BASE_DEC, 0, 0x3f,
+              "E-DCH Transmission Sequence Number", HFILL
+            }
+        },
+        { &hf_fp_edch_mac_es_pdu,
+            { "MAC-es PDU",
+              "fp.edch.mac-es-pdu", FT_NONE, BASE_NONE, NULL, 0x0,
+              "MAC-es PDU", HFILL
             }
         },
         { &hf_fp_cmch_pi,
@@ -1667,7 +2047,9 @@ void proto_register_fp(void)
     {
         &ett_fp,
         &ett_fp_data,
-        &ett_fp_crcis
+        &ett_fp_crcis,
+        &ett_fp_edch_subframe_header,
+        &ett_fp_edch_subframe
     };
 
     /* Register protocol. */

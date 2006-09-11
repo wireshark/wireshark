@@ -45,6 +45,7 @@
 /* Info attached to each FP packet */
 struct _fp_info
 {
+    guint8 release;
     gboolean is_uplink;
     gint channel;
     gint node_type;
@@ -55,6 +56,9 @@ struct _fp_info
     gint chan_tf_size[MAX_FP_CHANS];
     gint chan_num_tbs[MAX_FP_CHANS];
 
-    /* TODO: EDCH info */
+#define MAX_EDCH_DDIS 16
+    gint   no_ddi_entries;
+    guint8 edch_ddi[MAX_EDCH_DDIS];
+    guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
 };
 
