@@ -209,11 +209,10 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 #
 PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
 
-# If the PORTAUDIO library is used this line must be uncommented if v18
-# is used. V18 uses API version 1 and v19 API version 2
+# Version number of PortAudio
 # 
-PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
-
+PORTAUDIO_VERSION=18
+#PORTAUDIO_VERSION=19
 
 #
 # Mandatory for GTK >= 2: Iconv
@@ -568,6 +567,10 @@ LUA_CONFIG=
 !IFDEF PORTAUDIO_DIR
 # Nmake uses carets to escape special characters
 PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
+!IF "$(PORTAUDIO_VERSION)" == "18"
+# V18 uses API version 1 and v19 API version 2
+PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
+!ENDIF
 !else
 PORTAUDIO_CONFIG=
 !ENDIF
