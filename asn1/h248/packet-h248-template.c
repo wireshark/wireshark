@@ -351,9 +351,9 @@ static const value_string event_name_vals[] = {
   {   0x00010000, "g H.248.1 Annex E" },
   {   0x00010001, "g, Cause" },
   {   0x00010002, "g, Signal Completion" },
-  {   0x00040001, "tonedet, Start tone detected" },
-  {   0x00040002, "tonedet, End tone detected" },
-  {   0x00040003, "tonedet, Long tone detected" },
+  {   0x00040001, "tonedet/std(Start tone detected)" },
+  {   0x00040002, "tonedet/etd(End tone detected)" },
+  {   0x00040003, "tonedet/ltd(Long tone detected)" },
   {   0x00060004, "dd, DigitMap Completion Event" },
   {   0x00060010, "dd, DTMF character 0" },
   {   0x00060011, "dd, DTMF character 1" },
@@ -389,7 +389,7 @@ static const value_string event_name_vals[] = {
   {   0x000b0006, "nt, quality alert" },
   {   0x000c0001, "rtp, Payload Transition" },
   {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" },
-  {   0x00210001, "GB BNC change" },
+  {   0x00210001, "GB/BNCChange" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -400,7 +400,7 @@ static const value_string event_name_vals[] = {
 static const value_string signal_name_vals[] = {
   {   0x00000000, "Media stream properties H.248.1 Annex C" },
   {   0x00010000, "g H.248.1 Annex E" },
-  {   0x00030001, "tonegen, Play tone" },
+  {   0x00030001, "tonegen/pt(Play tone)" },
   {   0x00050010, "dg, DTMF character 0" },
   {   0x00050011, "dg, DTMF character 1" },
   {   0x00050012, "dg, DTMF character 2" },
@@ -431,9 +431,9 @@ static const value_string signal_name_vals[] = {
   {   0x000a0003, "ct, Continuity test" },
   {   0x000a0004, "ct, Continuity respond" },
   {   0x00210000, "GB Generic Bearer Connection Q.1950 Annex A" },
-  {   0x00210001, "GB Establish BNC" },
-  {   0x00210002, "GB Modify BNC" },
-  {   0x00210003, "GB Release BNC" },
+  {   0x00210001, "GB/EstBNC(Establish BNC)" },
+  {   0x00210002, "GB/ModBNC (Modify BNC)" },
+  {   0x00210003, "GB/RelBNC(Release BNC)" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -459,6 +459,30 @@ static const value_string stat_name_vals[] = {
  *
  */
 static const value_string property_name_vals[] = {
+  {   0x00001001, "Media" },
+  {   0x00001002, "Transmission mode" },
+  {   0x00001003, "Number of Channels" },
+  {   0x00001004, "Sampling rate" },
+  {   0x00001005, "Bitrate" },
+  {   0x00001006, "ACodec" },
+  {   0x00001007, "Samplepp" },
+  {   0x00001008, "Silencesupp" },
+  {   0x00001009, "Encrypttype" },
+  {   0x0000100a, "Encryptkey" },
+  {   0x0000100b, "Echocanc" },
+  {   0x0000100c, "Gain" },
+  {   0x0000100d, "Jitterbuff" },
+  {   0x0000100e, "PropDelay" },
+  {   0x0000100f, "RTPpayload" },
+
+  {   0x00002001, "H222(H2250LogicalChannelParameters)" },
+  {   0x00002002, "H223(H2250LogicalChannelParameters)" },
+  {   0x00002003, "V76(V76LogicalChannelParameters)" },
+  {   0x00002004, "H2250(H2250LogicalChannelParameters)" },
+
+  {   0x00003001, "Mediatx(Media Transport Type)" },
+  {   0x00003002, "BIR(Value depends on transport technology)" },
+  {   0x00003003, "NSAP" },
   {   0x0000b001, "SDP_V, Protocol Version" },
   {   0x0000b002, "SDP_O, Owner/creator and session ID" },
   {   0x0000b003, "SDP_S, Session name" },
@@ -474,6 +498,16 @@ static const value_string property_name_vals[] = {
   {   0x0000b00d, "SDP_T, Active Session Time" },
   {   0x0000b00e, "SDP_R, Zero or more repeat times" },
   {   0x0000b00f, "SDP_M, Media type, port, transport and format" },
+  {   0x0000d001, "tdmc/ec(Echo Cancellation)" },
+  {   0x001e0001, "BCP/BNCChar(BNC Characteristics)" },
+  {   0x001f0001, "BNCT/BNCCT(BNC Cut Through Capability)" },
+  {   0x00200001, "RI/RII(Reuse Idle Indication)" },
+  {   0x00220001, "BT/TunOpt(Tunnelling Options)" },
+  {   0x002f0001, "threegup/mode" },
+  {   0x002f0002, "threegup/upversions" },
+  {   0x002f0003, "threegup/delerrsdu" },
+  {   0x002f0004, "threegup/interface" },
+  {   0x002f0005, "threegup/initdir" },
 	{0,     NULL}
 };
 
@@ -2557,12 +2591,12 @@ void proto_register_h248(void) {
 
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
-  dissector_handle_t h248_handle;
 
   h248_handle = find_dissector("h248");
   h248_term_handle = find_dissector("h248term");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
+  dissector_add("udp.port", udp_port, h248_handle);
 }
 
