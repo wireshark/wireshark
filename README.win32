@@ -1,7 +1,7 @@
 $Id$
 
 Installing Wireshark, TShark, and Editcap on Win32
-====================================================
+==================================================
 These are the instructions for installing Wireshark
 from the installation executable that is provided on
 the Wireshark website at:
@@ -10,61 +10,17 @@ http://www.wireshark.org/download/win32
 
 and any of its mirrors.
 
-The installation package allows you to install:
+The installer will take care of most situations, so just keep the 
+default settings and start Wireshark after the installation finished.
 
-	o Wireshark - the GUI version
-	o TShark - the console, line-mode version
-	o Editcap - a console, line-mode utility to convert
-	  capture files from one format to another.
-	  (The same functions are available in Wireshark)
-	o Text2Pcap - a console, line-mode utility to generate 
-	  a capture file from an ASCII hexdump of packets
-	o Mergecap - a console, line-mode utility to merge two 
-	  capture files into one
+For detailed descriptions how to install and use Wireshark and the 
+related command line tools, see the Wireshark User's Guide at: 
 
-Additionally, the installation package contains a "plugins"
-option, which installs some additional dissector plugins
-for use with Wireshark and TShark.
+http://www.wireshark.org/docs/
 
-All binaries in Wireshark package are now built with debugging
-information embedded. If you are experiencing a crash when running
-Wireshark or other binaries, Dr. Watson or your debugger
-can use the information embedded in the binary to provide useful 
-information to the Wireshark developers that will help them pinpoint 
-the problem. 
 
-In the past, two versions of Wireshark binaries were published -- a
-version that could capture packets and a version which could not.
-The latter is useful if you're only reading files produced by
-another product (e.g., a sniffer, firewall, or intrustion detection system)
-and did not wish to install WinPcap, the library Wireshark uses
-to capture packets on Win32 platforms.
-
-As of WinPcap 2.1, all the WinPcap libraries have been released as DLLs. 
-This means that Wireshark can detect the presence of WinPcap at run time,
-which means that only one version of the Wireshark binaries needs to be
-shipped.
-
-If you don't want to capture packets, just install the Wireshark
-package. If you do want to capture packets, install Wireshark *and*
-install the latest non-beta version of WinPcap, available from:
-
-	http://winpcap.polito.it/
-
-and mirrored at
-
-	http://winpcap.mirror.ethereal.com/
-
-and
-
-	http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/
-
-If you already have an earlier version of WinPcap installed, you need to
-un-install it and install the latest version.  If the older version is
-WinPcap 2.0 or 2.02, and you have other applications that use the older
-version , you will have to decide which applications to keep, since
-WinPcap 2.0/2.02 and later versions cannot be installed on the same
-system at the same time.
+Troubleshooting
+===============
 
 If Wireshark is not capturing packets and you have WinPcap installed, you
 can test your WinPcap installation by installing WinDump (tcpdump for
@@ -84,12 +40,13 @@ They also make Analyzer, a GUI sniffer for Win32:
 
 	http://analyzer.polito.it/
 
+
 The rest of this documentation is only interesting if
 you want to compile Wireshark yourself.
 
 
 Compiling the Wireshark distribution from source
-===============================================
+================================================
 
 Developer's Guide
 -----------------
@@ -104,7 +61,7 @@ environment and it's usage.
 Compilers
 ---------
 MS Visual C++ Version 6
-This is the common compiler used for building Wireshark on win32.
+This is the recommended compiler used for building Wireshark on win32.
 
 If you've downloaded an Wireshark source tarball and unpacked it, then,
 before you do any build, you must do
@@ -124,19 +81,20 @@ You do not have to do this if you're directly building from the
 Subversion tree, as long as you haven't done a UN*X build in the same
 directory.
 
-MS Visual C++ Version 7 / VC.NET
+MS Visual C++ Version 7 / VC.NET / 2003 / 2005
 Currently unsupported for two reasons:
--the licence agreement does NOT allow you to compile GPL code.
 -there are serious problems in using DLL's compiled with MS VC6.
 See section "Problems with MS Visual C++ Version 7 / VC.NET" below.
 
 Cygwin GCC
-Wireshark can entirely be built with cygwin GCC. However the built binaries will
-only run in a cygwin environment, so they are not standalone Win32 applications.
+Wireshark can entirely be built with cygwin GCC. But please remember that MSVC6 
+is the recommended way - using GCC might be quite difficult and the built 
+binaries will only run in a cygwin environment using an X server, so they are 
+not standalone Win32 applications.
 It is however not excluded that native Win32 code can be compiled on cygwin GCC
 but you then have to use -mms-bitfields as a strict minimum and probably
 -mno-cygwin or a similar compiler flag too.
-See section below for instructions.
+See the "Instructions for Cygwin" section below for detailed instructions.
 
 
 Automated library download
@@ -165,8 +123,8 @@ to configure wget accordingly.
 Required libraries
 ------------------
 If the automated library download finished sucessfully, you should have all
-libraries on your machine at the right places. So you don't have to read this,
-unless you are interested which libraries are used.
+libraries on your machine at the right places. So you don't have to read this
+section, unless you are interested which libraries are used.
 
 You'll need the development packages for GLIB, GTK+, iconv, gettext,
 WinPcap, Net-SNMP, and optionally ADNS, PCRE and zlib. The development 
@@ -245,7 +203,7 @@ GLib 2.4.7.
 
 
 Compiling the Wireshark distribution using GTK+2
------------------------------------------------
+------------------------------------------------
 
 The more recent version 2 of the GTK+ can be used to compile 
 Wireshark with, but is still considered beta.
@@ -474,8 +432,8 @@ WinXP style on your screen.
 Problems with MS Visual C++ Version 7 / VC.NET
 ----------------------------------------------
 
-Beside licensing problems with these compilers, there are known problems
-with DLL's.  If Wireshark is compiled with MSVC Version 7, there are
+There are known problems with DLL's.  
+If Wireshark is compiled with MSVC Version 7, there are
 conflicts in the MSVCRT DLL's, The MSVCRT.DLL includes the standard
 ANSI-C functions like fopen, malloc, etc..  MSVCRT.DLL is shipped with
 the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's
