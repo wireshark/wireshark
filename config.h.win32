@@ -205,7 +205,7 @@
 @HAVE_NETTLE@
 
 /* Define to use the gnutls library */
-@HAVE_GNUTLS@
+@HAVE_LIBGNUTLS@
 
 /* Define to use the libgcrypt library */
 @HAVE_LIBGCRYPT@
