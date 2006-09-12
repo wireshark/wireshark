@@ -22,7 +22,8 @@ FOP=fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
 #
-# One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
+# One SUSE 9.1 and newer uncomment the following line (make sure you have
+# at least fop-0.20.5-71.2)
 #FOP=fop
 
 # html help compiler (Win32 only)
@@ -31,10 +32,12 @@ FOP=fop-0.20.5/fop.bat
 HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
-# elinks (text version of release notes)
+# html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
-#ELINKS=elinks
-ELINKS="true"
+HTML2TXT=elinks -dump -dump-width 72
+#HTML2TXT=links -dump -width 72
+#HTML2TXT=lynx -dump -width=72 -nolist
+#HTML2TXT=true
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -51,32 +54,32 @@ XMLLINT="xmllint"
 	JAVA_OPTS="$(FOP_OPTS)" $(FOP) $< $@
 
 WSUG_FILES =	\
-	wsug_src/WSUG_app_files.xml \
-	wsug_src/WSUG_app_howitworks.xml \
-	wsug_src/WSUG_app_messages.xml \
-	wsug_src/WSUG_app_protocols.xml \
-	wsug_src/WSUG_app_tools.xml \
-	wsug_src/WSUG_chapter_advanced.xml \
-	wsug_src/WSUG_chapter_build_install.xml \
-	wsug_src/WSUG_chapter_capture.xml \
-	wsug_src/WSUG_chapter_customize.xml \
-	wsug_src/WSUG_chapter_introduction.xml \
-	wsug_src/WSUG_chapter_io.xml \
-	wsug_src/WSUG_chapter_statistics.xml \
-	wsug_src/WSUG_chapter_troubleshoot.xml \
-	wsug_src/WSUG_chapter_use.xml \
-	wsug_src/WSUG_chapter_work.xml \
-	wsug_src/WSUG_meta_info.xml \
-	wsug_src/WSUG_preface.xml \
+	wsug_src/WSUG_app_files.xml		\
+	wsug_src/WSUG_app_howitworks.xml	\
+	wsug_src/WSUG_app_messages.xml		\
+	wsug_src/WSUG_app_protocols.xml		\
+	wsug_src/WSUG_app_tools.xml		\
+	wsug_src/WSUG_chapter_advanced.xml	\
+	wsug_src/WSUG_chapter_build_install.xml	\
+	wsug_src/WSUG_chapter_capture.xml	\
+	wsug_src/WSUG_chapter_customize.xml	\
+	wsug_src/WSUG_chapter_introduction.xml	\
+	wsug_src/WSUG_chapter_io.xml		\
+	wsug_src/WSUG_chapter_statistics.xml	\
+	wsug_src/WSUG_chapter_troubleshoot.xml	\
+	wsug_src/WSUG_chapter_use.xml		\
+	wsug_src/WSUG_chapter_work.xml		\
+	wsug_src/WSUG_meta_info.xml		\
+	wsug_src/WSUG_preface.xml		\
 	ws.css
 
 WSUG_GRAPHICS =	\
 	wsug_graphics/ws-analyze-menu.png		\
 	wsug_graphics/ws-bytes-pane-popup-menu.png	\
 	wsug_graphics/ws-bytes-pane-tabs.png		\
-	wsug_graphics/ws-bytes-pane.png		\
+	wsug_graphics/ws-bytes-pane.png			\
 	wsug_graphics/ws-capture-info.png		\
-	wsug_graphics/ws-capture-interfaces.png	\
+	wsug_graphics/ws-capture-interfaces.png		\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
 	wsug_graphics/ws-capture-preferences.png	\
@@ -87,7 +90,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-decode-as.png			\
 	wsug_graphics/ws-details-pane-popup-menu.png	\
 	wsug_graphics/ws-details-pane.png		\
-	wsug_graphics/ws-display-filter-tcp.png	\
+	wsug_graphics/ws-display-filter-tcp.png		\
 	wsug_graphics/ws-edit-color-rule-dialog.png	\
 	wsug_graphics/ws-edit-menu.png			\
 	wsug_graphics/ws-enabled-protocols.png		\
@@ -135,42 +138,42 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-stats-summary.png		\
 	wsug_graphics/ws-statusbar-empty.png		\
 	wsug_graphics/ws-statusbar-loaded.png		\
-	wsug_graphics/ws-statusbar-selected.png	\
+	wsug_graphics/ws-statusbar-selected.png		\
 	wsug_graphics/ws-time-reference.png		\
 	wsug_graphics/ws-view-menu.png			\
 	wsug_graphics/note.png				\
 	wsug_graphics/tip.png				\
 	wsug_graphics/warning.png				\
-	wsug_graphics/toolbar/autoscroll_24.png		\
+	wsug_graphics/toolbar/autoscroll_24.png			\
 	wsug_graphics/toolbar/capture_filter_24.png		\
 	wsug_graphics/toolbar/capture_interfaces_24.png 	\
-	wsug_graphics/toolbar/capture_options_24.png 	\
-	wsug_graphics/toolbar/capture_restart_24.png 	\
+	wsug_graphics/toolbar/capture_options_24.png	 	\
+	wsug_graphics/toolbar/capture_restart_24.png 		\
 	wsug_graphics/toolbar/capture_start_24.png 		\
 	wsug_graphics/toolbar/capture_stop_24.png 		\
-	wsug_graphics/toolbar/colorize_24.png		\
+	wsug_graphics/toolbar/colorize_24.png			\
 	wsug_graphics/toolbar/display_filter_24.png		\
 	wsug_graphics/toolbar/resize_columns_24.png		\
-	wsug_graphics/toolbar/stock_add_24.png		\
+	wsug_graphics/toolbar/stock_add_24.png			\
 	wsug_graphics/toolbar/stock_apply_20.png		\
 	wsug_graphics/toolbar/stock_bottom_24.png		\
 	wsug_graphics/toolbar/stock_clear_24.png		\
 	wsug_graphics/toolbar/stock_close_24.png		\
 	wsug_graphics/toolbar/stock_colorselector_24.png	\
-	wsug_graphics/toolbar/stock_help_24.png		\
+	wsug_graphics/toolbar/stock_help_24.png			\
 	wsug_graphics/toolbar/stock_jump_to_24.png		\
-	wsug_graphics/toolbar/stock_left_arrow_24.png	\
-	wsug_graphics/toolbar/stock_open_24.png		\
-	wsug_graphics/toolbar/stock_preferences_24.png	\
+	wsug_graphics/toolbar/stock_left_arrow_24.png		\
+	wsug_graphics/toolbar/stock_open_24.png			\
+	wsug_graphics/toolbar/stock_preferences_24.png		\
 	wsug_graphics/toolbar/stock_print_24.png		\
-	wsug_graphics/toolbar/stock_properties_24.png	\
+	wsug_graphics/toolbar/stock_properties_24.png		\
 	wsug_graphics/toolbar/stock_refresh_24.png		\
-	wsug_graphics/toolbar/stock_right_arrow_24.png	\
-	wsug_graphics/toolbar/stock_save_24.png		\
+	wsug_graphics/toolbar/stock_right_arrow_24.png		\
+	wsug_graphics/toolbar/stock_save_24.png			\
 	wsug_graphics/toolbar/stock_save_as_24.png		\
 	wsug_graphics/toolbar/stock_search_24.png		\
-	wsug_graphics/toolbar/stock_stop_24.png		\
-	wsug_graphics/toolbar/stock_top_24.png		\
+	wsug_graphics/toolbar/stock_stop_24.png			\
+	wsug_graphics/toolbar/stock_top_24.png			\
 	wsug_graphics/toolbar/stock_zoom_1_24.png		\
 	wsug_graphics/toolbar/stock_zoom_in_24.png		\
 	wsug_graphics/toolbar/stock_zoom_out_24.png		\
@@ -192,15 +195,15 @@ WSDG_FILES =	\
 	ws.css
 
 WSDG_GRAPHICS =	\
-	wsdg_graphics/ws-capture-sync.dia		\
-	wsdg_graphics/ws-capture-sync.png		\
+	wsdg_graphics/ws-capture-sync.dia	\
+	wsdg_graphics/ws-capture-sync.png	\
 	wsdg_graphics/ws-capture_internals.dia	\
 	wsdg_graphics/ws-capture_internals.png	\
 	wsdg_graphics/ws-function-blocks.dia	\
 	wsdg_graphics/ws-function-blocks.png	\
 	wsdg_graphics/ws-logo.png		\
-	wsdg_graphics/note.png				\
-	wsdg_graphics/tip.png				\
+	wsdg_graphics/note.png			\
+	wsdg_graphics/tip.png			\
 	wsdg_graphics/warning.png
 
 # user-guide.xml must be first in the list (to match $<)
@@ -407,7 +410,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 # create txt single page file
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(ELINKS) -dump -dump-width 72 > $@
+	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(HTML2TXT) > $@
 	
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
