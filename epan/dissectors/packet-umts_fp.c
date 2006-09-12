@@ -32,6 +32,12 @@
 
 #include "packet-umts_fp.h"
 
+/* TODO:
+   - remaining message types
+   - verify CRCs
+   - look for (and report as expert info) spare extension bytes
+*/
+
 /* Initialize the protocol and registered fields. */
 int proto_fp = -1;
 
@@ -91,6 +97,7 @@ static int hf_fp_common_control_frame_type = -1;
 static int hf_fp_t1 = -1;
 static int hf_fp_t2 = -1;
 static int hf_fp_t3 = -1;
+static int hf_fp_ul_sir_target = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -269,6 +276,11 @@ static void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
                                            tvbuff_t *tvb, int offset);
 static void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo,
                                            tvbuff_t *tvb, int offset);
+static void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                                tvbuff_t *tvb, int offset);
+static void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                                tvbuff_t *tvb, int offset);
+
 
 /* Dissect a DCH channel */
 static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -580,7 +592,7 @@ void dissect_common_timing_advance(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset++;
 
     /* Timing Advance */
-    timing_advance = (tvb_get_guint8(tvb, offset) & 0x3f); 
+    timing_advance = (tvb_get_guint8(tvb, offset) & 0x3f);
     proto_tree_add_uint(tree, hf_fp_timing_advance, tvb, offset, 1, timing_advance*4);
     offset++;
 }
@@ -666,7 +678,7 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
                         max_pdu_length, credits, interval, repetition_period);
     }
 
-    /* Spare extension may follow */
+    /* TODO: Spare extension may follow */
 }
 
 
@@ -1168,6 +1180,28 @@ void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
     }
 }
 
+void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    /* SIR target */
+    float target = -8.2 + (0.1*tvb_get_guint8(tvb, offset));
+    proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "SIR Target = %f", target);
+    }
+}
+
+void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
+}
+
+void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
+}
+
 
 
 /*******************************/
@@ -1222,10 +1256,15 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             case DCH_UL_SYNCHRONISATION:
                 dissect_dch_ul_synchronisation(tree, pinfo, tvb, offset);
                 break;
-
             case DCH_OUTER_LOOP_POWER_CONTROL:
+                dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
+                break;
             case DCH_DL_NODE_SYNCHRONISATION:
+                dissect_dch_dl_node_synchronisation(tree, pinfo, tvb, offset);
+                break;
             case DCH_UL_NODE_SYNCHRONISATION:
+                dissect_dch_ul_node_synchronisation(tree, pinfo, tvb, offset);
+                break;
             case DCH_RADIO_INTERFACE_PARAMETER_UPDATE:
             case DCH_TIMING_ADVANCE:
             case DCH_TNL_CONGESTION_INDICATION:
@@ -1684,8 +1723,10 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_pch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_CPCH:
+            /* TODO */
             break;
         case CHANNEL_BCH:
+            /* TODO */
             break;
         case CHANNEL_HSDSCH:
             dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
@@ -1808,7 +1849,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_payload_crc,
             { "Payload CRC",
-              "fp.dch.payload-crc", FT_UINT16, BASE_HEX, 0, 0x0,
+              "fp.payload-crc", FT_UINT16, BASE_HEX, 0, 0x0,
               "Payload CRC", HFILL
             }
         },
@@ -1821,49 +1862,49 @@ void proto_register_fp(void)
         { &hf_fp_crci[0],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x80,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[1],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x40,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[2],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x20,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[3],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x10,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[4],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x08,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[5],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x04,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[6],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x02,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_crci[7],
             { "CRCI",
               "fp.crci", FT_UINT8, BASE_HEX, VALS(crci_vals), 0x01,
-              "CRCI", HFILL
+              "CRC correctness indicator", HFILL
             }
         },
         { &hf_fp_received_sync_ul_timing_deviation,
@@ -1875,13 +1916,13 @@ void proto_register_fp(void)
         { &hf_fp_pch_pi,
             { "Paging Indication",
               "fp.pch.pi", FT_UINT8, BASE_DEC, VALS(paging_indication_vals), 0x01,
-              "Describes if the PI Bitmap is present", HFILL
+              "Indicates if the PI Bitmap is present", HFILL
             }
         },
         { &hf_fp_pch_tfi,
             { "TFI",
               "fp.pch.tfi", FT_UINT8, BASE_DEC, 0, 0x1f,
-              "Transport Format Indicator", HFILL
+              "PCH Transport Format Indicator", HFILL
             }
         },
         { &hf_fp_fach_tfi,
@@ -1923,12 +1964,12 @@ void proto_register_fp(void)
         { &hf_fp_edch_fsn,
             { "FSN",
               "fp.edch.fsn", FT_UINT8, BASE_DEC, 0, 0x0f,
-              "E-DCH FSN", HFILL
+              "E-DCH Frame Sequence Number", HFILL
             }
         },
         { &hf_fp_edch_number_of_subframes,
             { "No of subframes",
-              "fp.edch.no-of-subgrames", FT_UINT8, BASE_DEC, 0, 0x0f,
+              "fp.edch.no-of-subframes", FT_UINT8, BASE_DEC, 0, 0x0f,
               "E-DCH Number of subframes", HFILL
             }
         },
@@ -2067,7 +2108,7 @@ void proto_register_fp(void)
         { &hf_fp_crcis,
             { "CRCIs",
               "fp.crcis", FT_STRING, BASE_NONE, NULL, 0x0,
-              "CRCIs for uplink TBs", HFILL
+              "CRC Indicators for uplink TBs", HFILL
             }
         },
         { &hf_fp_t1,
@@ -2086,6 +2127,12 @@ void proto_register_fp(void)
             { "T3",
               "fp.t3", FT_UINT24, BASE_DEC, NULL, 0x0,
               "NodeB frame number indicating time it sends frame", HFILL
+            }
+        },
+        { &hf_fp_ul_sir_target,
+            { "UL_SIR_TARGET",
+              "fp.ul-sir_target", FT_FLOAT, BASE_DEC, 0, 0x0,
+              "Value (in dB) of the SIR target to be used by the UL inner loop power control", HFILL
             }
         },
 
