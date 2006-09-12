@@ -1322,7 +1322,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, next_tree)) {
+  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     call_dissector(data_handle,next_tvb, pinfo, next_tree);
   }
 }
@@ -2291,7 +2291,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								   decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
 								   decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2),
 						    pinfo,
-						    esp_tree)) /*tree))*/
+						    tree))
 				{
 				  decrypt_dissect_ok = TRUE;
 				}
@@ -2387,7 +2387,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   -1,
 						   len - sizeof(struct newesp) - 14 - esp_pad_len),
 				    pinfo,
-				    esp_tree))
+				    tree))
 		{
 		  decrypt_dissect_ok = TRUE;
 		}
