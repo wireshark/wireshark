@@ -256,7 +256,7 @@
   
 
   <section id="ChLibsADNS">
-	<title>GNU ADNS (optional)</title>
+	<title>GNU adns (optional)</title>
 	<para>
 	"Advanced, easy to use, asynchronous-capable DNS client library and
 utilities."
@@ -369,7 +369,7 @@ utilities."
 
 
   <section id="ChLibsGNUTLS">
-	<title>GNUTLS (optional)</title>
+	<title>GnuTLS (optional)</title>
 	<para>
 	The "GNU Transport Layer Security Library" is used to dissect SSL and TLS 
 	protocols (aka: HTTPS).
