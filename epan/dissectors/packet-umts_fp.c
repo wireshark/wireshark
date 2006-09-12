@@ -45,6 +45,7 @@ static int hf_fp_pch_toa = -1;
 static int hf_fp_cfn_control = -1;
 static int hf_fp_toa = -1;
 static int hf_fp_tfi = -1;
+static int hf_fp_usch_tfi = -1;
 static int hf_fp_propagation_delay = -1;
 static int hf_fp_tb = -1;
 static int hf_fp_received_sync_ul_timing_deviation = -1;
@@ -147,6 +148,12 @@ static const value_string direction_vals[] = {
 static const value_string crci_vals[] = {
     { 0,   "Correct" },
     { 1,   "Not correct" },
+    { 0,   NULL },
+};
+
+static const value_string paging_indication_vals[] = {
+    { 0,   "no PI-bitmap in payload" },
+    { 1,   "PI-bitmap in payload" },
     { 0,   NULL },
 };
 
@@ -314,12 +321,12 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Advance bit offset */
             bit_offset += p_fp_info->chan_tf_size[chan];
             data_bits += p_fp_info->chan_tf_size[chan];
-        }
 
-        /* Pad out to next byte */
-        if (bit_offset % 8)
-        {
-            bit_offset += (8 - (bit_offset % 8));
+            /* Pad out to next byte */
+            if (bit_offset % 8)
+            {
+                bit_offset += (8 - (bit_offset % 8));
+            }
         }
     }
 
@@ -430,6 +437,9 @@ int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    "CRCI error bit set for TB %u", n+1);
         }
     }
+
+    /* Highlight range of bytes covered by indicator bits */
+    proto_item_set_len(ti, (num_tbs+7) / 8);
 
     /* Show error count in root text */
     proto_item_append_text(ti, " (%u errors)", errors);
@@ -742,12 +752,19 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     else
     {
         int num_tbs = 0;
+        guint8 cfn;
 
         /* DATA */
 
         /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
         offset++;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
+        }
 
         /* TFI */
         proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
@@ -812,12 +829,19 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     else
     {
         int num_tbs = 0;
+        guint8 cfn;
 
         /* DATA */
 
         /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
         offset++;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
+        }
 
         /* TFI */
         proto_tree_add_item(tree, hf_fp_fach_tfi, tvb, offset, 1, FALSE);
@@ -864,12 +888,19 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     else
     {
         int num_tbs = 0;
+        guint8 cfn;
 
         /* DATA */
 
         /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
         offset++;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
+        }
 
         /* TFI */
         proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
@@ -920,11 +951,22 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     else
     {
         int num_tbs = 0;
+        guint cfn;
 
         /* DATA */
 
         /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        offset++;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
+        }
+
+        /* TFI */
+        proto_tree_add_item(tree, hf_fp_usch_tfi, tvb, offset, 1, FALSE);
         offset++;
 
         /* Rx Timing Deviation */
@@ -939,7 +981,7 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset++;
 
         /* CRCIs */
-        dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
+        offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
 
         /* Payload CRC */
         proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
@@ -1281,8 +1323,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, FALSE);
         offset++;
 
-        /* Number of subframes (3 bits) */
-        number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x07);
+        /* Number of subframes (was 3, now 4 bits) */
+        number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x0f);
         proto_tree_add_item(tree, hf_fp_edch_number_of_subframes, tvb, offset, 1, FALSE);
         offset++;
 
@@ -1406,7 +1448,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
             /* Add subframe subtree */
             subframe_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe, tvb, offset, 0,
-                                                       "", "Subframe %u", subframes[n].subframe_number);
+                                                       "", "Subframe %u data", subframes[n].subframe_number);
             subframe_tree = proto_item_add_subtree(subframe_ti, ett_fp_edch_subframe);
 
             for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
@@ -1482,7 +1524,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " CFN = %u   (%u bits in %u subframes)",
+                            " CFN = %03u   (%u bits in %u subframes)",
                             cfn, total_bits, number_of_subframes);
         }
 
@@ -1734,6 +1776,12 @@ void proto_register_fp(void)
               "Transport Format Indicator", HFILL
             }
         },
+        { &hf_fp_usch_tfi,
+            { "TFI",
+              "fp.usch.tfi", FT_UINT8, BASE_DEC, NULL, 0x1f,
+              "USCH Transport Format Indicator", HFILL
+            }
+        },
         { &hf_fp_propagation_delay,
             { "Propagation Delay",
               "fp.propagation-delay", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1826,7 +1874,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_pch_pi,
             { "Paging Indication",
-              "fp.pch.pi", FT_UINT8, BASE_DEC, 0, 0x01,
+              "fp.pch.pi", FT_UINT8, BASE_DEC, VALS(paging_indication_vals), 0x01,
               "Describes if the PI Bitmap is present", HFILL
             }
         },
@@ -1880,7 +1928,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_edch_number_of_subframes,
             { "No of subframes",
-              "fp.edch.no-of-subgrames", FT_UINT8, BASE_DEC, 0, 0x07,
+              "fp.edch.no-of-subgrames", FT_UINT8, BASE_DEC, 0, 0x0f,
               "E-DCH Number of subframes", HFILL
             }
         },
