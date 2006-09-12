@@ -6,7 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  *
  * Start of RedBack SE400/800 tcpdump trace disassembly
- * Copyright 2005 Florian Lohoff <flo@rfc822.org>
+ * Copyright 2005,2006 Florian Lohoff <flo@rfc822.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,7 +85,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Mark the gap as "Data" for now */
   if (dataoff > l3off) {
-	proto_tree_add_text (subtree, tvb, 24, l3off-24, "Data");	
+	proto_tree_add_text (subtree, tvb, 24, l3off-24, "Data (%d bytes)", l3off-24);	
   }
 
   /*
@@ -112,13 +112,14 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
         call_dissector(clnp_handle, next_tvb, pinfo, tree);
         break;
-      case 0x04:
-	/* ARP - Always eth header in front */
+      case 0x03: /* Unicast Ethernet tx - Seen with PPPoE PADO */
+      case 0x04: /* Unicast Ethernet rx - Seen with ARP  */
+      case 0x08: /* Broadcast Ethernet rx - Seen with PPPoE PADI */
         call_dissector(eth_handle, next_tvb, pinfo, tree);
         break;
       default:
-	tisub = proto_tree_add_text (subtree, tvb, 24, length-24, 
-				"Unknown Protocol %u", proto);
+	tisub = proto_tree_add_text (subtree, tvb, 24, length-24,
+				"Unknown Protocol Data %u", proto);
         break;
     }
   }
