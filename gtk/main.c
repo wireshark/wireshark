@@ -52,6 +52,10 @@
 #include <conio.h>
 #endif
 
+#ifdef HAVE_LIBPORTAUDIO
+#include <portaudio.h>
+#endif /* HAVE_LIBPORTAUDIO */
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/privileges.h>
@@ -2058,6 +2062,18 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
+#ifdef HAVE_LIBPORTAUDIO
+#ifdef PORTAUDIO_API_1
+  g_string_append(comp_info_str, "with PortAudio <= V18");
+#else
+  g_string_append(comp_info_str, "with PortAudio ");
+  g_string_append(comp_info_str, Pa_GetVersionText());
+#endif
+#else
+  g_string_append(comp_info_str, "without PortAudio");
+#endif /* HAVE_LIBPORTAUDIO */
+  g_string_append(comp_info_str, ", ");
+
   g_string_append(comp_info_str, "with ");
   g_string_sprintfa(comp_info_str,
 #ifdef GTK_MAJOR_VERSION
@@ -2066,8 +2082,8 @@ main(int argc, char *argv[])
 #else
                     "GTK+ (version unknown)");
 #endif
-
   g_string_append(comp_info_str, ", ");
+
   get_compiled_version_info(comp_info_str);
 
   /* Assemble the run-time version information string */
