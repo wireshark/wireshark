@@ -144,7 +144,7 @@ static const value_string s5066_st_txmode[] = {
 	{ 0, "Ignore service type field"},
 	{ 1, "ARQ"},
 	{ 2, "Non-ARQ (Broacast)"},
-	{ 3, "Other non-ARQ types"},
+	{ 3, "Non-ARQ (with errors)"},
 	{ 4, "Other non-ARQ types"},
 	{ 5, "Other non-ARQ types"},
 	{ 6, "Other non-ARQ types"},
@@ -347,15 +347,17 @@ static gint hf_s5066_20_ttl = -1;
 static gint hf_s5066_20_size = -1;
 
 /* Type 21: S_UNIDATA_INDICATION */
-/* TODO: handle RockwellCollins (v2.1 and earlier) 4-byte offset. */
-/* TODO: handle NON-ARQ With Errors case. */
 static gint hf_s5066_21_priority = -1;
 static gint hf_s5066_21_dest_sapid = -1;
 static gint hf_s5066_21_tx_mode = -1;
 static gint hf_s5066_21_src_sapid = -1;
 static gint hf_s5066_21_size = -1;
 static gint hf_s5066_21_err_blocks = -1;
+static gint hf_s5066_21_err_ptr = -1;
+static gint hf_s5066_21_err_size = -1;
 static gint hf_s5066_21_nrx_blocks = -1;
+static gint hf_s5066_21_nrx_ptr = -1;
+static gint hf_s5066_21_nrx_size = -1;
 
 
 /* Type 22: S_UNIDATA_REQUEST_CONFIRM */
@@ -386,15 +388,17 @@ static gint hf_s5066_24_ttl = -1;
 static gint hf_s5066_24_size = -1;
 
 /* Type 25: S_EXPEDITED_UNIDATA_INDICATION */
-/* TODO: handle RockwellCollins (v2.1 and earlier) 4-byte offset. */
-/* TODO: handle NON-ARQ With Errors case. */
 static gint hf_s5066_25_unused = -1;
 static gint hf_s5066_25_dest_sapid = -1;
 static gint hf_s5066_25_tx_mode = -1;
 static gint hf_s5066_25_src_sapid = -1;
 static gint hf_s5066_25_size = -1;
 static gint hf_s5066_25_err_blocks = -1;
+static gint hf_s5066_25_err_ptr = -1;
+static gint hf_s5066_25_err_size = -1;
 static gint hf_s5066_25_nrx_blocks = -1;
+static gint hf_s5066_25_nrx_ptr = -1;
+static gint hf_s5066_25_nrx_size = -1;
 
 /* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
 static gint hf_s5066_26_unused = -1;
@@ -641,8 +645,20 @@ proto_register_s5066(void)
 		{ &hf_s5066_21_err_blocks,
 			{ "Number of errored blocks", "s5066.21.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
+		{ &hf_s5066_21_err_ptr,
+			{ "Pointer to error block", "s5066.21.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_21_err_size,
+			{ "Size of error block", "s5066.21.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
 		{ &hf_s5066_21_nrx_blocks,
 			{ "Number of non-received blocks", "s5066.21.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_21_nrx_ptr,
+			{ "Pointer to non-received block", "s5066.21.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_21_nrx_size,
+			{ "Size of non-received block", "s5066.21.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		/* Type 22: S_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_22_unused,
@@ -702,8 +718,20 @@ proto_register_s5066(void)
 		{ &hf_s5066_25_err_blocks,
 			{ "Number of errored blocks", "s5066.25.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
+		{ &hf_s5066_25_err_ptr,
+			{ "Pointer to error block", "s5066.25.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_25_err_size,
+			{ "Size of error block", "s5066.25.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
 		{ &hf_s5066_25_nrx_blocks,
 			{ "Number of non-received blocks", "s5066.25.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_25_nrx_ptr,
+			{ "Pointer to non-received block", "s5066.25.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_s5066_25_nrx_size,
+			{ "Size of non-received block", "s5066.25.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		/* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_26_unused,
@@ -1049,11 +1077,24 @@ dissect_s5066_20(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint
 dissect_s5066_21(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
+	guint i=0;
 	proto_item *ti = NULL;
 	guint d_pdu_size = 0;
+	guint8 tx_mode = 0;
+	guint16 no_err_blocks = 0;
+	guint16 no_nrx_blocks = 0;
+	gboolean non_arq_w_errors = FALSE;
+
 	proto_tree_add_item(tree, hf_s5066_21_priority, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_s5066_21_dest_sapid, tvb, offset, 1, FALSE); offset++;
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
+
+	tx_mode = tvb_get_guint8(tvb, offset);
+	tx_mode = (tx_mode & 0xF0) >> 4;
+	if (tx_mode == 2) {
+		non_arq_w_errors = TRUE;
+	}
+
 	proto_tree_add_item(tree, hf_s5066_21_tx_mode, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_s5066_21_src_sapid, tvb, offset, 1, FALSE); offset++;
 	offset = dissect_s5066_address(tvb, offset, tree, TRUE);
@@ -1069,9 +1110,19 @@ dissect_s5066_21(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 		proto_item_append_text(ti, ", (Field should not be present. Rockwell Collins v2.1 or earlier.) ");
 	}
 	/* Handle Non-ARQ with errors */
-	if ( FALSE ) {
+	if ( non_arq_w_errors ) {
+		no_err_blocks = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(tree, hf_s5066_21_err_blocks, tvb, offset, 2, FALSE); offset += 2;
+		for (i=0; i<no_err_blocks; i++) {
+			proto_tree_add_item(tree, hf_s5066_21_err_ptr, tvb, offset, 2, FALSE); offset += 2;
+			proto_tree_add_item(tree, hf_s5066_21_err_size, tvb, offset, 2, FALSE); offset += 2;
+		}
+		no_nrx_blocks = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(tree, hf_s5066_21_nrx_blocks, tvb, offset, 2, FALSE); offset += 2;
+		for (i=0; i<no_nrx_blocks; i++) {
+			proto_tree_add_item(tree, hf_s5066_21_nrx_ptr, tvb, offset, 2, FALSE); offset += 2;
+			proto_tree_add_item(tree, hf_s5066_21_nrx_size, tvb, offset, 2, FALSE); offset += 2;
+		}
 	}
 	return offset;
 }
@@ -1124,19 +1175,30 @@ dissect_s5066_24(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint
 dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
+	guint i=0;
 	proto_item *ti = NULL;
 	guint d_pdu_size = 0;
+	guint8 tx_mode = 0;
+	guint16 no_err_blocks = 0;
+	guint16 no_nrx_blocks = 0;
+	gboolean non_arq_w_errors = FALSE;
 
 	proto_tree_add_item(tree, hf_s5066_25_unused, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_s5066_25_dest_sapid, tvb, offset, 1, FALSE); offset++;
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
+
+	tx_mode = tvb_get_guint8(tvb, offset);
+	tx_mode = (tx_mode & 0xF0) >> 4;
+	if (tx_mode == 2) {
+		non_arq_w_errors = TRUE;
+	}
+
 	proto_tree_add_item(tree, hf_s5066_25_tx_mode, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_s5066_25_src_sapid, tvb, offset, 1, FALSE); offset++;
 	offset = dissect_s5066_address(tvb, offset, tree, TRUE);
-	proto_tree_add_item(tree, hf_s5066_25_size, tvb, offset, 2, FALSE); offset += 2;
 
 	d_pdu_size = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_s5066_21_size, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(tree, hf_s5066_25_size, tvb, offset, 2, FALSE); offset += 2;
 
 	/* Handle RockwellCollins (<= v2.1) 4-byte offset */
 	if ( (pdu_size - offset) == d_pdu_size + 4 ) {
@@ -1146,9 +1208,19 @@ dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 		proto_item_append_text(ti, ", (Field should not be present. Rockwell Collins v2.1 or earlier.) ");
 	}
 	/* Handle Non-ARQ with errors */
-	if ( FALSE ) {
+	if ( non_arq_w_errors ) {
+		no_err_blocks = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(tree, hf_s5066_25_err_blocks, tvb, offset, 2, FALSE); offset += 2;
+		for (i=0; i<no_err_blocks; i++) {
+			proto_tree_add_item(tree, hf_s5066_25_err_ptr, tvb, offset, 2, FALSE); offset += 2;
+			proto_tree_add_item(tree, hf_s5066_25_err_size, tvb, offset, 2, FALSE); offset += 2;
+		}
+		no_nrx_blocks = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(tree, hf_s5066_25_nrx_blocks, tvb, offset, 2, FALSE); offset += 2;
+		for (i=0; i<no_nrx_blocks; i++) {
+			proto_tree_add_item(tree, hf_s5066_25_nrx_ptr, tvb, offset, 2, FALSE); offset += 2;
+			proto_tree_add_item(tree, hf_s5066_25_nrx_size, tvb, offset, 2, FALSE); offset += 2;
+		}
 	}
 	return offset;
 }
@@ -1204,8 +1276,8 @@ dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Check if the first two bytes are 0x90 0xEB: if not,
 	   then this is not a S5066 PDU or an unreassembled one.
 	   The third byte is the STANAG 5066 version: Right now only 0x00 is defined. */
-	if( (tvb_get_guint8(tvb, 0) != 0x90) &&
-	    (tvb_get_guint8(tvb, 1) != 0xEB) &&
+	if( (tvb_get_guint8(tvb, 0) != 0x90) ||
+	    (tvb_get_guint8(tvb, 1) != 0xEB) ||
 	    (tvb_get_guint8(tvb, 2) != 0x00) ) {
 		return;
 	}
@@ -1284,7 +1356,6 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	proto_item_set_len(ti_s5066, offset);
-	/* proto_item_set_len(ti_pdu, offset - s5066_header_size); */
 
 	/* Call sub dissector(s) */
 	reported_length = pdu_size - offset;
@@ -1295,5 +1366,3 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	return;
 }
-
-
