@@ -4,6 +4,8 @@
 
 include ..\config.nmake
 
+# Nmake uses an implicit rule to build a .res from a .rc file!
+
 ALL_RC=wireshark.rc libwireshark.rc tshark.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
