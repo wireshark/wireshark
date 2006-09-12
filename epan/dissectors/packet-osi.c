@@ -51,8 +51,8 @@ static dissector_handle_t osi_tpkt_handle;
 
 /* Preferences for OSI over TPKT over TCP */
 static gboolean tpkt_desegment = FALSE;
-int global_tcp_port_osi_over_tpkt = 8473;
-int tcp_port_osi_over_tpkt = 8473;
+int global_tcp_port_osi_over_tpkt = 0;
+int tcp_port_osi_over_tpkt = 0;
 
 cksum_status_t
 calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
