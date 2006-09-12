@@ -280,7 +280,14 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, "with PortAudio <= V18");
 #else
 	g_string_append(str, "with PortAudio ");
+
+#if 0	/* FIXME: tshark doesn't need portaudio but
+	 *        links against this file
+         */
 	g_string_append(str, Pa_GetVersionText());
+#else	/*  0 (FIXME) */
+	g_string_append(str, ">= V19");
+#endif  /* 0 (FIXME) */
 #endif
 #else
 	g_string_append(str, "without PortAudio");
