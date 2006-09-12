@@ -219,8 +219,6 @@ BOOL airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber);
  */
 airpcap_if_info_t* airpcap_if_info_new(char *name, char *description);
 
-/* HAVE_AIRPCAP_API */
-
 /*
  *  Used to dinamically load the airpcap library in order link it only when
  *  it's present on the system.

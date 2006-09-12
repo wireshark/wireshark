@@ -80,7 +80,6 @@ static AirpcapSetDeviceKeysHandler g_PAirpcapSetDeviceKeys;
 static AirpcapGetDecryptionStateHandler g_PAirpcapGetDecryptionState;
 static AirpcapSetDecryptionStateHandler g_PAirpcapSetDecryptionState;
 static AirpcapStoreCurConfigAsAdapterDefaultHandler g_PAirpcapStoreCurConfigAsAdapterDefault;
-/* HAVE_AIRPCAP_API */
 
 /* Airpcap interface list */
 GList *airpcap_if_list = NULL;
