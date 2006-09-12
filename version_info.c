@@ -52,6 +52,18 @@
 
 #endif /* HAVE_SOME_SNMP */
 
+#if (defined(HAVE_LIBGCRYPT) || defined(HAVE_LIBGNUTLS)) && defined(_WIN32)
+#include <winposixtype.h>
+#endif
+
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#endif /* HAVE_LIBGCRYPT */
+
+#ifdef HAVE_LIBGNUTLS
+#include <gnutls/gnutls.h>
+#endif /* HAVE_LIBGNUTLS */
+
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
@@ -118,6 +130,7 @@ get_compiled_version_info(GString *str)
 {
 	gint break_point;
 
+        /* GLIB */
 	g_string_append(str, "with ");
 	g_string_sprintfa(str,
 #ifdef GLIB_MAJOR_VERSION
@@ -133,6 +146,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
 
+        /* LIBZ */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef HAVE_LIBZ
@@ -148,6 +162,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
 
+        /* PCRE */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef HAVE_LIBPCRE
@@ -168,6 +183,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
 
+        /* SNMP */
 /* Oh, this is pretty. */
 /* Oh, ha.  you think that was pretty.  Try this:! --Wes */
 	g_string_append(str, " ");
@@ -190,6 +206,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
 
+        /* ADNS */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef HAVE_GNU_ADNS
@@ -199,6 +216,7 @@ get_compiled_version_info(GString *str)
 #endif /* HAVE_GNU_ADNS */
 	g_string_append(str, ",");
 
+        /* LUA */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef HAVE_LUA
@@ -207,6 +225,55 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
+
+        /* GnuTLS */
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_LIBGNUTLS
+	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
+#else
+	g_string_append(str, "without GnuTLS");
+#endif /* HAVE_LIBGNUTLS */
+
+        /* Gcrypt */
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_LIBGCRYPT
+	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
+#else
+	g_string_append(str, "without Gcrypt");
+#endif /* HAVE_LIBGCRYPT */
+
+        /* Kerberos */
+        /* XXX - I don't see how to get the version number, at least for KfW */
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_KERBEROS
+#ifdef HAVE_MIT_KERBEROS
+	g_string_append(str, "with MIT Kerberos");
+#else
+        /* HAVE_HEIMDAL_KERBEROS */
+	g_string_append(str, "with Heimdal Kerberos");
+#endif
+#else
+	g_string_append(str, "without Kerberos");
+#endif /* HAVE_KERBEROS */
+
+        /* PortAudio */
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_PORTAUDIO
+#ifdef PORTAUDIO_API_1
+	g_string_append(str, "with PortAudio <= V18");
+#else
+	g_string_append(str, "with PortAudio ");
+        /* XXX - is this correct? Will need an #include - but I can't test it */
+	g_string_append(str, Pa_GetVersionText());
+#endif
+#else
+	g_string_append(str, "without PortAudio");
+#endif /* HAVE_PORTAUDIO */
+
 
 	g_string_append(str, ".");
 	do_word_wrap(str, break_point);
