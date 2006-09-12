@@ -87,9 +87,11 @@ HMAC-SHA256 : any keylen
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;
+static int hf_ah_iv = -1;
 static int hf_ah_sequence = -1;
 static int proto_esp = -1;
 static int hf_esp_spi = -1;
+static int hf_esp_iv = -1;
 static int hf_esp_sequence = -1;
 static int hf_esp_pad_len = -1;
 static int hf_esp_protocol = -1;
@@ -1365,9 +1367,9 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
 			offsetof(struct newah, ah_seq), 4,
 			(guint32)g_ntohl(ah.ah_seq));
-    proto_tree_add_text(ah_tree, tvb,
+    proto_tree_add_item(ah_tree, hf_ah_iv, tvb,
 			sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
-			"IV");
+			FALSE);
 
     if (next_tree_p != NULL) {
       /* Decide where to place next protocol decode */
@@ -2261,9 +2263,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      if(tvb_bytes_exist(tvb_decrypted, 0, esp_iv_len))
 			{
 			  if(esp_iv_len > 0)
-			    proto_tree_add_text(esp_tree, tvb_decrypted,
+			    proto_tree_add_item(esp_tree, hf_esp_iv, 
+						tvb_decrypted,
 						0, esp_iv_len,
-						"IV");
+						FALSE);
 			}
 
 		      else
@@ -2306,9 +2309,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
 						  decrypted_len - esp_auth_len - 2, 1,
 						  esp_pad_len);
-			      proto_tree_add_uint(esp_tree, hf_esp_protocol, tvb_decrypted,
-						  decrypted_len - esp_auth_len - 1, 1,
-						  encapsulated_protocol);
+
+			      proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
+					 decrypted_len - esp_auth_len - 1, 1,
+					 encapsulated_protocol,
+					"Next header: %s (0x%02x)",
+					 ipprotostr(encapsulated_protocol), encapsulated_protocol);
 
 			      dissect_esp_authentication(esp_tree, tvb_decrypted, decrypted_len, esp_auth_len, authenticator_data_computed, authentication_ok, authentication_checking_ok );
 
@@ -2395,9 +2401,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
 				  len - 14, 1,
 				  esp_pad_len);
-	      proto_tree_add_uint(esp_tree, hf_esp_protocol, tvb,
+
+	      proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb,
 				  len - 13, 1,
-				  encapsulated_protocol);
+				  encapsulated_protocol,
+				 "Next header: %s (0x%02x)",
+				  ipprotostr(encapsulated_protocol), encapsulated_protocol);
 
 	      /* Make sure we have the auth trailer data */
 	      if(tvb_bytes_exist(tvb, len - 12, 12))
@@ -2486,6 +2495,9 @@ proto_register_ipsec(void)
     { &hf_ah_spi,
       { "SPI",		"ah.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
       	"", HFILL }},
+    { &hf_ah_iv,
+      { "IV",		"ah.iv",	FT_BYTES,	BASE_HEX, NULL, 0x0,
+      	"", HFILL }},
     { &hf_ah_sequence,
       { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
       	"", HFILL }}
@@ -2503,6 +2515,9 @@ proto_register_ipsec(void)
       	"", HFILL }},
     { &hf_esp_protocol,
       { "Next Header",	"esp.protocol",	FT_UINT8,	BASE_HEX, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_esp_iv,
+      { "IV",		"esp.iv",	FT_BYTES,	BASE_HEX, NULL, 0x0,
       	"", HFILL }}
   };
 
