@@ -1097,12 +1097,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
 			    headers.content_type);
-			/*
-			 * Calling the default media handle otherwise
-			 */
-			if (handle == NULL) {
-			    handle = media_handle;
-			}
 		}
 		if (handle != NULL) {
 			/*
@@ -1127,8 +1121,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
 		} else {
-			/* Call the subdissector (defaults to data) */
-			http_payload_subdissector(next_tvb, tree, http_tree, pinfo);
+			if (headers.content_type != NULL) {
+				/*
+				 * Calling the default media handle if there is a content-type that
+				 * wasn't handled above.
+				 */
+				call_dissector(media_handle, next_tvb, pinfo, tree);
+			} else {
+				/* Call the subdissector (defaults to data), otherwise. */
+				http_payload_subdissector(next_tvb, tree, http_tree, pinfo);
+			}
 		}
 
 	body_dissected:
