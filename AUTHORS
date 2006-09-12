@@ -2468,7 +2468,7 @@ W. Borgert		<debacle [AT] debian.org> {
 }
 
 Frederic Roudaut	<frederic.roudaut [AT] irisa.fr> {
-	IP-sec ESP payload decryption
+	IPsec ESP payload decryption
 } 
 
 Christoph Scholz	<scholz_ch [AT] web.de> {
