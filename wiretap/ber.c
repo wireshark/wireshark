@@ -93,7 +93,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offse
   return TRUE;
 }
 
-static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_, 
+static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_,
 			      guint8 *pd, int length, int *err, gchar **err_info _U_)
 {
   int packet_size = length;
@@ -103,7 +103,7 @@ static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header
     *err = 0;
     return FALSE;
   }
-	
+
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
@@ -122,7 +122,8 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
   gint8 tag;
   gboolean pc;
   guint8 oct, nlb = 0;
-  int len = 0, fsize;
+  int len = 0;
+  gint64 file_size;
   int offset = 0, i;
 
   bytes_read = file_read(&bytes, 1, BER_BYTES_TO_CHECK, wth->fh);
@@ -136,11 +137,11 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
   class = (id>>6) & 0x03;
   pc = (id>>5) & 0x01;
   tag = id & 0x1F;
-	
+
   /* it must be constructed and either a SET or a SEQUENCE */
   /* or a CONTEXT less than 32 (arbitrary) */
   /* XXX: do we also want to allow APPLICATION */
-  if(!(pc && 
+  if(!(pc &&
        (((class == BER_CLASS_UNI) && ((tag == BER_UNI_TAG_SET) || (tag == BER_UNI_TAG_SEQ))) ||
 	((class == BER_CLASS_CON) && (tag < 32)))))
     return 0;
@@ -165,9 +166,9 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
 
   if(len) { /* if we have a length, check it */
     len += (2 + nlb); /* add back Tag and Length bytes */
-    fsize = wtap_file_size(wth, err);
+    file_size = wtap_file_size(wth, err);
 
-    if(len != fsize) {
+    if(len != file_size) {
       return 0; /* not ASN.1 */
     }
   }
@@ -181,7 +182,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
   wth->snapshot_length = 0;
 
   wth->subtype_read = ber_read;
-  wth->subtype_seek_read = ber_seek_read; 
+  wth->subtype_seek_read = ber_seek_read;
   wth->tsprecision = WTAP_FILE_TSPREC_SEC;
 
   return 1;
