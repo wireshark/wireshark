@@ -10,7 +10,7 @@ include ..\..\config.nmake
 include Makefile.common
 
 CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) \
-	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
+	$(NET_SNMP_CFLAGS) \
 	$(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(NETTLE_CFLAGS) \
 	$(KFW_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)

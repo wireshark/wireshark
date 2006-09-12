@@ -89,14 +89,12 @@ GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 #
 # The WinPcap developer's pack version Wireshark is build with.
 #
-# If you're building with WinPcap 3.0, set WINPCAP_VERSION to 3.0;
-# if you're building with WinPcap 3.1, set WINPCAP_VERSION to 3.1.
-# XXX - what to set for 4.0 beta 1?
-#
 # If you don't have the WPdpack, comment this line out, so that 
 # WINPCAP_VERSION isn't defined.
 #
+#WINPCAP_VERSION=3.0
 WINPCAP_VERSION=3.1
+# XXX - what to set for 4.0 beta 1?
 #
 # If you have the WinPcap developer's pack, set this to the directory 
 # in which the WinPcap developer's pack resides.
@@ -208,7 +206,7 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 # PORTAUDIO_DIR isn't defined.
 #
 PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
-
+#
 # Version number of PortAudio
 # 
 PORTAUDIO_VERSION=18
@@ -229,6 +227,18 @@ ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 # GETTEXT include files and library resides.
 #
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
+
+#
+# Optional: AirPcap developer's pack to capture wireless network traffic 
+# incl. 802.11 management frames.
+#
+# If you have the AirPcap developer's pack, set this to the directory 
+# in which the AirPcap developer's pack resides.
+#
+# If you don't have the AirPcap developer's pack, comment this line out, 
+# so that AIRPCAP_DIR isn't defined.
+#
+# AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap
 
 
 
@@ -322,13 +332,13 @@ PDB_FILE=vc*.pdb
 CYGWIN_PATH=c:\cygwin\bin
 
 # 
-# Optional: Directory, where your User's Guide reside, 
-# relative to the source dir. (currently experimental)
+# Optional: Use the User's Guide as the online help system
+# (currently experimental).
 #
 # If you don't have the User's Guide, comment this line out, so that 
-# WIRESHARK_EUG_DIR isn't defined.
+# ENABLE_WSUG isn't defined.
 #
-#WIRESHARK_EUG_DIR=docbook/eug_html_chunked
+#ENABLE_WSUG=USE
 
 #
 # According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403
@@ -424,7 +434,7 @@ GTK2_LIB_DIR=2.4.0
 GTK2_LIB_DIR=2.2.0
 !ENDIF
 
-# the lib dir of PANGO1.8 didn't changed since 1.4.0
+# the lib dir of PANGO didn't changed since 1.4.0
 !IF "$(PANGO_INST_VERSION)" == "1.10"
 PANGO_LIB_DIR=1.4.0
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
@@ -435,12 +445,13 @@ PANGO_LIB_DIR=1.4.0
 PANGO_LIB_DIR=1.2.0
 !ENDIF
 
-# Enable / disable AirPcap support
-
-# AIRPCAP_CONFIG=^#define HAVE_AIRPCAP 1
+!IFDEF AIRPCAP_DIR
+AIRPCAP_CONFIG=^#define HAVE_AIRPCAP 1
+!ELSE
 AIRPCAP_CONFIG=
+!ENDIF
 
-!IFDEF WINPCAP_VERSION
+!IFDEF PCAP_DIR
 # Nmake uses carets to escape special characters
 WINPCAP_CONFIG=^#define HAVE_LIBPCAP 1
 !IF "$(WINPCAP_VERSION)" == "3.0" || "$(WINPCAP_VERSION)" == "3.1"
@@ -456,6 +467,7 @@ PCAP_BREAKLOOP_CONFIG=
 WPCAP_CONSTIFIED_CONFIG=^#define WPCAP_CONSTIFIED 1
 !ELSE
 PCAP_FINDALLDEVS_CONFIG=
+PCAP_DATALINK_NAME_TO_VAL_CONFIG=
 PCAP_DATALINK_VAL_TO_NAME_CONFIG=
 PCAP_BREAKLOOP_CONFIG=
 WPCAP_CONSTIFIED=
@@ -482,13 +494,15 @@ ZLIB_CONFIG=
 !ENDIF
 
 !IFDEF NET_SNMP_DIR
+NET_SNMP_CFLAGS=/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32
+NET_SNMP_LIBS=$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 # Nmake uses carets to escape special characters
 NET_SNMP_CONFIG=^#define HAVE_NET_SNMP 1
-NET_SNMP_LIBS=$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 SOME_SNMP_CONFIG=^#define HAVE_SOME_SNMP 1
 !else
-NET_SNMP_CONFIG=
+NET_SNMP_CFLAGS=
 NET_SNMP_LIBS=
+NET_SNMP_CONFIG=
 SOME_SNMP_CONFIG=
 !ENDIF
 
@@ -539,12 +553,6 @@ NETTLE_LIBS=
 NETTLE_CONFIG=
 !ENDIF
 
-!IFDEF ENABLE_LIBWIRESHARK
-LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
-!ELSE
-LIBWIRESHARK_CONFIG=
-!ENDIF
-
 !IFDEF GNUTLS_DIR
 GNUTLS_PATH=$(GNUTLS_DIR)
 GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include
@@ -576,6 +584,7 @@ LUA_CONFIG=
 !ENDIF
 
 !IFDEF PORTAUDIO_DIR
+PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\pa_common
 # Nmake uses carets to escape special characters
 PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
 !IF "$(PORTAUDIO_VERSION)" == "18"
@@ -583,7 +592,28 @@ PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
 PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
 !ENDIF
 !else
+PORTAUDIO_CFLAGS=
 PORTAUDIO_CONFIG=
+!ENDIF
+
+!IFDEF HHC_DIR
+HHC_CFLAGS=/I$(HHC_DIR)\include -DHHC_DIR
+HHC_LIBS=$(HHC_DIR)\lib\htmlhelp.lib
+!ELSE
+HHC_CFLAGS=
+HHC_LIBS=
+!ENDIF
+
+!IFDEF ENABLE_LIBWIRESHARK
+LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
+!ELSE
+LIBWIRESHARK_CONFIG=
+!ENDIF
+
+!IFDEF ENABLE_WSUG
+WSUG_CFLAGS=-DENABLE_WSUG
+!ELSE
+WSUG_CFLAGS=
 !ENDIF
 
 # Construct the path

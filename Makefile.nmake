@@ -8,14 +8,11 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CC = cl
-LINK= link
-
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
-	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
+	$(NET_SNMP_CFLAGS) \
 	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(LUA_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
 
@@ -31,49 +28,39 @@ include Makefile.common
 wireshark_OBJECTS = $(wireshark_SOURCES:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
-
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
-
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
-command_line_OBJECTS = 
-
-#setargv.obj
-
 EXTRA_OBJECTS = \
-#	strerror.obj	\
 	mkstemp.obj	\
 	strptime.obj
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
-	$(NET_SNMP_LIBS) \
-!IFDEF HHC_DIR
-	$(HHC_DIR)\lib\htmlhelp.lib \
-!ENDIF
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	$(NET_SNMP_LIBS) \
+	$(HHC_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) 
 !ENDIF
-#	$(PCAP_DIR)\lib\wpcap.lib
 
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	$(NET_SNMP_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -152,7 +139,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
 !ELSE
-wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj $(command_line_OBJECTS) epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
@@ -162,41 +149,41 @@ wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj $(command_
 !IFNDEF GTK2_DIR
 wireshark-gtk2.exe	: 
 !ELSE
-wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj $(command_line_OBJECTS) codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
-tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj $(command_line_OBJECTS) epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj $(command_line_OBJECTS) image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj image\tshark.res
 <<
 
-capinfos.exe	: config.h capinfos.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(command_line_OBJECTS) $(capinfos_LIBS) image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(capinfos_LIBS) image\capinfos.res
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt-md5.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan\crypt-md5.obj $(command_line_OBJECTS) $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan\crypt-md5.obj $(editcap_LIBS) image\editcap.res
 <<
 
-mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(command_line_OBJECTS) $(mergecap_LIBS) image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
 <<
 
-text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj $(command_line_OBJECTS) image\text2pcap.res
+text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj $(command_line_OBJECTS) image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 <<
 
 dftest.exe	: $(dftest_OBJECTS) epan
@@ -205,16 +192,16 @@ dftest.exe	: $(dftest_OBJECTS) epan
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 
-randpkt.exe	: $(randpkt_OBJECTS) getopt.obj $(command_line_OBJECTS)
+randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) getopt.obj $(command_line_OBJECTS)
+		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) getopt.obj
 <<
 
-dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj mkstemp.obj $(command_line_OBJECTS) image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj mkstemp.obj image\dumpcap.res
 <<
 
 
