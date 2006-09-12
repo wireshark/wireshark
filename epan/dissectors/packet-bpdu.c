@@ -35,6 +35,7 @@
 #include <epan/llcsaps.h>
 #include <epan/ppptypes.h>
 #include <epan/chdlctypes.h>
+#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 
 /* Offsets of fields within a BPDU */
@@ -802,4 +803,5 @@ proto_reg_handoff_bpdu(void)
   dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add("llc.cisco_pid", 0x010b, bpdu_handle);
+  dissector_add("ethertype", ETHERTYPE_STP, bpdu_handle);
 }

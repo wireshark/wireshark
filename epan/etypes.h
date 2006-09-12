@@ -180,6 +180,10 @@
 #define ETHERTYPE_WCP		0x80ff	/* Wellfleet Compression Protocol */
 #endif
 
+#ifndef ETHERTYPE_STP
+#define ETHERTYPE_STP		0x8181	/* STP, HIPPI-ST */
+#endif
+
 #ifndef ETHERTYPE_ISMP
 #define ETHERTYPE_ISMP		0x81fd	/* Cabletron Interswitch Message Protocol */
 #endif

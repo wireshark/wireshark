@@ -64,7 +64,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TRAIN,				"Netmon Train"			},
     {ETHERTYPE_LOOP,				"Loopback"			}, /* Ethernet Loopback */
     {ETHERTYPE_FOUNDRY,				"Foundry proprietary"		},
-    {ETHERTYPE_WCP,					"Wellfleet Compression Protocol" },
+    {ETHERTYPE_WCP,				"Wellfleet Compression Protocol" },
+    {ETHERTYPE_STP,				"Spanning Tree Protocol"	},
     {ETHERTYPE_ISMP,				"Cabletron Interswitch Message Protocol" },
     {ETHERTYPE_ISMP_TBFLOOD,		"Cabletron SFVLAN 1.8 Tag-Based Flood" },
     				/* for ISMP, see RFC 2641, RFC 2642, RFC 2643 */
