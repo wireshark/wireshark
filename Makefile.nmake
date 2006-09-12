@@ -222,15 +222,15 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_BREAKLOOP@/$(PCAP_BREAKLOOP_CONFIG)/" \
 	    -e "s/@HAVE_LIBWIRESHARKDLL@/$(LIBWIRESHARK_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
-	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
+	    -e "s/@HAVE_LIBGNUTLS@/$(GNUTLS_CONFIG)/" \
 	    -e "s/@HAVE_LIBGCRYPT@/$(LIBGCRYPT_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@HAVE_PORTAUDIO_API@/$(PORTAUDIO_API_CONFIG)/" \
-	    -e "s/@HAVE_NET_SNMP@/$(HAVE_NET_SNMP)/" \
-	    -e "s/@HAVE_SOME_SNMP@/$(HAVE_SOME_SNMP)/" \
+	    -e "s/@HAVE_NET_SNMP@/$(NET_SNMP_CONFIG)/" \
+	    -e "s/@HAVE_SOME_SNMP@/$(SOME_SNMP_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
