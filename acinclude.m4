@@ -1043,7 +1043,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 	#
 	if test "x$want_portaudio" != "xno"
 	then
-		AC_MSG_CHECKING([whether include is (old) API version 1])
 		AC_CHECK_TYPE(PortAudioStream,
 		AC_DEFINE(PORTAUDIO_API_1, 1, [Define if we are using version of of the Portaudio library API]),
 		,
