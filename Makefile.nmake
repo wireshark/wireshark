@@ -137,7 +137,7 @@ separate_packaging: all
 
 $(RESOURCES): image
 
-wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
+wiretap\wiretap-$(WTAP_VERSION).lib: image wiretap
 
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
