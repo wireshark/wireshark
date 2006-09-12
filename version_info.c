@@ -68,6 +68,10 @@
 #include <sys/utsname.h>
 #endif
 
+#ifdef HAVE_LIBPORTAUDIO
+#include <portaudio.h>
+#endif /* HAVE_LIBPORTAUDIO */
+
 #include "version_info.h"
 #include "capture-pcap-util.h"
 #include "epan/strutil.h"
@@ -215,6 +219,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
 	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
         /* LUA */
 	g_string_append(str, " ");
@@ -225,6 +230,8 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
         /* GnuTLS */
 	g_string_append(str, " ");
@@ -234,6 +241,8 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
         /* Gcrypt */
 	g_string_append(str, " ");
@@ -243,6 +252,8 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Gcrypt");
 #endif /* HAVE_LIBGCRYPT */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
         /* Kerberos */
         /* XXX - I don't see how to get the version number, at least for KfW */
@@ -258,21 +269,22 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
         /* PortAudio */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
-#ifdef HAVE_PORTAUDIO
+#ifdef HAVE_LIBPORTAUDIO
 #ifdef PORTAUDIO_API_1
 	g_string_append(str, "with PortAudio <= V18");
 #else
 	g_string_append(str, "with PortAudio ");
-        /* XXX - is this correct? Will need an #include - but I can't test it */
 	g_string_append(str, Pa_GetVersionText());
 #endif
 #else
 	g_string_append(str, "without PortAudio");
-#endif /* HAVE_PORTAUDIO */
+#endif /* HAVE_LIBPORTAUDIO */
 
 
 	g_string_append(str, ".");

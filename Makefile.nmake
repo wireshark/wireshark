@@ -227,8 +227,8 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
-	    -e "s/@HAVE_PORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
-	    -e "s/@HAVE_PORTAUDIO_API@/$(PORTAUDIO_API_CONFIG)/" \
+	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
+	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \
 	    -e "s/@HAVE_NET_SNMP@/$(NET_SNMP_CONFIG)/" \
 	    -e "s/@HAVE_SOME_SNMP@/$(SOME_SNMP_CONFIG)/" \
 	    < config.h.win32 > $@
