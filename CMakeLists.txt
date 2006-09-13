@@ -25,7 +25,9 @@ project(wireshark C)
 
 set(dumpcap_LIBS wiretap)
 
+# Disable this later. Alternative: "make VERBOSE=1"
 set(CMAKE_VERBOSE_MAKEFILE ON)
+
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
