@@ -34,7 +34,7 @@
 
 /* TODO:
    - remaining message types
-   - verify CRCs
+   - verify header & payload CRCs
    - look for (and report as expert info) spare extension bytes
 */
 
@@ -86,6 +86,8 @@ static int hf_fp_hsdsch_max_macd_pdu_len = -1;
 static int hf_fp_hsdsch_interval = -1;
 static int hf_fp_hsdsch_repetition_period = -1;
 static int hf_fp_hsdsch_data_padding = -1;
+static int hf_fp_hsdsch_new_ie_flags[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_fp_hsdsch_drt = -1;
 static int hf_fp_timing_advance = -1;
 static int hf_fp_num_of_pdu = -1;
 static int hf_fp_mac_d_pdu_len = -1;
@@ -1183,7 +1185,7 @@ void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
 void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* SIR target */
-    float target = -8.2 + (0.1*tvb_get_guint8(tvb, offset));
+    float target = -8.2 + (0.1*(float)tvb_get_guint8(tvb, offset));
     proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1568,6 +1570,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
 
         /* Payload CRC (optional) */
+        /* TODO: is this test correct...? */
         if (p_fp_info->dch_crc_present)
         {
             proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
@@ -1633,8 +1636,36 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         /* Extra R6 stuff */
         if (p_fp_info->release == 6)
         {
-            /* TODO */
-            offset += 3;
+            int n;
+            guint8 flags;
+            guint8 flag_bytes = 0;
+
+            /* New IE flags */
+            do
+            {
+                /* Read next byte */
+                flags = tvb_get_guint8(tvb, offset);
+                flag_bytes++;
+
+                /* Dissect individual bits */
+                for (n=0; n < 8; n++)
+                {
+                    proto_tree_add_item(tree, hf_fp_hsdsch_new_ie_flags[n], tvb, offset, 1, FALSE);
+                }
+                offset++;
+
+                /* Last bit set will indicate another flags byte follows... */
+            } while (0); /*((flags & 0x01) && (flag_bytes < 31));*/
+
+            if (1) /*(flags & 0x8) */
+            {
+                /* DRT is shown as mandatory in the diagram (3GPP TS 25.435 V6.3.0),
+                   but the description below it states that
+                   it should depend upon the first bit.  The detailed description of
+                   New IE flags doesn't agree, so treat as mandatory for now... */
+                proto_tree_add_item(tree, hf_fp_hsdsch_drt, tvb, offset, 2, FALSE);
+                offset += 2;
+            }
         }
 
         /* TODO: may be spare extension to skip */
@@ -2073,6 +2104,60 @@ void proto_register_fp(void)
             { "Padding",
               "fp.hsdsch-data-padding", FT_UINT8, BASE_DEC, 0, 0xf0,
               "HS-DSCH Repetition Period in milliseconds", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[0],
+            { "DRT present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x80,
+              "DRT present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[1],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x40,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[2],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x20,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[3],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x10,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[4],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x08,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[5],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x04,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[6],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x02,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flags[7],
+            { "New IE present",
+              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x01,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_drt,
+            { "DRT",
+              "fp.hsdsch.drt", FT_UINT8, BASE_DEC, 0, 0xf0,
+              "Delay Reference Time", HFILL
             }
         },
         { &hf_fp_timing_advance,
