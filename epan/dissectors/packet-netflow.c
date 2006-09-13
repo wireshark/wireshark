@@ -340,7 +340,8 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree     *ti;
 	proto_item     *timeitem, *pduitem;
 	proto_tree     *timetree, *pdutree;
-	unsigned int    pduret, ver = 0, pdus = 0, x = 1, vspec, flow_len;
+	unsigned int    pduret, ver = 0, pdus = 0, x = 1, vspec;
+	gint             flow_len;
 	size_t          available, pdusize, offset = 0;
 	nstime_t        ts;
 	dissect_pdu_t  *pduptr;
@@ -393,12 +394,15 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (pdus <= 0)
 		return;
 	if (tree) {
-		if(ver == 10)
+		if(ver == 10) {
 			proto_tree_add_uint(netflow_tree, hf_cflow_len, tvb,
-					    offset, 2, flow_len = pdus);
-		else
+					    offset, 2, pdus);
+			flow_len = pdus;
+		} else {
 			proto_tree_add_uint(netflow_tree, hf_cflow_count, tvb,
 					    offset, 2, pdus);
+			flow_len = -1;
+		}
 	}
 	offset += 2;
 
@@ -411,7 +415,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				     "total: %u (v%u) record%s", pdus, ver,
 				     plurality(pdus, "", "s"));
 		} else if (ver == 10) {
-			u_short remaining = tvb_length_remaining(tvb, offset)+4;
+			gint remaining = tvb_length_remaining(tvb, offset)+4;
 
 			if(remaining == flow_len)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "IPFIX flow (%d bytes)", flow_len);
