@@ -255,7 +255,18 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
-/* Private data passed to subdissectors from the main DCERPC dissector. */
+/* Private data passed to subdissectors from the main DCERPC dissector.
+ * One unique instance of this structure is created for each 
+ * DCERPC request/response transaction when we see the initial request
+ * of the transaction.
+ * These instances are persistent and will remain available until the
+ * capture file is closed and a new one is read.
+ *
+ * For transactions where we never saw the request (missing from the trace)
+ * the dcerpc runtime will create a temporary "fake" such structure to pass
+ * to the response dissector. These fake structures are not persistent
+ * and can not be used to keep data hanging around.
+ */
 typedef struct _dcerpc_call_value {
     e_uuid_t uuid;          /* interface UUID */
     guint16 ver;            /* interface version */
@@ -265,7 +276,18 @@ typedef struct _dcerpc_call_value {
     nstime_t req_time;
     guint32 rep_frame;
     guint32 max_ptr;
-    void *private_data;
+    void *se_data;          /* This holds any data with se allocation scope
+                             * that we might want to keep
+                             * for this request/response transaction.
+                             * The pointer is initialized to NULL and must be
+                             * checked before being dereferenced.
+                             * This is useful for such things as when we
+                             * need to pass persistent data from the request
+                             * to the reply, such as LSA/OpenPolicy2() that
+                             * uses this to pass the domain name from the
+                             * request to the reply.
+                             */
+    void *private_data;      /* XXX This will later be renamed as ep_data */
 } dcerpc_call_value;
 
 typedef struct _dcerpc_info {

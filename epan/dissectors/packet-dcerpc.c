@@ -3292,6 +3292,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->req_time=pinfo->fd->abs_ts;
 				call_value->rep_frame=0;
 				call_value->max_ptr=0;
+				call_value->se_data = NULL;
 				call_value->private_data = NULL;
 				g_hash_table_insert (dcerpc_cn_calls, call_key, call_value);
 
@@ -4497,6 +4498,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->req_time=pinfo->fd->abs_ts;
 	call_value->rep_frame=0;
 	call_value->max_ptr=0;
+	call_value->se_data = NULL;
 	call_value->private_data = NULL;
 	g_hash_table_insert (dcerpc_dg_calls, call_key, call_value);
 
@@ -4517,6 +4519,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
         v.req_frame = pinfo->fd->num;
         v.rep_frame = 0;
         v.max_ptr = 0;
+        v.se_data=NULL;
         v.private_data=NULL;
         value = &v;
     }
@@ -4580,6 +4583,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
         v.opnum = hdr->opnum;
         v.req_frame=0;
         v.rep_frame=pinfo->fd->num;
+        v.se_data=NULL;
         v.private_data=NULL;
         value = &v;
     }

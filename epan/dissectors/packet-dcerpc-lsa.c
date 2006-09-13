@@ -623,6 +623,18 @@ lsa_dissect_lsaropenpolicy2_rqst(tvbuff_t *tvb, int offset,
 		hf_lsa_server, cb_wstr_postprocess, 
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 
+	/* OpenPolicy2() stores the servername string in se_data */
+	if(!pinfo->fd->flags.visited){
+		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+		/* did we get a string for the server name above? */
+		if(dcv->private_data && !dcv->se_data){
+			dcv->se_data=se_strdup(dcv->private_data);
+		}
+	}	
+
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
 		"OBJECT_ATTRIBUTES", -1);
@@ -651,16 +663,18 @@ lsa_dissect_lsaropenpolicy2_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, &status);
 
-	if (status == 0) {
-		if (dcv->private_data)
+	if( status == 0 ){
+		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
-				"OpenPolicy2(%s)", (char *)dcv->private_data);
-		else
-			pol_name = ep_strdup("OpenPolicy2 handle");
+				"OpenPolicy2(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown OpenPolicy2() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-		if (hnd_item != NULL)
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
