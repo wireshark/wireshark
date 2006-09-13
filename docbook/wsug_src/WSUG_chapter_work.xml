@@ -60,7 +60,7 @@
       </figure>
 	</para>
 	  <para>
-	  The following table gives an overview which functions are available 
+	  The following table gives an overview of which functions are available 
 	  in this pane, where to find the corresponding function in the main menu, 
 	  and a short description of each item.
 	  </para>
@@ -207,7 +207,7 @@
       </figure>
 	  </para>
 	  <para>
-	  The following table gives an overview which functions are available 
+	  The following table gives an overview of which functions are available 
 	  in this pane, where to find the corresponding function in the main menu, 
 	  and a short description of each item.
 	  </para>
@@ -401,7 +401,7 @@
       </figure>
 	  </para>
 	  <para>
-	  The following table gives an overview which functions are available 
+	  The following table gives an overview of which functions are available 
 	  in this pane, where to find the corresponding function in the main menu, 
 	  and a short description of each item.
 	  </para>
@@ -510,7 +510,7 @@
       You can filter on any protocol that Wireshark understands.  
       You can also filter on any field that a dissector adds to the tree 
       view, but only if the dissector has added an abbreviation for the 
-      field. A list of such fields is available in the Wireshark in the 
+      field. A list of such fields is available in Wireshark in the 
       <command>Add Expression...</command> dialog box.  You can find more 
       information on the <command>Add Expression...</command> dialog box 
       in <xref linkend="ChWorkFilterAddExpressionSection"/>.
@@ -953,6 +953,7 @@ eth.src[1-2] == 00:83
 	  <para>
 	    You can leave the <command>Add Expression...</command> dialog 
 	    box without any effect by clicking the <command>Cancel</command>
+		button.
 	  </para>
 	</listitem>
       </varlistentry>

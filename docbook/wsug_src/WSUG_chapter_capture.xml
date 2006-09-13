@@ -726,7 +726,7 @@ wireshark -i eth0 -k
 	<para>
 	In the usual case, you won't have to choose this link-layer header type. 
 	The following paragraphs describe the exceptional cases, where
-	selecting this type is possible, so you will have a guide what to do:
+	selecting this type is possible, so you will have a guide of what to do:
 	</para>
     <para>
     If you are capturing on an 802.11 device on some versions of BSD, this 
@@ -1017,7 +1017,7 @@ tcp port 23 and not host 10.0.0.5
 	<graphic entityref="WiresharkCaptureInfoDialog" format="JPG"/>
       </figure>
 	This dialog box will inform you about the number of captured packets and 
-	the time since the capture was started. The selection which protocols
+	the time since the capture was started. The selection of which protocols
 	are counted cannot be changed.
 	</para>
 	  <tip><title>Tip!</title>

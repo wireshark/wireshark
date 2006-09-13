@@ -114,10 +114,11 @@
 	<section>
 	<title>Live capture from many different network media</title>
 	<para>
-	  Despite its name, Wireshark can capture traffic from 
-	  network media other than Ethernet. Which media types are 
-	  supported, depends on many things like the operating system you are 
-	  using. An overview of the supported media types can be found at: 
+	  Wireshark can capture traffic from many different network media types 
+	  - and despite it's name including wireless LAN as well.
+	  Which media types are supported, depends on many things like the 
+	  operating system you are using.
+	  An overview of the supported media types can be found at: 
 	  <ulink url="&WiresharkMediaPage;"/>.
 	</para>
 	</section>
@@ -225,7 +226,7 @@
 	<listitem><para>Red Hat Linux</para></listitem>
 	<listitem><para>Rock Linux</para></listitem>
 	<listitem><para>Slackware Linux</para></listitem>
-	<listitem><para>Suse Linux</para></listitem>
+	<listitem><para>SUSE Linux</para></listitem>
 	</itemizedlist>
 	</para>
 	</section>

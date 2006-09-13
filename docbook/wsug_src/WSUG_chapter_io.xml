@@ -427,7 +427,7 @@
     <para>
       When using the "Multiple Files" option while doing a capture
 	  (see: <xref linkend="ChCapCaptureFiles"/>), 
-	  the capture data is spreaded over several capture files, called a file 
+	  the capture data is spread over several capture files, called a file 
 	  set. 
     </para>
     <para>
@@ -449,7 +449,7 @@
     <para>
 	  This simple mechanism usually works well, but has it's drawbacks. If several 
 	  file sets were captured with the same prefix and suffix, Wireshark will detect 
-	  them as a single file set. If files were renamed or spreaded over several 
+	  them as a single file set. If files were renamed or spread over several 
 	  directories the mechanism will fail to find all files of a set.
     </para>
 	</sidebar>

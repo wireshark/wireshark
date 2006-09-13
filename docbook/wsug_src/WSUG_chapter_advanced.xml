@@ -573,7 +573,7 @@
 	</orderedlist>
     </para>
     <para>
-	The tooltip of the higher level protocol setting will note you if and
+	The tooltip of the higher level protocol setting will notify you if and
 	which lower level protocol setting has to be considered too.
     </para>
     </section>
@@ -582,7 +582,7 @@
   <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
     <para>
 	Name resolution tries to resolve some of the numerical address values into
-	a human readable format. There are two possible ways to do this
+	a human readable format. There are two possible ways to do these
 	conversations, depending on the resolution to be done: calling
 	system/network services (like the gethostname function) and/or evaluate
 	from Wireshark specific configuration files.
@@ -597,7 +597,7 @@
 	<section><title>Name Resolution drawbacks</title>
     <para>
 	Name resolution can be invaluable while working with Wireshark and may
-	save you even hours of work. Unfortunately, it also has it's drawbacks.
+	even save you hours of work. Unfortunately, it also has it's drawbacks.
     </para>
       <itemizedlist>
 	<listitem>
@@ -615,7 +615,7 @@
 	So the resolved names might not be available if you open the capture file
 	later or on a different machine.
 	Each time you open a capture file it may look "slightly different",
-	maybe simply because you can't connect a name server (which you could
+	maybe simply because you can't connect to a name server (which you could
 	connect before).
     </para>
 	</listitem>
