@@ -150,11 +150,7 @@ dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
-	proto_item *pc_item = 0;
-	proto_tree *pc_tree = 0;
-	guint32 dpc;
 	guint8 offset = SCCPMG_AFFECTED_PC_OFFSET;
-	char pc[ANSI_PC_STRING_LENGTH];
 
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_itu_pc, tvb,
@@ -172,30 +168,14 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 			hf_affected_pc = &hf_sccpmg_affected_chinese_pc;
 		}
 
-		/* create the DPC tree; modified from that in packet-sccp.c */
-		dpc = tvb_get_ntoh24(tvb, offset);
-		g_snprintf(pc, sizeof(pc), "%d-%d-%d",
-			 (dpc & ANSI_NETWORK_MASK),
-			 ((dpc & ANSI_CLUSTER_MASK) >> 8),
-			 ((dpc & ANSI_MEMBER_MASK) >> 16));
+		/* create and fill the PC tree */
+		dissect_mtp3_3byte_pc(tvb, offset, sccpmg_tree,
+				      ett_sccpmg_affected_pc, *hf_affected_pc,
+				      hf_sccpmg_affected_pc_network,
+				      hf_sccpmg_affected_pc_cluster,
+				      hf_sccpmg_affected_pc_member, 0, 0);
 
-		pc_item = proto_tree_add_string_format(sccpmg_tree,
-						       *hf_affected_pc,
-						       tvb, offset,
-						       ANSI_PC_LENGTH, pc,
-						       "PC (%s)", pc);
-
-		pc_tree = proto_item_add_subtree(pc_item,
-						 ett_sccpmg_affected_pc);
-
-		proto_tree_add_uint(pc_tree, hf_sccpmg_affected_pc_member, tvb,
-				    offset, ANSI_NCM_LENGTH, dpc);
-		offset += ANSI_NCM_LENGTH;
-		proto_tree_add_uint(pc_tree, hf_sccpmg_affected_pc_cluster, tvb,
-				    offset, ANSI_NCM_LENGTH, dpc);
-		offset += ANSI_NCM_LENGTH;
-		proto_tree_add_uint(pc_tree, hf_sccpmg_affected_pc_network,
-				    tvb, offset, ANSI_NCM_LENGTH, dpc);
+		offset += ANSI_PC_LENGTH;
 	}
 }
 

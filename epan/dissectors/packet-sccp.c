@@ -1043,10 +1043,6 @@ static int
 dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
                      gboolean called)
 {
-  guint32 dpc;
-  proto_item *call_pc_item = 0;
-  proto_tree *call_pc_tree = 0;
-  char pc[ANSI_PC_STRING_LENGTH];
   int *hf_pc;
 
   if (decode_mtp3_standard == ANSI_STANDARD)
@@ -1062,34 +1058,16 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
       hf_pc = &hf_sccp_calling_chinese_pc;
   }
 
-  /* create the DPC tree; modified from that in packet-mtp3.c */
-  dpc = tvb_get_ntoh24(tvb, offset);
-  g_snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
-				       ((dpc & ANSI_CLUSTER_MASK) >> 8),
-				       ((dpc & ANSI_MEMBER_MASK) >> 16));
+  /* create and fill the PC tree */
+  dissect_mtp3_3byte_pc(tvb, offset, call_tree,
+			called ? ett_sccp_called_pc : ett_sccp_calling_pc,
+			*hf_pc,
+			called ? hf_sccp_called_pc_network : hf_sccp_calling_pc_network,
+			called ? hf_sccp_called_pc_cluster : hf_sccp_calling_pc_cluster,
+			called ? hf_sccp_called_pc_member  : hf_sccp_calling_pc_member,
+			0, 0);
 
-  call_pc_item = proto_tree_add_string_format(call_tree, *hf_pc,
-					      tvb, offset, ANSI_PC_LENGTH,
-					      pc, "PC (%s)", pc);
-
-  call_pc_tree = proto_item_add_subtree(call_pc_item,
-					  called ? ett_sccp_called_pc
-						 : ett_sccp_calling_pc);
-
-  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_member
-					   : hf_sccp_calling_pc_member,
-		      tvb, offset, ANSI_NCM_LENGTH, dpc);
-  offset += ANSI_NCM_LENGTH;
-  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_cluster
-					   : hf_sccp_calling_pc_cluster,
-		      tvb, offset, ANSI_NCM_LENGTH, dpc);
-  offset += ANSI_NCM_LENGTH;
-  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_network
-					   : hf_sccp_calling_pc_network,
-		      tvb, offset, ANSI_NCM_LENGTH, dpc);
-  offset += ANSI_NCM_LENGTH;
-
-  return(offset);
+  return(offset + ANSI_PC_LENGTH);
 }
 
 /*  FUNCTION dissect_sccp_called_calling_param():

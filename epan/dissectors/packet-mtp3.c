@@ -156,9 +156,6 @@ static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 #define ITU_OPC_MASK               0x0FFFC000
 #define ITU_SLS_MASK               0xF0000000
 
-#define ANSI_NETWORK_MASK          0x0000FF
-#define ANSI_CLUSTER_MASK          0x00FF00
-#define ANSI_MEMBER_MASK           0xFF0000
 #define ANSI_5BIT_SLS_MASK         0x1F
 #define ANSI_8BIT_SLS_MASK         0xFF
 #define CHINESE_ITU_SLS_MASK       0xF
@@ -245,7 +242,7 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
       break;
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
-      g_snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
+      g_snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK) >> 16, (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK));
       break;
     case JAPAN_STANDARD:
       switch (japan_pc_structure) {
@@ -397,6 +394,46 @@ guint32 mtp3_pc_hash(const guint8* data) {
 	return pc;
 }
 
+/*  Common function for dissecting 3-byte (ANSI or China) PCs. */
+void
+dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc, int hf_pc_string, int hf_pc_network,
+		      int hf_pc_cluster, int hf_pc_member, int hf_dpc, int hf_pc)
+{
+    guint32 pc;
+    proto_item *pc_item;
+    proto_tree *pc_tree;
+    char pc_string[MAX_STRUCTURED_PC_LENGTH];
+
+    pc = tvb_get_letoh24(tvb, offset);
+    mtp3_pc_to_str_buf(pc, pc_string, sizeof(pc_string));
+
+    pc_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+
+    /* Add alternate formats of the PC
+     * NOTE: each of these formats is shown to the user,
+     * so I think that using hidden fields in this case is OK.
+     */
+    g_snprintf(pc_string, sizeof(pc_string), "%u", pc);
+    proto_item_append_text(pc_item, " (%s)", pc_string);
+    proto_tree_add_string_hidden(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+    g_snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
+    proto_item_append_text(pc_item, " (%s)", pc_string);
+    proto_tree_add_string_hidden(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+
+    pc_tree = proto_item_add_subtree(pc_item, ett_pc);
+
+    proto_tree_add_uint(pc_tree, hf_pc_network, tvb, offset + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, pc);
+    proto_tree_add_uint(pc_tree, hf_pc_cluster, tvb, offset + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, pc);
+    proto_tree_add_uint(pc_tree, hf_pc_member,  tvb, offset + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, pc);
+
+    /* add full integer values of DPC as hidden for filtering purposes */
+    if (hf_dpc)
+	proto_tree_add_uint_hidden(pc_tree, hf_dpc, tvb, offset, ANSI_PC_LENGTH, pc);
+    if (hf_pc)
+	proto_tree_add_uint_hidden(pc_tree, hf_pc,  tvb, offset, ANSI_PC_LENGTH, pc);
+
+}
+
 static void
 dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 {
@@ -435,7 +472,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 {
   guint32 label, dpc = 0, opc = 0;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
-  proto_tree *label_tree, *label_dpc_tree, *label_opc_tree;
+  proto_tree *label_tree;
   int *hf_dpc_string;
   int *hf_opc_string;
 
@@ -479,31 +516,18 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
-    /* create the DPC tree */
-    dpc = tvb_get_ntoh24(tvb, ANSI_DPC_OFFSET);
-    label_dpc_item = proto_tree_add_string_format(label_tree, *hf_dpc_string, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, mtp3_pc_to_str(dpc), "DPC (%s) (%u)", mtp3_pc_to_str(dpc), dpc);
-    label_dpc_tree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
 
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member,  tvb, ANSI_DPC_OFFSET + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster, tvb, ANSI_DPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network, tvb, ANSI_DPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, dpc);
+    /* create and fill the DPC tree */
+    dissect_mtp3_3byte_pc(tvb, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, *hf_dpc_string, hf_mtp3_dpc_network,
+			  hf_mtp3_dpc_cluster, hf_mtp3_dpc_member, hf_mtp3_24bit_dpc, hf_mtp3_24bit_pc);
+    /* Store dpc for mtp3_addr below */
+    dpc = tvb_get_letoh24(tvb, ANSI_DPC_OFFSET);
 
-    /* add full integer values of DPC as hidden for filtering purposes */
-    proto_tree_add_uint_hidden(label_dpc_tree, hf_mtp3_24bit_dpc, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
-    proto_tree_add_uint_hidden(label_dpc_tree, hf_mtp3_24bit_pc,  tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
-
-    /* create the OPC tree */
-    opc = tvb_get_ntoh24(tvb, ANSI_OPC_OFFSET);
-    label_opc_item = proto_tree_add_string_format(label_tree, *hf_opc_string, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, mtp3_pc_to_str(opc), "OPC (%s) (%u)", mtp3_pc_to_str(opc), opc);
-    label_opc_tree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
-
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member,  tvb, ANSI_OPC_OFFSET + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb, ANSI_OPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network, tvb, ANSI_OPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, opc);
-
-    /* add full integer values of OPC as hidden for filtering purposes */
-    proto_tree_add_uint_hidden(label_opc_tree, hf_mtp3_24bit_opc, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
-    proto_tree_add_uint_hidden(label_opc_tree, hf_mtp3_24bit_pc,  tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    /* create and fill the OPC tree */
+    dissect_mtp3_3byte_pc(tvb, ANSI_OPC_OFFSET, label_tree, ett_mtp3_label_opc, *hf_opc_string, hf_mtp3_opc_network,
+			  hf_mtp3_opc_cluster, hf_mtp3_opc_member, hf_mtp3_24bit_opc, hf_mtp3_24bit_pc);
+    /* Store opc for mtp3_addr below */
+    opc = tvb_get_letoh24(tvb, ANSI_OPC_OFFSET);
 
     /* SLS */
     if (mtp3_standard == ANSI_STANDARD) {
@@ -666,8 +690,8 @@ proto_register_mtp3(void)
     { &hf_mtp3_itu_pc,                { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   0x0,                        "", HFILL }},
     { &hf_mtp3_24bit_pc,              { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
     { &hf_mtp3_24bit_opc,             { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
-    { &hf_mtp3_ansi_opc,              { "DPC",                      "mtp3.ansi_opc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
-    { &hf_mtp3_chinese_opc,           { "DPC",                      "mtp3.chinese_opc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_ansi_opc,              { "OPC",                      "mtp3.ansi_opc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_chinese_opc,           { "OPC",                      "mtp3.chinese_opc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
     { &hf_mtp3_opc_network,           { "OPC Network",              "mtp3.opc.network",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_NETWORK_MASK,          "", HFILL }},
     { &hf_mtp3_opc_cluster,           { "OPC Cluster",              "mtp3.opc.cluster",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_CLUSTER_MASK,          "", HFILL }},
     { &hf_mtp3_opc_member,            { "OPC Member",               "mtp3.opc.member",        FT_UINT24, BASE_DEC,  NULL,                                   ANSI_MEMBER_MASK,           "", HFILL }},

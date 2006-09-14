@@ -548,38 +548,6 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_mtp3mg_3byte_pc(tvbuff_t *tvb, proto_tree *tree, gint *ett_pc,
-			int *hf_pc, int *hf_pc_member, int *hf_pc_cluster,
-			int *hf_pc_network)
-{
-    guint32 apc;
-    proto_item *apc_item;
-    proto_tree *apc_tree;
-    char pc[ANSI_PC_STRING_LENGTH];
-
-    apc = tvb_get_ntoh24(tvb, 0);
-
-    g_snprintf(pc, sizeof(pc), "%d-%d-%d",
-	     (apc & ANSI_NETWORK_MASK),
-	     ((apc & ANSI_CLUSTER_MASK) >> 8),
-	     ((apc & ANSI_MEMBER_MASK) >> 16));
-
-    apc_item = proto_tree_add_string_format(tree, *hf_pc, tvb, 0,
-					    ANSI_PC_LENGTH, pc,
-					    "Affected PC (%s)", pc);
-
-    apc_tree = proto_item_add_subtree(apc_item, *ett_pc);
-
-    proto_tree_add_uint(apc_tree, *hf_pc_member, tvb,
-			ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
-    proto_tree_add_uint(apc_tree, *hf_pc_cluster, tvb,
-			ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
-    proto_tree_add_uint(apc_tree, *hf_pc_network, tvb,
-			ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
-
-}
-
-static void
 dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
@@ -653,11 +621,10 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		hf_apc_string = &hf_mtp3mg_tfc_chinese_apc;
 	    }
 
-	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_fcm_apc,
-				    hf_apc_string,
-				    &hf_mtp3mg_tfc_apc_member,
-				    &hf_mtp3mg_tfc_apc_cluster,
-				    &hf_mtp3mg_tfc_apc_network);
+	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_fcm_apc,
+				  *hf_apc_string, hf_mtp3mg_tfc_apc_network,
+				  hf_mtp3mg_tfc_apc_cluster,
+				  hf_mtp3mg_tfc_apc_member, 0, 0);
 
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_ansi_status, tvb,
 				ANSI_TFC_STATUS_OFFSET, ANSI_TFC_STATUS_LENGTH,
@@ -691,11 +658,11 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case TFM_H1_TCA:
 	if (mtp3_standard == ANSI_STANDARD)
 	{
-	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
-				    &hf_mtp3mg_tfm_ansi_apc,
-				    &hf_mtp3mg_tfm_apc_member,
-				    &hf_mtp3mg_tfm_apc_cluster,
-				    &hf_mtp3mg_tfm_apc_network);
+	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_tfm_apc,
+				  hf_mtp3mg_tfm_ansi_apc,
+				  hf_mtp3mg_tfm_apc_network,
+				  hf_mtp3mg_tfm_apc_cluster,
+				  hf_mtp3mg_tfm_apc_member, 0, 0);
 
 	} else if (mtp3_standard == JAPAN_STANDARD) {
 	    guint8 count, i;
@@ -744,11 +711,11 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	    }
 	    else if (mtp3_standard == CHINESE_ITU_STANDARD)
-		dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
-					&hf_mtp3mg_tfm_chinese_apc,
-					&hf_mtp3mg_tfm_apc_member,
-					&hf_mtp3mg_tfm_apc_cluster,
-					&hf_mtp3mg_tfm_apc_network);
+		dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_tfm_apc,
+				      hf_mtp3mg_tfm_chinese_apc,
+				      hf_mtp3mg_tfm_apc_network,
+				      hf_mtp3mg_tfm_apc_cluster,
+				      hf_mtp3mg_tfm_apc_member, 0, 0);
 	}
 	break;
 
@@ -775,11 +742,11 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSM_H1_RCR:
 	if (mtp3_standard == ANSI_STANDARD)
 	{
-	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_rsm_apc,
-				    &hf_mtp3mg_rsm_ansi_apc,
-				    &hf_mtp3mg_rsm_apc_member,
-				    &hf_mtp3mg_rsm_apc_cluster,
-				    &hf_mtp3mg_rsm_apc_network);
+	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_rsm_apc,
+				  hf_mtp3mg_rsm_ansi_apc,
+				  hf_mtp3mg_rsm_apc_network,
+				  hf_mtp3mg_rsm_apc_cluster,
+				  hf_mtp3mg_rsm_apc_member, 0, 0);
 
 	} else if (mtp3_standard == JAPAN_STANDARD) {
 	    if (h1 == RSM_H1_RST)
@@ -831,11 +798,11 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    }
 		}
 		else /* CHINESE_ITU_STANDARD */
-		    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_rsm_apc,
-					    &hf_mtp3mg_rsm_chinese_apc,
-					    &hf_mtp3mg_rsm_apc_member,
-					    &hf_mtp3mg_rsm_apc_cluster,
-					    &hf_mtp3mg_rsm_apc_network);
+		    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_rsm_apc,
+					  hf_mtp3mg_rsm_chinese_apc,
+					  hf_mtp3mg_rsm_apc_network,
+					  hf_mtp3mg_rsm_apc_cluster,
+					  hf_mtp3mg_rsm_apc_member, 0, 0);
 	    } else
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	}
@@ -957,11 +924,10 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    else /* CHINESE_ITU_STANDARD */
 		hf_apc = &hf_mtp3mg_upu_chinese_apc;
 
-	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_upu_apc,
-				    hf_apc,
-				    &hf_mtp3mg_rsm_apc_member,
-				    &hf_mtp3mg_rsm_apc_cluster,
-				    &hf_mtp3mg_rsm_apc_network);
+	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_upu_apc, *hf_apc,
+				  hf_mtp3mg_rsm_apc_network,
+				  hf_mtp3mg_rsm_apc_cluster,
+				  hf_mtp3mg_rsm_apc_member, 0, 0);
 
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);

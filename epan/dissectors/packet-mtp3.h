@@ -56,13 +56,13 @@ typedef struct _mtp3_tap_rec_t {
 
 #define ANSI_PC_LENGTH    3
 #define ANSI_NCM_LENGTH   1
-#define ANSI_MEMBER_OFFSET 0
-#define ANSI_CLUSTER_OFFSET 1
 #define ANSI_NETWORK_OFFSET 2
+#define ANSI_CLUSTER_OFFSET 1
+#define ANSI_MEMBER_OFFSET 0
 #define ANSI_PC_MASK      0xFFFFFF
-#define ANSI_NETWORK_MASK 0x0000FF
+#define ANSI_NETWORK_MASK 0xFF0000
 #define ANSI_CLUSTER_MASK 0x00FF00
-#define ANSI_MEMBER_MASK  0xFF0000
+#define ANSI_MEMBER_MASK  0x0000FF
 #define ANSI_PC_STRING_LENGTH 16
 
 #define JAPAN_PC_LENGTH   2
@@ -73,6 +73,19 @@ extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
 extern gboolean mtp3_pc_structured(void);
 extern guint32  mtp3_pc_hash(const guint8* data);
+
+#ifdef __PROTO_H__
+/* epan/to_str.c includes this file, but it does not include proto.h so
+ * it doesn't know about things like proto_tree.  This function is not
+ * needed by to_str.c, so just don't prototype it there (or anywhere
+ * without proto.h).
+ */
+extern void	dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
+				      proto_tree *tree, gint ett_pc,
+				      int hf_pc, int hf_pc_network,
+				      int hf_pc_cluster, int hf_pc_member,
+				      int hf_dpc, int pc);
+#endif
 
 /*
  * the following allows TAP code access to the messages
