@@ -86,7 +86,8 @@ static int hf_fp_hsdsch_max_macd_pdu_len = -1;
 static int hf_fp_hsdsch_interval = -1;
 static int hf_fp_hsdsch_repetition_period = -1;
 static int hf_fp_hsdsch_data_padding = -1;
-static int hf_fp_hsdsch_new_ie_flags[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_fp_hsdsch_new_ie_flags = -1;
+static int hf_fp_hsdsch_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_fp_hsdsch_drt = -1;
 static int hf_fp_timing_advance = -1;
 static int hf_fp_num_of_pdu = -1;
@@ -107,6 +108,7 @@ static int ett_fp_data = -1;
 static int ett_fp_crcis = -1;
 static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
+static int ett_fp_hsdsch_new_ie_flags = -1;
 
 
 /* E-DCH channel header information */
@@ -278,6 +280,8 @@ static void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
                                            tvbuff_t *tvb, int offset);
 static void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo,
                                            tvbuff_t *tvb, int offset);
+static void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo,
+                                                 tvbuff_t *tvb, int offset);
 static void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo,
                                                 tvbuff_t *tvb, int offset);
 static void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo,
@@ -352,7 +356,7 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Data tree should cover entire length */
     proto_item_set_len(data_tree, bit_offset/8);
-    proto_item_append_text(ti, " (total %u tbs)", *num_tbs);
+    proto_item_append_text(ti, " (%u bits in %u tbs)", data_bits, *num_tbs);
 
     /* Move offset past TBs (we know its already padded out to next byte) */
     offset += (bit_offset / 8);
@@ -385,6 +389,7 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Show 4 bits padding at start of PDU */
         proto_tree_add_item(data_tree, hf_fp_hsdsch_data_padding, tvb, offset+(bit_offset/8), 1, FALSE);
+        bit_offset += 4;
 
         /* Data bytes! */
         ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
@@ -448,7 +453,7 @@ int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             errors++;
             expert_add_info_format(pinfo, ti,
                                    PI_CHECKSUM, PI_WARN,
-                                   "CRCI error bit set for TB %u", n+1);
+                                   "CRCI error bit set for TB");
         }
     }
 
@@ -793,7 +798,9 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (p_fp_info->channel == CHANNEL_RACH_TDD)
         {
-            /* RX Timing Deviation */
+            /* Rx Timing Deviation */
+            proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, FALSE);
+            offset++;
         }
 
         if (p_fp_info->channel == CHANNEL_RACH_TDD_128)
@@ -1065,6 +1072,7 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                      (p_fp_info->paging_indications+7) / 8,
                                      FALSE);
             proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
+            offset += ((p_fp_info->paging_indications+7) / 8);
         }
 
         /* TB data */
@@ -1185,7 +1193,7 @@ void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
 void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* SIR target */
-    float target = -8.2 + (0.1*(float)tvb_get_guint8(tvb, offset));
+    float target = -8.2 + (0.1 * (float)(tvb_get_guint8(tvb, offset)));
     proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1494,10 +1502,10 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
             for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
             {
-                int m;
-                guint8 size = 0;
-                guint  send_size;
-                proto_item *ti;
+                int         m;
+                guint16     size = 0;
+                guint       send_size;
+                proto_item  *ti;
 
                 /* Look up mac-d pdu size for this ddi */
                 for (m=0; m < p_fp_info->no_ddi_entries; m++)
@@ -1643,6 +1651,15 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             /* New IE flags */
             do
             {
+                proto_item *new_ie_flags_ti;
+                proto_tree *new_ie_flags_tree;
+                guint ies_found = 0;
+
+                /* Add new IE flags subtree */
+                new_ie_flags_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_new_ie_flags, tvb, offset, 1,
+                                                              "", "New IE flags");
+                new_ie_flags_tree = proto_item_add_subtree(new_ie_flags_ti, ett_fp_hsdsch_new_ie_flags);
+
                 /* Read next byte */
                 flags = tvb_get_guint8(tvb, offset);
                 flag_bytes++;
@@ -1650,9 +1667,15 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 /* Dissect individual bits */
                 for (n=0; n < 8; n++)
                 {
-                    proto_tree_add_item(tree, hf_fp_hsdsch_new_ie_flags[n], tvb, offset, 1, FALSE);
+                    proto_tree_add_item(new_ie_flags_tree, hf_fp_hsdsch_new_ie_flag[n], tvb, offset, 1, FALSE);
+                    if ((flags >> (7-n)) & 0x01)
+                    {
+                        ies_found++;
+                    }
                 }
                 offset++;
+
+                proto_item_append_text(new_ie_flags_ti, " (%u IEs found)", ies_found);
 
                 /* Last bit set will indicate another flags byte follows... */
             } while (0); /*((flags & 0x01) && (flag_bytes < 31));*/
@@ -2106,51 +2129,57 @@ void proto_register_fp(void)
               "HS-DSCH Repetition Period in milliseconds", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[0],
-            { "DRT present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x80,
+        { &hf_fp_hsdsch_new_ie_flags,
+            { "New IEs flags",
+              "fp.hsdsch.new-ie-flags", FT_STRING, BASE_NONE, 0, 0x0,
               "DRT present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[1],
+        { &hf_fp_hsdsch_new_ie_flag[0],
+            { "DRT IE present",
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x80,
+              "DRT IE present", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_new_ie_flag[1],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x40,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x40,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[2],
+        { &hf_fp_hsdsch_new_ie_flag[2],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x20,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x20,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[3],
+        { &hf_fp_hsdsch_new_ie_flag[3],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x10,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x10,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[4],
+        { &hf_fp_hsdsch_new_ie_flag[4],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x08,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x08,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[5],
+        { &hf_fp_hsdsch_new_ie_flag[5],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x04,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x04,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[6],
+        { &hf_fp_hsdsch_new_ie_flag[6],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x02,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_hsdsch_new_ie_flags[7],
+        { &hf_fp_hsdsch_new_ie_flag[7],
             { "New IE present",
-              "fp.hsdsch.new-ie-flags", FT_UINT8, BASE_DEC, 0, 0x01,
+              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x01,
               "New IE present", HFILL
             }
         },
@@ -2229,7 +2258,8 @@ void proto_register_fp(void)
         &ett_fp_data,
         &ett_fp_crcis,
         &ett_fp_edch_subframe_header,
-        &ett_fp_edch_subframe
+        &ett_fp_edch_subframe,
+        &ett_fp_hsdsch_new_ie_flags
     };
 
     /* Register protocol. */
