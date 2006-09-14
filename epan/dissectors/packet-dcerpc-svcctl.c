@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-svcctl.h"
 #include "packet-dcerpc-nt.h"
@@ -114,19 +115,38 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *mn, *dn;
+
 	/* MachineName */
+	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 		"MachineName", hf_svcctl_machinename, cb_str_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	mn=dcv->private_data;
+	if(!mn)
+		mn="";
 
 	/* DatabaseName */
+	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 		"Database", hf_svcctl_database, cb_str_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
+	dn=dcv->private_data;
+	if(!dn)
+		dn="";
+
+	/* OpenSCManager() stores the server\database  in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data=se_strdup_printf("%s\\%s",mn,dn);
+		}
+	}
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
@@ -156,43 +176,107 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
-	if (status == 0) {
+	if( status == 0 ){
+		char *pol_name;
 
-		/* Associate the returned svcctl with a name */
-
-		if (dcv->private_data) {
-			char *pol_name;
-
-			pol_name = g_strdup_printf(
-				"OpenSCManager(%s)", 
-				(char *)dcv->private_data);
-
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"OpenSCManagerW(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown OpenSCManagerW() handle";
+		}
+		if(!pinfo->fd->flags.visited){
 			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-			g_free(pol_name);
-			g_free(dcv->private_data);
-			dcv->private_data = NULL;
 		}
 
-		/*
-		 * If we have a name for the handle, attach it to the item.
-		 *
-		 * XXX - we can't just do that above, as this may be called
-		 * twice (see "dissect_pipe_dcerpc()", which calls the
-		 * DCE RPC dissector twice), and in the first call we're
-		 * not building a protocol tree (so we don't have an item
-		 * to which to attach it) and in the second call
-		 * "dcv->private_data" is NULL so we don't construct a
-		 * name.
-		 */
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+	}
 
-		if (hnd_item != NULL) {
-			char *name;
+	return offset;
+}
 
-			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
-			    pinfo->fd->num) && name != NULL)
-				proto_item_append_text(hnd_item, ": %s", name);
+static int
+svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  guint8 *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *mn, *dn;
+
+	/* MachineName */
+	dcv->private_data=NULL;
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		"MachineName", hf_svcctl_machinename, cb_wstr_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	mn=dcv->private_data;
+	if(!mn)
+		mn="";
+
+	/* DatabaseName */
+	dcv->private_data=NULL;
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		"Database", hf_svcctl_database, cb_wstr_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
+	dn=dcv->private_data;
+	if(!dn)
+		dn="";
+
+	/* OpenSCManager() stores the server\database  in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data=se_strdup_printf("%s\\%s",mn,dn);
 		}
+	}
+
+	/* access mask */
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
+		&svcctl_scm_access_mask_info, NULL);
+
+	return offset;
+}
+
+static int
+svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  guint8 *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
+		&hnd_item, TRUE, FALSE);
+
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
+
+	if( status == 0 ){
+		char *pol_name;
+
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"OpenSCManagerW(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown OpenSCManagerW() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
+
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
 	return offset;
@@ -473,7 +557,9 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	  NULL, NULL },
 	{ SVC_ENUM_SERVICES_STATUS_W, "EnumServicesStatusW", 
 	  NULL, NULL },
-	{ SVC_OPEN_SC_MANAGER_W, "OpenSCManagerW", NULL, NULL },
+	{ SVC_OPEN_SC_MANAGER_W, "OpenSCManagerW",
+		svcctl_dissect_OpenSCManagerW_rqst,
+		svcctl_dissect_OpenSCManagerW_reply },
 	{ SVC_OPEN_SERVICE_W, "OpenServiceW", NULL, NULL },
 	{ SVC_QUERY_SERVICE_CONFIG_W, "QueryServiceConfigW", NULL, NULL },
 	{ SVC_QUERY_SERVICE_LOCK_STATUS_W, "QueryServiceLockStatusW", 
