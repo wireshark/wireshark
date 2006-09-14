@@ -1,7 +1,7 @@
 /* packet-fp.h
  *
  * Martin Mathieson
- * $Id: packet-rtcp.h 18196 2006-05-21 04:49:01Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

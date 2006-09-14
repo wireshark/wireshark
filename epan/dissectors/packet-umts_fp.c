@@ -2,7 +2,7 @@
  *
  * Martin Mathieson
  *
- * $Id: packet-fp.c 18196 2006-05-21 04:49:01Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
