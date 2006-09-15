@@ -1615,7 +1615,7 @@ The I<Filter:> text entry lets you set a capture filter expression to be
 used when capturing.
 
 If any of the environment variables SSH_CONNECTION, SSH_CLIENT,
-REMOTEHOST, DISPLAY, or CLIENTNAME are set, Wireshark will create a
+REMOTEHOST, DISPLAY, or SESSIONNAME are set, Wireshark will create a
 default capture filter that excludes traffic from the hosts and ports
 defined in those variables.
 

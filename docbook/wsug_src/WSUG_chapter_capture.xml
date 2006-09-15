@@ -998,7 +998,7 @@ tcp port 23 and not host 10.0.0.5
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>CLIENTNAME</command> (terminal server)</term>
+	  <term><command>SESSIONNAME</command> (terminal server)</term>
 	  <listitem>
     <para>	
    	&lt;remote name>
