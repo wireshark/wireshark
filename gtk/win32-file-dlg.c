@@ -162,7 +162,7 @@ win32_open_file (HWND h_wnd) {
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Select a capture file");
+    ofn.lpstrTitle = _T("Wireshark: Open Capture File");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
