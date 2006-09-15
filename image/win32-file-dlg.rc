@@ -24,7 +24,7 @@ FONT 8, "MS Shell Dlg"
     LTEXT "-", EWFD_PTX_PACKETS, 211, 49, 150, 8
     LTEXT "First Packet:", EWFD_PT_FIRST_PKT, 164, 64, 40, 8
     LTEXT "-", EWFD_PTX_FIRST_PKT, 211, 64, 150, 8
-    LTEXT "Elapsed Time:", EWFD_PT_ELAPSED, 164, 79, 40, 8
+    LTEXT "Elapsed:", EWFD_PT_ELAPSED, 164, 79, 40, 8
     LTEXT "-", EWFD_PTX_ELAPSED, 211, 79, 150, 8
 }
 
@@ -79,7 +79,7 @@ FONT 8, "MS Shell Dlg"
     LTEXT "-", EWFD_PTX_PACKETS, 211, 49, 150, 8
     LTEXT "First Packet:", EWFD_PT_FIRST_PKT, 164, 64, 40, 8
     LTEXT "-", EWFD_PTX_FIRST_PKT, 211, 64, 150, 8
-    LTEXT "Elapsed Time:", EWFD_PT_ELAPSED, 164, 79, 40, 8
+    LTEXT "Elapsed:", EWFD_PT_ELAPSED, 164, 79, 40, 8
     LTEXT "-", EWFD_PTX_ELAPSED, 211, 79, 150, 8
 }
 
