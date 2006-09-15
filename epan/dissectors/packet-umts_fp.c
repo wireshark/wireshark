@@ -52,6 +52,7 @@ static int hf_fp_cfn_control = -1;
 static int hf_fp_toa = -1;
 static int hf_fp_tfi = -1;
 static int hf_fp_usch_tfi = -1;
+static int hf_fp_cpch_tfi = -1;
 static int hf_fp_propagation_delay = -1;
 static int hf_fp_tb = -1;
 static int hf_fp_received_sync_ul_timing_deviation = -1;
@@ -101,6 +102,9 @@ static int hf_fp_t1 = -1;
 static int hf_fp_t2 = -1;
 static int hf_fp_t3 = -1;
 static int hf_fp_ul_sir_target = -1;
+static int hf_fp_pusch_set_id = -1;
+static int hf_fp_activation_cfn = -1;
+static int hf_fp_duration = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -254,6 +258,8 @@ static void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tr
                                               tvbuff_t *tvb, int offset);
 static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    int offset, struct _fp_info *p_fp_info);
+static void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
+                                                    tvbuff_t *tvb, int offset);
 
 /* Dissect common channel types */
 static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -266,6 +272,8 @@ static void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                       int offset, struct _fp_info *p_fp_info);
 static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      int offset, struct _fp_info *p_fp_info);
+static void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      int offset, struct _fp_info *p_fp_info);
 static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                           int offset, struct _fp_info *p_fp_info _U_);
 static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -689,6 +697,39 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
 }
 
 
+void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
+                                             tvbuff_t *tvb, int offset)
+{
+    guint8 pusch_set_id;
+    guint8 activation_cfn;
+    guint8 duration;
+
+    /* PUSCH Set Id */
+    pusch_set_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_fp_pusch_set_id, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* Activation CFN */
+    activation_cfn = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_fp_activation_cfn, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* Duration */
+    duration = tvb_get_guint8(tvb, offset) * 10;
+    proto_tree_add_uint(tree, hf_fp_duration, tvb, offset, 1, duration);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        "   PUSCH Set Id=%u  Activation CFN=%u  Duration=%u",
+                        pusch_set_id, activation_cfn, duration);
+    }
+}
+
+
+
+
+
 /* Dissect the control part of a common channel message */
 void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             int offset, struct _fp_info *p_fp_info)
@@ -725,7 +766,7 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
             break;
         case COMMON_DYNAMIC_PUSCH_ASSIGNMENT:
-            /* TODO: */
+            dissect_common_dynamic_pusch_assignment(pinfo, tree, tvb, offset);
             break;
         case COMMON_TIMING_ADVANCE:
             dissect_common_timing_advance(tree, tvb, offset);
@@ -792,7 +833,8 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_FDD)
         {
             /* Propagation delay */
-            proto_tree_add_item(tree, hf_fp_propagation_delay, tvb, offset, 1, FALSE);
+            proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                                tvb_get_guint8(tvb, offset) * 3);
             offset++;
         }
 
@@ -868,8 +910,9 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_tree_add_item(tree, hf_fp_fach_tfi, tvb, offset, 1, FALSE);
         offset++;
 
-        /* Transmit power level. TODO: units are 0.1dB */
-        proto_tree_add_item(tree, hf_fp_transmit_power_level, tvb, offset, 1, FALSE);
+        /* Transmit power level */
+        proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
+                             (float)tvb_get_guint8(tvb, offset) / 10);
         offset++;
 
         /* TB data */
@@ -931,8 +974,9 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
         offset++;
 
-        /* Transmit power level. TODO: units are 0.1dB */
-        proto_tree_add_item(tree, hf_fp_transmit_power_level, tvb, offset, 1, FALSE);
+        /* Transmit power level */
+        proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
+                             tvb_get_guint8(tvb, offset) / 10);
         offset++;
 
         /* TB data */
@@ -1085,6 +1129,68 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
+/**************************/
+/* Dissect a CPCH channel */
+void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                               int offset, struct _fp_info *p_fp_info)
+{
+    gboolean is_control_frame;
+
+    /* Header CRC */
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+
+    /* Frame Type */
+    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    }
+
+    if (is_control_frame)
+    {
+        dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
+    }
+    else
+    {
+        int num_tbs = 0;
+        guint cfn;
+
+        /* DATA */
+
+        /* CFN */
+        cfn = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        offset++;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
+        }
+
+        /* TFI */
+        proto_tree_add_item(tree, hf_fp_cpch_tfi, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* Propagation delay */
+        proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                            tvb_get_guint8(tvb, offset) * 3);
+        offset++;
+
+        /* TB data */
+        offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
+
+        /* CRCIs */
+        offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
+
+        /* Payload CRC */
+        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
+        offset += 2;
+    }
+}
+
 /********************************/
 /* Dissect an IUR DSCH channel  */
 void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1104,7 +1210,6 @@ void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     {
         col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
     }
-
 
     if (is_control_frame)
     {
@@ -1358,7 +1463,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (is_control_frame)
     {
-        /* TODO: will this be seen? */
+        /* TODO: can this happen? */
     }
     else
     {
@@ -1777,10 +1882,11 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_pch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_CPCH:
-            /* TODO */
+            dissect_cpch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+            break;
             break;
         case CHANNEL_BCH:
-            /* TODO */
+            /* TODO? */
             break;
         case CHANNEL_HSDSCH:
             dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
@@ -1875,6 +1981,12 @@ void proto_register_fp(void)
             { "TFI",
               "fp.usch.tfi", FT_UINT8, BASE_DEC, NULL, 0x1f,
               "USCH Transport Format Indicator", HFILL
+            }
+        },
+        { &hf_fp_cpch_tfi,
+            { "TFI",
+              "fp.cpch.tfi", FT_UINT8, BASE_DEC, NULL, 0x1f,
+              "CPCH Transport Format Indicator", HFILL
             }
         },
         { &hf_fp_propagation_delay,
@@ -1987,8 +2099,8 @@ void proto_register_fp(void)
         },
         { &hf_fp_transmit_power_level,
             { "Transmit Power Level",
-              "fp.transmit-power-level", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Transmit Power Level", HFILL
+              "fp.transmit-power-level", FT_FLOAT, BASE_DEC, 0, 0x0,
+              "Transmit Power Level (dB)", HFILL
             }
         },
         { &hf_fp_pdsch_set_id,
@@ -2247,6 +2359,24 @@ void proto_register_fp(void)
             { "UL_SIR_TARGET",
               "fp.ul-sir_target", FT_FLOAT, BASE_DEC, 0, 0x0,
               "Value (in dB) of the SIR target to be used by the UL inner loop power control", HFILL
+            }
+        },
+        { &hf_fp_pusch_set_id,
+            { "PUSCH Set Id",
+              "fp.pusch-set-id", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Identifies PUSCH Set from those configured in NodeB", HFILL
+            }
+        },
+        { &hf_fp_activation_cfn,
+            { "Activation CFN",
+              "fp.activation-cfn", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Activation Connection Frame Number", HFILL
+            }
+        },
+        { &hf_fp_duration,
+            { "Duration (ms)",
+              "fp.pusch-set-id", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Duration of the activation period of the PUSCH Set", HFILL
             }
         },
 
