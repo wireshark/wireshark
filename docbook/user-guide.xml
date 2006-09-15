@@ -148,8 +148,6 @@ FILE SECTION
   <!ENTITY WiresharkStatusbarEmpty SYSTEM "./wsug_graphics/ws-statusbar-empty.png" NDATA PNG>
   <!ENTITY WiresharkStatusbarLoaded SYSTEM "./wsug_graphics/ws-statusbar-loaded.png" NDATA PNG>
   <!ENTITY WiresharkStatusbarSelected SYSTEM "./wsug_graphics/ws-statusbar-selected.png" NDATA PNG>
-  <!ENTITY WiresharkSaveAs SYSTEM "./wsug_graphics/ws-save-as.png" NDATA PNG>
-  <!ENTITY WiresharkOpen SYSTEM "./wsug_graphics/ws-open.png" NDATA PNG> 
   <!ENTITY WiresharkPacketSelected1 SYSTEM "./wsug_graphics/ws-packet-selected.png" NDATA PNG>
   <!ENTITY WiresharkPacketSepView SYSTEM "./wsug_graphics/ws-packet-sep-win.png" NDATA PNG>
   <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ws-display-filter-tcp.png" NDATA PNG>  
@@ -160,7 +158,6 @@ FILE SECTION
   <!ENTITY WiresharkFollowStream SYSTEM "./wsug_graphics/ws-follow-stream.png" NDATA PNG>
   <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>  
   <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ws-goto-packet.png" NDATA PNG>  
-  <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ws-print.png" NDATA PNG>
   <!ENTITY WiresharkGUIPreferences SYSTEM "./wsug_graphics/ws-gui-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUILayoutPreferences SYSTEM "./wsug_graphics/ws-gui-layout-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIColumnsPreferences SYSTEM "./wsug_graphics/ws-gui-columns-preferences.png" NDATA PNG>
@@ -183,22 +180,13 @@ FILE SECTION
   <!ENTITY WiresharkBytesPanePopupMenu SYSTEM "./wsug_graphics/ws-bytes-pane-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkFilterAddExpression SYSTEM "./wsug_graphics/ws-filter-add-expression.png" NDATA PNG>
   <!ENTITY WiresharkFilters2 SYSTEM "./wsug_graphics/ws-filters-2.png" NDATA PNG>
-  <!ENTITY WiresharkExportPlainDialog SYSTEM "./wsug_graphics/ws-export-plain.png" NDATA PNG>
-  <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ws-export-ps.png" NDATA PNG>
-  <!ENTITY WiresharkExportPSMLDialog SYSTEM "./wsug_graphics/ws-export-psml.png" NDATA PNG>
-  <!ENTITY WiresharkExportPDMLDialog SYSTEM "./wsug_graphics/ws-export-pdml.png" NDATA PNG>
-  <!ENTITY WiresharkExportSelectedDialog SYSTEM "./wsug_graphics/ws-export-selected.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
   <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
-  <!ENTITY WiresharkMergeDialog SYSTEM "./wsug_graphics/ws-merge.png" NDATA PNG>
-  <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ws-packet-range.png" NDATA PNG>
-  <!ENTITY WiresharkPacketFormatFrame SYSTEM "./wsug_graphics/ws-packet-format.png" NDATA PNG>
   <!ENTITY WiresharkTimeReference SYSTEM "./wsug_graphics/ws-time-reference.png" NDATA PNG>
   <!ENTITY WiresharkEnabledProtocols SYSTEM "./wsug_graphics/ws-enabled-protocols.png" NDATA PNG>
   <!ENTITY WiresharkDecodeAs SYSTEM "./wsug_graphics/ws-decode-as.png" NDATA PNG>
   <!ENTITY WiresharkDecodeAsShow SYSTEM "./wsug_graphics/ws-decode-as-show.png" NDATA PNG>
-  <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ws-file-set-dialog.png" NDATA PNG>
 
   <!-- Third Chapter Toolbar-->
   <!ENTITY WiresharkToolbarCaptureInterfaces SYSTEM "./wsug_graphics/toolbar/capture_interfaces_24.png" NDATA PNG>
@@ -245,6 +233,24 @@ FILE SECTION
   <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 
   <!-- Fifth Chapter -->
+  <!ENTITY WiresharkOpenDialog1 SYSTEM "./wsug_graphics/ws-open-gtk1.png" NDATA PNG> 
+  <!ENTITY WiresharkSaveAsDialog1 SYSTEM "./wsug_graphics/ws-save-as-gtk1.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialog1 SYSTEM "./wsug_graphics/ws-merge-gtk1.png" NDATA PNG>
+  <!ENTITY WiresharkOpenDialog2 SYSTEM "./wsug_graphics/ws-open-gtk2.png" NDATA PNG> 
+  <!ENTITY WiresharkSaveAsDialog2 SYSTEM "./wsug_graphics/ws-save-as-gtk2.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialog2 SYSTEM "./wsug_graphics/ws-merge-gtk2.png" NDATA PNG>
+  <!ENTITY WiresharkOpenDialogWin32 SYSTEM "./wsug_graphics/ws-open-win32.png" NDATA PNG> 
+  <!ENTITY WiresharkSaveAsDialogWin32 SYSTEM "./wsug_graphics/ws-save-as-win32.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialogWin32 SYSTEM "./wsug_graphics/ws-merge-win32.png" NDATA PNG>
+  <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ws-file-set-dialog.png" NDATA PNG>
+  <!ENTITY WiresharkExportPlainDialog SYSTEM "./wsug_graphics/ws-export-plain.png" NDATA PNG>
+  <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ws-export-ps.png" NDATA PNG>
+  <!ENTITY WiresharkExportPSMLDialog SYSTEM "./wsug_graphics/ws-export-psml.png" NDATA PNG>
+  <!ENTITY WiresharkExportPDMLDialog SYSTEM "./wsug_graphics/ws-export-pdml.png" NDATA PNG>
+  <!ENTITY WiresharkExportSelectedDialog SYSTEM "./wsug_graphics/ws-export-selected.png" NDATA PNG>
+  <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ws-print.png" NDATA PNG>
+  <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ws-packet-range.png" NDATA PNG>
+  <!ENTITY WiresharkPacketFormatFrame SYSTEM "./wsug_graphics/ws-packet-format.png" NDATA PNG>
 
   <!-- Sixth Chapter -->
 
@@ -297,9 +303,7 @@ FILE SECTION
   &AppProtocols;
   &AppMessages;  
   &AppTools;
-  <!--
-  -->
-  
+
   &AppGPL;
   <!-- 
   Removed, as these chapters must be reworked

@@ -117,9 +117,13 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-list-pane.png			\
 	wsug_graphics/ws-main-toolbar.png		\
 	wsug_graphics/ws-menu.png			\
-	wsug_graphics/ws-merge.png			\
+	wsug_graphics/ws-merge-gtk1.png			\
+	wsug_graphics/ws-merge-gtk2.png			\
+	wsug_graphics/ws-merge-win32.png		\
 	wsug_graphics/ws-nameresolution-preferences.png	\
-	wsug_graphics/ws-open.png			\
+	wsug_graphics/ws-open-gtk1.png			\
+	wsug_graphics/ws-open-gtk2.png			\
+	wsug_graphics/ws-open-win32.png			\
 	wsug_graphics/ws-packet-format.png		\
 	wsug_graphics/ws-packet-pane-popup-menu.png	\
 	wsug_graphics/ws-packet-range.png		\
@@ -127,7 +131,9 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-packet-sep-win.png		\
 	wsug_graphics/ws-print.png			\
 	wsug_graphics/ws-printing-preferences.png	\
-	wsug_graphics/ws-save-as.png			\
+	wsug_graphics/ws-save-as-gtk1.png		\
+	wsug_graphics/ws-save-as-gtk2.png		\
+	wsug_graphics/ws-save-as-win32.png		\
 	wsug_graphics/ws-statistics-menu.png		\
 	wsug_graphics/ws-stats-conversations.png	\
 	wsug_graphics/ws-stats-endpoints.png		\
@@ -407,7 +413,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
 	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
 
-# create txt single page file
+# create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
 	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(HTML2TXT) > $@

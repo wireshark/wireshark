@@ -42,14 +42,14 @@
       Open dialog box, which is discussed in more detail in 
       <xref linkend="ChIOOpen"/>. 
     </para>
-	<note><title>Note!</title>
+	<tip><title>It's convenient to use drag-and-drop!</title>
     <para>
-	You can also use <command>drag-and-drop </command> to open a file, by 
-	simply dropping the desired file from your file manager onto Wireshark's 
-	main window. However, drag-and-drop is not available/won't work in all 
-	desktop environments.
+	... to open a file, by simply dragging the desired file from your file 
+	manager and dropping it onto Wireshark's main window. 
+	However, drag-and-drop is not available/won't work in all desktop 
+	environments.
     </para>
-    </note>
+    </tip>
     <para>
 	  If you didn't save the current capture file before, you will be asked 
 	  to do so, to prevent data loss (this behaviour can be disabled in the 
@@ -71,70 +71,26 @@
 	  of the Wireshark Open File Dialog box.
       </para>
 	    <note>
-	      <title>Note</title>
+	      <title>The dialog appearance depends on your system!</title>
 	      <para>
-		  Wireshark uses the open dialog box from the version of the GTK+ 
-		  toolkit that it's using. This dialog was completely redesigned in 
-		  GTK version 2.4. Depending on the installed GTK version, 
-		  your dialog box might look different. However, as the 
-		  functionality remains almost the same, much of this description 
-		  will work with your version of Wireshark.
+		  The appearance of this dialog depends on the system and GTK+ toolkit 
+		  version used. However, the functionality remains basically the same 
+		  on either system.
 	      </para>
 	    </note>
-      <figure id="ChIOOpenFileDialog">
-	<title>The "Open Capture File" Dialog box</title>
-	<graphic entityref="WiresharkOpen" format="PNG"/>
-      </figure>
-      <para>
-	With this dialog box, you can perform the following actions:
-	<orderedlist>
+		
+	<para>
+	<command>Common dialog behaviour</command> on all systems:
+	</para>
+	<itemizedlist>
 	  <listitem>
 	    <para>
-		The "+ Add" button allows you to add a directory, selected in the 
-		right-hand pane, to the favorites (bookmarks?) list. Those changes 
-		are persistent.
+	      Select files and directories.
 	    </para>
 	  </listitem>
 	  <listitem>
 	    <para>
-		The "- Remove" button allows you to remove a selected directory from 
-		that list again (the items like: "Home", "Desktop", and "Filesystem" 
-		cannot be removed).
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Select files and directories with the list boxes.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      View file preview information (like the filesize, the number of 
-		  packets, ...), while browsing the filesystem.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Specify a display filter with the Filter button and filter 
-	      field. This filter will be used when opening the new file.
-		  Clicking on the Filter button causes Wireshark to pop up 
-	      the Filters dialog box (which is discussed further in 
-	      <xref linkend="ChWorkDisplayFilterSection"/>).
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Specify which name resolution is to be performed for all packets by 
-		  clicking on one of the "Enable name resolution" check buttons. 
-		  Details about name resolution can be found in 
-		  <xref linkend="ChAdvNameResolutionSection"/>.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Click the Open button to accept your selected file and open it. 
-		  If Wireshark doesn't recognize the capture format, it will grey out 
-		  this button.
+	      Click the Open/Ok button to accept your selected file and open it. 
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -143,12 +99,169 @@
 	      file.
 	    </para>
 	  </listitem>
-	</orderedlist>
-	You can also change the display filter and name resolution settings later while 
-	viewing the packets. However, for very large capture files it can take a 
-	significant amount of extra time changing these settings later, so it 
-	might be a good idea to set at least the filter in advance here.
+	</itemizedlist>
+
+      <para>
+	<command>Wireshark extensions</command> to the standard behaviour of 
+	these dialogs:
       </para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      View file preview information (like the filesize, the number of 
+		  packets, ...), if you've selected a capture file.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Specify a display filter with the "Filter:" button and filter 
+	      field. This filter will be used when opening the new file. 
+		  The text field background becomes green for a valid filter string 
+		  and red for an invalid one.
+		  Clicking on the Filter button causes Wireshark to pop up 
+	      the Filters dialog box (which is discussed further in 
+	      <xref linkend="ChWorkDisplayFilterSection"/>).
+	    </para>
+	    <para>
+		  XXX - we need a better description of these read filters
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Specify which name resolution is to be performed for all packets by 
+		  clicking on one of the "... name resolution" check buttons. 
+		  Details about name resolution can be found in 
+		  <xref linkend="ChAdvNameResolutionSection"/>.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+
+	<tip><title>Save a lot of time on huge capture files!</title>
+    <para>
+	You can change the display filter and name resolution settings later 
+	while viewing the packets. 
+	However, for huge capture files it can take a significant amount of 
+	extra time changing these settings later, so in such situations it can 
+	be a good idea to set at least the filter in advance here.
+    </para>
+    </tip>
+	
+	<!-- frame="none" -->
+    <table id="ChIOOpenFileTab">
+	<title>The system specific "Open Capture File" dialog box</title>
+      <tgroup cols="2">
+	    <tbody>
+		<row>
+		<entry valign="top">
+      <figure id="ChIOOpenFileDialogWin32">
+	<title>"Open" on native Windows</title>
+	<graphic entityref="WiresharkOpenDialogWin32" format="PNG"/>
+      </figure>
+		</entry>
+		<entry valign="top">
+		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+      <para>
+		This is the common Windows file open dialog - 
+		plus some Wireshark extensions.
+      </para>
+	    <para>
+		Specific for this dialog:
+      </para>
+	<itemizedlist>
+	<listitem>
+	    <para>
+	      If available, the "Help" button will lead you to this section of 
+		  this "User's Guide".
+	    </para>
+	</listitem>
+	<listitem>
+	    <para>
+ 		  XXX -  the "Filter:" button currently doesn't work on Windows!
+	    </para>
+	</listitem>
+	<listitem>
+	    <para>
+		  XXX - missing feature:
+		  If Wireshark doesn't recognize the selected file as a capture file, 
+		  it should grey out the "Open" button.		  
+	    </para>
+	</listitem>
+	</itemizedlist>
+		</entry>
+	      </row>
+		<row>
+		<entry valign="top">
+      <figure id="ChIOOpenFileDialog">
+	<title>"Open" new GTK version</title>
+	<graphic entityref="WiresharkOpenDialog2" format="PNG"/>
+      </figure>
+	  </entry>
+	  <entry valign="top">
+      <para><command>Unix/Linux: GTK version >= 2.4</command></para>
+      <para>
+		This is the common Gimp/GNOME file open dialog - 
+		plus some Wireshark extensions.
+      </para>
+	    <para>
+		Specific for this dialog:
+      </para>
+	<itemizedlist>
+	<listitem>
+	    <para>
+		The "+ Add" button allows you to add a directory, selected in the 
+		right-hand pane, to the favorites list on the left. Those changes 
+		are persistent.
+	    </para>
+	</listitem>
+	<listitem>
+	    <para>
+		The "- Remove" button allows you to remove a selected directory from 
+		that list again (the items like: "Home", "Desktop", and "Filesystem" 
+		cannot be removed).
+	    </para>
+	</listitem>
+	<listitem>
+	    <para>
+		  If Wireshark doesn't recognize the selected file as a capture file, 
+		  it will grey out the "Open" button.
+	    </para>
+	</listitem>
+	</itemizedlist>
+	  </entry>
+		</row>
+	      <row>
+		<entry valign="top">
+      <figure id="ChIOOpenFileDialog1">
+	<title align="center">"Open" old GTK version</title>
+	<graphic entityref="WiresharkOpenDialog1" format="PNG"/>
+      </figure>
+		</entry>
+	  <entry valign="top">
+	    <para>
+		<command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows (GTK1 
+		installed)</command></para>
+		<para>
+		  This is the file open dialog of former Gimp/GNOME versions - 
+		  plus some Wireshark extensions.
+		</para>
+	    <para>
+		Specific for this dialog:
+      </para>
+	<itemizedlist>
+	<listitem>
+	    <para>
+		  If Wireshark doesn't recognize the selected file as a capture file, 
+		  it will grey out the "Ok" button.
+	    </para>
+	</listitem>
+	</itemizedlist>
+		</entry>
+		</row>
+	    </tbody>
+      </tgroup>
+    </table>
+		
+		
     </section>
 
   <section id="ChIOInputFormatsSection">
@@ -186,7 +299,7 @@
 		  <listitem><para>Catapult DCT2000 .out files</para></listitem>
 	</itemizedlist>
     </para>
-    <note><title>Note!</title>
+    <note><title>Open a file may fail due to invalid packet types!</title>
 	<para>
 	It may not be possible to read some formats dependent on the packet types 
 	captured. Ethernet captures are usually supported for most file formats, 
@@ -234,7 +347,7 @@
 	    </note>
       <figure id="ChIOSaveCaptureFileAs">
 	<title>The "Save Capture File As" dialog box</title>
-	<graphic entityref="WiresharkSaveAs" format="PNG"/>
+	<graphic entityref="WiresharkSaveAsDialog2" format="PNG"/>
       </figure>
       <para>
 	With this dialog box, you can perform the following actions:
@@ -385,7 +498,7 @@
 	</note>
 	<figure id="ChIOMergeDialog">
       <title>The "Merge with Capture File" dialog box</title>
-      <graphic entityref="WiresharkMergeDialog" format="PNG"/>
+      <graphic entityref="WiresharkMergeDialog2" format="PNG"/>
     </figure>
 	<variablelist>
 	<varlistentry>
