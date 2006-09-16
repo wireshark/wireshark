@@ -305,8 +305,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		/* this octet string contains an NT SID */
 		sid_tvb=tvb_new_subset(tvb, offset, len, len);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
-		ldapvalue_string=ep_strdup(tmpstr);
-		g_free(tmpstr);
+		ldapvalue_string=tmpstr;
 
 		goto finished;
 	} else if ( (len==16) /* GUIDs are always 16 bytes */
@@ -1273,8 +1272,7 @@ dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* this octet string contains an NT SID */
 	dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
-	ldapvalue_string=ep_strdup(tmpstr);
-	g_free(tmpstr);
+	ldapvalue_string=tmpstr;
 }
 
 static void

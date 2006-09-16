@@ -457,8 +457,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		/* this octet string contains an NT SID */
 		sid_tvb=tvb_new_subset(tvb, offset, len, len);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
-		ldapvalue_string=ep_strdup(tmpstr);
-		g_free(tmpstr);
+		ldapvalue_string=tmpstr;
 
 		goto finished;
 	} else if ( (len==16) /* GUIDs are always 16 bytes */
@@ -2774,7 +2773,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 539 "packet-ldap-template.c"
+#line 538 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3512,8 +3511,7 @@ dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* this octet string contains an NT SID */
 	dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
-	ldapvalue_string=ep_strdup(tmpstr);
-	g_free(tmpstr);
+	ldapvalue_string=tmpstr;
 }
 
 static void
@@ -4224,7 +4222,7 @@ void proto_register_ldap(void) {
         "ldap.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1596 "packet-ldap-template.c"
+#line 1594 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4277,7 +4275,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1607 "packet-ldap-template.c"
+#line 1605 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
