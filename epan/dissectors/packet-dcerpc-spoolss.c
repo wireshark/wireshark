@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
@@ -528,7 +529,7 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, hf_time_msec, &millisecond);
 
-	str = g_strdup_printf("%d/%02d/%02d %02d:%02d:%02d.%03d", 
+	str = ep_strdup_printf("%d/%02d/%02d %02d:%02d:%02d.%03d", 
 			      year, month, day, hour, minute, second,
 			      millisecond);
 
@@ -537,8 +538,6 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (data)
 		*data = str;
-	else
-		g_free(str);
 
 	return offset;
 }
@@ -551,9 +550,9 @@ dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *str;
 
+
 	offset =  dissect_SYSTEM_TIME(
 		tvb, offset, pinfo, tree, drep, NULL, FALSE, &str);
-
 	dcv->private_data = str;
 
 	return offset;
@@ -704,13 +703,19 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
-	value_name = dcv->private_data;
 
+	value_name=NULL;
  	offset = dissect_ndr_cvstring(
  		tvb, offset, pinfo, tree, drep, sizeof(guint16),
  		hf_printerdata_value, TRUE, value_name ? NULL : &value_name);
-
-	dcv->private_data = value_name;
+	/* GetPrinterData() stores the printerdata in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			if(value_name){
+				dcv->se_data = se_strdup(value_name);
+			}
+		}
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -738,7 +743,7 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 				    hf_printerdata_type, &type);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *data = dcv->private_data ? dcv->private_data : "????";
+		const char *data = dcv->se_data ? dcv->se_data : "????";
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
@@ -776,38 +781,28 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
+	key_name=NULL;
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_key, TRUE, &key_name);
 
-	/*
-	 * Register a cleanup function in case on of our tvbuff accesses
-	 * throws an exception. We need to clean up key_name.
-	 */
-	CLEANUP_PUSH(g_free, key_name);
-
+	value_name=NULL;
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
-				key_name, value_name);
+	/* GetPrinterDataEx() stores the key/value in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s==%s",
+				key_name?key_name:"",
+				value_name?value_name:"");
+		}
+	}
 
-	if (!dcv->private_data)
-		dcv->private_data = g_strdup_printf(
-			"%s/%s", key_name, value_name);
-
-	/*
-	 * We're done with key_name, so we can call the cleanup handler to
-	 * free it, and then pop the cleanup handler.
-	 */
-	CLEANUP_CALL_AND_POP;
-
-	/*
-	 * We're also done with value_name.
-	 */
-	g_free(value_name);
+	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				(char *)dcv->se_data);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
@@ -834,10 +829,8 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_returned, &size);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *data = dcv->private_data ? dcv->private_data : "????";
-
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
+	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (char *)dcv->se_data);
 	}
 
 	if (size)
@@ -862,7 +855,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   guint8 *drep _U_)
 {
-	char *value_name = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *value_name;
 	guint32 type;
 
 	proto_tree_add_uint_hidden(
@@ -874,14 +869,23 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
+	value_name=NULL;
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
+	/* GetPrinterDataEx() stores the key/value in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s",
+				value_name?value_name:"");
+		}
+	}
 
-	g_free(value_name);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data){
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (char *)dcv->se_data);
+	}
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_printerdata_type, &type);
@@ -2504,11 +2508,21 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
+	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Printer name", hf_printername, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	name = dcv->private_data;
+
+	/* OpenPrinterEx() stores the key/value in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s",
+				name?name:"");
+		}
+	}
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -2517,12 +2531,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, drep);
 
-	/* Luckily we can use the string stored in dcv->private_data as it
-           appears before the printer datatype since we are at the top
-           level. */
-
-	name = (char *)dcv->private_data;
-
+	name=dcv->se_data;
 	if (name) {
 		if (name[0] == '\\' && name[1] == '\\')
 			name += 2;
@@ -2572,43 +2581,21 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
-	if (status == 0) {
+	if( status == 0 ){
+		char *pol_name;
 
-		/* Associate the returned printer handle with a name */
-
-		if (dcv->private_data) {
-			char *pol_name;
-
-			pol_name = g_strdup_printf(
-				"OpenPrinterEx(%s)", 
-				(char *)dcv->private_data);
-
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"OpenPrinterEx(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown OpenPrinterEx() handle";
+		}
+		if(!pinfo->fd->flags.visited){
 			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-			g_free(pol_name);
-			g_free(dcv->private_data);
-			dcv->private_data = NULL;
 		}
 
-		/*
-		 * If we have a name for the handle, attach it to the item.
-		 *
-		 * XXX - we can't just do that above, as this may be called
-		 * twice (see "dissect_pipe_dcerpc()", which calls the
-		 * DCE RPC dissector twice), and in the first call we're
-		 * not building a protocol tree (so we don't have an item
-		 * to which to attach it) and in the second call
-		 * "dcv->private_data" is NULL so we don't construct a
-		 * name.
-		 */
-
-		if (hnd_item != NULL) {
-			char *name;
-
-			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
-			    pinfo->fd->num) && name != NULL)
-				proto_item_append_text(hnd_item, ": %s", name);
-		}
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
 	return offset;
@@ -3162,21 +3149,24 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 printerlocal;
-	char *name = NULL;
+	char *name;
 
 	/* Parse packet */
-
+	name=NULL;
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_servername, TRUE, &name);
+	/* ReplyOpenPrinter() stores the printername in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			if(name){
+				dcv->se_data = se_strdup(name);
+			}
+		}
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO) && name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
-
-	if (!dcv->private_data && name)
-		dcv->private_data = name;
-	else
-		g_free(name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_printerlocal, 
@@ -3215,43 +3205,21 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
-	if (status == 0) {
+	if( status == 0 ){
+		char *pol_name;
 
-		/* Associate the returned printer handle with a name */
-
-		if (dcv->private_data) {
-			char *pol_name;
-
-			pol_name = g_strdup_printf(
-				"OpenPrinter(%s)",
-				(char *)dcv->private_data);
-
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"ReplyOpenPrinter(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown ReplyOpenPrinter() handle";
+		}
+		if(!pinfo->fd->flags.visited){
 			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-			g_free(pol_name);
-			g_free(dcv->private_data);
-			dcv->private_data = NULL;
 		}
 
-		/*
-		 * If we have a name for the handle, attach it to the item.
-		 *
-		 * XXX - we can't just do that above, as this may be called
-		 * twice (see "dissect_pipe_dcerpc()", which calls the
-		 * DCE RPC dissector twice), and in the first call we're
-		 * not building a protocol tree (so we don't have an item
-		 * to which to attach it) and in the second call
-		 * "dcv->private_data" is NULL so we don't construct a
-		 * name.
-		 */
-
-		if (hnd_item != NULL) {
-			char *name;
-
-			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
-			    pinfo->fd->num) && name != NULL)
-				proto_item_append_text(hnd_item, ": %s", name);
-		}
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
 	return offset;
@@ -3260,7 +3228,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 /*
  * SpoolssGetPrinter
  */
-
 
 
 static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3279,10 +3246,14 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
+	/* GetPrinter() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GINT_TO_POINTER((int)level);
+	}
+
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
-
-	dcv->private_data = GUINT_TO_POINTER(level);
 
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, NULL);
@@ -3301,7 +3272,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	gint16 level = GPOINTER_TO_INT(dcv->private_data);
+	gint16 level = GPOINTER_TO_INT(dcv->se_data);
 	proto_item *item;
 	proto_tree *subtree = NULL;
 
@@ -3627,7 +3598,10 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* EnumForms() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -3647,7 +3621,7 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	guint32 level = GPOINTER_TO_UINT(dcv->private_data), i, count;
+	guint32 level = GPOINTER_TO_UINT(dcv->se_data), i, count;
 	int buffer_offset;
 
 	proto_tree_add_uint_hidden(
@@ -3739,43 +3713,21 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
-	if (status == 0) {
+	if( status == 0 ){
+		char *pol_name;
 
-		/* Associate the returned printer handle with a name */
-
-		if (dcv->private_data) {
-
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO, ", %s",
-					(char *)dcv->private_data);
-
-			dcerpc_smb_store_pol_name(
-				&policy_hnd, pinfo, dcv->private_data);
-
-			g_free(dcv->private_data);
-			dcv->private_data = NULL;
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"AddPrinterEx(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown AddPrinterEx() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 		}
 
-		/*
-		 * If we have a name for the handle, attach it to the item.
-		 *
-		 * XXX - we can't just do that above, as this may be called
-		 * twice (see "dissect_pipe_dcerpc()", which calls the
-		 * DCE RPC dissector twice), and in the first call we're
-		 * not building a protocol tree (so we don't have an item
-		 * to which to attach it) and in the second call
-		 * "dcv->private_data" is NULL so we don't construct a
-		 * name.
-		 */
-
-		if (hnd_item != NULL) {
-			char *name;
-
-			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
-			    pinfo->fd->num) && name != NULL)
-				proto_item_append_text(hnd_item, ": %s", name);
-		}
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
 	return offset;
@@ -3995,26 +3947,6 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*
  * AddPrinterDriver
  */
-#if 0
-static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
-				     packet_info *pinfo, proto_tree *tree,
-				     guint8 *drep)
-{
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Parse packet */
-
-	offset = dissect_ndr_str_pointer_item(
-		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Server", hf_servername, 0);
-
-	offset = dissect_spoolss_DRIVER_INFO_CTR(
-		tvb, offset, pinfo, tree, drep);
-
-	return offset;
-}
-#endif
 static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     guint8 *drep _U_)
@@ -4151,9 +4083,10 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	/* Store info level to match with reply packet */
-
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* AddForm() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -4302,7 +4235,10 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* GetForm() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
@@ -4322,7 +4258,7 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	guint32 level = GPOINTER_TO_UINT(dcv->private_data);
+	guint32 level = GPOINTER_TO_UINT(dcv->se_data);
 
 	proto_tree_add_uint_hidden(
 		tree, hf_form, tvb, offset, 0, 1);
@@ -4364,6 +4300,7 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+
 
 /* A generic reply function that just parses the status code.  Useful for
    unimplemented dissectors so the status code can be inserted into the
@@ -4601,7 +4538,10 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* EnumJobs() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -4619,7 +4559,7 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	gint16 level = GPOINTER_TO_UINT(dcv->private_data);
+	gint16 level = GPOINTER_TO_UINT(dcv->se_data);
 	BUFFER buffer;
 	guint32 num_jobs, i;
 	int buffer_offset;
@@ -4743,7 +4683,10 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* GetJob() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d, jobid %d",
@@ -4762,7 +4705,7 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	gint32 level = GPOINTER_TO_UINT(dcv->private_data);
+	gint32 level = GPOINTER_TO_UINT(dcv->se_data);
 	BUFFER buffer;
 
 	/* Parse packet */
@@ -5313,7 +5256,10 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* EnumPrinterDrivers() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -5332,7 +5278,7 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 level = GPOINTER_TO_UINT(dcv->private_data), num_drivers, i;
+	guint32 level = GPOINTER_TO_UINT(dcv->se_data), num_drivers, i;
 	int buffer_offset;
 	BUFFER buffer;
 
@@ -5411,7 +5357,10 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = GUINT_TO_POINTER(level);
+	/* GetPrinterDriver2() stores the level in se_data */
+	if(!pinfo->fd->flags.visited){
+			dcv->se_data = GUINT_TO_POINTER((int)level);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -5436,7 +5385,7 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 level = GPOINTER_TO_UINT(dcv->private_data);
+	guint32 level = GPOINTER_TO_UINT(dcv->se_data);
 	BUFFER buffer;
 
 	/* Parse packet */
@@ -6500,41 +6449,6 @@ static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-
-#if 0
-
-/* Templates for new subdissectors */
-
-/*
- * FOO
- */
-
-static int SpoolssFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, guint8 *drep)
-{
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Parse packet */
-
-	return offset;
-}
-
-static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, guint8 *drep)
-{
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Parse packet */
-
-	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	return offset;
-}
-
-#endif
 
 /*
  * List of subdissectors for this pipe.
