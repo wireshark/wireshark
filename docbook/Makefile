@@ -34,10 +34,11 @@ HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
-HTML2TXT=elinks -dump -dump-width 72
+# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
+#HTML2TXT=elinks -dump -dump-width 72
 #HTML2TXT=links -dump -width 72
-#HTML2TXT=lynx -dump -width=72 -nolist
-#HTML2TXT=true
+HTML2TXT=lynx -dump -width=72 -nolist -stdin
+#HTML2TXT="true"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
