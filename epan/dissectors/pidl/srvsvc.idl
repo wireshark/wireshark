@@ -10,10 +10,12 @@
   pointer_default(unique),
   pointer_default_top(unique),
   helpstring("Server Service"),
-  depends(security,svcctl)
+  depends(security,svcctl),
+  keepref
 ] interface srvsvc
 {
 	declare bitmap svcctl_ServerType;
+	declare bitmap security_secinfo;
 
 /**************************/
 /* srvsvc_NetCharDev      */
@@ -453,6 +455,7 @@
 		uint32 current_users;
 		[string,charset(UTF16)] uint16 *path;
 		[string,charset(UTF16)] uint16 *password;
+		/* maybe here is a struct sec_desc_buf following */
 		uint32 unknown;
 		[subcontext(4)] security_descriptor *sd;
 	} srvsvc_NetShareInfo502;
@@ -500,13 +503,8 @@
 	} srvsvc_NetShareCtr1007;
 
 	typedef struct {
-		uint32 reserved;
-		[subcontext(4)] security_descriptor *sd;
-	} srvsvc_NetShareInfo1501;
-
-	typedef struct {
 		uint32 count;
-		[size_is(count)] srvsvc_NetShareInfo1501 *array;
+		[size_is(count)] sec_desc_buf *array;
 	} srvsvc_NetShareCtr1501;
 
 	typedef union {
@@ -519,7 +517,7 @@
 		[case(1005)] srvsvc_NetShareInfo1005 *info1005;
 		[case(1006)] srvsvc_NetShareInfo1006 *info1006;
 		[case(1007)] srvsvc_NetShareInfo1007 *info1007;
-		[case(1501)] srvsvc_NetShareInfo1501 *info1501;
+		[case(1501)] sec_desc_buf *info1501;
 		[default] ;
 	} srvsvc_NetShareInfo;
 
@@ -603,7 +601,7 @@
 /**************************/
 /* srvsvc_NetSrv          */
 /**************************/
-	typedef [public] enum {
+	typedef [public,v1_enum] enum {
 		PLATFORM_ID_DOS = 300,
 		PLATFORM_ID_OS2 = 400,
 		PLATFORM_ID_NT	= 500,
@@ -628,8 +626,8 @@
 	typedef struct {
 		srvsvc_PlatformId platform_id;
 		[string,charset(UTF16)] uint16 *server_name;
-		uint32 ver_major;
-		uint32 ver_minor;
+		uint32 version_major;
+		uint32 version_minor;
 		svcctl_ServerType server_type;
 		[string,charset(UTF16)] uint16 *comment;
 		uint32 users;
@@ -637,7 +635,7 @@
 		uint32 hidden;
 		uint32 announce;
 		uint32 anndelta;
-		uint32 licences;
+		uint32 licenses;
 		[string,charset(UTF16)] uint16 *userpath;
 	} srvsvc_NetSrvInfo102;
 
@@ -1123,12 +1121,12 @@
 /* srvsvc_NetDisk         */
 /**************************/
 	typedef struct {
-		[string,charset(UTF16)] uint16 *disc;
+		[flag(STR_LEN4)] string disk;
 	} srvsvc_NetDiskInfo0;
 
 	typedef struct {
 		uint32 count;
-		[size_is(count), length_is(count)] srvsvc_NetDiskInfo0 *discs;
+		[size_is(count), length_is(count)] srvsvc_NetDiskInfo0 *disks;
 	} srvsvc_NetDiskInfo;
 
 	/******************/
@@ -1136,7 +1134,7 @@
 	WERROR srvsvc_NetDiskEnum(
 		[in]      [string,charset(UTF16)] uint16 *server_unc,
 		[in]      uint32 level,
-		[in,out]  srvsvc_NetDiskInfo disks,
+		[in,out]  srvsvc_NetDiskInfo info,
 		[in]      uint32 maxlen,
 		[out]     uint32 totalentries,
 		[in,out]  uint32 *resume_handle
@@ -1181,7 +1179,7 @@
 	typedef struct {
 		uint32 vcs;
 		[string,charset(UTF16)] uint16 *name;
-		[size_is(addr_len)] char *addr;
+		[size_is(addr_len)] uint8 *addr;
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 	} srvsvc_NetTransportInfo0;
@@ -1202,7 +1200,7 @@
 	typedef struct {
 		uint32 vcs;
 		[string,charset(UTF16)] uint16 *name;
-		[size_is(addr_len)] char *addr;
+		[size_is(addr_len)] uint8 *addr;
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 		[string,charset(UTF16)] uint16 *domain;
@@ -1216,7 +1214,7 @@
 	typedef struct {
 		uint32 vcs;
 		[string,charset(UTF16)] uint16 *name;
-		[size_is(addr_len)] char *addr;
+		[size_is(addr_len)] uint8 *addr;
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 		[string,charset(UTF16)] uint16 *domain;
@@ -1231,13 +1229,13 @@
 	typedef struct {
 		uint32 vcs;
 		[string,charset(UTF16)] uint16 *name;
-		[size_is(addr_len)] char *addr;
+		[size_is(addr_len)] uint8 *addr;
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 		[string,charset(UTF16)] uint16 *domain;
 		uint32 unknown1;
 		uint32 unknown2;
-		[size_is(256)] char unknown3[256];
+		uint8 unknown3[256];
 	} srvsvc_NetTransportInfo3;
 
 	typedef struct {
@@ -1326,7 +1324,7 @@
 	WERROR srvsvc_NetPathCanonicalize(
 		[in]   [string,charset(UTF16)] uint16 *server_unc,
 		[in]   [string,charset(UTF16)] uint16 path[],
-		[out]  [size_is(maxbuf)] char can_path[],
+		[out]  [size_is(maxbuf)] uint8 can_path[],
 		[in]   uint32 maxbuf,
 		[in]   [string,charset(UTF16)] uint16 prefix[],
 		[in,out] uint32 pathtype,
@@ -1350,9 +1348,9 @@
 	/* Function: 0x21 */
 	WERROR srvsvc_NetNameValidate(
 		[in]   [string,charset(UTF16)] uint16 *server_unc,
-		[in]   [string,charset(UTF16)] uint16 path[],
-		[in]    uint32 pathtype,
-		[in]    uint32 pathflags
+		[in]   [string,charset(UTF16)] uint16 name[],
+		[in]    uint32 name_type,
+		[in]    uint32 flags
 		);
 
 	/******************/
@@ -1364,10 +1362,10 @@
 	/* Function: 0x23 */
 	WERROR srvsvc_NetPRNameCompare(
 		[in]   [string,charset(UTF16)] uint16 *server_unc,
-		[in]   [string,charset(UTF16)] uint16 path1[],
-		[in]   [string,charset(UTF16)] uint16 path2[],
-		[in]    uint32 pathtype,
-		[in]    uint32 pathflags
+		[in]   [string,charset(UTF16)] uint16 name1[],
+		[in]   [string,charset(UTF16)] uint16 name2[],
+		[in]    uint32 name_type,
+		[in]    uint32 flags
 		);
 
 /**************************/
@@ -1392,13 +1390,13 @@
 		[in]       [string,charset(UTF16)] uint16 *server_unc,
 		[in]       [string,charset(UTF16)] uint16 share[],
 		[in]       uint32 reserved,
-		[out, context_handle] void **hnd
+		[out] policy_handle *hnd
 		);
 
 	/******************/
 	/* Function: 0x26 */
 	WERROR srvsvc_NetShareDelCommit(
-		[in, out, context_handle] void **hnd
+		[in, out] policy_handle *hnd
 		);
 
 	/******************/
@@ -1407,9 +1405,8 @@
 		[in]       [string,charset(UTF16)] uint16 *server_unc,
 		[in]       [string,charset(UTF16)] uint16 *share,
 		[in]       [string,charset(UTF16)] uint16 file[],
-		[in]       uint32 securityinformation,
-/*QQQ    is this subcontext thing correct?*/
-		[out, subcontext(4)] security_descriptor *sd
+		[in]       security_secinfo securityinformation,
+		[out]	   sec_desc_buf *sd_buf
 		);
 
 	/******************/
@@ -1418,14 +1415,13 @@
 		[in]       [string,charset(UTF16)] uint16 *server_unc,
 		[in]       [string,charset(UTF16)] uint16 *share,
 		[in]       [string,charset(UTF16)] uint16 file[],
-		[in]       uint32 securityinformation,
-/*QQQ   is this subcontext thing correct ?*/
-		[in, subcontext(4)] security_descriptor sd
+		[in]       security_secinfo securityinformation,
+		[in]	   sec_desc_buf sd_buf
 		);
 
 
 
-	typedef [switch_type(long)] union {
+	typedef [switch_type(uint32)] union {
 		[case(0)] srvsvc_NetTransportInfo0 info0;
 		[case(1)] srvsvc_NetTransportInfo1 info1;
 		[case(2)] srvsvc_NetTransportInfo2 info2;
