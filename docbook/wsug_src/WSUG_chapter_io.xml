@@ -63,11 +63,12 @@
 	  capture formats Wireshark understands.
     </para>
 	
-    <section id="ChIOOpen"><title>The "Open Capture File" dialog box</title>
+    <section id="ChIOOpen">
+    <title>The "Open Capture File" dialog box</title>
       <para>
 	The "Open Capture File" dialog box allows you to search for a 
 	capture file containing previously captured packets for display in 
-	Wireshark.  <xref linkend="ChIOOpenFileDialog"/> shows an example 
+	Wireshark.  <xref linkend="ChIOOpenFileTab"/> shows some examples 
 	  of the Wireshark Open File Dialog box.
       </para>
 	    <note>
@@ -153,10 +154,12 @@
 	    <tbody>
 		<row>
 		<entry valign="top">
+		<para>
       <figure id="ChIOOpenFileDialogWin32">
 	<title>"Open" on native Windows</title>
 	<graphic entityref="WiresharkOpenDialogWin32" format="PNG"/>
       </figure>
+		</para>
 		</entry>
 		<entry valign="top">
 		<para><command>Microsoft Windows (GTK2 installed)</command></para>
@@ -191,10 +194,12 @@
 	      </row>
 		<row>
 		<entry valign="top">
+		<para>
       <figure id="ChIOOpenFileDialog">
-	<title>"Open" new GTK version</title>
+	<title>"Open" - new GTK version</title>
 	<graphic entityref="WiresharkOpenDialog2" format="PNG"/>
       </figure>
+		</para>
 	  </entry>
 	  <entry valign="top">
       <para><command>Unix/Linux: GTK version >= 2.4</command></para>
@@ -231,10 +236,12 @@
 		</row>
 	      <row>
 		<entry valign="top">
+		<para>
       <figure id="ChIOOpenFileDialog1">
-	<title align="center">"Open" old GTK version</title>
+	<title>"Open" - old GTK version</title>
 	<graphic entityref="WiresharkOpenDialog1" format="PNG"/>
       </figure>
+		</para>
 		</entry>
 	  <entry valign="top">
 	    <para>
@@ -318,37 +325,120 @@
       item from the File menu under Wireshark. You can choose which 
       packets to save and which file format to be used.
     </para>
+	<warning>
+	  <title>Saving may reduce the available information!</title>
+	  <para>
+	  Saving the captured packets will slightly reduce the amount of 
+	  information, e.g. the number of dropped packets will be lost,
+	  see <xref linkend="ChAppFilesCaptureFilesSection"/> for details.
+	  </para>
+	</warning>
     <section id="ChIOSaveAs">
       <title>The "Save Capture File As" dialog box</title>
       <para>
 	The "Save Capture File As" dialog box allows you to save 
 	the current capture to a file. 
-	<xref linkend="ChIOSaveCaptureFileAs"/> shows an example of this 
+	<xref linkend="ChIOSaveFileTab"/> shows some examples of this 
 	  dialog box.
       </para>
-	    <warning>
-	      <title>Warning!</title>
-	      <para>
-		  Saving the captured packets will slightly reduce the amount of 
-		  information, e.g. the number of dropped packets will be lost,
-		  see <xref linkend="ChAppFilesCaptureFilesSection"/> for details.
-	      </para>
-	    </warning>
 	    <note>
-	      <title>Note</title>
+	      <title>The dialog appearance depends on your system!</title>
 	      <para>
-		  Wireshark uses the open dialog box from the version of the GTK+ 
-		  toolkit that it's using. This dialog was completely redesigned in 
-		  the GTK version 2.4. Depending on the installed GTK version, 
-		  your dialog box might look different. However, as the 
-		  functionality remains almost the same, much of this description 
-		  will work with your version of Wireshark.
+		  The appearance of this dialog depends on the system and GTK+ toolkit 
+		  version used. However, the functionality remains basically the same 
+		  on either system.
 	      </para>
 	    </note>
-      <figure id="ChIOSaveCaptureFileAs">
-	<title>The "Save Capture File As" dialog box</title>
+		
+    <table id="ChIOSaveFileTab">
+	<title>The system specific "Save Capture File As" dialog box</title>
+      <tgroup cols="2">
+	    <tbody>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOSaveAsFileWin32">
+	<title>"Save" on native Windows</title>
+	<graphic entityref="WiresharkSaveAsDialogWin32" format="PNG"/>
+      </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+      <para>
+		This is the common Windows file save dialog - 
+		plus some Wireshark extensions.
+      </para>
+	    <para>
+		Specific for this dialog:
+      </para>
+	<itemizedlist>
+	<listitem>
+	    <para>
+	      If available, the "Help" button will lead you to this section of 
+		  this "User's Guide".
+	    </para>
+	</listitem>
+	<listitem>
+	    <para>
+	      If you don't provide a file extension to the filename - e.g. .pcap, 
+		  Wireshark will append the standard file extension for that file 
+		  format.
+	    </para>
+	</listitem>
+	</itemizedlist>
+		</entry>
+		</row>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOSaveAsFile2">
+	<title>"Save" - new GTK version</title>
 	<graphic entityref="WiresharkSaveAsDialog2" format="PNG"/>
       </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Unix/Linux: GTK version >= 2.4</command></para>
+      <para>
+		This is the common Gimp/GNOME file save dialog - 
+		plus some Wireshark extensions.
+      </para>
+	    <para>
+		Specific for this dialog:
+      </para>
+	<itemizedlist>
+	<listitem>
+	    <para>
+		Clicking on the + at "Browse for other folders" will allow you 
+		to browse files and folders in your file system.
+	    </para>
+	</listitem>
+	</itemizedlist>
+		</entry>
+		</row>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOSaveAsFile1">
+	<title>"Save" - old GTK version</title>
+	<graphic entityref="WiresharkSaveAsDialog1" format="PNG"/>
+      </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Unix/Linux: GTK version &lt; 2.4 / Micosoft Windows 
+		(GTK1 installed)</command></para>
+      <para>
+		This is the file save dialog of former Gimp/GNOME versions - 
+		plus some Wireshark extensions.
+      </para>
+		</entry>
+		</row>
+      </tbody>
+      </tgroup>
+    </table>
+		
       <para>
 	With this dialog box, you can perform the following actions:
 	<orderedlist>
@@ -376,14 +466,14 @@
 	      types, described in <xref linkend="ChIOOutputFormatsSection"/>.
 		</para>
 	    <note>
-	      <title>Note!</title>
+	      <title>The selection of capture formats may be reduced!</title>
 	      <para>
 		Some capture formats may not be available, depending on the 
 		packet types captured.
 	      </para>
 	    </note>
 	    <tip>
-	      <title>Tip!</title>
+	      <title>File formats can be converted!</title>
 	      <para>
 		You can convert capture files from one format to another 
 		by reading in a capture file and writing it out using a 
@@ -393,16 +483,10 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Use "Browse for other folders" to browse files and folders in your 
-		  file system.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Click on the Save button to accept your selected file and save to 
+	      Click on the Save/Ok button to accept your selected file and save to 
 		  it. If Wireshark has a problem saving the captured packets to 
 	      the file you specified, it will display an error dialog box. 
-	      After clicking OK on this error dialog box, you can try again. 
+	      After clicking OK on that error dialog box, you can try again. 
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -417,43 +501,41 @@
   <section id="ChIOOutputFormatsSection">
     <title>Output File Formats</title>
     <para>
-	Wireshark can save the packet data in it's "native" file format (libpcap) and 
-	in the file formats of some other protocol analyzers, so other tools can read 
-	the capture data.
+	Wireshark can save the packet data in it's "native" file format (libpcap) 
+	and in the file formats of some other protocol analyzers, so other tools 
+	can read the capture data.
     </para>
-	<warning><title>Warning!</title>
+	<warning><title>File formats have different time stamp accuracys!</title>
 	<para>
-	The conversion to a different file format may reduce the time stamp accuracy, 
-	see the <xref linkend="ChAdvTimestamps"/> for details.
+	Saving from the currently used to a different file format may reduce the 
+	time stamp accuracy, see the <xref linkend="ChAdvTimestamps"/> for details.
 	</para>
 	</warning>
     <para>
-	The following file formats can be saved by <application>Wireshark</application>:
+	The following file formats can be saved by <application>Wireshark</application> (with the known file extensions):
 	<itemizedlist>
-	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format</para></listitem>
-	      <listitem><para>Novell LANalyzer</para></listitem>
-	      <listitem><para>Network Associates Sniffer</para></listitem>
-	      <listitem><para>Sun snoop</para></listitem>
-	      <listitem><para>Microsoft Network Monitor</para></listitem>
-	      <listitem><para>Visual Networks Visual UpTime traffic</para></listitem>
-	      <listitem><para>Accellent 5Views</para></listitem>
-	      <listitem><para>Networks Instruments Observer version 9</para></listitem>
-	      <listitem><para>HP-UX's nettl</para></listitem>
+	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format (*.pcap,*.cap,*.dmp)</para></listitem>
+	      <listitem><para>Accellent 5Views (*.5vw)</para></listitem>
+	      <listitem><para>HP-UX's nettl (*.TRC0,*.TRC1)</para></listitem>
+	      <listitem><para>Microsoft Network Monitor - NetMon (*.cap)</para></listitem>
+	      <listitem><para>Network Associates Sniffer - DOS (*.cap,*.enc,*.trc,*fdc,*.syc)</para></listitem>
+	      <listitem><para>Network Associates Sniffer - Windows (*.cap)</para></listitem>
+	      <listitem><para>Network Instruments Observer version 9 (*.bfr)</para></listitem>
+	      <listitem><para>Novell LANalyzer (*.tr1)</para></listitem>
+	      <listitem><para>Sun snoop (*.snoop,*.cap)</para></listitem>
+	      <listitem><para>Visual Networks Visual UpTime traffic (*.*)</para></listitem>
 	</itemizedlist>
     </para>
     <para>
 	If the above tools will be more helpful than Wireshark is a different question ;-)
     </para>
-	<note><title>Note!</title>
+	<note><title>Third party protocol analyzers may require specific file extensions!</title>
 	<para>
 	Other protocol analyzers than Wireshark may require that the file has a 
-	certain suffix in order to read the files you generate with Wireshark, e.g.:
+	certain file extension in order to read the files you generate with Wireshark, e.g.:
 	</para>
 	<para>
-	".DMP" for Tcpdump/libpcap
-	</para>
-	<para>
-	".CAP" for Network Associates Sniffer Windows
+	".cap" for Network Associates Sniffer - Windows
 	</para>
 	</note>
   </section>	
@@ -487,19 +569,26 @@
 		</para></listitem>
 	</itemizedlist>
 	</para>
-	<section><title>The "Merge with Capture File" dialog box</title>
+	<section id="ChIOMergeDialog">
+	<title>The "Merge with Capture File" dialog box</title>
 	<para>
+	
 	This dialog box let you select a file to be merged into the currently 
 	loaded file.
 	</para>
-	<note><title>Note!</title>
+	<note><title>You will be prompted for an unsaved file first!</title>
 	<para>If your current data wasn't saved before, you will be asked to save 
 	it first, before this dialog box is shown.</para>
 	</note>
-	<figure id="ChIOMergeDialog">
-      <title>The "Merge with Capture File" dialog box</title>
-      <graphic entityref="WiresharkMergeDialog2" format="PNG"/>
-    </figure>
+	
+	<para>
+	Most controls of this dialog will work the same way as described in the 
+	"Open Capture File" dialog box, see <xref linkend="ChIOOpen"/>.
+	</para>
+	<para>
+	Specific controls of this merge dialog are:
+	</para>
+	
 	<variablelist>
 	<varlistentry>
 	  <term><command>Prepend packets to existing file</command></term>
@@ -529,10 +618,67 @@
 	  </listitem>
 	</varlistentry>
 	</variablelist>
-	<para>
-	All other controls will work the same way as in the "Open Capture File" 
-	dialog box, see <xref linkend="ChIOOpen"/>.
-	</para>
+	
+    <table id="ChIOMergeFileTab">
+	<title>The system specific "Merge Capture File As" dialog box</title>
+      <tgroup cols="2">
+	    <tbody>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOMergeFileWin32">
+	<title>"Merge" on native Windows</title>
+	<graphic entityref="WiresharkMergeDialogWin32" format="PNG"/>
+      </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+      <para>
+		This is the common Windows file open dialog - 
+		plus some Wireshark extensions.
+      </para>
+		</entry>
+		</row>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOMergeFile2">
+	<title>"Merge" - new GTK version</title>
+	<graphic entityref="WiresharkMergeDialog2" format="PNG"/>
+      </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Unix/Linux: GTK version >= 2.4</command></para>
+      <para>
+		This is the common Gimp/GNOME file open dialog - 
+		plus some Wireshark extensions.
+      </para>
+		</entry>
+		</row>
+		<row>
+		<entry valign="top">
+		<para>
+      <figure id="ChIOMergeFile1">
+	<title>"Merge" - old GTK version</title>
+	<graphic entityref="WiresharkMergeDialog1" format="PNG"/>
+      </figure>
+		</para>
+		</entry>
+		<entry valign="top">
+		<para><command>Unix/Linux: GTK version &lt; 2.4 / Micosoft Windows 
+		(GTK1 installed)</command></para>
+      <para>
+		This is the file open dialog of former Gimp/GNOME versions - 
+		plus some Wireshark extensions.
+      </para>
+		</entry>
+		</row>
+      </tbody>
+      </tgroup>
+    </table>
+
 	</section>
   </section>
   
