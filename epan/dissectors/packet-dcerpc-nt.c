@@ -1079,8 +1079,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-/* FIXME EPHEMERAL need to get rid of the g_strdup() and later g_free() */
-		dcv->private_data = g_strdup(s);
+		dcv->private_data = s;
 	}
 }
 
@@ -1145,7 +1144,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-		dcv->private_data = g_strdup(s);
+		dcv->private_data = s;
 	}
 }
 
