@@ -546,7 +546,12 @@ samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
 
-	dcv->private_data = GINT_TO_POINTER(rid);
+	/* OpenUser() stores the rid in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("0x%x", rid);
+		}
+	}
 
 	return offset;
 }
@@ -561,8 +566,6 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	guint32 rid = GPOINTER_TO_INT(dcv->private_data);
-	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -571,15 +574,20 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, &status);
 
-	if (status == 0) {
-		if (rid)
-			pol_name = ep_strdup_printf("OpenUser(rid 0x%x)", rid);
-		else
-			pol_name = ep_strdup("OpenUser handle");
+	if( status == 0 ){
+		char *pol_name;
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrOpenUser(rid %s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrOpenUser() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-		if (hnd_item != NULL)
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
@@ -1097,11 +1105,27 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   guint8 *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sn;
+
+	/* ServerName */
+	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Server", hf_samr_server, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	sn=dcv->private_data;
+	if(!sn)
+		sn="";
+
+	/* Connect2() stores the server in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s", sn);
+		}
+	}
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -1115,11 +1139,27 @@ samr_dissect_connect3_4_rqst(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   guint8 *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sn;
+
+	/* ServerName */
+	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Server", hf_samr_server, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	sn=dcv->private_data;
+	if(!sn)
+		sn="";
+
+	/* Connect3() stores the server in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s", sn);
+		}
+	}
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_samr_unknown_long, NULL);
@@ -1132,7 +1172,7 @@ samr_dissect_connect3_4_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
+samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
 {
@@ -1141,7 +1181,6 @@ samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	char *server = (char *)dcv->private_data, *pol_name = NULL;
 	
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -1150,27 +1189,96 @@ samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, &status);
 
-	if (status == 0) {
-                if (server) {
-                        if (dcv->opnum == SAMR_CONNECT2)
-                                pol_name = ep_strdup_printf("Connect2(%s)", server);
-                        else if (dcv->opnum == SAMR_CONNECT3)
-                                pol_name = ep_strdup_printf("Connect3(%s)", server);
-                        else if (dcv->opnum == SAMR_CONNECT4)
-                                pol_name = ep_strdup_printf("Connect4(%s)", server);
-                }
-                else {
-                        if (dcv->opnum == SAMR_CONNECT2)
-                                pol_name = ep_strdup("Connect2 handle");
-                        else if (dcv->opnum == SAMR_CONNECT3)
-                                pol_name = ep_strdup("Connect3 handle");
-                        else if (dcv->opnum == SAMR_CONNECT4)
-                                pol_name = ep_strdup("Connect4 handle");
-                }
+	if( status == 0 ){
+		char *pol_name;
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrConnect2(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrConnect2() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-		if (hnd_item != NULL)
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+	}
+
+	return offset;
+}
+
+static int
+samr_dissect_connect3_reply(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             guint8 *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
+	
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, &status);
+
+	if( status == 0 ){
+		char *pol_name;
+
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrConnect3(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrConnect3() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
+
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+	}
+
+	return offset;
+}
+
+static int
+samr_dissect_connect4_reply(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             guint8 *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
+	
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, &status);
+
+	if( status == 0 ){
+		char *pol_name;
+
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrConnect4(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrConnect4() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
+
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
@@ -1319,24 +1427,15 @@ samr_dissect_get_groups_for_user_reply(tvbuff_t *tvb, int offset,
 }
 
 
-static void append_sid_col_info(packet_info *pinfo, proto_tree *tree _U_, 
-				proto_item *item _U_, tvbuff_t *tvb _U_, 
-				int start_offset _U_, int end_offset _U_, 
-				void *callback_args _U_)
-{
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sid_str = dcv->private_data;
-
-	if (sid_str && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", sid_str);
-}
-
 static int
 samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
 			      guint8 *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sid;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
@@ -1344,9 +1443,24 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
 		&samr_domain_access_mask_info, NULL);
 
+	/* SID */
+	dcv->private_data=NULL;
         offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, dissect_ndr_nt_SID_no_hf, 
-		NDR_POINTER_REF, "SID:", -1, append_sid_col_info, NULL);
+		NDR_POINTER_REF, "SID:", -1, NULL, NULL);
+	sid=dcv->private_data;
+	if(!sid)
+		sid="";
+
+	/* OpenDomain() stores the sid in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s", sid);
+		}
+	}
+
+	if (dcv->private_data && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", sid);
 
 	return offset;
 }
@@ -1361,7 +1475,6 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	char *pol_name, *sid_str = (char *)dcv->private_data;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -1370,16 +1483,20 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, &status);
 
-	if (status == 0) {
-		if (sid_str) {
-			pol_name = ep_strdup_printf("OpenDomain(%s)", sid_str);
+	if( status == 0 ){
+		char *pol_name;
+
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"OpenDomain(%s)", (char *)dcv->se_data);
 		} else {
-			pol_name = ep_strdup("OpenDomain handle");
+			pol_name = "Unknown OpenDomain() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 		}
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-		if (hnd_item != NULL)
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 	}
 
@@ -4515,7 +4632,12 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
 
-	dcv->private_data = GINT_TO_POINTER(rid);
+	/* OpenGroup() stores the rid in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("0x%x", rid);
+		}
+	}
 
 	return offset;
 }
@@ -4531,7 +4653,6 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -4540,17 +4661,21 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, &status);
 
-	if (status == 0) {
-		if (rid)
-			pol_name = ep_strdup_printf("OpenGroup(rid 0x%x)", rid);
-		else
-			pol_name = ep_strdup("OpenGroup handle");
+	if( status == 0 ){
+		char *pol_name;
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrOpenGroup(rid %s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrOpenGroup() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-		if (hnd_item != NULL)
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
 	}
 
 	return offset;
@@ -4577,7 +4702,12 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
 
-	dcv->private_data = GINT_TO_POINTER(rid);
+	/* OpenAlias() stores the rid in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("0x%x", rid);
+		}
+	}
 
 	return offset;
 }
@@ -4590,10 +4720,8 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-	char *pol_name;
 	proto_item *hnd_item;
 	guint32 status;
-	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -4602,19 +4730,21 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, &status);
 
-	if (status == 0) {
-		rid = GPOINTER_TO_INT(dcv->private_data);
+	if( status == 0 ){
+		char *pol_name;
 
-		if (rid)
-			pol_name = ep_strdup_printf("OpenAlias(rid 0x%x)", rid);
-		else
-			pol_name = ep_strdup_printf("OpenAlias handle");
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrOpenAlias(rid %s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrOpenAlias() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
-
-		if (hnd_item != NULL)
+		if(hnd_item)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
 	}
 
 	return offset;
@@ -4823,30 +4953,46 @@ static int
 samr_dissect_connect5_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
                           proto_tree *tree, guint8 *drep)
 {
-       offset = dissect_ndr_pointer_cb(
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sn;
+
+	/* ServerName */
+	dcv->private_data=NULL;
+	offset = dissect_ndr_pointer_cb(
                tvb, offset, pinfo, tree, drep,
                dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
                "Server", hf_samr_server, cb_wstr_postprocess,
                GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+	sn=dcv->private_data;
+	if(!sn)
+		sn="";
 
-       offset = dissect_nt_access_mask(
+	/* Connect5() stores the server in se_data */
+	if(!pinfo->fd->flags.visited){
+		if(!dcv->se_data){
+			dcv->se_data = se_strdup_printf("%s", sn);
+		}
+	}
+
+	offset = dissect_nt_access_mask(
                tvb, offset, pinfo, tree, drep, hf_samr_access,
                &samr_connect_access_mask_info, NULL);
 
 
-       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                    hf_samr_unknown_long, NULL);
 
-       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                    hf_samr_unknown_long, NULL);
 
-       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                    hf_samr_unknown_long, NULL);
 
-       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                    hf_samr_unknown_long, NULL);
 
-       return offset;
+	return offset;
 
 }
 
@@ -4860,7 +5006,6 @@ samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
        e_ctx_hnd policy_hnd;
        proto_item *hnd_item;
        guint32 status;
-       char *server = (char *)dcv->private_data, *pol_name;
 
 
        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -4882,17 +5027,22 @@ samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
                                  hf_samr_rc, &status);
 
-       if (status == 0) {
-               if (server)
-                       pol_name = ep_strdup_printf("Connect5(%s)", server);
-               else
-                       pol_name = ep_strdup("Connect5 handle");
+	if( status == 0 ){
+		char *pol_name;
 
-               dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		if (dcv->se_data){
+			pol_name = ep_strdup_printf(
+				"SamrConnect5(%s)", (char *)dcv->se_data);
+		} else {
+			pol_name = "Unknown SamrConnect5() handle";
+		}
+		if(!pinfo->fd->flags.visited){
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		}
 
-               if (hnd_item != NULL)
-                       proto_item_append_text(hnd_item, ": %s", pol_name);
-       }
+		if(hnd_item)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+	}
 
        return offset;
 }
@@ -5073,7 +5223,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_get_domain_password_information_reply },
 	{ SAMR_CONNECT2, "SamrConnect2",
 		samr_dissect_connect2_rqst,
-		samr_dissect_connect2_3_4_reply },
+		samr_dissect_connect2_reply },
         { SAMR_SET_USERINFO2, "SamrSetInformationUser2",
 		samr_dissect_set_information_user2_rqst,
 		samr_dissect_set_information_user2_reply },
@@ -5085,10 +5235,10 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_get_boot_key_information_reply },
 	{ SAMR_CONNECT3, "SamrConnect3",
 		samr_dissect_connect3_4_rqst,
-		samr_dissect_connect2_3_4_reply },
+		samr_dissect_connect3_reply },
 	{ SAMR_CONNECT4, "SamrConnect4",
 		samr_dissect_connect3_4_rqst,
-		samr_dissect_connect2_3_4_reply },
+		samr_dissect_connect4_reply },
 	{ SAMR_UNICODE_CHANGE_PASSWORD_USER3, "SamrUnicodeChangePasswordUser3",
 		NULL, NULL },
 	{ SAMR_CONNECT5, "SamrConnect5",
