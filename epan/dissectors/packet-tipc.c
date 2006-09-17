@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -240,6 +240,23 @@ const value_string tipcv2_user_values[] = {
 	{ 0,	NULL},
 };
 
+const value_string tipcv2_user_short_str_vals[] = {
+    { 0,								"DATA_LOW"},
+    { 1,								"DATA_NORMAL"},
+    { 2,								"DATA_HIGH"},
+    { 3,								"DATA_NON_REJECTABLE"},
+	{ TIPCv2_BCAST_PROTOCOL,			"BCAST_PROTOCOL"},
+	{ TIPCv2_MSG_BUNDLER,				"MSG_BUNDLER"},
+	{ TIPCv2_LINK_PROTOCOL,				"LINK_PROTOCOL"},
+	{ TIPCv2_CONN_MANAGER,				"CONN_MANAGER"},
+	{ TIPCv2_ROUTE_DISTRIBUTOR,			"ROUTE_DISTRIBUTOR"},
+	{ TIPCv2_CHANGEOVER_PROTOCOL,		"CHANGEOVER_PROTOCOL"},
+	{ TIPCv2_NAME_DISTRIBUTOR,			"NAME_DISTRIBUTOR"},
+	{ TIPCv2_MSG_FRAGMENTER,			"MSG_FRAGMENTER"},
+	{ TIPCv2_LINK_CONFIGURATION,		"LINK_CONFIGURATION"},
+	{ 0,	NULL},
+};
+
 #define TIPC_CONNECTED_MSG	0
 #define TIPC_NAMED_MSG		2
 #define TIPC_DIRECT_MSG		3
@@ -260,6 +277,14 @@ static const value_string tipcv2_data_msg_type_values[] = {
 	{ 3,	"Port identity destination address (DIRECT_MSG)"},
 	{ 0,	NULL},
 };
+
+static const value_string tipcv2_data_msg_type_short_str_vals[] = {
+	{ 0,	"CONN_MSG"},
+	{ 1,	"MCAST_MSG"},
+	{ 2,	"NAMED_MSG"},
+	{ 3,	"DIRECT_MSG"},
+	{ 0,	NULL},
+};
 static const value_string tipc_error_code_values[] = {
 	{ 0,	"MSG_OK"},
 	{ 1,	"NO_PORT_NAME"},
@@ -278,6 +303,17 @@ static const value_string tipcv2_error_code_strings[]={
     { 4           ,"Destination node overloaded (TIPC_ERR_OVERLOAD)"},
     { 5           ,"Connection Shutdown (No error) (TIPC_CONN_SHUTDOWN)"},
     { 6           ,"Communication Error (TIPC_CONN_ERROR)"},
+	{ 0,	NULL},
+};
+
+static const value_string tipcv2_error_code_short_strings[]={
+    { 0           ,"TIPC_OK"},
+    { 1           ,"TIPC_ERR_NO_NAME"}, 
+    { 2           ,"TIPC_ERR_NO_PORT"},
+    { 3           ,"TIPC_ERR_NO_NODE"},
+    { 4           ,"TIPC_ERR_OVERLOAD"},
+    { 5           ,"TIPC_CONN_SHUTDOWN"},
+    { 6           ,"TIPC_CONN_ERROR"},
 	{ 0,	NULL},
 };
 
@@ -495,7 +531,7 @@ tipc_v2_set_col_msgtype(packet_info *pinfo, guint8 user,guint8 msg_type){
 			 */
 			datatype_hdr = TRUE;
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_data_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_data_msg_type_short_str_vals, "unknown"),msg_type);
 			break;
 		case TIPCv2_BCAST_PROTOCOL:
 			if (check_col(pinfo->cinfo, COL_INFO))
@@ -994,6 +1030,7 @@ static void
 dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 hdr_size,  gboolean datatype_hdr)
 {
 	guint32 dword;
+	guint8 error;
 	gchar *addr_str_ptr;
 	guint8 opt_p;
 	/* The unit used is 32 bit words */
@@ -1034,6 +1071,13 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, i
 	proto_tree_add_item(tipc_tree, hf_tipcv2_data_msg_type , tipc_tvb, offset, 4, FALSE);
 	/* Error Code: 4 bits */
 	proto_tree_add_item(tipc_tree, hf_tipcv2_errorcode , tipc_tvb, offset, 4, FALSE);
+	dword = tvb_get_ntohl(tipc_tvb,offset);
+	error = (dword>>25) & 0xf;
+	if (check_col(pinfo->cinfo, COL_INFO) && error > 0)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(error, tipcv2_error_code_short_strings, "unknown"),error);
+	}
+
 	/* Reroute Counter: 4 bits */
 	proto_tree_add_item(tipc_tree, hf_tipcv2_rer_cnt , tipc_tvb, offset, 4, FALSE);
 	/* Lookup Scope: 2 bits */
@@ -1433,7 +1477,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case TIPCv2:
 		msg_type = tvb_get_guint8(tipc_tvb,offset + 4)>>5;
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipcv2_user_values, "unknown"),user);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipcv2_user_short_str_vals, "unknown"),user);
 		}
 		/* Set msg type in info col and find out if its a data hdr or not */
 		datatype_hdr = tipc_v2_set_col_msgtype(pinfo, user, msg_type);
@@ -1484,8 +1528,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tipc_tree, hf_tipc_ver, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_usr, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
-	proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree,hf_tipc_nonsequenced, tipc_tvb,offset,4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
 	if (datatype_hdr){
 		proto_tree_add_item(tipc_tree,hf_tipc_destdrop, tipc_tvb,offset,4, FALSE);
 		proto_tree_add_item(tipc_tree,hf_tipcv2_srcdrop, tipc_tvb,offset,4, FALSE);
@@ -1712,7 +1756,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_unused,
 			{ "Unused",           "tipc.hdr_unused",
-			FT_UINT32, BASE_DEC, NULL, 0x001e0000,          
+			FT_UINT32, BASE_DEC, NULL, 0x000e0000,          
 			"TIPC Unused", HFILL }
 		},
 		{ &hf_tipc_msg_size,
