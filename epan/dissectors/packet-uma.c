@@ -1,6 +1,6 @@
 /* packet-uma.c
  * Routines for Unlicensed Mobile Access(UMA) dissection
- * Copyright 2005, Anders Broman <anders.broman[at]ericsson.com>
+ * Copyright 2005-2006, Anders Broman <anders.broman[at]ericsson.com>
  *
  * $Id$
  *
@@ -1948,7 +1948,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_TU3920_timer,
 			{ "TU3920 Timer value(seconds)","uma.urr.tu3920",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
-			"TU3920 Timer value(seconds)", HFILL }
+			"TU3920 Timer value(hundreds of of ms)", HFILL }
 		},
 		{ &hf_uma_urr_peak_tpt_cls,
 			{ "PEAK_THROUGHPUT_CLASS","uma.urr.peak_tpt_cls",
@@ -2077,7 +2077,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_window_size,
 			{ "Window Size","uma.urr.uma_window_size",
-			FT_UINT8,BASE_DEC,  VALS(window_size_vals), 0x3,          
+			FT_UINT8,BASE_DEC,  VALS(window_size_vals), 0x03,          
 			"Window Size", HFILL }
 		},
 		{ &hf_uma_urr_uma_codec_mode,
