@@ -516,6 +516,7 @@ DISSECTOR_SRC =	\
 	packet-pkixqualified.c	\
 	packet-pkixtsp.c	\
 	packet-pkinit.c	\
+	packet-pktgen.c	\
 	packet-pktc.c	\
 	packet-pop.c	\
 	packet-portmap.c	\

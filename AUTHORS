@@ -2274,6 +2274,7 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	DCCP protocol support
 	MPLS OAM support, Y.1711
 	RSVP/OSPF Extensions for Support of Diffserv-aware MPLS-TE, RFC 4124
+	Linux Packet Generator support
 }
 
 Bill Meier		<wmeier [AT] newsguy.com> {
