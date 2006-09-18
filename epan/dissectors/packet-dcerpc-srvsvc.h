@@ -73,6 +73,7 @@ int srvsvc_dissect_struct_NetShareInfo502(tvbuff_t *tvb, int offset, packet_info
 int srvsvc_dissect_struct_NetShareCtr502(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetShareInfo1004(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetShareCtr1004(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int srvsvc_dissect_bitmap_DFSFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int srvsvc_dissect_struct_NetShareInfo1005(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetShareCtr1005(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetShareInfo1006(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
@@ -153,6 +154,7 @@ int srvsvc_dissect_struct_NetTransportInfo0(tvbuff_t *tvb, int offset, packet_in
 int srvsvc_dissect_struct_NetTransportCtr0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetTransportInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetTransportCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int srvsvc_dissect_bitmap_TransportFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int srvsvc_dissect_struct_NetTransportInfo2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetTransportCtr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetTransportInfo3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);

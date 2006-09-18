@@ -479,8 +479,19 @@
 		[size_is(count)] srvsvc_NetShareInfo1004 *array;
 	} srvsvc_NetShareCtr1004;
 
+	typedef [bitmap32bit] bitmap {
+		SHI1005_FLAGS_DFS			= 0x00000001,
+		SHI1005_FLAGS_DFS_ROOT			= 0x00000002,
+		CSC_CACHE_AUTO_REINT			= 0x00000010,
+		CSC_CACHE_VDO				= 0x00000020,
+		SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS	= 0x00000100,
+		SHI1005_FLAGS_FORCE_SHARED_DELETE	= 0x00000200,
+		SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING	= 0x00000400,
+		SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM=0x00000800
+	} srvsvc_DFSFlags;
+
 	typedef struct {
-		uint32 dfs_flags;
+		srvsvc_DFSFlags dfs_flags;
 	} srvsvc_NetShareInfo1005;
 
 	typedef struct {
@@ -1216,6 +1227,11 @@
 		[size_is(count)] srvsvc_NetTransportInfo1 *array;
 	} srvsvc_NetTransportCtr1;
 
+	typedef [bitmap32bit] bitmap {
+		SVTI2_REMAP_PIPE_NAMES		= 0x00000001
+	} srvsvc_TransportFlags;
+
+
 	typedef struct {
 		uint32 vcs;
 		[string,charset(UTF16)] uint16 *name;
@@ -1223,7 +1239,7 @@
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 		[string,charset(UTF16)] uint16 *domain;
-		uint32 unknown;
+		srvsvc_TransportFlags transport_flags;
 	} srvsvc_NetTransportInfo2;
 
 	typedef struct {
@@ -1238,9 +1254,9 @@
 		uint32 addr_len;
 		[string,charset(UTF16)] uint16 *net_addr;
 		[string,charset(UTF16)] uint16 *domain;
-		uint32 unknown1;
-		uint32 unknown2;
-		uint8 unknown3[256];
+		srvsvc_TransportFlags transport_flags;
+		uint32 password_len;
+		uint8 password[256];
 	} srvsvc_NetTransportInfo3;
 
 	typedef struct {

@@ -71,6 +71,7 @@ static gint ett_srvsvc_srvsvc_NetShareInfo502 = -1;
 static gint ett_srvsvc_srvsvc_NetShareCtr502 = -1;
 static gint ett_srvsvc_srvsvc_NetShareInfo1004 = -1;
 static gint ett_srvsvc_srvsvc_NetShareCtr1004 = -1;
+static gint ett_srvsvc_srvsvc_DFSFlags = -1;
 static gint ett_srvsvc_srvsvc_NetShareInfo1005 = -1;
 static gint ett_srvsvc_srvsvc_NetShareCtr1005 = -1;
 static gint ett_srvsvc_srvsvc_NetShareInfo1006 = -1;
@@ -147,6 +148,7 @@ static gint ett_srvsvc_srvsvc_NetTransportInfo0 = -1;
 static gint ett_srvsvc_srvsvc_NetTransportCtr0 = -1;
 static gint ett_srvsvc_srvsvc_NetTransportInfo1 = -1;
 static gint ett_srvsvc_srvsvc_NetTransportCtr1 = -1;
+static gint ett_srvsvc_srvsvc_TransportFlags = -1;
 static gint ett_srvsvc_srvsvc_NetTransportInfo2 = -1;
 static gint ett_srvsvc_srvsvc_NetTransportCtr2 = -1;
 static gint ett_srvsvc_srvsvc_NetTransportInfo3 = -1;
@@ -263,6 +265,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo102_announce = -1;
 static gint hf_srvsvc_srvsvc_NetTransportCtr1_count = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo102_server_type = -1;
 static gint hf_srvsvc_srvsvc_NetSessInfo2_client = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_FORCE_SHARED_DELETE = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1549_networkerrortreshold = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo503_maxworkitems = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo102_hidden = -1;
@@ -329,14 +332,13 @@ static gint hf_srvsvc_srvsvc_NetFileGetInfo_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_totalentries = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo502_rawworkitems = -1;
 static gint hf_srvsvc_srvsvc_NetShareCheck_type = -1;
-static gint hf_srvsvc_srvsvc_NetTransportInfo3_unknown1 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_opensearch = -1;
-static gint hf_srvsvc_srvsvc_NetTransportInfo3_unknown2 = -1;
-static gint hf_srvsvc_srvsvc_NetTransportInfo3_unknown3 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1515_enableforcedlogoff = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_maxcopywritelen = -1;
+static gint hf_srvsvc_srvsvc_NetTransportInfo3_password_len = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_chdevs = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1509_maxrawbuflen = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_VDO = -1;
 static gint hf_srvsvc_srvsvc_NetSessInfo1_client = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_level = -1;
 static gint hf_srvsvc_srvsvc_NetFileGetInfo_level = -1;
@@ -510,6 +512,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo599_minkeepcomplsearch = -1;
 static gint hf_srvsvc_srvsvc_NetFileEnum_user = -1;
 static gint hf_srvsvc_srvsvc_NetConnInfo1_conn_time = -1;
 static gint hf_srvsvc_srvsvc_NetShareInfo502_name = -1;
+static gint hf_srvsvc_srvsvc_NetTransportInfo3_password = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo503_minkeepcomplsearch = -1;
 static gint hf_srvsvc_srvsvc_NetPathType_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetTransportInfo3_addr_len = -1;
@@ -605,6 +608,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo_info1520 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_autopath = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_oplockbreakresponsewait = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1521 = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1522 = -1;
 static gint hf_srvsvc_srvsvc_NetServerStatisticsGet_options = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1523 = -1;
@@ -647,11 +651,13 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo_info1537 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1538 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1539 = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name = -1;
+static gint hf_srvsvc_srvsvc_NetTransportInfo2_transport_flags = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevEnum_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo100_server_name = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo502_opensearch = -1;
 static gint hf_srvsvc_srvsvc_NetSetFileSecurity_share = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo402_erroralert = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_sessconns = -1;
 static gint hf_srvsvc_srvsvc_NetGetFileSecurity_share = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_maxlen = -1;
@@ -663,6 +669,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo402_alist_mtime = -1;
 static gint hf_srvsvc_srvsvc_NetGetFileSecurity_sd_buf = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevEnum_ctr = -1;
 static gint hf_srvsvc_srvsvc_NetSessInfo502_time = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1522_minkeepsearch = -1;
 static gint hf_srvsvc_srvsvc_NetShareCtr0_count = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info1540 = -1;
@@ -691,6 +698,7 @@ static gint hf_srvsvc_srvsvc_NetCharDevGetInfo_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetNameValidate_flags = -1;
 static gint hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags = -1;
 static gint hf_srvsvc_srvsvc_NetTransportInfo3_domain = -1;
+static gint hf_srvsvc_srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_eroralert = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_maxpagedmemoryusage = -1;
@@ -714,6 +722,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo_info1556 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_numbigbufs = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo502_lmannounce = -1;
 static gint hf_srvsvc_srvsvc_NetShareSetInfo_parm_error = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS = -1;
 static gint hf_srvsvc_srvsvc_NetNameValidate_name = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo503_minkeepsearch = -1;
 static gint hf_srvsvc_srvsvc_NetShareCtr_ctr0 = -1;
@@ -758,7 +767,6 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo503_lmannounce = -1;
 static gint hf_srvsvc_srvsvc_NetShareInfo0_name = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info402 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo_info403 = -1;
-static gint hf_srvsvc_srvsvc_NetTransportInfo2_unknown = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo402_opensearch = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevEnum_max_buffer = -1;
 static gint hf_srvsvc_srvsvc_NetSessInfo1_time = -1;
@@ -769,6 +777,7 @@ static gint hf_srvsvc_srvsvc_Statistics_bytesrcvd_low = -1;
 static gint hf_srvsvc_werror = -1;
 static gint hf_srvsvc_srvsvc_NetTransportInfo2_domain = -1;
 static gint hf_srvsvc_srvsvc_NetPathCanonicalize_pathtype = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_initworkitems = -1;
 static gint hf_srvsvc_srvsvc_NetRemoteTODInfo_elapsed = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1524_minkeepcomplsearch = -1;
@@ -796,8 +805,8 @@ static gint hf_srvsvc_srvsvc_NetSetFileSecurity_file = -1;
 static gint hf_srvsvc_srvsvc_NetSessCtr502_array = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetSessInfo502_user_flags = -1;
-static gint hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevQInfo1_num_ahead = -1;
+static gint hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems = -1;
 static gint hf_srvsvc_srvsvc_NetShareEnum_max_buffer = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_chdevjobs = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo502_maxnonpagedmemoryusage = -1;
@@ -840,13 +849,14 @@ static gint hf_srvsvc_srvsvc_NetConnInfo1_num_open = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevQEnum_max_buffer = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1107_users = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_alertsched = -1;
+static gint hf_srvsvc_srvsvc_NetTransportInfo3_transport_flags = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_sizereqbufs = -1;
 static gint hf_srvsvc_srvsvc_NetCharDevQSetInfo_info = -1;
 static gint hf_srvsvc_srvsvc_Statistics_bigbufneed = -1;
 static gint hf_srvsvc_srvsvc_NetGetFileSecurity_securityinformation = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo403_maxaudits = -1;
-static gint hf_srvsvc_srvsvc_NetShareCtr_ctr1501 = -1;
 static gint hf_srvsvc_srvsvc_NetTransportInfo1_domain = -1;
+static gint hf_srvsvc_srvsvc_NetShareCtr_ctr1501 = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1547_alertsched = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_initfiletable = -1;
 static gint hf_srvsvc_srvsvc_NetServerStatisticsGet_service = -1;
@@ -897,6 +907,7 @@ static gint hf_srvsvc_srvsvc_NetFileEnum_max_buffer = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo102_disc = -1;
 static gint hf_srvsvc_srvsvc_NetShareDelSticky_share_name = -1;
 static gint hf_srvsvc_srvsvc_NetShareEnumAll_ctr = -1;
+static gint hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS_ROOT = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_maxnonpagedmemoryusage = -1;
 
 static gint proto_dcerpc_srvsvc = -1;
@@ -1162,6 +1173,38 @@ static int srvsvc_dissect_element_NetShareCtr1004_count(tvbuff_t *tvb, int offse
 static int srvsvc_dissect_element_NetShareCtr1004_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetShareCtr1004_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetShareCtr1004_array__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_DFS_tfs = {
+   "SHI1005_FLAGS_DFS is SET",
+   "SHI1005_FLAGS_DFS is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_DFS_ROOT_tfs = {
+   "SHI1005_FLAGS_DFS_ROOT is SET",
+   "SHI1005_FLAGS_DFS_ROOT is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT_tfs = {
+   "CSC_CACHE_AUTO_REINT is SET",
+   "CSC_CACHE_AUTO_REINT is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_CSC_CACHE_VDO_tfs = {
+   "CSC_CACHE_VDO is SET",
+   "CSC_CACHE_VDO is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS_tfs = {
+   "SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS is SET",
+   "SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_FORCE_SHARED_DELETE_tfs = {
+   "SHI1005_FLAGS_FORCE_SHARED_DELETE is SET",
+   "SHI1005_FLAGS_FORCE_SHARED_DELETE is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING_tfs = {
+   "SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING is SET",
+   "SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING is NOT SET",
+};
+static const true_false_string srvsvc_DFSFlags_SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM_tfs = {
+   "SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM is SET",
+   "SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM is NOT SET",
+};
 static int srvsvc_dissect_element_NetShareInfo1005_dfs_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetShareCtr1005_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetShareCtr1005_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -1665,6 +1708,10 @@ static int srvsvc_dissect_element_NetTransportCtr1_count(tvbuff_t *tvb, int offs
 static int srvsvc_dissect_element_NetTransportCtr1_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr1_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr1_array__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static const true_false_string srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES_tfs = {
+   "SVTI2_REMAP_PIPE_NAMES is SET",
+   "SVTI2_REMAP_PIPE_NAMES is NOT SET",
+};
 static int srvsvc_dissect_element_NetTransportInfo2_vcs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo2_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo2_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -1676,7 +1723,7 @@ static int srvsvc_dissect_element_NetTransportInfo2_net_addr(tvbuff_t *tvb, int 
 static int srvsvc_dissect_element_NetTransportInfo2_net_addr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo2_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo2_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int srvsvc_dissect_element_NetTransportInfo2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int srvsvc_dissect_element_NetTransportInfo2_transport_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr2_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr2_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -1692,10 +1739,10 @@ static int srvsvc_dissect_element_NetTransportInfo3_net_addr(tvbuff_t *tvb, int 
 static int srvsvc_dissect_element_NetTransportInfo3_net_addr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo3_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportInfo3_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int srvsvc_dissect_element_NetTransportInfo3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int srvsvc_dissect_element_NetTransportInfo3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int srvsvc_dissect_element_NetTransportInfo3_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int srvsvc_dissect_element_NetTransportInfo3_unknown3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int srvsvc_dissect_element_NetTransportInfo3_transport_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int srvsvc_dissect_element_NetTransportInfo3_password_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int srvsvc_dissect_element_NetTransportInfo3_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int srvsvc_dissect_element_NetTransportInfo3_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr3_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetTransportCtr3_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -5700,14 +5747,116 @@ srvsvc_dissect_struct_NetShareCtr1004(tvbuff_t *tvb, int offset, packet_info *pi
 	return offset;
 }
 
+/* IDL: typedef bitmap { */
+/* IDL: 	SHI1005_FLAGS_DFS =  0x00000001 , */
+/* IDL: 	SHI1005_FLAGS_DFS_ROOT =  0x00000002 , */
+/* IDL: 	CSC_CACHE_AUTO_REINT =  0x00000010 , */
+/* IDL: 	CSC_CACHE_VDO =  0x00000020 , */
+/* IDL: 	SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS =  0x00000100 , */
+/* IDL: 	SHI1005_FLAGS_FORCE_SHARED_DELETE =  0x00000200 , */
+/* IDL: 	SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING =  0x00000400 , */
+/* IDL: 	SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM =  0x00000800 , */
+/* IDL: } srvsvc_DFSFlags; */
+
+int
+srvsvc_dissect_bitmap_DFSFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	guint32 flags;
+	ALIGN_TO_4_BYTES;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		tree = proto_item_add_subtree(item,ett_srvsvc_srvsvc_DFSFlags);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
+	proto_item_append_text(item, ": ");
+
+	if (!flags)
+		proto_item_append_text(item, "(No values set)");
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000001 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_DFS");
+		if (flags & (~( 0x00000001 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000001 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS_ROOT, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000002 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_DFS_ROOT");
+		if (flags & (~( 0x00000002 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000002 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000010 )){
+		proto_item_append_text(item, "CSC_CACHE_AUTO_REINT");
+		if (flags & (~( 0x00000010 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000010 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_VDO, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000020 )){
+		proto_item_append_text(item, "CSC_CACHE_VDO");
+		if (flags & (~( 0x00000020 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000020 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000100 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS");
+		if (flags & (~( 0x00000100 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000100 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_FORCE_SHARED_DELETE, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000200 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_FORCE_SHARED_DELETE");
+		if (flags & (~( 0x00000200 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000200 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000400 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING");
+		if (flags & (~( 0x00000400 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000400 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000800 )){
+		proto_item_append_text(item, "SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM");
+		if (flags & (~( 0x00000800 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000800 ));
+
+	if (flags) {
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
+
+	return offset;
+}
+
 /* IDL: typedef struct { */
-/* IDL: 	[keepref(1)] uint32 dfs_flags; */
+/* IDL: 	[keepref(1)] srvsvc_DFSFlags dfs_flags; */
 /* IDL: } srvsvc_NetShareInfo1005; */
 
 static int
 srvsvc_dissect_element_NetShareInfo1005_dfs_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags,NULL);
+	offset = srvsvc_dissect_bitmap_DFSFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags, 0);
 
 	return offset;
 }
@@ -12906,6 +13055,45 @@ srvsvc_dissect_struct_NetTransportCtr1(tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
+/* IDL: typedef bitmap { */
+/* IDL: 	SVTI2_REMAP_PIPE_NAMES =  0x00000001 , */
+/* IDL: } srvsvc_TransportFlags; */
+
+int
+srvsvc_dissect_bitmap_TransportFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	guint32 flags;
+	ALIGN_TO_4_BYTES;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		tree = proto_item_add_subtree(item,ett_srvsvc_srvsvc_TransportFlags);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
+	proto_item_append_text(item, ": ");
+
+	if (!flags)
+		proto_item_append_text(item, "(No values set)");
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000001 )){
+		proto_item_append_text(item, "SVTI2_REMAP_PIPE_NAMES");
+		if (flags & (~( 0x00000001 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000001 ));
+
+	if (flags) {
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
+
+	return offset;
+}
+
 /* IDL: typedef struct { */
 /* IDL: 	[keepref(1)] uint32 vcs; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *name; */
@@ -12913,7 +13101,7 @@ srvsvc_dissect_struct_NetTransportCtr1(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: 	[keepref(1)] uint32 addr_len; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *net_addr; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *domain; */
-/* IDL: 	[keepref(1)] uint32 unknown; */
+/* IDL: 	[keepref(1)] srvsvc_TransportFlags transport_flags; */
 /* IDL: } srvsvc_NetTransportInfo2; */
 
 static int
@@ -13014,9 +13202,9 @@ srvsvc_dissect_element_NetTransportInfo2_domain_(tvbuff_t *tvb, int offset, pack
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfo2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_element_NetTransportInfo2_transport_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo2_unknown,NULL);
+	offset = srvsvc_dissect_bitmap_TransportFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo2_transport_flags, 0);
 
 	return offset;
 }
@@ -13049,7 +13237,7 @@ srvsvc_dissect_struct_NetTransportInfo2(tvbuff_t *tvb, int offset, packet_info *
 
 	offset = srvsvc_dissect_element_NetTransportInfo2_domain(tvb, offset, pinfo, tree, drep);
 
-	offset = srvsvc_dissect_element_NetTransportInfo2_unknown(tvb, offset, pinfo, tree, drep);
+	offset = srvsvc_dissect_element_NetTransportInfo2_transport_flags(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -13127,9 +13315,9 @@ srvsvc_dissect_struct_NetTransportCtr2(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: 	[keepref(1)] uint32 addr_len; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *net_addr; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *domain; */
-/* IDL: 	[keepref(1)] uint32 unknown1; */
-/* IDL: 	[keepref(1)] uint32 unknown2; */
-/* IDL: 	[keepref(1)] uint8 unknown3[256]; */
+/* IDL: 	[keepref(1)] srvsvc_TransportFlags transport_flags; */
+/* IDL: 	[keepref(1)] uint32 password_len; */
+/* IDL: 	[keepref(1)] uint8 password[256]; */
 /* IDL: } srvsvc_NetTransportInfo3; */
 
 static int
@@ -13230,35 +13418,35 @@ srvsvc_dissect_element_NetTransportInfo3_domain_(tvbuff_t *tvb, int offset, pack
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfo3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_element_NetTransportInfo3_transport_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_unknown1,NULL);
+	offset = srvsvc_dissect_bitmap_TransportFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_transport_flags, 0);
 
 	return offset;
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfo3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_element_NetTransportInfo3_password_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_unknown2,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_password_len,NULL);
 
 	return offset;
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfo3_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_element_NetTransportInfo3_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	int i;
 	for (i = 0; i < 256; i++)
-		offset = srvsvc_dissect_element_NetTransportInfo3_unknown3_(tvb, offset, pinfo, tree, drep);
+		offset = srvsvc_dissect_element_NetTransportInfo3_password_(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
 
 static int
-srvsvc_dissect_element_NetTransportInfo3_unknown3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_element_NetTransportInfo3_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_unknown3,NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetTransportInfo3_password,NULL);
 
 	return offset;
 }
@@ -13291,11 +13479,11 @@ srvsvc_dissect_struct_NetTransportInfo3(tvbuff_t *tvb, int offset, packet_info *
 
 	offset = srvsvc_dissect_element_NetTransportInfo3_domain(tvb, offset, pinfo, tree, drep);
 
-	offset = srvsvc_dissect_element_NetTransportInfo3_unknown1(tvb, offset, pinfo, tree, drep);
+	offset = srvsvc_dissect_element_NetTransportInfo3_transport_flags(tvb, offset, pinfo, tree, drep);
 
-	offset = srvsvc_dissect_element_NetTransportInfo3_unknown2(tvb, offset, pinfo, tree, drep);
+	offset = srvsvc_dissect_element_NetTransportInfo3_password_len(tvb, offset, pinfo, tree, drep);
 
-	offset = srvsvc_dissect_element_NetTransportInfo3_unknown3(tvb, offset, pinfo, tree, drep);
+	offset = srvsvc_dissect_element_NetTransportInfo3_password(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -18193,6 +18381,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Server Type", "srvsvc.srvsvc_NetSrvInfo102.server_type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo2_client, 
 	  { "Client", "srvsvc.srvsvc_NetSessInfo2.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_FORCE_SHARED_DELETE, 
+	  { "Shi1005 Flags Force Shared Delete", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_FORCE_SHARED_DELETE", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_FORCE_SHARED_DELETE_tfs), ( 0x00000200 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1549_networkerrortreshold, 
 	  { "Networkerrortreshold", "srvsvc.srvsvc_NetSrvInfo1549.networkerrortreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxworkitems, 
@@ -18325,22 +18515,20 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Rawworkitems", "srvsvc.srvsvc_NetSrvInfo502.rawworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareCheck_type, 
 	  { "Type", "srvsvc.srvsvc_NetShareCheck.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_unknown1, 
-	  { "Unknown1", "srvsvc.srvsvc_NetTransportInfo3.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_opensearch, 
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo599.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_unknown2, 
-	  { "Unknown2", "srvsvc.srvsvc_NetTransportInfo3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_unknown3, 
-	  { "Unknown3", "srvsvc.srvsvc_NetTransportInfo3.unknown3", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1515_enableforcedlogoff, 
 	  { "Enableforcedlogoff", "srvsvc.srvsvc_NetSrvInfo1515.enableforcedlogoff", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxcopywritelen, 
 	  { "Maxcopywritelen", "srvsvc.srvsvc_NetSrvInfo599.maxcopywritelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password_len, 
+	  { "Password Len", "srvsvc.srvsvc_NetTransportInfo3.password_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevs, 
 	  { "Chdevs", "srvsvc.srvsvc_NetSrvInfo403.chdevs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1509_maxrawbuflen, 
 	  { "Maxrawbuflen", "srvsvc.srvsvc_NetSrvInfo1509.maxrawbuflen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_VDO, 
+	  { "Csc Cache Vdo", "srvsvc.srvsvc_DFSFlags.CSC_CACHE_VDO", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_CSC_CACHE_VDO_tfs), ( 0x00000020 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo1_client, 
 	  { "Client", "srvsvc.srvsvc_NetSessInfo1.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetDiskEnum_level, 
@@ -18687,6 +18875,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Conn Time", "srvsvc.srvsvc_NetConnInfo1.conn_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareInfo502_name, 
 	  { "Name", "srvsvc.srvsvc_NetShareInfo502.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password, 
+	  { "Password", "srvsvc.srvsvc_NetTransportInfo3.password", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepcomplsearch, 
 	  { "Minkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo503.minkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetPathType_server_unc, 
@@ -18877,6 +19067,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Oplockbreakresponsewait", "srvsvc.srvsvc_NetSrvInfo599.oplockbreakresponsewait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1521, 
 	  { "Info1521", "srvsvc.srvsvc_NetSrvInfo.info1521", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING, 
+	  { "Shi1005 Flags Allow Namespace Caching", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_ALLOW_NAMESPACE_CACHING_tfs), ( 0x00000400 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1522, 
 	  { "Info1522", "srvsvc.srvsvc_NetSrvInfo.info1522", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_options, 
@@ -18961,6 +19153,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Info1539", "srvsvc.srvsvc_NetSrvInfo.info1539", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name, 
 	  { "Device Name", "srvsvc.srvsvc_NetCharDevGetInfo.device_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_transport_flags, 
+	  { "Transport Flags", "srvsvc.srvsvc_NetTransportInfo2.transport_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, 
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo100_server_name, 
@@ -18971,6 +19165,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Share", "srvsvc.srvsvc_NetSetFileSecurity.share", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo402_erroralert, 
 	  { "Erroralert", "srvsvc.srvsvc_NetSrvInfo402.erroralert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM, 
+	  { "Shi1005 Flags Access Based Directory Enum", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_ACCESS_BASED_DIRECTORY_ENUM_tfs), ( 0x00000800 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessconns, 
 	  { "Sessconns", "srvsvc.srvsvc_NetSrvInfo599.sessconns", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_share, 
@@ -18993,6 +19189,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Ctr", "srvsvc.srvsvc_NetCharDevEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo502_time, 
 	  { "Time", "srvsvc.srvsvc_NetSessInfo502.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT, 
+	  { "Csc Cache Auto Reint", "srvsvc.srvsvc_DFSFlags.CSC_CACHE_AUTO_REINT", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT_tfs), ( 0x00000010 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1522_minkeepsearch, 
 	  { "Minkeepsearch", "srvsvc.srvsvc_NetSrvInfo1522.minkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareCtr0_count, 
@@ -19046,9 +19244,11 @@ void proto_register_dcerpc_srvsvc(void)
 	{ &hf_srvsvc_srvsvc_NetNameValidate_flags, 
 	  { "Flags", "srvsvc.srvsvc_NetNameValidate.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags, 
-	  { "Dfs Flags", "srvsvc.srvsvc_NetShareInfo1005.dfs_flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "Dfs Flags", "srvsvc.srvsvc_NetShareInfo1005.dfs_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetTransportInfo3_domain, 
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo3.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES, 
+	  { "Svti2 Remap Pipe Names", "srvsvc.srvsvc_TransportFlags.SVTI2_REMAP_PIPE_NAMES", FT_BOOLEAN, 32, TFS(&srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES_tfs), ( 0x00000001 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo403_eroralert, 
 	  { "Eroralert", "srvsvc.srvsvc_NetSrvInfo403.eroralert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc, 
@@ -19095,6 +19295,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Lmannounce", "srvsvc.srvsvc_NetSrvInfo502.lmannounce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareSetInfo_parm_error, 
 	  { "Parm Error", "srvsvc.srvsvc_NetShareSetInfo.parm_error", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS, 
+	  { "Shi1005 Flags Dfs", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_DFS", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_DFS_tfs), ( 0x00000001 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetNameValidate_name, 
 	  { "Name", "srvsvc.srvsvc_NetNameValidate.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepsearch, 
@@ -19183,8 +19385,6 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Info402", "srvsvc.srvsvc_NetSrvInfo.info402", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo_info403, 
 	  { "Info403", "srvsvc.srvsvc_NetSrvInfo.info403", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_unknown, 
-	  { "Unknown", "srvsvc.srvsvc_NetTransportInfo2.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo402_opensearch, 
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo402.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevEnum_max_buffer, 
@@ -19205,6 +19405,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo2.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_pathtype, 
 	  { "Pathtype", "srvsvc.srvsvc_NetPathCanonicalize.pathtype", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS, 
+	  { "Shi1005 Flags Restrict Exclusive Opens", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_RESTRICT_EXCLUSIVE_OPENS_tfs), ( 0x00000100 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initworkitems, 
 	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo599.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_elapsed, 
@@ -19259,10 +19461,10 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo502_user_flags, 
 	  { "User Flags", "srvsvc.srvsvc_NetSessInfo502.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems, 
-	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo502.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_num_ahead, 
 	  { "Num Ahead", "srvsvc.srvsvc_NetCharDevQInfo1.num_ahead", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems, 
+	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo502.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareEnum_max_buffer, 
 	  { "Max Buffer", "srvsvc.srvsvc_NetShareEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevjobs, 
@@ -19347,6 +19549,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Users", "srvsvc.srvsvc_NetSrvInfo1107.users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_alertsched, 
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo599.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_transport_flags, 
+	  { "Transport Flags", "srvsvc.srvsvc_NetTransportInfo3.transport_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sizereqbufs, 
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo599.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_info, 
@@ -19357,10 +19561,10 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Securityinformation", "srvsvc.srvsvc_NetGetFileSecurity.securityinformation", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo403_maxaudits, 
 	  { "Maxaudits", "srvsvc.srvsvc_NetSrvInfo403.maxaudits", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1501, 
-	  { "Ctr1501", "srvsvc.srvsvc_NetShareCtr.ctr1501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetTransportInfo1_domain, 
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo1.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1501, 
+	  { "Ctr1501", "srvsvc.srvsvc_NetShareCtr.ctr1501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1547_alertsched, 
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo1547.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initfiletable, 
@@ -19461,6 +19665,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Share Name", "srvsvc.srvsvc_NetShareDelSticky.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareEnumAll_ctr, 
 	  { "Ctr", "srvsvc.srvsvc_NetShareEnumAll.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHI1005_FLAGS_DFS_ROOT, 
+	  { "Shi1005 Flags Dfs Root", "srvsvc.srvsvc_DFSFlags.SHI1005_FLAGS_DFS_ROOT", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHI1005_FLAGS_DFS_ROOT_tfs), ( 0x00000002 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxnonpagedmemoryusage, 
 	  { "Maxnonpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo599.maxnonpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	};
@@ -19515,6 +19721,7 @@ void proto_register_dcerpc_srvsvc(void)
 		&ett_srvsvc_srvsvc_NetShareCtr502,
 		&ett_srvsvc_srvsvc_NetShareInfo1004,
 		&ett_srvsvc_srvsvc_NetShareCtr1004,
+		&ett_srvsvc_srvsvc_DFSFlags,
 		&ett_srvsvc_srvsvc_NetShareInfo1005,
 		&ett_srvsvc_srvsvc_NetShareCtr1005,
 		&ett_srvsvc_srvsvc_NetShareInfo1006,
@@ -19591,6 +19798,7 @@ void proto_register_dcerpc_srvsvc(void)
 		&ett_srvsvc_srvsvc_NetTransportCtr0,
 		&ett_srvsvc_srvsvc_NetTransportInfo1,
 		&ett_srvsvc_srvsvc_NetTransportCtr1,
+		&ett_srvsvc_srvsvc_TransportFlags,
 		&ett_srvsvc_srvsvc_NetTransportInfo2,
 		&ett_srvsvc_srvsvc_NetTransportCtr2,
 		&ett_srvsvc_srvsvc_NetTransportInfo3,
