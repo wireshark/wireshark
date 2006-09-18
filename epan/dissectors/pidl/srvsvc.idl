@@ -279,6 +279,11 @@
 /**************************/
 /* srvsvc_NetSess         */
 /**************************/
+	typedef [bitmap32bit] bitmap {
+		SESS_GUEST		= 0x00000001,
+		SESS_NOENCRYPTION	= 0x00000002
+	} srvsvc_SessionUserFlags;
+
 	typedef struct {
 		[string,charset(UTF16)] uint16 *client;
 	} srvsvc_NetSessInfo0;
@@ -294,7 +299,7 @@
 		uint32 num_open;
 		uint32 time;
 		uint32 idle_time;
-		uint32 user_flags;
+		srvsvc_SessionUserFlags user_flags;
 	} srvsvc_NetSessInfo1;
 
 	typedef struct {
@@ -308,7 +313,7 @@
 		uint32 num_open;
 		uint32 time;
 		uint32 idle_time;
-		uint32 user_flags;
+		srvsvc_SessionUserFlags user_flags;
 		[string,charset(UTF16)] uint16 *client_type;
 	} srvsvc_NetSessInfo2;
 
@@ -335,7 +340,7 @@
 		uint32 num_open;
 		uint32 time;
 		uint32 idle_time;
-		uint32 user_flags;
+		srvsvc_SessionUserFlags user_flags;
 		[string,charset(UTF16)] uint16 *client_type;
 		[string,charset(UTF16)] uint16 *transport;
 	} srvsvc_NetSessInfo502;

@@ -36,6 +36,7 @@ int srvsvc_dissect_struct_NetFileInfo2(tvbuff_t *tvb, int offset, packet_info *p
 int srvsvc_dissect_struct_NetFileCtr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetFileInfo3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetFileCtr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int srvsvc_dissect_bitmap_SessionUserFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int srvsvc_dissect_struct_NetSessInfo0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetSessCtr0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int srvsvc_dissect_struct_NetSessInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);

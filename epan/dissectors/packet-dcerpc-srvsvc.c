@@ -47,6 +47,7 @@ static gint ett_srvsvc_srvsvc_NetFileInfo3 = -1;
 static gint ett_srvsvc_srvsvc_NetFileCtr3 = -1;
 static gint ett_srvsvc_srvsvc_NetFileInfo = -1;
 static gint ett_srvsvc_srvsvc_NetFileCtr = -1;
+static gint ett_srvsvc_srvsvc_SessionUserFlags = -1;
 static gint ett_srvsvc_srvsvc_NetSessInfo0 = -1;
 static gint ett_srvsvc_srvsvc_NetSessCtr0 = -1;
 static gint ett_srvsvc_srvsvc_NetSessInfo1 = -1;
@@ -479,6 +480,7 @@ static gint hf_srvsvc_srvsvc_NetDiskEnum_info = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1554_linkinfovalidtime = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_timesource = -1;
 static gint hf_srvsvc_srvsvc_NetTransportEnum_totalentries = -1;
+static gint hf_srvsvc_srvsvc_SessionUserFlags_SESS_NOENCRYPTION = -1;
 static gint hf_srvsvc_srvsvc_NetSessEnum_ctr = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo1541_minfreeconnections = -1;
 static gint hf_srvsvc_srvsvc_NetConnInfo1_user = -1;
@@ -544,6 +546,7 @@ static gint hf_srvsvc_srvsvc_NetSrvInfo1512_maxnonpagedmemoryusage = -1;
 static gint hf_srvsvc_srvsvc_NetShareCtr1_array = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo102_server_name = -1;
 static gint hf_srvsvc_srvsvc_NetTransportInfo0_net_addr = -1;
+static gint hf_srvsvc_srvsvc_SessionUserFlags_SESS_GUEST = -1;
 static gint hf_srvsvc_srvsvc_NetShareDel_share_name = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo599_xactmemsize = -1;
 static gint hf_srvsvc_srvsvc_NetSrvInfo402_logonalert = -1;
@@ -1001,6 +1004,14 @@ static int srvsvc_dissect_element_NetFileCtr_ctr2(tvbuff_t *tvb, int offset, pac
 static int srvsvc_dissect_element_NetFileCtr_ctr2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetFileCtr_ctr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetFileCtr_ctr3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static const true_false_string srvsvc_SessionUserFlags_SESS_GUEST_tfs = {
+   "SESS_GUEST is SET",
+   "SESS_GUEST is NOT SET",
+};
+static const true_false_string srvsvc_SessionUserFlags_SESS_NOENCRYPTION_tfs = {
+   "SESS_NOENCRYPTION is SET",
+   "SESS_NOENCRYPTION is NOT SET",
+};
 static int srvsvc_dissect_element_NetSessInfo0_client(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetSessInfo0_client_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int srvsvc_dissect_element_NetSessCtr0_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -3648,6 +3659,54 @@ srvsvc_dissect_NetFileCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 	return offset;
 }
+/* IDL: typedef bitmap { */
+/* IDL: 	SESS_GUEST =  0x00000001 , */
+/* IDL: 	SESS_NOENCRYPTION =  0x00000002 , */
+/* IDL: } srvsvc_SessionUserFlags; */
+
+int
+srvsvc_dissect_bitmap_SessionUserFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	guint32 flags;
+	ALIGN_TO_4_BYTES;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		tree = proto_item_add_subtree(item,ett_srvsvc_srvsvc_SessionUserFlags);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
+	proto_item_append_text(item, ": ");
+
+	if (!flags)
+		proto_item_append_text(item, "(No values set)");
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_SessionUserFlags_SESS_GUEST, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000001 )){
+		proto_item_append_text(item, "SESS_GUEST");
+		if (flags & (~( 0x00000001 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000001 ));
+
+	proto_tree_add_boolean(tree, hf_srvsvc_srvsvc_SessionUserFlags_SESS_NOENCRYPTION, tvb, offset-4, 4, flags);
+	if (flags&( 0x00000002 )){
+		proto_item_append_text(item, "SESS_NOENCRYPTION");
+		if (flags & (~( 0x00000002 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00000002 ));
+
+	if (flags) {
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
+
+	return offset;
+}
+
 /* IDL: typedef struct { */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *client; */
 /* IDL: } srvsvc_NetSessInfo0; */
@@ -3764,7 +3823,7 @@ srvsvc_dissect_struct_NetSessCtr0(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* IDL: 	[keepref(1)] uint32 num_open; */
 /* IDL: 	[keepref(1)] uint32 time; */
 /* IDL: 	[keepref(1)] uint32 idle_time; */
-/* IDL: 	[keepref(1)] uint32 user_flags; */
+/* IDL: 	[keepref(1)] srvsvc_SessionUserFlags user_flags; */
 /* IDL: } srvsvc_NetSessInfo1; */
 
 static int
@@ -3832,7 +3891,7 @@ srvsvc_dissect_element_NetSessInfo1_idle_time(tvbuff_t *tvb, int offset, packet_
 static int
 srvsvc_dissect_element_NetSessInfo1_user_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo1_user_flags,NULL);
+	offset = srvsvc_dissect_bitmap_SessionUserFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo1_user_flags, 0);
 
 	return offset;
 }
@@ -3940,7 +3999,7 @@ srvsvc_dissect_struct_NetSessCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* IDL: 	[keepref(1)] uint32 num_open; */
 /* IDL: 	[keepref(1)] uint32 time; */
 /* IDL: 	[keepref(1)] uint32 idle_time; */
-/* IDL: 	[keepref(1)] uint32 user_flags; */
+/* IDL: 	[keepref(1)] srvsvc_SessionUserFlags user_flags; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *client_type; */
 /* IDL: } srvsvc_NetSessInfo2; */
 
@@ -4009,7 +4068,7 @@ srvsvc_dissect_element_NetSessInfo2_idle_time(tvbuff_t *tvb, int offset, packet_
 static int
 srvsvc_dissect_element_NetSessInfo2_user_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo2_user_flags,NULL);
+	offset = srvsvc_dissect_bitmap_SessionUserFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo2_user_flags, 0);
 
 	return offset;
 }
@@ -4292,7 +4351,7 @@ srvsvc_dissect_struct_NetSessCtr10(tvbuff_t *tvb, int offset, packet_info *pinfo
 /* IDL: 	[keepref(1)] uint32 num_open; */
 /* IDL: 	[keepref(1)] uint32 time; */
 /* IDL: 	[keepref(1)] uint32 idle_time; */
-/* IDL: 	[keepref(1)] uint32 user_flags; */
+/* IDL: 	[keepref(1)] srvsvc_SessionUserFlags user_flags; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *client_type; */
 /* IDL: 	[charset(UTF16)] [keepref(1)] [unique(1)] uint16 *transport; */
 /* IDL: } srvsvc_NetSessInfo502; */
@@ -4362,7 +4421,7 @@ srvsvc_dissect_element_NetSessInfo502_idle_time(tvbuff_t *tvb, int offset, packe
 static int
 srvsvc_dissect_element_NetSessInfo502_user_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo502_user_flags,NULL);
+	offset = srvsvc_dissect_bitmap_SessionUserFlags(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetSessInfo502_user_flags, 0);
 
 	return offset;
 }
@@ -18231,7 +18290,7 @@ void proto_register_dcerpc_srvsvc(void)
 	{ &hf_srvsvc_srvsvc_NetSrvInfo_info599, 
 	  { "Info599", "srvsvc.srvsvc_NetSrvInfo.info599", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo1_user_flags, 
-	  { "User Flags", "srvsvc.srvsvc_NetSessInfo1.user_flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "User Flags", "srvsvc.srvsvc_NetSessInfo1.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sizereqbufs, 
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo403.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_stat, 
@@ -18319,7 +18378,7 @@ void proto_register_dcerpc_srvsvc(void)
 	{ &hf_srvsvc_srvsvc_NetTransportInfo0_addr_len, 
 	  { "Addr Len", "srvsvc.srvsvc_NetTransportInfo0.addr_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo2_user_flags, 
-	  { "User Flags", "srvsvc.srvsvc_NetSessInfo2.user_flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "User Flags", "srvsvc.srvsvc_NetSessInfo2.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo402_guestaccount, 
 	  { "Guestaccount", "srvsvc.srvsvc_NetSrvInfo402.guestaccount", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr1, 
@@ -18568,6 +18627,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Timesource", "srvsvc.srvsvc_NetSrvInfo599.timesource", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetTransportEnum_totalentries, 
 	  { "Totalentries", "srvsvc.srvsvc_NetTransportEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_NOENCRYPTION, 
+	  { "Sess Noencryption", "srvsvc.srvsvc_SessionUserFlags.SESS_NOENCRYPTION", FT_BOOLEAN, 32, TFS(&srvsvc_SessionUserFlags_SESS_NOENCRYPTION_tfs), ( 0x00000002 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessEnum_ctr, 
 	  { "Ctr", "srvsvc.srvsvc_NetSessEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo1541_minfreeconnections, 
@@ -18698,6 +18759,8 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Server Name", "srvsvc.srvsvc_NetSrvInfo102.server_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetTransportInfo0_net_addr, 
 	  { "Net Addr", "srvsvc.srvsvc_NetTransportInfo0.net_addr", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_GUEST, 
+	  { "Sess Guest", "srvsvc.srvsvc_SessionUserFlags.SESS_GUEST", FT_BOOLEAN, 32, TFS(&srvsvc_SessionUserFlags_SESS_GUEST_tfs), ( 0x00000001 ), "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetShareDel_share_name, 
 	  { "Share Name", "srvsvc.srvsvc_NetShareDel.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo599_xactmemsize, 
@@ -19195,7 +19258,7 @@ void proto_register_dcerpc_srvsvc(void)
 	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc, 
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSessInfo502_user_flags, 
-	  { "User Flags", "srvsvc.srvsvc_NetSessInfo502.user_flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "User Flags", "srvsvc.srvsvc_NetSessInfo502.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems, 
 	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo502.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_num_ahead, 
@@ -19428,6 +19491,7 @@ void proto_register_dcerpc_srvsvc(void)
 		&ett_srvsvc_srvsvc_NetFileCtr3,
 		&ett_srvsvc_srvsvc_NetFileInfo,
 		&ett_srvsvc_srvsvc_NetFileCtr,
+		&ett_srvsvc_srvsvc_SessionUserFlags,
 		&ett_srvsvc_srvsvc_NetSessInfo0,
 		&ett_srvsvc_srvsvc_NetSessCtr0,
 		&ett_srvsvc_srvsvc_NetSessInfo1,
