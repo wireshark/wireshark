@@ -105,6 +105,10 @@ static int hf_fp_ul_sir_target = -1;
 static int hf_fp_pusch_set_id = -1;
 static int hf_fp_activation_cfn = -1;
 static int hf_fp_duration = -1;
+static int hf_fp_power_offset = -1;
+static int hf_fp_code_number = -1;
+static int hf_fp_spreading_factor = -1;
+static int hf_fp_mc_info = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -170,6 +174,17 @@ static const value_string paging_indication_vals[] = {
     { 0,   "no PI-bitmap in payload" },
     { 1,   "PI-bitmap in payload" },
     { 0,   NULL },
+};
+
+static const value_string spreading_factor_vals[] = {
+    {0,    "4"},
+    {1,    "8"},
+    {2,    "16"},
+    {3,    "32"},
+    {4,    "64"},
+    {5,    "128"},
+    {6,    "256"},
+    {0,    NULL }
 };
 
 
@@ -912,7 +927,7 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Transmit power level */
         proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
-                             (float)tvb_get_guint8(tvb, offset) / 10);
+                             (float)(tvb_get_guint8(tvb, offset)) / 10);
         offset++;
 
         /* TB data */
@@ -970,14 +985,42 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
         offset++;
 
-        /* PDSCH Set Id */
-        proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
-        offset++;
 
-        /* Transmit power level */
-        proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
-                             tvb_get_guint8(tvb, offset) / 10);
-        offset++;
+        /* Other fields depend upon release & FDD/TDD settings */
+        if (((p_fp_info->release == 99) || (p_fp_info->release == 4)) &&
+             (p_fp_info->channel == CHANNEL_DSCH_FDD))
+        {
+            /* Power offset */
+            proto_tree_add_float(tree, hf_fp_power_offset, tvb, offset, 1,
+                                 -32.0 + ((float)(tvb_get_guint8(tvb, offset)) * 0.25));
+            offset++;
+
+            /* Code number */
+            proto_tree_add_item(tree, hf_fp_code_number, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* Spreading Factor (3 bits) */
+            proto_tree_add_item(tree, hf_fp_spreading_factor, tvb, offset, 1, FALSE);
+
+            /* MC info (4 bits)*/
+            proto_tree_add_item(tree, hf_fp_mc_info, tvb, offset, 1, FALSE);
+
+            /* Last bit of this byte is spare */
+            offset++;
+        }
+        else
+        {
+            /* Normal case */
+
+            /* PDSCH Set Id */
+            proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
+            offset++;
+    
+            /* Transmit power level */
+            proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
+                                 (float)(tvb_get_guint8(tvb, offset)) / 10);
+            offset++;
+        }
 
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
@@ -2377,6 +2420,30 @@ void proto_register_fp(void)
             { "Duration (ms)",
               "fp.pusch-set-id", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Duration of the activation period of the PUSCH Set", HFILL
+            }
+        },
+        { &hf_fp_power_offset,
+            { "Power offset",
+              "fp.power-offset", FT_FLOAT, BASE_NONE, NULL, 0x0,
+              "Power offset (in dB)", HFILL
+            }
+        },
+        { &hf_fp_code_number,
+            { "Code number",
+              "fp.code-number", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Code number", HFILL
+            }
+        },
+        { &hf_fp_spreading_factor,
+            { "Spreading factor",
+              "fp.spreading-factor", FT_UINT8, BASE_DEC, VALS(spreading_factor_vals), 0xf0,
+              "Spreading factor", HFILL
+            }
+        },
+        { &hf_fp_mc_info,
+            { "MC info",
+              "fp.mc-info", FT_UINT8, BASE_DEC, NULL, 0x0e,
+              "MC info", HFILL
             }
         },
 
