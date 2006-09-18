@@ -396,7 +396,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
         proto_abbrev = proto_registrar_get_abbrev(field_id);
 
         /* open reference page using the protocol abbreviation */
-        selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
+        selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s.html", proto_abbrev[0], proto_abbrev);
         browser_open_url(selected_proto_url);
         g_free(selected_proto_url);
     }
