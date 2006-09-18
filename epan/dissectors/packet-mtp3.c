@@ -470,7 +470,7 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 static void
 dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 {
-  guint32 label, dpc = 0, opc = 0;
+  guint32 label, dpc, opc;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
   proto_tree *label_tree;
   int *hf_dpc_string;
@@ -545,14 +545,14 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     label_dpc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_dpc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    dpc = tvb_get_letohs(tvb, ROUTING_LABEL_OFFSET);
     if (mtp3_pc_structured()) {
-      dpc = tvb_get_letohs(tvb, ROUTING_LABEL_OFFSET);
       proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
     }
 
     label_opc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_opc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    opc = tvb_get_letohs(tvb, JAPAN_OPC_OFFSET);
     if (mtp3_pc_structured()) {
-      opc = tvb_get_letohs(tvb, JAPAN_OPC_OFFSET);
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
     }
 
@@ -569,6 +569,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
     break;
   default:
+    opc = dpc = 0;	/* just to avoid a compiler warning */
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
