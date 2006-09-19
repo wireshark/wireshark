@@ -61,7 +61,7 @@ sub ParseFunction($$)
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 
-		fatal($e, "[out] argument is not a pointer") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER");
+		fatal($e, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
 
 		pidl "*$e->{NAME} = *r.out.$e->{NAME};";
 	}

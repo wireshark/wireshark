@@ -7,6 +7,10 @@
 
 package Parse::Pidl::Samba4::NDR::Parser;
 
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw(is_charset_array);
+
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapType);
 use Parse::Pidl::Util qw(has_property ParseExpr print_uuid);
@@ -589,9 +593,7 @@ sub ParseElementPushLevel
 				pidl "NDR_CHECK(ndr_push_relative_ptr2(ndr, $var_name));";
 			}
 		}
-		if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
-			$var_name = get_value_of($var_name);
-		}
+		$var_name = get_value_of($var_name);
 		ParseElementPushLevel($e, GetNextLevel($e, $l), $ndr, $var_name, $env, 1, 1);
 
 		if ($l->{POINTER_TYPE} ne "ref") {
@@ -671,9 +673,7 @@ sub ParsePtrPush($$$)
 	my ($e,$l,$var_name) = @_;
 
 	if ($l->{POINTER_TYPE} eq "ref") {
-		if (has_property($e, "keepref")) {
-			check_null_pointer(get_value_of($var_name));
-		}
+		check_null_pointer(get_value_of($var_name));
 		if ($l->{LEVEL} eq "EMBEDDED") {
 			pidl "NDR_CHECK(ndr_push_ref_ptr(ndr));";
 		}
@@ -709,15 +709,13 @@ sub ParseElementPrint($$$)
 
 	foreach my $l (@{$e->{LEVELS}}) {
 		if ($l->{TYPE} eq "POINTER") {
-			if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
 			pidl "ndr_print_ptr(ndr, \"$e->{NAME}\", $var_name);";
 			pidl "ndr->depth++;";
-				if ($l->{POINTER_TYPE} ne "ref") {
-					pidl "if ($var_name) {";
-					indent;
-				}
-				$var_name = get_value_of($var_name);
+			if ($l->{POINTER_TYPE} ne "ref") {
+				pidl "if ($var_name) {";
+				indent;
 			}
+			$var_name = get_value_of($var_name);
 		} elsif ($l->{TYPE} eq "ARRAY") {
 			my $length;
 
@@ -766,13 +764,11 @@ sub ParseElementPrint($$$)
 
 	foreach my $l (reverse @{$e->{LEVELS}}) {
 		if ($l->{TYPE} eq "POINTER") {
-			if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
-				if ($l->{POINTER_TYPE} ne "ref") {
-					deindent;
-					pidl "}";
-				}
-				pidl "ndr->depth--;";
+			if ($l->{POINTER_TYPE} ne "ref") {
+				deindent;
+				pidl "}";
 			}
+			pidl "ndr->depth--;";
 		} elsif (($l->{TYPE} eq "ARRAY")
 			and not is_charset_array($e,$l)
 			and not has_fast_array($e,$l)) {
@@ -886,7 +882,7 @@ sub ParseMemCtxPullStart($$$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		if ($next_is_array or $next_is_string or not has_property($e, "keepref")) {
+		if ($next_is_array or $next_is_string) {
 			return;
 		} else {
 			$mem_c_flags = "LIBNDR_FLAG_REF_ALLOC";
@@ -912,7 +908,7 @@ sub ParseMemCtxPullEnd($$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		if ($next_is_array or $next_is_string or not has_property($e, "keepref")) {
+		if ($next_is_array or $next_is_string) {
 			return;
 		} else {
 			$mem_r_flags = "LIBNDR_FLAG_REF_ALLOC";
@@ -989,9 +985,7 @@ sub ParseElementPullLevel
 
 		ParseMemCtxPullStart($e,$l, $var_name);
 
-		if ($l->{POINTER_TYPE} ne "ref" or has_property($e, "keepref")) {
-			$var_name = get_value_of($var_name);
-		}
+		$var_name = get_value_of($var_name);
 		ParseElementPullLevel($e,GetNextLevel($e,$l), $ndr, $var_name, $env, 1, 1);
 
 		ParseMemCtxPullEnd($e,$l);
@@ -1095,8 +1089,7 @@ sub ParsePtrPull($$$$)
 			pidl "NDR_CHECK(ndr_pull_ref_ptr($ndr, &_ptr_$e->{NAME}));";
 		}
 
-		if (!$next_is_array and !$next_is_string and 
-			has_property($e, "keepref")) {
+		if (!$next_is_array and !$next_is_string) {
 			pidl "if (ndr->flags & LIBNDR_FLAG_REF_ALLOC) {";
 			pidl "\tNDR_PULL_ALLOC($ndr, $var_name);"; 
 			pidl "}";
@@ -1441,7 +1434,7 @@ sub need_decl_mem_ctx($$)
 		my $next_is_array = ($nl->{TYPE} eq "ARRAY");
 		my $next_is_string = (($nl->{TYPE} eq "DATA") and 
 					($nl->{DATA_TYPE} eq "string"));
-		return 0 if ($next_is_array or $next_is_string or not has_property($e, "keepref"));
+		return 0 if ($next_is_array or $next_is_string);
 	}
 	return 1 if ($l->{TYPE} eq "POINTER");
 
@@ -2107,7 +2100,6 @@ sub ParseFunctionPull($)
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 		next unless ($e->{LEVELS}[0]->{TYPE} eq "POINTER" and 
 		             $e->{LEVELS}[0]->{POINTER_TYPE} eq "ref");
-		next unless has_property($e, "keepref");
 		next if (($e->{LEVELS}[1]->{TYPE} eq "DATA") and 
 				 ($e->{LEVELS}[1]->{DATA_TYPE} eq "string"));
 		next if (($e->{LEVELS}[1]->{TYPE} eq "ARRAY") 
@@ -2359,6 +2351,29 @@ sub ParseInterface($$)
 	pidl_hdr "#endif /* _HEADER_NDR_$interface->{NAME} */";
 }
 
+sub GenerateIncludes()
+{
+	if (is_intree()) {
+		pidl "#include \"includes.h\"";
+	} else {
+		pidl "#define _GNU_SOURCE";
+		pidl "#include <stdint.h>";
+		pidl "#include <stdlib.h>";
+		pidl "#include <stdio.h>";
+		pidl "#include <stdbool.h>";
+		pidl "#include <stdarg.h>";
+		pidl "#include <string.h>";
+	}
+
+	# Samba3 has everything in include/includes.h
+	if (is_intree() != 3) {
+		pidl choose_header("libcli/util/nterr.h", "core/nterr.h");
+		pidl choose_header("librpc/gen_ndr/ndr_misc.h", "gen_ndr/ndr_misc.h");
+		pidl choose_header("librpc/gen_ndr/ndr_dcerpc.h", "gen_ndr/ndr_dcerpc.h");
+		pidl choose_header("librpc/rpc/dcerpc.h", "dcerpc.h"); #FIXME: This shouldn't be here!
+	}
+}
+
 #####################################################################
 # parse a parsed IDL structure back into an IDL file
 sub Parse($$$)
@@ -2376,22 +2391,8 @@ sub Parse($$$)
 
 	pidl "/* parser auto-generated by pidl */";
 	pidl "";
-	if (is_intree()) {
-		pidl "#include \"includes.h\"";
-	} else {
-		pidl "#define _GNU_SOURCE";
-		pidl "#include <stdint.h>";
-		pidl "#include <stdlib.h>";
-		pidl "#include <stdio.h>";
-		pidl "#include <stdbool.h>";
-		pidl "#include <stdarg.h>";
-		pidl "#include <string.h>";
-	}
-	pidl choose_header("libcli/util/nterr.h", "core/nterr.h");
-	pidl choose_header("librpc/gen_ndr/ndr_misc.h", "gen_ndr/ndr_misc.h");
-	pidl choose_header("librpc/gen_ndr/ndr_dcerpc.h", "gen_ndr/ndr_dcerpc.h");
+	GenerateIncludes();
 	pidl "#include \"$ndr_header\"" if ($ndr_header);
-	pidl choose_header("librpc/rpc/dcerpc.h", "dcerpc.h"); #FIXME: This shouldn't be here!
 	pidl "";
 
 	my %needed = ();

@@ -109,6 +109,15 @@ sub GetElementLevelTable($)
 		@bracket_array = @{$e->{ARRAY_LEN}};
 	}
 
+	if (has_property($e, "out")) {
+		my $needptrs = 1;
+
+		if (has_property($e, "string")) { $needptrs++; }
+		if ($#bracket_array >= 0) { $needptrs = 0; }
+
+		nonfatal($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
+	}
+
 	# Parse the [][][][] style array stuff
 	for my $i (0 .. $#bracket_array) {
 		my $d = $bracket_array[$#bracket_array - $i];
@@ -195,7 +204,8 @@ sub GetElementLevelTable($)
 			}
 		} 
 		
-		if (scalar(@size_is) == 0 and has_property($e, "string")) {
+		if (scalar(@size_is) == 0 and has_property($e, "string") and 
+		    $i == $e->{POINTERS}) {
 			$is_string = 1;
 			$is_varying = $is_conformant = has_property($e, "noheader")?0:1;
 			delete($e->{PROPERTIES}->{string});
@@ -543,10 +553,6 @@ sub ParseFunction($$$)
 		push (@{$e->{DIRECTION}}, "in") if (has_property($x, "in"));
 		push (@{$e->{DIRECTION}}, "out") if (has_property($x, "out"));
 
-		nonfatal($x, "`$e->{NAME}' is [out] argument but not a pointer")
-			if ($e->{LEVELS}[0]->{TYPE} ne "POINTER") and 
-			    grep(/out/, @{$e->{DIRECTION}});
-
 		push (@elements, $e);
 	}
 
@@ -580,23 +586,6 @@ sub CheckPointerTypes($$)
 	}
 }
 
-#FIXME: Remove when ref handling in Samba4 is fixed
-sub AddKeepRef($)
-{
-	my $d = shift;
-
-	if ($d->{TYPE} eq "FUNCTION") {
-		foreach (@{$d->{ELEMENTS}}) {
-			$_->{PROPERTIES}->{keepref} = 1;
-		}
-	} elsif ($d->{TYPE} eq "TYPEDEF" and ($d->{DATA}->{TYPE} eq "STRUCT"
-			or $d->{DATA}->{TYPE} eq "UNION")) {
-		foreach (@{$d->{DATA}->{ELEMENTS}}) {
-			$_->{PROPERTIES}->{keepref} = 1;
-		}
-	}
-}
-
 sub ParseInterface($)
 {
 	my $idl = shift;
@@ -622,12 +611,10 @@ sub ParseInterface($)
 		if ($d->{TYPE} eq "DECLARE") {
 			push (@declares, $d);
 		} elsif ($d->{TYPE} eq "FUNCTION") {
-			AddKeepRef($d) if (has_property($idl, "keepref"));
 			push (@functions, ParseFunction($idl, $d, \$opnum));
 		} elsif ($d->{TYPE} eq "CONST") {
 			push (@consts, ParseConst($idl, $d));
 		} else {
-			AddKeepRef($d) if (has_property($idl, "keepref"));
 			push (@types, ParseType($idl, $d));
 		}
 	}
@@ -849,10 +836,6 @@ my %property_list = (
 	"noheader"		=> ["ELEMENT"],
 	"charset"		=> ["ELEMENT"],
 	"length_is"		=> ["ELEMENT"],
-
-	# temporary (should be removed once we've migrated away from 
-	# relying on ref pointers being there in Samba4's code)
-	"keepref"		=> ["ELEMENT","INTERFACE"],
 );
 
 #####################################################################

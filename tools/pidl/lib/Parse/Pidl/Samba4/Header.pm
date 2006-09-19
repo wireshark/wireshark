@@ -60,11 +60,7 @@ sub HeaderElement($)
 	} else {
 		HeaderType($element, $element->{TYPE}, "");
 		pidl " ";
-		my $numstar = 0;
-		if (!has_property($element, "ref") or 
-			has_property($element, "keepref")) {
-			$numstar += $element->{POINTERS};
-		}
+		my $numstar = $element->{POINTERS};
 		if ($numstar >= 1) {
 			$numstar-- if Parse::Pidl::Typelist::scalar_is_reference($element->{TYPE});
 		}

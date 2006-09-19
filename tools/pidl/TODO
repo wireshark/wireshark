@@ -1,3 +1,8 @@
+- EJS output backend shouldn't use the NDR levels stuff but instead 
+  as the "C levels" and NDR levels don't necessarily match.
+
+- warn about [out] attributes on pointers (midl/samba3 compatibility)
+
 - true multiple dimension array / strings in arrays support
 
 - compatibility mode for generating MIDL-readable data:
