@@ -207,7 +207,7 @@ static const sip_header_t sip_headers[] = {
                 { "Proxy-Authenticate", 		NULL },
                 { "Proxy-Authorization", 		NULL },	 /* 50 */
                 { "Proxy-Require", 				NULL },
-                { "RAck", 						NULL },
+                { "RAck", 						NULL },  /*  52 RFC3262  */
                 { "Reason",                     NULL },  /*  53 RFC3326  */
                 { "Record-Route", 				NULL },
                 { "Referred-By",				"b"  },  /*  55 RFC3892  */
@@ -219,7 +219,7 @@ static const sip_header_t sip_headers[] = {
                 { "Resource-Priority",			NULL },	 /*  61 draft-ietf-sip-resource-priority-05.txt */
                 { "Retry-After", 				NULL },  /*  62 RFC3261  */
                 { "Route", 						NULL },  /*  63 RFC3261  */
-                { "RSeq", 						NULL },  /*  64 RFC3841  */
+                { "RSeq", 						NULL },  /*  64 RFC3262  */
                 { "Security-Client",			NULL },  /*  65 RFC3329  */
                 { "Security-Server",			NULL },  /*  66 RFC3329  */
                 { "Security-Verify",			NULL },  /*  67 RFC3329  */
@@ -382,7 +382,7 @@ static gint hf_header_array[] = {
                 -1, /* 49"Proxy-Authenticate",							*/
                 -1, /* 50"Proxy-Authorization",							*/
                 -1, /* 51"Proxy-Require",								*/
-                -1, /* 52"RAck",										*/
+                -1, /* 52"RAck",								RFC3262 */
                 -1, /* 53"Reason",								RFC3326 */
                 -1, /* 54"Record-Route",								*/
                 -1, /* 55"Referred-By",									*/
@@ -394,7 +394,7 @@ static gint hf_header_array[] = {
 				-1, /* 61"Resource-Priority",draft-ietf-sip-resource-priority-05.txt */
 				-1, /* 62"Retry-After",							RFC3261 */
                 -1, /* 63"Route",								RFC3261 */
-                -1, /* 64"RSeq",								RFC3841 */
+                -1, /* 64"RSeq",								RFC3262 */
                 -1, /* 65"Security-Client",						RFC3329 */
                 -1, /* 66"Security-Server",						RFC3329 */
                 -1, /* 67"Security-Verify",						RFC3329 */
@@ -1769,14 +1769,22 @@ separator_found2:
 					break;
 
 					case POS_CONTENT_LENGTH :
-						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
-							                             hf_header_array[hf_index], tvb,
-							                             offset, next_offset - offset,
-							                             value, "%s",
-							                             tvb_format_text(tvb, offset, linelen));
-						}
 						content_length = atoi(value);
+						if(hdr_tree) {
+							proto_tree_add_uint(hdr_tree,
+							                    hf_header_array[hf_index], tvb,
+							                    offset, next_offset - offset,
+							                    content_length);
+						}
+						break;
+
+					case POS_MAX_FORWARDS :
+						if(hdr_tree) {
+							proto_tree_add_uint(hdr_tree,
+							                    hf_header_array[hf_index], tvb,
+							                    offset, next_offset - offset,
+							                    atoi(value));
+						}
 						break;
 
 					case POS_CONTACT :
@@ -1867,6 +1875,7 @@ separator_found2:
 					break;
 
 					default :
+						/* Default case is to assume its an FT_STRING field */
 						if(hdr_tree) {
 							proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
@@ -2549,7 +2558,7 @@ void proto_register_sip(void)
 		},
                 { &hf_header_array[POS_CONTENT_LENGTH],
 		       { "Content-Length", 		"sip.Content-Length",
-		       FT_STRING, BASE_NONE,NULL,0x0,
+		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"RFC 3261: Content-Length Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_TYPE],
@@ -2599,7 +2608,7 @@ void proto_register_sip(void)
 		},
                 { &hf_header_array[POS_MAX_FORWARDS],
 		       { "Max-Forwards", 		"sip.Max-Forwards",
-		       FT_STRING, BASE_NONE,NULL,0x0,
+		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"RFC 3261: Max-Forwards Header", HFILL }
 		},
                 { &hf_header_array[POS_MIME_VERSION],
