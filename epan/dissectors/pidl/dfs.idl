@@ -1,0 +1,238 @@
+/*
+  dfs interface definition
+*/
+
+[ uuid("4fc742e0-4a10-11cf-8273-00aa004ae673"),
+  version(3.0),
+  pointer_default(unique),
+  helpstring("Settings for Microsoft Distributed File System")
+] interface netdfs
+{
+	/******************/
+	/* Function: 0x00 */
+	typedef [v1_enum] enum {
+		DFS_MANAGER_VERSION_NT4		= 0,
+		DFS_MANAGER_VERSION_W2K		= 2,
+		DFS_MANAGER_VERSION_W2K3	= 4
+	} dfs_ManagerVersion;
+
+	void dfs_GetManagerVersion(
+		[out]		dfs_ManagerVersion *version
+		);
+
+
+	/******************/
+	/* Function: 0x01 */
+	WERROR dfs_Add (
+		[in]		[string,charset(UTF16)] uint16 *path,
+		[in]		[string,charset(UTF16)] uint16 *server,
+		[in,unique]	[string,charset(UTF16)] uint16 *share,
+		[in,unique]	[string,charset(UTF16)] uint16 *comment,
+		[in]		uint32 flags
+		);
+
+	/******************/
+	/* Function: 0x02 */
+	WERROR dfs_Remove (
+		[in]		[string,charset(UTF16)] uint16 *path,
+		[in,unique]	[string,charset(UTF16)] uint16 *server,
+		[in,unique]	[string,charset(UTF16)] uint16 *share
+		);
+
+	/******************/
+	/* Function: 0x03 */
+	WERROR dfs_SetInfo ();
+
+	/******************/
+	/* Function: 0x04 */
+
+	typedef struct {
+	} dfs_Info0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *path;
+	} dfs_Info1;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 state;
+		uint32 num_stores;
+	} dfs_Info2;
+
+	typedef struct {
+		uint32 state;
+		[string,charset(UTF16)] uint16 *server;
+		[string,charset(UTF16)] uint16 *share;
+	} dfs_StorageInfo;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 state;
+		uint32 num_stores;
+		[size_is(num_stores)] dfs_StorageInfo *stores;
+	} dfs_Info3;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 state;
+		uint32 timeout;
+		GUID   guid;
+		uint32 num_stores;
+		[size_is(num_stores)] dfs_StorageInfo *stores;
+	} dfs_Info4;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *comment;
+	} dfs_Info100;
+
+	typedef struct {
+		uint32 state;
+	} dfs_Info101;
+
+	typedef struct {
+		uint32 timeout;
+	} dfs_Info102;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *dom_root;
+	} dfs_Info200;
+
+	typedef struct {
+		uint32 flags;
+		[string,charset(UTF16)] uint16 *dom_root;
+	} dfs_Info300;
+
+	typedef union {
+		[case(0)]   dfs_Info0 *info0;
+		[case(1)]   dfs_Info1 *info1;
+		[case(2)]   dfs_Info2 *info2;
+		[case(3)]   dfs_Info3 *info3;
+		[case(4)]   dfs_Info4 *info4;
+		[case(100)] dfs_Info100 *info100;
+		[case(101)] dfs_Info101 *info101;
+		[case(102)] dfs_Info102 *info102;
+	} dfs_Info;
+
+	WERROR dfs_GetInfo (
+		[in]		[string,charset(UTF16)] uint16 path[],
+		[in,unique]	[string,charset(UTF16)] uint16 *server,
+		[in,unique]	[string,charset(UTF16)] uint16 *share,
+		[in]		uint32 level,
+		[out,switch_is(level)] dfs_Info *info
+		);
+
+	/******************/
+	/* Function: 0x05 */
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info1 *s;
+	} dfs_EnumArray1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info2 *s;
+	} dfs_EnumArray2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info3 *s;
+	} dfs_EnumArray3;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info4 *s;
+	} dfs_EnumArray4;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info200 *s;
+	} dfs_EnumArray200;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] dfs_Info300 *s;
+	} dfs_EnumArray300;
+
+
+	typedef union {
+		[case(1)] dfs_EnumArray1 *info1;
+		[case(2)] dfs_EnumArray2 *info2;
+		[case(3)] dfs_EnumArray3 *info3;
+		[case(4)] dfs_EnumArray4 *info4;
+		[case(200)] dfs_EnumArray200 *info200;
+		[case(300)] dfs_EnumArray300 *info300;
+	} dfs_EnumInfo;
+
+	typedef struct {
+		uint32 level;
+		[switch_is(level)] dfs_EnumInfo e;
+	} dfs_EnumStruct;
+
+	WERROR dfs_Enum (
+		[in]		uint32 level,
+		[in]		uint32 bufsize,
+		[in,out,unique]	dfs_EnumStruct *info,
+		[in,out,unique]	uint32 *total
+		);
+
+	/* Function 0x06 */
+	WERROR dfs_Rename();
+
+	/* Function 0x07 */
+	WERROR dfs_Move();
+
+	/* Function 0x08 */
+	WERROR dfs_ManagerGetConfigInfo();
+
+	/* Function 0x09 */
+	WERROR dfs_ManagerSendSiteInfo();
+
+	/* Function 0x0a */
+	WERROR dfs_AddFtRoot();
+
+	/* Function 0x0b */
+	WERROR dfs_RemoveFtRoot();
+
+	/* Function 0x0c */
+	WERROR dfs_AddStdRoot();
+
+	/* Function 0x0d */
+	WERROR dfs_RemoveStdRoot();
+
+	/* Function 0x0e */
+	WERROR dfs_ManagerInitialize();
+
+	/* Function 0x0f */
+	WERROR dfs_AddStdRootForced();
+
+	/* Function 0x10 */
+	WERROR dfs_GetDcAddress();
+
+	/* Function 0x11 */
+	WERROR dfs_SetDcAddress();
+
+	/* Function 0x12 */
+	WERROR dfs_FlushFtTable();
+
+	/* Function 0x13 */
+	WERROR dfs_Add2();
+
+	/* Function 0x14 */
+	WERROR dfs_Remove2();
+
+	/* Function 0x15 */
+	WERROR dfs_EnumEx(
+		[in]		[string,charset(UTF16)] uint16 name[],
+		[in]		uint32 level,
+		[in]		uint32 bufsize,
+		[in,out,unique]	dfs_EnumStruct *info,
+		[in,out,unique]	uint32 *total
+	);
+
+	/* Function 0x16 */
+	WERROR dfs_SetInfo2();
+}
