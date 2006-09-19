@@ -160,6 +160,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ranap_handle;
 
 /* Preferenc settings default */
+gboolean old_gsm_map_version = FALSE;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
@@ -441,14 +442,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
 		/* convert degrees (X/0x7fffff) * 90 = degrees */
 		lat_item = proto_tree_add_item(tree, hf_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
-		proto_item_append_text(lat_item,"(%.2f degrees)", (((double)value32/8388607) * 90));
+		proto_item_append_text(lat_item,"(%.5f degrees)", (((double)value32/8388607) * 90));
 		if (length<7)
 			return;
 		offset = offset + 3;
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
 		long_item = proto_tree_add_item(tree, hf_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
 		/* (X/0xffffff) *360 = degrees */
-		proto_item_append_text(long_item,"(%.2f degrees)", (((double)value32/16777215) * 260));
+		proto_item_append_text(long_item,"(%.5f degrees)", (((double)value32/16777215) * 360));
 		offset = offset + 3;
 		if(type_of_shape==2){
 			/* Ellipsoid Point with uncertainty Circle */
@@ -919,7 +920,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ProcessGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-	  if (application_context_version < 3 ){
+	  if ((application_context_version < 3 )&&(old_gsm_map_version == TRUE)){
 		  offset = dissect_gsm_map_IMEI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 	  }else{
 		  offset=dissect_gsm_map_CheckIMEIArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CheckIMEIArg);
@@ -2261,6 +2262,12 @@ void proto_register_gsm_map(void) {
   prefs_register_range_preference(gsm_map_module, "tcap.ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for GSM MAP",
 				  &global_ssn_range, MAX_SSN);
+  prefs_register_bool_preference(gsm_map_module, "old_gsm_map_version",
+				  "To decode older gsm map versions",
+				  "Forces the decoding to decode according to older "
+				  "incompatable gsm map version",
+				  &old_gsm_map_version);
+
 }
 
 
