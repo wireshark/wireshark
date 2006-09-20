@@ -71,6 +71,8 @@ static int hf_msrp_msg_hdr			= -1;
 static int hf_msrp_end_line			= -1;
 static int hf_msrp_cnt_flg			= -1;
 
+static int hf_msrp_data				= -1;
+
 /* MSRP setup fields */
 static int hf_msrp_setup        = -1;
 static int hf_msrp_setup_frame  = -1;
@@ -708,9 +710,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Set the length of the header item.
 			 */
 			proto_item_set_end(msrp_headers_item, tvb, next_offset);
+
+			/* Create new tree & tvb for data */
 			next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
-			ti = proto_tree_add_text(msrp_tree, next_tvb, 0, -1,
-		                         "Data");
+			ti = proto_tree_add_item(msrp_tree, hf_msrp_data, tvb,
+			                         next_offset, -1, FALSE);
 			msrp_data_tree = proto_item_add_subtree(ti, ett_msrp_data);
 
 			/* give the content type parameters to sub dissectors */
@@ -909,6 +913,11 @@ proto_register_msrp(void)
 			FT_STRING, BASE_NONE,NULL,0x0,
 			"Authentication-Info", HFILL }
 		},
+		{ &hf_msrp_data,
+			{ "Data", "msrp.data",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			"Data", HFILL}
+        },
 		{ &hf_msrp_setup,
 			{ "Stream setup", "msrp.setup",
 			FT_STRING, BASE_NONE, NULL, 0x0,
