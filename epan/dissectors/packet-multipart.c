@@ -95,16 +95,20 @@ static const multipart_header_t multipart_headers[] = {
 	{ "Unknown-header", NULL },		/* Pad so that the real headers start at index 1 */
 	{ "Content-Disposition", NULL },
 	{ "Content-Encoding", "e" },
+	{ "Content-Id", NULL },
 	{ "Content-Language", NULL },
 	{ "Content-Length", "l" },
+	{ "Content-Transfer-Encoding", NULL },
 	{ "Content-Type", "c" },
 };
 
-#define POS_CONTENT_DISPOSITION		1
-#define POS_CONTENT_ENCODING		2
-#define POS_CONTENT_LANGUAGE		3
-#define POS_CONTENT_LENGTH			4
-#define POS_CONTENT_TYPE			5
+#define POS_CONTENT_DISPOSITION			1
+#define POS_CONTENT_ENCODING			2
+#define POS_CONTENT_ID					3
+#define POS_CONTENT_LANGUAGE			4
+#define POS_CONTENT_LENGTH				5
+#define POS_CONTENT_TRANSFER_ENCODING	6
+#define POS_CONTENT_TYPE				7
 
 /* Initialize the header fields */
 static gint hf_multipart_type = -1;
@@ -112,8 +116,10 @@ static gint hf_header_array[] = {
 	-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
 	-1, /* "Content-Disposition" */
 	-1, /* "Content-Encoding" */
+	-1, /* "Content-Id" */
 	-1, /* "Content-Language" */
 	-1, /* "Content-Length" */
+	-1, /* "Content-Transfer-Encoding" */
 	-1, /* "Content-Type" */
 };
 
@@ -837,6 +843,13 @@ proto_register_multipart(void)
 				"RFC 3261: Content-Encoding Header", HFILL
 			}
 		},
+		{ &hf_header_array[POS_CONTENT_ID],
+			{	"Content-Id",
+				"mime_multipart.header.content-id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"RFC 2045: Content-Id Header", HFILL
+			}
+		},
 		{ &hf_header_array[POS_CONTENT_LANGUAGE],
 			{	"Content-Language",
 				"mime_multipart.header.content-language",
@@ -849,6 +862,13 @@ proto_register_multipart(void)
 				"mime_multipart.header.content-length",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				"RFC 3261: Content-Length Header", HFILL
+			}
+		},
+		{ &hf_header_array[POS_CONTENT_TRANSFER_ENCODING],
+			{	"Content-Transfer-Encoding",
+				"mime_multipart.header.content-transfer-encoding",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"RFC 2045: Content-Transfer-Encoding Header", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_TYPE],
