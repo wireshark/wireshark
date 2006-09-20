@@ -250,6 +250,7 @@ epan_dissect_prime_dfilter
 epan_dissect_run
 epan_get_version
 epan_init
+epan_base64_decode
 ether_to_str
 ex_opt_add
 ex_opt_count
@@ -427,6 +428,10 @@ LocationRejectReason_vals       DATA
 make_printable_string
 match_strval
 match_strval_idx
+md5_append
+md5_finish
+md5_hmac
+md5_init
 mkstemp
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
