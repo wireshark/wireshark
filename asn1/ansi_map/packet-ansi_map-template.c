@@ -3566,7 +3566,7 @@ static void range_delete_callback(guint32 ssn)
  {
      if (ssn) {
  	delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
- 	add_itu_tcap_subdissector(ssn , ansi_map_handle);
+ 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
      }
  }
 
