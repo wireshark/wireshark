@@ -177,23 +177,38 @@ const value_string sap_vals[] = {
  * for the PIDs for VTP and DRiP that go with an OUI of OUI_CISCO.
  */
 const value_string oui_vals[] = {
-	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
-	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
-	{ OUI_ATM_FORUM,   "ATM Forum" },
-	/* RFC 2427, RFC 2684 */
-	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
-	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
-	{ OUI_SIEMENS,     "Siemens AG" },
-	{ OUI_XEROX,       "Xerox" },
+	{ OUI_ENCAP_ETHER,	"Encapsulated Ethernet" },
+	{ OUI_XEROX,		"Xerox" },
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
-	{ OUI_CISCO,       "Cisco" },
-	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
-	{ OUI_CISCOWL,     "Cisco Wireless (Aironet) L2" },
-	{ OUI_EXTREME,     "Extreme Networks" },
-	{ OUI_HP,          "Hewlett-Packard" },
-	{ OUI_NORTEL,      "Nortel Networks SONMP" },
+	{ OUI_CISCO,			"Cisco" },
+	{ OUI_NORTEL,			"Nortel Networks SONMP" },
+	{ OUI_CISCO_90,			"Cisco IOS 9.0 Compatible" },
+	{ OUI_ERICSSON,			"Ericsson Group" },
+	{ OUI_SONY_ERICSSON,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_SONY_ERICSSON_2,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_PROFINET,			"PROFIBUS Nutzerorganisation e.V." },
+	{ OUI_SONY_ERICSSON_3,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_CATENA,			"Catena Networks" },
+	{ OUI_IEEE_802_3,		"IEEE 802.3" },
+	{ OUI_MEDIA_ENDPOINT,	"Media (TIA TR-41 Committee)" },
+	{ OUI_SONY_ERICSSON_4,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_ERICSSON_MOBILE,	"Ericsson Mobile Platforms" },
+	{ OUI_SONY_ERICSSON_5,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_SONY_ERICSSON_6,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_SONY_ERICSSON_7,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_SONY_ERICSSON_8,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
+	{ OUI_ERICSSON_2,			"Ericsson Group" },
+	{ OUI_BRIDGED,			"Frame Relay or ATM bridged frames" },
+	{ OUI_ATM_FORUM,		"ATM Forum" },
+	{ OUI_EXTREME,			"Extreme Networks" },
+	/* RFC 2427, RFC 2684 */
+	{ OUI_CABLE_BPDU,		"DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
+	{ OUI_SIEMENS,			"Siemens AG" },
+	{ OUI_APPLE_ATALK,		"Apple (AppleTalk)" },
+	{ OUI_HP,				"Hewlett-Packard" },
 	{ 0,               NULL }
 };
 
