@@ -109,6 +109,10 @@ static int hf_fp_power_offset = -1;
 static int hf_fp_code_number = -1;
 static int hf_fp_spreading_factor = -1;
 static int hf_fp_mc_info = -1;
+static int hf_fp_rach_new_ie_flags = -1;
+static int hf_fp_rach_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_fp_cell_portion_id = -1;
+
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -117,6 +121,7 @@ static int ett_fp_crcis = -1;
 static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
+static int ett_fp_rach_new_ie_flags = -1;
 
 
 /* E-DCH channel header information */
@@ -872,6 +877,50 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* CRCIs */
         offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
+
+        /* Info introduced in R6 */
+        if (p_fp_info->release == 6)
+        {
+            int n;
+            guint8 flags;
+            guint8 flag_bytes = 0;
+
+            /* New IE flags */
+            do
+            {
+                proto_item *new_ie_flags_ti;
+                proto_tree *new_ie_flags_tree;
+                guint ies_found = 0;
+
+                /* Add new IE flags subtree */
+                new_ie_flags_ti = proto_tree_add_string_format(tree, hf_fp_rach_new_ie_flags, tvb, offset, 1,
+                                                              "", "New IE flags");
+                new_ie_flags_tree = proto_item_add_subtree(new_ie_flags_ti, ett_fp_rach_new_ie_flags);
+
+                /* Read next byte */
+                flags = tvb_get_guint8(tvb, offset);
+                flag_bytes++;
+
+                /* Dissect individual bits */
+                for (n=0; n < 8; n++)
+                {
+                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag[n], tvb, offset, 1, FALSE);
+                    if ((flags >> (7-n)) & 0x01)
+                    {
+                        ies_found++;
+                    }
+                }
+                offset++;
+
+                proto_item_append_text(new_ie_flags_ti, " (%u IEs found)", ies_found);
+
+                /* Last bit set will indicate another flags byte follows... */
+            } while (0); /*((flags & 0x01) && (flag_bytes < 31));*/
+
+            /* Cell portion ID */
+            proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
+            offset++;
+        }
 
         /* Payload CRC */
         proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
@@ -2287,7 +2336,7 @@ void proto_register_fp(void)
         { &hf_fp_hsdsch_new_ie_flags,
             { "New IEs flags",
               "fp.hsdsch.new-ie-flags", FT_STRING, BASE_NONE, 0, 0x0,
-              "DRT present", HFILL
+              "New IEs flags", HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[0],
@@ -2333,9 +2382,9 @@ void proto_register_fp(void)
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[7],
-            { "New IE present",
-              "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x01,
-              "New IE present", HFILL
+            { "Another new IE flags byte",
+              "fp.hsdsch.new-ie-flags-byte", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Another new IE flagsbyte", HFILL
             }
         },
         { &hf_fp_hsdsch_drt,
@@ -2446,6 +2495,66 @@ void proto_register_fp(void)
               "MC info", HFILL
             }
         },
+        { &hf_fp_rach_new_ie_flags,
+            { "New IEs flags",
+              "fp.rach.new-ie-flags", FT_STRING, BASE_NONE, 0, 0x0,
+              "New IEs flags", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[0],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x80,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[1],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x40,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[2],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x20,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[3],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x10,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[4],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x08,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[5],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x04,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[6],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
+              "New IE present", HFILL
+            }
+        },
+        { &hf_fp_rach_new_ie_flag[7],
+            { "Another new IE flags byte",
+              "fp.rach.new-ie-flags-byte", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Another new IE flags byte", HFILL
+            }
+        },
+        { &hf_fp_cell_portion_id,
+            { "Cell Portion ID",
+              "fp.cell-portion-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "Cell Portion ID", HFILL
+            }
+        },
 
     };
 
@@ -2456,7 +2565,8 @@ void proto_register_fp(void)
         &ett_fp_crcis,
         &ett_fp_edch_subframe_header,
         &ett_fp_edch_subframe,
-        &ett_fp_hsdsch_new_ie_flags
+        &ett_fp_hsdsch_new_ie_flags,
+        &ett_fp_rach_new_ie_flags
     };
 
     /* Register protocol. */
