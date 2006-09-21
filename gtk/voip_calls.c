@@ -65,6 +65,12 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 
+#if GTK_MAJOR_VERSION >= 2
+#ifdef HAVE_LIBPORTAUDIO
+#include "rtp_player.h"
+#endif /* HAVE_LIBPORTAUDIO */
+#endif /* GTK_MAJOR_VERSION >= 2 */
+
 const char *voip_call_state_name[7]={
 	"CALL SETUP",
 	"RINGING",

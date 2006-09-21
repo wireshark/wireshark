@@ -37,7 +37,7 @@
 
 #if GTK_MAJOR_VERSION >= 2
 void rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap);
-void add_rtp_packet(struct _rtp_info *rtp_info, packet_info *pinfo);
+void add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo);
 void reset_rtp_player(void);
 #endif
 

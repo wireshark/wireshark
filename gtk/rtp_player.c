@@ -325,7 +325,7 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 
 /****************************************************************************/
 void 
-add_rtp_packet(struct _rtp_info *rtp_info, packet_info *pinfo)
+add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 {
 	rtp_stream_info_t *stream_info = NULL;
 	rtp_packet_t *new_rtp_packet;
