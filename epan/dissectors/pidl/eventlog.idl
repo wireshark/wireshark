@@ -58,12 +58,15 @@
 	/* Function: 0x00 */
 	NTSTATUS eventlog_ClearEventLogW(
 		[in] policy_handle *handle,
-		[in,unique] lsa_String *unknown
+		[in,unique] lsa_String *backupfilename
 	);
 
 	/******************/
 	/* Function: 0x01 */
-	NTSTATUS eventlog_BackupEventLogW();
+	NTSTATUS eventlog_BackupEventLogW(
+		[in] policy_handle *handle,
+		[in,unique] lsa_String *backupfilename
+	);
 	
 	/******************/
 	/* Function: 0x02 */
@@ -73,7 +76,9 @@
 
 	/******************/
 	/* Function: 0x03 */
-	NTSTATUS eventlog_DeregisterEventSource();
+	NTSTATUS eventlog_DeregisterEventSource(
+		[in,out] policy_handle *handle
+	);
 
 	/******************/
 	/* Function: 0x04 */
@@ -84,11 +89,23 @@
 
 	/******************/
 	/* Function: 0x05 */
-	NTSTATUS eventlog_GetOldestRecord();
+	NTSTATUS eventlog_GetOldestRecord(
+		[in] policy_handle *handle,
+		[out] uint32 oldest
+	);
 
 	/******************/
 	/* Function: 0x06 */
-	NTSTATUS eventlog_ChangeNotify();
+	typedef struct {
+		uint32 unknown0;
+		uint32 unknown1;
+	} eventlog_ChangeUnknown0;
+
+	NTSTATUS eventlog_ChangeNotify(
+		[in] policy_handle *handle,
+		[in, ref] eventlog_ChangeUnknown0 *unknown2,
+		[in] uint32 unknown3
+	);
 
 	/******************/
 	/* Function: 0x07 */
@@ -103,11 +120,24 @@
 
 	/******************/
 	/* Function: 0x08 */
-	NTSTATUS eventlog_RegisterEventSourceW();
+	NTSTATUS eventlog_RegisterEventSourceW(
+		[in,unique]	    eventlog_OpenUnknown0 *unknown0,
+		[in]	    lsa_String logname,
+		[in]	    lsa_String servername,
+		[in]	    uint32 unknown2,
+		[in]	    uint32 unknown3,
+		[out]   policy_handle *handle
+	);
 
 	/******************/
 	/* Function: 0x09 */
-	NTSTATUS eventlog_OpenBackupEventLogW();
+	NTSTATUS eventlog_OpenBackupEventLogW(
+		[in,unique]	    eventlog_OpenUnknown0 *unknown0,
+		[in]	    lsa_String logname,
+		[in]	    uint32 unknown2,
+		[in]	    uint32 unknown3,
+		[out]   policy_handle *handle
+	);
 
 	/******************/
 	/* Function: 0x0a */
@@ -167,7 +197,13 @@
 
 	/*****************/
 	/* Function 0x16 */
-	NTSTATUS eventlog_GetLogIntormation();
+	NTSTATUS eventlog_GetLogIntormation(
+		[in] policy_handle *handle,
+		[in] uint32 dwInfoLevel,
+		[out] [size_is(cbBufSize)] char lpBuffer[*],
+		[in] uint32 cbBufSize,
+		[out] long cbBytesNeeded
+	);
 
 	/*****************/
 	/* Function 0x17 */
