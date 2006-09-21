@@ -195,6 +195,12 @@ const value_string q931_message_type_vals[] = {
 	{ 0,				NULL }
 };
 
+/*
+ * NOTE  For call reference flag (octet 2)
+ * Bit8
+ *	0 The message is sent from the side that originates the call reference
+ *	1 The message is sent to the side that originates the call reference
+ */
 static const true_false_string tfs_call_ref_flag = {
 	"Message sent to originating side",
 	"Message sent from originating side"

@@ -176,12 +176,12 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
-	else if (pinfo->p2p_dir == P2P_DIR_SENT) {
+	else if (pinfo->p2p_dir == P2P_DIR_RECV) {
 		is_response = cr ? FALSE : TRUE;
 		srcname = "Network";
 		dstname = "User";
 	}
-	else if (pinfo->p2p_dir == P2P_DIR_RECV) {
+	else if (pinfo->p2p_dir == P2P_DIR_SENT) {
 		is_response = cr ? TRUE : FALSE;
 		srcname = "User";
 		dstname = "Network";
