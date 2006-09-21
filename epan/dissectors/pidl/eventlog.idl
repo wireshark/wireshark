@@ -1,0 +1,177 @@
+#include "idl_types.h"
+
+/*
+  eventlog interface definition
+*/
+[ uuid("82273fdc-e32a-18c3-3f78-827929dc23ea"),
+  version(0.0),
+  depends(lsa,security),
+  pointer_default(unique),
+  helpstring("Event Logger")
+] interface eventlog
+{
+	typedef bitmap {
+		EVENTLOG_SEQUENTIAL_READ = 0x0001,
+		EVENTLOG_SEEK_READ       = 0x0002,
+		EVENTLOG_FORWARDS_READ   = 0x0004,
+		EVENTLOG_BACKWARDS_READ  = 0x0008
+	} eventlogReadFlags;
+
+	typedef bitmap {
+		EVENTLOG_SUCCESS          = 0x0000,
+		EVENTLOG_ERROR_TYPE       = 0x0001,
+		EVENTLOG_WARNING_TYPE     = 0x0002,
+		EVENTLOG_INFORMATION_TYPE = 0x0004,
+		EVENTLOG_AUDIT_SUCCESS    = 0x0008,
+		EVENTLOG_AUDIT_FAILURE    = 0x0010
+	} eventlogEventTypes;
+
+	typedef struct {
+		uint16 unknown0;
+		uint16 unknown1;
+	} eventlog_OpenUnknown0;
+	
+	typedef [public] struct { 
+		uint32 size;
+		uint32 reserved;
+		uint32 record_number;
+		uint32 time_generated;
+		uint32 time_written;
+		uint32 event_id;
+		uint16 event_type;
+		uint16 num_of_strings;
+		uint16 event_category;
+		uint16 reserved_flags;
+		uint32 closing_record_number;
+		uint32 stringoffset;
+		uint32 sid_length;
+		uint32 sid_offset;
+		uint32 data_length;
+		uint32 data_offset;
+		nstring source_name;
+		nstring computer_name;
+		nstring strings[num_of_strings];
+		astring raw_data;
+	} eventlog_Record;
+
+	/******************/
+	/* Function: 0x00 */
+	NTSTATUS eventlog_ClearEventLogW(
+		[in] policy_handle *handle,
+		[in,unique] lsa_String *unknown
+	);
+
+	/******************/
+	/* Function: 0x01 */
+	NTSTATUS eventlog_BackupEventLogW();
+	
+	/******************/
+	/* Function: 0x02 */
+	NTSTATUS eventlog_CloseEventLog(
+		[in,out] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x03 */
+	NTSTATUS eventlog_DeregisterEventSource();
+
+	/******************/
+	/* Function: 0x04 */
+	NTSTATUS eventlog_GetNumRecords(
+		[in] policy_handle *handle,
+		[out] uint32 number
+	);
+
+	/******************/
+	/* Function: 0x05 */
+	NTSTATUS eventlog_GetOldestRecord();
+
+	/******************/
+	/* Function: 0x06 */
+	NTSTATUS eventlog_ChangeNotify();
+
+	/******************/
+	/* Function: 0x07 */
+	NTSTATUS eventlog_OpenEventLogW(
+		[in,unique]	    eventlog_OpenUnknown0 *unknown0,
+		[in]	    lsa_String logname,
+		[in]	    lsa_String servername,
+		[in]	    uint32 unknown2,
+		[in]	    uint32 unknown3,
+		[out]   policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x08 */
+	NTSTATUS eventlog_RegisterEventSourceW();
+
+	/******************/
+	/* Function: 0x09 */
+	NTSTATUS eventlog_OpenBackupEventLogW();
+
+	/******************/
+	/* Function: 0x0a */
+	NTSTATUS eventlog_ReadEventLogW(
+		[in] policy_handle *handle,
+		[in] uint32 flags,
+		[in] uint32 offset,
+		[in] uint32 number_of_bytes,
+		[out,size_is(number_of_bytes)] uint8 *data,
+		[out] uint32 sent_size,
+		[out] uint32 real_size
+	);
+
+	/*****************/
+	/* Function 0x0b */
+	NTSTATUS eventlog_ReportEventW();
+
+	/*****************/
+	/* Function 0x0c */
+	NTSTATUS eventlog_ClearEventLogA();
+	
+	/******************/
+	/* Function: 0x0d */
+	NTSTATUS eventlog_BackupEventLogA();
+
+	/*****************/
+	/* Function 0x0e */
+	NTSTATUS eventlog_OpenEventLogA();
+
+	/*****************/
+	/* Function 0x0f */
+	NTSTATUS eventlog_RegisterEventSourceA();
+
+	/*****************/
+	/* Function 0x10 */
+	NTSTATUS eventlog_OpenBackupEventLogA();
+
+	/*****************/
+	/* Function 0x11 */
+	NTSTATUS eventlog_ReadEventLogA();
+
+	/*****************/
+	/* Function 0x12 */
+	NTSTATUS eventlog_ReportEventA();
+
+	/*****************/
+	/* Function 0x13 */
+	NTSTATUS eventlog_RegisterClusterSvc();
+
+	/*****************/
+	/* Function 0x14 */
+	NTSTATUS eventlog_DeregisterClusterSvc();
+
+	/*****************/
+	/* Function 0x15 */
+	NTSTATUS eventlog_WriteClusterEvents();
+
+	/*****************/
+	/* Function 0x16 */
+	NTSTATUS eventlog_GetLogIntormation();
+
+	/*****************/
+	/* Function 0x17 */
+	NTSTATUS eventlog_FlushEventLog(
+		[in] policy_handle *handle
+	);	
+}
