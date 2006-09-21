@@ -5137,8 +5137,8 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			} else {
 				/* normal lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 10,
-					"Unlock");
-				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
+					"Lock");
+				ltree = proto_item_add_subtree(litem, ett_smb_lock);
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
