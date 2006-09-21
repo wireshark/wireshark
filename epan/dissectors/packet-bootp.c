@@ -1834,7 +1834,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			    "Suboption %d: %s = %s" ,
 			    subopt, o63_opt[subopt].text,
 			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
-			suboptoff += 6;
+			suboptoff += 4;
 			break;
 
 		case ipv4_list:
@@ -1883,15 +1883,15 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			i = tvb_get_guint8(tvb, suboptoff);
 			if (i != 0 && i != 1) {
 				proto_tree_add_text(v_tree, tvb, optoff, 3,
-				    "Subption %d: %s = Invalid Value %d",
+				    "Suboption %d: %s = Invalid Value %d",
 				    subopt, o63_opt[subopt].text, i);
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, 3,
-				    "Subption %d: %s = %s", subopt,
+				    "Suboption %d: %s = %s", subopt,
 				    o63_opt[subopt].text,
 				    i == 0 ? tfs->false_string : tfs->true_string);
 			}
-			suboptoff += 3;
+			suboptoff += 1;
 			break;
 
 		case val_u_byte:
