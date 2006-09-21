@@ -9,8 +9,7 @@
   pointer_default(unique),
   pointer_default_top(unique),
   helpstring("Remote Registry Service"),
-  depends(lsa,initshutdown,security),
-  keepref
+  depends(lsa,initshutdown,security)
 ] interface winreg
 {
 	declare bitmap security_secinfo;
@@ -109,7 +108,7 @@
 	WERROR winreg_CreateKey(
 		[in,ref] policy_handle *handle,
 		[in] winreg_String name,
-		[in] winreg_String class,
+		[in] winreg_String keyclass,
 		[in] uint32 options,
 		[in] winreg_AccessMask access_mask,
 		[in,unique] winreg_SecBuf *secdesc,
@@ -144,7 +143,7 @@
 		[in,ref]        policy_handle    *handle,
 		[in]            uint32           enum_index,
 		[in,out,ref]    winreg_StringBuf *name,
-		[in,out,unique] winreg_StringBuf *class,
+		[in,out,unique] winreg_StringBuf *keyclass,
 		[in,out,unique] NTTIME           *last_changed_time
 	);
 
@@ -198,11 +197,11 @@
 	/******************/
 	/* Function: 0x0f */
 	WERROR winreg_OpenKey(
-		[in,ref] policy_handle *handle,
+		[in,ref] policy_handle *parent_handle,
 		[in] winreg_String keyname,
 		[in] uint32 unknown,
 		[in] winreg_AccessMask access_mask,
-		[out,ref] policy_handle *new_handle
+		[out,ref] policy_handle *handle
 	);
 
 	/******************/
@@ -210,15 +209,15 @@
 	WERROR winreg_QueryInfoKey(
 		[in,ref] policy_handle *handle,
 		[in] winreg_String class_in,
-		[out] winreg_String class_out,
-		[out] uint32 num_subkeys,
-		[out] uint32 max_subkeylen,
-		[out] uint32 max_subkeysize,
-		[out] uint32 num_values,
-		[out] uint32 max_valnamelen,
-		[out] uint32 max_valbufsize,
-		[out] uint32 secdescsize,
-		[out] NTTIME last_changed_time
+		[out] winreg_String *class_out,
+		[out,ref] uint32 *num_subkeys,
+		[out,ref] uint32 *max_subkeylen,
+		[out,ref] uint32 *max_subkeysize,
+		[out,ref] uint32 *num_values,
+		[out,ref] uint32 *max_valnamelen,
+		[out,ref] uint32 *max_valbufsize,
+		[out,ref] uint32 *secdescsize,
+		[out,ref] NTTIME *last_changed_time
 	);
 
 	/******************/
@@ -289,8 +288,8 @@
 	/******************/
 	/* Function: 0x1a */
 	WERROR winreg_GetVersion(
-		[in,ref] policy_handle *handle,
-		[out]    uint32 version
+		[in,ref]     policy_handle *handle,
+		[out,ref]    uint32 *version
 	);
 
 	/******************/
