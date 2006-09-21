@@ -34,17 +34,13 @@
 	/******************/
 	/* Function: 0x02 */
 	WERROR dfs_Remove (
-		[in]		[string,charset(UTF16)] uint16 *path,
-		[in,unique]	[string,charset(UTF16)] uint16 *server,
-		[in,unique]	[string,charset(UTF16)] uint16 *share
+		[in]		[string,charset(UTF16)] uint16 *dfs_entry_path,
+		[in,unique]	[string,charset(UTF16)] uint16 *servername,
+		[in,unique]	[string,charset(UTF16)] uint16 *sharename
 		);
 
 	/******************/
 	/* Function: 0x03 */
-	WERROR dfs_SetInfo ();
-
-	/******************/
-	/* Function: 0x04 */
 
 	typedef struct {
 	} dfs_Info0;
@@ -53,15 +49,34 @@
 		[string,charset(UTF16)] uint16 *path;
 	} dfs_Info1;
 
+	/* first 4 bits unverified yet */
+	typedef [public,bitmap32bit] bitmap {
+		DFS_VOLUME_STATE_OK 		= 0x1,
+		DFS_VOLUME_STATE_INCONSISTENT 	= 0x2,
+		DFS_VOLUME_STATE_OFFLINE 	= 0x4,
+		DFS_VOLUME_STATE_ONLINE		= 0x8,
+		DFS_VOLUME_STATE_STANDALONE	= DFS_VOLUME_FLAVOR_STANDALONE,
+		DFS_VOLUME_STATE_AD_BLOB	= DFS_VOLUME_FLAVOR_AD_BLOB
+	} dfs_VolumeState;
+
 	typedef struct {
 		[string,charset(UTF16)] uint16 *path;
 		[string,charset(UTF16)] uint16 *comment;
-		uint32 state;
+		dfs_VolumeState state;
 		uint32 num_stores;
 	} dfs_Info2;
 
+	const int DFS_STORAGE_STATES = 0xf;
+
+	/* yes, this is a bitmap */
+	typedef [public,bitmap32bit] bitmap {
+		DFS_STORAGE_STATE_OFFLINE 	= 1,
+		DFS_STORAGE_STATE_ONLINE 	= 2,
+		DFS_STORAGE_STATE_ACTIVE 	= 4
+	} dfs_StorageState;
+
 	typedef struct {
-		uint32 state;
+		dfs_StorageState state;
 		[string,charset(UTF16)] uint16 *server;
 		[string,charset(UTF16)] uint16 *share;
 	} dfs_StorageInfo;
@@ -69,7 +84,7 @@
 	typedef struct {
 		[string,charset(UTF16)] uint16 *path;
 		[string,charset(UTF16)] uint16 *comment;
-		uint32 state;
+		dfs_VolumeState state;
 		uint32 num_stores;
 		[size_is(num_stores)] dfs_StorageInfo *stores;
 	} dfs_Info3;
@@ -77,19 +92,75 @@
 	typedef struct {
 		[string,charset(UTF16)] uint16 *path;
 		[string,charset(UTF16)] uint16 *comment;
-		uint32 state;
+		dfs_VolumeState state;
 		uint32 timeout;
 		GUID   guid;
 		uint32 num_stores;
 		[size_is(num_stores)] dfs_StorageInfo *stores;
 	} dfs_Info4;
 
+	/* verified with dfsutil */
+	typedef [public,bitmap32bit] bitmap {
+		DFS_PROPERTY_FLAG_INSITE_REFERRALS	= 0x01,
+		DFS_PROPERTY_FLAG_ROOT_SCALABILITY	= 0x02,
+		DFS_PROPERTY_FLAG_SITE_COSTING 		= 0x04,
+		DFS_PROPERTY_FLAG_TARGET_FAILBACK	= 0x08,
+		DFS_PROPERTY_FLAG_CLUSTER_ENABLED	= 0x10	/* untested */
+	} dfs_PropertyFlags;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *comment;
+		dfs_VolumeState state;
+		uint32 timeout;
+		GUID   guid;
+		dfs_PropertyFlags flags;
+		uint32 pktsize;
+		uint32 num_stores;
+	} dfs_Info5;
+
+	typedef [v1_enum] enum {
+		DFS_INVALID_PRIORITY_CLASS	 	= -1,
+		DFS_SITE_COST_NORMAL_PRIORITY_CLASS	= 0,
+		DFS_GLOBAL_HIGH_PRIORITY_CLASS		= 1,
+		DFS_SITE_COST_HIGH_PRIORITY_CLASS	= 2,
+		DFS_SITE_COST_LOW_PRIORITY_CLASS	= 3,
+		DFS_GLOBAL_LOW_PRIORITY_CLASS		= 4
+	} dfs_Target_PriorityClass;
+
+	typedef struct {
+		dfs_Target_PriorityClass target_priority_class;
+		uint16 target_priority_rank;
+		uint16 reserved;
+	} dfs_Target_Priority;
+
+	typedef struct {
+		dfs_StorageInfo info;
+		dfs_Target_Priority target_priority;
+	} dfs_StorageInfo2;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *entry_path;
+		[string,charset(UTF16)] uint16 *comment;
+		dfs_VolumeState state;
+		uint32 timeout;
+		GUID   guid;
+		dfs_PropertyFlags flags;
+		uint32 pktsize;
+		uint16 num_stores;
+		[size_is(num_stores)] dfs_StorageInfo2 *stores;
+	} dfs_Info6;
+
+	typedef struct {
+		GUID  generation_guid;
+	} dfs_Info7;
+
 	typedef struct {
 		[string,charset(UTF16)] uint16 *comment;
 	} dfs_Info100;
 
 	typedef struct {
-		uint32 state;
+		dfs_StorageState state;
 	} dfs_Info101;
 
 	typedef struct {
@@ -97,11 +168,37 @@
 	} dfs_Info102;
 
 	typedef struct {
+		dfs_PropertyFlags flags;
+	} dfs_Info103;
+
+	typedef struct {
+		dfs_Target_Priority priority;
+	} dfs_Info104;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *comment;
+		dfs_VolumeState state;
+		uint32 timeout;
+		uint32 property_flag_mask;
+		uint32 property_flags;
+	} dfs_Info105;
+
+	typedef struct {
+		dfs_StorageState state;
+		dfs_Target_Priority priority;
+	} dfs_Info106;
+
+	typedef struct {
 		[string,charset(UTF16)] uint16 *dom_root;
 	} dfs_Info200;
 
+        typedef enum {
+		DFS_VOLUME_FLAVOR_STANDALONE = 0x100,
+		DFS_VOLUME_FLAVOR_AD_BLOB = 0x200
+	} dfs_VolumeFlavor;
+
 	typedef struct {
-		uint32 flags;
+		dfs_VolumeFlavor flavor;
 		[string,charset(UTF16)] uint16 *dom_root;
 	} dfs_Info300;
 
@@ -111,15 +208,32 @@
 		[case(2)]   dfs_Info2 *info2;
 		[case(3)]   dfs_Info3 *info3;
 		[case(4)]   dfs_Info4 *info4;
+		[case(5)]   dfs_Info5 *info5;
+		[case(6)]   dfs_Info6 *info6;
+		[case(7)]   dfs_Info7 *info7;
 		[case(100)] dfs_Info100 *info100;
 		[case(101)] dfs_Info101 *info101;
 		[case(102)] dfs_Info102 *info102;
+		[case(103)] dfs_Info103 *info103;
+		[case(104)] dfs_Info104 *info104;
+		[case(105)] dfs_Info105 *info105;
+		[case(106)] dfs_Info106 *info106;
 	} dfs_Info;
 
+	WERROR dfs_SetInfo (
+		[in]	 	[string,charset(UTF16)] uint16 dfs_entry_path[],
+		[in,unique]	[string,charset(UTF16)] uint16 *servername,
+		[in,unique]	[string,charset(UTF16)] uint16 *sharename,
+		[in]		uint32 level,
+		[in,ref,switch_is(level)] dfs_Info *info
+		);
+
+	/******************/
+	/* Function: 0x04 */
 	WERROR dfs_GetInfo (
-		[in]		[string,charset(UTF16)] uint16 path[],
-		[in,unique]	[string,charset(UTF16)] uint16 *server,
-		[in,unique]	[string,charset(UTF16)] uint16 *share,
+		[in]		[string,charset(UTF16)] uint16 dfs_entry_path[],
+		[in,unique]	[string,charset(UTF16)] uint16 *servername,
+		[in,unique]	[string,charset(UTF16)] uint16 *sharename,
 		[in]		uint32 level,
 		[out,switch_is(level)] dfs_Info *info
 		);
@@ -197,17 +311,34 @@
 	/* Function 0x0b */
 	WERROR dfs_RemoveFtRoot();
 
-	/* Function 0x0c */
-	WERROR dfs_AddStdRoot();
-
+	/* Function 0x0c */ 
+	WERROR dfs_AddStdRoot(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[],
+		[in]		[string,charset(UTF16)] uint16 comment[],
+		[in]		uint32 flags
+		);
+ 
 	/* Function 0x0d */
-	WERROR dfs_RemoveStdRoot();
-
+	WERROR dfs_RemoveStdRoot(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[],
+		[in]		uint32 flags
+		);
+ 
 	/* Function 0x0e */
-	WERROR dfs_ManagerInitialize();
+	WERROR dfs_ManagerInitialize(
+		[in]		[string,charset(UTF16)] uint16 *servername,
+		[in]		uint32 flags
+		);
 
 	/* Function 0x0f */
-	WERROR dfs_AddStdRootForced();
+	WERROR dfs_AddStdRootForced(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[],
+		[in]		[string,charset(UTF16)] uint16 comment[],
+		[in]		[string,charset(UTF16)] uint16 store[] /* C:\\whatever */
+		);
 
 	/* Function 0x10 */
 	WERROR dfs_GetDcAddress();
@@ -226,7 +357,7 @@
 
 	/* Function 0x15 */
 	WERROR dfs_EnumEx(
-		[in]		[string,charset(UTF16)] uint16 name[],
+		[in]		[string,charset(UTF16)] uint16 dfs_name[],
 		[in]		uint32 level,
 		[in]		uint32 bufsize,
 		[in,out,unique]	dfs_EnumStruct *info,
