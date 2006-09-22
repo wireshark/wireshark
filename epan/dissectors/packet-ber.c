@@ -244,8 +244,10 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 		   throwing an exception.
 		 */
 
-		offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
-		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	        if(show_internal_ber_fields) {
+		  offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
+		  offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	        }
 		proto_tree_add_text(tree, tvb, offset, len, "BER: Error length:%u longer than tvb_length_ramaining:%d",len, tvb_length_remaining(tvb, offset));
 		return tvb_length(tvb);
 	}
@@ -317,6 +319,13 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	  case BER_CLASS_PRI:
 	  default:
 	    /* we can't dissect this directly as it is specific */
+
+	    /* we dissect again if show_internal_ber_fields is set */
+	    if(show_internal_ber_fields) {
+	      offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
+	      offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	    }
+
 	    pi = proto_tree_add_text(tree, tvb, offset, len, "[%s %d] ", val_to_str(class,ber_class_codes,"Unknown"), tag);
 	    /* we may want to do better and show the bytes */
 	    is_printable = TRUE;
@@ -343,6 +352,12 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	  break;
 
 	case TRUE: /* this is constructed */
+
+	  /* we dissect again if show_internal_ber_fields is set */
+	  if(show_internal_ber_fields) {
+	    offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
+	    offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	  }
 
 	  switch(class) {
 	  case BER_CLASS_UNI:
