@@ -5,6 +5,7 @@ HF_FIELD hf_eventlog_Record "Record" "eventlog.Record" FT_NONE BASE_NONE NULL 0 
 HF_FIELD hf_eventlog_Record_length "Record Length" "eventlog.Record.length" FT_UINT32 BASE_DEC NULL 0 "" "" ""
 HF_FIELD hf_eventlog_Record_source_name "Source Name" "eventlog.Record.source_name" FT_STRING BASE_NONE NULL 0 "" "" ""
 HF_FIELD hf_eventlog_Record_computer_name "Computer Name" "eventlog.Record.computer_name" FT_STRING BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_string "string" "eventlog.Record.string" FT_STRING BASE_NONE NULL 0 "" "" ""
 
 MANUAL eventlog_dissect_element_ReadEventLogW_data_
 MANUAL eventlog_dissect_element_ReadEventLogW_data__
@@ -12,6 +13,8 @@ MANUAL eventlog_dissect_element_Record_sid_length
 MANUAL eventlog_dissect_element_Record_sid_offset
 MANUAL eventlog_dissect_element_Record_source_name
 MANUAL eventlog_dissect_element_Record_computer_name
+MANUAL eventlog_dissect_element_Record_num_of_strings
+MANUAL eventlog_dissect_element_Record_stringoffset
 
 CODE START
 /* Add this one manually until we can compile LSA */
@@ -134,6 +137,40 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 	proto_tree_add_string_format(tree, hf_eventlog_Record_computer_name, tvb, offset, len*2, str, "computer_name: %s", str);
 
 	offset+=len*2;
+	return offset;
+}
+
+static guint num_of_strings;
+
+static int
+eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	num_of_strings=0;
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 string_offset;
+
+	string_offset=0;
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
+
+	while(string_offset && num_of_strings){
+		char *str;
+		int len;
+
+		len=eventlog_get_unicode_string_length(tvb, string_offset);
+		str=tvb_get_ephemeral_faked_unicode(tvb, string_offset, len, TRUE);
+		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
+		string_offset+=len*2;
+	
+		num_of_strings--;
+	}
+
 	return offset;
 }
 

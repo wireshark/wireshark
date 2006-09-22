@@ -52,6 +52,7 @@ static gint hf_eventlog_eventlog_OpenBackupEventLogW_logname = -1;
 static gint hf_eventlog_eventlog_Record_source_name = -1;
 static gint hf_eventlog_eventlog_ReadEventLogW_handle = -1;
 static gint hf_eventlog_eventlog_ClearEventLogW_backupfilename = -1;
+static gint hf_eventlog_Record_string = -1;
 static gint hf_eventlog_eventlog_OpenEventLogW_servername = -1;
 static gint hf_eventlog_eventlog_Record_event_type = -1;
 static gint hf_eventlog_eventlog_ReadEventLogW_real_size = -1;
@@ -354,6 +355,32 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 	offset+=len*2;
 	return offset;
 }
+static guint num_of_strings;
+static int
+eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	num_of_strings=0;
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
+	return offset;
+}
+static int
+eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 string_offset;
+	string_offset=0;
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
+	while(string_offset && num_of_strings){
+		char *str;
+		int len;
+		len=eventlog_get_unicode_string_length(tvb, string_offset);
+		str=tvb_get_ephemeral_faked_unicode(tvb, string_offset, len, TRUE);
+		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
+		string_offset+=len*2;
+	
+		num_of_strings--;
+	}
+	return offset;
+}
 
 /* IDL: typedef bitmap { */
 /* IDL: 	EVENTLOG_SEQUENTIAL_READ =  0x0001 , */
@@ -632,14 +659,6 @@ eventlog_dissect_element_Record_event_type(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_num_of_strings,NULL);
-
-	return offset;
-}
-
-static int
 eventlog_dissect_element_Record_event_category(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_event_category,NULL);
@@ -659,14 +678,6 @@ static int
 eventlog_dissect_element_Record_closing_record_number(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_closing_record_number,NULL);
-
-	return offset;
-}
-
-static int
-eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,NULL);
 
 	return offset;
 }
@@ -2101,6 +2112,8 @@ void proto_register_dcerpc_eventlog(void)
 	  { "Handle", "eventlog.eventlog_ReadEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_eventlog_eventlog_ClearEventLogW_backupfilename, 
 	  { "Backupfilename", "eventlog.eventlog_ClearEventLogW.backupfilename", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_eventlog_Record_string, 
+	  { "string", "eventlog.Record.string", FT_STRING, BASE_NONE, NULL, 0, " ", HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_servername, 
 	  { "Servername", "eventlog.eventlog_OpenEventLogW.servername", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_eventlog_eventlog_Record_event_type, 
