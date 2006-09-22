@@ -1,1 +1,48 @@
 # Conformance file for EVENTLOG
+#
+
+HF_FIELD hf_eventlog_Record "Record" "eventlog.Record" FT_NONE BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_length "Record Length" "eventlog.Record.length" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+MANUAL eventlog_dissect_element_ReadEventLogW_data_
+MANUAL eventlog_dissect_element_ReadEventLogW_data__
+
+CODE START
+/* Add this one manually until we can compile LSA */
+static int
+lsa_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+			hf_index, 0);
+	return offset;
+}
+
+
+static int
+eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_eventlog_Record_length, &len);
+
+	offset=eventlog_dissect_struct_Record(tvb, offset, pinfo, tree, drep, hf_eventlog_Record, 0);
+
+	return offset;
+}
+
+CODE END
