@@ -112,7 +112,11 @@ static int hf_fp_mc_info = -1;
 static int hf_fp_rach_new_ie_flags = -1;
 static int hf_fp_rach_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_fp_cell_portion_id = -1;
-
+static int hf_fp_radio_interface_parameter_update_flag[5] = {-1, -1, -1, -1, -1};
+static int hf_fp_dpc_mode = -1;
+static int hf_fp_tpc_po = -1;
+static int hf_fp_multiple_rl_set_indicator = -1;
+static int hf_fp_max_ue_tx_pow = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -314,6 +318,10 @@ static void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *p
                                                 tvbuff_t *tvb, int offset);
 static void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo,
                                                 tvbuff_t *tvb, int offset);
+static void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo,
+                                                         tvbuff_t *tvb, int offset);
+static void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+                                      int offset);
 
 
 /* Dissect a DCH channel */
@@ -1409,7 +1417,89 @@ void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo, t
     dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
 }
 
+void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    int n;
+    guint8 cfn;
+    guint8 value;
 
+    /* Show defined flags in these 2 bytes */
+    for (n=4; n >= 0; n--)
+    {
+        proto_tree_add_item(tree, hf_fp_radio_interface_parameter_update_flag[n], tvb, offset, 2, FALSE);
+    }
+    offset += 2;
+
+    /* CFN  */
+    cfn = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* DPC mode */
+    proto_tree_add_item(tree, hf_fp_dpc_mode, tvb, offset, 1, FALSE);
+
+    /* TPC PO */
+    proto_tree_add_item(tree, hf_fp_tpc_po, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* Multiple RL sets indicator */
+    proto_tree_add_item(tree, hf_fp_multiple_rl_set_indicator, tvb, offset, 1, FALSE);
+    offset += 2;
+
+    /* MAX_UE_TX_POW */
+    value = (tvb_get_guint8(tvb, offset) & 0x7f);
+    proto_tree_add_int(tree, hf_fp_max_ue_tx_pow, tvb, offset, 1, -55 + value);
+
+    /* TODO: spare extension */
+}
+
+/* DCH control frame */
+void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    /* Control frame type */
+    guint8 control_frame_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_fp_dch_control_frame_type, tvb, offset, 1, FALSE);
+    offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_str(pinfo->cinfo, COL_INFO,
+                       val_to_str(control_frame_type,
+                                  dch_control_frame_type_vals, "Unknown"));
+    }
+
+    switch (control_frame_type)
+    {
+        case DCH_TIMING_ADJUSTMENT:
+            dissect_dch_timing_adjustment(tree, pinfo, tvb, offset);
+            break;
+        case DCH_RX_TIMING_DEVIATION:
+            dissect_dch_rx_timing_deviation(tree, tvb, offset);
+            break;
+        case DCH_DL_SYNCHRONISATION:
+            dissect_dch_dl_synchronisation(tree, pinfo, tvb, offset);
+            break;
+        case DCH_UL_SYNCHRONISATION:
+            dissect_dch_ul_synchronisation(tree, pinfo, tvb, offset);
+            break;
+        case DCH_OUTER_LOOP_POWER_CONTROL:
+            dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
+            break;
+        case DCH_DL_NODE_SYNCHRONISATION:
+            dissect_dch_dl_node_synchronisation(tree, pinfo, tvb, offset);
+            break;
+        case DCH_UL_NODE_SYNCHRONISATION:
+            dissect_dch_ul_node_synchronisation(tree, pinfo, tvb, offset);
+            break;
+        case DCH_RADIO_INTERFACE_PARAMETER_UPDATE:
+            dissect_dch_radio_interface_parameter_update(tree, pinfo, tvb, offset);
+            break;
+        case DCH_TIMING_ADVANCE:
+        case DCH_TNL_CONGESTION_INDICATION:
+            /* TODO: */
+            break;
+    }
+}
 
 /*******************************/
 /* Dissect a DCH channel       */
@@ -1417,7 +1507,6 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                               int offset, struct _fp_info *p_fp_info)
 {
     gboolean is_control_frame;
-    guint8   control_frame_type;
     guint8   cfn;
 
     /* Header CRC */
@@ -1436,48 +1525,7 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (is_control_frame)
     {
         /* DCH control frame */
-
-        /* Control frame type */
-        control_frame_type = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_dch_control_frame_type, tvb, offset, 1, FALSE);
-        offset++;
-
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_str(pinfo->cinfo, COL_INFO,
-                           val_to_str(control_frame_type,
-                                      dch_control_frame_type_vals, "Unknown"));
-        }
-
-        switch (control_frame_type)
-        {
-            case DCH_TIMING_ADJUSTMENT:
-                dissect_dch_timing_adjustment(tree, pinfo, tvb, offset);
-                break;
-            case DCH_RX_TIMING_DEVIATION:
-                dissect_dch_rx_timing_deviation(tree, tvb, offset);
-                break;
-            case DCH_DL_SYNCHRONISATION:
-                dissect_dch_dl_synchronisation(tree, pinfo, tvb, offset);
-                break;
-            case DCH_UL_SYNCHRONISATION:
-                dissect_dch_ul_synchronisation(tree, pinfo, tvb, offset);
-                break;
-            case DCH_OUTER_LOOP_POWER_CONTROL:
-                dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
-                break;
-            case DCH_DL_NODE_SYNCHRONISATION:
-                dissect_dch_dl_node_synchronisation(tree, pinfo, tvb, offset);
-                break;
-            case DCH_UL_NODE_SYNCHRONISATION:
-                dissect_dch_ul_node_synchronisation(tree, pinfo, tvb, offset);
-                break;
-            case DCH_RADIO_INTERFACE_PARAMETER_UPDATE:
-            case DCH_TIMING_ADVANCE:
-            case DCH_TNL_CONGESTION_INDICATION:
-                /* TODO: */
-                break;
-        }
+        dissect_dch_control_frame(tree, pinfo, tvb, offset);
     }
     else
     {
@@ -1555,7 +1603,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (is_control_frame)
     {
-        /* TODO: can this happen? */
+        /* DCH control frame */
+        dissect_dch_control_frame(tree, pinfo, tvb, offset);
     }
     else
     {
@@ -1569,9 +1618,21 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, FALSE);
         offset++;
 
-        /* Number of subframes (was 3, now 4 bits) */
-        number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x0f);
-        proto_tree_add_item(tree, hf_fp_edch_number_of_subframes, tvb, offset, 1, FALSE);
+        /* Number of subframes.
+           This was 3 bits in early releases, is 4 bits offset by 1 in later releases  */
+        if ((p_fp_info->dct2000_variant % 256) > 1)
+        {
+            /* Use 4 bits plus offset of 1 */
+            number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x0f) + 1;
+        }
+        else
+        {
+            /* Use 3 bits only */
+            number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x07);
+        }
+        proto_tree_add_uint(tree, hf_fp_edch_number_of_subframes, tvb, offset, 1,
+                            number_of_subframes);
+
         offset++;
 
         /* CFN */
@@ -2556,7 +2617,63 @@ void proto_register_fp(void)
             }
         },
 
+        { &hf_fp_radio_interface_parameter_update_flag[0],
+            { "CFN valid",
+              "fp.radio_interface_param.cfn-valid", FT_UINT16, BASE_DEC, 0, 0x0001,
+              "CFN valid", HFILL
+            }
+        },
+        { &hf_fp_radio_interface_parameter_update_flag[1],
+            { "TPC PO valid",
+              "fp.radio_interface_param.tpc-po-valid", FT_UINT16, BASE_DEC, 0, 0x0002,
+              "TPC PO valid", HFILL
+            }
+        },
+        { &hf_fp_radio_interface_parameter_update_flag[2],
+            { "DPC mode valid",
+              "fp.radio_interface_param.dpc-mode-valid", FT_UINT16, BASE_DEC, 0, 0x0004,
+              "DPC mode valid", HFILL
+            }
+        },
+        { &hf_fp_radio_interface_parameter_update_flag[3],
+            { "RL sets indicator valid",
+              "fp.radio_interface_param.rl-sets-indicator-valid", FT_UINT16, BASE_DEC, 0, 0x0020,
+              "RI valid", HFILL
+            }
+        },
+        { &hf_fp_radio_interface_parameter_update_flag[4],
+            { "MAX_UE_TX_POW valid",
+              "fp.radio_interface_param.max-ue-tx-pow-valid", FT_UINT16, BASE_DEC, 0, 0x0040,
+              "MAX UE TX POW valid", HFILL
+            }
+        },
+        { &hf_fp_dpc_mode,
+            { "DPC Mode",
+              "fp.dpc-mode", FT_UINT8, BASE_DEC, NULL, 0x20,
+              "DPC Mode to be applied in the uplink", HFILL
+            }
+        },
+        { &hf_fp_tpc_po,
+            { "TPC PO",
+              "fp.tpc-po", FT_UINT8, BASE_DEC, NULL, 0x1f,
+              "TPC PO", HFILL
+            }
+        },
+        { &hf_fp_multiple_rl_set_indicator,
+            { "Multiple RL sets indicator",
+              "fp.multiple-rl-sets-indicator", FT_UINT8, BASE_DEC, NULL, 0x80,
+              "Multiple RL sets indicator", HFILL
+            }
+        },
+        { &hf_fp_max_ue_tx_pow,
+            { "MAX_UE_TX_POW",
+              "fp.max-ue-tx-pow", FT_INT8, BASE_DEC, NULL, 0x0,
+              "Max UE TX POW (dBm)", HFILL
+            }
+        },
+
     };
+
 
     static gint *ett[] =
     {
