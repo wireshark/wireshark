@@ -405,7 +405,7 @@ void parse_outhdr_string(char *outhdr_string)
 
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name)
+void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name, int variant)
 {
     int i=0;
     int chan;
@@ -447,6 +447,8 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         return;
     }
 
+    /* Variant number */
+    p_fp_info->dct2000_variant = variant;
 
     /* Channel type */
     p_fp_info->channel = outhdr_values[i++];
@@ -628,7 +630,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r6") == 0))
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
-        attach_fp_info(pinfo, direction, protocol_name);
+        attach_fp_info(pinfo, direction, protocol_name,
+                       atoi(tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
     }
 
 

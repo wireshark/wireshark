@@ -46,6 +46,7 @@
 struct _fp_info
 {
     guint8 release;
+    guint  dct2000_variant;
     gboolean is_uplink;
     gint channel;
     gint node_type;
