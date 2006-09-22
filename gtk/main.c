@@ -69,6 +69,7 @@
 #include <epan/emem.h>
 #include <epan/ex-opt.h>
 #include <epan/funnel.h>
+#include <epan/expert.h>
 
 /* general (not GTK specific) */
 #include "file.h"
@@ -1412,11 +1413,12 @@ set_display_filename(capture_file *cf)
   }
 
   /* statusbar */
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
+  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu [Expert: %s]",
     (cf->filename) ? cf->filename : "", size_str,
     (long)cf->elapsed_time.secs/3600,
     (long)cf->elapsed_time.secs%3600/60,
-    (long)cf->elapsed_time.secs%60);
+    (long)cf->elapsed_time.secs%60,
+    val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
   g_free(size_str);
   statusbar_push_file_msg(status_msg);
   g_free(status_msg);
@@ -1647,20 +1649,23 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     statusbar_pop_file_msg();
 
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            cf->f_datalen/1024/1024);
+            cf->f_datalen/1024/1024,
+            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            cf->f_datalen/1024);
+            cf->f_datalen/1024,
+            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            cf->f_datalen);
+            cf->f_datalen,
+            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
     }
 
     statusbar_push_file_msg(capture_msg);
