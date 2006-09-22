@@ -75,7 +75,10 @@ class OutputFile:
         # Blank line
         print >> self.fh
 
-re_timestamp = re.compile(r"^(?P<time>\d+\.\d): \d+\((?P<io>.)\):")
+# Find a timestamp line
+re_timestamp = re.compile(r"^(?P<time>\d+\.\d): \d+\((?P<io>.)\)(:| len=)")
+
+# Find a hex dump line
 re_hex_line = re.compile(r"(?P<hex>([0-9a-f]{2} ){1,16})\s+(?P<ascii>.){1,16}")
 
 def run(input_filename, output_filename):
@@ -84,6 +87,7 @@ def run(input_filename, output_filename):
     except IOError, err:
         sys.exit(err)
 
+    # Get the file's creation time.
     try:
         ctime = os.stat(input_filename)[stat.ST_CTIME]
     except OSError, err:
@@ -97,21 +101,29 @@ def run(input_filename, output_filename):
 
     for line in ifh.xreadlines():
         lineno += 1
+        # If we have no timestamp yet, look for one
         if not timestamp:
             m = re_timestamp.search(line)
             if m:
                 timestamp = m
 
+        # Otherwise, look for hex dump lines
         else:
             m = re_hex_line.search(line)
             if m:
                 datalines.append((lineno, m))
             else:
+                # If we have been gathering hex dump lines,
+                # and this line is not a hex dump line, then the hex dump
+                # has finished, and so has the packet. So print the packet
+                # and reset our variables so we can look for the next packet.
                 if datalines:
                     output_file.PrintPacket(timestamp, datalines)
                     timestamp = None
                     datalines = []
 
+    # At the end of the file we may still have hex dump data in memory.
+    # If so, print the packet
     if datalines:
         output_file.PrintPacket(timestamp, datalines)
         timestamp = None
