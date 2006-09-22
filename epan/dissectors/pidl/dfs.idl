@@ -306,10 +306,32 @@
 	WERROR dfs_ManagerSendSiteInfo();
 
 	/* Function 0x0a */
-	WERROR dfs_AddFtRoot();
+	typedef struct {
+		uint32 unknown1;
+		[string,charset(UTF16)] uint16 *unknown2;
+	} dfs_UnknownStruct;
+
+	WERROR dfs_AddFtRoot(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 dns_servername[],
+		[in]		[string,charset(UTF16)] uint16 dfsname[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[],
+		[in]		[string,charset(UTF16)] uint16 comment[],
+		[in]		[string,charset(UTF16)] uint16 dfs_config_dn[],
+		[in]		uint8 unknown1,
+		[in]		uint32 flags,
+		[in,out,unique]	dfs_UnknownStruct **unknown2
+		);
 
 	/* Function 0x0b */
-	WERROR dfs_RemoveFtRoot();
+	WERROR dfs_RemoveFtRoot(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 dns_servername[],
+		[in]		[string,charset(UTF16)] uint16 dfsname[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[],
+		[in]		uint32 flags,
+		[in,out,unique]	dfs_UnknownStruct **unknown
+		);
 
 	/* Function 0x0c */ 
 	WERROR dfs_AddStdRoot(
@@ -347,7 +369,10 @@
 	WERROR dfs_SetDcAddress();
 
 	/* Function 0x12 */
-	WERROR dfs_FlushFtTable();
+	WERROR dfs_FlushFtTable(
+		[in]		[string,charset(UTF16)] uint16 servername[],
+		[in]		[string,charset(UTF16)] uint16 rootshare[]
+		);
 
 	/* Function 0x13 */
 	WERROR dfs_Add2();

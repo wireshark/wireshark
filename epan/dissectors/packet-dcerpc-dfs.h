@@ -63,4 +63,5 @@ int netdfs_dissect_struct_dfs_EnumArray4(tvbuff_t *tvb, int offset, packet_info 
 int netdfs_dissect_struct_dfs_EnumArray200(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int netdfs_dissect_struct_dfs_EnumArray300(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int netdfs_dissect_struct_dfs_EnumStruct(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int netdfs_dissect_struct_dfs_UnknownStruct(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 #endif /* __PACKET_DCERPC_NETDFS_H */

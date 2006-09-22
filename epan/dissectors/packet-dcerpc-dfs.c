@@ -56,6 +56,7 @@ static gint ett_netdfs_dfs_EnumArray200 = -1;
 static gint ett_netdfs_dfs_EnumArray300 = -1;
 static gint ett_netdfs_dfs_EnumInfo = -1;
 static gint ett_netdfs_dfs_EnumStruct = -1;
+static gint ett_netdfs_dfs_UnknownStruct = -1;
 
 
 /* Header field declarations */
@@ -64,6 +65,7 @@ static gint hf_netdfs_dfs_Info5_pktsize = -1;
 static gint hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE = -1;
 static gint hf_netdfs_dfs_EnumEx_bufsize = -1;
 static gint hf_netdfs_dfs_Info4_comment = -1;
+static gint hf_netdfs_dfs_AddFtRoot_dns_servername = -1;
 static gint hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING = -1;
 static gint hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY = -1;
 static gint hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE = -1;
@@ -75,7 +77,10 @@ static gint hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK = -1;
 static gint hf_netdfs_dfs_Target_Priority_reserved = -1;
 static gint hf_netdfs_dfs_Enum_bufsize = -1;
 static gint hf_netdfs_dfs_AddStdRootForced_rootshare = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_servername = -1;
+static gint hf_netdfs_dfs_AddFtRoot_unknown1 = -1;
 static gint hf_netdfs_dfs_EnumArray4_s = -1;
+static gint hf_netdfs_dfs_AddFtRoot_unknown2 = -1;
 static gint hf_netdfs_dfs_Info6_comment = -1;
 static gint hf_netdfs_dfs_Info6_entry_path = -1;
 static gint hf_netdfs_dfs_Info1_path = -1;
@@ -93,21 +98,26 @@ static gint hf_netdfs_dfs_EnumStruct_e = -1;
 static gint hf_netdfs_dfs_EnumArray4_count = -1;
 static gint hf_netdfs_dfs_StorageInfo2_info = -1;
 static gint hf_netdfs_dfs_Info105_state = -1;
+static gint hf_netdfs_dfs_FlushFtTable_servername = -1;
 static gint hf_netdfs_dfs_Info4_stores = -1;
 static gint hf_netdfs_dfs_Info4_num_stores = -1;
 static gint hf_netdfs_dfs_GetInfo_dfs_entry_path = -1;
 static gint hf_netdfs_dfs_EnumArray1_count = -1;
 static gint hf_netdfs_dfs_StorageInfo_state = -1;
+static gint hf_netdfs_dfs_FlushFtTable_rootshare = -1;
 static gint hf_netdfs_dfs_AddStdRoot_servername = -1;
 static gint hf_netdfs_dfs_EnumArray200_s = -1;
+static gint hf_netdfs_dfs_AddFtRoot_servername = -1;
 static gint hf_netdfs_dfs_Info6_stores = -1;
 static gint hf_netdfs_dfs_GetInfo_servername = -1;
 static gint hf_netdfs_dfs_StorageInfo2_target_priority = -1;
 static gint hf_netdfs_dfs_EnumArray2_s = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_flags = -1;
 static gint hf_netdfs_dfs_EnumArray200_count = -1;
 static gint hf_netdfs_dfs_EnumEx_info = -1;
 static gint hf_netdfs_dfs_Info104_priority = -1;
 static gint hf_netdfs_dfs_Info4_timeout = -1;
+static gint hf_netdfs_dfs_AddFtRoot_comment = -1;
 static gint hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED = -1;
 static gint hf_netdfs_dfs_Enum_info = -1;
 static gint hf_netdfs_dfs_AddStdRoot_comment = -1;
@@ -119,11 +129,13 @@ static gint hf_netdfs_dfs_Info6_state = -1;
 static gint hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB = -1;
 static gint hf_netdfs_dfs_Add_comment = -1;
 static gint hf_netdfs_dfs_Info6_timeout = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_rootshare = -1;
 static gint hf_netdfs_dfs_Info105_timeout = -1;
 static gint hf_netdfs_dfs_Info3_comment = -1;
 static gint hf_netdfs_dfs_Info3_state = -1;
 static gint hf_netdfs_dfs_Info5_flags = -1;
 static gint hf_netdfs_dfs_Info7_generation_guid = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_unknown = -1;
 static gint hf_netdfs_dfs_EnumEx_total = -1;
 static gint hf_netdfs_dfs_GetInfo_level = -1;
 static gint hf_netdfs_dfs_Info5_num_stores = -1;
@@ -134,8 +146,12 @@ static gint hf_netdfs_dfs_Info5_comment = -1;
 static gint hf_netdfs_werror = -1;
 static gint hf_netdfs_dfs_EnumArray3_count = -1;
 static gint hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT = -1;
+static gint hf_netdfs_dfs_AddFtRoot_rootshare = -1;
 static gint hf_netdfs_dfs_Add_flags = -1;
 static gint hf_netdfs_dfs_RemoveStdRoot_servername = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_dfsname = -1;
+static gint hf_netdfs_dfs_AddFtRoot_dfs_config_dn = -1;
+static gint hf_netdfs_dfs_AddFtRoot_dfsname = -1;
 static gint hf_netdfs_dfs_Remove_sharename = -1;
 static gint hf_netdfs_dfs_Info101_state = -1;
 static gint hf_netdfs_dfs_Info103_flags = -1;
@@ -147,13 +163,14 @@ static gint hf_netdfs_dfs_SetInfo_servername = -1;
 static gint hf_netdfs_dfs_Info_info1 = -1;
 static gint hf_netdfs_dfs_Info2_num_stores = -1;
 static gint hf_netdfs_dfs_Info_info2 = -1;
+static gint hf_netdfs_dfs_RemoveFtRoot_dns_servername = -1;
 static gint hf_netdfs_dfs_Info_info3 = -1;
 static gint hf_netdfs_dfs_Info_info4 = -1;
 static gint hf_netdfs_dfs_Info_info5 = -1;
 static gint hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE = -1;
 static gint hf_netdfs_dfs_Info_info6 = -1;
-static gint hf_netdfs_dfs_Info_info7 = -1;
 static gint hf_netdfs_dfs_Enum_level = -1;
+static gint hf_netdfs_dfs_Info_info7 = -1;
 static gint hf_netdfs_dfs_Info300_flavor = -1;
 static gint hf_netdfs_dfs_AddStdRootForced_store = -1;
 static gint hf_netdfs_dfs_Info5_path = -1;
@@ -162,10 +179,13 @@ static gint hf_netdfs_dfs_Info3_stores = -1;
 static gint hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE = -1;
 static gint hf_netdfs_dfs_EnumArray3_s = -1;
 static gint hf_netdfs_dfs_Info106_priority = -1;
+static gint hf_netdfs_dfs_UnknownStruct_unknown1 = -1;
+static gint hf_netdfs_dfs_UnknownStruct_unknown2 = -1;
 static gint hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK = -1;
 static gint hf_netdfs_dfs_StorageInfo_server = -1;
 static gint hf_netdfs_dfs_SetInfo_dfs_entry_path = -1;
 static gint hf_netdfs_dfs_RemoveStdRoot_flags = -1;
+static gint hf_netdfs_dfs_AddFtRoot_flags = -1;
 static gint hf_netdfs_dfs_ManagerInitialize_flags = -1;
 static gint hf_netdfs_dfs_Info4_path = -1;
 static gint hf_netdfs_dfs_Info5_state = -1;
@@ -445,6 +465,9 @@ static int netdfs_dissect_element_dfs_EnumInfo_info300(tvbuff_t *tvb, int offset
 static int netdfs_dissect_element_dfs_EnumInfo_info300_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_EnumStruct_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_EnumStruct_e(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_UnknownStruct_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_UnknownStruct_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_UnknownStruct_unknown2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_GetManagerVersion_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_GetManagerVersion_version_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_Add_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -484,6 +507,25 @@ static int netdfs_dissect_element_dfs_Enum_info(tvbuff_t *tvb, int offset, packe
 static int netdfs_dissect_element_dfs_Enum_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_Enum_total(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_Enum_total_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_dns_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_dfsname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_dfs_config_dn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_unknown2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_AddFtRoot_unknown2__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_dns_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_dfsname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_unknown_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_RemoveFtRoot_unknown__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_AddStdRoot_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_AddStdRoot_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_AddStdRoot_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -498,6 +540,8 @@ static int netdfs_dissect_element_dfs_AddStdRootForced_servername(tvbuff_t *tvb,
 static int netdfs_dissect_element_dfs_AddStdRootForced_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_AddStdRootForced_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_AddStdRootForced_store(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_FlushFtTable_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int netdfs_dissect_element_dfs_FlushFtTable_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_EnumEx_dfs_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_EnumEx_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int netdfs_dissect_element_dfs_EnumEx_bufsize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -3051,6 +3095,64 @@ netdfs_dissect_struct_dfs_EnumStruct(tvbuff_t *tvb, int offset, packet_info *pin
 	return offset;
 }
 
+/* IDL: typedef struct { */
+/* IDL: 	uint32 unknown1; */
+/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *unknown2; */
+/* IDL: } dfs_UnknownStruct; */
+
+static int
+netdfs_dissect_element_dfs_UnknownStruct_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_dfs_UnknownStruct_unknown1,NULL);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_UnknownStruct_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, netdfs_dissect_element_dfs_UnknownStruct_unknown2_, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (uint16)",hf_netdfs_dfs_UnknownStruct_unknown2);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_UnknownStruct_unknown2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_UnknownStruct_unknown2, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+int
+netdfs_dissect_struct_dfs_UnknownStruct(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_netdfs_dfs_UnknownStruct);
+	}
+	
+	offset = netdfs_dissect_element_dfs_UnknownStruct_unknown1(tvb, offset, pinfo, tree, drep);
+
+	offset = netdfs_dissect_element_dfs_UnknownStruct_unknown2(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
 static int
 netdfs_dissect_element_dfs_GetManagerVersion_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -3698,14 +3800,131 @@ netdfs_dissect_dfs_ManagerSendSiteInfo_request(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
+static int
+netdfs_dissect_element_dfs_AddFtRoot_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_dns_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dns_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_dfsname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dfsname, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_rootshare, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_comment, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_dfs_config_dn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_AddFtRoot_dfs_config_dn, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, hf_netdfs_dfs_AddFtRoot_unknown1,NULL);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_dfs_AddFtRoot_flags,NULL);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, netdfs_dissect_element_dfs_AddFtRoot_unknown2_, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (dfs_UnknownStruct)",hf_netdfs_dfs_AddFtRoot_unknown2);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_unknown2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, netdfs_dissect_element_dfs_AddFtRoot_unknown2__, NDR_POINTER_UNIQUE, "Pointer to Unknown2 (dfs_UnknownStruct)",hf_netdfs_dfs_AddFtRoot_unknown2);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_AddFtRoot_unknown2__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = netdfs_dissect_struct_dfs_UnknownStruct(tvb,offset,pinfo,tree,drep,hf_netdfs_dfs_AddFtRoot_unknown2,0);
+
+	return offset;
+}
+
 /* IDL: WERROR dfs_AddFtRoot( */
-/* IDL:  */
+/* IDL: [charset(UTF16)] [in] uint16 servername[*], */
+/* IDL: [charset(UTF16)] [in] uint16 dns_servername[*], */
+/* IDL: [charset(UTF16)] [in] uint16 dfsname[*], */
+/* IDL: [charset(UTF16)] [in] uint16 rootshare[*], */
+/* IDL: [charset(UTF16)] [in] uint16 comment[*], */
+/* IDL: [charset(UTF16)] [in] uint16 dfs_config_dn[*], */
+/* IDL: [in] uint8 unknown1, */
+/* IDL: [in] uint32 flags, */
+/* IDL: [out] [in] [unique(1)] dfs_UnknownStruct **unknown2 */
 /* IDL: ); */
 
 static int
 netdfs_dissect_dfs_AddFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
+
+	offset = netdfs_dissect_element_dfs_AddFtRoot_unknown2(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
@@ -3718,17 +3937,119 @@ netdfs_dissect_dfs_AddFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 netdfs_dissect_dfs_AddFtRoot_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = netdfs_dissect_element_dfs_AddFtRoot_servername(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_dns_servername(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_dfsname(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_rootshare(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_comment(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_dfs_config_dn(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_unknown1(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_flags(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_AddFtRoot_unknown2(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_dns_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_dns_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_dfsname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_dfsname, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_RemoveFtRoot_rootshare, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_dfs_RemoveFtRoot_flags,NULL);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, netdfs_dissect_element_dfs_RemoveFtRoot_unknown_, NDR_POINTER_UNIQUE, "Pointer to Unknown (dfs_UnknownStruct)",hf_netdfs_dfs_RemoveFtRoot_unknown);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_unknown_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, netdfs_dissect_element_dfs_RemoveFtRoot_unknown__, NDR_POINTER_UNIQUE, "Pointer to Unknown (dfs_UnknownStruct)",hf_netdfs_dfs_RemoveFtRoot_unknown);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_RemoveFtRoot_unknown__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = netdfs_dissect_struct_dfs_UnknownStruct(tvb,offset,pinfo,tree,drep,hf_netdfs_dfs_RemoveFtRoot_unknown,0);
+
 	return offset;
 }
 
 /* IDL: WERROR dfs_RemoveFtRoot( */
-/* IDL:  */
+/* IDL: [charset(UTF16)] [in] uint16 servername[*], */
+/* IDL: [charset(UTF16)] [in] uint16 dns_servername[*], */
+/* IDL: [charset(UTF16)] [in] uint16 dfsname[*], */
+/* IDL: [charset(UTF16)] [in] uint16 rootshare[*], */
+/* IDL: [in] uint32 flags, */
+/* IDL: [out] [in] [unique(1)] dfs_UnknownStruct **unknown */
 /* IDL: ); */
 
 static int
 netdfs_dissect_dfs_RemoveFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
+
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_unknown(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
@@ -3741,6 +4062,18 @@ netdfs_dissect_dfs_RemoveFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 netdfs_dissect_dfs_RemoveFtRoot_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_servername(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_dns_servername(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_dfsname(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_rootshare(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_flags(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_RemoveFtRoot_unknown(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
 
@@ -4059,8 +4392,31 @@ netdfs_dissect_dfs_SetDcAddress_request(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 
+static int
+netdfs_dissect_element_dfs_FlushFtTable_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_FlushFtTable_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+netdfs_dissect_element_dfs_FlushFtTable_rootshare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_netdfs_dfs_FlushFtTable_rootshare, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
 /* IDL: WERROR dfs_FlushFtTable( */
-/* IDL:  */
+/* IDL: [charset(UTF16)] [in] uint16 servername[*], */
+/* IDL: [charset(UTF16)] [in] uint16 rootshare[*] */
 /* IDL: ); */
 
 static int
@@ -4079,6 +4435,10 @@ netdfs_dissect_dfs_FlushFtTable_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 netdfs_dissect_dfs_FlushFtTable_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = netdfs_dissect_element_dfs_FlushFtTable_servername(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = netdfs_dissect_element_dfs_FlushFtTable_rootshare(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
 
@@ -4317,6 +4677,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Bufsize", "netdfs.dfs_EnumEx.bufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info4_comment, 
 	  { "Comment", "netdfs.dfs_Info4.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_dns_servername, 
+	  { "Dns Servername", "netdfs.dfs_AddFtRoot.dns_servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING, 
 	  { "Dfs Property Flag Site Costing", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_SITE_COSTING", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING_tfs), ( 0x04 ), "", HFILL }},
 	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY, 
@@ -4339,8 +4701,14 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Bufsize", "netdfs.dfs_Enum.bufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_AddStdRootForced_rootshare, 
 	  { "Rootshare", "netdfs.dfs_AddStdRootForced.rootshare", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_servername, 
+	  { "Servername", "netdfs.dfs_RemoveFtRoot.servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_unknown1, 
+	  { "Unknown1", "netdfs.dfs_AddFtRoot.unknown1", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumArray4_s, 
 	  { "S", "netdfs.dfs_EnumArray4.s", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_unknown2, 
+	  { "Unknown2", "netdfs.dfs_AddFtRoot.unknown2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info6_comment, 
 	  { "Comment", "netdfs.dfs_Info6.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info6_entry_path, 
@@ -4375,6 +4743,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Info", "netdfs.dfs_StorageInfo2.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info105_state, 
 	  { "State", "netdfs.dfs_Info105.state", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_FlushFtTable_servername, 
+	  { "Servername", "netdfs.dfs_FlushFtTable.servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info4_stores, 
 	  { "Stores", "netdfs.dfs_Info4.stores", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info4_num_stores, 
@@ -4385,10 +4755,14 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Count", "netdfs.dfs_EnumArray1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_StorageInfo_state, 
 	  { "State", "netdfs.dfs_StorageInfo.state", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_FlushFtTable_rootshare, 
+	  { "Rootshare", "netdfs.dfs_FlushFtTable.rootshare", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_AddStdRoot_servername, 
 	  { "Servername", "netdfs.dfs_AddStdRoot.servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumArray200_s, 
 	  { "S", "netdfs.dfs_EnumArray200.s", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_servername, 
+	  { "Servername", "netdfs.dfs_AddFtRoot.servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info6_stores, 
 	  { "Stores", "netdfs.dfs_Info6.stores", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_GetInfo_servername, 
@@ -4397,6 +4771,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Target Priority", "netdfs.dfs_StorageInfo2.target_priority", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumArray2_s, 
 	  { "S", "netdfs.dfs_EnumArray2.s", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_flags, 
+	  { "Flags", "netdfs.dfs_RemoveFtRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumArray200_count, 
 	  { "Count", "netdfs.dfs_EnumArray200.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumEx_info, 
@@ -4405,6 +4781,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Priority", "netdfs.dfs_Info104.priority", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info4_timeout, 
 	  { "Timeout", "netdfs.dfs_Info4.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_comment, 
+	  { "Comment", "netdfs.dfs_AddFtRoot.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED, 
 	  { "Dfs Property Flag Cluster Enabled", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_CLUSTER_ENABLED", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED_tfs), ( 0x10 ), "", HFILL }},
 	{ &hf_netdfs_dfs_Enum_info, 
@@ -4427,6 +4805,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Comment", "netdfs.dfs_Add.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info6_timeout, 
 	  { "Timeout", "netdfs.dfs_Info6.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_rootshare, 
+	  { "Rootshare", "netdfs.dfs_RemoveFtRoot.rootshare", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info105_timeout, 
 	  { "Timeout", "netdfs.dfs_Info105.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info3_comment, 
@@ -4437,6 +4817,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Flags", "netdfs.dfs_Info5.flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info7_generation_guid, 
 	  { "Generation Guid", "netdfs.dfs_Info7.generation_guid", FT_GUID, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_unknown, 
+	  { "Unknown", "netdfs.dfs_RemoveFtRoot.unknown", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_EnumEx_total, 
 	  { "Total", "netdfs.dfs_EnumEx.total", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_GetInfo_level, 
@@ -4457,10 +4839,18 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Count", "netdfs.dfs_EnumArray3.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT, 
 	  { "Dfs Volume State Inconsistent", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_INCONSISTENT", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT_tfs), ( 0x2 ), "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_rootshare, 
+	  { "Rootshare", "netdfs.dfs_AddFtRoot.rootshare", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Add_flags, 
 	  { "Flags", "netdfs.dfs_Add.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_RemoveStdRoot_servername, 
 	  { "Servername", "netdfs.dfs_RemoveStdRoot.servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_dfsname, 
+	  { "Dfsname", "netdfs.dfs_RemoveFtRoot.dfsname", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_dfs_config_dn, 
+	  { "Dfs Config Dn", "netdfs.dfs_AddFtRoot.dfs_config_dn", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_dfsname, 
+	  { "Dfsname", "netdfs.dfs_AddFtRoot.dfsname", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Remove_sharename, 
 	  { "Sharename", "netdfs.dfs_Remove.sharename", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info101_state, 
@@ -4483,6 +4873,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Num Stores", "netdfs.dfs_Info2.num_stores", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info_info2, 
 	  { "Info2", "netdfs.dfs_Info.info2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_RemoveFtRoot_dns_servername, 
+	  { "Dns Servername", "netdfs.dfs_RemoveFtRoot.dns_servername", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info_info3, 
 	  { "Info3", "netdfs.dfs_Info.info3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info_info4, 
@@ -4493,10 +4885,10 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Dfs Storage State Active", "netdfs.dfs_StorageState.DFS_STORAGE_STATE_ACTIVE", FT_BOOLEAN, 32, TFS(&dfs_StorageState_DFS_STORAGE_STATE_ACTIVE_tfs), ( 4 ), "", HFILL }},
 	{ &hf_netdfs_dfs_Info_info6, 
 	  { "Info6", "netdfs.dfs_Info.info6", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_netdfs_dfs_Info_info7, 
-	  { "Info7", "netdfs.dfs_Info.info7", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Enum_level, 
 	  { "Level", "netdfs.dfs_Enum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_Info_info7, 
+	  { "Info7", "netdfs.dfs_Info.info7", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info300_flavor, 
 	  { "Flavor", "netdfs.dfs_Info300.flavor", FT_UINT16, BASE_DEC, VALS(netdfs_dfs_VolumeFlavor_vals), 0, "", HFILL }},
 	{ &hf_netdfs_dfs_AddStdRootForced_store, 
@@ -4513,6 +4905,10 @@ void proto_register_dcerpc_netdfs(void)
 	  { "S", "netdfs.dfs_EnumArray3.s", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info106_priority, 
 	  { "Priority", "netdfs.dfs_Info106.priority", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_UnknownStruct_unknown1, 
+	  { "Unknown1", "netdfs.dfs_UnknownStruct.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_UnknownStruct_unknown2, 
+	  { "Unknown2", "netdfs.dfs_UnknownStruct.unknown2", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK, 
 	  { "Dfs Volume State Ok", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_OK", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_OK_tfs), ( 0x1 ), "", HFILL }},
 	{ &hf_netdfs_dfs_StorageInfo_server, 
@@ -4521,6 +4917,8 @@ void proto_register_dcerpc_netdfs(void)
 	  { "Dfs Entry Path", "netdfs.dfs_SetInfo.dfs_entry_path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_RemoveStdRoot_flags, 
 	  { "Flags", "netdfs.dfs_RemoveStdRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_netdfs_dfs_AddFtRoot_flags, 
+	  { "Flags", "netdfs.dfs_AddFtRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_ManagerInitialize_flags, 
 	  { "Flags", "netdfs.dfs_ManagerInitialize.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_netdfs_dfs_Info4_path, 
@@ -4644,6 +5042,7 @@ void proto_register_dcerpc_netdfs(void)
 		&ett_netdfs_dfs_EnumArray300,
 		&ett_netdfs_dfs_EnumInfo,
 		&ett_netdfs_dfs_EnumStruct,
+		&ett_netdfs_dfs_UnknownStruct,
 	};
 
 	proto_dcerpc_netdfs = proto_register_protocol("Settings for Microsoft Distributed File System", "NETDFS", "netdfs");
