@@ -135,6 +135,16 @@ separate_packaging: all
 	cd ..
 	cd ..
 
+packaging_u3: all
+	cd packaging
+	cd u3
+	cd win32
+	nmake -f makefile.nmake
+	cd ..
+	cd ..
+	cd ..
+
+
 $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image wiretap
@@ -278,11 +288,11 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) make-tapreg-dotc
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
-gtk2_distclean:
+clean_gtk2.tmp:
 	rm -f gtk2.tmp/*.*
 	if exist gtk2.tmp rmdir gtk2.tmp
 
-clean: gtk2_distclean
+clean: clean_gtk2.tmp
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
@@ -319,7 +329,7 @@ clean: gtk2_distclean
 
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
-distclean: clean gtk2_distclean clean-deps
+distclean: clean
 	rm -f config.h $(BUILT_SOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
