@@ -2287,12 +2287,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_AIRPCAP
    /* Load the airpcap.dll */
-  if(!load_airpcap())
-	{
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed to load airpcap.dll\nMake sure you have the right airpcap.dll installed!");
-	airpcap_if_active = NULL;
-	}
-  else
+  if(load_airpcap())
 	{
 	/* load the airpcap interfaces */
 	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
