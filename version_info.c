@@ -292,9 +292,8 @@ get_runtime_version_info(GString *str)
 	struct utsname name;
 #endif
 
-	get_runtime_pcap_version(str);
-
 	g_string_append(str, "on ");
+
 #if defined(_WIN32)
 	/*
 	 * See
@@ -448,7 +447,12 @@ get_runtime_version_info(GString *str)
 #else
 	g_string_append(str, "an unknown OS");
 #endif
-	g_string_append(str, ".");
+
+        g_string_append(str, "\n");
+
+	get_runtime_pcap_version(str);
+
+        g_string_append(str, ".");
 
 	end_string(str);
 }
