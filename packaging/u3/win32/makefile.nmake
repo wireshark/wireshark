@@ -70,7 +70,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 # if they are missing (e.g. U3 device removed)
 #
 	$(COPY) $(TOPDIR)\AUTHORS-SHORT $(DEVICE) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\AUTHORS-SHORT-FORMAT $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\COPYING $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\FAQ $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\README $(DEVICE) $(COPY_FLAGS)
