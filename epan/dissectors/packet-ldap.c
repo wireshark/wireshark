@@ -312,6 +312,8 @@ static dissector_table_t ldap_name_dissector_table=NULL;
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
 static guint    ldap_tcp_port = 389;
+static guint    ldap_max_pdu_size = 65535;
+
 static gboolean do_protocolop = FALSE;
 static gchar    *attr_type = NULL;
 static gboolean is_binary_attr_type = FALSE;
@@ -2773,7 +2775,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 538 "packet-ldap-template.c"
+#line 540 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3567,7 +3569,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	sasl_len=tvb_get_ntohl(tvb, 0);
  
-	if( (sasl_len>65535) 
+	if( (sasl_len>ldap_max_pdu_size) 
 	||  (sasl_len<2) ){
 		goto this_was_not_sasl;
 	}
@@ -3602,7 +3604,7 @@ this_was_not_sasl:
 	offset=get_ber_length(NULL, tvb, 1, &ldap_len, &ind);
 
 	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
-	if(ldap_len<2 || ldap_len>65535){
+	if(ldap_len<2 || ldap_len>ldap_max_pdu_size){
 		goto this_was_not_normal_ldap;
 	}
 
@@ -4222,7 +4224,7 @@ void proto_register_ldap(void) {
         "ldap.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1594 "packet-ldap-template.c"
+#line 1596 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4275,7 +4277,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1605 "packet-ldap-template.c"
+#line 1607 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4299,6 +4301,10 @@ void proto_register_ldap(void) {
   prefs_register_uint_preference(ldap_module, "tcp.port", "LDAP TCP Port",
 				 "Set the port for LDAP operations",
 				 10, &ldap_tcp_port);
+
+  prefs_register_uint_preference(ldap_module, "max_pdu", "LDAP Maximum PDU Size",
+				 "The maximum LDAP PDU size. PDUs larger than this will be considered invalid.",
+				 10, &ldap_max_pdu_size);
 
   proto_cldap = proto_register_protocol(
 	  "Connectionless Lightweight Directory Access Protocol",
