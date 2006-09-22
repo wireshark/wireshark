@@ -363,12 +363,17 @@ eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
 	return offset;
 }
+static guint32 string_offset;
 static int
 eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	guint32 string_offset;
 	string_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
+	return offset;
+}
+static int
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
 	while(string_offset && num_of_strings){
 		char *str;
 		int len;
@@ -694,13 +699,6 @@ static int
 eventlog_dissect_element_Record_data_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_data_offset,NULL);
-
-	return offset;
-}
-
-static int
-eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
 
 	return offset;
 }

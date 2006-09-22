@@ -15,6 +15,7 @@ MANUAL eventlog_dissect_element_Record_source_name
 MANUAL eventlog_dissect_element_Record_computer_name
 MANUAL eventlog_dissect_element_Record_num_of_strings
 MANUAL eventlog_dissect_element_Record_stringoffset
+MANUAL eventlog_dissect_element_Record_strings
 
 CODE START
 /* Add this one manually until we can compile LSA */
@@ -151,14 +152,20 @@ eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet
 	return offset;
 }
 
+static guint32 string_offset;
+
 static int
 eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	guint32 string_offset;
-
 	string_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
 
+	return offset;
+}
+
+static int
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
 	while(string_offset && num_of_strings){
 		char *str;
 		int len;
@@ -170,6 +177,7 @@ eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_i
 	
 		num_of_strings--;
 	}
+
 
 	return offset;
 }
