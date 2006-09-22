@@ -44,7 +44,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
-#include "epan/strutil.h"
+#include "epan/unicode-utils.h"
 #else
 #include <pwd.h>
 #endif
@@ -654,7 +654,7 @@ get_persconffile_dir(void)
 	/*
 	 * See if we are running in a U3 environment.
 	 */
-	u3appdatapath = getenv_utf8("U3_APP_DATA_PATH");	
+	u3appdatapath = getenv_utf8("U3_APP_DATA_PATH");
 	if (u3appdatapath != NULL) {
 		/*
 		 * We are; use the U3 application data path.
