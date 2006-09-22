@@ -117,6 +117,7 @@ static int hf_fp_dpc_mode = -1;
 static int hf_fp_tpc_po = -1;
 static int hf_fp_multiple_rl_set_indicator = -1;
 static int hf_fp_max_ue_tx_pow = -1;
+static int hf_fp_congestion_status = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -193,6 +194,14 @@ static const value_string spreading_factor_vals[] = {
     {4,    "64"},
     {5,    "128"},
     {6,    "256"},
+    {0,    NULL }
+};
+
+static const value_string congestion_status_vals[] = {
+    {0,    "No TNL congestion"},
+    {1,    "Reserved for future use"},
+    {2,    "TNL congestion - detected by delay build-up"},
+    {3,    "TNL congestion - detected by frame loss"},
     {0,    NULL }
 };
 
@@ -275,7 +284,8 @@ static void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tre
 static void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
                                              tvbuff_t *tvb, int offset,
                                              struct _fp_info *p_fp_info);
-static void dissect_common_timing_advance(proto_tree *tree, tvbuff_t *tvb, int offset);
+static void dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree,
+                                          tvbuff_t *tvb, int offset);
 static void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
                                            tvbuff_t *tvb, int offset);
 static void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
@@ -320,6 +330,12 @@ static void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *p
                                                 tvbuff_t *tvb, int offset);
 static void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo,
                                                          tvbuff_t *tvb, int offset);
+static void dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
+                                       tvbuff_t *tvb, int offset);
+static void dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo,
+                                                  tvbuff_t *tvb, int offset);
+
+
 static void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                                       int offset);
 
@@ -626,18 +642,26 @@ void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
     dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
 }
 
-void dissect_common_timing_advance(proto_tree *tree, tvbuff_t *tvb, int offset)
+void dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+    guint8 cfn;
     guint8 timing_advance;
 
     /* CFN control */
+    cfn = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
     offset++;
 
     /* Timing Advance */
-    timing_advance = (tvb_get_guint8(tvb, offset) & 0x3f);
+    timing_advance = (tvb_get_guint8(tvb, offset) & 0x3f) * 4;
     proto_tree_add_uint(tree, hf_fp_timing_advance, tvb, offset, 1, timing_advance*4);
     offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u, TA = %u",
+                        cfn, timing_advance);
+    }
 }
 
 void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
@@ -797,7 +821,7 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_common_dynamic_pusch_assignment(pinfo, tree, tvb, offset);
             break;
         case COMMON_TIMING_ADVANCE:
-            dissect_common_timing_advance(tree, tvb, offset);
+            dissect_common_timing_advance(pinfo, tree, tvb, offset);
             break;
         case COMMON_HS_DSCH_Capacity_Request:
             dissect_hsdpa_capacity_request(pinfo, tree, tvb, offset);
@@ -1453,6 +1477,28 @@ void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info 
     /* TODO: spare extension */
 }
 
+void dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    dissect_common_timing_advance(pinfo, tree, tvb, offset);
+}
+
+void dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+{
+    guint8 status = (tvb_get_guint8(tvb, offset) & 0x03);
+
+    /* Congestion status */
+    proto_tree_add_int(tree, hf_fp_congestion_status, tvb, offset, 1, FALSE);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " status = %s",
+                        val_to_str(status, congestion_status_vals, "unknown"));
+    }
+}
+
+
+
+
 /* DCH control frame */
 void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
@@ -1495,8 +1541,10 @@ void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *t
             dissect_dch_radio_interface_parameter_update(tree, pinfo, tvb, offset);
             break;
         case DCH_TIMING_ADVANCE:
+            dissect_dch_timing_advance(tree, pinfo, tvb, offset);
+            break;
         case DCH_TNL_CONGESTION_INDICATION:
-            /* TODO: */
+            dissect_dch_tnl_congestion_indication(tree, pinfo, tvb, offset);
             break;
     }
 }
@@ -2669,6 +2717,12 @@ void proto_register_fp(void)
             { "MAX_UE_TX_POW",
               "fp.max-ue-tx-pow", FT_INT8, BASE_DEC, NULL, 0x0,
               "Max UE TX POW (dBm)", HFILL
+            }
+        },
+        { &hf_fp_congestion_status,
+            { "Congestion Status",
+              "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x03,
+              "Congestion Status", HFILL
             }
         },
 
