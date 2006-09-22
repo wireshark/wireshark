@@ -54,7 +54,7 @@
 #include "print.h"
 #include "simple_dialog.h"
 #include "util.h"
-#include "epan/strutil.h"
+#include "epan/unicode-utils.h"
 
 #include "file_dlg.h"
 #include "capture_file_dlg.h"

@@ -215,7 +215,7 @@ print_usage(gboolean print_ver)
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, 
+    fprintf(output,
         "TShark " VERSION "%s\n"
         "Dump and analyze network traffic.\n"
         "See http://www.wireshark.org for more information.\n"
@@ -451,7 +451,7 @@ add_decode_as(const gchar *cl_param)
 
   /* Remove leading and trailing spaces from the table name */
   while ( table_name[0] == ' ' )
-    table_name++; 
+    table_name++;
   while ( table_name[strlen(table_name) - 1] == ' ' )
     table_name[strlen(table_name) - 1] = '\0'; /* Note: if empty string, while loop will eventually exit */
 
@@ -470,7 +470,7 @@ add_decode_as(const gchar *cl_param)
   }
 
   if (!table_matching) {
-    /* Display a list of supported layer types to help the user, if the 
+    /* Display a list of supported layer types to help the user, if the
        specified layer type was not found */
     cmdarg_err("Valid layer types are:");
     fprint_all_layer_types(stderr);
@@ -478,10 +478,10 @@ add_decode_as(const gchar *cl_param)
   if (remaining_param == NULL || !table_matching) {
     /* Exit if the layer type was not found, or if no '=' separator was found
        (see above) */
-    g_free(decoded_param); 
+    g_free(decoded_param);
     return FALSE;
   }
-  
+
   if (*(remaining_param + 1) != '=') { /* Check for "==" and not only '=' */
     cmdarg_err("WARNING: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"", table_name, remaining_param + 1);
   }
@@ -539,7 +539,7 @@ add_decode_as(const gchar *cl_param)
     /* Exit if no ',' separator was found (see above) */
     cmdarg_err("Valid protocols for layer type \"%s\" are:", table_name);
     fprint_all_protocols_for_layer_types(stderr, table_name);
-    g_free(decoded_param); 
+    g_free(decoded_param);
     return FALSE;
   }
 
@@ -548,15 +548,15 @@ add_decode_as(const gchar *cl_param)
   /* This section extracts a protocol filter name (dissector_str) from decoded_param */
 
   dissector_str = remaining_param; /* All the rest of the string is the dissector (decode as protocol) name */
-  
+
   /* Remove leading and trailing spaces from the dissector name */
   while ( dissector_str[0] == ' ' )
-    dissector_str++; 
+    dissector_str++;
   while ( dissector_str[strlen(dissector_str) - 1] == ' ' )
     dissector_str[strlen(dissector_str) - 1] = '\0'; /* Note: if empty string, while loop will eventually exit */
 
   dissector_matching = NULL;
-  
+
   /* We now have a pointer to the handle for the requested table inside the variable table_matching */
   if ( ! (*dissector_str) ) { /* Is the dissector name empty, if so, don't even search for a matching dissector and display all dissectors found for the selected table */
     cmdarg_err("No protocol name specified"); /* Note, we don't exit here, but dissector_matching will remain NULL, so we exit below */
@@ -565,9 +565,9 @@ add_decode_as(const gchar *cl_param)
     user_protocol_name.nb_match = 0;
     user_protocol_name.searched_name = dissector_str;
     user_protocol_name.matched_handle = NULL;
-    
+
     dissector_table_foreach_handle(table_name, find_protocol_name_func, &user_protocol_name); /* Go and perform the search for this dissector in the this table's dissectors' names and shortnames */
-    
+
     if (user_protocol_name.nb_match != 0) {
       dissector_matching = user_protocol_name.matched_handle;
       if (user_protocol_name.nb_match > 1) {
@@ -593,7 +593,7 @@ add_decode_as(const gchar *cl_param)
   if (!dissector_matching) {
     cmdarg_err("Valid protocols for layer type \"%s\" are:", table_name);
     fprint_all_protocols_for_layer_types(stderr, table_name);
-    g_free(decoded_param); 
+    g_free(decoded_param);
     return FALSE;
   }
 
@@ -603,7 +603,7 @@ add_decode_as(const gchar *cl_param)
    selector
    dissector_matching
    The above variables that are strings are still pointing to areas within
-   decoded_parm.  decoded_parm thus still needs to be kept allocated in 
+   decoded_parm.  decoded_parm thus still needs to be kept allocated in
    until we stop needing these variables
    decoded_param will be deallocated at each exit point of this function */
 
@@ -722,7 +722,7 @@ main(int argc, char *argv[])
   get_credential_info();
 
   /* nothing more than the standard GLib handler, but without a warning */
-  log_flags = 
+  log_flags =
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
@@ -741,12 +741,12 @@ main(int argc, char *argv[])
   /* initialize memory allocation subsystem */
   ep_init_chunk();
   se_init_chunk();
-  
+
   /* initialize the GUID to name mapping table */
   guids_init();
 
   initialize_funnel_ops();
-  
+
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);
 #endif
@@ -763,7 +763,7 @@ main(int argc, char *argv[])
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
-  
+
   /* we register the plugin taps before the other taps because
      stats_tree taps plugins will be registered as tap listeners
      by stats_tree_stat.c and need to registered before that */
@@ -1232,7 +1232,7 @@ main(int argc, char *argv[])
        */
       if (capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
-  
+
         /* When capturing, we only support writing libpcap format. */
         if (out_file_type != WTAP_FILE_PCAP) {
           cmdarg_err("Live captures can only be saved in libpcap format.");
@@ -1295,7 +1295,7 @@ main(int argc, char *argv[])
      have a tap filter with one of MATE's late-registered fields as part
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
-  
+
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
@@ -1325,7 +1325,7 @@ main(int argc, char *argv[])
       for (j = 0; j < NUM_COL_FMTS; j++) {
          if (!cfile.cinfo.fmt_matx[i][j])
              continue;
-         
+
          if (cfile.cinfo.col_first[j] == -1)
              cfile.cinfo.col_first[j] = i;
          cfile.cinfo.col_last[j] = i;
@@ -1459,7 +1459,7 @@ main(int argc, char *argv[])
 #endif
 
     /* trim the interface name and exit if that failed */
-    if (!capture_opts_trim_iface(&capture_opts, 
+    if (!capture_opts_trim_iface(&capture_opts,
         (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
         exit(2);
     }
@@ -1522,9 +1522,9 @@ capture(void)
   condition  *volatile cnd_autostop_size = NULL;
   condition  *volatile cnd_autostop_duration = NULL;
   char       *descr;
+  guchar      pcap_data[WTAP_MAX_PACKET_SIZE];
 #ifndef _WIN32
   void        (*oldhandler)(int);
-  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
   struct pcap_stat stats;
   gboolean    write_ok;
@@ -1585,7 +1585,7 @@ capture(void)
     /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
     if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
       *secondary_errmsg = '\0';
-      goto error;    
+      goto error;
     }
 
     /* set up to write to the already-opened capture output file/files */
@@ -1703,11 +1703,9 @@ capture(void)
          each packet. */
       pcap_cnt = 1;
     }
-#ifndef _WIN32
     if (ld.from_cap_pipe) {
       inpkts = cap_pipe_dispatch(&ld, pcap_data, errmsg, sizeof errmsg);
     } else
-#endif
       inpkts = pcap_dispatch(ld.pcap_h, pcap_cnt, ld.packet_cb, (u_char *) &ld);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()", or error or "no more packets" from
@@ -1772,14 +1770,11 @@ capture(void)
 
   /* If we got an error while capturing, report it. */
   if (inpkts < 0) {
-#ifndef _WIN32
     if (ld.from_cap_pipe) {
       if (ld.cap_pipe_err == PIPERR) {
         cmdarg_err("Error while capturing packets: %s", errmsg);
       }
-    } else
-#endif
-    {
+    } else {
       cmdarg_err("Error while capturing packets: %s", pcap_geterr(ld.pcap_h));
     }
   }
@@ -1801,12 +1796,9 @@ capture(void)
       show_capture_file_io_error(capture_opts.save_file, err, TRUE);
   }
 
-#ifndef _WIN32
   if (ld.from_cap_pipe && ld.cap_pipe_fd >= 0)
     eth_close(ld.cap_pipe_fd);
-  else
-#endif
-  {
+  else {
     /* Get the capture statistics, and, if any packets were dropped, report
        that. */
     if (pcap_stats(ld.pcap_h, &stats) >= 0) {
@@ -1861,13 +1853,10 @@ error:
       cmdarg_err_cont("%s", secondary_errmsg);
     }
   }
-#ifndef _WIN32
   if (ld.from_cap_pipe) {
     if (ld.cap_pipe_fd >= 0)
       eth_close(ld.cap_pipe_fd);
-  } else
-#endif
-  {
+  } else {
   if (ld.pcap_h != NULL)
     pcap_close(ld.pcap_h);
   }
@@ -2279,7 +2268,7 @@ process_packet(capture_file *cf, long offset, const struct wtap_pkthdr *whdr,
 
     if (print_packet_info) {
       /* Grab any resolved addresses */
-    
+
       if (g_resolv_flags) {
         host_name_lookup_process(NULL);
       }
@@ -3040,7 +3029,7 @@ report_packet_drops(int drops)
 }
 
 /** Report an error in the capture. */
-void 
+void
 report_capture_error(const char *errmsg, const char *secondary_error_msg)
 {
     cmdarg_err(errmsg);

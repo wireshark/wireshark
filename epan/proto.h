@@ -223,6 +223,7 @@ typedef struct field_info {
 typedef struct {
     GHashTable  *interesting_hfids;
     gboolean    visible;
+    gint        count;
 } tree_data_t;
 
 /** Each proto_tree, proto_item is one of these. */

@@ -229,7 +229,8 @@ dumpcap_SOURCES =	\
 	ringbuffer.c	\
 	sync_pipe_write.c	\
 	tempfile.c	\
-	version_info.c
+	version_info.c	\
+	epan/unicode-utils.c
 
 
 # this target needed for distribution only

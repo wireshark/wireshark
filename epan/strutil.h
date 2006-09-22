@@ -94,7 +94,7 @@ gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
  * @param hex_str The string of hex digits.
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
- * @param force_separators If set to TRUE, separators MUST exist between 
+ * @param force_separators If set to TRUE, separators MUST exist between
  *        bytes.
  * @return True if the string was converted successfully
  */
@@ -111,7 +111,7 @@ gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
 gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
 
 /** Return a XML escaped representation of the unescaped string.
- *  The returned string must be freed when no longer in use. 
+ *  The returned string must be freed when no longer in use.
  *
  * @param unescaped The unescaped string
  * @return An XML-escaped representation of the input string
@@ -167,27 +167,5 @@ gsize g_strlcat(gchar *dst, gchar *src, gsize size);
 #define g_ascii_isprint(c)						\
 	(((c<0x20)||(c>=0x80))?FALSE:TRUE)
 #endif
-
-#ifdef _WIN32
-
-/** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
- * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
- *
- * @param utf8str The string to convert.  May be NULL.
- * @return The string converted to UTF-16.  If utf8str is NULL, returns
- * NULL.  The return value should NOT be freed by the caller.
- */
-wchar_t * utf_8to16(const char *utf8str);
-
-/** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
- * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
- *
- * @param utf16str The string to convert.  May be NULL.
- * @return The string converted to UTF-8.  If utf16str is NULL, returns
- * NULL.  The return value should NOT be freed by the caller.
- */
-gchar * utf_16to8(const wchar_t *utf16str);
-
-#endif /* _WIN32 */
 
 #endif /* __STRUTIL_H__ */

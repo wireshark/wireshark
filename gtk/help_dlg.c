@@ -47,7 +47,7 @@
 #ifdef HHC_DIR
 #include <windows.h>
 #include <htmlhelp.h>
-#include "epan/strutil.h"
+#include "epan/unicode-utils.h"
 #endif
 
 
@@ -234,12 +234,12 @@ static void help_topic(const gchar *topic) {
     HWND hw;
     GString *url = g_string_new("");
 
-    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Wireshark Help", 
+    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Wireshark Help",
         get_datafile_dir(), topic);
 
-    hw = HtmlHelpW(NULL, 
-        utf_8to16(url->str), 
-        HH_DISPLAY_TOPIC, 0); 
+    hw = HtmlHelpW(NULL,
+        utf_8to16(url->str),
+        HH_DISPLAY_TOPIC, 0);
 
     if(hw == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open help file: %s\\user-guide.chm",
@@ -492,13 +492,13 @@ topic_action(topic_action_e action)
 }
 
 
-void 
+void
 topic_cb(GtkWidget *w _U_, topic_action_e action)
 {
     topic_action(action);
 }
 
-void 
+void
 topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e action) {
     topic_action(action);
 }

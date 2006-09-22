@@ -24,12 +24,12 @@
 
 
 /** @file
- *  
+ *
  * Capture loop (internal interface).
  *
- * It will open the input and output files, capture the packets, 
+ * It will open the input and output files, capture the packets,
  * change ringbuffer output files while capturing and close all files again.
- * 
+ *
  * The input file can be a network interface or capture pipe (unix only).
  * The output file can be a single or a ringbuffer file handled by wiretap.
  *
@@ -84,6 +84,7 @@
 #include "log.h"
 #include "file_util.h"
 
+#include "epan/unicode-utils.h"
 
 #include "capture_loop.h"
 
@@ -105,6 +106,7 @@ static loop_data   ld;
  * Timeout, in milliseconds, for reads from the stream of captured packets.
  */
 #define	CAP_READ_TIMEOUT	250
+static char *cap_pipe_err_str;
 
 static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd);
@@ -113,7 +115,6 @@ static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fna
 
 
 
-#ifndef _WIN32
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
@@ -145,6 +146,79 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
   }
 }
 
+/* Provide select() functionality for a single file descriptor
+ * on both UNIX/POSIX and Windows.
+ *
+ * The Windows version calls WaitForSingleObject instead of
+ * select().
+ *
+ * Returns the same values as select.  If an error is returned,
+ * the string cap_pipe_err_str should be used instead of errno.
+ */
+static int
+cap_pipe_select(int pipe_fd, gboolean wait_forever) {
+#ifndef _WIN32
+  fd_set      rfds;
+  struct timeval timeout, *pto;
+  int sel_ret;
+
+  cap_pipe_err_str = "Unknown error";
+
+  FD_ZERO(&rfds);
+  FD_SET(pipe_fd, &rfds);
+  if (wait_forever) {
+    pto = NULL;
+  } else {
+    timeout.tv_sec = 0;
+    timeout.tv_usec = CAP_READ_TIMEOUT * 1000;
+    pto = &timeout;
+  }
+  sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, pto);
+  if (sel_ret < 0)
+    cap_pipe_err_str = strerror(errno);
+  return sel_ret;
+}
+#else
+  /* XXX - Should we just use file handles exclusively under Windows?
+   * Otherwise we have to convert between file handles and file descriptors
+   * here and when we open a named pipe.
+   */
+  HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
+  wchar_t *err_str;
+  DWORD timeout = wait_forever ? INFINITE : CAP_READ_TIMEOUT * 1000;
+  DWORD wait_ret;
+
+  if (hPipe == INVALID_HANDLE_VALUE) {
+    cap_pipe_err_str = "Could not open standard input";
+    return -1;
+  }
+
+  cap_pipe_err_str = "Unknown error";
+
+  wait_ret = WaitForSingleObject(hPipe, timeout);
+  switch (wait_ret) {
+    /* XXX - This probably isn't correct */
+    case WAIT_ABANDONED:
+      errno = EINTR;
+      return -1;
+    case WAIT_OBJECT_0:
+      return 1;
+    case WAIT_TIMEOUT:
+      return 0;
+    case WAIT_FAILED:
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+      cap_pipe_err_str = utf_16to8(err_str);
+      LocalFree(err_str);
+      return -1;
+    default:
+      g_assert_not_reached();
+      return -1;
+  }
+}
+#endif
+
+
 /* Mimic pcap_open_live() for pipe captures
  * We check if "pipename" is "-" (stdin) or a FIFO, open it, and read the
  * header.
@@ -154,23 +228,35 @@ static int
 cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                  char *errmsg, int errmsgl)
 {
+#ifndef _WIN32
   struct stat pipe_stat;
-  int         fd;
-  guint32     magic;
-  int         b, sel_ret;
+#else
+  char *pncopy, *pos;
+  wchar_t *err_str;
+  HANDLE hPipe = NULL;
+#endif
+  int          sel_ret;
+  int          fd;
+  int          b;
+  guint32       magic;
   unsigned int bytes_read;
-  fd_set      rfds;
-  struct timeval timeout;
-
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
   /*
    * XXX (T)Wireshark blocks until we return
    */
-  if (strcmp(pipename, "-") == 0)
+  if (strcmp(pipename, "-") == 0) {
     fd = 0; /* read from stdin */
-  else {
+#ifdef _WIN32
+    /*
+     * This is needed to set the stdin pipe into binary mode, otherwise
+     * CR/LF are mangled...
+     */
+    _setmode(0, _O_BINARY);
+#endif  /* _WIN32 */
+  } else {
+#ifndef _WIN32
     if (eth_stat(pipename, &pipe_stat) < 0) {
       if (errno == ENOENT || errno == ENOTDIR)
         ld->cap_pipe_err = PIPNEXIST;
@@ -189,7 +275,8 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
          * interfaces are in /dev.  Pretend we haven't seen it.
          */
          ld->cap_pipe_err = PIPNEXIST;
-      } else {
+      } else
+      {
         g_snprintf(errmsg, errmsgl,
             "The capture session could not be initiated because\n"
             "\"%s\" is neither an interface nor a pipe", pipename);
@@ -205,18 +292,86 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       ld->cap_pipe_err = PIPERR;
       return -1;
     }
+#else /* _WIN32 */
+#if 0 /* Enable/disable Windows named pipes */
+#define PIPE_STR "\\pipe\\"
+    /* Under Windows, named pipes _must_ have the form
+     * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
+     */
+    pncopy = g_strdup(pipename);
+    if (strstr(pncopy, "\\\\") == pncopy) {
+      pos = strchr(pncopy + 3, '\\');
+      if (pos && g_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+        pos = NULL;
+    }
+
+    g_free(pncopy);
+
+    if (!pos) {
+      g_snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated because\n"
+          "\"%s\" is neither an interface nor a pipe", pipename);
+      ld->cap_pipe_err = PIPNEXIST;
+      return -1;
+    }
+
+    /* Wait for the pipe to appear */
+    while (1) {
+      hPipe = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
+          OPEN_EXISTING, 0, NULL);
+
+      if (hPipe != INVALID_HANDLE_VALUE)
+        break;
+
+      if (GetLastError() != ERROR_PIPE_BUSY) {
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+          NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+        g_snprintf(errmsg, errmsgl,
+            "The capture session on \"%s\" could not be initiated "
+            "due to error on pipe open: pipe busy: %s (error %d)",
+	    pipename, utf_16to8(err_str), GetLastError());
+        LocalFree(err_str);
+        ld->cap_pipe_err = PIPERR;
+        return -1;
+      }
+
+      if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+          NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+        g_snprintf(errmsg, errmsgl,
+            "The capture session could not be initiated "
+            "due to error on pipe open: %s (error %d)",
+	    utf_16to8(err_str), GetLastError());
+        LocalFree(err_str);
+        ld->cap_pipe_err = PIPERR;
+        return -1;
+      }
+    }
+
+    fd = _open_osfhandle((long) hPipe, _O_RDONLY);
+    if (fd == -1) {
+      g_snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated "
+          "due to error on pipe open: %s", strerror(errno));
+      ld->cap_pipe_err = PIPERR;
+      return -1;
+    }
+#else /* Enable/disable Windows named pipes */
+    /* On Windows, we don't support capturing on pipes, so we give up. */
+
+    g_snprintf(errmsg, errmsgl,
+"The capture session could not be initiated.  Unable to open interface.");
+    return -1;
+#endif /* Enable/disable Windows named pipes */
+#endif /* _WIN32 */
   }
 
   ld->from_cap_pipe = TRUE;
 
   /* read the pcap header */
-  FD_ZERO(&rfds);
   bytes_read = 0;
   while (bytes_read < sizeof magic) {
-    FD_SET(fd, &rfds);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-    sel_ret = select(fd+1, &rfds, NULL, NULL, &timeout);
+    sel_ret = cap_pipe_select(fd, FALSE);
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
@@ -271,10 +426,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   /* Read the rest of the header */
   bytes_read = 0;
   while (bytes_read < sizeof(struct pcap_hdr)) {
-    FD_SET(fd, &rfds);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-    sel_ret = select(fd+1, &rfds, NULL, NULL, &timeout);
+    sel_ret = cap_pipe_select(fd, FALSE);
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
@@ -431,7 +583,6 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
   /* Return here rather than inside the switch to prevent GCC warning */
   return -1;
 }
-#endif /* not _WIN32 */
 
 
 /* open the capture input file (pcap or capture pipe) */
@@ -442,17 +593,14 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar      *sync_msg_str;
+  static const char ppamsg[] = "can't find PPA for ";
+  const char *set_linktype_err_str;
+  const char  *libpcap_warn;
 #ifdef _WIN32
   gchar      *sync_secondary_msg_str;
-#endif
-  const char *set_linktype_err_str;
-#ifdef _WIN32
   int         err;
   WORD        wVersionRequested;
   WSADATA     wsaData;
-#else
-  static const char ppamsg[] = "can't find PPA for ";
-  const char  *libpcap_warn;
 #endif
 
 
@@ -549,42 +697,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     ld->linktype = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
   } else {
     /* We couldn't open "iface" as a network device. */
-#ifdef _WIN32
-    /* On Windows, we don't support capturing on pipes, so we give up. */
-
-    /* On Win32 OSes, the capture devices are probably available to all
-       users; don't warn about permissions problems.
-
-       Do, however, warn about the lack of 64-bit support, and warn that
-       WAN devices aren't supported. */
-    g_snprintf(errmsg, errmsg_len,
-"The capture session could not be initiated.\n"
-"\"%s\"",
-               open_err_str);
-    g_snprintf(secondary_errmsg, secondary_errmsg_len,
-"\n"
-"Please check that \"%s\" is the proper interface.\n"
-"\n"
-"\n"
-"Help can be found at:\n"
-"\n"
-"       http://wiki.wireshark.org/CaptureSetup\n"
-"\n"
-"64-bit Windows:\n"
-"WinPcap does not support 64-bit Windows; you will have to use some other\n"
-"tool to capture traffic, such as netcap.\n"
-"For netcap details see: http://support.microsoft.com/?id=310875\n"
-"\n"
-"Modem (PPP/WAN):\n"
-"Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
-"support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
-"Server 2003.\n"
-"WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
-"support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
-    capture_opts->iface);
-    return FALSE;
-#else
-    /* try to open iface as a pipe */
+    /* Try to open it as a pipe */
     ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
     if (ld->cap_pipe_fd == -1) {
@@ -613,9 +726,33 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	  libpcap_warn = "";
 	g_snprintf(errmsg, errmsg_len,
 	  "The capture session could not be initiated (%s).", open_err_str);
+#ifdef _WIN32
 	g_snprintf(secondary_errmsg, secondary_errmsg_len,
 "Please check to make sure you have sufficient permissions, and that you have\n"
 "the proper interface or pipe specified.%s", libpcap_warn);
+#else
+    g_snprintf(secondary_errmsg, secondary_errmsg_len,
+"\n"
+"Please check that \"%s\" is the proper interface.\n"
+"\n"
+"\n"
+"Help can be found at:\n"
+"\n"
+"       http://wiki.wireshark.org/CaptureSetup\n"
+"\n"
+"64-bit Windows:\n"
+"WinPcap does not support 64-bit Windows; you will have to use some other\n"
+"tool to capture traffic, such as netcap.\n"
+"For netcap details see: http://support.microsoft.com/?id=310875\n"
+"\n"
+"Modem (PPP/WAN):\n"
+"Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
+"support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
+"Server 2003.\n"
+"WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
+"support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
+    capture_opts->iface);
+#endif /* _WIN32 */
       }
       /*
        * Else pipe (or file) does exist and cap_pipe_open_live() has
@@ -626,7 +763,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       /* cap_pipe_open_live() succeeded; don't want
          error message from pcap_open_live() */
       open_err_str[0] = '\0';
-#endif
   }
 
 /* XXX - will this work for tshark? */
@@ -657,13 +793,11 @@ static void capture_loop_close_input(loop_data *ld) {
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input");
 
-#ifndef _WIN32
   /* if open, close the capture pipe "input file" */
   if (ld->cap_pipe_fd >= 0) {
     g_assert(ld->from_cap_pipe);
     eth_close(ld->cap_pipe_fd);
   }
-#endif
 
   /* if open, close the pcap "input file" */
   if(ld->pcap_h != NULL) {
@@ -734,11 +868,9 @@ gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_f
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
   /* get snaplen */
-#ifndef _WIN32
   if (ld->from_cap_pipe) {
     file_snaplen = ld->cap_pipe_hdr.snaplen;
   } else
-#endif
   {
     file_snaplen = pcap_snapshot(ld->pcap_h);
   }
@@ -804,24 +936,15 @@ static int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 		      char *errmsg, int errmsg_len) {
   int       inpkts;
-#ifndef _WIN32
-  fd_set    set1;
-  struct timeval timeout;
   int         sel_ret;
   guchar pcap_data[WTAP_MAX_PACKET_SIZE];
-#endif
 
-#ifndef _WIN32
   if (ld->from_cap_pipe) {
     /* dispatch from capture pipe */
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
 #endif
-    FD_ZERO(&set1);
-    FD_SET(ld->cap_pipe_fd, &set1);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-    sel_ret = select(ld->cap_pipe_fd+1, &set1, NULL, NULL, &timeout);
+    sel_ret = cap_pipe_select(ld->cap_pipe_fd, FALSE);
     if (sel_ret <= 0) {
       inpkts = 0;
       if (sel_ret < 0 && errno != EINTR) {
@@ -841,7 +964,6 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     }
   }
   else
-#endif /* _WIN32 */
   {
     /* dispatch from pcap */
 #ifdef MUST_DO_SELECT
@@ -862,9 +984,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
 #endif
     if (ld->pcap_fd != -1) {
-      FD_ZERO(&set1);
-      FD_SET(ld->pcap_fd, &set1);
-      sel_ret = select(ld->pcap_fd+1, &set1, NULL, NULL, NULL);
+      sel_ret = cap_pipe_select(fd, TRUE);
       if (sel_ret > 0) {
         /*
          * "select()" says we can read from it without blocking; go for
@@ -974,11 +1094,11 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   gboolean is_tempfile;
 
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s", 
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
       (capture_opts->save_file) ? capture_opts->save_file : "");
 
   if (capture_opts->save_file != NULL) {
-    /* We return to the caller while the capture is in progress.  
+    /* We return to the caller while the capture is in progress.
      * Therefore we need to take a copy of save_file in
      * case the caller destroys it after we return.
      */
@@ -1032,7 +1152,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 
       g_snprintf(errmsg, errmsg_len,
 	    "The file to which the capture would be saved (\"%s\") "
-        "could not be opened: %s.", capfile_name, 
+        "could not be opened: %s.", capfile_name,
         strerror(errno));
     }
     g_free(capfile_name);
@@ -1050,14 +1170,12 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 }
 
 
-#ifndef _WIN32
 static void
 capture_loop_stop_signal_handler(int signo _U_)
 {
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Signal: Stop capture");
   capture_loop_stop();
 }
-#endif
 
 #ifdef _WIN32
 #define TIME_GET() GetTickCount()
@@ -1103,9 +1221,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.pcap_err           = FALSE;
   ld.from_cap_pipe      = FALSE;
   ld.pdh                = NULL;
-#ifndef _WIN32
   ld.cap_pipe_fd        = -1;
-#endif
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
 #endif
@@ -1164,7 +1280,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (capture_opts->saving_to_file) {
     if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
       *secondary_errmsg = '\0';
-      goto error;    
+      goto error;
     }
 
     /* set up to write to the already-opened capture output file/files */
@@ -1303,7 +1419,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         ld.go = FALSE;
         continue;
       }
-      
+
       /* check capture file duration condition */
       if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
         /* duration limit reached, do we have another file? */
@@ -1359,10 +1475,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       pcap_geterr(ld.pcap_h));
     report_capture_error(errmsg, please_report);
   }
-#ifndef _WIN32
     else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
       report_capture_error(errmsg, "");
-#endif
 
   /* did we had an error while capturing? */
   if (ld.err == 0) {
@@ -1470,7 +1584,7 @@ void capture_loop_stop(void)
   ld.go = FALSE;
 #endif
 }
- 
+
 
 static void
 capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,

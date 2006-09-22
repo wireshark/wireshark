@@ -88,6 +88,7 @@ LIBWIRESHARK_SRC = 		\
 	to_str.c		\
 	tvbparse.c		\
 	tvbuff.c		\
+	unicode-utils.c		\
 	value_string.c		\
 	xdlc.c			\
 	xmlstub.c
@@ -185,6 +186,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	to_str.h		\
 	tvbparse.h		\
 	tvbuff.h		\
+	unicode-utils.h		\
 	value_string.h		\
 	x264_prt_id.h		\
 	xdlc.h			\

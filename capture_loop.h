@@ -24,7 +24,7 @@
 
 
 /** @file
- *  
+ *
  *  Do the low-level work of a capture.
  *
  */
@@ -32,13 +32,11 @@
 #ifndef __CAPTURE_LOOP_H__
 #define __CAPTURE_LOOP_H__
 
-#ifndef _WIN32
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
  * XXX - can we just use pcap_open_offline() to read the pipe?
  */
 #include "wiretap/libpcap.h"
-#endif
 
 /** Do the low-level work of a capture.
  *  Returns TRUE if it succeeds, FALSE otherwise. */
@@ -122,7 +120,6 @@ typedef struct _loop_data {
 
   /* capture pipe (unix only "input file") */
   gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
-#ifndef _WIN32
   struct pcap_hdr cap_pipe_hdr;         /* ? */
   struct pcaprec_modified_hdr cap_pipe_rechdr;  /* ? */
   int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
@@ -137,7 +134,6 @@ typedef struct _loop_data {
          STATE_READ_DATA
        } cap_pipe_state;
   enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
-#endif
 
   /* output file */
   FILE          *pdh;
@@ -160,13 +156,11 @@ extern initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter);
 
 #ifdef HAVE_LIBPCAP
-#ifndef _WIN32
-extern int 
+extern int
 cap_pipe_dispatch(loop_data *, guchar *, char *, int);
-#endif /* _WIN32 */
 #endif
 
-extern gboolean 
+extern gboolean
 capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         char *errmsg, size_t errmsg_len,
                         char *secondary_errmsg, size_t secondary_errmsg_len);
@@ -177,7 +171,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd, char 
 extern gboolean
 capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len);
 
-extern gboolean 
+extern gboolean
 capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close);
 
 /*
@@ -197,7 +191,7 @@ extern void
 report_packet_drops(int drops);
 
 /** Report an error in the capture. */
-extern void 
+extern void
 report_capture_error(const char *error_msg, const char *secondary_error_msg);
 
 /** Report an error with a capture filter. */

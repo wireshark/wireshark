@@ -52,7 +52,7 @@
 #include <windows.h>
 /* We're using Unicode */
 #include <tchar.h>
-#include <epan/strutil.h>
+#include <epan/unicode-utils.h>
 /* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
 #include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)
@@ -140,7 +140,7 @@ browser_open_url (const gchar *url)
 
   if (browser == NULL || ! strlen (browser))
     {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           "Web browser not specified.\n"
           "Please correct the web browser setting in the Preferences dialog.");
       g_free (browser);
@@ -161,9 +161,9 @@ browser_open_url (const gchar *url)
   /* parse the cmd line */
   if (! g_shell_parse_argv (cmd, NULL, &argv, &error))
     {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           PRIMARY_TEXT_START "Could not parse web browser command: \"%s\"" PRIMARY_TEXT_END
-          "\n\n\"%s\"\n\n%s", 
+          "\n\n\"%s\"\n\n%s",
           browser, error->message,
           "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
@@ -177,9 +177,9 @@ browser_open_url (const gchar *url)
 
   if (! retval)
     {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           PRIMARY_TEXT_START "Could not execute web browser: \"%s\"" PRIMARY_TEXT_END
-          "\n\n\"%s\"\n\n%s", 
+          "\n\n\"%s\"\n\n%s",
           browser, error->message,
           "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
@@ -195,7 +195,7 @@ browser_open_url (const gchar *url)
   /* GLIB version 1.x doesn't support the functions used above,
      so simply do nothing for now, to be able to compile.
      XXX - has to be improved */
-  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
       PRIMARY_TEXT_START "Web browser access not implemented." PRIMARY_TEXT_END
       "\n\nThis Wireshark version (using the GLib 1.x toolkit) can't access web browsers. "
       "\n\nYou may try to open the following URL in your web browser: \n\n"

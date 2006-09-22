@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/epan.h>
-#include <epan/strutil.h>
+#include <epan/unicode-utils.h>
 #include <epan/emem.h>
 #include "guid-utils.h"
 
@@ -46,7 +46,7 @@ static emem_tree_t *guid_to_name_tree = NULL;
 #ifdef _WIN32
 /* try to resolve an DCE/RPC interface name to it's name using the Windows registry entries */
 /* XXX - might be better to fill all interfaces into our database at startup instead of searching each time */
-int 
+int
 ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 {
 	TCHAR *reg_uuid_name;
@@ -82,7 +82,7 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 
 
 /* store a guid to name mapping */
-void 
+void
 guids_add_guid(e_guid_t *guid, const gchar *name)
 {
 	emem_tree_key_t guidkey[2];
@@ -113,7 +113,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 	guidkey[0].key=g;
 	guidkey[0].length=4;
 	guidkey[1].length=0;
-	
+
 	pe_tree_insert32_array(guid_to_name_tree, &guidkey[0], name);
 }
 
@@ -154,7 +154,7 @@ guids_get_guid_name(e_guid_t *guid)
 	guidkey[0].key=g;
 	guidkey[0].length=4;
 	guidkey[1].length=0;
-	
+
 	if((name = pe_tree_lookup32_array(guid_to_name_tree, &guidkey[0]))){
 		return name;
 	}
@@ -172,7 +172,7 @@ guids_get_guid_name(e_guid_t *guid)
 }
 
 
-void 
+void
 guids_init(void)
 {
 	guid_to_name_tree=pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "guid_to_name");

@@ -36,7 +36,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
-#include <epan/strutil.h>
+#include <epan/unicode-utils.h>
 #endif
 
 #include "main.h"
@@ -470,8 +470,8 @@ font_zoom(char *gui_font_name)
         font_point_size_l = 10;
 
     /* build a new font name */
-    new_font_name = g_strdup_printf("-%s-%s-%s-%s-%s-%s-%s-%ld-%s-%s-%s-%s-%s-%s", 
-        font_foundry, font_family, font_weight, font_slant, font_set_width, 
+    new_font_name = g_strdup_printf("-%s-%s-%s-%s-%s-%s-%s-%ld-%s-%s-%s-%s-%s-%s",
+        font_foundry, font_family, font_weight, font_slant, font_set_width,
         font_add_style, font_pixel_size, font_point_size_l, font_res_x,
         font_res_y, font_spacing, font_aver_width, font_charset_reg,
         font_charset_encoding);
@@ -615,7 +615,7 @@ void app_font_gtk1_init(GtkWidget *top_level_w)
 {
     GtkStyle *style;
     char winfont[80];
- 
+
     style = gtk_widget_get_style(top_level_w);
     if (get_windows_font_gtk1(winfont, sizeof(winfont)) == 0)
         style->font = gdk_font_load(winfont);
@@ -725,7 +725,7 @@ void font_init(void)
   try_to_get_windows_font_gtk2();
 #endif
 #endif
-    
+
   /* Try to load the regular and boldface fixed-width fonts */
 #if GTK_MAJOR_VERSION < 2
   bold_font_name = user_font_boldify(prefs.gui_font_name1);

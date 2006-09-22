@@ -70,7 +70,7 @@
 
 #include "version_info.h"
 #include "capture-pcap-util.h"
-#include "epan/strutil.h"
+#include "epan/unicode-utils.h"
 
 #include "svnversion.h"
 

@@ -3087,6 +3087,9 @@ proto_tree_create_root(void)
 	 * but for some reason the default 'visible' is not
 	 * changed, then we'll find out very quickly. */
 	pnode->tree_data->visible = FALSE;
+	
+	/* Keep track of the number of children */
+	pnode->tree_data->count = 0;
 
 	return (proto_tree*) pnode;
 }
