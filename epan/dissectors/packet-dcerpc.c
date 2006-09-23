@@ -2996,7 +2996,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        nor the first fragment then there is nothing more we can do
        so we just have to exit
     */
-    if( !dcerpc_reassemble )
+    if( !dcerpc_reassemble || (tvb_length(tvb)!=tvb_reported_length(tvb)) )
         goto end_cn_stub;
 
     /* if we didnt get 'frame' we dont know where the PDU started and thus
@@ -3022,9 +3022,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* defragmentation is a bit tricky, as there's no offset of the fragment
      * in the protocol data.
      *
-	 * just use fragment_add_seq_next() and hope that TCP/SMB segments coming
-	 * in with the correct sequence.
-    */
+     * just use fragment_add_seq_next() and hope that TCP/SMB segments coming
+     * in with the correct sequence.
+     */
     fd_head = fragment_add_seq_next(decrypted_tvb, 0, pinfo, frame,
 		dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
 		tvb_length(decrypted_tvb),

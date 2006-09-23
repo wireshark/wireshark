@@ -3342,13 +3342,10 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			*/
 
 			/*
-			 * First, just check if it looks like dcerpc or not.
-			 *
-			 * XXX - this assumes that the dissector is idempotent,
-			 * as it's doing a "trial" dissection building no
-			 * tree; that's not necessarily the case.
+			 * Try the heuristic dissectors and see if we
+			 * find someone that recognizes this payload.
 			 */
-			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, NULL);
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 
 			/* no this didnt look like something we know */
 			if(!result){
@@ -3366,13 +3363,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 				fragment_set_tot_len(pinfo, fid,
 					dcerpc_fragment_table,
 					pinfo->desegment_len+reported_len);
-				goto clean_up_and_exit;
 			}
-
-			/* guess we have the full pdu in this tvb then,
-			   just dissect it and continue.
-			*/
-			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 			goto clean_up_and_exit;
 		}
 

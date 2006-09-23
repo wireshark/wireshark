@@ -15491,8 +15491,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *tmp_item=NULL;
 	guint8          flags;
 	guint16         flags2;
-	static smb_info_t 	si_arr[20];
-	static int si_counter=0;
 	smb_info_t 		*si;
 	smb_saved_info_t *sip = NULL;
 	smb_saved_info_key_t key;
@@ -15504,11 +15502,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	conversation_t *conversation;
 	nstime_t t, deltat;
 
-	si_counter++;
-	if(si_counter>=20){
-		si_counter=0;
-	}
-	si=&si_arr[si_counter];
+	si=ep_alloc(sizeof(smb_info_t));
 
 	top_tree=parent_tree;
 
