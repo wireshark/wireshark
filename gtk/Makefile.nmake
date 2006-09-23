@@ -29,7 +29,6 @@ WIRESHARK_WIN32_GTK_SRC = \
 	print_mswin.c \
 	win32-file-dlg.c \
 !IFDEF PORTAUDIO_DIR
-	rtp_player.c \
 	pa_lib.c \
 	pa_win_wmme.c 
 !ENDIF
