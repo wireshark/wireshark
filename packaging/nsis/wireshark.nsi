@@ -913,7 +913,7 @@ Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\COPYING"
 Delete "$INSTDIR\AUTHORS-SHORT"
-! previous versions installed this file
+; previous versions installed this file
 Delete "$INSTDIR\AUTHORS-SHORT-FORMAT"
 Delete "$INSTDIR\README*"
 Delete "$INSTDIR\FAQ"
