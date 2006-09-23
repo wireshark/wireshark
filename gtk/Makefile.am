@@ -67,7 +67,7 @@ noinst_HEADERS = \
 	graph_analysis.h \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
-	gtkvumeter.h \	
+	gtkvumeter.h \
 	gui_stat_util.h \
 	gui_prefs.h	\
 	gui_utils.h	\
