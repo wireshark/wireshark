@@ -354,6 +354,14 @@ COPYCMD=/y
 # following line. (Note: for plugin support this option must stay activated)
 ENABLE_LIBWIRESHARK=USE
 
+#
+# install (debug) directory for Wireshark GTK1 version (relative to your source dir)
+INSTALL1_DIR=wireshark-gtk1
+
+#
+# install (debug) directory for Wireshark GTK2 version (relative to your source dir)
+INSTALL2_DIR=wireshark-gtk2
+
 
 
 ##############################################################################

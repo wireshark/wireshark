@@ -114,7 +114,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
-all: config.h tools image codecs wiretap epan $(EXECUTABLES) $(RESOURCES) doc
+all: config.h tools image codecs wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
 
 packaging: all
 	cd packaging
@@ -143,6 +143,18 @@ packaging_u3: all
 	cd ..
 	cd ..
 	cd ..
+
+# use (info-)zip from cygwin to pack things
+packaging_zip1: all
+	rm -f wireshark-gtk1.zip
+	zip -r -9 wireshark-gtk1.zip $(INSTALL1_DIR)/*.*
+
+# use (info-)zip from cygwin to pack things
+packaging_zip2: all
+	rm -f wireshark-gtk2.zip
+	zip -r -9 wireshark-gtk2.zip $(INSTALL2_DIR)/*.*
+
+packaging_zip: packaging_zip1 packaging_zip2
 
 
 $(RESOURCES): image
@@ -292,7 +304,7 @@ clean_gtk2.tmp:
 	rm -f gtk2.tmp/*.*
 	if exist gtk2.tmp rmdir gtk2.tmp
 
-clean: clean_gtk2.tmp
+clean: clean_gtk2.tmp clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
@@ -642,97 +654,224 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
 
 ################################################################################
-# Prepare the source tree for running (t)wireshark directly from there.
+# Prepare the debug trees for running Wireshark/Tshark from there.
 ################################################################################
 
-# "install-deps" will copy all dlls needed to run (t)wireshark
-# to the source tree, so you can run (t)wireshark directly from there.
-# Note that the gtk2 version of wireshark is called wireshark-gtk2.exe
 
-install-deps: clean-deps install-gtk1-deps install-gtk2-deps
-	cd plugins
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
-	cd ..
+# generate and install Wireshark GTK1 in INSTALL1_DIR
+debug-gtk1: wireshark.exe install-files1
 
-install-gtk2-deps: install-required-deps
-!IFDEF GTK2_DIR
+# generate and install Wireshark GTK2 in INSTALL2_DIR
+debug-gtk2: wireshark-gtk2.exe install-files2
+
+# generate and install Wireshark GTK2 in INSTALL2_DIR
+debug-tshark: tshark.exe
 	set copycmd=/y
-	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll . /d
-	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll . /d
-	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll . /d
-	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll . /d
-	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll . /d
-	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll . /d
-	mkdir etc
-	mkdir etc\gtk-2.0
-	mkdir etc\pango
-	mkdir lib
-	mkdir lib\gtk-2.0
-	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)
-	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
-	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
-	mkdir lib\pango
-	mkdir lib\pango\$(PANGO_LIB_DIR)
-	mkdir lib\pango\$(PANGO_LIB_DIR)\modules
-	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* etc\gtk-2.0 /d
-	xcopy $(GTK2_DIR)\etc\pango\pango.* etc\pango /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
-	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll lib\pango\$(PANGO_LIB_DIR)\modules /d
-!IFDEF NEED_LIBPNG_DLL
-	xcopy $(GTK2_DIR)\bin\libpng13.dll . /d
-!ENDIF
-!IFDEF NEED_CAIRO_DLL
-	xcopy $(GTK2_DIR)\bin\libcairo-2.dll . /d
-	xcopy $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll . /d
-!ENDIF
-!ENDIF
+	set INSTALL_DIR=$(INSTALL2_DIR)
+	nmake -f Makefile.nmake install-common-files
 
-install-gtk1-deps: install-required-deps
+
+# "install-deps" will copy all files needed to run Wwireshark/Tshark
+# to the INSTALL1_DIR/INSTALL2_DIR, so you can run/debug Wireshark/Tshark from there.
+
+install-deps: install-deps1 install-deps2 install-files1 install-files2
+
+# install Wireshark GTK2 and other generated files
+install-files1:
 !IFDEF GTK1_DIR
 	set copycmd=/y
-	xcopy $(GTK1_DIR)\lib\libgtk-0.dll . /d
-	xcopy $(GTK1_DIR)\lib\libgdk-0.dll . /d
+	set INSTALL_DIR=$(INSTALL1_DIR)
+	nmake -f Makefile.nmake install-common-files
+	xcopy wireshark.exe $(INSTALL1_DIR) /d
 !ENDIF
 
-install-required-deps:
-	set copycmd=/y
-	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d
-!IFDEF ENABLE_LIBWIRESHARK
-	xcopy epan\libwireshark.dll . /d
+# install Wireshark GTK2 and other generated files
+install-files2:
+!IFDEF GTK2_DIR
+	set INSTALL_DIR=$(INSTALL2_DIR)
+	nmake -f Makefile.nmake install-common-files
+	copy wireshark-gtk2.exe $(INSTALL2_DIR)\wireshark.exe
+	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
 !ENDIF
-	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll . /d
-	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll . /d
-	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll . /d
-	xcopy $(ICONV_DIR)\bin\iconv.dll . /d
-	xcopy $(GETTEXT_DIR)\bin\intl.dll . /d
+
+install-common-files:
+	set copycmd=/y
+	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
+!IFDEF ENABLE_LIBWIRESHARK
+	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d
+!ENDIF
+	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
+	xcopy ".\epan\libwireshark.dll" $(INSTALL_DIR) /d
+	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
+	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL2_DIR) /d
+	if exist mergecap.exe xcopy mergecap.exe $(INSTALL2_DIR) /d
+	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL2_DIR) /d
+	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
+	if exist editcap.exe xcopy editcap.exe $(INSTALL_DIR) /d
+	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
+	xcopy ".\manuf" $(INSTALL_DIR) /d
+	xcopy ".\FAQ" $(INSTALL_DIR) /d
+	xcopy ".\README" $(INSTALL_DIR) /d
+	xcopy ".\README.win32" $(INSTALL_DIR) /d
+	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
+	xcopy ".\COPYING" $(INSTALL_DIR) /d
+	copy ".\NEWS" $(INSTALL_DIR)\NEWS.txt /d
+	xcopy ".\cfilters" $(INSTALL_DIR) /d
+	xcopy ".\colorfilters" $(INSTALL_DIR) /d
+	xcopy ".\dfilters" $(INSTALL_DIR) /d
+    xcopy doc\*.html $(INSTALL_DIR) /d
+!IFDEF ETHEREAL_EUG_DIR
+    xcopy $(ETHEREAL_EUG_DIR) $(INSTALL_DIR) /d
+!ENDIF
+	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
+	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
+	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
+	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
+	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
+	echo create empty asn1 default.tt file to prevent problems 2> $(INSTALL_DIR)\asn1\default.tt
+	if not exist $(INSTALL_DIR)\radius mkdir $(INSTALL_DIR)\radius
+	xcopy ".\radius\*.*" $(INSTALL_DIR)\radius /d
+	if not exist $(INSTALL_DIR)\diameter mkdir $(INSTALL_DIR)\diameter
+	xcopy ".\diameter\*.dtd" $(INSTALL_DIR)\diameter /d
+	xcopy ".\diameter\*.xml" $(INSTALL_DIR)\diameter /d
+	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
+	xcopy ".\plugins\acn\acn.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\agentx\agentx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\artnet\artnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\asn1\asn1.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\ciscosm\ciscosm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\docsis\docsis.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\enttec\enttec.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\giop\coseventcomm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\giop\cosnaming.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\giop\parlay.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\giop\tango.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\h223\h223.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\lua\init.lua" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\lua\lua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\mate\mate.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\megaco\megaco.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\mgcp\mgcp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\opsi\opsi.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\pcli\pcli.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\profinet\profinet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\rdm\rdm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\rlm\rlm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\rtnet\rtnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\rudp\rudp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\sbus\sbus.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\stats_tree\stats_tree.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
+
+install-deps1: install-common-deps1
+!IFDEF GTK1_DIR
+	set copycmd=/y
+	xcopy $(GTK1_DIR)\lib\libgtk-0.dll $(INSTALL1_DIR) /d
+	xcopy $(GTK1_DIR)\lib\libgdk-0.dll $(INSTALL1_DIR) /d
+!ENDIF
+
+install-deps2: install-common-deps2
+!IFDEF GTK2_DIR
+	set copycmd=/y
+	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(INSTALL2_DIR) /d
+	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(INSTALL2_DIR) /d
+	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll $(INSTALL2_DIR) /d
+	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll $(INSTALL2_DIR) /d
+	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll $(INSTALL2_DIR) /d
+	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll $(INSTALL2_DIR) /d
+	if not exist $(INSTALL2_DIR)\etc mkdir $(INSTALL2_DIR)\etc
+	if not exist $(INSTALL2_DIR)\etc\gtk-2.0 mkdir $(INSTALL2_DIR)\etc\gtk-2.0
+	if not exist $(INSTALL2_DIR)\etc\pango mkdir $(INSTALL2_DIR)\etc\pango
+	if not exist $(INSTALL2_DIR)\lib mkdir $(INSTALL2_DIR)\lib
+	if not exist $(INSTALL2_DIR)\lib\gtk-2.0 mkdir $(INSTALL2_DIR)\lib\gtk-2.0
+	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)
+	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
+	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	if not exist $(INSTALL2_DIR)\lib\pango mkdir $(INSTALL2_DIR)\lib\pango
+	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)
+	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
+	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* $(INSTALL2_DIR)\etc\gtk-2.0 /d
+	xcopy $(GTK2_DIR)\etc\pango\pango.* $(INSTALL2_DIR)\etc\pango /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
+	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
+!IFDEF NEED_LIBPNG_DLL
+	xcopy $(GTK2_DIR)\bin\libpng13.dll $(INSTALL2_DIR) /d
+!ENDIF
+!IFDEF NEED_CAIRO_DLL
+	xcopy $(GTK2_DIR)\bin\libcairo-2.dll $(INSTALL2_DIR)  /d
+	xcopy $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL2_DIR) /d
+!ENDIF
+	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines
+	xcopy "$(GTK_WIMP_DIR)\libwimp.dll" $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines /d
+!IF "$(GTK2_INST_VERSION)" != "2.8"
+	if not exist $(INSTALL2_DIR)\share\themes\Default\gtk-2.0 mkdir $(INSTALL2_DIR)\share\themes\Default\gtk-2.0
+	xcopy "$(GTK_WIMP_DIR)\Theme\gtk-2.0\gtkrc" $(INSTALL2_DIR)\share\themes\Default\gtk-2.0 /d
+!ENDIF
+!ENDIF
+
+install-common-deps1:
+	set INSTALL_DIR=$(INSTALL1_DIR)
+	nmake -f Makefile.nmake install-common-deps
+
+install-common-deps2:
+	set INSTALL_DIR=$(INSTALL2_DIR)
+	nmake -f Makefile.nmake install-common-deps
+
+install-common-deps:
+	set copycmd=/y
+	if not exist $(DEBUG_DIR) mkdir $(INSTALL_DIR)
+	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
+	xcopy $(GETTEXT_DIR)\bin\intl.dll $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
-	xcopy $(ZLIB_DIR)\zlib1.dll . /d
+	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF ADNS_DIR
-	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll . /d
+	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF PCRE_DIR
-	xcopy $(PCRE_DIR)\bin\pcre.dll . /d
+	xcopy $(PCRE_DIR)\bin\pcre.dll $(INSTALL_DIR) /d
+	xcopy $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF KFW_DIR
-	xcopy $(KFW_DIR)\bin\comerr32.dll . /d
-	xcopy $(KFW_DIR)\bin\krb5_32.dll . /d
+	xcopy $(KFW_DIR)\bin\comerr32.dll $(INSTALL_DIR) /d
+	xcopy $(KFW_DIR)\bin\krb5_32.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF GNUTLS_DIR
-	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll . /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-14.dll . /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-14.dll . /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-14.dll . /d
-	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll . /d
-	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll . /d
+	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-14.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-14.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-14.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NET_SNMP_DIR
+	if not exist $(INSTALL_DIR)\mibs mkdir $(INSTALL_DIR)\mibs
+	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\mibs /d
 !ENDIF
 
-clean-deps:
-	rm -f *.dll
-	rm -rf etc
-	rm -rf lib
+clean-deps1:
+	rm -f $(INSTALL1_DIR)\*.dll
+	rm -rf $(INSTALL1_DIR)\etc
+	rm -rf $(INSTALL1_DIR)\lib
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
+
+clean-deps2:
+	rm -f $(INSTALL2_DIR)\*.dll
+	rm -rf $(INSTALL2_DIR)\etc
+	rm -rf $(INSTALL2_DIR)\lib
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
+	cd ..
+
+clean-deps: clean-deps1 clean-deps2
 
