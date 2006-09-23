@@ -70,6 +70,7 @@ WIRESHARK_GTK_SRC = \
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \
+	gtkvumeter.c \
 	gui_stat_util.c	\
 	gui_prefs.c	\
 	gui_utils.c \

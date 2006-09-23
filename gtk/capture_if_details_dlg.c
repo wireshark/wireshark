@@ -48,6 +48,10 @@
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
+#if GTK_MAJOR_VERSION >= 2
+#include "gtkvumeter.h"
+#endif
+
 #ifndef HAVE_SOCKADDR_STORAGE
 /* packet32.h requires sockaddr_storage (usually defined in Platform SDK)
  * copied from RFC2553 (and slightly modified because of datatypes) ...
@@ -801,6 +805,76 @@ supported_query_oid(LPADAPTER adapter, guint32 oid)
 /* info functions, get and display various NDIS driver values */
 
 
+#if GTK_MAJOR_VERSION >= 2
+
+    GtkWidget *meter;
+    GtkWidget *val_lb;
+
+static GtkWidget *
+add_meter_to_table(GtkWidget *list, guint *row, gchar *title, 
+                 int value, gchar *value_title, 
+                 int min, int max,
+                 int yellow_level,
+                 GList *scale)
+{
+    GtkWidget *label;
+    gchar     *indent;
+    GtkWidget *main_hb;
+
+
+    /* the label */
+    indent = g_strdup_printf("   %s", title);
+    label = gtk_label_new(indent);
+    g_free(indent);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_table_attach(GTK_TABLE(list), label, 0, 1, *row, *row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
+
+    /* the level meter */
+    main_hb = gtk_hbox_new(FALSE, 6);
+
+    meter = gtk_vumeter_new ();
+
+    gtk_vumeter_set_orientation(GTK_VUMETER(meter), GTK_VUMETER_LEFT_TO_RIGHT);
+
+    gtk_vumeter_set_min_max(GTK_VUMETER(meter), &min, &max);
+    gtk_vumeter_set_yellow_level (GTK_VUMETER(meter), yellow_level);
+    gtk_vumeter_set_thickness (GTK_VUMETER(meter), 10);
+    gtk_vumeter_set_thickness_reduction (GTK_VUMETER(meter), 2);
+    gtk_vumeter_set_scale_hole_size (GTK_VUMETER(meter), 2);
+    gtk_vumeter_set_colors_inverted (GTK_VUMETER(meter), TRUE);
+
+    if(scale) {
+        gtk_vumeter_set_scale_items(GTK_VUMETER(meter), scale);
+    }
+
+    gtk_vumeter_set_level(GTK_VUMETER(meter), value);
+
+    gtk_box_pack_start                (GTK_BOX(main_hb),
+                                             meter,
+                                             TRUE /*expand*/,
+                                             TRUE /*fill*/,
+                                             0 /* padding */);
+
+    val_lb = gtk_label_new(value_title);
+    WIDGET_SET_SIZE(val_lb, 50, -1);
+    gtk_misc_set_alignment(GTK_MISC(val_lb), 1.0, 0.5);
+
+    gtk_box_pack_start                (GTK_BOX(main_hb),
+                                             val_lb,
+                                             FALSE /*expand*/,
+                                             FALSE /*fill*/,
+                                             0 /* padding */);
+
+    gtk_table_attach(GTK_TABLE(list), main_hb, 1, 2, *row, *row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
+
+    *row = *row + 1;
+
+    return meter;
+}
+#endif
+
+
+
 static void
 add_row_to_table(GtkWidget *list, guint *row, gchar *title, const gchar *value, gboolean sensitive)
 {
@@ -816,12 +890,12 @@ add_row_to_table(GtkWidget *list, guint *row, gchar *title, const gchar *value, 
     g_free(indent);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 0, 1, *row, *row+1);
+    gtk_table_attach(GTK_TABLE(list), label, 0, 1, *row, *row+1, GTK_EXPAND | GTK_FILL, 0, 0,0);
 
     label = gtk_label_new(value);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 1, 2, *row, *row+1);
+    gtk_table_attach(GTK_TABLE(list), label, 1, 2, *row, *row+1, GTK_EXPAND | GTK_FILL, 0, 0,0);
 
     *row = *row + 1;
 }
@@ -897,6 +971,132 @@ rates_details(unsigned char *values, int length) {
 }
 
 
+
+#if GTK_MAJOR_VERSION >= 2
+static GList *
+rates_vu_list(unsigned char *values, int length, int *max)
+{
+    int                 i;
+    GList               *Rates = NULL;
+    GtkVUMeterScaleItem * item;
+
+
+    *max = 0;
+
+    if(length == 0) {
+        return NULL;
+    }
+
+    /* add a zero scale point */
+    item = g_malloc(sizeof(GtkVUMeterScaleItem));
+    item->level = 0;
+    item->large = TRUE;
+    item->label = "0";
+    Rates = g_list_append(Rates, item);
+
+    /* get the maximum rate */
+    for(i=0; i<length; i++) {
+        gint level;
+
+        if(values[i]) {
+            level = (values[i] & 0x7F) / 2;
+
+            if(level > *max) {
+                *max = level;
+            }
+        }
+    }
+
+#if 0
+    /* debug: fake the 108MBit entry (I don't own one :-) */
+    *max = 108;
+
+    item = g_malloc(sizeof(GtkVUMeterScaleItem));
+    item->level = 108;
+    item->large = TRUE;
+    item->label = "108";
+    Rates = g_list_append(Rates, item);
+#endif
+
+    for(i=0; i<length; i++) {
+        if(values[i]) {
+            /* reduce the screen estate by showing fractions only where required */
+            item = g_malloc(sizeof(GtkVUMeterScaleItem));
+
+            item->level = (values[i] & 0x7F) / 2;
+
+            /* common data rates: */
+            /* 802.11  (15.1)  : mandatory: 2, 1 */
+            /* 802.11a (17.1)  : mandatory: 24, 12, 6 optional: 54, 48, 36, 18, 9 */
+            /* 802.11b (18.1)  : mandatory: 11, 5.5 (+ 2, 1) */
+            /* 802.11g (19.1.1): mandatory: 24, 12, 11, 6, 5.5, 2, 1 optional: 54, 48, 36, 33, 22, 18, 9 */
+            /* 802.11n: ? */
+            /* proprietary: 108 */
+
+            switch(item->level) {
+            case 2:
+                if(*max >= 108) {
+                    item->large = FALSE;
+                    item->label = NULL;
+                } else {
+                    item->large = TRUE;
+                    item->label = "2";
+                }
+                break;
+            case 5:
+                item->large = TRUE;
+                item->label = "5.5";
+                break;
+            case 11:
+                item->large = TRUE;
+                item->label = "11";
+                break;
+            case 18:
+                item->large = TRUE;
+                item->label = "18";
+                break;
+            case 24:
+                item->large = TRUE;
+                item->label = "24";
+                break;
+            case 36:
+                item->large = TRUE;
+                item->label = "36";
+                break;
+            case 48:
+                item->large = TRUE;
+                item->label = "48";
+                break;
+            case 54:
+                item->large = TRUE;
+                item->label = "54";
+                break;
+            case 72: /* XXX */
+                item->large = TRUE;
+                item->label = "72";
+                break;
+            case 96: /* XXX */
+                item->large = TRUE;
+                item->label = "96";
+                break;
+            case 108:
+                item->large = TRUE;
+                item->label = "108";
+                break;
+            default:
+                item->large = FALSE;
+                item->label = NULL;
+            }
+
+            Rates = g_list_append(Rates, item);
+        }
+    }
+
+    return Rates;
+}
+#endif
+
+
 /* debugging only */
 static void
 hex(unsigned char *p, int len) {
@@ -938,7 +1138,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
         gchar freq_buff[DETAILS_STR_MAX];
 
         list = simple_list_new(9, titles);
-        gtk_container_add(GTK_CONTAINER(main_vb), list);
+        gtk_box_pack_start(GTK_BOX(main_vb), list, TRUE /*expand*/, TRUE /*fill*/, 0 /* padding */);
 
         bssid_item = &bssid_list->items[0];
 
@@ -1110,7 +1310,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
 static int
 capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
     ULONG               ulong_value;
-    LONG                long_value;
+    LONG                rssi = -100;
     unsigned int        uint_value;
     unsigned char       values[100];
     struct ndis_essid   ssid;
@@ -1202,9 +1402,66 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
     }
 
     /* RSSI */
-    if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &long_value)) {
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -100)", long_value);
+    if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &rssi)) {
+#if GTK_MAJOR_VERSION >= 2
+        int i;
+        GList * scale_items = NULL;
+        GList * current;
+        GtkVUMeterScaleItem *item;
+
+
+        for (i = 0; i <= 100; i++) {
+            item = g_malloc(sizeof(GtkVUMeterScaleItem));
+
+            item->level = i;
+            item->large = !(i%5);
+            item->label = NULL;
+
+            switch(item->level) {
+            case 0:
+                item->label = "-100 ";
+                break;
+            case 20:
+                item->label = "-80 ";
+                break;
+            case 40:
+                item->label = "-60 ";
+                break;
+            case 60:
+                item->label = "-40 ";
+                break;
+            case 80:
+                item->label = "-20 ";
+                break;
+            case 100:
+                item->label = "0";
+                break;
+            default:
+                item->label = NULL;
+            }
+
+            scale_items = g_list_append(scale_items, item);
+        }
+
+        if(rssi < -100) {
+            rssi = -100;
+        }
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm", rssi);
+
+        add_meter_to_table(table, row, "RSSI (Received Signal Strength Indication)", 
+            rssi+100 , string_buff, -100+100, 0+100, -80+100, scale_items);
+    
+        current = scale_items;
+        while (current != NULL) {
+            g_free(current->data);
+
+            current = g_list_next(current);
+        }
+        g_list_free(scale_items);
+#else
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -100)", rssi);
         add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", string_buff);
+#endif
         entries++;
     } else {
         add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", "-");
@@ -1218,6 +1475,44 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         entries++;
     }
 
+#if GTK_MAJOR_VERSION >= 2
+    /* if we can get the link speed, show Supported Rates in level meter format */
+    if (length != 0 && wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
+        int max;
+        int yellow;
+        GList *rates_list;
+        GList * current;
+
+
+        rates_list = rates_vu_list(values, length, &max);
+
+        /* if we don't have a signal, we might not have a valid link speed */
+        if(rssi == -100) {
+            uint_value = 0;
+        }
+
+        uint_value /= 10 * 1000;
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%u MBits/s", uint_value);
+
+        if(max >= 54) {
+            yellow = 2;
+        } else {
+            yellow = 1;
+        }
+        add_meter_to_table(table, row, "Link Speed", 
+                uint_value, string_buff, 0, max, yellow, rates_list);
+    
+        current = rates_list;
+        while (current != NULL) {
+            g_free(current->data);
+
+            current = g_list_next(current);
+        }
+        g_list_free(rates_list);
+    }
+#endif
+
+    /* Supported Rates in String format */
     Rates = rates_details(values, length);
     add_string_to_table(table, row, "Supported Rates", Rates->str);
     g_string_free(Rates, TRUE /* free_segment */);
@@ -2007,7 +2302,7 @@ capture_if_details_open_win(char *iface)
 
     /* notebook */
     notebook = gtk_notebook_new();
-    gtk_container_add(GTK_CONTAINER(main_vb), notebook);
+    gtk_box_pack_start(GTK_BOX(main_vb), notebook, TRUE /*expand*/, TRUE /*fill*/, 0 /*padding*/);
 
     /* General page */
     page_general = capture_if_details_page_new(&table);
@@ -2062,7 +2357,7 @@ capture_if_details_open_win(char *iface)
     wpcap_packet_close(adapter);
 
     label = gtk_label_new("Note: accuracy of all of these values are only relying on the network card driver!");
-    gtk_container_add(GTK_CONTAINER(main_vb), label);
+    gtk_box_pack_start(GTK_BOX(main_vb), label, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     /* Button row. */
     if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
@@ -2070,7 +2365,7 @@ capture_if_details_open_win(char *iface)
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     }
-    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(details_open_w, close_bt, window_cancel_button_cb);
