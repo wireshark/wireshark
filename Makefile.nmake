@@ -824,7 +824,7 @@ install-common-deps2:
 
 install-common-deps:
 	set copycmd=/y
-	if not exist $(DEBUG_DIR) mkdir $(INSTALL_DIR)
+	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
