@@ -231,8 +231,10 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #ifndef _WIN32
   struct stat pipe_stat;
 #else
+#if 0
   char *pncopy, *pos;
   wchar_t *err_str;
+#endif
   HANDLE hPipe = NULL;
 #endif
   int          sel_ret;
