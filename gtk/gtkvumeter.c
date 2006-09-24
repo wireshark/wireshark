@@ -55,9 +55,9 @@ GtkType gtk_vumeter_get_type (void)
         static const GTypeInfo vumeter_info = {
             sizeof (GtkVUMeterClass),
             NULL, NULL,
-            (GClassInitFunc) gtk_vumeter_class_init,
-            NULL, NULL, sizeof (GtkVUMeter), 0,
-            (GInstanceInitFunc) gtk_vumeter_init,
+            (GClassInitFunc) gtk_vumeter_class_init, NULL, NULL,
+            sizeof (GtkVUMeter), 0, (GInstanceInitFunc) gtk_vumeter_init,
+            NULL
         };
         vumeter_type = g_type_register_static (GTK_TYPE_WIDGET, "GtkVUMeter", &vumeter_info, 0);
     }
@@ -1035,7 +1035,7 @@ void gtk_vumeter_set_scale_hole_size (GtkVUMeter *vumeter, gint hole_size)
 gint gtk_vumeter_get_scale_hole_size (GtkVUMeter *vumeter)
 {
     if(!GTK_IS_VUMETER (vumeter)) {
-        return NULL;
+        return 0;
     } else {
         return vumeter->scale_pitch_holes;
     }
