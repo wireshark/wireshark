@@ -1,5 +1,5 @@
 /* XPM */
-static char * capture_airpcap_16_xpm[] = {
+static const char * capture_airpcap_16_xpm[] = {
 "16 16 256 2",
 "  	c None",
 ". 	c #800000",

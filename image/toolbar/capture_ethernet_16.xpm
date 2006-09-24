@@ -1,5 +1,5 @@
 /* XPM */
-static char * capture_ethernet_16_xpm[] = {
+static const char * capture_ethernet_16_xpm[] = {
 "16 16 144 2",
 "  	c None",
 ". 	c #6A6A6A",
