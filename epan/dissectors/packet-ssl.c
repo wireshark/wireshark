@@ -241,8 +241,8 @@ ssl_init(void)
 static void
 ssl_parse(void)
 {
-	ep_stack_t tmp_stack;
-	SslAssociation *tmp_assoc;
+    ep_stack_t tmp_stack;
+    SslAssociation *tmp_assoc;
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -252,12 +252,12 @@ ssl_parse(void)
         g_hash_table_destroy(ssl_key_hash);
     }
 
-	/* remove only associations created from key list */
-	tmp_stack = ep_stack_new();
+    /* remove only associations created from key list */
+    tmp_stack = ep_stack_new();
     g_tree_traverse(ssl_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
-	while (tmp_assoc = ep_stack_pop(tmp_stack)) {
-		ssl_association_remove(ssl_associations, tmp_assoc);
-	}
+    while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
+        ssl_association_remove(ssl_associations, tmp_assoc);
+    }
 
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new(ssl_private_key_hash,ssl_private_key_equal);
