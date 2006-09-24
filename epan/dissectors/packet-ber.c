@@ -1,4 +1,4 @@
-/*#define DEBUG_BER 1 */
+/*#define DEBUG_BER 1 
 /* TODO: change #.REGISTER signature to new_dissector_t and
  * update call_ber_oid_callback() accordingly.
  *
@@ -1061,7 +1061,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
-
 	/* loop over all entries until we reach the end of the sequence */
 	while (offset < end_offset){
 		gint8 class;
@@ -1073,10 +1072,17 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
 					but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
+				offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+				offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+				proto_item_append_text(item," 0 items");
+				return end_offset;
+				/*
 				if(show_internal_ber_fields){
 					proto_tree_add_text(tree, tvb, s_offset, offset+2, "ERROR WRONG SEQ EOC");
 				}
 				return end_offset;
+				*/
 			}
 		/*}*/
 		hoffset = offset;
@@ -1088,11 +1094,12 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		if (eoffset <= hoffset)
 			THROW(ReportedBoundsError);
 
-		if(ind_field && (len == 2)){
-    			/* disgusting indefinite length zero length field, what are these people doing */
+		/*if(ind_field && (len == 2)){
+    			/ disgusting indefinite length zero length field, what are these people doing /
 			offset = eoffset;
 			continue;
 		}
+		*/
 
 ber_sequence_try_again:
 		/* have we run out of known entries in the sequence ?*/
@@ -1171,12 +1178,18 @@ ber_sequence_try_again:
 
 		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
 			/* dissect header and len for field */
-			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
-			length_remaining=tvb_length_remaining(tvb, hoffset);
-			if (length_remaining>eoffset-hoffset-(2*ind_field))
-				length_remaining=eoffset-hoffset-(2*ind_field);
-			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
+			if(ind_field && (len == 2)){
+				/* This is a Zero length field */
+				next_tvb = tvb_new_subset(tvb, offset, len, len);
+				hoffset = eoffset;
+			}else{
+				hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+				hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset-(2*ind_field))
+					length_remaining=eoffset-hoffset-(2*ind_field);
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
+			}
 		}
 		else {
 			length_remaining=tvb_length_remaining(tvb, hoffset);
@@ -1242,8 +1255,10 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		offset = eoffset;
 		seq++;
 		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len */
-			if(ind_field == 1)
+			/* if we stripped the tag and length we should also strip the EOC is ind_len 
+			 * Unless its a zero length field (len = 2)
+			 */
+			if((ind_field == 1)&&(len>2))
 			{
 				/* skip over EOC */
 				if(show_internal_ber_fields){
@@ -2013,7 +2028,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
 			/* read header and len for next field */
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-			offset = get_ber_length(tree, tvb, offset, &len, NULL);
+			offset = get_ber_length(tree, tvb, offset, &len, &ind);
 			/* best place to get real length of implicit sequence of or set of is here... */
 			/* adjust end_offset if we find somthing that doesnt match */
 			offset += len;
@@ -2065,6 +2080,12 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		if (eoffset <= hoffset)
 			THROW(ReportedBoundsError);
 
+		if((class==BER_CLASS_UNI)&&(tag==BER_UNI_TAG_EOC)){
+			/* This is a zero length sequence of*/
+			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
+			return eoffset;
+		}
 		/* verify that this one is the one we want */
 		/* ahup if we are implicit then we return to the uper layer how much we have used */
 		if(seq->class!=BER_CLASS_ANY){
