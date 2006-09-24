@@ -4667,6 +4667,8 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     conversation_t *conv;
     int auth_level;
+    char *uuid_str;
+    const char *uuid_name = NULL;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -4827,9 +4829,15 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 16;
 
     if (tree) {
-        proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
-                                      offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s",
-                                      guid_to_str((e_guid_t *) &hdr.if_id));
+        uuid_str = guid_to_str((e_guid_t*)&hdr.if_id);
+        uuid_name = guids_get_uuid_name(&hdr.if_id);
+        if(uuid_name) {
+	          proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
+                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
+        } else {
+          proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
+                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface UUID: %s", uuid_str);
+        }
     }
     offset += 16;
 
