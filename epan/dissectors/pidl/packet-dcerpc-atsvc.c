@@ -33,72 +33,72 @@ static gint ett_atsvc_atsvc_enum_ctr = -1;
 
 
 /* Header field declarations */
-static gint hf_atsvc_atsvc_JobEnumInfo_days_of_month = -1;
-static gint hf_atsvc_atsvc_JobEnum_resume_handle = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Eight = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Third = -1;
-static gint hf_atsvc_atsvc_JobInfo_days_of_week = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyseventh = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyth = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Seventeenth = -1;
-static gint hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Fifth = -1;
-static gint hf_atsvc_job_info = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Thitteenth = -1;
-static gint hf_atsvc_atsvc_enum_ctr_entries_read = -1;
-static gint hf_atsvc_atsvc_enum_ctr_first_entry = -1;
-static gint hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR = -1;
 static gint hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE = -1;
-static gint hf_atsvc_opnum = -1;
-static gint hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Eighteenth = -1;
-static gint hf_atsvc_job_id = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Ninteenth = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentysecond = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Second = -1;
-static gint hf_atsvc_status = -1;
-static gint hf_atsvc_atsvc_JobEnum_ctr = -1;
-static gint hf_atsvc_atsvc_JobInfo_command = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Sixteenth = -1;
-static gint hf_atsvc_atsvc_JobEnumInfo_command = -1;
-static gint hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Fourth = -1;
-static gint hf_atsvc_atsvc_JobEnumInfo_days_of_week = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_First = -1;
-static gint hf_atsvc_atsvc_JobEnumInfo_job_time = -1;
-static gint hf_atsvc_atsvc_JobEnum_total_entries = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyninth = -1;
-static gint hf_atsvc_atsvc_JobDel_max_job_id = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentythird = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Fifteenth = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyeighth = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twelfth = -1;
-static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY = -1;
-static gint hf_atsvc_atsvc_JobInfo_flags = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Seventh = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfirst = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Tenth = -1;
 static gint hf_atsvc_atsvc_DaysOfMonth_Fourteenth = -1;
-static gint hf_atsvc_atsvc_JobEnum_preferred_max_len = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfourth = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfifth = -1;
-static gint hf_atsvc_servername = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Thirtieth = -1;
+static gint hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY = -1;
+static gint hf_atsvc_atsvc_enum_ctr_entries_read = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyeighth = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY = -1;
 static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Sixth = -1;
-static gint hf_atsvc_atsvc_JobDel_min_job_id = -1;
-static gint hf_atsvc_atsvc_JobInfo_job_time = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Second = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyth = -1;
 static gint hf_atsvc_atsvc_DaysOfMonth_Ninth = -1;
-static gint hf_atsvc_atsvc_DaysOfMonth_Eleventh = -1;
+static gint hf_atsvc_servername = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyninth = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Tenth = -1;
+static gint hf_atsvc_atsvc_JobEnum_resume_handle = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyseventh = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Fifteenth = -1;
+static gint hf_atsvc_atsvc_JobInfo_command = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Ninteenth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Seventh = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfourth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Seventeenth = -1;
+static gint hf_atsvc_opnum = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twelfth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Eighteenth = -1;
+static gint hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY = -1;
+static gint hf_atsvc_atsvc_JobEnum_total_entries = -1;
+static gint hf_atsvc_atsvc_enum_ctr_first_entry = -1;
+static gint hf_atsvc_atsvc_JobEnumInfo_job_time = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Third = -1;
+static gint hf_atsvc_atsvc_JobEnum_preferred_max_len = -1;
+static gint hf_atsvc_atsvc_JobEnumInfo_days_of_month = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentythird = -1;
+static gint hf_atsvc_atsvc_JobInfo_job_time = -1;
+static gint hf_atsvc_status = -1;
+static gint hf_atsvc_atsvc_JobInfo_flags = -1;
+static gint hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Sixth = -1;
+static gint hf_atsvc_job_id = -1;
 static gint hf_atsvc_atsvc_DaysOfMonth_Twentysixth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Fifth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Fourth = -1;
+static gint hf_atsvc_job_info = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Eleventh = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Sixteenth = -1;
+static gint hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE = -1;
+static gint hf_atsvc_atsvc_JobEnum_ctr = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfifth = -1;
 static gint hf_atsvc_atsvc_JobInfo_days_of_month = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentysecond = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_First = -1;
+static gint hf_atsvc_atsvc_JobEnumInfo_command = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Thirtieth = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Eight = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Twentyfirst = -1;
+static gint hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR = -1;
+static gint hf_atsvc_atsvc_JobInfo_days_of_week = -1;
+static gint hf_atsvc_atsvc_JobDel_min_job_id = -1;
+static gint hf_atsvc_atsvc_JobEnumInfo_days_of_week = -1;
 static gint hf_atsvc_atsvc_JobEnumInfo_flags = -1;
+static gint hf_atsvc_atsvc_JobDel_max_job_id = -1;
+static gint hf_atsvc_atsvc_DaysOfMonth_Thitteenth = -1;
 
 static gint proto_dcerpc_atsvc = -1;
 /* Version information */
@@ -365,7 +365,7 @@ atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if(parent_tree) {
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
 		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_DaysOfMonth);
 	}
@@ -624,7 +624,7 @@ atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	}
 	flags&=(~( 0x40000000 ));
 
-	if(flags){
+	if (flags) {
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -647,7 +647,7 @@ atsvc_dissect_bitmap_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	guint8 flags;
 
-	if(parent_tree) {
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 1, TRUE);
 		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_Flags);
 	}
@@ -698,7 +698,7 @@ atsvc_dissect_bitmap_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	}
 	flags&=(~( 0x10 ));
 
-	if(flags){
+	if (flags) {
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -723,7 +723,7 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 	guint8 flags;
 
-	if(parent_tree) {
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 1, TRUE);
 		tree = proto_item_add_subtree(item,ett_atsvc_atsvc_DaysOfWeek);
 	}
@@ -790,7 +790,7 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 	}
 	flags&=(~( 0x40 ));
 
-	if(flags){
+	if (flags) {
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -802,7 +802,7 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 /* IDL: 	atsvc_DaysOfMonth days_of_month; */
 /* IDL: 	atsvc_DaysOfWeek days_of_week; */
 /* IDL: 	atsvc_Flags flags; */
-/* IDL: 	[unique(1)] uint16 *command; */
+/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *command; */
 /* IDL: } atsvc_JobInfo; */
 
 static int
@@ -867,7 +867,7 @@ atsvc_dissect_struct_JobInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 	old_offset = offset;
 
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_JobInfo);
 	}
@@ -894,7 +894,7 @@ atsvc_dissect_struct_JobInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 /* IDL: 	atsvc_DaysOfMonth days_of_month; */
 /* IDL: 	atsvc_DaysOfWeek days_of_week; */
 /* IDL: 	atsvc_Flags flags; */
-/* IDL: 	[unique(1)] uint16 *command; */
+/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *command; */
 /* IDL: } atsvc_JobEnumInfo; */
 
 static int
@@ -967,7 +967,7 @@ atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	old_offset = offset;
 
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_JobEnumInfo);
 	}
@@ -992,7 +992,7 @@ atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 entries_read; */
-/* IDL: 	[unique(1)] [size_is(entries_read)] atsvc_JobEnumInfo *first_entry; */
+/* IDL: 	[size_is(entries_read)] [unique(1)] atsvc_JobEnumInfo *first_entry; */
 /* IDL: } atsvc_enum_ctr; */
 
 static int
@@ -1038,7 +1038,7 @@ atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 	old_offset = offset;
 
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_enum_ctr);
 	}
@@ -1097,7 +1097,7 @@ atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 /* IDL: NTSTATUS atsvc_JobAdd( */
-/* IDL: [unique(1)] [in] uint16 *servername, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *servername, */
 /* IDL: [in] [ref] atsvc_JobInfo *job_info, */
 /* IDL: [out] uint32 job_id */
 /* IDL: ); */
@@ -1164,7 +1164,7 @@ atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb, int offset, packet_info *
 }
 
 /* IDL: NTSTATUS atsvc_JobDel( */
-/* IDL: [unique(1)] [in] uint16 *servername, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *servername, */
 /* IDL: [in] uint32 min_job_id, */
 /* IDL: [in] uint32 max_job_id */
 /* IDL: ); */
@@ -1262,11 +1262,11 @@ atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb, int offset, packet_i
 }
 
 /* IDL: NTSTATUS atsvc_JobEnum( */
-/* IDL: [unique(1)] [in] uint16 *servername, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *servername, */
 /* IDL: [out] [in] [ref] atsvc_enum_ctr *ctr, */
 /* IDL: [in] uint32 preferred_max_len, */
 /* IDL: [out] uint32 total_entries, */
-/* IDL: [unique(1)] [out] [in] uint32 *resume_handle */
+/* IDL: [out] [in] [unique(1)] uint32 *resume_handle */
 /* IDL: ); */
 
 static int
@@ -1349,9 +1349,9 @@ atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb, int offset, packet_inf
 }
 
 /* IDL: NTSTATUS atsvc_JobGetInfo( */
-/* IDL: [unique(1)] [in] uint16 *servername, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *servername, */
 /* IDL: [in] uint32 job_id, */
-/* IDL: [unique(1)] [out] atsvc_JobInfo *job_info */
+/* IDL: [out] [unique(1)] atsvc_JobInfo *job_info */
 /* IDL: ); */
 
 static int
@@ -1396,138 +1396,138 @@ static dcerpc_sub_dissector atsvc_dissectors[] = {
 void proto_register_dcerpc_atsvc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_month, 
-	  { "Days Of Month", "atsvc.atsvc_JobEnumInfo.days_of_month", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnum_resume_handle, 
-	  { "Resume Handle", "atsvc.atsvc_JobEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY, 
-	  { "Daysofweek Thursday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_THURSDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY_tfs), ( 0x08 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Eight, 
-	  { "Eight", "atsvc.atsvc_DaysOfMonth.Eight", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eight_tfs), ( 0x00000080 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Third, 
-	  { "Third", "atsvc.atsvc_DaysOfMonth.Third", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Third_tfs), ( 0x00000004 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobInfo_days_of_week, 
-	  { "Days Of Week", "atsvc.atsvc_JobInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyseventh, 
-	  { "Twentyseventh", "atsvc.atsvc_DaysOfMonth.Twentyseventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyseventh_tfs), ( 0x04000000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyth, 
-	  { "Twentyth", "atsvc.atsvc_DaysOfMonth.Twentyth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyth_tfs), ( 0x00080000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Seventeenth, 
-	  { "Seventeenth", "atsvc.atsvc_DaysOfMonth.Seventeenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Seventeenth_tfs), ( 0x00010000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY, 
-	  { "Job Run Periodically", "atsvc.atsvc_Flags.JOB_RUN_PERIODICALLY", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_RUN_PERIODICALLY_tfs), ( 0x01 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Fifth, 
-	  { "Fifth", "atsvc.atsvc_DaysOfMonth.Fifth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fifth_tfs), ( 0x00000010 ), "", HFILL }},
-	{ &hf_atsvc_job_info, 
-	  { "JobInfo", "atcvs.job_info", FT_NONE, BASE_HEX, NULL, 0, "JobInfo structure", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Thitteenth, 
-	  { "Thitteenth", "atsvc.atsvc_DaysOfMonth.Thitteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thitteenth_tfs), ( 0x00001000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_enum_ctr_entries_read, 
-	  { "Entries Read", "atsvc.atsvc_enum_ctr.entries_read", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_enum_ctr_first_entry, 
-	  { "First Entry", "atsvc.atsvc_enum_ctr.first_entry", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR, 
-	  { "Job Exec Error", "atsvc.atsvc_Flags.JOB_EXEC_ERROR", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_EXEC_ERROR_tfs), ( 0x02 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE, 
 	  { "Job Noninteractive", "atsvc.atsvc_Flags.JOB_NONINTERACTIVE", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_NONINTERACTIVE_tfs), ( 0x10 ), "", HFILL }},
-	{ &hf_atsvc_opnum, 
-	  { "Operation", "atsvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY, 
-	  { "Job Runs Today", "atsvc.atsvc_Flags.JOB_RUNS_TODAY", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_RUNS_TODAY_tfs), ( 0x04 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Eighteenth, 
-	  { "Eighteenth", "atsvc.atsvc_DaysOfMonth.Eighteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eighteenth_tfs), ( 0x00020000 ), "", HFILL }},
-	{ &hf_atsvc_job_id, 
-	  { "Job Id", "atsvc.job_id", FT_UINT32, BASE_DEC, NULL, 0, "Identifier of the scheduled job", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY, 
-	  { "Daysofweek Saturday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_SATURDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY_tfs), ( 0x20 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Ninteenth, 
-	  { "Ninteenth", "atsvc.atsvc_DaysOfMonth.Ninteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Ninteenth_tfs), ( 0x00040000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY, 
-	  { "Daysofweek Monday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_MONDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY_tfs), ( 0x01 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentysecond, 
-	  { "Twentysecond", "atsvc.atsvc_DaysOfMonth.Twentysecond", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentysecond_tfs), ( 0x00200000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY, 
-	  { "Daysofweek Friday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_FRIDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY_tfs), ( 0x10 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Second, 
-	  { "Second", "atsvc.atsvc_DaysOfMonth.Second", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Second_tfs), ( 0x00000002 ), "", HFILL }},
-	{ &hf_atsvc_status, 
-	  { "Status", "atsvc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnum_ctr, 
-	  { "Ctr", "atsvc.atsvc_JobEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_JobInfo_command, 
-	  { "Command", "atsvc.atsvc_JobInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Sixteenth, 
-	  { "Sixteenth", "atsvc.atsvc_DaysOfMonth.Sixteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixteenth_tfs), ( 0x00008000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnumInfo_command, 
-	  { "Command", "atsvc.atsvc_JobEnumInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE, 
-	  { "Job Add Current Date", "atsvc.atsvc_Flags.JOB_ADD_CURRENT_DATE", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_ADD_CURRENT_DATE_tfs), ( 0x08 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst, 
-	  { "Thirtyfirst", "atsvc.atsvc_DaysOfMonth.Thirtyfirst", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thirtyfirst_tfs), ( 0x40000000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Fourth, 
-	  { "Fourth", "atsvc.atsvc_DaysOfMonth.Fourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fourth_tfs), ( 0x00000008 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_week, 
-	  { "Days Of Week", "atsvc.atsvc_JobEnumInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_First, 
-	  { "First", "atsvc.atsvc_DaysOfMonth.First", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_First_tfs), ( 0x00000001 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnumInfo_job_time, 
-	  { "Job Time", "atsvc.atsvc_JobEnumInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnum_total_entries, 
-	  { "Total Entries", "atsvc.atsvc_JobEnum.total_entries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyninth, 
-	  { "Twentyninth", "atsvc.atsvc_DaysOfMonth.Twentyninth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyninth_tfs), ( 0x10000000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobDel_max_job_id, 
-	  { "Max Job Id", "atsvc.atsvc_JobDel.max_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY, 
-	  { "Daysofweek Tuesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_TUESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY_tfs), ( 0x02 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentythird, 
-	  { "Twentythird", "atsvc.atsvc_DaysOfMonth.Twentythird", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentythird_tfs), ( 0x00400000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Fifteenth, 
-	  { "Fifteenth", "atsvc.atsvc_DaysOfMonth.Fifteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fifteenth_tfs), ( 0x00004000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyeighth, 
-	  { "Twentyeighth", "atsvc.atsvc_DaysOfMonth.Twentyeighth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyeighth_tfs), ( 0x08000000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twelfth, 
-	  { "Twelfth", "atsvc.atsvc_DaysOfMonth.Twelfth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twelfth_tfs), ( 0x00000800 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY, 
-	  { "Daysofweek Wednesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_WEDNESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY_tfs), ( 0x04 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobInfo_flags, 
-	  { "Flags", "atsvc.atsvc_JobInfo.flags", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Seventh, 
-	  { "Seventh", "atsvc.atsvc_DaysOfMonth.Seventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Seventh_tfs), ( 0x00000040 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfirst, 
-	  { "Twentyfirst", "atsvc.atsvc_DaysOfMonth.Twentyfirst", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfirst_tfs), ( 0x00100000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Tenth, 
-	  { "Tenth", "atsvc.atsvc_DaysOfMonth.Tenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Tenth_tfs), ( 0x00000200 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Fourteenth, 
 	  { "Fourteenth", "atsvc.atsvc_DaysOfMonth.Fourteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fourteenth_tfs), ( 0x00002000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobEnum_preferred_max_len, 
-	  { "Preferred Max Len", "atsvc.atsvc_JobEnum.preferred_max_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfourth, 
-	  { "Twentyfourth", "atsvc.atsvc_DaysOfMonth.Twentyfourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfourth_tfs), ( 0x00800000 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfifth, 
-	  { "Twentyfifth", "atsvc.atsvc_DaysOfMonth.Twentyfifth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfifth_tfs), ( 0x01000000 ), "", HFILL }},
-	{ &hf_atsvc_servername, 
-	  { "Server", "atsvc.server", FT_STRING, BASE_HEX, NULL, 0, "Name of the server", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Thirtieth, 
-	  { "Thirtieth", "atsvc.atsvc_DaysOfMonth.Thirtieth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thirtieth_tfs), ( 0x20000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY, 
+	  { "Job Run Periodically", "atsvc.atsvc_Flags.JOB_RUN_PERIODICALLY", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_RUN_PERIODICALLY_tfs), ( 0x01 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_enum_ctr_entries_read, 
+	  { "Entries Read", "atsvc.atsvc_enum_ctr.entries_read", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyeighth, 
+	  { "Twentyeighth", "atsvc.atsvc_DaysOfMonth.Twentyeighth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyeighth_tfs), ( 0x08000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY, 
+	  { "Daysofweek Monday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_MONDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY_tfs), ( 0x01 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY, 
 	  { "Daysofweek Sunday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_SUNDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_SUNDAY_tfs), ( 0x40 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Sixth, 
-	  { "Sixth", "atsvc.atsvc_DaysOfMonth.Sixth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixth_tfs), ( 0x00000020 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_JobDel_min_job_id, 
-	  { "Min Job Id", "atsvc.atsvc_JobDel.min_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_atsvc_atsvc_JobInfo_job_time, 
-	  { "Job Time", "atsvc.atsvc_JobInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Second, 
+	  { "Second", "atsvc.atsvc_DaysOfMonth.Second", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Second_tfs), ( 0x00000002 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyth, 
+	  { "Twentyth", "atsvc.atsvc_DaysOfMonth.Twentyth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyth_tfs), ( 0x00080000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Ninth, 
 	  { "Ninth", "atsvc.atsvc_DaysOfMonth.Ninth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Ninth_tfs), ( 0x00000100 ), "", HFILL }},
-	{ &hf_atsvc_atsvc_DaysOfMonth_Eleventh, 
-	  { "Eleventh", "atsvc.atsvc_DaysOfMonth.Eleventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eleventh_tfs), ( 0x00000400 ), "", HFILL }},
+	{ &hf_atsvc_servername, 
+	  { "Server", "atsvc.server", FT_STRING, BASE_HEX, NULL, 0, "Name of the server", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY, 
+	  { "Daysofweek Wednesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_WEDNESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY_tfs), ( 0x04 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyninth, 
+	  { "Twentyninth", "atsvc.atsvc_DaysOfMonth.Twentyninth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyninth_tfs), ( 0x10000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY, 
+	  { "Daysofweek Tuesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_TUESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY_tfs), ( 0x02 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Tenth, 
+	  { "Tenth", "atsvc.atsvc_DaysOfMonth.Tenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Tenth_tfs), ( 0x00000200 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnum_resume_handle, 
+	  { "Resume Handle", "atsvc.atsvc_JobEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyseventh, 
+	  { "Twentyseventh", "atsvc.atsvc_DaysOfMonth.Twentyseventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyseventh_tfs), ( 0x04000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Fifteenth, 
+	  { "Fifteenth", "atsvc.atsvc_DaysOfMonth.Fifteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fifteenth_tfs), ( 0x00004000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobInfo_command, 
+	  { "Command", "atsvc.atsvc_JobInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Ninteenth, 
+	  { "Ninteenth", "atsvc.atsvc_DaysOfMonth.Ninteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Ninteenth_tfs), ( 0x00040000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Seventh, 
+	  { "Seventh", "atsvc.atsvc_DaysOfMonth.Seventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Seventh_tfs), ( 0x00000040 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfourth, 
+	  { "Twentyfourth", "atsvc.atsvc_DaysOfMonth.Twentyfourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfourth_tfs), ( 0x00800000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Seventeenth, 
+	  { "Seventeenth", "atsvc.atsvc_DaysOfMonth.Seventeenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Seventeenth_tfs), ( 0x00010000 ), "", HFILL }},
+	{ &hf_atsvc_opnum, 
+	  { "Operation", "atsvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twelfth, 
+	  { "Twelfth", "atsvc.atsvc_DaysOfMonth.Twelfth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twelfth_tfs), ( 0x00000800 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Eighteenth, 
+	  { "Eighteenth", "atsvc.atsvc_DaysOfMonth.Eighteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eighteenth_tfs), ( 0x00020000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY, 
+	  { "Job Runs Today", "atsvc.atsvc_Flags.JOB_RUNS_TODAY", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_RUNS_TODAY_tfs), ( 0x04 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnum_total_entries, 
+	  { "Total Entries", "atsvc.atsvc_JobEnum.total_entries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_enum_ctr_first_entry, 
+	  { "First Entry", "atsvc.atsvc_enum_ctr.first_entry", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnumInfo_job_time, 
+	  { "Job Time", "atsvc.atsvc_JobEnumInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst, 
+	  { "Thirtyfirst", "atsvc.atsvc_DaysOfMonth.Thirtyfirst", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thirtyfirst_tfs), ( 0x40000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Third, 
+	  { "Third", "atsvc.atsvc_DaysOfMonth.Third", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Third_tfs), ( 0x00000004 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnum_preferred_max_len, 
+	  { "Preferred Max Len", "atsvc.atsvc_JobEnum.preferred_max_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_month, 
+	  { "Days Of Month", "atsvc.atsvc_JobEnumInfo.days_of_month", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY, 
+	  { "Daysofweek Thursday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_THURSDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY_tfs), ( 0x08 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY, 
+	  { "Daysofweek Friday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_FRIDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_FRIDAY_tfs), ( 0x10 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentythird, 
+	  { "Twentythird", "atsvc.atsvc_DaysOfMonth.Twentythird", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentythird_tfs), ( 0x00400000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobInfo_job_time, 
+	  { "Job Time", "atsvc.atsvc_JobInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_status, 
+	  { "Status", "atsvc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobInfo_flags, 
+	  { "Flags", "atsvc.atsvc_JobInfo.flags", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY, 
+	  { "Daysofweek Saturday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_SATURDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_SATURDAY_tfs), ( 0x20 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Sixth, 
+	  { "Sixth", "atsvc.atsvc_DaysOfMonth.Sixth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixth_tfs), ( 0x00000020 ), "", HFILL }},
+	{ &hf_atsvc_job_id, 
+	  { "Job Id", "atsvc.job_id", FT_UINT32, BASE_DEC, NULL, 0, "Identifier of the scheduled job", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentysixth, 
 	  { "Twentysixth", "atsvc.atsvc_DaysOfMonth.Twentysixth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentysixth_tfs), ( 0x02000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Fifth, 
+	  { "Fifth", "atsvc.atsvc_DaysOfMonth.Fifth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fifth_tfs), ( 0x00000010 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Fourth, 
+	  { "Fourth", "atsvc.atsvc_DaysOfMonth.Fourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fourth_tfs), ( 0x00000008 ), "", HFILL }},
+	{ &hf_atsvc_job_info, 
+	  { "JobInfo", "atcvs.job_info", FT_NONE, BASE_HEX, NULL, 0, "JobInfo structure", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Eleventh, 
+	  { "Eleventh", "atsvc.atsvc_DaysOfMonth.Eleventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eleventh_tfs), ( 0x00000400 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Sixteenth, 
+	  { "Sixteenth", "atsvc.atsvc_DaysOfMonth.Sixteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixteenth_tfs), ( 0x00008000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE, 
+	  { "Job Add Current Date", "atsvc.atsvc_Flags.JOB_ADD_CURRENT_DATE", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_ADD_CURRENT_DATE_tfs), ( 0x08 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnum_ctr, 
+	  { "Ctr", "atsvc.atsvc_JobEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfifth, 
+	  { "Twentyfifth", "atsvc.atsvc_DaysOfMonth.Twentyfifth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfifth_tfs), ( 0x01000000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_days_of_month, 
 	  { "Days Of Month", "atsvc.atsvc_JobInfo.days_of_month", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentysecond, 
+	  { "Twentysecond", "atsvc.atsvc_DaysOfMonth.Twentysecond", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentysecond_tfs), ( 0x00200000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_First, 
+	  { "First", "atsvc.atsvc_DaysOfMonth.First", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_First_tfs), ( 0x00000001 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnumInfo_command, 
+	  { "Command", "atsvc.atsvc_JobEnumInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Thirtieth, 
+	  { "Thirtieth", "atsvc.atsvc_DaysOfMonth.Thirtieth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thirtieth_tfs), ( 0x20000000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Eight, 
+	  { "Eight", "atsvc.atsvc_DaysOfMonth.Eight", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Eight_tfs), ( 0x00000080 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfirst, 
+	  { "Twentyfirst", "atsvc.atsvc_DaysOfMonth.Twentyfirst", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfirst_tfs), ( 0x00100000 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR, 
+	  { "Job Exec Error", "atsvc.atsvc_Flags.JOB_EXEC_ERROR", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_EXEC_ERROR_tfs), ( 0x02 ), "", HFILL }},
+	{ &hf_atsvc_atsvc_JobInfo_days_of_week, 
+	  { "Days Of Week", "atsvc.atsvc_JobInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobDel_min_job_id, 
+	  { "Min Job Id", "atsvc.atsvc_JobDel.min_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_week, 
+	  { "Days Of Week", "atsvc.atsvc_JobEnumInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnumInfo_flags, 
 	  { "Flags", "atsvc.atsvc_JobEnumInfo.flags", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_JobDel_max_job_id, 
+	  { "Max Job Id", "atsvc.atsvc_JobDel.max_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_atsvc_atsvc_DaysOfMonth_Thitteenth, 
+	  { "Thitteenth", "atsvc.atsvc_DaysOfMonth.Thitteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thitteenth_tfs), ( 0x00001000 ), "", HFILL }},
 	};
 
 

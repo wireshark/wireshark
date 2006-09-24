@@ -30,24 +30,24 @@ static gint ett_initshutdown_initshutdown_String = -1;
 
 /* Header field declarations */
 static gint hf_initshutdown_initshutdown_String_name_len = -1;
-static gint hf_initshutdown_opnum = -1;
+static gint hf_initshutdown_initshutdown_Abort_server = -1;
+static gint hf_initshutdown_initshutdown_Init_message = -1;
 static gint hf_initshutdown_initshutdown_Init_hostname = -1;
-static gint hf_initshutdown_initshutdown_String_sub_name = -1;
-static gint hf_initshutdown_initshutdown_String_sub_name_size = -1;
+static gint hf_initshutdown_initshutdown_InitEx_reboot = -1;
 static gint hf_initshutdown_initshutdown_InitEx_reason = -1;
+static gint hf_initshutdown_initshutdown_String_name_size = -1;
+static gint hf_initshutdown_initshutdown_Init_timeout = -1;
+static gint hf_initshutdown_initshutdown_InitEx_hostname = -1;
+static gint hf_initshutdown_initshutdown_InitEx_message = -1;
+static gint hf_initshutdown_initshutdown_String_name = -1;
+static gint hf_initshutdown_initshutdown_Init_reboot = -1;
+static gint hf_initshutdown_opnum = -1;
+static gint hf_initshutdown_initshutdown_Init_force_apps = -1;
+static gint hf_initshutdown_initshutdown_String_sub_name = -1;
+static gint hf_initshutdown_werror = -1;
+static gint hf_initshutdown_initshutdown_String_sub_name_size = -1;
 static gint hf_initshutdown_initshutdown_InitEx_force_apps = -1;
 static gint hf_initshutdown_initshutdown_InitEx_timeout = -1;
-static gint hf_initshutdown_initshutdown_Init_timeout = -1;
-static gint hf_initshutdown_initshutdown_String_name_size = -1;
-static gint hf_initshutdown_initshutdown_Init_force_apps = -1;
-static gint hf_initshutdown_initshutdown_InitEx_hostname = -1;
-static gint hf_initshutdown_initshutdown_Init_reboot = -1;
-static gint hf_initshutdown_initshutdown_InitEx_reboot = -1;
-static gint hf_initshutdown_initshutdown_Init_message = -1;
-static gint hf_initshutdown_werror = -1;
-static gint hf_initshutdown_initshutdown_InitEx_message = -1;
-static gint hf_initshutdown_initshutdown_Abort_server = -1;
-static gint hf_initshutdown_initshutdown_String_name = -1;
 
 static gint proto_dcerpc_initshutdown = -1;
 /* Version information */
@@ -114,7 +114,7 @@ initshutdown_dissect_struct_String_sub(tvbuff_t *tvb, int offset, packet_info *p
 
 	old_offset = offset;
 
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_initshutdown_initshutdown_String_sub);
 	}
@@ -178,7 +178,7 @@ initshutdown_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 	old_offset = offset;
 
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_initshutdown_initshutdown_String);
 	}
@@ -267,7 +267,7 @@ initshutdown_dissect_Init_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -316,7 +316,7 @@ initshutdown_dissect_Abort_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -410,7 +410,7 @@ initshutdown_dissect_InitEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -449,42 +449,42 @@ void proto_register_dcerpc_initshutdown(void)
 	static hf_register_info hf[] = {
 	{ &hf_initshutdown_initshutdown_String_name_len, 
 	  { "Name Len", "initshutdown.initshutdown_String.name_len", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_opnum, 
-	  { "Operation", "initshutdown.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_Abort_server, 
+	  { "Server", "initshutdown.initshutdown_Abort.server", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_Init_message, 
+	  { "Message", "initshutdown.initshutdown_Init.message", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_initshutdown_initshutdown_Init_hostname, 
 	  { "Hostname", "initshutdown.initshutdown_Init.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_String_sub_name, 
-	  { "Name", "initshutdown.initshutdown_String_sub.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_String_sub_name_size, 
-	  { "Name Size", "initshutdown.initshutdown_String_sub.name_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_InitEx_reboot, 
+	  { "Reboot", "initshutdown.initshutdown_InitEx.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_initshutdown_initshutdown_InitEx_reason, 
 	  { "Reason", "initshutdown.initshutdown_InitEx.reason", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_String_name_size, 
+	  { "Name Size", "initshutdown.initshutdown_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_Init_timeout, 
+	  { "Timeout", "initshutdown.initshutdown_Init.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_InitEx_hostname, 
+	  { "Hostname", "initshutdown.initshutdown_InitEx.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_InitEx_message, 
+	  { "Message", "initshutdown.initshutdown_InitEx.message", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_String_name, 
+	  { "Name", "initshutdown.initshutdown_String.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_Init_reboot, 
+	  { "Reboot", "initshutdown.initshutdown_Init.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_opnum, 
+	  { "Operation", "initshutdown.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_Init_force_apps, 
+	  { "Force Apps", "initshutdown.initshutdown_Init.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_String_sub_name, 
+	  { "Name", "initshutdown.initshutdown_String_sub.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_initshutdown_werror, 
+	  { "Windows Error", "initshutdown.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, "", HFILL }},
+	{ &hf_initshutdown_initshutdown_String_sub_name_size, 
+	  { "Name Size", "initshutdown.initshutdown_String_sub.name_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_initshutdown_initshutdown_InitEx_force_apps, 
 	  { "Force Apps", "initshutdown.initshutdown_InitEx.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_initshutdown_initshutdown_InitEx_timeout, 
 	  { "Timeout", "initshutdown.initshutdown_InitEx.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_Init_timeout, 
-	  { "Timeout", "initshutdown.initshutdown_Init.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_String_name_size, 
-	  { "Name Size", "initshutdown.initshutdown_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_Init_force_apps, 
-	  { "Force Apps", "initshutdown.initshutdown_Init.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_InitEx_hostname, 
-	  { "Hostname", "initshutdown.initshutdown_InitEx.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_Init_reboot, 
-	  { "Reboot", "initshutdown.initshutdown_Init.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_InitEx_reboot, 
-	  { "Reboot", "initshutdown.initshutdown_InitEx.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_Init_message, 
-	  { "Message", "initshutdown.initshutdown_Init.message", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_werror, 
-	  { "Windows Error", "initshutdown.werror", FT_UINT32, BASE_HEX, VALS(DOS_errors), 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_InitEx_message, 
-	  { "Message", "initshutdown.initshutdown_InitEx.message", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_Abort_server, 
-	  { "Server", "initshutdown.initshutdown_Abort.server", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_initshutdown_initshutdown_String_name, 
-	  { "Name", "initshutdown.initshutdown_String.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	};
 
 

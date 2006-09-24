@@ -2,14 +2,9 @@
   atsvc interface definition
 */
 
-#include "idl_types.h"
-
-#define unistr	[string] wchar_t *
-
 [ uuid("1ff70682-0a51-30e8-076d-740be8cee98b"),
   version(1.0),
   pointer_default(unique),
-  pointer_default_top(unique),
   helpstring("Microsoft AT-Scheduler Service"),
   endpoint("ncacn_np:[\\pipe\\atsvc]", "ncalrpc:")
 ] interface atsvc
@@ -71,21 +66,21 @@
 		atsvc_DaysOfMonth days_of_month;
 		atsvc_DaysOfWeek days_of_week;
 		atsvc_Flags flags;
-		unistr *command;
+		[string,charset(UTF16)] uint16 *command;
 	} atsvc_JobInfo;
 
 	/******************/
 	/* Function: 0x00 */
 	NTSTATUS atsvc_JobAdd(
-		[in]	 unistr *servername,
-		[in,ref] atsvc_JobInfo *job_info,
+		[in,unique,string,charset(UTF16)] uint16 *servername,
+		[in] atsvc_JobInfo *job_info,
 		[out]	 uint32 job_id
 	);
 
 	/******************/
 	/* Function: 0x01 */
 	NTSTATUS atsvc_JobDel(
-		[in]	unistr *servername,
+		[in,unique,string,charset(UTF16)] uint16 *servername,
 		[in]	uint32 min_job_id,
 		[in]	uint32 max_job_id
 	);
@@ -96,7 +91,7 @@
 		atsvc_DaysOfMonth days_of_month;
 		atsvc_DaysOfWeek days_of_week;
 		atsvc_Flags flags;
-		unistr *command;
+		[string,charset(UTF16)] uint16 *command;
 	} atsvc_JobEnumInfo;
 
 	typedef struct {
@@ -107,18 +102,18 @@
 	/******************/
 	/* Function: 0x02 */
 	NTSTATUS atsvc_JobEnum(
-		[in]         unistr *servername,
-		[in,out,ref] atsvc_enum_ctr *ctr,
+		[in,unique,string,charset(UTF16)] uint16 *servername,
+		[in,out] 	 atsvc_enum_ctr *ctr,
 		[in]	     uint32 preferred_max_len,
 		[out]	     uint32 total_entries,
-		[in,out]     uint32 *resume_handle
+		[in,out,unique]     uint32 *resume_handle
 	);
 
 	/******************/
 	/* Function: 0x03 */
 	[public] NTSTATUS atsvc_JobGetInfo(
-		[in]	unistr *servername,
+		[in,unique,string,charset(UTF16)]	uint16 *servername,
 		[in]	uint32 job_id,
-		[out]	atsvc_JobInfo *job_info
+		[out,unique]	atsvc_JobInfo *job_info
 	);
 }

@@ -11,7 +11,7 @@
 	/******************/
 	/* Function: 0x00 */
 	typedef [v1_enum] enum {
-		DFS_MANAGER_VERSION_NT4		= 0,
+		DFS_MANAGER_VERSION_NT4		= 1,
 		DFS_MANAGER_VERSION_W2K		= 2,
 		DFS_MANAGER_VERSION_W2K3	= 4
 	} dfs_ManagerVersion;

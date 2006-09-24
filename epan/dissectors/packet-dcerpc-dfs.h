@@ -16,7 +16,7 @@
 
 #define DFS_STORAGE_STATES	( 0xf )
 
-#define DFS_MANAGER_VERSION_NT4 (0)
+#define DFS_MANAGER_VERSION_NT4 (1)
 #define DFS_MANAGER_VERSION_W2K (2)
 #define DFS_MANAGER_VERSION_W2K3 (4)
 extern const value_string netdfs_dfs_ManagerVersion_vals[];
