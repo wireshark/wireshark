@@ -355,7 +355,7 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 	offset+=len*2;
 	return offset;
 }
-static guint num_of_strings;
+static guint16 num_of_strings;
 static int
 eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
