@@ -1,9 +1,3 @@
-/* slightly modified from the samba 4 idl since we have not converted SRVSVC yet.
-   the generated dissector is not yet for inclusion.
-*/
-
-#include "idl_types.h"
-
 /*
   wkssvc interface definitions
 */
@@ -12,16 +6,11 @@
   version(1.0),
   pointer_default(unique),
   pointer_default_top(unique),
-  helpstring("Workstation Service")
+  helpstring("Workstation Service"),
+  depends(srvsvc)
 ] interface wkssvc
 {
-	typedef [public] enum {
-		PLATFORM_ID_DOS = 300,
-		PLATFORM_ID_OS2 = 400,
-		PLATFORM_ID_NT	= 500,
-		PLATFORM_ID_OSF = 600,
-		PLATFORM_ID_VMS = 700
-	} srvsvc_PlatformId;
+	declare [v1_enum] enum srvsvc_PlatformId;
 
 #define BOOL uint32
 
@@ -301,7 +290,7 @@
 	WERROR WKSSVC_NETRGETJOINABLEOUS ();
 
 	typedef struct {
-		uint8 blob[524];
+		uint8 data[524];
 	} wkssvc_PasswordBuffer;
 
 	typedef [bitmap32bit] bitmap {
@@ -338,7 +327,7 @@
 		[in]         [string,charset(UTF16),ref] uint16 *domain_name,
 		[in]         [string,charset(UTF16)] uint16 *account_name,
 		[in]         [string,charset(UTF16)] uint16 *admin_account,
-		[in]         wkssvc_PasswordBuffer *type_30,
+		[in]         wkssvc_PasswordBuffer *encrypted_password,
 		[in]         wkssvc_joinflags join_flags
 		);
 
@@ -347,7 +336,7 @@
 	WERROR wkssvc_NetrUnjoinDomain2 (
 		[in] [unique] [string,charset(UTF16)] uint16 *server_name,
 		[in] [unique] [string,charset(UTF16)] uint16 *account,
-		[in] [unique] wkssvc_PasswordBuffer *Encrypted_password,
+		[in] [unique] wkssvc_PasswordBuffer *encrypted_password,
 		[in] wkssvc_joinflags unjoin_flags
 		);
 

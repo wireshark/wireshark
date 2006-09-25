@@ -14,3 +14,17 @@ TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_CREATE "Create the acco
 
 TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_TYPE "Join the computer to a domain" "Join the computer to a workgroup"
 
+
+HF_FIELD hf_wkssvc_platform_id "Platform Id" "wkssvc.platform_id" FT_UINT32 BASE_DEC VALS(srvsvc_srvsvc_PlatformId_vals) 0 "" "" ""
+
+CODE START
+/* Bug in pidl.  Can not handle these dependencies properly yet */
+static int
+srvsvc_dissect_struct_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
+{
+	offset = srvsvc_dissect_enum_PlatformId(tvb,offset,pinfo,tree,drep,hf_wkssvc_platform_id,0);
+
+	return offset;
+}
+
+CODE END
