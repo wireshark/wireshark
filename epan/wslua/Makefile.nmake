@@ -1,0 +1,69 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) $(LUA_CFLAGS)\
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF LUA_DIR
+!IFDEF ENABLE_LIBWIRESHARK
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
+CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+MODULES= \
+	elua_dumper.c \
+	elua_field.c \
+	elua_gui.c \
+	elua_pinfo.c \
+	elua_proto.c \
+	elua_tap.c \
+	elua_tree.c \
+	elua_tvb.c \
+	elua_util.c
+
+OBJECTS= \
+	elua.obj \
+	elua_dumper.obj \
+	elua_field.obj \
+	elua_gui.obj \
+	elua_pinfo.obj \
+	elua_plugin.obj \
+	elua_proto.obj \
+	elua_tap.obj \
+	elua_tree.obj \
+	elua_tvb.obj \
+	elua_util.obj
+
+lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:lua.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS) $(LUA_LIBS) ..\..\wiretap\wiretap-$(WTAP_VERSION).lib
+
+
+elua_register.h: elua_makereg.pl $(MODULES)
+	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
+
+elua.c: elua_register.h
+
+doc: $(MODULES)
+	$(PERL) elua_makedoc.pl $(MODULES)
+
+#elua.c: $(LUA_LIBS)
+
+init.lua: template-init.lua make-init-lua.pl ../../epan/ftypes/ftypes.h ../../wiretap/wtap.h  ../../epan/proto.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
+
+!ENDIF
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) lua.dll lua.exp lua.lib *.pdb init.lua
+
+distclean: clean
+
+maintainer-clean: distclean

@@ -187,12 +187,6 @@ include Makefile.common
 
 if HAVE_PLUGINS
 
-if HAVE_LIBLUA
-lua_lib = plugins/lua/lua.la
-else		# HAVE_LIBLUA
-lua_lib =
-endif		# HAVE_LIBLUA
-
 plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/agentx/agentx.la \
@@ -205,7 +199,6 @@ plugin_libs = \
 	plugins/giop/coseventcomm.la \
 	plugins/gryphon/gryphon.la \
 	plugins/irda/irda.la \
-	$(lua_lib) \
 	plugins/lwres/lwres.la \
 	plugins/mate/mate.la \
 	plugins/megaco/megaco.la \
@@ -226,12 +219,6 @@ plugin_ldadd = $(plugin_libs)
 
 else		# ENABLE_STATIC
 
-if HAVE_LIBLUA
-lua_ldadd = "-dlopen" plugins/lua/lua.la
-else		# HAVE_LIBLUA
-lua_ldadd =
-endif		# HAVE_LIBLUA
-
 plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/acn/acn.la \
@@ -246,7 +233,6 @@ plugin_ldadd = \
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/h223/h223.la \
 	"-dlopen" plugins/irda/irda.la \
-	$(lua_ldadd) \
 	"-dlopen" plugins/lwres/lwres.la \
 	"-dlopen" plugins/mate/mate.la \
 	"-dlopen" plugins/megaco/megaco.la \

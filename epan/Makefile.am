@@ -22,7 +22,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = ftypes dfilter dissectors
+
+if HAVE_LIBLUA
+wslua_lib = wslua/libwslua.la
+wslua_dir = wslua
+else            # HAVE_LIBLUA
+wslua_lib =
+wslua_dir =
+endif           # HAVE_LIBLUA
+
+
+SUBDIRS = ftypes dfilter dissectors $(wslua_dir)
 
 # EPAN will eventually be a shared library. While I move source code around,
 # however, it is an archive library.
@@ -34,7 +44,7 @@ libwireshark_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
-INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) \
+INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) @LUA_INCLUDES@ \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 libwireshark_la_SOURCES = \
@@ -82,11 +92,12 @@ MAINTAINERCLEANFILES = \
 	Makefile.in		\
 	sminmpec.c
 
+
 #
 # Add the object files for missing routines, if any.
 #
-libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SNMP_LIBS@ @SSL_LIBS@ -lm
-libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
+libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SNMP_LIBS@ @SSL_LIBS@ -lm
+libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la $(wslua_lib)
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) $^ $(GLIB_LIBS) -lz

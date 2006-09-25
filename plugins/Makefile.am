@@ -21,13 +21,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-if HAVE_LIBLUA
-lua_dir = \
-	lua
-else		# HAVE_LIBLUA
-lua_dir =
-endif		# HAVE_LIBLUA
-
 SUBDIRS = \
 	acn \
 	agentx \
@@ -40,7 +33,6 @@ SUBDIRS = \
 	gryphon \
 	h223 \
 	irda \
-	$(lua_dir) \
 	lwres \
 	mate \
 	megaco \

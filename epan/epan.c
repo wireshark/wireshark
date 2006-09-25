@@ -38,6 +38,10 @@
 #include "emem.h"
 #include "expert.h"
 
+#ifdef HAVE_LUA_5_1
+#include <epan/wslua/wslua.h>
+#endif
+
 static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
 static void (*report_read_failure_func)(const char *, int);
@@ -93,6 +97,10 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	final_registration_all_protocols();
 	host_name_lookup_init();
 	expert_init();
+#ifdef HAVE_LUA_5_1
+	wslua_init(NULL);
+#endif
+
 }
 
 void

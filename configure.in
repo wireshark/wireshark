@@ -1347,6 +1347,7 @@ AC_OUTPUT(
   epan/dfilter/Makefile
   epan/dissectors/Makefile
   epan/ftypes/Makefile
+  epan/wslua/Makefile
   codecs/Makefile
   gtk/Makefile
   gtk/doxygen.cfg
@@ -1371,7 +1372,6 @@ AC_OUTPUT(
   plugins/gryphon/Makefile
   plugins/h223/Makefile
   plugins/irda/Makefile
-  plugins/lua/Makefile
   plugins/lwres/Makefile
   plugins/mate/Makefile
   plugins/megaco/Makefile
