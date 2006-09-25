@@ -986,7 +986,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
 #endif
     if (ld->pcap_fd != -1) {
-      sel_ret = cap_pipe_select(fd, TRUE);
+      sel_ret = cap_pipe_select(ld->pcap_fd, TRUE);
       if (sel_ret > 0) {
         /*
          * "select()" says we can read from it without blocking; go for
