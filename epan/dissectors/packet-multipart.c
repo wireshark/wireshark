@@ -736,13 +736,17 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Add stuff to the protocol tree */
 	if (tree) {
+		proto_item *type_ti;
 		ti = proto_tree_add_item(tree, proto_multipart,
 				tvb, 0, -1, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_multipart);
 		proto_item_append_text(ti, ", Type: %s, Boundary: \"%s\"",
 				m_info->type, m_info->boundary);
-		proto_tree_add_string(subtree, hf_multipart_type,
-				tvb, 0, 0, pinfo->match_string);
+
+		/* Show multi-part type as a generated field */
+		type_ti = proto_tree_add_string(subtree, hf_multipart_type,
+		                                tvb, 0, 0, pinfo->match_string);
+		PROTO_ITEM_SET_GENERATED(type_ti);
 	}
 
 	/*
@@ -826,21 +830,21 @@ proto_register_multipart(void)
 			{	"Type",
 				"mime_multipart.type",
 				FT_STRING, BASE_NONE, NULL, 0x00,
-				"RFC 3261: MIME multipart encapsulation type", HFILL
+				"MIME multipart encapsulation type", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_DISPOSITION],
 			{	"Content-Disposition",
 				"mime_multipart.header.content-disposition",
 				FT_STRING, BASE_NONE, NULL, 0x00,
-				"RFC 3261: Content-Disposition Header", HFILL
+				"RFC 2183: Content-Disposition Header", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_ENCODING],
 			{	"Content-Encoding",
 				"mime_multipart.header.content-encoding",
 				FT_STRING, BASE_NONE, NULL, 0x00,
-				"RFC 3261: Content-Encoding Header", HFILL
+				"Content-Encoding Header", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_ID],
@@ -854,14 +858,14 @@ proto_register_multipart(void)
 			{	"Content-Language",
 				"mime_multipart.header.content-language",
 				FT_STRING, BASE_NONE, NULL, 0x00,
-				"RFC 3261: Content-Language Header", HFILL
+				"Content-Language Header", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_LENGTH],
 			{	"Content-Length",
 				"mime_multipart.header.content-length",
 				FT_STRING, BASE_NONE, NULL, 0x0,
-				"RFC 3261: Content-Length Header", HFILL
+				"Content-Length Header", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_TRANSFER_ENCODING],
@@ -875,7 +879,7 @@ proto_register_multipart(void)
 			{	"Content-Type",
 				"mime_multipart.header.content-type",
 				FT_STRING, BASE_NONE,NULL,0x0,
-				"RFC 3261: Content-Type Header", HFILL
+				"Content-Type Header", HFILL
 			}
 		},
 	};
