@@ -97,7 +97,7 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	final_registration_all_protocols();
 	host_name_lookup_init();
 	expert_init();
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA_5_1_X
 	wslua_init(NULL);
 #endif
 
