@@ -270,7 +270,7 @@ int wslua_init(lua_State* LS) {
         /* disable lua */
         lua_close(L);
         L = NULL;
-        return;
+        return 0;
     }
     
     /* check whether we should run other scripts even if running superuser */
