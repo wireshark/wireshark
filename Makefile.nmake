@@ -550,7 +550,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. lua5_1_vc6.zip
+		. lua5_1_1_vc6.zip
 !ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -646,7 +646,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
     rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
-    rm -r -f $(WIRESHARK_LIBS)/lua5.1
+    rm -r -f $(WIRESHARK_LIBS)/lua511
     rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.3.1
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
@@ -749,8 +749,6 @@ install-common-files:
 	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\h223\h223.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\lua\init.lua" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\lua\lua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\mate\mate.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\megaco\megaco.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
