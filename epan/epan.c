@@ -39,7 +39,7 @@
 #include "expert.h"
 
 #ifdef HAVE_LUA_5_1
-#include <epan/wslua/wslua.h>
+	int wslua_init(void*);
 #endif
 
 static void (*report_failure_func)(const char *, va_list);
