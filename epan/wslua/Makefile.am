@@ -53,14 +53,13 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	dummy
+	taps.c-inc \
+	taps.txt \
+	wslua_register.h
 
 MAINTAINERCLEANFILES = \
 	Makefile.in	\
 	doc/*.pod	\
-	wslua_register.h \
-	taps.c-inc \
-	taps.txt \
 	init.lua
 
 EXTRA_DIST = \
@@ -83,7 +82,7 @@ taps: $(taps_used)
 	touch taps
 
 taps.c-inc: make-taps.pl taps
-	$(PERL) make-taps.pl taps taps.c-inc taps.txt
+	$(PERL) $(srcdir)/make-taps.pl taps taps.c-inc taps.txt
 
 taps.txt: taps.c-inc
 	
@@ -91,7 +90,7 @@ wslua.h: wslua_register.h
 
 # do not do not unnecessarilly modify the old file in order avoid recompiling every module every time 
 wslua_register.h: make-reg.pl $(lua_modules) taps.c-inc
-	$(PERL) make-reg.pl \
+	$(PERL) $(srcdir)/make-reg.pl \
 		wslua_tvb.c \
 		wslua_proto.c \
 		wslua_tree.c \
@@ -104,7 +103,7 @@ wslua_register.h: make-reg.pl $(lua_modules) taps.c-inc
 	if diff wslua_register.h.new wslua_register.h >/dev/null; then rm wslua_register.h.new; else mv wslua_register.h.new wslua_register.h; fi
 
 doc: make-doc.pl $(lua_modules)
-	$(PERL) make-doc.pl \
+	$(PERL) $(srcdir)/make-doc.pl \
 		wslua_tvb.c \
 		wslua_proto.c \
 		wslua_tree.c \
@@ -119,4 +118,4 @@ dummy:
 	touch dummy
 
 init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h
-	$(PERL) make-init-lua.pl template-init.lua > init.lua
+	$(PERL) $(srcdir)/make-init-lua.pl template-init.lua > init.lua

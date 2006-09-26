@@ -26,13 +26,17 @@
 if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
+wslua_dist_dir = 
 else            # HAVE_LIBLUA
 wslua_lib =
 wslua_dir =
+wslua_dist_dir = wslua
 endif           # HAVE_LIBLUA
 
 
 SUBDIRS = ftypes dfilter dissectors $(wslua_dir)
+
+DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
 # EPAN will eventually be a shared library. While I move source code around,
 # however, it is an archive library.
