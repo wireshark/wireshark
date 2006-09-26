@@ -6,64 +6,78 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) $(LUA_CFLAGS)\
+CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) $(LUA_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
 
-!IFDEF LUA_DIR
-!IFDEF ENABLE_LIBWIRESHARK
-LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
-CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-MODULES= \
-	elua_dumper.c \
-	elua_field.c \
-	elua_gui.c \
-	elua_pinfo.c \
-	elua_proto.c \
-	elua_tap.c \
-	elua_tree.c \
-	elua_tvb.c \
-	elua_util.c
+MODULES = 	\
+	wslua_tvb.c \
+	wslua_proto.c \
+	wslua_tree.c \
+	wslua_pinfo.c \
+	wslua_listener.c \
+	wslua_gui.c \
+	wslua_util.c \
+	wslua_field.c \
+	wslua_dumper.c
 
 OBJECTS= \
-	elua.obj \
-	elua_dumper.obj \
-	elua_field.obj \
-	elua_gui.obj \
-	elua_pinfo.obj \
-	elua_plugin.obj \
-	elua_proto.obj \
-	elua_tap.obj \
-	elua_tree.obj \
-	elua_tvb.obj \
-	elua_util.obj
+	init_wslua.obj \
+	wslua_dumper.obj \
+	wslua_field.obj \
+	wslua_gui.obj \
+	wslua_pinfo.obj \
+	wslua_proto.obj \
+	wslua_listener.obj \
+	wslua_tree.obj \
+	wslua_tvb.obj \
+	wslua_util.obj
 
-lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:lua.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
-	$(GLIB_LIBS) $(LUA_LIBS) ..\..\wiretap\wiretap-$(WTAP_VERSION).lib
-
-
-elua_register.h: elua_makereg.pl $(MODULES)
-	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
-
-elua.c: elua_register.h
-
-doc: $(MODULES)
-	$(PERL) elua_makedoc.pl $(MODULES)
-
-#elua.c: $(LUA_LIBS)
-
-init.lua: template-init.lua make-init-lua.pl ../../epan/ftypes/ftypes.h ../../wiretap/wtap.h  ../../epan/proto.h
-	$(PERL) make-init-lua.pl template-init.lua > init.lua
-
-!ENDIF
-!ENDIF
+wslua.lib	: $(OBJECTS) init.lua
+	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) lua.dll lua.exp lua.lib *.pdb init.lua
+	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps.c-inc 
+
+init_wslua.c: wslua_register.h
 
 distclean: clean
 
 maintainer-clean: distclean
+
+TAPS_USED = \
+	../dissectors/packet-http.h \
+	../dissectors/packet-ip.h \
+	../dissectors/packet-udp.h \
+	../dissectors/packet-h225.h
+
+taps: $(TAPS_USED)
+	touch taps
+
+taps.c-inc: make-taps.pl taps
+	$(PERL) make-taps.pl taps taps.c-inc taps.txt
+
+wslua_listener.c: taps.c-inc
+
+taps.txt: taps.c-inc
+	
+wslua.h: wslua_register.h
+
+# do not do not unnecessarilly modify the old file in order avoid recompiling every module every time 
+wslua_register.h: make-reg.pl $(MODULES) 
+	$(PERL) make-reg.pl $(MODULES) > wslua_register.h
+
+doc: $(MODULES)
+	$(PERL) make-doc.pl $(MODULES)
+
+dummy:
+	touch dummy
+
+init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
+
+

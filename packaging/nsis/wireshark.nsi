@@ -340,6 +340,7 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
+File "..\..\epan\wslua\init.lua"
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
@@ -744,15 +745,6 @@ SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\mate\mate.dll"
 SectionEnd
 
-!ifdef LUA_DIR
-Section "LUA Plugin" SecLua
-;-------------------------------------------
-SetOutPath $INSTDIR\plugins\${VERSION}
-File "..\..\plugins\lua\lua.dll"
-SetOutPath $INSTDIR
-File "..\..\plugins\lua\init.lua"
-SectionEnd
-!endif
 
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------

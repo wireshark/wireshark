@@ -194,7 +194,7 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
+LUA_DIR=$(WIRESHARK_LIBS)\lua5.1.1
 
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
@@ -581,7 +581,7 @@ LIBGCRYPT_CONFIG=
 
 !IFDEF LUA_DIR
 LUA_CFLAGS=/I$(LUA_DIR)\include
-LUA_LIBS=$(LUA_DIR)\lib\vc6\lua5.1.lib
+LUA_LIBS=$(LUA_DIR)\lib\vc6\lua511.lib
 # Nmake uses carets to escape special characters
 LUA_CONFIG=^#define HAVE_LUA 1
 LUA_VERSION=^#define HAVE_LUA_5_1 1

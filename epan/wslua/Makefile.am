@@ -44,6 +44,7 @@ libwslua_la_SOURCES = \
 libwslua_la_LIBADD = @LUA_LIBS@
 
 BUILT_SOURCES = \
+	taps.c-inc \
 	wslua_register.h
 
 pkgdata_DATA = init.lua

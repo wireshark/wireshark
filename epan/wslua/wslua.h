@@ -225,7 +225,6 @@ int dummy##C
 #define WSLUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta); 
 
 #define WSLUA_INIT(L) \
-	L = luaL_newstate(); \
 	luaL_openlibs(L); \
 	WSLUA_REGISTER_CLASSES(); \
 	WSLUA_REGISTER_FUNCTIONS();

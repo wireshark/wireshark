@@ -26,9 +26,12 @@ libwireshark_LIBS = \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) \
 	$(NET_SNMP_LIBS) \
+	$(LUA_LIBS) \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(ICONV_DIR)\lib\iconv.lib \
 	ftypes\ftypes.lib \
 	dfilter\dfilter.lib \
+	wslua\wslua.lib \
 	dissectors\dissectors.lib
 
 .c.obj::
@@ -50,17 +53,17 @@ DOXYGEN_DEP=doxygen
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK
-all: ftypes dfilter dissectors libwireshark.dll
+all: ftypes dfilter wslua dissectors libwireshark.dll
 !ELSE
-all: ftypes dfilter dissectors libwireshark.lib
+all: ftypes dfilter wslua dissectors libwireshark.lib
 !ENDIF
 
 # For use when making libwireshark.dll
 libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
-libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                 ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib ..\image\libwireshark.res
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def ftypes dfilter wslua dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                 ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib wslua\wslua.lib ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
@@ -70,8 +73,8 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def ftypes df
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                  ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter wslua dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                  ftypes\ftypes.lib dfilter\dfilter.lib wslua\wslua.lib dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
@@ -88,6 +91,8 @@ clean:
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
@@ -110,6 +115,8 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dissectors
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
 maintainer-clean: distclean
@@ -118,6 +125,8 @@ maintainer-clean: distclean
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 
@@ -133,6 +142,11 @@ dfilter:: ..\config.h
 
 dissectors:: ..\config.h
 	cd dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+wslua:: ..\config.h
+	cd wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 

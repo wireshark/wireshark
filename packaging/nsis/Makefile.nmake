@@ -76,9 +76,6 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/h223/h223.dll \
 	../../plugins/irda/irda.dll \
-!IFDEF LUA_DIR
-    ../../plugins/lua/lua.dll \
-!ENDIF
 	../../plugins/lwres/lwres.dll \
 	../../plugins/mate/mate.dll \
 	../../plugins/megaco/megaco.dll \
