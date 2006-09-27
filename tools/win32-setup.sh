@@ -1,6 +1,10 @@
 #!/bin/sh
 
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages"
+# This MUST be in the form
+#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+# in order to provide backward compatibility with older trees (e.g. a
+# previous release or an older SVN checkout).
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2006-09-27/packages"
 
 err_exit () {
 	echo ""

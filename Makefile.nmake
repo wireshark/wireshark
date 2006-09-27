@@ -554,7 +554,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. gnutls-1.5.0-1.zip
+		. gnutls-1.5.1-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \

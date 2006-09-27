@@ -161,7 +161,7 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 # If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
 # isn't defined.
 #
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.0-1
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.5.1-1
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
