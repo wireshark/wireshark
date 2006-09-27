@@ -163,6 +163,9 @@ clean:
 	rm -f NEWS.txt
 
 distclean: clean
+	rm -f wireshark-setup-*.exe
+	rm -f wireshark-gtk1-setup-*.exe
+	rm -f wireshark-gtk2-setup-*.exe
 
 maintainer-clean: distclean
 
