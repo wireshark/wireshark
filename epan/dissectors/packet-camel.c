@@ -8457,13 +8457,17 @@ static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
   char *version_ptr;
+  struct tcap_private_t * p_private_tcap;
 
   opcode = 0;
   application_context_version = 0;
   if (pinfo->private_data != NULL){
-    version_ptr = strrchr(pinfo->private_data,'.');
-    if (version_ptr) {
-      application_context_version = atoi(version_ptr+1);
+    p_private_tcap=pinfo->private_data; 
+    
+    if (p_private_tcap->acv==TRUE ){
+      version_ptr = strrchr(p_private_tcap->oid,'.');
+      if (version_ptr)
+	application_context_version = atoi(version_ptr+1);
     }
   }
 
@@ -8528,6 +8532,7 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-cap3-sms-AC(61)" );
 
     register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_camelext_CAPGPRSReferenceNumber, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
   } else {
@@ -10553,7 +10558,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 833 "packet-camel-template.c"
+#line 838 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10781,7 +10786,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 851 "packet-camel-template.c"
+#line 856 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

@@ -92,86 +92,20 @@ dissect_tcap_UserInformation(TRUE, next_tvb, 0, pinfo, tree, -1);
  
 return offset+len;
 #.FN_BODY Component
-tvbuff_t	*next_tvb;
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len, s_offset;
-	gint ind_field;
-/* 
- * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
- */
-ber_oid_dissector_table = find_dissector_table("ber.oid");
-s_offset = offset;
-offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-/* we can believe the length now */
-next_tvb = tvb_new_subset(tvb, s_offset, len+(offset-s_offset), len+(offset-s_offset));		
-if (!next_tvb)
-	return offset+len;
-	
-dissect_ber_choice(pinfo, tree, next_tvb, 0,
-                        Component_choice, hf_index, ett_tcap_Component,NULL);
-
-if (ber_oid_dissector_table && cur_oid){
-if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
-	{
-	dissector_handle_t subdissector_handle;
-
-    if (! (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
-        subdissector_handle = data_handle;
-    } 
-
-    call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
-
-	}
-}
-else {
-    dissector_handle_t subdissector_handle;
-
-    if (! (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
-        subdissector_handle = data_handle;
-    } 
-
-    call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
-}
-     
-return offset+len;
+dissect_tcap_TheComponent(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	pinfo->private_data = (void*)cur_oid;
+	tcap_private.oid= (void*) cur_oid; 
+	tcap_private.acv=TRUE;
 
 #.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
 %(DEFAULT_BODY)s
-	pinfo->private_data = (void*)tcapext_oid;
+	tcap_private.oid= (void*)tcapext_oid;
+	tcap_private.acv=TRUE;
 
 #.FN_BODY ExternUserInfo
-tvbuff_t	*next_tvb;
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len, start_offset;
-	gint ind_field;
-/* 
- * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
- */
-ber_oid_dissector_table = find_dissector_table("ber.oid");
-start_offset = offset;
-offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-/* Use the recived length, XXX What if it was indefenet? length is good now */
-next_tvb = tvb_new_subset(tvb, start_offset, len +(offset - start_offset), len+(offset - start_offset));		
-if (!next_tvb)
-	return offset+len;
-if (ber_oid_dissector_table && tcapext_oid){
-if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, tcap_top_tree))	
-	{
-	}
-	}
-dissect_tcap_param(pinfo,tree,next_tvb,0);
-	offset+=len;
-
+dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_BODY ANSIParameters
 /* we are doing the ParamSet here so need to look at the tags*/
@@ -193,6 +127,8 @@ next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_le
 if (! (subdissector_handle = get_ansi_tcap_subdissector(pinfo->match_port))) {
     subdissector_handle = data_handle;
 } 
+  
+    tcap_subdissector_used=TRUE;
 
 call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
     
@@ -206,11 +142,27 @@ proto_item *tid_item;
 proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
+
 offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
 	len = tvb_length_remaining(parameter_tvb, 0);
+	switch(len) {
+	case 1:
+		gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
+		break;
+	case 2:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
+		break;
+	case 4:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohl(parameter_tvb, 0);
+		break;
+	default:
+		gp_tcapsrt_info->src_tid=0;
+		break;
+	}
+
 	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
@@ -228,11 +180,27 @@ proto_item *tid_item;
 proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
+
 offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
 	len = tvb_length_remaining(parameter_tvb, 0);
+	switch(len) {
+	case 1:
+		gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
+		break;
+	case 2:
+		gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
+		break;
+	case 4:
+		gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
+		break;	
+	default:
+		gp_tcapsrt_info->dst_tid=0;
+		break;
+	}
+	
 	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
@@ -241,21 +209,29 @@ if (parameter_tvb){
 	   }
 }
 #.FN_BODY Begin
+gp_tcapsrt_info->ope=TC_BEGIN;
+
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Begin_sequence, hf_index, ett_tcap_Begin);
 #.FN_BODY End
+gp_tcapsrt_info->ope=TC_END;
+
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " End ");
 offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 End_sequence, hf_index, ett_tcap_End);
 #.FN_BODY Continue
+gp_tcapsrt_info->ope=TC_CONT;
+
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Continue ");
 offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Continue_sequence, hf_index, ett_tcap_Continue);
 #.FN_BODY Abort
+gp_tcapsrt_info->ope=TC_ABORT;
+
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,

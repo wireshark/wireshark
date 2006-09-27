@@ -935,7 +935,8 @@ CheckIMEIArgV3 ::= SEQUENCE {
 	imei IMEI,
 	requestedEquipmentInfo	RequestedEquipmentInfo,
 	extensionContainer	ExtensionContainer OPTIONAL,
-...}
+	...
+}
 
 --	RESULT
 --	equipmentStatus EquipmentStatus

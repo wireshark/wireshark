@@ -59,7 +59,17 @@
 
 #define	TCAP_CONSTRUCTOR(TCtag)	(TCtag & 0x20)
 
+#define TC_BEGIN 1
+#define TC_CONT 2
+#define TC_END 3
+#define TC_ABORT 4
 
+struct tcap_private_t {
+  gboolean acv; /* Is the Application Context Version present */
+  void * oid;
+  guint32 session_id;
+  void * context;
+};
 
 extern gint tcap_standard;
 
@@ -73,4 +83,4 @@ extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector)
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 
-#endif  /* PACKET_INAP_H */
+#endif  /* PACKET_tcap_H */

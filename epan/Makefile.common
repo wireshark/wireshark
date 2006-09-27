@@ -84,6 +84,7 @@ LIBWIRESHARK_SRC = 		\
 	stream.c		\
 	t35.c			\
 	tap.c			\
+	tcap-persistentdata.c	\
 	timestamp.c		\
 	to_str.c		\
 	tvbparse.c		\
@@ -182,6 +183,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	strutil.h		\
 	t35.h			\
 	tap.h			\
+	tcap-persistentdata.h	\
 	timestamp.h    		\
 	to_str.h		\
 	tvbparse.h		\
