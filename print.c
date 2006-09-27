@@ -330,9 +330,15 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
 /*		fprintf(pdata->fh, "\" id=\"%d", fi->hfinfo->id);*/
 
-		if (fi->hfinfo->type != FT_PROTOCOL) {
-			/* Field */
-
+		/* show, value, and unmaskedvalue attributes */
+		switch (fi->hfinfo->type)
+		{
+		case FT_PROTOCOL:
+			break;
+		case FT_NONE:
+			fputs("\" show=\"\" value=\"\"",  pdata->fh);
+			break;
+		default:
 			/* XXX - this is a hack until we can just call
 			 * fvalue_to_string_repr() for *all* FT_* types. */
 			dfilter_string = proto_construct_dfilter_string(fi,
