@@ -1,0 +1,18 @@
+# Conformance file for EFS
+
+CODE START
+static int
+dom_dissect_struct_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	offset=dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+	return offset;
+}
+
+CODE END
