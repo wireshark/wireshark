@@ -51,6 +51,31 @@ end
 -- have print() call info() instead.
 print = info
 
+
+-- a Console to execute commands in lua
+function wslua_console()
+	local w = TextWindow.new("Lua Console")
+	w:set_editable(TRUE)
+
+	function eval()
+		local text = string.gsub(w:get_text(),"%c*--%[%[.*--%]%]$","")
+		text = string.gsub(text,"^=","return ")
+
+		local result = assert(loadstring(text))()
+
+		if (result ~= nil) then
+			w:set(text .. '\n\n--[[ Result:\n' .. result .. '\n--]]')
+		else
+			w:set(text .. '\n\n--[[  Evaluated --]]')
+		end
+	end
+
+   w:add_button("Evaluate",eval)
+end
+
+register_menu("Lua Console",wslua_console)
+
+
 -- %WTAP_ENCAPS%
 
 -- %FT_TYPES%
