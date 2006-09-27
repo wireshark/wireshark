@@ -1118,7 +1118,7 @@ AC_DEFUN([AC_WIRESHARK_NETSNMP_CHECK],
 	else
 		NETSNMPCNFIG=$netsnmpconfig
 		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
-			ETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
+			NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
 			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
 				AC_MSG_ERROR(Invalid net-snmp-config: $netsnmpconfig)
 			fi
@@ -1282,7 +1282,8 @@ AC_DEFUN([AC_WIRESHARK_UCDSNMP_CHECK],
 						# them they'll need to specify
 						# --with-ssl.
 						#
-						AC_MSG_ERROR([UCD SNMP requires -lcrypto but --with-ssl not specified])
+						found_sprint_realloc_objid=yesnocrypto
+						AC_MSG_RESULT([UCD SNMP requires -lcrypto but --with-ssl was not specified - disabling UCD SNMP.])
 					    ])
 				fi
 			    ])
@@ -1296,7 +1297,9 @@ AC_DEFUN([AC_WIRESHARK_UCDSNMP_CHECK],
 		# specify "--with-ssl".
 		#
 		if test "$found_snmp_sprint_realloc_objid" = no; then
-		    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
+		    AC_MSG_RESULT([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library - disabling UCD SNMP.])
+		elif test "$found_snmp_sprint_realloc_objid" != yes -a "x$want_ucdsnmp" = "xyes"; then
+			AC_MSG_ERROR(UCD SNMP requested but fails to build)
 		fi
 
 		#
