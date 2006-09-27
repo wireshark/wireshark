@@ -244,6 +244,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ubikvote.c	\
 	packet-dcerpc-update.c	\
 	packet-dcerpc-wkssvc.c	\
+	packet-dcerpc-wzcsvc.c	\
 	packet-dcerpc.c	\
 	packet-dcm.c		\
 	packet-dcom.c \
@@ -764,6 +765,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-svcctl.h	\
 	packet-dcerpc-tapi.h	\
 	packet-dcerpc-wkssvc.h	\
+	packet-dcerpc-wzcsvc.h	\
 	packet-dcerpc.h	\
 	packet-dcom.h	\
 	packet-dcom-cba-acco.h	\

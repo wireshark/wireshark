@@ -1,0 +1,31 @@
+/*
+  wireless configuration service
+*/
+
+[
+  uuid("378e52b0-c0a9-11cf-822d-00aa0051e40f"),
+  version(1.0),
+  helpstring("Wireless Configuration Service")
+]
+interface wzcsvc
+{
+
+	void wzcsvc_EnumInterfaces();
+	void wzcsvc_QueryInterface();
+	void wzcsvc_SetInterface();
+	void wzcsvc_RefreshInterface();
+	void wzcsvc_QueryContext();
+	void wzcsvc_SetContext();
+	void wzcsvc_EapolUIResponse();
+	void wzcsvc_EapolGetCustomAuthData();
+	void wzcsvc_EapolSetCustomAuthData();
+	void wzcsvc_EapolGetInterfaceParams();
+	void wzcsvc_EapolSetInterfaceParams();
+	void wzcsvc_EapolReAuthenticateInterface();
+	void wzcsvc_EapolQueryInterfaceState();
+	void wzcsvc_OpenWZCDbLogSession();
+	void wzcsvc_CloseWZCDbLogSession();
+	void wzcsvc_EnumWZCDbLogRecords();
+	void wzcsvc_FlushWZCdbLog();
+	void wzcsvc_GetWZCDbLogRecord();
+}
