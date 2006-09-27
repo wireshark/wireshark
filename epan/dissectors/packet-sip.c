@@ -113,6 +113,9 @@ static gint hf_sip_auth_auts             = -1;
 static gint hf_sip_auth_rspauth          = -1;
 static gint hf_sip_auth_nextnonce        = -1;
 
+static gint hf_sip_cseq_seq_no           = -1;
+static gint hf_sip_cseq_method           = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
@@ -122,6 +125,7 @@ static gint ett_sip_element 		= -1;
 static gint ett_sip_uri				= -1;
 static gint ett_sip_contact_item	= -1;
 static gint ett_sip_message_body	= -1;
+static gint ett_sip_cseq			= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -1191,7 +1195,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
-	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL;
+	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
@@ -1358,6 +1362,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		gint header_len;
 		gint hf_index;
 		gint value_offset;
+		gint sub_value_offset;
 		gint comma_offset;
 		guchar c;
 		size_t value_len;
@@ -1655,30 +1660,54 @@ separator_found2:
 						cseq_number_set = 1;
 						stat_info->tap_cseq_number=cseq_number;
 
+						/* Add CSeq  tree */
+						if (hdr_tree) {
+							ti = proto_tree_add_string_format(hdr_tree,
+							                             hf_header_array[hf_index], tvb,
+							                             offset, next_offset - offset,
+							                             value, "%s",
+							                             tvb_format_text(tvb, offset, linelen));
+							cseq_tree = proto_item_add_subtree(ti, ett_sip_cseq);
+						}
+
 						/* Walk past number and spaces characters to get to start
 						   of method name */
-						for (value_offset=0; value_offset < (gint)strlen(value); value_offset++)
+						for (sub_value_offset=0; sub_value_offset < (gint)strlen(value); sub_value_offset++)
 						{
-							if (isalpha((guchar)value[value_offset]))
+							if (!isdigit((guchar)value[sub_value_offset]))
 							{
+								proto_tree_add_uint(cseq_tree, hf_sip_cseq_seq_no,
+								                    tvb, value_offset, sub_value_offset,
+								                    cseq_number);
 								break;
 							}
 						}
-						if (value_offset == (gint)strlen(value))
+
+						for (; sub_value_offset < (gint)strlen(value); sub_value_offset++)
 						{
+							if (isalpha((guchar)value[sub_value_offset]))
+							{
+								/* Have reached start of method name */
+								break;
+							}
+						}
+
+						if (sub_value_offset == (gint)strlen(value))
+						{
+							/* Didn't find method name */
 							THROW(ReportedBoundsError);
 							return offset - orig_offset;
 						}
 
 						/* Extract method name from value */
-						strlen_to_copy = strlen(value)-value_offset+1;
+						strlen_to_copy = strlen(value)-sub_value_offset;
 						if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
 							/* Note the error in the protocol tree */
-							if(hdr_tree) {
+							if (hdr_tree) {
 								proto_tree_add_string_format(hdr_tree,
 								                             hf_header_array[hf_index], tvb,
 								                             offset, next_offset - offset,
-								                             value+value_offset, "%s String too big: %d bytes",
+								                             value+sub_value_offset, "%s String too big: %d bytes",
 								                             sip_headers[POS_CSEQ].name,
 								                             strlen_to_copy);
 							}
@@ -1686,15 +1715,13 @@ separator_found2:
 							return offset - orig_offset;
 						}
 						else {
-							strncpy(cseq_method, value+value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
+							strncpy(cseq_method, value+sub_value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
 
-							/* Add 'CSeq' string item to tree */
-							if(hdr_tree) {
-								proto_tree_add_string_format(hdr_tree,
-								                             hf_header_array[hf_index], tvb,
-								                             offset, next_offset - offset,
-								                             value, "%s",
-								                             tvb_format_text(tvb, offset, linelen));
+							/* Add CSeq method to the tree */
+							if (cseq_tree)
+							{
+								proto_tree_add_item(cseq_tree, hf_sip_cseq_method, tvb,
+								                    value_offset + sub_value_offset, strlen_to_copy, FALSE);
 							}
 						}
 					break;
@@ -3009,6 +3036,16 @@ void proto_register_sip(void)
 			{ "Next Nonce",  "sip.auth.nextnonce",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"SIP Next Nonce", HFILL}
+		},
+		{ &hf_sip_cseq_seq_no,
+			{ "Sequence Number",  "sip.CSeq.seq",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+		    	"CSeq header sequence number", HFILL}
+		},
+		{ &hf_sip_cseq_method,
+			{ "Method",  "sip.CSeq.method",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"CSeq header method", HFILL}
 		}};
 
 
@@ -3021,6 +3058,7 @@ void proto_register_sip(void)
 		&ett_sip_uri,
 		&ett_sip_contact_item,
 		&ett_sip_message_body,
+		&ett_sip_cseq
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
