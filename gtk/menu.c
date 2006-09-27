@@ -598,7 +598,8 @@ static GtkItemFactoryEntry menu_items[] =
                        init_conversation_notebook_cb, 0, WIRESHARK_STOCK_CONVERSATIONS),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/Endpoints", NULL,
                        init_hostlist_notebook_cb, 0, WIRESHARK_STOCK_ENDPOINTS),
-    ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/_Tools", NULL, NULL, 0, "<Branch>", NULL),
+   ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
 #if (GLIB_MAJOR_VERSION >= 2)
@@ -914,7 +915,7 @@ static GList * tap_menu_item_add(
 void
 register_stat_menu_item(
     const char *name,
-    REGISTER_STAT_GROUP_E group,
+    register_stat_group_t group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
@@ -942,6 +943,7 @@ register_stat_menu_item(
     case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
+    case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
     default:
         g_assert(0);
         toolspath = NULL;
@@ -1067,6 +1069,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_ANALYZE_GROUP_NONE):
                 break;
+            case(REGISTER_TOOLS_GROUP_NONE):
+                break;
             default:
                 g_assert_not_reached();
             }
@@ -1139,6 +1143,11 @@ void merge_all_tap_menus(GList *node) {
 		entry->path = "/Analyze/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
+    if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+    }
+	
+
 }
 
 

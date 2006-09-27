@@ -67,7 +67,7 @@ typedef struct _tap_dfilter_dlg {
  * We register it both as a command-line stat and a menu item stat.
  */
 void register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
-    REGISTER_STAT_GROUP_E group);
+    register_stat_group_t group);
 
 /* This will update the titles of the dialog windows when we load a new capture file. */
 void tap_dfilter_dlg_update (void);

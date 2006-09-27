@@ -1,5 +1,5 @@
 /*
- *  lua_gui.c
+ *  wslua_gui.c
  *  
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * 
@@ -31,7 +31,6 @@ static const funnel_ops_t* ops = NULL;
 struct _lua_menu_data {
     lua_State* L;
     int cb_ref;
-    int data_ref;
 };
 
 static int menu_cb_error_handler(lua_State* L) {
@@ -50,9 +49,9 @@ void lua_menu_callback(gpointer data) {
 
     lua_pushcfunction(md->L,menu_cb_error_handler);
     lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->cb_ref);
-    lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->data_ref);
-        
-    lua_pcall(md->L,1,0,1);
+	
+	/* XXX handle error */
+    lua_pcall(md->L,0,0,1);
     
     return;
 }
@@ -60,33 +59,31 @@ void lua_menu_callback(gpointer data) {
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in the Statistics menu. */
 #define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. */
-#define WSLUA_OPTARG_register_menu_USERDATA 3 /* To be passed to the action. */
-	
+#define WSLUA_ARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. */
+
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-    
+	register_stat_group_t group = luaL_optnumber(L,WSLUA_ARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+
+	if ( group > REGISTER_TOOLS_GROUP_NONE)
+		WSLUA_ARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
+
 	if(!name)
 		WSLUA_ARG_ERROR(register_menu,NAME,"must be a string");
 	
     if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION)) 
 		WSLUA_ARG_ERROR(register_menu,ACTION,"must be a function");
-    
+
     md = g_malloc(sizeof(struct _lua_menu_data));
     md->L = L;
-    
-    lua_pushvalue(L, 2);
-    md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    if ( lua_gettop(L) > 2) {
-        lua_pushvalue(L, WSLUA_OPTARG_register_menu_USERDATA);
-        md->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    } else {
-        md->data_ref = LUA_NOREF;
-    }
+
+	lua_pushvalue(L, 2);
+	md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	lua_remove(L,2);
 
     funnel_register_menu(name,
-                         REGISTER_STAT_GROUP_GENERIC,
+                         group,
                          lua_menu_callback,
                          md,
                          retap);

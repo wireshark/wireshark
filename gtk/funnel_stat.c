@@ -544,7 +544,7 @@ static void our_menu_callback(void* unused _U_, gpointer data) {
 }
 
 static void register_menu_cb(const char *name,
-                             REGISTER_STAT_GROUP_E group,
+                             register_stat_group_t group,
                              void (*callback)(gpointer),
                              gpointer callback_data,
                              gboolean retap) {

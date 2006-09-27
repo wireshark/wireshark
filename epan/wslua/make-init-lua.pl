@@ -34,12 +34,14 @@ my $wtap_encaps_table = '';
 my $ft_types_table = '';
 my $bases_table = '';
 my $expert_pi = '';
+my $menu_groups = '';
 
 my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
     FT_TYPES => \$ft_types_table,
 	BASES => \$bases_table,
 	EXPERT => \$expert_pi,
+	MENU_GROUPS => \$menu_groups,
 }};
 
 
@@ -109,6 +111,23 @@ while(<PROTO_H>) {
 	}
 }
 close PROTO_H;
+
+# register_stat_group_t
+
+
+$menu_groups .= "-- menu groups for register_menu \n";
+my $menu_i = 0;
+
+open STAT_MENU, "< $WSROOT/stat_menu.h";
+while(<STAT_MENU>) {
+	if (/REGISTER_([A-Z]+)_GROUP_([A-Z]+)/) {
+		$menu_groups .= "MENU_$1_$2 = $menu_i\n";
+		$menu_groups =~ s/_NONE//;
+		$menu_i++;
+	}
+}
+close STAT_MENU;
+
 
 $bases_table .= "}\n\n";
 $expert_pi .= "\n\n";

@@ -51,8 +51,17 @@ end
 -- have print() call info() instead.
 print = info
 
+-- %WTAP_ENCAPS%
 
--- a Console to execute commands in lua
+-- %FT_TYPES%
+
+-- %BASES%
+
+-- %EXPERT%
+
+-- %MENU_GROUPS%
+
+-- Console to execute commands in lua
 function wslua_console()
 	local w = TextWindow.new("Lua Console")
 	w:set_editable(TRUE)
@@ -73,14 +82,5 @@ function wslua_console()
    w:add_button("Evaluate",eval)
 end
 
-register_menu("Lua Console",wslua_console)
-
-
--- %WTAP_ENCAPS%
-
--- %FT_TYPES%
-
--- %BASES%
-
--- %EXPERT%
+register_menu("Lua Console",wslua_console,MENU_TOOLS)
 

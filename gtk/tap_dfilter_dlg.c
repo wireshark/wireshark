@@ -71,7 +71,7 @@ tap_dfilter_dlg_cb(GtkWidget *w, gpointer data);
  */
 void
 register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
-    REGISTER_STAT_GROUP_E group)
+    register_stat_group_t group)
 {
 	char *full_name;
 

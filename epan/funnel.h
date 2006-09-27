@@ -91,14 +91,14 @@ extern void funnel_set_funnel_ops(const funnel_ops_t*);
 
 
 extern void funnel_register_menu(const char *name,
-                                 REGISTER_STAT_GROUP_E group,
+                                 register_stat_group_t group,
                                  void (*callback)(gpointer),
                                  gpointer callback_data,
                                  gboolean retap);
 
 
 typedef void (*funnel_registration_cb_t)(const char *name,
-                                         REGISTER_STAT_GROUP_E group,
+                                         register_stat_group_t group,
                                          void (*callback)(gpointer),
                                          gpointer callback_data,
                                          gboolean retap);

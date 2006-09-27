@@ -50,8 +50,9 @@ typedef enum {
     REGISTER_STAT_GROUP_RESPONSE_TIME,
     REGISTER_STAT_GROUP_TELEPHONY,
     /* XXX - split into telephony and VoIP? */
-	REGISTER_ANALYZE_GROUP_NONE
-} REGISTER_STAT_GROUP_E;
+	REGISTER_ANALYZE_GROUP_NONE,
+	REGISTER_TOOLS_GROUP_NONE,
+} register_stat_group_t;
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,7 @@
 
 typedef struct _funnel_menu_t {
     const char *name;
-    REGISTER_STAT_GROUP_E group;
+    register_stat_group_t group;
     void (*callback)(gpointer);
     gpointer callback_data;
     gboolean retap;
@@ -44,7 +44,7 @@ const funnel_ops_t* funnel_get_funnel_ops() { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
 
 void funnel_register_menu(const char *name,
-                          REGISTER_STAT_GROUP_E group,
+                          register_stat_group_t group,
                           void (*callback)(gpointer),
                           gpointer callback_data,
                           gboolean retap) {
