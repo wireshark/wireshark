@@ -60,7 +60,7 @@ static int hf_per_object_identifier_length = -1;
 static int hf_per_open_type_length = -1;
 static int hf_per_octet_string_length = -1;
 static int hf_per_bit_string_length = -1;
-static int hf_per_const_int_len;
+static int hf_per_const_int_len = -1;
 
 static gint ett_per_sequence_of_item = -1;
 
@@ -134,22 +134,101 @@ dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	return end_offset;
 }
 
-/* 10.9 General rules for encoding a length determinant -------------------- */
+/* 10.9 General rules for encoding a length determinant -------------------- 
+	
+	  NOTE 1 - (Tutorial) The procedures of this subclause are invoked when an explicit length field is needed 
+				for some part of the encoding regardless of whether the length count is bounded above 
+				(by PER-visible constraints) or not. The part of the encoding to which the length applies may 
+				be a bit string (with the length count in bits), an octet string (with the length count in octets), 
+				a known-multiplier character string (with the length count in characters), or a list of fields 
+				(with the length count in components of a sequence-of or set-of).
+	
+	  NOTE 2 - (Tutorial) In the case of the ALIGNED variant if the length count is bounded above by an upper bound 
+				that is less than 64K, then the constrained whole number encoding is used for the length. 
+				For sufficiently small ranges the result is a bit-field, otherwise the unconstrained length ("n" say) 
+				is encoded into an octet-aligned bit-field in one of three ways (in order of increasing size):
+		a)	("n" less than 128) a single octet containing "n" with bit 8 set to zero;
+		b)	("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
+		c)	(large "n") a single octet containing a count "m" with bit 8 set to 1 and bit 7 set to 1. 
+			The count "m" is one to four, and the length indicates that a fragment of the material follows 
+			(a multiple "m" of 16K items). For all values of "m", the fragment is then followed by another length encoding
+			for the remainder of the material.
+	
+	  NOTE 3 - (Tutorial) In the UNALIGNED variant, if the length count is bounded above by an upper bound that is less
+			than 64K, then the constrained whole number encoding is used to encode the length in the minimum number of 
+			bits necessary to represent the range. Otherwise, the unconstrained length ("n" say) is encoded into a bit 
+			field in the manner described above in Note 2.
+
+ */
 guint32
 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
 {
 	guint8 byte;
 	guint32 len;
 	proto_item *pi;
+	int num_bits;
+	int i, bit;
+	gboolean tmp;
 
 	if(!length){
 		length=&len;
 	}
 
 	/* byte aligned */
-	BYTE_ALIGN_OFFSET(offset);
-	byte=tvb_get_guint8(tvb, offset>>3);
-	offset+=8;
+	if (actx->aligned){
+		BYTE_ALIGN_OFFSET(offset);
+		byte=tvb_get_guint8(tvb, offset>>3);
+		offset+=8;
+	}else{
+		char *str;
+		guint32 val;
+		gint val_start;
+		
+		val_start = offset>>3;
+		val = 0;
+		str=ep_alloc(256);
+
+		g_snprintf(str, 256, " ");
+		for(bit=0;bit<((int)(offset&0x07));bit++){
+			if(bit&&(!(bit%4))){
+				strcat(str, " ");
+			}
+			strcat(str,".");
+		}
+		/* read the bits for the int */
+		num_bits = 8;
+		for(i=0;i<num_bits;i++){
+			if(bit&&(!(bit%4))){
+				strcat(str, " ");
+			}
+			if(bit&&(!(bit%8))){
+				strcat(str, " ");
+			}
+			bit++;
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
+			val<<=1;
+			if(tmp){
+				val|=1;
+				strcat(str, "1");
+			} else {
+				strcat(str, "0");
+			}
+		}
+		if((val&0x80)==0){
+			*length = val;
+			if(hf_index!=-1){
+				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
+				if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			}
+		
+			if (display_internal_per_fields)
+				proto_item_append_text(pi," %s", str);
+			return offset;
+		}
+		PER_NOT_DECODED_YET("10.9 Unaligned");
+		return offset;
+
+	}
 
 	/* 10.9.3.6 */
 	if((byte&0x80)==0){
@@ -349,35 +428,37 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 	/* 27.5.2 depending of the alphabet length, find how many bits
 	   are used to encode each character */
-/* unaligned PER
-	if(alphabet_length<=2){
-		bits_per_char=1;
-	} else if(alphabet_length<=4){
-		bits_per_char=2;
-	} else if(alphabet_length<=8){
-		bits_per_char=3;
-	} else if(alphabet_length<=16){
-		bits_per_char=4;
-	} else if(alphabet_length<=32){
-		bits_per_char=5;
-	} else if(alphabet_length<=64){
-		bits_per_char=6;
-	} else if(alphabet_length<=128){
-		bits_per_char=7;
-	} else {
-		bits_per_char=8;
-	}
-*/
-	if(alphabet_length<=2){
-		bits_per_char=1;
-	} else if(alphabet_length<=4){
-		bits_per_char=2;
-	} else if(alphabet_length<=16){
-		bits_per_char=4;
-	} else {
-		bits_per_char=8;
-	}
+/* unaligned PER */
+	if (actx->aligned){
 
+		if(alphabet_length<=2){
+			bits_per_char=1;
+		} else if(alphabet_length<=4){
+			bits_per_char=2;
+		} else if(alphabet_length<=16){
+			bits_per_char=4;
+		} else {
+			bits_per_char=8;
+		}
+	}else{
+		if(alphabet_length<=2){
+			bits_per_char=1;
+		} else if(alphabet_length<=4){
+			bits_per_char=2;
+		} else if(alphabet_length<=8){
+			bits_per_char=3;
+		} else if(alphabet_length<=16){
+			bits_per_char=4;
+		} else if(alphabet_length<=32){
+			bits_per_char=5;
+		} else if(alphabet_length<=64){
+			bits_per_char=6;
+		} else if(alphabet_length<=128){
+			bits_per_char=7;
+		} else {
+			bits_per_char=8;
+		}
+	}
 
 	byte_aligned=TRUE;
 	if((min_len==max_len)&&(max_len<=2)){
@@ -406,7 +487,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		/* Advance offset to next 'element' */
 		offset = offset + 1;	}
 
-	if(byte_aligned){
+	if((byte_aligned)&&(actx->aligned)){
 		BYTE_ALIGN_OFFSET(offset);
 	}
 
