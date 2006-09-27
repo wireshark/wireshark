@@ -550,7 +550,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. lua5_1_1_vc6.zip
+		. lua5_1_dll.zip
 !ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -646,7 +646,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
     rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
-    rm -r -f $(WIRESHARK_LIBS)/lua511
+    rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.3.1
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
@@ -853,6 +853,9 @@ install-common-deps:
 !IFDEF NET_SNMP_DIR
 	if not exist $(INSTALL_DIR)\mibs mkdir $(INSTALL_DIR)\mibs
 	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\mibs /d
+!ENDIF
+!IFDEF LUA_DIR
+	xcopy "$(LUA_DIR)\lib\dll\lua5.1.dll" $(INSTALL_DIR) /d
 !ENDIF
 
 clean-deps1:
