@@ -329,6 +329,9 @@ File "${GNUTLS_DIR}\bin\libgnutls-openssl-14.dll"
 File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
 File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
 !endif
+!ifdef LUA_DIR
+File "${LUA_DIR}\lib\dll\lua5.1.dll"
+!endif
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
