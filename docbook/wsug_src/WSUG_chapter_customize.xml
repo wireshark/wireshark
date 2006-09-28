@@ -810,7 +810,7 @@ standard libpcap format.
 		<listitem>
 		  <para>
 	  		The <command>Save</command> button will apply the preferences 
-			settings, save the settings on the harddisk and keep the dialog open.
+			settings, save the settings on the hard disk and keep the dialog open.
 		  </para>
 		</listitem>
 		<listitem>
@@ -829,4 +829,5 @@ standard libpcap format.
   
 </chapter>
 <!-- End of WSUG Chapter Customizing -->
+
 

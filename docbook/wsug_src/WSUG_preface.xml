@@ -123,10 +123,10 @@
     <title>About this document</title>
     <para>
       This book was originally developed by 
-      <ulink url="mailto:&AuthorEmail;">Richard Sharpe</ulink> with 
+      <ulink url="mailto:&AuthorEmail2;">Richard Sharpe</ulink> with 
       funds provided from the Wireshark Fund. It was updated by 
-	  <ulink url="mailto:&AuthorEmail2;">Ed Warnicke</ulink> and more recently 
-	  redesigned and updated by <ulink url="mailto:&AuthorEmail3;">Ulf 
+	  <ulink url="mailto:&AuthorEmail3;">Ed Warnicke</ulink> and more recently 
+	  redesigned and updated by <ulink url="mailto:&AuthorEmail;">Ulf 
 	  Lamping</ulink>.
     </para>
     <para>

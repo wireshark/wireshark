@@ -151,7 +151,7 @@
 	<para>
 	So where do these time stamps come from?
 	While capturing, Wireshark gets the time stamps from the libpcap (WinPcap)
-	library, which in turn get's them from the operating system kernel.
+	library, which in turn gets them from the operating system kernel.
 	If the capture data is loaded from a capture file, Wireshark obviously gets
 	the data from that file.
 	</para>
@@ -202,7 +202,7 @@
   <section><title>Accuracy</title>
 	<para>
 	It's often asked: "Which time stamp accuracy is provided by Wireshark?".
-	Well, Wireshark doesn't create any time stamps itself but simply get's them
+	Well, Wireshark doesn't create any time stamps itself but simply gets them
 	from "somewhere else" and displays them. So accuracy will depend on the
 	capture system (operating system, performance, ...) that you use.
 	Because of this, the above question is difficult to answer in a
@@ -351,7 +351,7 @@
 	<tip><title>Tip!</title>
 	<para>
 	You can use the Network Time Protocol (NTP) to automatically adjust your
-	computer to the correct time, by synchronizing it to internet NTP clock
+	computer to the correct time, by synchronizing it to Internet NTP clock
 	servers. NTP clients are available for all operating systems that
 	Wireshark supports (and for a lot more), for examples see:
 	<ulink url="&NTPSite;">&NTPSite;</ulink>.
@@ -462,13 +462,13 @@
 	<para>
 	An example:
 	Let's assume that someone in Los Angeles captured a packet with
-	Wireshark at exactly 2 o'clock local time and sents you this
+	Wireshark at exactly 2 o'clock local time and sends you this
 	capture file.  The capture file's time stamp will be represented
 	in UTC as 10 o'clock.  You are located in Berlin and will see 11
 	o'clock on your Wireshark display.
 	</para>
 	<para>
-	Now you have a phone call, video conference or internet meeting with that
+	Now you have a phone call, video conference or Internet meeting with that
 	one to talk about that capture file.
 	As you are both looking at the displayed time on your local computers,
 	the one in Los Angeles still sees 2 o'clock but you in Berlin will see
@@ -659,11 +659,11 @@
 	something more "human readable".
 	</para>
     <para><command>ARP name resolution (system service)</command>
-	Wireshark will ask the operating system to convert an ethernet address
+	Wireshark will ask the operating system to convert an Ethernet address
 	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1).
     </para>
     <para><command>Ethernet codes (ethers file)</command>
-	If the ARP name resolution failed, Wireshark tries to convert the ethernet
+	If the ARP name resolution failed, Wireshark tries to convert the Ethernet
 	address to a known device name, which has been assigned by the user using
 	an ethers file (e.g. 00:09:5b:01:02:03 -> homerouter).
     </para>
@@ -813,7 +813,7 @@
 	</sidebar>
   <section><title>Wireshark checksum validation</title>
 	<para>
-	Wireshark will validate the checksums of several potocols, e.g.: IP, TCP, ...
+	Wireshark will validate the checksums of several protocols, e.g.: IP, TCP, ...
 	</para>
 	<para>
 	It will do the same calculation as a "normal receiver" would do,
@@ -894,4 +894,5 @@
 
 </chapter>
 <!-- End of WSUG Chapter Advanced -->
+
 

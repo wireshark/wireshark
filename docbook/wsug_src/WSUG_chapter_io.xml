@@ -427,7 +427,7 @@
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Unix/Linux: GTK version &lt; 2.4 / Micosoft Windows 
+		<para><command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows 
 		(GTK1 installed)</command></para>
       <para>
 		This is the file save dialog of former Gimp/GNOME versions - 
@@ -667,7 +667,7 @@
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Unix/Linux: GTK version &lt; 2.4 / Micosoft Windows 
+		<para><command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows 
 		(GTK1 installed)</command></para>
       <para>
 		This is the file open dialog of former Gimp/GNOME versions - 
@@ -839,13 +839,13 @@
 	  </para>
     </section>
 	<section id="ChIOExportCSVDialog">
-	<title>The "Export as CSV (Comma Seperated Values) File" dialog box</title>
+	<title>The "Export as CSV (Comma Separated Values) File" dialog box</title>
 	  <para>XXX - add screenshot</para>
 	  <para>
 	    Export packet summary into CSV, used e.g. by spreadsheet programs to 
 		im-/export data.
     <!--<figure>
-      <title>The "Export as Comma Seperated Values File" dialog box</title>
+      <title>The "Export as Comma Separated Values File" dialog box</title>
       <graphic entityref="WiresharkExportCSVDialog" format="PNG"/>
     </figure>-->
 	<itemizedlist>
@@ -1152,4 +1152,5 @@ lpr -Pmypostscript
   
 </chapter>
 <!-- End of WSUG Chapter IO -->
+
 

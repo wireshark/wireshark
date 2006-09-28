@@ -474,7 +474,7 @@ c0-a8-1c-00      CEO
 	<para>
 	Windows uses some special directories to store user configuration files 
 	in, named the user profile. This can be confusing, as the default directory location
-	changed from version to version and might also be different for english 
+	changed from version to version and might also be different for English 
 	and internationalized versions of windows. 
 	</para>
 	<note><title>Note!</title>
@@ -486,7 +486,7 @@ c0-a8-1c-00      CEO
 	</note>
 	<para>
 	The following will try to guide 
-	you to the right place where to look for Wiresharks profile data.
+	you to the right place where to look for Wireshark's profile data.
 	</para>
 	<para>
       <variablelist>
@@ -538,7 +538,7 @@ c0-a8-1c-00      CEO
 	The following will only be applicable if you are using roaming profiles.
 	This might be the case, if you work in a Windows domain environment 
 	(used in huge company networks). The configurations of all 
-	programs you use won't be saved on the local harddrive of the computer 
+	programs you use won't be saved on the local hard drive of the computer 
 	you are currently working on, but on the domain server.
 	</para>
 	<para>

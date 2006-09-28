@@ -147,7 +147,7 @@ wireshark -i eth0 -k
 	<warning><title>Warning!</title>
 	<para>
 	As the "Capture Interfaces" dialog is showing live captured data, it is 
-	consuming a lot of system ressources. Close this dialog as soon as 
+	consuming a lot of system resources. Close this dialog as soon as 
 	possible to prevent excessive system load.
 	</para>
 	</warning>
@@ -1099,4 +1099,5 @@ tcp port 23 and not host 10.0.0.5
 
 </chapter>
 <!-- End of WSUG Chapter Capture -->
+
 

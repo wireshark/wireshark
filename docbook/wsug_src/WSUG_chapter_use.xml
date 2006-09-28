@@ -797,7 +797,7 @@
 		<entry><command>Colorize Packet List</command></entry>
 		<entry></entry>
 		<entry><para>
-		This item allows you to control wether or not Wireshark should colorize
+		This item allows you to control whether or not Wireshark should colorize
 		the packet list.</para>
 		<note><title>Note!</title><para>
 		Enabling colorization will slow down the display
@@ -1501,7 +1501,7 @@
 	<para>
 	If calling a Web browser fails on your machine, maybe because just nothing
 	happens or the browser is started but no page is shown, have a look at the
-	webbrowser setting in the preferences dialog.
+	web browser setting in the preferences dialog.
 	</para>
 	</note>
   </section>

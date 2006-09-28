@@ -20,7 +20,7 @@
 	<listitem>
 	  <para>
 		<command>Wrong dissector</command>
-	    Wireshark errorneously has chosen the wrong protocol dissector for 
+	    Wireshark erroneously has chosen the wrong protocol dissector for 
 		this packet. This will happen e.g. if you are using a protocol  
 		not on it's well known TCP or UDP port. You may try Analyze|Decode As 
 		to circumvent this problem.
@@ -58,7 +58,7 @@
 	then. You could (if it's TCP) enable reassembly for TCP and the specific
 	dissector (if possible) in the Edit|Preferences menu. You could check the
 	packet contents yourself by reading the packet bytes and comparing it to
-	the protocol specification. This could reveil a dissector bug. Or you
+	the protocol specification. This could reveal a dissector bug. Or you
 	could find out that the packet is indeed wrong.
     </para>
   </section>

@@ -208,7 +208,7 @@ make install
     <para>
       Under RedHat 6.x and beyond (and distributions based on it, like 
       Mandrake) you can simply install each of the packages you need from 
-      RPMs. Most Linux systems will install GTK+ and GLib in anycase, 
+      RPMs. Most Linux systems will install GTK+ and GLib in any case, 
       however, you will probably need to install the devel versions of 
       each of these packages. The commands shown in <xref linkend="Ch02Ex4"/> 
 	will install all the needed RPMs if they are not already installed.
@@ -709,7 +709,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
   <section id="ChBuildInstallWinPcapUninstall">
     <title>Uninstall WinPcap</title>
     <para>
-	You can uninstall WinPcap independantly of Wireshark, using the "WinPcap" 
+	You can uninstall WinPcap independently of Wireshark, using the "WinPcap" 
 	entry in the "Add or Remove Programs" of the Control Panel.
     </para>
 	<note><title>Note!</title>
