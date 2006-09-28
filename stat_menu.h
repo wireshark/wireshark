@@ -51,7 +51,9 @@ typedef enum {
     REGISTER_STAT_GROUP_TELEPHONY,
     /* XXX - split into telephony and VoIP? */
 	REGISTER_ANALYZE_GROUP_NONE,
+#ifdef HAVE_LUA_5_1
 	REGISTER_TOOLS_GROUP_NONE,
+#endif
 } register_stat_group_t;
 
 #ifdef __cplusplus

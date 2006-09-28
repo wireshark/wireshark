@@ -943,7 +943,9 @@ register_stat_menu_item(
     case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
+#ifdef HAVE_LUA_5_1
     case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
+#endif
     default:
         g_assert(0);
         toolspath = NULL;
@@ -1069,8 +1071,10 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_ANALYZE_GROUP_NONE):
                 break;
+#ifdef HAVE_LUA_5_1
             case(REGISTER_TOOLS_GROUP_NONE):
                 break;
+#endif
             default:
                 g_assert_not_reached();
             }
@@ -1143,10 +1147,11 @@ void merge_all_tap_menus(GList *node) {
 		entry->path = "/Analyze/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
+#ifdef HAVE_LUA_5_1
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
-	
+#endif
 
 }
 
