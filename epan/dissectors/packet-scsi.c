@@ -8026,7 +8026,7 @@ proto_register_scsi (void)
            VALS (scsi_logsns_pc_val), 0xC0, "", HFILL}},
         { &hf_scsi_logsns_pagecode,
           {"Page Code", "scsi.logsns.pagecode", FT_UINT8, BASE_HEX,
-           VALS (scsi_logsns_page_val), 0x3F0, "", HFILL}},
+           VALS (scsi_logsns_page_val), 0x3F, "", HFILL}},
         { &hf_scsi_paramlen16,
           {"Parameter Length", "scsi.cdb.paramlen16", FT_UINT16, BASE_DEC, NULL,
            0x0, "", HFILL}},
