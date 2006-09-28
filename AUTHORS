@@ -2500,6 +2500,7 @@ Balint Reczey		<balint.reczey [AT] ericsson.com> {
 Stephen Fisher		<stephentfisher [AT] yahoo.com> {
 	REXEC support
 	Veritas Low Latency Transport support
+	MAPI new mail protocol support
 }
 
 Krzysztof Burghardt	<krzysztof [AT] burghardt.pl> {

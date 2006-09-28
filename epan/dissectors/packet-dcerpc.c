@@ -2192,18 +2192,16 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          * Put the operation number into the tree along with
          * the operation's name.
          */
-        if(sub_dissect == NULL) {
-	    if (sub_proto->opnum_hf != -1)
+	if (sub_proto->opnum_hf != -1)
                 proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
                                            tvb, 0, 0, info->call_data->opnum,
                                            "Operation: %s (%u)",
                                            name, info->call_data->opnum);
-            else
+	else
                 proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
                                            0, 0, info->call_data->opnum,
                                            "Operation: %s (%u)",
                                            name, info->call_data->opnum);
-	}
 
         if(info->ptype == PDU_REQ && info->call_data->rep_frame!=0) {
             pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,

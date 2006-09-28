@@ -49,6 +49,8 @@ static int hf_mapi_decrypted_data_offset = -1;
 static int hf_mapi_decrypted_data_len = -1;
 static int hf_mapi_decrypted_data = -1;
 static int hf_mapi_pdu_len = -1;
+static int hf_mapi_notification_port = -1;
+static int hf_mapi_notification_payload = -1;
 
 static gint ett_dcerpc_mapi = -1;
 static gint ett_mapi_decrypted_pdu = -1;
@@ -290,6 +292,25 @@ mapi_logoff_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+mapi_reg_push_notification_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+{
+	static dissector_handle_t newmail_handle;
+
+	proto_tree_add_item(tree, hf_mapi_notification_payload, tvb, 28, 8,
+			    FALSE);
+	proto_tree_add_item(tree, hf_mapi_notification_port, tvb, 50, 2,
+			    FALSE);
+
+	/* Register the notification port from this packet with the newmail
+	   dissector. */
+	newmail_handle = find_dissector("newmail");
+	dissector_add("udp.port", tvb_get_ntohs(tvb, 50), newmail_handle);
+
+	offset = 52;
+	return offset;
+}
 
 static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
         { MAPI_EC_DO_CONNECT,	"EcDoConnect",
@@ -303,9 +324,9 @@ static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
 		mapi_ec_do_rpc_reply },
 	{ MAPI_EC_GET_MORE_RPC, "EcGetMoreRpc", NULL, NULL },
 	{ MAPI_EC_REGISTER_PUSH_NOTIFICATION, "EcRRegisterPushNotification",
-		NULL, NULL },
+ 		mapi_reg_push_notification_rqst, NULL },
 	{ MAPI_EC_UNREGISTER_PUSH_NOTIFICATION, "EcRUnregisterPushNotification",
-		NULL, NULL },
+		NULL, NULL }, /* Not used by Microsoft Outlook */
 	{ MAPI_EC_DUMMY_RPC, "EcDummyRpc", NULL, NULL },
 	{ MAPI_EC_GET_DC_NAME, "EcRGetDCName", NULL, NULL },
  	{ MAPI_EC_NET_GET_DC_NAME, "EcRNetGetDCName", NULL, NULL },
@@ -369,6 +390,16 @@ static hf_register_info hf[] = {
 	{ &hf_mapi_pdu_len,
 		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Size of the command PDU", HFILL }},
+
+	{ &hf_mapi_notification_port,
+		{ "Notification port", "mapi.notification_port", FT_UINT16,
+		  BASE_DEC, NULL, 0x0,
+		  "UDP port which newmail protocol notifications are sent to on the client", HFILL }},
+
+	{ &hf_mapi_notification_payload,
+		{ "Notification payload", "mapi.notification_payload",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "Payload to be sent in newmail protocol notification packets", HFILL }},
 
 	};
 
