@@ -336,7 +336,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		case FT_PROTOCOL:
 			break;
 		case FT_NONE:
-			fputs("\" show=\"\" value=\"\"",  pdata->fh);
+			fputs("\" show=\"\" value=\"",  pdata->fh);
 			break;
 		default:
 			/* XXX - this is a hack until we can just call
