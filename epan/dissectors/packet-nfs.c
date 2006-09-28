@@ -59,6 +59,23 @@ static int hf_nfs_fh_fsid = -1;
 static int hf_nfs_fh_export_fileid = -1;
 static int hf_nfs_fh_export_generation = -1;
 static int hf_nfs_fh_export_snapid = -1;
+static int hf_nfs_fh_file_flag_mntpoint = -1;
+static int hf_nfs_fh_file_flag_snapdir = -1;
+static int hf_nfs_fh_file_flag_snapdir_ent = -1;
+static int hf_nfs_fh_file_flag_empty = -1;
+static int hf_nfs_fh_file_flag_vbn_access = -1;
+static int hf_nfs_fh_file_flag_multivolume = -1;
+static int hf_nfs_fh_file_flag_metadata = -1;
+static int hf_nfs_fh_file_flag_orphan = -1;
+static int hf_nfs_fh_file_flag_foster = -1;
+static int hf_nfs_fh_file_flag_named_attr = -1;
+static int hf_nfs_fh_file_flag_exp_snapdir = -1;
+static int hf_nfs_fh_file_flag_vfiler = -1;
+static int hf_nfs_fh_file_flag_aggr = -1;
+static int hf_nfs_fh_file_flag_striped = -1;
+static int hf_nfs_fh_file_flag_private = -1;
+static int hf_nfs_fh_file_flag_next_gen = -1;
+static int hf_nfs_fh_handle_type = -1;
 static int hf_nfs_fh_fsid_major = -1;
 static int hf_nfs_fh_fsid_minor = -1;
 static int hf_nfs_fh_fsid_inode = -1;
@@ -309,6 +326,11 @@ static gint ett_nfs_fh_encoding = -1;
 static gint ett_nfs_fh_mount = -1;
 static gint ett_nfs_fh_file = -1;
 static gint ett_nfs_fh_export = -1;
+static gint ett_nfsv4_fh_export = -1;
+static gint ett_nfsv4_fh_file   = -1;
+static gint ett_nfsv4_fh_handle_type = -1;
+static gint ett_nfsv4_fh_export_snapgen = -1;
+static gint ett_nfsv4_fh_file_flags = -1;
 static gint ett_nfs_fh_fsid = -1;
 static gint ett_nfs_fh_xfsid = -1;
 static gint ett_nfs_fh_fn = -1;
@@ -422,13 +444,17 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_LINUX_NFSD_LE	3
 #define FHT_LINUX_KNFSD_NEW	4
 #define FHT_NETAPP		5
+#define FHT_NETAPP_V4		6
+
+
 static enum_val_t nfs_fhandle_types[] = {
 	{ "unknown",	"Unknown",	FHT_UNKNOWN },
 	{ "svr4",	"SVR4",		FHT_SVR4 },
 	{ "knfsd_le",	"KNFSD_LE",	FHT_LINUX_KNFSD_LE },
 	{ "nfsd_le",	"NFSD_LE",	FHT_LINUX_NFSD_LE },
 	{ "knfsd_new",	"KNFSD_NEW",	FHT_LINUX_KNFSD_NEW },
-	{ "netapp",	"NetApp",	FHT_NETAPP },
+	{ "ontap_v3",	"ONTAP_V3",	FHT_NETAPP },
+	{ "ontap_v4",	"ONTAP_V4",	FHT_NETAPP_V4},
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
@@ -845,8 +871,9 @@ static const value_string names_fhtype[] =
 	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"		},
 	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
 	{	FHT_LINUX_KNFSD_NEW,	"Linux knfsd (new)"			},
-	{	FHT_NETAPP,		"NetApp file handle"			},
-	{	0,	NULL	}
+	{	FHT_NETAPP,		"ONTAP nfs v3 file handle"		},
+	{	FHT_NETAPP_V4,	 	"ONTAP nfs v4 file handle"		},
+	{	0,			NULL					}
 };
 
 
@@ -1129,31 +1156,6 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 }
 
 
-/* Checked with SuSE 7.1 (kernel 2.4.0 knfsd) */
-/* read linux-2.4.5/include/linux/nfsd/nfsfh.h for more details */
-
-#define AUTH_TYPE_NONE 0
-static const value_string auth_type_names[] = {
-	{	AUTH_TYPE_NONE,				"no authentication"		},
-	{0,NULL}
-};
-
-#define FSID_TYPE_MAJOR_MINOR_INODE 0
-static const value_string fsid_type_names[] = {
-	{	FSID_TYPE_MAJOR_MINOR_INODE,		"major/minor/inode"		},
-	{0,NULL}
-};
-
-#define FILEID_TYPE_ROOT			0
-#define FILEID_TYPE_INODE_GENERATION		1
-#define FILEID_TYPE_INODE_GENERATION_PARENT	2
-static const value_string fileid_type_names[] = {
-	{	FILEID_TYPE_ROOT,			"root"				},
-	{	FILEID_TYPE_INODE_GENERATION,		"inode/generation"		},
-	{	FILEID_TYPE_INODE_GENERATION_PARENT,	"inode/generation/parent"	},
-	{0,NULL}
-};
-
 static void
 dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1170,13 +1172,17 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		guint32 fsid = tvb_get_letohl(tvb, offset + 20);
 		guint32 export = tvb_get_letohl(tvb, offset + 24);
 		guint32 export_snapgen = tvb_get_letohl(tvb, offset + 28);
+		
 		proto_item *item;
 		proto_tree *subtree;
-		char flag_string[128] = "";
+		char *flag_string;
 		const char *strings[] = { " MNT_PNT", " SNAPDIR", " SNAPDIR_ENT",
 				    " EMPTY", " VBN_ACCESS", " MULTIVOLUME",
 				    " METADATA" };
 		guint16 bit = sizeof(strings) / sizeof(strings[0]);
+
+		flag_string=ep_alloc(512);
+		flag_string[0]=0;
 		while (bit--)
 			if (flags & (1<<bit))
 				strcat(flag_string, strings[bit]);
@@ -1218,6 +1224,161 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 					   export_snapgen >> 24);
 	}
 }
+
+const value_string netapp_file_flag_vals[] =  {
+						{ 0x0000,	"Not set"},
+						{ 0x0001,	"Set"},
+						{ 0,		NULL}
+					       };
+
+static void
+dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset=0;
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+	guint8  snapid, unused;
+	guint16 flags;
+	guint32 fileid, snapgen, generation, fsid;
+	guint32 handle_type = tvb_get_ntohl(tvb, offset + 24);
+	guint32 inum = tvb_get_ntohl(tvb, offset + 12);
+		
+	char *handle_string=NULL;
+	const char *handle_type_strings [] = { "NORMAL",
+					       "UNEXP",
+					       "VOLDIR",
+					       "ROOT",
+					       "ABSENT",
+					       "INVALID"
+					     };
+
+	char *flag_string;
+	const char *strings[] = { " MNT_PNT", 
+				  " SNAPDIR", 
+				  " SNAPDIR_ENT",
+				  " EMPTY", 
+				  " VBN_ACCESS", 
+				  " MULTIVOLUME",
+				  " METADATA",
+				  " ORPHAN",
+				  " FOSTER",
+				  " NAMED_ATTR",
+				  " EXP_SNAPDIR",
+				  " VFILER",
+				  " NS_AGGR",
+				  " STRIPED",
+				  " NS_PRIVATE",
+				  " NEXT_GEN_FH"
+				};
+	guint16 bit = sizeof(strings) / sizeof(strings[0]);
+	proto_tree *flag_tree = NULL;
+
+	flag_string=ep_alloc(512);
+	flag_string[0]=0;
+
+	if(tree){
+		if( handle_type !=0 && handle_type <= 255) {
+			fileid = tvb_get_ntohl(tvb, offset + 0);
+			snapgen = tvb_get_ntohl(tvb, offset + 4);
+			flags = tvb_get_ntohs(tvb, offset + 8);
+			snapid = tvb_get_guint8(tvb, offset + 10);
+			unused = tvb_get_guint8(tvb, offset + 11);
+			generation = tvb_get_ntohl(tvb, offset + 16);
+			fsid = tvb_get_ntohl(tvb, offset + 20);
+		} else {
+			fileid = tvb_get_letohl(tvb, offset + 0);
+			snapgen = tvb_get_letohl(tvb, offset + 4);
+			flags = tvb_get_letohs(tvb, offset + 8);
+			snapid = tvb_get_guint8(tvb, offset + 10);
+			unused = tvb_get_guint8(tvb, offset + 11);
+			generation = tvb_get_letohl(tvb, offset + 16);
+			fsid = tvb_get_letohl(tvb, offset + 20);
+			handle_type = tvb_get_letohl(tvb, offset + 24);
+		}
+
+		if(handle_type <= 4) {
+			handle_string=handle_type_strings[handle_type];
+		} else {
+			handle_string=handle_type_strings[5];
+		}
+
+		while (bit--) {
+			if (flags & (1<<bit)) {
+				strcat(flag_string, strings[bit]);
+			}
+		}
+
+		item = proto_tree_add_text(tree, tvb, offset + 0, 8, "export (inode %u)", fileid);
+		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_export);
+		
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
+					   tvb, offset + 0, 4, fileid);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_generation,
+					   tvb, offset + 4, 4, snapgen);
+		item = proto_tree_add_text(tree, tvb, offset + 8, 16, "file (inode %u)", inum);
+		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_file);
+		item = proto_tree_add_uint_format(subtree, hf_nfs_fh_flags,
+						  tvb, offset + 8, 2, flags,
+						  "Flags: %#02x%s", flags,
+						  flag_string);
+		flag_tree = proto_item_add_subtree(item, ett_nfsv4_fh_file_flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_mntpoint, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir_ent, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_empty, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vbn_access, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_multivolume, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_metadata, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_orphan, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_foster, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_named_attr, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_exp_snapdir, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vfiler, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_aggr, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_striped, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_private, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_next_gen, tvb, offset+8, 2, flags);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
+					   offset + 10, 1, snapid);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
+					   offset + 11, 1, unused);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
+					   offset + 12, 4, inum);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
+					   offset + 16, 4, generation);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
+					   offset + 20, 4, fsid);
+		item = proto_tree_add_uint_format(tree, hf_nfs_fh_handle_type,
+						  tvb, offset+24, 4, handle_type,
+						  "Handle type: %s(%#02x)", handle_string, handle_type);
+	}
+}
+
+
+/* Checked with SuSE 7.1 (kernel 2.4.0 knfsd) */
+/* read linux-2.4.5/include/linux/nfsd/nfsfh.h for more details */
+
+#define AUTH_TYPE_NONE 0
+static const value_string auth_type_names[] = {
+	{	AUTH_TYPE_NONE,				"no authentication"		},
+	{0,NULL}
+};
+
+#define FSID_TYPE_MAJOR_MINOR_INODE 0
+static const value_string fsid_type_names[] = {
+	{	FSID_TYPE_MAJOR_MINOR_INODE,		"major/minor/inode"		},
+	{0,NULL}
+};
+
+#define FILEID_TYPE_ROOT			0
+#define FILEID_TYPE_INODE_GENERATION		1
+#define FILEID_TYPE_INODE_GENERATION_PARENT	2
+static const value_string fileid_type_names[] = {
+	{	FILEID_TYPE_ROOT,			"root"				},
+	{	FILEID_TYPE_INODE_GENERATION,		"inode/generation"		},
+	{	FILEID_TYPE_INODE_GENERATION_PARENT,	"inode/generation/parent"	},
+	{0,NULL}
+};
 
 static void
 dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -7726,6 +7887,57 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_export_snapid, {
 			"snapid", "nfs.fh.export.snapid", FT_UINT8, BASE_DEC,
 			NULL, 0, "export point snapid", HFILL }},
+		{ &hf_nfs_fh_handle_type, {
+			"handletype", "nfs.fh.handletype", FT_UINT32, BASE_DEC,
+			NULL, 0, "v4 handle type", HFILL }},
+                { &hf_nfs_fh_file_flag_mntpoint, {
+		    "mount point", "nfs.fh.file.flag.mntpoint", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0001, "file flag: mountpoint", HFILL }},
+		{ &hf_nfs_fh_file_flag_snapdir, {
+		    "snapdir", "nfs.fh.file.flag.snapdir", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0002, "file flag: snapdir", HFILL }},
+		{ &hf_nfs_fh_file_flag_snapdir_ent, {
+		    "snapdir_ent", "nfs.fh.file.flag.snadir_ent", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0004, "file flag: snapdir_ent", HFILL }},
+		{ &hf_nfs_fh_file_flag_empty, {
+		    "empty", "nfs.fh.file.flag.empty", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0008, "file flag: empty", HFILL }},
+		{ &hf_nfs_fh_file_flag_vbn_access, {
+		    "vbn_access", "nfs.fh.file.flag.vbn_access", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0010, "file flag: vbn_access", HFILL }},
+		{ &hf_nfs_fh_file_flag_multivolume, {
+		    "multivolume", "nfs.fh.file.flag.multivolume", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0020, "file flag: multivolume", HFILL }},
+		{ &hf_nfs_fh_file_flag_metadata, {
+		    "metadata", "nfs.fh.file.flag.metadata", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0040, "file flag: metadata", HFILL }},
+		{ &hf_nfs_fh_file_flag_orphan, {
+		    "orphan", "nfs.fh.file.flag.orphan", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0080, "file flag: orphan", HFILL }},
+		{ &hf_nfs_fh_file_flag_foster, {
+		    "foster", "nfs.fh.file.flag.foster", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0100, "file flag: foster", HFILL }},
+		{ &hf_nfs_fh_file_flag_named_attr, {
+		    "named_attr", "nfs.fh.file.flag.named_attr", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0200, "file flag: named_attr", HFILL }},
+		{ &hf_nfs_fh_file_flag_exp_snapdir, {
+		    "exp_snapdir", "nfs.fh.file.flag.exp_snapdir", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0400, "file flag: exp_snapdir", HFILL }},
+		{ &hf_nfs_fh_file_flag_vfiler, {
+		    "vfiler", "nfs.fh.file.flag.vfiler", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x0800, "file flag: vfiler", HFILL }},
+		{ &hf_nfs_fh_file_flag_aggr, {
+		    "aggr", "nfs.fh.file.flag.aggr", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x1000, "file flag: aggr", HFILL }},
+		{ &hf_nfs_fh_file_flag_striped, {
+		    "striped", "nfs.fh.file.flag.striped", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x2000, "file flag: striped", HFILL }},
+		{ &hf_nfs_fh_file_flag_private, {
+		    "private", "nfs.fh.file.flag.private", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x4000, "file flag: private", HFILL }},
+		{ &hf_nfs_fh_file_flag_next_gen, {
+		    "next_gen", "nfs.fh.file.flag.next_gen", FT_UINT16, BASE_HEX,
+		    VALS(netapp_file_flag_vals), 0x8000, "file flag: next_gen", HFILL }},
 		{ &hf_nfs_fh_fsid_major, {
 			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "major file system ID", HFILL }},
@@ -8630,6 +8842,11 @@ proto_register_nfs(void)
 		&ett_nfs_fh_file,
 		&ett_nfs_fh_mount,
 		&ett_nfs_fh_export,
+		&ett_nfsv4_fh_export,
+		&ett_nfsv4_fh_file,
+		&ett_nfsv4_fh_handle_type,
+		&ett_nfsv4_fh_export_snapgen,
+		&ett_nfsv4_fh_file_flags,
 		&ett_nfs_fh_xfsid,
 		&ett_nfs_fh_fn,
 		&ett_nfs_fh_xfn,
@@ -8793,6 +9010,9 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
+	
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_NETAPP_V4, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
