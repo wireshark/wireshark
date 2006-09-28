@@ -6,6 +6,7 @@
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *
  * FMIPv6 (RFC 4068) support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ * Copyright 2006, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  *
  * Modifications for NEMO packets (RFC 3963): Bruno Deniaud
  * (bdeniaud@irisa.fr, nono@chez.com) 12 Oct 2005
@@ -426,7 +427,6 @@ dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
-/*    tvbuff_t *ipv6_tvb;*/
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement");
@@ -437,13 +437,7 @@ dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
         data_tree = proto_item_add_subtree(ti, ett_mip6);
     }
 
-	/* Create the tvbuffer for the next dissector */
-/*    ipv6_tvb = tvb_new_subset(tvb, FMIP6_FNA_LEN, -1, -1);*/
-
-	/* Call the IPv6 dissector */
-/*    dissect_ipv6(ipv6_tvb, pinfo, mip6_tree);*/
-
-	return MIP6_DATA_OFF+FMIP6_FNA_LEN;
+    return MIP6_DATA_OFF+FMIP6_FNA_LEN;
 }
 
 /* Functions to dissect the mobility options */
@@ -729,15 +723,29 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 				} else {
 					if (dissect != NULL) {
 						/* Option has a dissector. */
-						(*dissect)(optp, tvb, offset, len + 2, pinfo, opt_tree);
+						if (opt == LLA)
+							(*dissect)(optp, tvb, offset,
+								   len + 2 + FMIP6_LLA_OPTCODE_LEN, pinfo, opt_tree);
+						else
+							(*dissect)(optp, tvb, offset, len + 2, pinfo, opt_tree);
 					} else {
 						/* Option has no data, hence no dissector. */
 						proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s", name);
 					}
 				}
-				offset += len + 2;
+				/* RFC4068 Section 6.4.4
+				 *   Length         The size of this option in octets not including the
+				 *                  Type, Length, and Option-Code fields.
+				 */
+				if (opt == LLA)
+					offset += len + 2 + FMIP6_LLA_OPTCODE_LEN;
+				else
+					offset += len + 2;
 			}
-			length -= len;
+			if (opt == LLA)
+				length -= (len + FMIP6_LLA_OPTCODE_LEN);
+			else
+				length -= len;
 		} else {
 			proto_tree_add_text(opt_tree, tvb, offset,      1, "%s", name);
 			offset += 1;
@@ -774,7 +782,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *mip6_tree = NULL;
     proto_item *ti;
-    guint8     type;
+    guint8     type, pproto;
     guint      len, offset = 0, start_offset = offset;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -784,6 +792,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
 
     len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
+    pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
     if (tree) {
         ti = proto_tree_add_item(tree, proto_mip6, tvb, 0, len, FALSE);
         mip6_tree = proto_item_add_subtree(ti, ett_mip6);
@@ -874,6 +883,22 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         len -= (offset - start_offset);
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
+    }
+
+    if (type == FNA && pproto == IP_PROTO_IPV6) {
+	dissector_table_t ip_dissector_table;
+	tvbuff_t *ipv6_tvb;
+
+	ip_dissector_table = find_dissector_table("ip.proto");
+	ipv6_tvb = tvb_new_subset(tvb, len + 8, -1, -1);
+
+	/* Call the IPv6 dissector */
+	dissector_try_port(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
     }
 }
 

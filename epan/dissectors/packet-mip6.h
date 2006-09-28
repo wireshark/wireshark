@@ -7,6 +7,7 @@
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *
  * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ * Copyright 2006, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  *
  * Modifications for NEMO packets (RFC 3963): Bruno Deniaud
  * (bdeniaud@irisa.fr, nono@chez.com) 12 Oct 2005
@@ -311,7 +312,7 @@ static const value_string fmip6_lla_optcode_value[] = {
 
 #define FMIP6_LLA_MINLEN      1
 #define FMIP6_LLA_OPTCODE_OFF 2
-#define FMIP6_LLA_LLA_OFF     4
+#define FMIP6_LLA_LLA_OFF     3
 #define FMIP6_LLA_OPTCODE_LEN 1
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */
