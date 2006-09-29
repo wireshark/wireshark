@@ -5,6 +5,9 @@
  *
  * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * 
+ * TIPCv2 protocol updates
+ * Copyright 2006, Martin Peylo <martin.peylo@siemens.com>
+ * 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -128,6 +131,7 @@ static int hf_tipcv2_bcast_seq_gap = -1;
 static int hf_tipcv2_sequence_gap = -1;
 static int hf_tipcv2_next_sent_broadcast = -1;
 static int hf_tipcv2_fragment_number = -1;
+static int hf_tipcv2_fragment_msg_number = -1;
 static int hf_tipcv2_next_sent_packet = -1;
 static int hf_tipcv2_session_no = -1;
 static int hf_tipcv2_link_prio = -1;
@@ -141,6 +145,15 @@ static int hf_tipcv2_bitmap = -1;
 static int hf_tipcv2_node_address = -1;
 static int hf_tipcv2_destination_domain = -1;
 static int hf_tipcv2_network_id = -1;
+
+static int hf_tipcv2_bcast_tag = -1;
+static int hf_tipcv2_msg_count = -1;
+static int hf_tipcv2_max_packet = -1;
+static int hf_tipcv2_transport_seq_no = -1;
+static int hf_tipcv2_redundant_link = -1;
+static int hf_tipcv2_bearer_id = -1;
+static int hf_tipcv2_conn_mgr_msg_ack = -1;
+static int hf_tipcv2_req_links = -1;
 
 static gint ett_tipc_msg_fragment = -1;
 static gint ett_tipc_msg_fragments = -1;
@@ -179,195 +192,200 @@ static const fragment_items tipc_msg_frag_items = {
 };
 
 
-#define MAX_TIPC_ADDRESS_STR_LEN	15
+#define MAX_TIPC_ADDRESS_STR_LEN   15
 #define TIPCv1 1
 #define TIPCv2 2
 /* Users */
-#define TIPC_DATA_PRIO_0			0
-#define TIPC_DATA_PRIO_1			1
-#define TIPC_DATA_PRIO_2			2
-#define TIPC_DATA_NON_REJECTABLE	3
+#define TIPC_DATA_PRIO_0            0
+#define TIPC_DATA_PRIO_1            1
+#define TIPC_DATA_PRIO_2            2
+#define TIPC_DATA_NON_REJECTABLE    3
 
-#define TIPC_ROUTING_MANAGER		8
-#define TIPC_NAME_DISTRIBUTOR		9
-#define TIPC_CONNECTION_MANAGER		10
-#define TIPC_LINK_PROTOCOL			11
-#define TIPC_CHANGEOVER_PROTOCOL	13
-#define TIPC_SEGMENTATION_MANAGER	14
-#define TIPC_MSG_BUNDLER			15
+#define TIPC_ROUTING_MANAGER        8
+#define TIPC_NAME_DISTRIBUTOR       9
+#define TIPC_CONNECTION_MANAGER    10
+#define TIPC_LINK_PROTOCOL         11
+#define TIPC_CHANGEOVER_PROTOCOL   13
+#define TIPC_SEGMENTATION_MANAGER  14
+#define TIPC_MSG_BUNDLER           15
 
 #define TIPC_LINK_PROTOCO_STATE_MSG 0
 
 const value_string tipc_user_values[] = {
-	{ 0,	"DATA_PRIO_0"},
-	{ 1,	"DATA_PRIO_1"},
-	{ 2,	"DATA_PRIO_2"},
-	{ 3,	"DATA_NON_REJECTABLE"},
-	{ TIPC_ROUTING_MANAGER,			"ROUTING_MANAGER"},
-	{ TIPC_NAME_DISTRIBUTOR,		"NAME_DISTRIBUTOR"},
-	{ TIPC_CONNECTION_MANAGER,		"CONNECTION_MANAGER"},
-	{ TIPC_LINK_PROTOCOL,			"LINK_PROTOCOL"},
-	{ TIPC_CHANGEOVER_PROTOCOL,		"CHANGEOVER_PROTOCOL"},
-	{ TIPC_SEGMENTATION_MANAGER,	"SEGMENTATION_MANAGER"},
-	{ TIPC_MSG_BUNDLER,				"MSG_BUNDLER"},
-	{ 0,	NULL},
+	{ TIPC_DATA_PRIO_0,          "DATA_PRIO_0"},
+	{ TIPC_DATA_PRIO_1,          "DATA_PRIO_1"},
+	{ TIPC_DATA_PRIO_2,          "DATA_PRIO_2"},
+	{ TIPC_DATA_NON_REJECTABLE,  "DATA_NON_REJECTABLE"},
+	{ TIPC_ROUTING_MANAGER,      "ROUTING_MANAGER"},
+	{ TIPC_NAME_DISTRIBUTOR,     "NAME_DISTRIBUTOR"},
+	{ TIPC_CONNECTION_MANAGER,   "CONNECTION_MANAGER"},
+	{ TIPC_LINK_PROTOCOL,        "LINK_PROTOCOL"},
+	{ TIPC_CHANGEOVER_PROTOCOL,  "CHANGEOVER_PROTOCOL"},
+	{ TIPC_SEGMENTATION_MANAGER, "SEGMENTATION_MANAGER"},
+	{ TIPC_MSG_BUNDLER,          "MSG_BUNDLER"},
+	{ 0, NULL}
 };
 
-#define TIPCv2_BCAST_PROTOCOL			5
-#define TIPCv2_MSG_BUNDLER				6
-#define TIPCv2_LINK_PROTOCOL			7
-#define TIPCv2_CONN_MANAGER				8
-#define TIPCv2_ROUTE_DISTRIBUTOR		9
-#define TIPCv2_CHANGEOVER_PROTOCOL		10
-#define TIPCv2_NAME_DISTRIBUTOR			11
-#define TIPCv2_MSG_FRAGMENTER			12
-#define TIPCv2_LINK_CONFIGURATION		13
+#define TIPCv2_DATA_LOW             0
+#define TIPCv2_DATA_NORMAL          1
+#define TIPCv2_DATA_HIGH            2
+#define TIPCv2_DATA_NON_REJECTABLE  3
+
+#define TIPCv2_BCAST_PROTOCOL       5
+#define TIPCv2_MSG_BUNDLER          6
+#define TIPCv2_LINK_PROTOCOL        7
+#define TIPCv2_CONN_MANAGER         8
+#define TIPCv2_ROUTE_DISTRIBUTOR    9
+#define TIPCv2_CHANGEOVER_PROTOCOL 10
+#define TIPCv2_NAME_DISTRIBUTOR    11
+#define TIPCv2_MSG_FRAGMENTER      12
+#define TIPCv2_LINK_CONFIGURATION  13
 
 const value_string tipcv2_user_values[] = {
-    { 0,								"Low Priority Payload Data"},
-    { 1,								"Normal Priority Payload Data"},
-    { 2,								"High Priority Payload Data"},
-    { 3,								"Non-Rejectable Payload Data"},
-	{ TIPCv2_BCAST_PROTOCOL,			"Broadcast Maintenance Protocol"},
-	{ TIPCv2_MSG_BUNDLER,				"Message Bundler Protocol"},
-	{ TIPCv2_LINK_PROTOCOL,				"Link State Maintenance Protocol"},
-	{ TIPCv2_CONN_MANAGER,				"Connection Manager"},
-	{ TIPCv2_ROUTE_DISTRIBUTOR,			"Routing Table Update Protocol"},
-	{ TIPCv2_CHANGEOVER_PROTOCOL,		"Link Changeover Protocol"},
-	{ TIPCv2_NAME_DISTRIBUTOR,			"Name Table Update Protocol"},
-	{ TIPCv2_MSG_FRAGMENTER,			"Message Fragmentation Protocol"},
-    { TIPCv2_LINK_CONFIGURATION,		"Link Configuration Protocol"},
-	{ 0,	NULL},
+	{ TIPCv2_DATA_LOW,            "Low Priority Payload Data"},
+	{ TIPCv2_DATA_NORMAL,         "Normal Priority Payload Data"},
+	{ TIPCv2_DATA_HIGH,           "High Priority Payload Data"},
+	{ TIPCv2_DATA_NON_REJECTABLE, "Non-Rejectable Payload Data"},
+	{ TIPCv2_BCAST_PROTOCOL,      "Broadcast Maintenance Protocol"},
+	{ TIPCv2_MSG_BUNDLER,         "Message Bundler Protocol"},
+	{ TIPCv2_LINK_PROTOCOL,       "Link State Maintenance Protocol"},
+	{ TIPCv2_CONN_MANAGER,        "Connection Manager"},
+	{ TIPCv2_ROUTE_DISTRIBUTOR,   "Routing Table Update Protocol"},
+	{ TIPCv2_CHANGEOVER_PROTOCOL, "Link Changeover Protocol"},
+	{ TIPCv2_NAME_DISTRIBUTOR,    "Name Table Update Protocol"},
+	{ TIPCv2_MSG_FRAGMENTER,      "Message Fragmentation Protocol"},
+	{ TIPCv2_LINK_CONFIGURATION,  "Link Configuration Protocol"},
+	{ 0, NULL}
 };
 
 const value_string tipcv2_user_short_str_vals[] = {
-    { 0,								"DATA_LOW"},
-    { 1,								"DATA_NORMAL"},
-    { 2,								"DATA_HIGH"},
-    { 3,								"DATA_NON_REJECTABLE"},
-	{ TIPCv2_BCAST_PROTOCOL,			"BCAST_PROTOCOL"},
-	{ TIPCv2_MSG_BUNDLER,				"MSG_BUNDLER"},
-	{ TIPCv2_LINK_PROTOCOL,				"LINK_PROTOCOL"},
-	{ TIPCv2_CONN_MANAGER,				"CONN_MANAGER"},
-	{ TIPCv2_ROUTE_DISTRIBUTOR,			"ROUTE_DISTRIBUTOR"},
-	{ TIPCv2_CHANGEOVER_PROTOCOL,		"CHANGEOVER_PROTOCOL"},
-	{ TIPCv2_NAME_DISTRIBUTOR,			"NAME_DISTRIBUTOR"},
-	{ TIPCv2_MSG_FRAGMENTER,			"MSG_FRAGMENTER"},
-	{ TIPCv2_LINK_CONFIGURATION,		"LINK_CONFIGURATION"},
-	{ 0,	NULL},
+	{ TIPCv2_DATA_LOW,            "Payld:Low"},
+	{ TIPCv2_DATA_NORMAL,         "Payld:Normal"},
+	{ TIPCv2_DATA_HIGH,           "Payld:High"},
+	{ TIPCv2_DATA_NON_REJECTABLE, "Payld:NoRej"},
+	{ TIPCv2_BCAST_PROTOCOL,      "Broadcast"},
+	{ TIPCv2_MSG_BUNDLER,         "Bundler"},
+	{ TIPCv2_LINK_PROTOCOL,       "Link State"},
+	{ TIPCv2_CONN_MANAGER,        "Conn Mgr"},
+	{ TIPCv2_ROUTE_DISTRIBUTOR,   "Route Dist"},
+	{ TIPCv2_CHANGEOVER_PROTOCOL, "Changeover"},
+	{ TIPCv2_NAME_DISTRIBUTOR,    "Name Dist"},
+	{ TIPCv2_MSG_FRAGMENTER,      "Fragmenter"},
+	{ TIPCv2_LINK_CONFIGURATION,  "Link Cfg"},
+	{ 0, NULL}
 };
 
-#define TIPC_CONNECTED_MSG	0
-#define TIPC_NAMED_MSG		2
-#define TIPC_DIRECT_MSG		3
+#define TIPC_CONNECTED_MSG  0
+#define TIPC_NAMED_MSG      2
+#define TIPC_DIRECT_MSG     3
 #define TIPC_OVERLOAD_W_MSG 4
 
 static const value_string tipc_data_msg_type_values[] = {
-	{ 0,	"CONN_MSG"},
-	{ 2,	"NAMED_MSG"},
-	{ 3,	"DIRECT_MSG"},
-	{ 4,	"OVERLOAD_W_MSG"},
-	{ 0,	NULL},
+	{ 0, "CONN_MSG"},
+	{ 2, "NAMED_MSG"},
+	{ 3, "DIRECT_MSG"},
+	{ 4, "OVERLOAD_W_MSG"},
+	{ 0, NULL}
 };
 
+static const value_string tipcv2_data_msg_type_defines[] = {
+	{ 0, "ConnMsg"},
+	{ 1, "McastMsg"},
+	{ 2, "NamedMsg"},
+	{ 3, "DirectMsg"},
+	{ 0, NULL}
+};
 static const value_string tipcv2_data_msg_type_values[] = {
-	{ 0,	"Sent on connection (CONN_MSG)"},
-	{ 1,	"Logical multicast (MCAST_MSG)"},
-	{ 2,	"Port name destination address (NAMED_MSG)"},
-	{ 3,	"Port identity destination address (DIRECT_MSG)"},
-	{ 0,	NULL},
-};
-
-static const value_string tipcv2_data_msg_type_short_str_vals[] = {
-	{ 0,	"CONN_MSG"},
-	{ 1,	"MCAST_MSG"},
-	{ 2,	"NAMED_MSG"},
-	{ 3,	"DIRECT_MSG"},
-	{ 0,	NULL},
+	{ 0, "Sent on connection (CONN_MSG)"},
+	{ 1, "Logical multicast (MCAST_MSG)"},
+	{ 2, "Port name destination address (NAMED_MSG)"},
+	{ 3, "Port identity destination address (DIRECT_MSG)"},
+	{ 0, NULL}
 };
 static const value_string tipc_error_code_values[] = {
-	{ 0,	"MSG_OK"},
-	{ 1,	"NO_PORT_NAME"},
-	{ 2,	"NO_REMOTE_PORT"},
-	{ 3,	"NO_REMOTE_PROCESSOR"},
-	{ 4,	"DEST_OVERLOADED"},
-	{ 6,	"NO_CONNECTION"},
-	{ 7,	"COMMUNICATION_ERROR"},
-	{ 0,	NULL},
+	{ 0, "MSG_OK"},
+	{ 1, "NO_PORT_NAME"},
+	{ 2, "NO_REMOTE_PORT"},
+	{ 3, "NO_REMOTE_PROCESSOR"},
+	{ 4, "DEST_OVERLOADED"},
+	{ 6, "NO_CONNECTION"},
+	{ 7, "COMMUNICATION_ERROR"},
+	{ 0, NULL}
 };
+
 static const value_string tipcv2_error_code_strings[]={
-    { 0           ,"No error (TIPC_OK)"},
-    { 1           ,"Destination port name unknown (TIPC_ERR_NO_NAME)"}, 
-    { 2           ,"Destination port does not exist (TIPC_ERR_NO_PORT)"},
-    { 3           ,"Destination node unavailable (TIPC_ERR_NO_NODE)"},
-    { 4           ,"Destination node overloaded (TIPC_ERR_OVERLOAD)"},
-    { 5           ,"Connection Shutdown (No error) (TIPC_CONN_SHUTDOWN)"},
-    { 6           ,"Communication Error (TIPC_CONN_ERROR)"},
-	{ 0,	NULL},
+	{ 0, "No error (TIPC_OK)"},
+	{ 1, "Destination port name unknown (TIPC_ERR_NO_NAME)"}, 
+	{ 2, "Destination port does not exist (TIPC_ERR_NO_PORT)"},
+	{ 3, "Destination node unavailable (TIPC_ERR_NO_NODE)"},
+	{ 4, "Destination node overloaded (TIPC_ERR_OVERLOAD)"},
+	{ 5, "Connection Shutdown (No error) (TIPC_CONN_SHUTDOWN)"},
+	{ 6, "Communication Error (TIPC_CONN_ERROR)"},
+	{ 0, NULL}
 };
 
 static const value_string tipcv2_error_code_short_strings[]={
-    { 0           ,"TIPC_OK"},
-    { 1           ,"TIPC_ERR_NO_NAME"}, 
-    { 2           ,"TIPC_ERR_NO_PORT"},
-    { 3           ,"TIPC_ERR_NO_NODE"},
-    { 4           ,"TIPC_ERR_OVERLOAD"},
-    { 5           ,"TIPC_CONN_SHUTDOWN"},
-    { 6           ,"TIPC_CONN_ERROR"},
-	{ 0,	NULL},
+	{ 0, "OK"},
+	{ 1, "ErrNoName"}, 
+	{ 2, "ErrNoPort"},
+	{ 3, "ErrNoNode"},
+	{ 4, "ErrOverload"},
+	{ 5, "ConnShutdown"},
+	{ 6, "ConnError"},
+	{ 0, NULL}
 };
 
 static const value_string tipcv2_lookup_scope_strings[]={
-    { 0           ,"Zone Scope"},
-    { 1           ,"Cluster Scope"},
-    { 2           ,"Node Scope"},
-	{ 0,	NULL},
+	{ 0, "Zone Scope"},
+	{ 1, "Cluster Scope"},
+	{ 2, "Node Scope"},
+	{ 0, NULL}
 };
 static const value_string tipc_routing_mgr_msg_type_values[] = {
-	{ 0,	"EXT_ROUTING_TABLE"},
-	{ 1,	"LOCAL_ROUTING_TABLE"},
-	{ 2,	"DP_ROUTING_TABLE"},
-	{ 3,	"ROUTE_ADDITION"},
-	{ 4,	"ROUTE_REMOVAL"},
-	{ 0,	NULL},
+	{ 0, "EXT_ROUTING_TABLE"},
+	{ 1, "LOCAL_ROUTING_TABLE"},
+	{ 2, "DP_ROUTING_TABLE"},
+	{ 3, "ROUTE_ADDITION"},
+	{ 4, "ROUTE_REMOVAL"},
+	{ 0, NULL}
 };
 static const value_string tipc_name_dist_msg_type_values[] = {
-	{ 0,	"PUBLICATION"},
-	{ 1,	"WITHDRAWAL"},
-	{ 0,	NULL},
+	{ 0, "PUBLICATION"},
+	{ 1, "WITHDRAWAL"},
+	{ 0, NULL}
 };
 /* CONNECTION_MANAGER */
 static const value_string tipc_cm_msg_type_values[] = {
-	{ 0,	"CONNECTION_PROBE"},
-	{ 1,	"CONNECTION_PROBE_REPLY"},
-	{ 0,	NULL},
+	{ 0, "CONNECTION_PROBE"},
+	{ 1, "CONNECTION_PROBE_REPLY"},
+	{ 0, NULL}
 };
 static const value_string tipc_link_prot_msg_type_values[] = {
-	{ 10,	"RESET_MSG"},
-	{ 11,	"ACTIVATE_MSG"},
-	{ 12,	"STATE_MSG"},
-	{ 0,	NULL},
+	{ 10, "RESET_MSG"},
+	{ 11, "ACTIVATE_MSG"},
+	{ 12, "STATE_MSG"},
+	{ 0, NULL}
 };
 /* CHANGEOVER_PROTOCOL */
 static const value_string tipc_cng_prot_msg_type_values[] = {
-	{ 0,	"DUPLICATE_MSG"},
-	{ 1,	"ORIGINAL_MSG"},
-	{ 2,	"INFO_MSG"},
-	{ 0,	NULL},
+	{ 0, "DUPLICATE_MSG"},
+	{ 1, "ORIGINAL_MSG"},
+	{ 2, "INFO_MSG"},
+	{ 0, NULL}
 };
 /* SEGMENTATION_MANAGER */
 #define TIPC_FIRST_SEGMENT	1
 #define TIPC_SEGMENT		2
 const value_string tipc_sm_msg_type_values[] = {
-	{ 1,	"FIRST_SEGMENT"},
-	{ 2,	"SEGMENT"},
-	{ 0,	NULL},
+	{ 1, "FIRST_SEGMENT"},
+	{ 2, "SEGMENT"},
+	{ 0, NULL}
 };
 
 /* TIPCv2_BCAST_PROTOCOL - Broadcast Maintenance Protocol */
 static const value_string tipcv2_bcast_mtype_strings[]={
-    { 0           ,"Tunneled, retransmitted broadcast packet (BCAST_MSG)"},
-	{ 0,	NULL},
+	{ 0, "Bcast"},
+	{ 0, NULL}
 };
 
 /* TIPCv2_MSG_BUNDLER - Message Bundler Protocol */
@@ -377,53 +395,57 @@ static const value_string tipcv2_bcast_mtype_strings[]={
 /* TIPCv2_LINK_PROTOCOL - Link State Maintenance Protocol */
 #define TIPCv2_STATE_MSG 0
 #define TIPCv2_RESET_MSG 1
+#define TIPCv2_ACTIV_MSG 2
 
 static const value_string tipcv2_link_mtype_strings[]={
-    { TIPCv2_STATE_MSG, "STATE_MSG"},
-    { TIPCv2_RESET_MSG,	"RESET_MSG"},
-    { 2,				"ACTIVATE_MSG"},
-	{ 0,	NULL},
+	{ TIPCv2_STATE_MSG, "State"},
+	{ TIPCv2_RESET_MSG, "Reset"},
+	{ TIPCv2_ACTIV_MSG, "Activate"},
+	{ 0, NULL}
 };
 /* TIPCv2_CONN_MANAGER - Connection Manager */
+#define TIPCv2_CONMGR_CONN_PROBE	0
+#define TIPCv2_CONMGR_CONN_PROBE_REPLY  1
+#define TIPCv2_CONMGR_MSG_ACK		2
 static const value_string tipcv2_connmgr_mtype_strings[]={
-    { 0           ,"CONN_PROBE"},
-    { 1           ,"CONN_PROBE_REPLY"},
-    { 2           ,"(MSG_ACK)"},
-	{ 0,	NULL},
+	{ TIPCv2_CONMGR_CONN_PROBE       ,"Probe"},
+	{ TIPCv2_CONMGR_CONN_PROBE_REPLY ,"ProbeReply"},
+	{ TIPCv2_CONMGR_MSG_ACK          ,"Ack"},
+	{ 0, NULL}
 };
 /* TIPCv2_ROUTE_DISTRIBUTOR - Routing Table Update Protocol */
 
-#define TIPCv2_EXT_ROUTING_TABLE		0
-#define TIPCv2_LOCAL_ROUTING_TABLE		1
-#define TIPCv2_SEC_ROUTING_TABLE		2
-#define TIPCv2_ROUTE_ADDITION			3
-#define TIPCv2_ROUTE_REMOVAL			4
+#define TIPCv2_EXT_ROUTING_TABLE   0
+#define TIPCv2_LOCAL_ROUTING_TABLE 1
+#define TIPCv2_SEC_ROUTING_TABLE   2
+#define TIPCv2_ROUTE_ADDITION      3
+#define TIPCv2_ROUTE_REMOVAL       4
 static const value_string tipcv2_route_mtype_strings[]={
-    { 0           ,"EXT_ROUTING_TABLE"},
-    { 1           ,"LOCAL_ROUTING_TABLE"},
-    { 2           ,"SEC_ROUTING_TABLE"},
-    { 3           ,"ROUTE_ADDITION"},
-    { 4           ,"ROUTE_REMOVAL"},
-	{ 0,	NULL},
+	{ 0, "ExtRoutingTab"},
+	{ 1, "LocalRoutingTab"},
+	{ 2, "SecRoutingTab"},
+	{ 3, "RouteAddition"},
+	{ 4, "RouteRemoval"},
+	{ 0, NULL}
 };
 /* TIPCv2_CHANGEOVER_PROTOCOL - Link Changeover Protocol */
 static const value_string tipcv2_changeover_mtype_strings[]={
-    { 0           ,"DUPLICATE_MSG"},
-    { 1           ,"ORIGINAL_MSG"},
-	{ 0,	NULL},
+	{ 0, "Duplicate"},
+	{ 1, "Original"},
+	{ 0, NULL}
 };
 /* TIPCv2_NAME_DISTRIBUTOR - Name Table Update Protocol */
 static const value_string tipcv2_naming_mtype_strings[]={
-    { 0           ,"PUBLICATION"},
-    { 1           ,"WITHDRAWAL"},
-	{ 0,	NULL},
+	{ 0, "Publication"},
+	{ 1, "Withdrawal"},
+	{ 0, NULL}
 };
 /* TIPCv2_MSG_FRAGMENTER - Message Fragmentation Protocol" */
 static const value_string tipcv2_fragmenter_mtype_strings[]={
-    { 0           ,"FIRST_FRAGMENT"},
-    { 1           ,"FRAGMENT"},
-    { 2           ,"LAST_FRAGMENT"},
-	{ 0,	NULL},
+	{ 0, "First"},
+	{ 1, "Fragment"},
+	{ 2, "Last"},
+	{ 0, NULL}
 };
 
 /* TIPCv2_LINK_CONFIGURATION - Link Configuration Protocol
@@ -431,27 +453,27 @@ static const value_string tipcv2_fragmenter_mtype_strings[]={
  */
 
 static const value_string tipcv2_neighbour_mtype_strings[]={
-    { 0           ,"Link_Request"},
-    { 1           ,"Link_Response"},
-	{ 0,	NULL},
+	{ 0, "Request"},
+	{ 1, "Response"},
+	{ 0, NULL}
 };
 
 
 static const value_string tipcv2_networkplane_strings[]={
-    { 0           ,"A"},
-    { 1           ,"B"},
-    { 2           ,"C"},
-    { 3           ,"D"},
-    { 4           ,"E"},
-    { 5           ,"F"},
-	{ 0,	NULL},
+	{ 0, "A"},
+	{ 1, "B"},
+	{ 2, "C"},
+	{ 3, "D"},
+	{ 4, "E"},
+	{ 5, "F"},
+	{ 0, NULL}
 };
 
 
 static void dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
-static GHashTable *tipc_msg_fragment_table = NULL;
+static GHashTable *tipc_msg_fragment_table    = NULL;
 static GHashTable *tipc_msg_reassembled_table = NULL;
 
 
@@ -498,7 +520,7 @@ struct DistributionItem{
 };
 */
 static void
-dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_tipc_name_dist_data(tvbuff_t *tvb, proto_tree *tree){
 	int offset = 0;
  
 	while ( tvb_reported_length_remaining(tvb,offset) > 0){
@@ -516,62 +538,85 @@ dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Set message type in COL INFO and return type of message ( data or Internal message type */
-static gboolean
-tipc_v2_set_col_msgtype(packet_info *pinfo, guint8 user,guint8 msg_type){
+static void
+tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_type, guint8 hdr_size){
 
-	gboolean datatype_hdr = FALSE;
+	guint32 portNameInst, dword;
+	guint32 portNameType, portNameInstLow, portNameInstHigh;
+	guint8 error;
 
 	switch (user){
-		case TIPC_DATA_PRIO_0: 	
-		case TIPC_DATA_PRIO_1:
-		case TIPC_DATA_PRIO_2:
-		case TIPC_DATA_NON_REJECTABLE:
-			/* 
-			 * src and dest address will be found at different location depending on User ad hdr_size
-			 */
-			datatype_hdr = TRUE;
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_data_msg_type_short_str_vals, "unknown"),msg_type);
+		case TIPCv2_DATA_LOW:
+		case TIPCv2_DATA_NORMAL:
+		case TIPCv2_DATA_HIGH:
+		case TIPCv2_DATA_NON_REJECTABLE:
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_data_msg_type_defines, "unknown"));
+
+			/* Display Error!=0 in Info Column */
+			dword = tvb_get_ntohl(tvb, 4);
+			error = (dword>>25) & 0xf;
+			if (error > 0)
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(error, tipcv2_error_code_short_strings, "unknown"));
+			if (hdr_size > 8 ){
+				/* Port Name Type: 32 bits */
+				portNameType = tvb_get_ntohl(tvb, 32);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " type:%d", portNameType);
+				if (hdr_size > 9 ){
+					/* W9 name instance/multicast lower bound  */
+					portNameInst = tvb_get_ntohl(tvb, 36);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " inst:%d", portNameInst);
+					/*  Port Name Sequence Lower: 32 bits */
+					if (hdr_size > 10 ){
+						portNameInst = tvb_get_ntohl(tvb, 40);
+						col_append_fstr(pinfo->cinfo, COL_INFO, "-%d", portNameInst);
+					}						
+				}
+			}
 			break;
 		case TIPCv2_BCAST_PROTOCOL:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_bcast_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_bcast_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_MSG_BUNDLER:
 			/* No message types */
 			break;
 		case TIPCv2_LINK_PROTOCOL:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_link_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_link_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_CONN_MANAGER:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_connmgr_mtype_strings, "unknown"),msg_type);
+			dword = tvb_get_ntohl(tvb, 4);
+			/* Display Error!=0 in Info Column */
+			error = (dword>>25) & 0xf;
+			if (error > 0)
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(error, tipcv2_error_code_short_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_connmgr_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_ROUTE_DISTRIBUTOR:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_route_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_route_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_CHANGEOVER_PROTOCOL:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_changeover_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_changeover_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_NAME_DISTRIBUTOR:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_naming_mtype_strings, "unknown"),msg_type);
+			portNameType     = tvb_get_ntohl(tvb, 40);
+			portNameInstLow  = tvb_get_ntohl(tvb, 44);
+			portNameInstHigh = tvb_get_ntohl(tvb, 48);
+
+			if( portNameInstLow == portNameInstHigh) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s type:%d inst:%d", val_to_str(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow);
+			} else {
+				/* sequence */
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s type:%d seq:%d-%d", val_to_str(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow, portNameInstHigh);
+			}
 			break;
 		case TIPCv2_MSG_FRAGMENTER:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_fragmenter_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_fragmenter_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_LINK_CONFIGURATION:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipcv2_neighbour_mtype_strings, "unknown"),msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_neighbour_mtype_strings, "unknown"));
 			break;
 		default:
 			break;		 
 	}
-	return datatype_hdr;
 }
 
 /* Set message type in COL INFO and return type of message ( data or Internal message type */
@@ -662,61 +707,55 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user,guint8 msg_type){
 
   */
 static void
-dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size)
+dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
 {
 
 	guint32 dword;
 	gchar *addr_str_ptr;
-	guint8 message_type;
 	tvbuff_t *data_tvb;
+	guint8 message_type;
 
 	dword = tvb_get_ntohl(tipc_tvb,offset+8);
 	addr_str_ptr = tipc_addr_to_str(dword);
-	message_type = tvb_get_guint8(tipc_tvb,offset) >>1;  
+	message_type = (tvb_get_guint8(tipc_tvb,offset) >>5) & 0x7;  
 
 	switch (user){
 		case TIPCv2_BCAST_PROTOCOL:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_bcast_mtype, tipc_tvb, offset, 4, FALSE);
+			/* NO bcstsqgap */
+			/* NO sequence gap */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
-			offset = offset + 4;
-			/* W5 */
-			offset = offset + 4;
-			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 20,"Words 4-8 Unused for this user");
+			offset = offset + 20;
+			/* W9 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_bcast_tag, tipc_tvb, offset, 4, FALSE);
+			/* NO link tolerance */
 			offset = offset + 4;
 			break;
 		case TIPCv2_MSG_BUNDLER:
-			/* W1 */
+			/* W1+W2 */
 			/* No message types */
-			offset = offset + 4;
-			/* W2 */
-			offset = offset + 4;
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 8,"Words 1+2 Unused for this user");
+			offset = offset + 8;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
-			/* W5 */
-			offset = offset + 4;
-			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
-			offset = offset + 4;
-			/* W8 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 8 Unused for this user");
-			offset = offset + 4;
+			/* W4 */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 20,"Word 4-8 Unused for this user");
+			offset = offset + 20;
 			/* W9 */
 			/* Message Count: 16 bits. */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_msg_count, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			break;
 		case TIPCv2_LINK_PROTOCOL:
@@ -726,11 +765,14 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree 
 			proto_tree_add_item(tipc_tree, hf_tipcv2_bcast_seq_gap, tipc_tvb, offset, 4, FALSE);
 			/* Sequence Gap:  8 bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_sequence_gap, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
 			/* Next Sent Broadcast: 16 bits */
@@ -742,8 +784,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree 
 			/* Session Number: 16 bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_session_no, tipc_tvb, offset, 4, FALSE);
 			/* Reserved: 3 bits Must be set to zero. */
+			/* the following two fields appear in this user according to */
+			/* Jon Malloy on the tipc-discussion mailing list */
 			/* Redundant Link: 1 bit */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_redundant_link, tipc_tvb, offset, 4, FALSE);
 			/* Bearer Identity: 3 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_id, tipc_tvb, offset, 4, FALSE);
 			/* Link Priority: 5 bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_link_prio, tipc_tvb, offset, 4, FALSE);
 			/* Network Plane: 3 bits. */
@@ -751,173 +797,233 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree 
 			/* Probe: 1 bit. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_probe, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
-
 			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
-			offset = offset + 4;
-			/* W8 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 8 Unused for this user");
-			offset = offset + 4;
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 12,"Words 6-8 Unused for this user");
+			offset = offset + 12;
 			/* W9 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_max_packet, tipc_tvb, offset, 4, FALSE);
 			/* Link Tolerance:  16 bits */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_link_tolerance, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			
-			if (message_type == TIPCv2_RESET_MSG)
+			if ((message_type == TIPCv2_RESET_MSG) 
+				|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4))  !=0))) /* is allowed */
 				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, FALSE);
 			break;
 		case TIPCv2_CONN_MANAGER:
-			/* W1 */
+			/* CONN_MANAGER uses the 36-byte header format of CONN_MSG payload messages */
+			/* W1 */ 
 			proto_tree_add_item(tipc_tree, hf_tipcv2_connmgr_mtype, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_errorcode, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_rer_cnt, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_lookup_scope, tipc_tvb, offset, 4, FALSE);
+
+			/* Options Position: 3 bits */
+			/* is this not used by this user according to Jon Maloy in tipc-discussion mailing list 
+			opt_p = tvb_get_guint8(tipc_tvb, offset+1) & 0x7;
+			proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p , tipc_tvb, offset, 4, FALSE);
+			if (opt_p != 0){
+				hdr_size = hdr_size - (opt_p << 2);	
+			}
+			*/
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no , tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
-			/* W2 */
+
+			/* W2 */	
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no , tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no , tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
+
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			dword = tvb_get_ntohl(tipc_tvb,offset);
+			addr_str_ptr = tipc_addr_to_str(dword);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
+
 			/* W4 */
+			proto_tree_add_item(tipc_tree, hf_tipc_org_port , tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
+
 			/* W5 */
+			proto_tree_add_item(tipc_tree, hf_tipc_dst_port , tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
+
 			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
+			dword = tvb_get_ntohl(tipc_tvb,offset);
+			addr_str_ptr = tipc_addr_to_str(dword);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
+
 			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
+			dword = tvb_get_ntohl(tipc_tvb,offset);
+			addr_str_ptr = tipc_addr_to_str(dword);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
+			offset = offset + 4;
+
+			/* W8  */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_transport_seq_no, tipc_tvb, offset, 4, FALSE);
+			offset = offset + 4;
+
+			/* is this not used here according to Jon Maloy in tipc-discussion mailing list 
+			 * Options
+
+			if (opt_p != 0){
+				proto_tree_add_text(tipc_tree, tipc_tvb, offset,(opt_p >> 2),"Options");
+				offset = offset + (opt_p << 2);
+			}
+			  */
+
+			/* Dissect if MSG_ACK */
+			/* TIPCv2 data */
+			if ( message_type == TIPCv2_CONMGR_MSG_ACK) 
+			{
+				proto_tree_add_item(tipc_tree, hf_tipcv2_conn_mgr_msg_ack, tipc_tvb, offset, 4, FALSE);
+				/* what are the next 2 bytes for? --> so far unused */
+				offset += 2;
+			}
 			break;
 		case TIPCv2_ROUTE_DISTRIBUTOR:
 			/* W1 */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_route_mtype, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_route_mtype,      tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
-			offset = offset + 4;
-			/* W5 */
-			offset = offset + 4;
-			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
-			offset = offset + 4;
-			/* W8 */
-			offset = offset + 4;
-			/* W9 */
-			offset = offset + 4;
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 24,"Words 4-9 Unused for this user");
+			offset = offset + 24;
 			/* W10 */
 			switch (message_type){
-			case TIPCv2_EXT_ROUTING_TABLE:		/* 0  */
-			case TIPCv2_LOCAL_ROUTING_TABLE:	/* 1  */
-			case TIPCv2_SEC_ROUTING_TABLE:		/* 2  */
-				/* Cluster Address */
-				dword = tvb_get_ntohl(tipc_tvb,offset+8);
-				addr_str_ptr = tipc_addr_to_str(dword);
-				proto_tree_add_string(tipc_tree, hf_tipcv2_cluster_address, tipc_tvb, offset, 4,	addr_str_ptr);
-				offset = offset + 4;
-				/* bitmap */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_bitmap, tipc_tvb, offset, -1, FALSE);
-				break;
-			case TIPCv2_ROUTE_ADDITION:			/* 3  */
-			case TIPCv2_ROUTE_REMOVAL:			/* 4  */
-				/* Node Address */
-				dword = tvb_get_ntohl(tipc_tvb,offset+8);
-				addr_str_ptr = tipc_addr_to_str(dword);
-				proto_tree_add_string(tipc_tree, hf_tipcv2_node_address, tipc_tvb, offset, 4,	addr_str_ptr);
-				offset = offset + 4;
-			default:
-				break;
+				case TIPCv2_EXT_ROUTING_TABLE:		/* 0  */
+				case TIPCv2_LOCAL_ROUTING_TABLE:	/* 1  */
+				case TIPCv2_SEC_ROUTING_TABLE:		/* 2  */
+					/* Cluster Address */
+					dword = tvb_get_ntohl(tipc_tvb,offset+8);
+					addr_str_ptr = tipc_addr_to_str(dword);
+					proto_tree_add_string(tipc_tree, hf_tipcv2_cluster_address, tipc_tvb, offset, 4, addr_str_ptr);
+					offset = offset + 4;
+					/* bitmap */
+					proto_tree_add_item(tipc_tree, hf_tipcv2_bitmap, tipc_tvb, offset, -1, FALSE);
+					break;
+				case TIPCv2_ROUTE_ADDITION:			/* 3  */
+				case TIPCv2_ROUTE_REMOVAL:			/* 4  */
+					/* Node Address */
+					dword = tvb_get_ntohl(tipc_tvb,offset+8);
+					addr_str_ptr = tipc_addr_to_str(dword);
+					proto_tree_add_string(tipc_tree, hf_tipcv2_node_address, tipc_tvb, offset, 4, addr_str_ptr);
+					offset = offset + 4;
+				default:
+					break;
 			}
 			break;
 		case TIPCv2_CHANGEOVER_PROTOCOL:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_changeover_mtype, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 4 Unused for this user");
 			offset = offset + 4;
 			/* W5 */
+			/* the following two fields appear in this user according to */
+			/* Jon Malloy on the tipc-discussion mailing list */
+			/* Redundant Link: 1 bit */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_redundant_link, tipc_tvb, offset, 4, FALSE);
+			/* Bearer Identity: 3 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_id, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
-			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
-			offset = offset + 4;
-			/* W8 */
-			offset = offset + 4;
+			/* W6-W8 */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 12,"Words 6-8 Unused for this user");
+			offset = offset + 12;
 			/* W9 */
-			/* Message Count: 16 bits. */
+			switch (message_type)
+			{
+				case 0:
+					/* DUPLICATE_MSG */
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 9 Unused for this message type");
+					break;
+				case 1:
+					/* ORIGINAL_MSG */
+					/* Message Count: 16 bits. */
+					proto_tree_add_item(tipc_tree, hf_tipcv2_msg_count, tipc_tvb, offset, 4, FALSE);
+					break;
+				default:
+					break;
+			}
 			offset = offset + 4;
 			break;
 		case TIPCv2_NAME_DISTRIBUTOR:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_naming_mtype, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
-			/* W4 */
-			offset = offset + 4;
-			/* W5 */
-			offset = offset + 4;
+			/* W4+W5 */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 8,"Words 4+5 Unused for this user");
+			offset = offset + 8;
 			/* W6 */
 			/* Originating Node: 32 bits. */
 			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
-			proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W7 */
 			/* Destination Node: 32 bits.  */
 			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
-			proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W8 */
 			/* Transport Level Sequence Number: 32 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_transport_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W9 */
-			/* Message Count: 16 bits. */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 9 Unused for this user");
 			offset = offset + 4;
 			/* W10 */
+			/* dissect the (one or more) Publications */
 			data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
-			dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_tree);
+			dissect_tipc_name_dist_data(data_tvb, tipc_tree);
 			break;
 		case TIPCv2_MSG_FRAGMENTER:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_fragmenter_mtype, tipc_tvb, offset, 4, FALSE);
-			/* Last 16 bits */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_fragment_number, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W3 */
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
 			/* Fragment Number: 16 Bits. */
-			/* Fragment (msg?) Number: 16 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_fragment_number, tipc_tvb, offset, 4, FALSE);
+			/* Fragment msg Number: 16 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_fragment_msg_number, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
-			/* W5 */
-			offset = offset + 4;
-			/* W6 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 6 Unused for this user");
-			offset = offset + 4;
-			/* W7 */
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Word 7 Unused for this user");
-			offset = offset + 4;
+			/* W5-W9 */
+			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 20,"Words 5-9 Unused for this user");
+			offset = offset + 20;
 			break;
 		case TIPCv2_LINK_CONFIGURATION:
 /*
@@ -955,31 +1061,32 @@ The protocol for neighbour detection
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_neighbour_mtype, tipc_tvb, offset, 4, FALSE);
 			/* Requested Links (12 bits) */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no , tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_req_links, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W2 */
 			/* Destination Domain */
 			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
-			proto_tree_add_string(tipc_tree, hf_tipcv2_destination_domain, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_destination_domain, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
-			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
 			/* Network Identity: */
 			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
-			proto_tree_add_string(tipc_tree, hf_tipcv2_network_id, tipc_tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_network_id, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			/* W5 - W9 Bearer Level Originating Address: */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_level_orig_addr, tipc_tvb, offset, 20, FALSE);
 			offset = offset + 20;
-			/*
-			proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"Vendor specific data");
-			*/
+			if(msg_size-(orig_hdr_size*4) !=0) {
+				proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"Vendor specific data");
+			}
 			break;
 		default:
 			break;		 
@@ -1027,10 +1134,9 @@ wA:|                    multicast upper bound                      |
   */
 
 static void
-dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 hdr_size,  gboolean datatype_hdr)
+dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 hdr_size, gboolean datatype_hdr)
 {
 	guint32 dword;
-	guint8 error;
 	gchar *addr_str_ptr;
 	guint8 opt_p;
 	/* The unit used is 32 bit words */
@@ -1062,79 +1168,73 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, i
 	offset = offset + 4;
 	
 	if (!datatype_hdr){
-		dissect_tipc_v2_internal_msg(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size);
+		dissect_tipc_v2_internal_msg(tipc_tvb, tipc_tree, offset, user, msg_size, orig_hdr_size);
 		return;
 	}
 
 	/* Word 1 */ 
 	/* Message Type: 3 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_data_msg_type , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_data_msg_type, tipc_tvb, offset, 4, FALSE);
 	/* Error Code: 4 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_errorcode , tipc_tvb, offset, 4, FALSE);
-	dword = tvb_get_ntohl(tipc_tvb,offset);
-	error = (dword>>25) & 0xf;
-	if (check_col(pinfo->cinfo, COL_INFO) && error > 0)
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(error, tipcv2_error_code_short_strings, "unknown"),error);
-	}
+	proto_tree_add_item(tipc_tree, hf_tipcv2_errorcode, tipc_tvb, offset, 4, FALSE);
 
 	/* Reroute Counter: 4 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_rer_cnt , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_rer_cnt, tipc_tvb, offset, 4, FALSE);
 	/* Lookup Scope: 2 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_lookup_scope , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_lookup_scope, tipc_tvb, offset, 4, FALSE);
 
 	/* Options Position: 3 bits */
 	opt_p = tvb_get_guint8(tipc_tvb, offset+1) & 0x7;
-	proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p, tipc_tvb, offset, 4, FALSE);
 	if (opt_p != 0){
 		hdr_size = hdr_size - (opt_p << 2);	
 	}
 	/* Broadcast Acknowledge Number: 16 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, FALSE);
 	offset = offset + 4;
 
 	/* W2 */	
 	/* Link Level Acknowledge Number: 16 bits */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_ack_no, tipc_tvb, offset, 4, FALSE);
 	/* broadcast/link level seq no */
-	proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipcv2_link_level_seq_no, tipc_tvb, offset, 4, FALSE);
 	offset = offset + 4;
 	/* W3 previous node */
 	dword = tvb_get_ntohl(tipc_tvb,offset);
 	addr_str_ptr = tipc_addr_to_str(dword);
-	proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4,	addr_str_ptr);
+	proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 	offset = offset + 4;
 
 	/* W4 Originating Port: 32 bits */
-	proto_tree_add_item(tipc_tree, hf_tipc_org_port , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipc_org_port, tipc_tvb, offset, 4, FALSE);
 	offset = offset + 4;
 
 	/* W5 Destination Port: 32 bits */
-	proto_tree_add_item(tipc_tree, hf_tipc_dst_port , tipc_tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, FALSE);
 	offset = offset + 4;
 	if (hdr_size > 6 ){
 
 		/* W6 Originating Node: 32 bits */
 		dword = tvb_get_ntohl(tipc_tvb,offset);
 		addr_str_ptr = tipc_addr_to_str(dword);
-		proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4,	addr_str_ptr);
+		proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;
 		/* W7 Destination Node: 32 bits */
 		dword = tvb_get_ntohl(tipc_tvb,offset);
 		addr_str_ptr = tipc_addr_to_str(dword);
-		proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4,	addr_str_ptr);
+		proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;
 		if (hdr_size > 8 ){
 			/* W8 name type / transport sequence number */
 			/* Transport Level Sequence Number: 32 bits */
 			/* Port Name Type: 32 bits */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_type , tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_type, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			
 			if (hdr_size > 9 ){
 				/* W9 name instance/multicast lower bound  */
 				/*  Port Name Instance: 32 bits */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_instance , tipc_tvb, offset, 4, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_instance, tipc_tvb, offset, 4, FALSE);
 				/*  Port Name Sequence Lower: 32 bits */
 				offset = offset + 4;
 				if (hdr_size > 10 ){
@@ -1152,8 +1252,8 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, packet_info *pinfo, proto_tree *tipc_tree, i
 		offset = offset + (opt_p << 2);
 	}
 	/* TIPCv2 data */
-	if ( msg_size > (orig_hdr_size<<2))
-		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"TIPCv2 data");
+        if ( msg_size > (orig_hdr_size<<2))
+		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"TIPCv2 data: %u bytes", (msg_size - (orig_hdr_size<<2)));
 
 }
 
@@ -1413,15 +1513,15 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	int previous_offset;
 	guint32 dword;
-	guint8 version;
+	guint8  version;
 	guint32 msg_size;
-	guint8 hdr_size;
-	guint8 user;
-	gchar *addr_str_ptr;
+	guint8  hdr_size;
+	guint8  user;
+	gchar  *addr_str_ptr;
 	const guchar		*src_addr, *dst_addr;
 	tvbuff_t *data_tvb, *tipc_tvb;
 	gboolean datatype_hdr = FALSE;
-	guint8 msg_type = 0;
+	guint8   msg_type = 0;
 
 		/* Make entry in Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -1431,13 +1531,13 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	top_tree = tree;
-	dword = tvb_get_ntohl(tvb,offset);
+	dword = tvb_get_ntohl(tvb, offset);
 	version = (dword >>29) & 0xf;
 	hdr_size = (dword >>21) & 0xf;
 	user = (dword>>25) & 0xf;
 	msg_size = dword & 0x1ffff;
 
-	if ( (guint32)tvb_length_remaining(tvb,offset) < msg_size){
+	if ( (guint32)tvb_length_remaining(tvb, offset) < msg_size){
 		tipc_tvb = tvb;
 	}else{
 		tipc_tvb = tvb_new_subset(tvb, offset, msg_size, msg_size);
@@ -1446,7 +1546,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (version){
 	case 0:
 	case TIPCv1:
-		msg_type = tvb_get_guint8(tipc_tvb,offset + 20)>>4;
+		msg_type = tvb_get_guint8(tipc_tvb, offset + 20)>>4;
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"),user);
 		}
@@ -1477,10 +1577,25 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case TIPCv2:
 		msg_type = tvb_get_guint8(tipc_tvb,offset + 4)>>5;
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipcv2_user_short_str_vals, "unknown"),user);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str(user, tipcv2_user_short_str_vals, "unknown"));
 		}
-		/* Set msg type in info col and find out if its a data hdr or not */
-		datatype_hdr = tipc_v2_set_col_msgtype(pinfo, user, msg_type);
+		/* Set msg type in info col */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
+
+		/* find out if its a data hdr or not */
+		switch (user){
+			case TIPCv2_DATA_LOW:
+			case TIPCv2_DATA_NORMAL:
+			case TIPCv2_DATA_HIGH:
+			case TIPCv2_DATA_NON_REJECTABLE:
+				datatype_hdr = TRUE;
+				break;
+			default:
+				datatype_hdr = FALSE;
+				break;
+		}
+
 		if ( datatype_hdr ){
 			if (hdr_size > 6){
 				/* W6 Originating Processor */
@@ -1517,7 +1632,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_tipc, tipc_tvb, offset, -1, FALSE);
 	tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 	if ( version == TIPCv2){
-		dissect_tipc_v2(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size, hdr_size, datatype_hdr);
+		dissect_tipc_v2(tipc_tvb, tipc_tree, offset, user, msg_size, hdr_size, datatype_hdr);
 		return;
 	}
 	/* Word 0-2 common for all messages
@@ -1546,7 +1661,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Word 2 */
 	dword = tvb_get_ntohl(tipc_tvb,offset);
 	addr_str_ptr = tipc_addr_to_str(dword);
-	proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tipc_tvb, offset, 4,	addr_str_ptr);
+	proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tipc_tvb, offset, 4, addr_str_ptr);
 
 	offset = offset + 4;
 	switch (user){
@@ -1588,7 +1703,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		should be by far the most frequent one this small optimization pays off.
 	*/
 	if ( hdr_size <= 6 ){
-		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size *4));
 	}else{
 		switch (user){
 			case TIPC_NAME_DISTRIBUTOR:
@@ -1631,30 +1746,30 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						destination port of that header have no meaning for such messages
 						*/
 					offset = offset + 8;
-					tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_NAME_DISTRIBUTOR %u bytes User Data",(msg_size - hdr_size *4));
+					tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_NAME_DISTRIBUTOR %u bytes User Data", (msg_size - hdr_size *4));
 					tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
 					data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
-					dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_data_tree);
+					dissect_tipc_name_dist_data(data_tvb, tipc_data_tree);
 					return;
 				}else{
 					/* Port name type / Connection level sequence number */
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Port name type / Connection level sequence number");
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "Port name type / Connection level sequence number");
 					offset = offset + 4;
 					/* Port name instance */
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Port name instance");
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "Port name instance");
 					offset = offset + 4;
 				}
 			}
 
-			if (user < 4 && dissect_tipc_data){ /* DATA type user */
+ 			if (user < 4 && dissect_tipc_data){ /* DATA type user */
 				switch (msg_type){
 				case TIPC_CONNECTED_MSG:
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size *4));
 					break;
 				case TIPC_NAMED_MSG:
 					data_tvb = tvb_new_subset(tipc_tvb, offset+14, -1, -1);
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14,"TIPC_NAMED_MSG Hdr");
-					proto_tree_add_text(tipc_tree, data_tvb,0, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14, "TIPC_NAMED_MSG Hdr");
+					proto_tree_add_text(tipc_tree, data_tvb,0, -1, "%u bytes Data", (msg_size - hdr_size *4));
 					return;
 					break;
 				case TIPC_DIRECT_MSG:
@@ -1668,11 +1783,11 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						}
 						offset = offset+4;
 					}
-					proto_tree_add_text(tipc_tree, tipc_tvb, previous_offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					proto_tree_add_text(tipc_tree, tipc_tvb, previous_offset, -1,"%u bytes Data", (msg_size - hdr_size *4));
 					return;
 					break;
 				default:
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data", (msg_size - hdr_size *4));
 					break;
 				}
 			}			
@@ -1705,7 +1820,7 @@ proto_register_tipc(void)
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
 		},
 		{&hf_tipc_msg_fragment_overlap_conflicts,
-			{"Message fragment overlapping with conflicting data","tipc.msg.fragment.overlap.conflicts",
+			{"Message fragment overlapping with conflicting data", "tipc.msg.fragment.overlap.conflicts",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
 		},
 		{&hf_tipc_msg_fragment_multiple_tails,
@@ -1725,218 +1840,218 @@ proto_register_tipc(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
 		},
 		{ &hf_tipc_ver,
-			{ "Version",           "tipc.ver",
+			{ "Version", "tipc.ver",
 			FT_UINT32, BASE_DEC, NULL, 0xe0000000,          
 			"TIPC protocol version", HFILL }
 		},
 		{ &hf_tipc_usr,
-			{ "User",           "tipc.usr",
+			{ "User", "tipc.usr",
 			FT_UINT32, BASE_DEC, VALS(tipc_user_values), 0x1e000000,          
 			"TIPC User", HFILL }
 		},
 		{ &hf_tipcv2_usr,
-			{ "User",           "tipc.usr",
+			{ "User", "tipc.usr",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_user_values), 0x1e000000,          
 			"TIPC User", HFILL }
 		},
 		{ &hf_tipc_hdr_size,
-			{ "Header size",           "tipc.hdr_size",
+			{ "Header size", "tipc.hdr_size",
 			FT_UINT32, BASE_DEC, NULL, 0x01e00000,          
 			"TIPC Header size", HFILL }
 		},
 		{ &hf_tipc_nonsequenced,
-			{ "Non-sequenced","tipc.non_sequenced",
+			{ "Non-sequenced", "tipc.non_sequenced",
 			FT_UINT32,BASE_DEC,NULL,0x00100000,
 			"Non-sequenced Bit",HFILL }
 		},
 		{ &hf_tipc_destdrop,
-			{ "Destination Droppable","tipc.destdrop",
+			{ "Destination Droppable", "tipc.destdrop",
 			FT_UINT32,BASE_DEC,NULL,0x00080000,
 			"Destination Droppable Bit",HFILL }
 		},
 		{ &hf_tipc_unused,
-			{ "Unused",           "tipc.hdr_unused",
+			{ "Unused", "tipc.hdr_unused",
 			FT_UINT32, BASE_DEC, NULL, 0x000e0000,          
 			"TIPC Unused", HFILL }
 		},
 		{ &hf_tipc_msg_size,
-			{ "Message size",           "tipc.msg_size",
+			{ "Message size", "tipc.msg_size",
 			FT_UINT32, BASE_DEC, NULL, 0x0001ffff,          
 			"TIPC Message size", HFILL }
 		},
 		{ &hf_tipc_ack_link_lev_seq,
-			{ "Acknowledged link level sequence number",           "tipc.ack_link_lev_seq",
+			{ "Acknowledged link level sequence number", "tipc.ack_link_lev_seq",
 			FT_UINT32, BASE_DEC, NULL, 0xffff0000,          
 			"TIPC Acknowledged link level sequence number", HFILL }
 		},
 		{ &hf_tipc_link_lev_seq,
-			{ "Link level sequence number",           "tipc.link_lev_seq",
+			{ "Link level sequence number", "tipc.link_lev_seq",
 			FT_UINT32, BASE_DEC, NULL, 0x0000ffff,          
 			"TIPC Link level sequence number", HFILL }
 		},
 		{ &hf_tipc_prev_proc,
-			{ "Previous processor",           "tipc.prev_proc",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			{ "Previous processor", "tipc.prev_proc",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,          
 			"TIPC Previous processor", HFILL }
 		},
 		{ &hf_tipc_org_port,
-			{ "Originating port",           "tipc.org_port",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Originating port", "tipc.org_port",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Oiginating port", HFILL }
 		},
 		{ &hf_tipc_dst_port,
-			{ "Destination port",           "tipc.dst_port",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Destination port", "tipc.dst_port",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Destination port", HFILL }
 		},
 		{ &hf_tipc_data_msg_type,
-			{ "Message type",           "tipc.msg_type",
+			{ "Message type", "tipc.msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_data_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_err_code,
-			{ "Error code",           "tipc.err_code",
+			{ "Error code", "tipc.err_code",
 			FT_UINT32, BASE_DEC, VALS(tipc_error_code_values), 0x0f000000,          
 			"TIPC Error code", HFILL }
 		},
 		{ &hf_tipc_reroute_cnt,
-			{ "Reroute counter",           "tipc.route_cnt",
+			{ "Reroute counter", "tipc.route_cnt",
 			FT_UINT32, BASE_DEC, NULL, 0x00f00000,          
 			"TIPC Reroute counter", HFILL }
 		},
 		{ &hf_tipc_act_id,
-			{ "Activity identity",           "tipc.act_id",
+			{ "Activity identity", "tipc.act_id",
 			FT_UINT32, BASE_DEC, NULL, 0x000fffff,          
 			"TIPC Activity identity", HFILL }
 		},		
 		{ &hf_tipc_org_proc,
-			{ "Originating processor",           "tipc.org_proc",
+			{ "Originating processor", "tipc.org_proc",
 			FT_STRING, BASE_NONE, NULL, 0x0,          
 			"TIPC Originating processor", HFILL }
 		},
 		{ &hf_tipc_dst_proc,
-			{ "Destination processor",           "tipc.dst_proc",
+			{ "Destination processor", "tipc.dst_proc",
 			FT_STRING, BASE_NONE, NULL, 0x0,          
 			"TIPC Destination processor", HFILL }
 		},
 		{ &hf_tipc_unused2,
-			{ "Unused",           "tipc.unused2",
+			{ "Unused", "tipc.unused2",
 			FT_UINT32, BASE_DEC, NULL, 0xe0000000,          
 			"TIPC Unused", HFILL }
 		},
 		{ &hf_tipc_importance,
-			{ "Importance",           "tipc.importance",
+			{ "Importance", "tipc.importance",
 			FT_UINT32, BASE_DEC, NULL, 0x18000000,          
 			"TIPC Importance", HFILL }
 		},
 		{ &hf_tipc_link_selector,
-			{ "Link selector",           "tipc.link_selector",
+			{ "Link selector", "tipc.link_selector",
 			FT_UINT32, BASE_DEC, NULL, 0x07000000,          
 			"TIPC Link selector", HFILL }
 		},
 		{ &hf_tipc_msg_cnt,
-			{ "Message count",           "tipc.imsg_cnt",
+			{ "Message count", "tipc.imsg_cnt",
 			FT_UINT32, BASE_DEC, NULL, 0x00ffff00,          
 			"TIPC Message count", HFILL }
 		},
 		{ &hf_tipc_probe,
-			{ "Probe",           "tipc.probe",
+			{ "Probe", "tipc.probe",
 			FT_UINT32, BASE_DEC, NULL, 0x00000040,          
 			"TIPC Probe", HFILL }
 		},
 		{ &hf_tipc_bearer_id,
-			{ "Bearer identity",           "tipc.bearer_id",
+			{ "Bearer identity", "tipc.bearer_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00000038,          
 			"TIPC Bearer identity", HFILL }
 		},
 		{ &hf_tipc_link_selector2,
-			{ "Link selector",           "tipc.link_selector",
+			{ "Link selector", "tipc.link_selector",
 			FT_UINT32, BASE_DEC, NULL, 0x00000007,          
 			"TIPC Link selector", HFILL }
 		},
 		{ &hf_tipc_remote_addr,
-			{ "Remote address",           "tipc.remote_addr",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Remote address", "tipc.remote_addr",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Remote address", HFILL }
 		},
 		{ &hf_tipc_rm_msg_type,
-			{ "Message type",           "tipc.rm_msg_type",
+			{ "Message type", "tipc.rm_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_routing_mgr_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_nd_msg_type,
-			{ "Message type",           "tipc.nd_msg_type",
+			{ "Message type", "tipc.nd_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_name_dist_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_cm_msg_type,
-			{ "Message type",           "tipc.nd_msg_type",
+			{ "Message type", "tipc.nd_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_cm_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_lp_msg_type,
-			{ "Message type",           "tipc.lp_msg_type",
+			{ "Message type", "tipc.lp_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_link_prot_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_cng_prot_msg_type,
-			{ "Message type",           "tipc.cng_prot_msg_type",
+			{ "Message type", "tipc.cng_prot_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_cng_prot_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_sm_msg_type,
-			{ "Message type",           "tipc.sm_msg_type",
+			{ "Message type", "tipc.sm_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_sm_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_unknown_msg_type,
-			{ "Message type",           "tipc.unknown_msg_type",
+			{ "Message type", "tipc.unknown_msg_type",
 			FT_UINT32, BASE_DEC, NULL, 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_seq_gap,
-			{ "Sequence gap",           "tipc.seq_gap",
+			{ "Sequence gap", "tipc.seq_gap",
 			FT_UINT32, BASE_DEC, NULL, 0x0fff0000,          
 			"TIPC Sequence gap", HFILL }
 		},
 		{ &hf_tipc_nxt_snt_pkg,
-			{ "Next sent packet",           "tipc.nxt_snt_pkg",
+			{ "Next sent packet", "tipc.nxt_snt_pkg",
 			FT_UINT32, BASE_DEC, NULL, 0x0000ffff,          
 			"TIPC Next sent packet", HFILL }
 		},
 		{ &hf_tipc_unused3,
-			{ "Unused",           "tipc.unused3",
+			{ "Unused", "tipc.unused3",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"TIPC Unused", HFILL }
 		},
 		{ &hf_tipc_bearer_name,
-			{ "Bearer name",           "tipc.bearer_name",
+			{ "Bearer name", "tipc.bearer_name",
 			FT_STRINGZ, BASE_NONE, NULL, 0x0,          
 			"TIPC Bearer name", HFILL }
 		},
 		{ &hf_tipc_name_dist_type,
 			{ "Published port name type", "tipc.name_dist_type",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Published port name type", HFILL }
 		},
 		{ &hf_tipc_name_dist_lower,
-			{ "Lower bound of published sequence",  "tipc.ame_dist_lower",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Lower bound of published sequence", "tipc.name_dist_lower",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Lower bound of published sequence", HFILL }
 		},
 		{ &hf_tipc_name_dist_upper,
-			{ "Upper bound of published sequence",  "tipc.name_dist_upper",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Upper bound of published sequence", "tipc.name_dist_upper",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Upper bound of published sequence", HFILL }
 		},
 		{ &hf_tipc_name_dist_port,
 			{ "Random number part of port identity", "tipc.dist_port",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC Random number part of port identity", HFILL }
 		},
 		{ &hf_tipc_name_dist_key,
-			{ "Key (Use for verification at withdrawal)",  "tipc.dist_key",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			{ "Key (Use for verification at withdrawal)", "tipc.dist_key",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"TIPC key", HFILL }
 		},
 		{ &hf_tipcv2_srcdrop,
@@ -1945,201 +2060,246 @@ proto_register_tipc(void)
 			"Destination Droppable Bit", HFILL }
 		},
 		{ &hf_tipcv2_data_msg_type ,
-			{ "Message type",           "tipc.data_type",
+			{ "Message type", "tipc.data_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_data_msg_type_values), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_bcast_mtype ,
-			{ "Message type",           "tipcv2.bcast_msg_type",
+			{ "Message type", "tipcv2.bcast_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_bcast_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_link_mtype ,
-			{ "Message type",           "tipcv2.link_msg_type",
+			{ "Message type", "tipcv2.link_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_link_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_connmgr_mtype ,
-			{ "Message type",           "tipcv2.connmgr_msg_type",
+			{ "Message type", "tipcv2.connmgr_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_connmgr_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_route_mtype ,
-			{ "Message type",           "tipcv2.route_msg_type",
+			{ "Message type", "tipcv2.route_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_route_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_changeover_mtype ,
-			{ "Message type",           "tipcv2.changeover_msg_type",
+			{ "Message type", "tipcv2.changeover_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_changeover_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_naming_mtype ,
-			{ "Message type",           "tipcv2.naming_msg_type",
+			{ "Message type", "tipcv2.naming_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_naming_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_fragmenter_mtype ,
-			{ "Message type",           "tipcv2.fragmenter_msg_type",
+			{ "Message type", "tipcv2.fragmenter_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_fragmenter_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_neighbour_mtype ,
-			{ "Message type",           "tipcv2.data_msg_type",
+			{ "Message type", "tipcv2.data_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_neighbour_mtype_strings), 0xe0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipcv2_errorcode ,
-			{ "Error code",           "tipcv2.errorcode",
+			{ "Error code", "tipcv2.errorcode",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_error_code_strings), 0x1e000000,          
 			"Error code", HFILL }
 		},
 		{ &hf_tipcv2_rer_cnt,
-			{ "Reroute Counter",           "tipcv2.rer_cnt",
+			{ "Reroute Counter", "tipcv2.rer_cnt",
 			FT_UINT32, BASE_DEC, NULL, 0x01e00000,          
 			"Reroute Counter", HFILL }
 		},
 		{ &hf_tipcv2_lookup_scope,
-			{ "Lookup Scope",           "tipcv2.lookup_scope",
+			{ "Lookup Scope", "tipcv2.lookup_scope",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_scope_strings), 0x00180000,          
 			"Lookup Scope", HFILL }
 		},
 		{ &hf_tipcv2_opt_p,
-			{ "Options Position",           "tipcv2.opt_p",
+			{ "Options Position", "tipcv2.opt_p",
 			FT_UINT32, BASE_DEC, NULL, 0x00070000,          
 			"Options Position", HFILL }
 		},
 		{ &hf_tipcv2_broadcast_ack_no,
-			{ "Broadcast Acknowledge Number",           "tipcv2.broadcast_ack_no",
+			{ "Broadcast Acknowledge Number", "tipcv2.broadcast_ack_no",
 			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
 			"Broadcast Acknowledge Number", HFILL }
 		},
 
 		{ &hf_tipcv2_link_level_ack_no,
-			{ "link level ack no",           "tipcv2.link_level_ack_no",
+			{ "Link Level Acknowledge Number", "tipcv2.link_level_ack_no",
 			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
-			"link level ack no", HFILL }
+			"Link Level Acknowledge Number", HFILL }
 		},
 		{ &hf_tipcv2_link_level_seq_no,
-			{ "Link Level Sequence Number",           "tipcv2.link_level_seq_no",
+			{ "Link Level Sequence Number", "tipcv2.link_level_seq_no",
 			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
 			"Link Level Sequence Number", HFILL }
 		},
 		{ &hf_tipcv2_bcast_seq_no,
-			{ "Broadcast Sequence Number",           "tipcv2.bcast_seq_no",
+			{ "Broadcast Sequence Number", "tipcv2.bcast_seq_no",
 			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
 			"Broadcast Sequence Number", HFILL }
 		},
 		{ &hf_tipcv2_prev_node,
-			{ "Previous Node",           "tipcv2.prev_node",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			{ "Previous Node", "tipcv2.prev_node",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,          
 			"TIPC Previous Node", HFILL }
 		},
 		{ &hf_tipcv2_orig_node,
-			{ "Originating Node",           "tipcv2.orig_node",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			{ "Originating Node", "tipcv2.orig_node",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,          
 			"TIPC Originating Node", HFILL }
 		},
 		{ &hf_tipcv2_dest_node,
-			{ "Destination Node",           "tipcv2.dest_node",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			{ "Destination Node", "tipcv2.dest_node",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,          
 			"TIPC Destination Node", HFILL }
 		},
 		{ &hf_tipcv2_port_name_type,
-			{ "Port name type",           "tipcv2.port_name_type",
-			FT_UINT32, BASE_DEC, NULL, 0,          
+			{ "Port name type", "tipcv2.port_name_type",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"Port name type", HFILL }
 		},
 		{ &hf_tipcv2_port_name_instance,
-			{ "Port name instance",           "tipcv2.port_name_instance",
-			FT_UINT32, BASE_DEC, NULL, 0,          
+			{ "Port name instance", "tipcv2.port_name_instance",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"Port name instance", HFILL }
 		},
 		{ &hf_tipcv2_bcast_seq_gap,
-			{ "Broadcast Sequence Gap",           "tipcv2.bcast_seq_gap",
+			{ "Broadcast Sequence Gap", "tipcv2.bcast_seq_gap",
 			FT_UINT32, BASE_DEC, NULL, 0x1F000000,          
 			"Broadcast Sequence Gap", HFILL }
 		},
 		{ &hf_tipcv2_sequence_gap,
-			{ "Sequence Gap",           "tipcv2.seq_gap",
+			{ "Sequence Gap", "tipcv2.seq_gap",
 			FT_UINT32, BASE_DEC, NULL, 0x00FF0000,          
 			"Sequence Gap", HFILL }
 		},
 		{ &hf_tipcv2_next_sent_broadcast,
-			{ "Next Sent Broadcast",           "tipcv2.next_sent_broadcast",
-			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
+			{ "Next Sent Broadcast", "tipcv2.next_sent_broadcast",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
 			"Next Sent Broadcast", HFILL }
 		},
 		{ &hf_tipcv2_fragment_number,
-			{ "Fragment Number",           "tipcv2.fragment_number",
-			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
+			{ "Fragment Number", "tipcv2.fragment_number",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
 			"Fragment Number", HFILL }
 		},
+		{ &hf_tipcv2_fragment_msg_number,
+			{ "Fragment Message Number", "tipcv2.fragment_msg_number",
+			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
+			"Fragment Message Number", HFILL }
+		},
 		{ &hf_tipcv2_next_sent_packet,
-			{ "Next Sent Packet",           "tipcv2.next_sent_packet",
+			{ "Next Sent Packet", "tipcv2.next_sent_packet",
 			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
 			"Next Sent Packet", HFILL }
 		},
 		{ &hf_tipcv2_session_no,
-			{ "Session Number",           "tipcv2.session_no",
+			{ "Session Number", "tipcv2.session_no",
 			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
 			"Session Number", HFILL }
 		},
 		{ &hf_tipcv2_link_prio,
-			{ "Link Priority",           "tipcv2.link_prio",
+			{ "Link Priority", "tipcv2.link_prio",
 			FT_UINT32, BASE_DEC, NULL, 0x000001F0,          
 			"Link Priority", HFILL }
 		},
 		{ &hf_tipcv2_network_plane,
-			{ "Network Plane",           "tipcv2.network_plane",
+			{ "Network Plane", "tipcv2.network_plane",
 			FT_UINT32, BASE_DEC, VALS(tipcv2_networkplane_strings), 0x0000000E,          
 			"Network Plane", HFILL }
 		},
 		{ &hf_tipcv2_probe,
-			{ "Probe",           "tipcv2.probe",
+			{ "Probe", "tipcv2.probe",
 			FT_UINT32, BASE_DEC, NULL, 0x00000001,          
 			"probe", HFILL }
 		},
 		{ &hf_tipcv2_link_tolerance,
-			{ "Link Tolerance (ms)",           "tipcv2.link_tolerance",
+			{ "Link Tolerance (ms)", "tipcv2.link_tolerance",
 			FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,          
 			"Link Tolerance in ms", HFILL }
 		},
 		{ &hf_tipcv2_bearer_instance,
-			{ "Bearer Instance",           "tipcv2.bearer_instance",
+			{ "Bearer Instance", "tipcv2.bearer_instance",
 			FT_STRINGZ, BASE_NONE, NULL, 0,          
 			"Bearer instance used by the sender node for this link", HFILL }
 		},
 		{ &hf_tipcv2_bearer_level_orig_addr,
-			{ "Bearer Level Originating Address",           "tipcv2.bearer_level_orig_addr",
+			{ "Bearer Level Originating Address", "tipcv2.bearer_level_orig_addr",
 			FT_BYTES, BASE_HEX, NULL, 0,          
 			"Bearer Level Originating Address", HFILL }
 		},
 		{ &hf_tipcv2_cluster_address,
-			{ "Cluster Address",           "tipcv2.cluster_address",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			{ "Cluster Address", "tipcv2.cluster_address",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,          
 			"The remote cluster concerned by the table", HFILL }
 		},
 		{ &hf_tipcv2_bitmap,
-			{ "Bitmap",           "tipcv2.bitmap",
+			{ "Bitmap", "tipcv2.bitmap",
 			FT_BYTES, BASE_HEX, NULL, 0,          
 			"Bitmap, indicating to which nodes within that cluster the sending node has direct links", HFILL }
 		},
 		{ &hf_tipcv2_node_address,
-			{ "Node Address",           "tipcv2.node_address",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			{ "Node Address", "tipcv2.node_address",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,
 			"Which node the route addition/loss concern", HFILL }
 		},
 		{ &hf_tipcv2_destination_domain,
-			{ "Destination Domain",           "tipcv2.destination_domain",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			{ "Destination Domain", "tipcv2.destination_domain",
+			FT_STRING, BASE_NONE, NULL, 0xffffffff,
 			"The domain to which the link request is directed", HFILL }
 		},
 		{ &hf_tipcv2_network_id,
-			{ "Network Identity",           "tipcv2.network_id",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			{ "Network Identity", "tipcv2.network_id",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFFFFFF,
 			"The sender node's network identity", HFILL }
 		},
+		{ &hf_tipcv2_bcast_tag,
+			{ "Broadcast Tag", "tipcv2.bcast_tag",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
+			"Broadcast Tag", HFILL }
+		},
+		{ &hf_tipcv2_msg_count,
+			{ "Message Count", "tipcv2.msg_count",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
+			"Message Count", HFILL }
+		},
+		{ &hf_tipcv2_max_packet,
+			{ "Max Packet", "tipcv2.max_packet",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,          
+			"Max Packet", HFILL }
+		},
+		{ &hf_tipcv2_transport_seq_no,
+			{ "Transport Sequence No", "tipcv2.tseq_no",
+			FT_UINT32, BASE_DEC, NULL, 0xFFFFFFFF,          
+			"Transport Level Sequence Number", HFILL }
+		},
+		{ &hf_tipcv2_redundant_link,
+			{ "Redundant Link", "tipcv2.redundant_link",
+			FT_UINT32, BASE_DEC, NULL, 0x00001000,          
+			"Redundant Link", HFILL }
+		},
+		{ &hf_tipcv2_bearer_id,
+			{ "Bearer identity", "tipcv2.bearer_id",
+			FT_UINT32, BASE_DEC, NULL, 0x00000e00,          
+			"Bearer identity", HFILL }
+		},
+		{ &hf_tipcv2_conn_mgr_msg_ack, /* special CONN_MANAGER payload */
+			{ "Number of Messages Acknowledged", "tipcv2.conn_mgr_msg_ack",
+			FT_UINT32, BASE_DEC, NULL, 0xffff0000,          
+			"Number of Messages Acknowledged", HFILL }
+		},
+		{ &hf_tipcv2_req_links,
+			{ "Requested Links", "tipcv2.req_links",
+			FT_UINT32, BASE_DEC, NULL, 0x0fff0000,          
+			"Requested Links", HFILL }
+		}
 	};
 
 /* Setup protocol subtree array */
@@ -2147,7 +2307,7 @@ proto_register_tipc(void)
 		&ett_tipc,
 		&ett_tipc_data,
 		&ett_tipc_msg_fragment,
-		&ett_tipc_msg_fragments,
+		&ett_tipc_msg_fragments
 	};
 
 	module_t *tipc_module;
@@ -2166,14 +2326,14 @@ proto_register_tipc(void)
 	tipc_module = prefs_register_protocol(proto_tipc, NULL);
 
 	prefs_register_bool_preference(tipc_module, "defragment",
-		"Reassemble SEGMENTATION_MANAGER datagrams",
-		"Whether SEGMENTATION_MANAGER datagrams should be reassembled",
+		"Reassemble TIPCv1 SEGMENTATION_MANAGER datagrams",
+		"Whether TIPCv1 SEGMENTATION_MANAGER datagrams should be reassembled",
 		&tipc_defragment);
 
-	prefs_register_bool_preference(tipc_module, "dissect_tipc_data",
-		"Dissect TIPC data",
-		"Whether to try to dissect TIPC data or not",
-		&dissect_tipc_data);
+ 	prefs_register_bool_preference(tipc_module, "dissect_tipc_data",
+ 		"Dissect TIPC data",
+ 		"Whether to try to dissect TIPC data or not",
+ 		&dissect_tipc_data);
 }
 
 void
@@ -2182,9 +2342,9 @@ proto_reg_handoff_tipc(void)
 	dissector_handle_t tipc_handle;
 
 	tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
-	dissector_add("ethertype", ETHERTYPE_TIPC,     tipc_handle);
+	dissector_add("ethertype", ETHERTYPE_TIPC, tipc_handle);
 	if (extra_ethertype)
-		dissector_add("ethertype", ETHERTYPE_TIPC2,     tipc_handle);
+		dissector_add("ethertype", ETHERTYPE_TIPC2, tipc_handle);
 	
 	ip_handle = find_dissector("ip");
 }
