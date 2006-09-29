@@ -116,6 +116,16 @@ static gint hf_sip_auth_nextnonce        = -1;
 static gint hf_sip_cseq_seq_no           = -1;
 static gint hf_sip_cseq_method           = -1;
 
+static gint hf_sip_via_transport         = -1;
+static gint hf_sip_via_sent_by_address   = -1;
+static gint hf_sip_via_sent_by_port      = -1;
+static gint hf_sip_via_branch            = -1;
+static gint hf_sip_via_maddr             = -1;
+static gint hf_sip_via_rport             = -1;
+static gint hf_sip_via_received          = -1;
+static gint hf_sip_via_ttl               = -1;
+static gint hf_sip_via_comp              = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
@@ -126,6 +136,7 @@ static gint ett_sip_uri				= -1;
 static gint ett_sip_contact_item	= -1;
 static gint ett_sip_message_body	= -1;
 static gint ett_sip_cseq			= -1;
+static gint ett_sip_via				= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -426,9 +437,9 @@ static gint hf_header_array[] = {
 typedef struct {
 	const char  *param_name;
 	const gint  *hf_item;
-} auth_parameter_t;
+} header_parameter_t;
 
-static auth_parameter_t auth_parameters_hf_array[] =
+static header_parameter_t auth_parameters_hf_array[] =
 {
 	{"response",        &hf_sip_auth_digest_response},
 	{"nc",              &hf_sip_auth_nc},
@@ -444,7 +455,17 @@ static auth_parameter_t auth_parameters_hf_array[] =
 	{"stale",           &hf_sip_auth_stale},
 	{"auts",            &hf_sip_auth_auts},
 	{"rspauth",         &hf_sip_auth_rspauth},
-	{"nextnonce",       &hf_sip_auth_nextnonce},
+	{"nextnonce",       &hf_sip_auth_nextnonce}
+};
+
+static header_parameter_t via_parameters_hf_array[] =
+{
+	{"branch",        &hf_sip_via_branch},
+	{"maddr",         &hf_sip_via_maddr},
+	{"rport",         &hf_sip_via_rport},
+	{"received",      &hf_sip_via_received},
+	{"ttl",           &hf_sip_via_ttl},
+	{"ttl",           &hf_sip_via_comp}
 };
 
 /*
@@ -1017,7 +1038,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	gint current_offset;
 	gint equals_offset = 0;
 	gchar *name;
-	auth_parameter_t *auth_parameter;
+	header_parameter_t *auth_parameter;
 	guint i = 0;
 	gboolean in_quoted_string = FALSE;
 
@@ -1103,6 +1124,227 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	}
 
 	return current_offset;
+}
+
+/* Dissect the details of a Via header */
+static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+	gint  current_offset;
+	gint  transport_start_offset = 0;
+	gint  address_start_offset;
+	gint  semicolon_offset = 0;
+	guint transport_slash_count = 0;
+	gboolean transport_name_started = FALSE;
+	gboolean colon_seen = FALSE;
+	gchar c;
+	gchar *param_name = NULL;
+
+	/* skip Spaces and Tabs */
+	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+	if (start_offset >= line_end_offset)
+	{
+		/* Nothing to parse */
+		return;
+	}
+
+	current_offset = start_offset;
+
+	/* Now look for the end of the SIP/2.0/transport parameter.
+	   There may be spaces between the slashes */
+	while (current_offset < line_end_offset)
+	{
+		c = tvb_get_guint8(tvb, current_offset);
+		if (c == '/')
+		{
+			transport_slash_count++;
+		}
+		else
+		if (!transport_name_started && (transport_slash_count == 2) && isalpha(c))
+		{
+			transport_name_started = TRUE;
+			transport_start_offset = current_offset;
+		}
+		else
+		if (transport_name_started && ((c == ' ') || (c == '\t')))
+		{
+			proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
+			                    current_offset - transport_start_offset, FALSE);
+
+			break;
+		}
+
+		current_offset++;
+	}
+
+	/* skip Spaces and Tabs */
+	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+    /* Now read the address part */
+	address_start_offset = current_offset;
+	while (current_offset < line_end_offset)
+	{
+		c = tvb_get_guint8(tvb, current_offset);
+
+		if (colon_seen || (c == ' ') || (c == '\t') || (c == ':') || (c == ';'))
+		{
+			break;
+		}
+
+		current_offset++;
+	}
+	/* Add address to tree */
+	proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
+	                    current_offset - address_start_offset, FALSE);
+
+	/* Transport port number may follow ([space] : [space])*/
+	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+	c = tvb_get_guint8(tvb, current_offset);
+
+	if (c == ':')
+	{
+		/* Port number will follow any space after : */
+		gint port_offset;
+		colon_seen = TRUE;
+		current_offset++;
+
+		/* Skip optional space after colon */
+		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+		port_offset = current_offset;
+
+		/* Find digits of port number */
+		while (current_offset < line_end_offset)
+		{
+			c = tvb_get_guint8(tvb, current_offset);
+	
+			if (!isdigit(c))
+			{
+				if (current_offset > port_offset)
+				{
+					/* Add address port number to tree */
+					proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
+					                    current_offset - port_offset,
+					                    atoi(tvb_get_ephemeral_string(tvb, port_offset,
+					                                                  current_offset - port_offset)));
+				}
+				else
+				{
+					/* Shouldn't see a colon without a port number given */
+					return;
+				}
+				break;
+			}
+	
+			current_offset++;
+		}
+	}
+
+	/* skip Spaces and Tabs */
+	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+
+    /* Dissect any parameters found */
+	while (current_offset < line_end_offset)
+	{
+		gboolean equals_found = FALSE;
+		gint parameter_name_end = 0;
+		gint parameter_value_end;
+		header_parameter_t *via_parameter;
+		guint i = 0;
+
+		/* Look for the semicolon that signals the start of a parameter */
+		while (current_offset < line_end_offset)
+		{
+			c = tvb_get_guint8(tvb, current_offset);
+			if (c == ';')
+			{
+				semicolon_offset = current_offset;
+				current_offset++;
+				break;
+			}
+			else
+			if ((c != ' ') && (c != '\t'))
+			{
+				return;
+			}
+
+			current_offset++;
+		}
+		if (current_offset == line_end_offset)
+		{
+			return;
+		}
+
+		/* Look for end of parameter name */
+		while (current_offset < line_end_offset)
+		{
+			c = tvb_get_guint8(tvb, current_offset);
+			if (!isalpha(c))
+			{
+				break;
+			}
+			current_offset++;
+		}
+
+		/* Not all params have an = */
+		if (c == '=')
+		{
+			equals_found = TRUE;
+		}
+		parameter_name_end = current_offset;
+
+		/* Read until end of parameter value */
+		while (current_offset < line_end_offset)
+		{
+			c = tvb_get_guint8(tvb, current_offset);
+			if ((c == ' ') || (c == '\t') || (c == ';'))
+			{
+				break;
+			}
+			current_offset++;
+		}
+
+		/* Note parameter name */
+		parameter_value_end = current_offset;
+		param_name = tvb_get_ephemeral_string(tvb, semicolon_offset+1,
+		                                      parameter_name_end - semicolon_offset - 1);
+
+		/* Try to add parameter as a filterable item */
+		for (via_parameter = &via_parameters_hf_array[i];
+			 i < array_length(via_parameters_hf_array);
+			 i++, via_parameter++)
+		{
+			if (strcasecmp(param_name, via_parameter->param_name) == 0)
+			{
+				if (equals_found)
+				{
+					proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
+					                    parameter_name_end+1, current_offset-parameter_name_end-1,
+					                    FALSE);
+				}
+				else
+				{
+					proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
+					                    semicolon_offset+1, current_offset-semicolon_offset-1,
+					                    FALSE);
+				}
+				break;
+			}
+		}
+	
+		/* If not matched, just add as text... */
+		if (i == array_length(via_parameters_hf_array))
+		{
+			proto_tree_add_text(tree, tvb, semicolon_offset+1, current_offset-semicolon_offset-1,
+			                    "%s", tvb_format_text(tvb, semicolon_offset+1,
+			                    current_offset-semicolon_offset-1));
+		}
+
+		/* skip Spaces and Tabs */
+		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+	}
+
 }
 
 
@@ -1195,7 +1437,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
-	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL;
+	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL, *via_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
@@ -1880,8 +2122,8 @@ separator_found2:
 						if (hf_index != POS_AUTHENTICATION_INFO)
 						{
 							proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
-												tvb, value_offset, comma_offset - value_offset,
-												FALSE);
+							                    tvb, value_offset, comma_offset - value_offset,
+							                    FALSE);
 						}
 
 						while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
@@ -1901,6 +2143,19 @@ separator_found2:
 						}
 					break;
 
+					case POS_VIA:
+						/* Add Via subtree */
+						if (hdr_tree) {
+							ti = proto_tree_add_string_format(hdr_tree,
+							                             hf_header_array[hf_index], tvb,
+							                             offset, next_offset - offset,
+							                             value, "%s",
+							                             tvb_format_text(tvb, offset, linelen));
+							via_tree = proto_item_add_subtree(ti, ett_sip_via);
+						}
+						dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
+						break;
+					
 					default :
 						/* Default case is to assume its an FT_STRING field */
 						if(hdr_tree) {
@@ -3046,6 +3301,51 @@ void proto_register_sip(void)
 			{ "Method",  "sip.CSeq.method",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"CSeq header method", HFILL}
+		},
+		{ &hf_sip_via_transport,
+			{ "Transport",  "sip.Via.transport",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"Via header Transport", HFILL}
+		},
+		{ &hf_sip_via_sent_by_address,
+			{ "Sent-by Address",  "sip.Via.sent-by.address",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"Via header Sent-by Address", HFILL}
+		},
+		{ &hf_sip_via_sent_by_port,
+			{ "Sent-by port",  "sip.Via.sent-by.port",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+		    	"Via header Sent-by Port", HFILL}
+		},
+		{ &hf_sip_via_branch,
+			{ "Branch",  "sip.Via.branch",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via Branch", HFILL},
+		},
+		{ &hf_sip_via_maddr,
+			{ "Maddr",  "sip.Via.maddr",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via Maddr", HFILL},
+		},
+		{ &hf_sip_via_rport,
+			{ "RPort",  "sip.Via.rport",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via RPort", HFILL},
+		},
+		{ &hf_sip_via_received,
+			{ "Received",  "sip.Via.received",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via Received", HFILL},
+		},
+		{ &hf_sip_via_ttl,
+			{ "TTL",  "sip.Via.ttl",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via TTL", HFILL}
+		},
+		{ &hf_sip_via_comp,
+			{ "Comp",  "sip.Via.comp",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via comp", HFILL}
 		}};
 
 
@@ -3058,7 +3358,8 @@ void proto_register_sip(void)
 		&ett_sip_uri,
 		&ett_sip_contact_item,
 		&ett_sip_message_body,
-		&ett_sip_cseq
+		&ett_sip_cseq,
+		&ett_sip_via
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
