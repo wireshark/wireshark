@@ -176,7 +176,7 @@ typedef struct pref_module module_t;
  * call so that the "Protocol Properties..." menu item works.
  */
 extern module_t *prefs_register_module(module_t *parent, const char *name,
-    const char *title, void (*apply_cb)(void));
+    const char *title, const char *description, void (*apply_cb)(void));
 
 /*
  * Register a subtree that will have modules under it.
@@ -184,7 +184,8 @@ extern module_t *prefs_register_module(module_t *parent, const char *name,
  * at the top level and the title used in the tab for it in a preferences
  * dialog box.
  */
-extern module_t *prefs_register_subtree(module_t *parent, const char *title);
+extern module_t *prefs_register_subtree(module_t *parent, const char *title,
+    const char *description);
 
 /*
  * Register that a protocol has preferences.

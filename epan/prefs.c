@@ -52,7 +52,7 @@
 /* Internal functions */
 static module_t *find_module(const char *name);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
-    const char *name, const char *title, gboolean is_subtree,
+    const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
 static struct preference *find_preference(module_t *, const char *);
 static int    set_pref(gchar*, gchar*);
@@ -139,10 +139,10 @@ module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
  */
 module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
-    void (*apply_cb)(void))
+    const char *description, void (*apply_cb)(void))
 {
-	return prefs_register_module_or_subtree(parent, name, title, FALSE,
-	    apply_cb);
+	return prefs_register_module_or_subtree(parent, name, title, description,
+	    FALSE, apply_cb);
 }
 
 /*
@@ -152,15 +152,15 @@ prefs_register_module(module_t *parent, const char *name, const char *title,
  * dialog box.
  */
 module_t *
-prefs_register_subtree(module_t *parent, const char *title)
+prefs_register_subtree(module_t *parent, const char *title, const char *description)
 {
-	return prefs_register_module_or_subtree(parent, NULL, title, TRUE,
+	return prefs_register_module_or_subtree(parent, NULL, title, description, TRUE,
 	    NULL);
 }
 
 static module_t *
 prefs_register_module_or_subtree(module_t *parent, const char *name,
-    const char *title, gboolean is_subtree, void (*apply_cb)(void))
+    const char *title, const char *description, gboolean is_subtree, void (*apply_cb)(void))
 {
 	module_t *module;
 	const char *p;
@@ -169,6 +169,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
 	module->title = title;
+	module->description = description;
 	module->is_subtree = is_subtree;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
@@ -261,12 +262,13 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 		/*
 		 * No.  Do so.
 		 */
-		protocols_module = prefs_register_subtree(NULL, "Protocols");
+		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
 	}
 	protocol = find_protocol_by_id(id);
 	return prefs_register_module(protocols_module,
 	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol), apply_cb);
+	    proto_get_protocol_short_name(protocol),
+	    proto_get_protocol_name(id), apply_cb);
 }
 
 /*
@@ -286,12 +288,13 @@ prefs_register_protocol_obsolete(int id)
 		/*
 		 * No.  Do so.
 		 */
-		protocols_module = prefs_register_subtree(NULL, "Protocols");
+		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
 	}
 	protocol = find_protocol_by_id(id);
 	module = prefs_register_module(protocols_module,
 	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol), NULL);
+	    proto_get_protocol_short_name(protocol),
+	    proto_get_protocol_name(id), NULL);
 	module->obsolete = TRUE;
 	return module;
 }
@@ -2652,4 +2655,5 @@ free_col_info(e_prefs *pr)
   g_list_free(pr->col_list);
   pr->col_list = NULL;
 }
+
 

@@ -316,7 +316,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
     /* Frame */
-    frame = gtk_frame_new(module->title);
+    frame = gtk_frame_new(module->description);
     gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
     OBJECT_SET_DATA(main_sw, E_PAGESW_FRAME_KEY, frame);

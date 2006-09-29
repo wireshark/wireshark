@@ -28,7 +28,8 @@
 
 struct pref_module {
 	const char *name;	/* name of module */
-	const char *title;	/* title of module (displayed in preferences notebook) */
+	const char *title;	/* title of module (displayed in preferences list) */
+	const char *description;/* Description of module (displayed in preferences notebook) */
 	gboolean is_subtree;	/* if TRUE, this has other modules, not preferences, under it */
 	void (*apply_cb)(void);	/* routine to call when preferences applied */
 	GList	*prefs;		/* list of its preferences or submodules */
