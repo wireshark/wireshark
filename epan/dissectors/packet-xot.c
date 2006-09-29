@@ -105,8 +105,11 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_length_remaining(tvb, offset + 4);
   if (length > plen)
     length = plen;
-  next_tvb = tvb_new_subset(tvb, offset + 4, length, plen);
-  call_dissector(x25_handle, next_tvb, pinfo, tree);
+  if (plen > 0)
+  {
+    next_tvb = tvb_new_subset(tvb, offset + 4, length, plen);
+    call_dissector(x25_handle, next_tvb, pinfo, tree);
+  }
 }
 
 static int dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
