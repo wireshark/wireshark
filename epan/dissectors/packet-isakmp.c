@@ -1307,7 +1307,19 @@ v2_tid2encstr(guint16 tid)
     { 10,	"RESERVED" },
     { 11,	"ENCR_NULL" },
     { 12,	"ENCR_AES_CBC" },
-    { 13,	"ENCR_AES_CTR" },
+    { 13,	"ENCR_AES_CTR" },					/* [RFC3686] */
+    { 14,	"ENCR_AES-CCM_8" },					/* [RFC4309] */
+    { 15,	"ENCR-AES-CCM_12" },				/* [RFC4309] */
+    { 16,	"ENCR-AES-CCM_16" },				/* [RFC4309] */
+    { 17,	"UNASSIGNED" },				
+    { 18,	"AES-GCM with a 8 octet ICV" },		/* [RFC4106] */
+    { 19,	"AES-GCM with a 12 octet ICV" },	/* [RFC4106] */
+    { 20,	"AES-GCM with a 16 octet ICV" },	/* [RFC4106] */
+    { 21,	"ENCR_NULL_AUTH_AES_GMAC" },		/* [RFC4543] */
+/*
+ *		22-1023    RESERVED TO IANA                    [RFC4306]
+ *		1024-65535    PRIVATE USE                      [RFC4306]
+ */
     { 0,	NULL },
   };
 
@@ -1324,6 +1336,14 @@ v2_tid2prfstr(guint16 tid)
     { 2,	"PRF_HMAC_SHA1" },
     { 3,	"PRF_HMAC_TIGER" },
     { 4,	"PRF_AES128_CBC" },
+    { 5,	"RESERVED TO IANA" },				/* [RFC4306] */
+    { 6,	"RESERVED TO IANA" },				/* [RFC4306] */
+    { 7,	"RESERVED TO IANA" },				/* [RFC4306] */
+    { 8,	"PRF_AES128_CMAC6" },				/* [RFC4615] */
+	/*
+     9-1023    RESERVED TO IANA							[RFC4306]
+	 1024-65535    PRIVATE USE							[RFC4306]
+	 */
     { 0,	NULL },
   };
   return val_to_str(tid, vs_v2_trans_prf, "UNKNOWN-PRF");
@@ -1340,6 +1360,16 @@ v2_tid2iastr(guint16 tid)
     { 3,	"AUTH_DES_MAC" },
     { 4,	"AUTH_KPDK_MD5" },
     { 5,	"AUTH_AES_XCBC_96" },
+    { 6,	"AUTH_HMAC_MD5_128" },				/* [RFC-maino-fcsp-02.txt] */
+    { 7,	"AUTH_HMAC_SHA1_160" },				/* [RFC-maino-fcsp-02.txt] */
+    { 8,	"AUTH_AES_CMAC_96" },				/* [RFC4494] */
+    { 9,	"AUTH_AES_128_GMAC" },				/* [RFC4543] */
+    { 10,	"AUTH_AES_192_GMAC" },				/* [RFC4543] */
+    { 11,	"AUTH_AES_256_GMAC" },				/* [RFC4543] */
+	/*
+    12-1023    RESERVED TO IANA                    [RFC4306]
+ 1024-65535    PRIVATE USE                         [RFC4306]
+ */
     { 0,	NULL },
   };
   return val_to_str(tid, vs_v2_trans_integrity, "UNKNOWN-INTEGRITY-ALG");
@@ -1356,15 +1386,23 @@ v2_tid2dhstr(guint16 tid)
     {  3,	"RESERVED" },
     {  4,	"RESERVED" },
     {  5,	"group 5 - 1536 Bit MODP" },
+	/* 6-13    RESERVED TO IANA                    [RFC4306] */
     { 14,	"2048-bit MODP Group" },
     { 15,	"3072-bit MODP Group" },
     { 16,	"4096-bit MODP Group" },
     { 17,	"6144-bit MODP Group" },
     { 18,	"8192-bit MODP Group" },
+    { 19,	"256-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+    { 20,	"384-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+    { 21,	"521-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+	/*
+    22-1023    RESERVED TO IANA                    [RFC4306] 
+ 1024-65535    PRIVATE USE                         [RFC4306]
+ */
     { 0,	NULL },
   };
 
-  if ((tid >= 6 && tid <= 13) || (tid >= 19 && tid <= 1023))
+  if ((tid >= 6 && tid <= 13) || (tid >= 22 && tid <= 1023))
     return "RESERVED TO IANA";
   if (tid >= 1024)
     return "PRIVATE USE";
@@ -2753,17 +2791,17 @@ static const char *
 id2str(int isakmp_version, guint8 type)
 {
   static const value_string vs_ident[] = {
-    { IKE_ID_IPV4_ADDR,		"IPV4_ADDR" },
-    { IKE_ID_FQDN,		"FQDN" },
-    { IKE_ID_USER_FQDN,		"USER_FQDN" },
+    { IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
+    { IKE_ID_FQDN,				"FQDN" },
+    { IKE_ID_USER_FQDN,			"USER_FQDN" },
     { IKE_ID_IPV4_ADDR_SUBNET,	"IPV4_ADDR_SUBNET" },
-    { IKE_ID_IPV6_ADDR,		"IPV6_ADDR" },
+    { IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
     { IKE_ID_IPV6_ADDR_SUBNET,	"IPV6_ADDR_SUBNET" },
     { IKE_ID_IPV4_ADDR_RANGE,	"IPV4_ADDR_RANGE" },
     { IKE_ID_IPV6_ADDR_RANGE,	"IPV6_ADDR_RANGE" },
-    { IKE_ID_DER_ASN1_DN,	"DER_ASN1_DN" },
-    { IKE_ID_DER_ASN1_GN,	"DER_ASN1_GN" },
-    { IKE_ID_KEY_ID,		"KEY_ID" },
+    { IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
+    { IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
+    { IKE_ID_KEY_ID,			"KEY_ID" },
     { 0,			NULL },
   };
 
