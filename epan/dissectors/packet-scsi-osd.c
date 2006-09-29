@@ -364,8 +364,8 @@ proto_register_scsi_osd(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
-	};
+/*	static gint *ett[] = {
+	};*/
 
 	/* Register the protocol name and description */
 	proto_scsi_osd = proto_register_protocol("SCSI_OSD", "SCSI_OSD", "scsi_osd");
