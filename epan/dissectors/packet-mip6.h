@@ -297,7 +297,7 @@ static const value_string fmip6_lla_optcode_value[] = {
 #define MIP6_ACOA_ACOA_OFF    2
 #define MIP6_ACOA_ACOA_LEN   16
 
-#define NEMO_MNP_LEN         16
+#define NEMO_MNP_LEN         18
 #define NEMO_MNP_PL_OFF       3
 #define NEMO_MNP_MNP_OFF      4
 #define NEMO_MNP_MNP_LEN     16
