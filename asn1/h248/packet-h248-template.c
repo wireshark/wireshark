@@ -390,6 +390,8 @@ static const value_string event_name_vals[] = {
   {   0x000c0001, "rtp, Payload Transition" },
   {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" },
   {   0x00210001, "GB/BNCChange" },
+  {   0x002a0001  "H.245/h245msg (Incoming H.245 Message)" },
+  {   0x002a0004  "H.245/h245ChC (H.245 Channel Closed)" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -418,7 +420,7 @@ static const value_string signal_name_vals[] = {
   {   0x00050020, "dg, DTMF character *" },
   {   0x00050021, "dg, DTMF character #" },
   {   0x00070030, "cg, Dial Tone" },
-  {   0x00070031, "cg, Ringing Tone" },
+  {   0x00070031, "cg/rt (Ringing Tone)" },
   {   0x00070032, "cg, Busy Tone" },
   {   0x00070033, "cg, Congestion Tone" },
   {   0x00070034, "cg, Special Information Tone" },
@@ -434,6 +436,17 @@ static const value_string signal_name_vals[] = {
   {   0x00210001, "GB/EstBNC(Establish BNC)" },
   {   0x00210002, "GB/ModBNC (Modify BNC)" },
   {   0x00210003, "GB/RelBNC(Release BNC)" },
+  
+  {   0x002a0001  "H.245/cs (channel state)" },
+  {   0x002a0002  "H.245/termtype (Terminal Type)" },
+
+  {   0x002c0001  "H.324/cmod (Communication mode)" },
+  {   0x002c0002  "H.324/muxlv (Highest Multiplexing level)" },
+  {   0x002c0003  "H.324/demux (Demultiplex)" },
+  {   0x002c0004  "H.324/h223capr (Remote H.223 capability)" },
+  {   0x002c0005  "H.324/muxtbl_in (Incoming Multiplex Table)" },
+  {   0x002c0006  "H.324/muxtbl_out (Outgoing Multiplex Table)" },
+
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
