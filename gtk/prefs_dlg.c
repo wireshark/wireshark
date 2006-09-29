@@ -337,7 +337,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     prefs_pref_foreach(module, pref_show, main_tb);
 
     /* Associate this module with the page's frame. */
-    OBJECT_SET_DATA(main_sw, E_PAGE_MODULE_KEY, module);
+    OBJECT_SET_DATA(frame, E_PAGE_MODULE_KEY, module);
 
     /* Add the page to the notebook */
     gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
