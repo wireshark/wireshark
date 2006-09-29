@@ -1602,6 +1602,20 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
      * all reserved or undefined bits in iscsi must be set to zero.
      */
     switch(opcode){
+    case ISCSI_OPCODE_NOP_IN:
+	/* top two bits of byte 0 must be 0 */
+	if(tvb_get_guint8(tvb, offset+0)&0xc0){
+	    return FALSE;
+	}
+	/* byte 1 must be 0x80 */
+	if(tvb_get_guint8(tvb, offset+1)!=0x80){
+	    return FALSE;
+	}
+	/* bytes 2 and 3 must be 0 */
+	if(tvb_get_guint8(tvb, offset+2)||tvb_get_guint8(tvb, offset+3)){
+	    return FALSE;
+	}
+	break;
     case ISCSI_OPCODE_NOP_OUT:
 	/* top bit of byte 0 must be 0 */
 	if(tvb_get_guint8(tvb, offset+0)&0x80){
@@ -1623,10 +1637,10 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* all reserved bytes between 32 - 47 must be null */
-	if(!tvb_get_letohl(tvb,offset+32)
-	|| !tvb_get_letohl(tvb,offset+36)
-	|| !tvb_get_letohl(tvb,offset+40)
-	|| !tvb_get_letohl(tvb,offset+44)){
+	if(tvb_get_letohl(tvb,offset+32)
+	|| tvb_get_letohl(tvb,offset+36)
+	|| tvb_get_letohl(tvb,offset+40)
+	|| tvb_get_letohl(tvb,offset+44)){
 	    return FALSE;
 	}
 	break;
