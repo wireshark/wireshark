@@ -448,38 +448,6 @@ typedef guint32 scsi_device_type;
 #define SCSI_CMND_MMC                    5
 
 /* SPC and SPC-2 Commands */
-
-#define SCSI_SPC_CHANGE_DEFINITION       0x40
-#define SCSI_SPC_COMPARE                 0x39
-#define SCSI_SPC_COPY                    0x18
-#define SCSI_SPC_COPY_AND_VERIFY         0x3A
-#define SCSI_SPC2_INQUIRY                0x12
-#define SCSI_SPC2_EXTCOPY                0x83
-#define SCSI_SPC2_LOGSELECT              0x4C
-#define SCSI_SPC2_LOGSENSE               0x4D
-#define SCSI_SPC2_MODESELECT6            0x15
-#define SCSI_SPC2_MODESELECT10           0x55
-#define SCSI_SPC2_MODESENSE6             0x1A
-#define SCSI_SPC2_MODESENSE10            0x5A
-#define SCSI_SPC2_PERSRESVIN             0x5E
-#define SCSI_SPC2_PERSRESVOUT            0x5F
-#define SCSI_SPC2_PREVMEDREMOVAL         0x1E
-#define SCSI_SPC2_READBUFFER             0x3C
-#define SCSI_SPC2_RCVCOPYRESULTS         0x84
-#define SCSI_SPC2_RCVDIAGRESULTS         0x1C
-#define SCSI_SPC2_RELEASE6               0x17
-#define SCSI_SPC2_RELEASE10              0x57
-#define SCSI_SPC2_REPORTDEVICEID         0xA3
-#define SCSI_SPC2_REPORTLUNS             0xA0
-#define SCSI_SPC2_REQSENSE               0x03
-#define SCSI_SPC2_RESERVE6               0x16
-#define SCSI_SPC2_RESERVE10              0x56
-#define SCSI_SPC2_SENDDIAG               0x1D
-#define SCSI_SPC2_SETDEVICEID            0xA4
-#define SCSI_SPC2_TESTUNITRDY            0x00
-#define SCSI_SPC2_WRITEBUFFER            0x3B
-#define SCSI_SPC2_VARLENCDB              0x7F
-
 static const value_string scsi_spc2_vals[] = {
     {SCSI_SPC_CHANGE_DEFINITION  , "Change Definition"},
     {SCSI_SPC_COMPARE            , "Compare"},
