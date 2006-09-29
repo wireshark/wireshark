@@ -1102,6 +1102,7 @@
 			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
 			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
+			<enum name="DIAMETER_ERROR_SERVICE_AREA" code="5123"/>
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 		</avp>
@@ -1494,6 +1495,63 @@
 				<gavp name="Content-Disposition"/>
 				<gavp name="Originator"/>
 			</grouped>
+		</avp>
+		
+		<!-- 3GPP TS 29.061 version 6.5.0 Release 6 -->
+
+		<avp name="TMGI" code="900" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="Required-MBMSBearer-Capabilities" code="901" mandatory="must">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="MBMS-StartStop-Indication" code="902" mandatory="must">
+			<type type-name="Enumerated"/>
+			<enum name="START" code="0"/>
+			<enum name="STOP" code="1"/>
+		</avp>
+
+		<avp name="MBMS-Service-Area" code="903" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="MBMS-Session-Duration" code="904" mandatory="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<avp name="Alternative-APN" code="905" mandatory="must">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="MBMS-Service-Type" code="906" mandatory="must">
+			<type type-name="Enumerated"/>
+			<enum name="MULTICAST" code="0"/>
+			<enum name="BROADCAST" code="1"/>
+		</avp>
+
+		<avp name="MBMS-2G-3G-Indicator AVP" code="907" mandatory="must">
+			<type type-name="Enumerated"/>
+			<enum name="2G" code="0"/>
+			<enum name="3G" code="1"/>
+			<enum name="2G-AND-3G" code="2"/>
+		</avp>
+
+		<avp name="RAI" code="909" mandatory="must">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="MBMS-Time-To-Data-Transfer" code="911" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="MBMS-Session-Identity-Repetition-Number " code="912" mandatory="must">
+			<type type-name="Unsigned32"/>
 		</avp>
 
 

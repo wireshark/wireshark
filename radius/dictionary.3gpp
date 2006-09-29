@@ -14,22 +14,31 @@ BEGIN-VENDOR	3GPP
 #	Maybe we want a UTF-8 'type' in the server...
 #
 ATTRIBUTE	3GPP-IMSI							1		string	
-ATTRIBUTE	3GPP-Charging-ID					2		integer
+ATTRIBUTE	3GPP-Charging-ID						2		integer
 ATTRIBUTE	3GPP-PDP-Type						3		integer
-ATTRIBUTE	3GPP-Charging-Gateway-Address		4		ipaddr
-ATTRIBUTE	3GPP-GPRS-Negotiated-QoS-profile	5		string
-ATTRIBUTE	3GPP-SGSN-Address					6		ipaddr
-ATTRIBUTE	3GPP-GGSN-Address					7		ipaddr
-ATTRIBUTE	3GPP-IMSI-MCC-MNC					8		string
-ATTRIBUTE	3GPP-GGSN-MCC-MNC					9		string
+ATTRIBUTE	3GPP-Charging-Gateway-Address				4		ipaddr
+ATTRIBUTE	3GPP-GPRS-Negotiated-QoS-profile			5		string
+ATTRIBUTE	3GPP-SGSN-Address						6		ipaddr
+ATTRIBUTE	3GPP-GGSN-Address						7		ipaddr
+ATTRIBUTE	3GPP-IMSI-MCC-MNC						8		string
+ATTRIBUTE	3GPP-GGSN-MCC-MNC						9		string
 ATTRIBUTE	3GPP-NSAPI							10		string
-ATTRIBUTE	3GPP-Session-Stop-Indicator			11		octets
+ATTRIBUTE	3GPP-Session-Stop-Indicator				11		octets
 ATTRIBUTE	3GPP-Selection-Mode					12		string
-ATTRIBUTE	3GPP-Charging-Characteristics		13		string
-ATTRIBUTE	3GPP-Charging-Gateway-IPv6-Address	14		ipv6addr
-ATTRIBUTE	3GPP-SGSN-IPv6-Address				15		ipv6addr
-ATTRIBUTE	3GPP-GGSN-IPv6-Address				16		ipv6addr
-
+ATTRIBUTE	3GPP-Charging-Characteristics				13		string
+ATTRIBUTE	3GPP-Charging-Gateway-IPv6-Address			14		ipv6addr
+ATTRIBUTE	3GPP-SGSN-IPv6-Address					15		ipv6addr
+ATTRIBUTE	3GPP-GGSN-IPv6-Address					16		ipv6addr
+ATTRIBUTE	3GPP-IPv6-DNS-Servers						17		ipv6addr
+ATTRIBUTE	3GPP-SGSN MCC-MNC						18		string
+ATTRIBUTE	3GPP-Teardown Indicator						19		octets
+ATTRIBUTE	3GGP- IMEISV							20		octets
+ATTRIBUTE	3GPP-RAT-Type							21		octets
+ATTRIBUTE	3GPP-User-Location-Info						22		octets
+ATTRIBUTE	3GPP-MS-TimeZone						23		octets
+ATTRIBUTE	3GPP-Camel-Charging-Info					24		octets
+ATTRIBUTE	3GPP-Packet-Filter						25		octets
+ATTRIBUTE	3GPP-Negotiated-DSCP						26		string
 
 #
 #	This attribute is really an array of IPv6 addresses.

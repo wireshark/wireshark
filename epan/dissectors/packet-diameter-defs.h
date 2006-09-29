@@ -552,7 +552,8 @@ static const value_string diameter_application_id_vals[] = {
 	{2, "Diameter Mobile IPv4 Application"},
 	{3, "Diameter Base Accounting"},
 	{4, "Diameter Credit-Control Application"},	/* draft-ietf-aaa-diameter-cc-06 */
-	{5, "Diameter EAP"},							/* [RFC-ietf-aaa-eap-10.txt] */
+	{5, "Diameter EAP"},						/* [RFC-ietf-aaa-eap-10.txt] */
+	{6, "Diameter Session Initiation Protocol (SIP) Application"},			/* [RFC-ietf-aaa-diameter-sip-app-12.txt] */
 	{16777216, "3GPP Cx"},						/* 3GPP TS 29.228 and 29.229 */
 	{16777217, "3GPP Sh"},						/* 3GPP TS 29.328 and 29.329 */
 	{16777218, "3GPP Re/Rf"},					/* 3GPP TS 32.225 */
@@ -561,6 +562,17 @@ static const value_string diameter_application_id_vals[] = {
 	{16777221, "3GPP Zh"},						/* 3GPP TS 29.109 */
 	{16777222, "3GPP Gq"},						/* 3GPP TS 29.209 */
 	{16777223, "3GPP Gmb"},						/* 3GPP TS 29.061 */
+	{16777224, "3GPP Gx"},						/* 3GPP TS 29.210 */
+	{16777225, "3GPP Gx over Gy"},				/* 3GPP TS 29.210 */
+	{16777226, "3GPP MM10 "},					/* 3GPP TS 29.140 */
+	{16777227, "Ericsson MSI"},					/* Blanco */
+	{16777228, "Ericsson Zx"},					/* Blanco */
+	{16777229, "3GPP Rx"},						/* 3GPP TS 29.211 */
+	{16777230, "3GPP Pr"},						/* 3GPP TS 29.234 */
+	{16777231, "ETSI e4"},						/* ETSI ES 283 034 */
+	{16777232, "Ericsson Charging-CIP"},		/* Almen */
+	{16777233, "Ericsson Mm"},					/* Blanco */
+	{16777234, "Vodafone Gx+"},					/* Oertel */
 	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
@@ -568,7 +580,6 @@ static const value_string diameter_application_id_vals[] = {
 
 
 /* Diameter Session Initiation Protocol (SIP) Application value strings */
-/* Remove comment when IANA assigned values are avalable 
 
 static const value_string SIP_reason_code_vals[] = {
 	{0, "PERMANENT_TERMINATION"},
@@ -578,8 +589,6 @@ static const value_string SIP_reason_code_vals[] = {
 	{0, NULL}
 
 };
-
-Remove comment when IANA assigned values are avalable */ 
 
 /* Used both in Diameter Session Initiation Protocol (SIP) Application and 3GPP Vendor
  * Specific AVP:s TS 29 299 5.7.0 */
@@ -681,16 +690,14 @@ static const value_string diameter_result_code_vals[] = {
 	 */
 	{2001, "DIAMETER_SUCCESS"},
 	{2002, "DIAMETER_LIMITED_SUCCESS"},
-	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
-	{2xx1, "DIAMETER_FIRST_REGISTRATION"},
-	{2xx2, "DIAMETER_SUBSEQUENT_REGISTRATION "},
-	{2xx3, "DIAMETER_UNREGISTERED_SERVICE "},
-	{2xx4, "DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED "},
-	{2xx5, "DIAMETER_SERVER_SELECTION"},
-	{2xx6, "DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED"},
-	{2xx7, "DIAMETER_SUCCESS_SERVER_NOT_STORED"},
+	/* RFC-ietf-aaa-diameter-sip-app-12.txt */ 
+	{2003, "DIAMETER_FIRST_REGISTRATION"},
+	{2004, "DIAMETER_SUBSEQUENT_REGISTRATION "},
+	{2005, "DIAMETER_UNREGISTERED_SERVICE "},
+	{2006, "DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED "},
+	{2007, "DIAMETER_SERVER_SELECTION"},
+	{2008, "DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED"},
 	
-	  */
 
 	/* Protocol errors */
 	{3001, "DIAMETER_COMMAND_UNSUPPORTED"},
@@ -716,10 +723,8 @@ static const value_string diameter_result_code_vals[] = {
 	{4010, "DIAMETER_END_USER_SERVICE_DENIED"},
 	{4011, "DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE"},
 	{4012, "DIAMETER_CREDIT_LIMIT_REACHED"},
-	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
-	 
-	{4xx1, "DIAMETER_USER_NAME_REQUIRED"},
-	*/
+	/* draft-ietf-aaa-diameter-sip-app-12.txt */ 
+	{4013, "DIAMETER_USER_NAME_REQUIRED"},
 	/* Permanent Failures */
 	{5001, "DIAMETER_AVP_UNSUPPORTED"}, 
 	{5002, "DIAMETER_UNKNOWN_SESSION_ID"}, 
@@ -745,18 +750,17 @@ static const value_string diameter_result_code_vals[] = {
 	{5030, "DIAMETER_USER_UNKNOWN"},
 	{5031, "DIAMETER_RATING_FAILED"},
 
-	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
+	/* draft-ietf-aaa-diameter-sip-app-12.txt */
 
-	{5xx1, "DIAMETER_ERROR_USER_UNKNOWN"}, 
-	{5xx2, "DIAMETER_ERROR_IDENTITIES_DONT_MATCH"}, 
-	{5xx3, "DIAMETER_ERROR_IDENTITY_NOT_REGISTERED"}, 
-	{5xx4, "DIAMETER_ERROR_ROAMING_NOT_ALLOWED"}, 
-	{5xx5, "DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED"}, 
-	{5xx6, "DIAMETER_ERROR_USER_UNKNOWN"}, 
-	{5xx7, "DIAMETER_ERROR_IN_ASSIGNMENT_TYPE"}, 
-	{5xx8, "DIAMETER_ERROR_TOO_MUCH_DATA"}, 
-	{5xx9, "DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA"},
-	*/
+	{5032, "DIAMETER_ERROR_USER_UNKNOWN"}, 
+	{5033, "DIAMETER_ERROR_IDENTITIES_DONT_MATCH"}, 
+	{5034, "DIAMETER_ERROR_IDENTITY_NOT_REGISTERED"}, 
+	{5035, "DIAMETER_ERROR_ROAMING_NOT_ALLOWED"}, 
+	{5036, "DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED"}, 
+	{5037, "DIAMETER_ERROR_AUTH_SCHEME_NOT_SUPPORTED"}, 
+	{5038, "DIAMETER_ERROR_IN_ASSIGNMENT_TYPE"}, 
+	{5039, "DIAMETER_ERROR_TOO_MUCH_DATA"}, 
+	{5040, "DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA"},
 	{0, NULL}
 };
 /* TS 29.229 6.4.0 */
@@ -1029,10 +1033,10 @@ static struct old_avp_info old_diameter_avps[] = {
     { 487, "Accounting-Sub-Session-Id",			DIAMETER_ENUMERATED,		(value_string *)NULL},
 
 
-/* draft-ietf-aaa-diameter-sip-app-01.txt AVP codes to be allocated
-	{ xx01, "SIP-Visited-Network-Id",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+/* draft-ietf-aaa-diameter-sip-app-12.txt 
+	{ 386, "SIP-Visited-Network-Id",			DIAMETER_UTF8STRING,		(value_string *)NULL},
 	{ xx02, "SIP-AOR",							DIAMETER_UTF8STRING,		(value_string *)NULL},
-	{ xx03, "SIP-Server-URI",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 371,  "SIP-Server-URI",					DIAMETER_UTF8STRING,		(value_string *)NULL},
 	{ xx04, "SIP-Server-Capabilities",			DIAMETER_GROUPED,			(value_string *)NULL},
 	{ xx05, "SIP-Mandatory-Capability",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
 	{ xx06, "SIP-Optional-Capability",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
@@ -1049,7 +1053,7 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ xx17, "SIP-Integrity-Key",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ xx18, "SIP-Server-Assignment-Type",		DIAMETER_ENUMERATED,		SIP_server_assignment_type_vals},
 	{ xx19, "SIP-Deregistration-Reason",		DIAMETER_GROUPED,			(value_string *)NULL},
-	{ xx20, "SIP-Reason-Code",					DIAMETER_ENUMERATED,		SIP_reason_code_vals},
+	{ 384, "SIP-Reason-Code",					DIAMETER_ENUMERATED,		SIP_reason_code_vals},
 	{ xx21, "SIP-Reason-Info",					DIAMETER_UTF8STRING,		(value_string *)NULL},
 	{ xx22, "SIP-Accouting-Information",		DIAMETER_GROUPED,			(value_string *)NULL},
 	{ xx23, "SIP-Accounting-Server-URI",		DIAMETER_UTF8STRING,		(value_string *)NULL},
@@ -1146,16 +1150,26 @@ static const value_string diameter_command_code_vals[] = {
 	/* Base Protocol */
 	{257, "Capabilities-Exchange"},
 	{258, "Re-Auth"},
-	{260, "AA-Mobile-Node"},			/* [RFC-ietf-aaa-diameter-mobileip-20.txt]  */
-	{262, "Home-Agent-MIP"},			/* [RFC-ietf-aaa-diameter-mobileip-20.txt]  */
-	{265, "AAR / AAA"},					/* [RFC-ietf-aaa-diameter-nasreq-17.txt]	*/
-	{265, "DER / DEA"},					/* [RFC-ietf-aaa-eap-10.txt]				*/
-	{271, "Accounting"},
-	{272, "Credit-Control"},					/* [RFC-ietf-aaa-diameter-cc-06.txt]		*/
-	{274, "Abort-Session"},
+	{260, "AA-Mobile-Node"},			/* RFC4004  */
+	{262, "Home-Agent-MIP"},			/* RFC4004  */
+	{265, "AAR / AAA"},					/* RFC4005	*/
+	{268, "DER / DEA"},					/* RFC4072	*/
+	{271, "Accounting"},				/* RFC4005  */
+	{272, "Credit-Control"},			/* RFC4006	*/
+	/* 273   Unallocated (IETF Consensus) */
+	{274, "Abort-Session"},				/* RFC3588  */
 	{275, "Session-Termination"},
+	/* 276-279   Unallocated (IETF Consensus) */
 	{280, "Device-Watchdog"},
 	{282, "Disconnect-Peer"},			/* [RFC3588] */
+	/* Session Initiation Protocol (SIP) Application */
+	{283, "User-Authorization"},
+	{284, "Server-Assignment"},
+	{285, "Location-Info"},
+	{286, "Multimedia-Auth"},
+	{287, "Registration-Termination"},
+	{288, "Push-Profile"},
+	/* 289-299   Unallocated (IETF Consensus) */
 	/* 300-313   Allocated for 3GPP (TS 29.229 6.40)*/
 	{300, "User-Authorization"},
 	{301, "Server-Assignment"},
@@ -1167,14 +1181,6 @@ static const value_string diameter_command_code_vals[] = {
 	{16777214, "Experimental code"},
 	{16777215, "Experimental code"},
 
-	/* Session Initiation Protocol (SIP) Application, numbers not yet assigned by IANA 
-	{aaa, "User-Authorization"},
-	{bbb, "Server-Assignment"},
-	{ccc, "Location-Info"},
-	{ddd, "Multimedia-Auth"},
-	{eee, "Registration-Termination"},
-	{fff, "Push-Profile"},
-	*/	
 
 	{0, (char *)NULL}
 };
