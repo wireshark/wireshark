@@ -93,6 +93,7 @@
 #include <epan/tap.h>
 #include "packet-fc.h"
 #include "packet-scsi.h"
+#include "packet-scsi-osd.h"
 
 static int proto_scsi                    = -1;
 static int hf_scsi_time                  = -1;
@@ -1002,6 +1003,7 @@ static const value_string scsi_devtype_val[] = {
 static const enum_val_t scsi_devtype_options[] = {
     {"block", "Block Device", SCSI_DEV_SBC},
     {"sequential", "Sequential Device", SCSI_DEV_SSC},
+    {"objectbased", "Object Based Storage Device", SCSI_DEV_OSD},
     {NULL, NULL, -1},
 };
 
@@ -1677,16 +1679,6 @@ const true_false_string scsi_senddiag_pf_val = {
 static gint scsi_def_devtype = SCSI_DEV_SBC;
 
 
-/* list of commands for each commandset */
-typedef void (*scsi_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree, guint offset,
-		gboolean isreq, gboolean iscdb,
-                guint32 payload_len, scsi_task_data_t *cdata);
-
-typedef struct _scsi_cdb_table_t {
-	scsi_dissector_t	func;
-} scsi_cdb_table_t;
-
 typedef struct _cmdset_t {
     int hf_opcode;
     const value_string *cdb_vals;
@@ -2085,7 +2077,7 @@ dissect_spc3_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	return offset;
 }
 
-static void
+void
 dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint32 payload_len, scsi_task_data_t *cdata)
@@ -2223,7 +2215,7 @@ dissect_spc3_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 }
 
-static void
+void
 dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -2254,7 +2246,7 @@ dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static void
+void
 dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -3149,7 +3141,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
+void
 dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len, scsi_task_data_t *cdata)
@@ -3398,7 +3390,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
+void
 dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
@@ -3522,7 +3514,7 @@ dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pr
     }
 }
 
-static void
+void
 dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
@@ -3586,7 +3578,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 }
 
-static void
+void
 dissect_spc3_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -3672,7 +3664,7 @@ proto_tree *tree _U_,
 
 }
 
-static void
+void
 dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -7932,6 +7924,11 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
         csdata->cdb_vals=scsi_smc2_vals;
         csdata->cdb_table=smc;
         break;
+    case SCSI_DEV_OSD:
+        csdata->hf_opcode=hf_scsi_osd_opcode;
+        csdata->cdb_vals=scsi_osd_vals;
+        csdata->cdb_table=scsi_osd_table;
+        break;
     default:
         csdata->hf_opcode=hf_scsi_spcopcode;
         csdata->cdb_vals=scsi_spc2_vals;
@@ -8745,7 +8742,9 @@ proto_register_scsi (void)
     prefs_register_enum_preference (scsi_module, "decode_scsi_messages_as",
                                     "Decode SCSI Messages As",
                                     "When Target Cannot Be Identified, Decode SCSI Messages As",
-                                    &scsi_def_devtype, scsi_devtype_options, TRUE);
+                                    &scsi_def_devtype, 
+                                    scsi_devtype_options, 
+                                    FALSE);
 
 }
 

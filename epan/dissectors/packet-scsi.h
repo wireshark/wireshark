@@ -26,6 +26,17 @@
 #define __PACKET_SCSI_H_
 
 
+/* list of commands for each commandset */
+typedef void (*scsi_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree, guint offset,
+		gboolean isreq, gboolean iscdb,
+                guint32 payload_len, scsi_task_data_t *cdata);
+
+typedef struct _scsi_cdb_table_t {
+	scsi_dissector_t	func;
+} scsi_cdb_table_t;
+
+
 /* SPC and SPC-2 Commands */
 #define SCSI_SPC_CHANGE_DEFINITION       0x40
 #define SCSI_SPC_COMPARE                 0x39
@@ -57,6 +68,17 @@
 #define SCSI_SPC2_TESTUNITRDY            0x00
 #define SCSI_SPC2_WRITEBUFFER            0x3B
 #define SCSI_SPC2_VARLENCDB              0x7F
+
+void dissect_spc3_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
+void dissect_spc3_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc3_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc3_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc3_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+
+
 
 extern const value_string scsi_status_val[];
 
