@@ -43,7 +43,8 @@
  * Each Frame starts with the 0xff Flag byte
  * - Bytes 0-2: timestamp (long usec in network byte order)
  * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
- * - Byte 8: channel (0 for D channel, 1-30 for B1-B30, 129 for ATM)
+ * - Byte 8: channel (0 for D channel, 1-30 for B1-B30, 
+ *     128 ATM cells, 129 ATM layer indications)
  * - Byte 9: Sender (0 NT, 1 TE)
  * - Byte 10-11: frame size in bytes
  * - Byte 12-n: Frame Payload
@@ -227,7 +228,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	guint8		hdr[EYESDN_HDR_LENGTH];
         unsigned long   secs, usecs;
 	int		pkt_len;
-	unsigned int    channel, direction;
+	guint8		channel, direction;
 
 	/* Our file pointer should be at the summary information header
 	 * for a packet. Read in that header and extract the useful
@@ -260,7 +261,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
         pkt_len = (pkt_len << 8) | ((unsigned long) hdr[11]);
 
         /* sanity checks */
-        if((channel>30)&&(channel!=129)) {
+        if((channel>30)&&(channel<128)) {
 	    *err = WTAP_ERR_BAD_RECORD;
             *err_info = g_strdup_printf("eyesdn: bad channel number %u",
 		channel);
