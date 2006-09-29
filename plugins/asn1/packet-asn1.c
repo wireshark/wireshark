@@ -82,6 +82,7 @@
 #include <epan/report_err.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-ber.h>
 #include <epan/asn1.h>
 #include <wiretap/file_util.h>
 
@@ -98,9 +99,9 @@
 
 /* Define default ports */
 
-#define TCP_PORT_ASN1 801
-#define UDP_PORT_ASN1 801
-#define SCTP_PORT_ASN1 801
+#define TCP_PORT_ASN1 0
+#define UDP_PORT_ASN1 0
+#define SCTP_PORT_ASN1 0
 
 void proto_reg_handoff_asn1(void);
 
@@ -216,7 +217,7 @@ typedef enum {	/* copied from .../snacc/c-lib/boot/tbl.h */
         TBL_OID = 5,
         TBL_REAL = 6,
         TBL_ENUMERATED = 7,
-	TBL__SIMPLE = 8,	/* values smaller than this can have a value */
+		TBL__SIMPLE = 8,	/* values smaller than this can have a value */
         TBL_SEQUENCE = 8,
         TBL_SET = 9,
         TBL_SEQUENCEOF = 10,
@@ -440,10 +441,10 @@ static char *showtaglist(guint level)
 #ifdef ALLTAGS
 	for(i=0; i<= level; i++) {
 		switch(taglist[i].cls) {
-		case ASN1_UNI: *p++ = 'U'; break;
-		case ASN1_APL: *p++ = 'A'; break;
-		case ASN1_CTX: *p++ = 'C'; break;
-		case ASN1_PRV: *p++ = 'P'; break;
+		case BER_CLASS_UNI: *p++ = 'U'; break;
+		case BER_CLASS_APP: *p++ = 'A'; break;
+		case BER_CLASS_CON: *p++ = 'C'; break;
+		case BER_CLASS_PRI: *p++ = 'P'; break;
 		default:       *p++ = 'x'; break;
 		}
 		p += sprintf(p, "%d.", taglist[i].tag);
@@ -451,7 +452,7 @@ static char *showtaglist(guint level)
 #else /* only context tags */
         *p++ = 'C';
 	for(i=0; i<= level; i++) {
-		if (taglist[i].cls == ASN1_CTX) {
+		if (taglist[i].cls == BER_CLASS_CON) {
 			p += sprintf(p, "%d.", taglist[i].tag);
 		}
 	}
@@ -467,7 +468,7 @@ get_context(guint level)
 	guint i;
 
 	for(i=0; i<=level; i++) {
-		if (taglist[i].cls == ASN1_CTX)
+		if (taglist[i].cls == BER_CLASS_CON)
 			ctx = (ctx << 8) | taglist[i].tag;
 	}
 	return ctx;
@@ -626,56 +627,56 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 	if (len < 0)		/* negative ..... */
 		newlen = 4;
 
-	if (cls != ASN1_UNI) {	/* don't know about the tags */
+	if (cls != BER_CLASS_UNI) {	/* don't know about the tags */
 		if (len > 131071)
 			newlen = 64;
 	} else {
 		switch (tag) {
-		case ASN1_EOC:	/* End Of Contents    */
-		case ASN1_NUL:	/* Null               */
+		case BER_UNI_TAG_EOC:	/* End Of Contents    */
+		case BER_UNI_TAG_NULL:	/* Null               */
 			newlen = 0;
 			break;
-		case ASN1_BOL:	/* Boolean            */
+		case BER_UNI_TAG_BOOLEAN:	/* Boolean            */
 			newlen = 1;
 			break;
-		case ASN1_INT:	/* Integer            */
-		case ASN1_ENUM:	/* Enumerated         */
+		case BER_UNI_TAG_INTEGER:	/* Integer            */
+		case BER_UNI_TAG_ENUMERATED:	/* Enumerated         */
 			if (len > 8)
 				newlen = 4;
 			break;
-		case ASN1_BTS:	/* Bit String         */
+		case BER_UNI_TAG_BITSTRING:	/* Bit String         */
 			if (len > 8)
 				newlen = 4;
 			break;
-		case ASN1_OTS:	/* Octet String       */
-		case ASN1_NUMSTR: /* Numerical String   */
-		case ASN1_PRNSTR: /* Printable String   */
-		case ASN1_TEXSTR: /* Teletext String    */
-		case ASN1_VIDSTR: /* Video String       */
-		case ASN1_IA5STR: /* IA5 String         */
-		case ASN1_GRASTR: /* Graphical String   */
-		case ASN1_VISSTR: /* Visible String     */
-		case ASN1_GENSTR: /* General String     */
+		case BER_UNI_TAG_OCTETSTRING:	/* Octet String       */
+		case BER_UNI_TAG_NumericString: /* Numerical String   */
+		case BER_UNI_TAG_PrintableString: /* Printable String   */
+		case BER_UNI_TAG_TeletexString: /* Teletext String    */
+		case BER_UNI_TAG_VideotexString: /* Video String       */
+		case BER_UNI_TAG_IA5String: /* IA5 String         */
+		case BER_UNI_TAG_GraphicString: /* Graphical String   */
+		case BER_UNI_TAG_VisibleString: /* Visible String     */
+		case BER_UNI_TAG_GeneralString: /* General String     */
 		if (len > 65535)
 			newlen = 32;
 		break;
-		case ASN1_OJI:		/* Object Identifier  */
-		case ASN1_OJD:		/* Description	      */
+		case BER_UNI_TAG_OID:		/* Object Identifier  */
+		case BER_UNI_TAG_ObjectDescriptor:		/* Description	      */
 		case ASN1_EXT:		/* External           */
 			if (len > 64)
 				newlen = 16;
 			break;
-		case ASN1_REAL:		/* Real               */
+		case BER_UNI_TAG_REAL:		/* Real               */
 			if (len >16)
 				newlen = 8;
 			break;
-		case ASN1_SEQ:		/* Sequence           */
-		case ASN1_SET:		/* Set                */
+		case BER_UNI_TAG_SEQUENCE:		/* Sequence           */
+		case BER_UNI_TAG_SET:		/* Set                */
 			if (len > 65535)
 				newlen = 64;
 			break;
-		case ASN1_UNITIM:	/* Universal Time     */
-		case ASN1_GENTIM:	/* General Time       */
+		case BER_UNI_TAG_UTCTime:	/* Universal Time     */
+		case BER_UNI_TAG_GeneralizedTime:	/* General Time       */
 			if (len > 32)
 				newlen = 15;
 			break;
@@ -773,7 +774,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		   pcount,
 		   asn1_cls[cls],
 		   asn1_con[con],
-		   ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr,
+		   ((cls == BER_CLASS_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr,
 		   lenstr,
 		   boffset,
 		   tvb_length(tvb)
@@ -781,7 +782,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   } else {
 	  if (props.flags & OUT_FLAG_noname) {
 		  g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
-		  name = ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
+		  name = ((cls == BER_CLASS_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
 	  }
 	  g_snprintf(headstr, sizeof(headstr), "first pdu%s: (%s)%s ", offstr, tname, name );
   }
@@ -837,7 +838,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    g_snprintf(headstr, sizeof(headstr), "%s, %s, %s, len=%s, off=%d, remaining=%d",
 			     asn1_cls[cls],
 			     asn1_con[con],
-			     ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr,
+			     ((cls == BER_CLASS_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr,
 			     lenstr,
 			     boffset,
 			     tvb_length_remaining(tvb, offset) );
@@ -861,7 +862,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    } else {
 		    if (props.flags & OUT_FLAG_noname) {
 			    g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
-			    name = ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
+			    name = ((cls == BER_CLASS_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
 		    }
 		    if (props.value_id == -1)
 			    ti2 = proto_tree_add_text(tree2, tvb, boffset,
@@ -977,7 +978,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 	  clsstr = asn1_cls[cls];
 	  constr = asn1_con[con];
-	  if ((cls == ASN1_UNI) && ( tag < 32 )) {
+	  if ((cls == BER_CLASS_UNI) && ( tag < 32 )) {
 		  tagstr = asn1_tag[tag];
 	  } else {
 		  g_snprintf(tagbuf, sizeof(tagbuf), "%ctag%d", tag_class[cls], tag);
@@ -1006,16 +1007,16 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 	  oname  = 0;
 	  if (level >= MAX_NEST) { /* nesting too deep..., handle as general octet string */
-		cls = ASN1_UNI;
-		tag = ASN1_GENSTR;
+		cls = BER_CLASS_UNI;
+		tag = BER_UNI_TAG_GeneralString;
 		oname = g_malloc(strlen(name) + 32);
 		sprintf(oname, "%s ** nesting cut off **", name);
 		name = oname;
 	  }
 	  switch(cls) {
-	    case ASN1_UNI:	/* fprintf(stderr, "Universal\n"); */
+	    case BER_CLASS_UNI:	/* fprintf(stderr, "Universal\n"); */
 	      switch(tag) {
-	        case ASN1_INT:
+	        case BER_UNI_TAG_INTEGER:
 		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      if (asn1_debug) {
@@ -1053,7 +1054,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      }
 		      break;
 
-	        case ASN1_ENUM:
+	        case BER_UNI_TAG_ENUMERATED:
 		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      ename = getPDUenum(&props, boffset, cls, tag, value);
@@ -1092,7 +1093,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      }
 		      break;
 
-	        case ASN1_BOL:
+	        case BER_UNI_TAG_BOOLEAN:
 		      ret = asn1_bool_decode(&asn1, len, &value); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      if (asn1_debug) {
@@ -1132,18 +1133,18 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      }
 		      break;
 
-		case ASN1_OTS:
-		case ASN1_NUMSTR:
-		case ASN1_PRNSTR:
-		case ASN1_TEXSTR:
-		case ASN1_IA5STR:
-		case ASN1_GENSTR:
-		case ASN1_UNITIM:
-		case ASN1_GENTIM:
+		case BER_UNI_TAG_OCTETSTRING:
+		case BER_UNI_TAG_NumericString:
+		case BER_UNI_TAG_PrintableString:
+		case BER_UNI_TAG_TeletexString:
+		case BER_UNI_TAG_IA5String:
+		case BER_UNI_TAG_GeneralString:
+		case BER_UNI_TAG_UTCTime:
+		case BER_UNI_TAG_GeneralizedTime:
 			/* read value, \0 terminated */
 		      ret = asn1_string_value_decode(&asn1, len, &octets);
 		      asn1_close(&asn1, &offset); /* mark where we are now */
-		      ename = showoctets(octets, len, (tag == ASN1_OTS) ? 4 : 0 );
+		      ename = showoctets(octets, len, (tag == BER_UNI_TAG_OCTETSTRING) ? 4 : 0 );
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
 				   (tbl_types_wireshark[props.type] != FT_STRINGZ) )
@@ -1181,7 +1182,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      g_free(ename);
 		      break;
 
-		case ASN1_BTS:
+		case BER_UNI_TAG_BITSTRING:
 		      ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      ename = showbitnames(bits, (con*8)-unused, &props, offset);
@@ -1226,8 +1227,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      g_free(bits);
 		      break;
 
-		case ASN1_SET:
-	        case ASN1_SEQ:
+		case BER_UNI_TAG_SET:
+	        case BER_UNI_TAG_SEQUENCE:
 				/* show full sequence length */
 		      if (asn1_debug) {
 			      ename = empty;
@@ -1285,7 +1286,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 		      break;
 
-	        case ASN1_EOC:
+	        case BER_UNI_TAG_EOC:
 		      if (asn1_debug) {	/* don't show if not debugging */
 			      proto_tree_add_text(pt, tvb, boffset, offset - boffset, textfmt_d,
 						  boffset, clsstr, constr, tagstr, tname, name,
@@ -1294,7 +1295,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      getPDUprops(&props, soffset, ASN1_EOI, 1, 0); /* mark end of this sequence */
 		      return offset;
 
-		case ASN1_OJI:
+		case BER_UNI_TAG_OID:
 		      ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      ename = showoid(oid, con);
@@ -1332,7 +1333,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      g_free(oid);
 		      break;
 
-		case ASN1_NUL:
+		case BER_UNI_TAG_NULL:
 		      if (asn1_debug) {
 			      proto_tree_add_text(pt, tvb, boffset, offset - boffset + len, textfmt_s,
 						  boffset, clsstr, constr, tagstr, tname, name,
@@ -1344,12 +1345,12 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      offset += len; /* skip value ... */
 		      break;
 
-		case ASN1_OJD:
+		case BER_UNI_TAG_ObjectDescriptor:
 		case ASN1_EXT:
-		case ASN1_REAL:
-		case ASN1_VIDSTR:
-		case ASN1_GRASTR:
-		case ASN1_VISSTR:
+		case BER_UNI_TAG_REAL:
+		case BER_UNI_TAG_VideotexString:
+		case BER_UNI_TAG_GraphicString:
+		case BER_UNI_TAG_VisibleString:
 
 	        default:
 		      if (asn1_debug) {
@@ -1366,9 +1367,9 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	      };
 	      break;
 
-	    case ASN1_CTX:		/* fprintf(stderr, "Context\n"); */
-	    case ASN1_APL:		/* fprintf(stderr, "Application\n"); */
-	    case ASN1_PRV:		/* fprintf(stderr, "Private\n"); */
+	    case BER_CLASS_CON:		/* fprintf(stderr, "Context\n"); */
+	    case BER_CLASS_APP:		/* fprintf(stderr, "Application\n"); */
+	    case BER_CLASS_PRI:		/* fprintf(stderr, "Private\n"); */
 
 		  if (def && !con) {
 			if (props.value_id == -1) /* type unknown, handle as string */
@@ -1729,7 +1730,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 		icount++;
 		clsstr = asn1_cls[cls];
 		constr = asn1_con[con];
-		if ((cls == ASN1_UNI) && ( tag < 32 )) {
+		if ((cls == BER_CLASS_UNI) && ( tag < 32 )) {
 			tagstr = asn1_tag[tag];
 		} else {
 			g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
@@ -1743,65 +1744,65 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 		}
 
 		switch(cls) {
-		case ASN1_UNI:	/* fprintf(stderr, "Universal\n"); */
+		case BER_CLASS_UNI:	/* fprintf(stderr, "Universal\n"); */
 			switch(tag) {
-			case ASN1_INT:
-			case ASN1_ENUM:
+			case BER_UNI_TAG_INTEGER:
+			case BER_UNI_TAG_ENUMERATED:
 				ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are */
 				break;
 
-			case ASN1_BOL:
+			case BER_UNI_TAG_BOOLEAN:
 				ret = asn1_bool_decode(&asn1, len, &value); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are */
 				break;
 
-			case ASN1_OTS:
-			case ASN1_NUMSTR:
-			case ASN1_PRNSTR:
-			case ASN1_TEXSTR:
-			case ASN1_IA5STR:
-			case ASN1_GENSTR:
-			case ASN1_UNITIM:
-			case ASN1_GENTIM:
+			case BER_UNI_TAG_OCTETSTRING:
+			case BER_UNI_TAG_NumericString:
+			case BER_UNI_TAG_PrintableString:
+			case BER_UNI_TAG_TeletexString:
+			case BER_UNI_TAG_IA5String:
+			case BER_UNI_TAG_GeneralString:
+			case BER_UNI_TAG_UTCTime:
+			case BER_UNI_TAG_GeneralizedTime:
 				ret = asn1_string_value_decode(&asn1, len, &octets); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(octets);
 				break;
 
-			case ASN1_BTS:
+			case BER_UNI_TAG_BITSTRING:
 				ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused);
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(bits);
 				break;
 
-			case ASN1_SET:
-			case ASN1_SEQ:
+			case BER_UNI_TAG_SET:
+			case BER_UNI_TAG_SEQUENCE:
 				if (len == 0) /* don't recurse if offset isn't going to change */
 					return offset;
 
 				offset = parse_tt3(tvb, offset, len, level+1, cur_node); /* recurse */
 				break;
 
-			case ASN1_EOC:
+			case BER_UNI_TAG_EOC:
 				return offset;
 
-			case ASN1_OJI:
+			case BER_UNI_TAG_OID:
 				ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(oid);
 				break;
 
-			case ASN1_NUL:
+			case BER_UNI_TAG_NULL:
 				offset += len;
 				break;
 
-			case ASN1_OJD:
+			case BER_UNI_TAG_ObjectDescriptor:
 			case ASN1_EXT:
-			case ASN1_REAL:
-			case ASN1_VIDSTR:
-			case ASN1_GRASTR:
-			case ASN1_VISSTR:
+			case BER_UNI_TAG_REAL:
+			case BER_UNI_TAG_VideotexString:
+			case BER_UNI_TAG_GraphicString:
+			case BER_UNI_TAG_VisibleString:
 
 			default:
 				if (asn1_verbose) g_message("%d skip1 %d", offset, len);
@@ -1810,7 +1811,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			};
 			break;
 
-		case ASN1_CTX:		/* fprintf(stderr, "Context\n"); */
+		case BER_CLASS_CON:		/* fprintf(stderr, "Context\n"); */
 			tagstr = tagbuf;
 			g_snprintf(tagbuf, sizeof(tagbuf), "TAG%d", tag);
 			if (def && !con) {
@@ -1855,7 +1856,7 @@ myLeaf(GNode *node, gpointer data)
 
 	clsstr = asn1_cls[cls];
 	constr = asn1_con[con];
-	if ((cls == ASN1_UNI) && ( tag < 32 )) {
+	if ((cls == BER_CLASS_UNI) && ( tag < 32 )) {
 		tagstr = asn1_tag[tag];
 	} else {
 		g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
@@ -2203,7 +2204,7 @@ define_typeref(GNode *p, GNode *q)
 	ref->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	ref->implicit = get_asn1_int(ASN1_BOL, GPOINTER_TO_UINT(p->data));
+	ref->implicit = get_asn1_int(BER_UNI_TAG_BOOLEAN, GPOINTER_TO_UINT(p->data));
 }
 
 static void
@@ -2218,10 +2219,10 @@ define_tag(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
-	type->tclass = get_asn1_int(ASN1_ENUM, GPOINTER_TO_UINT(p->data));
+	type->tclass = get_asn1_int(BER_UNI_TAG_ENUMERATED, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	type->code = get_asn1_int(ASN1_INT, GPOINTER_TO_UINT(p->data));
+	type->code = get_asn1_int(BER_UNI_TAG_INTEGER, GPOINTER_TO_UINT(p->data));
 
 }
 
@@ -2321,7 +2322,7 @@ define_typedef(GNode *p, GNode *q)
 	type_def->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	type_def->typeName = get_asn1_string(ASN1_PRNSTR, GPOINTER_TO_UINT(p->data));
+	type_def->typeName = get_asn1_string(BER_UNI_TAG_PrintableString, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
 	define_type(g_node_first_child(p), t);
@@ -2402,7 +2403,7 @@ struct _NameDefs {
 	TypeRef *info;
 };
 #define ALLOC_INCR 4
-#define CLASSREF (ASN1_PRV+1)
+#define CLASSREF (BER_CLASS_PRI+1)
 
 static gboolean
 is_named(GNode *node, gpointer data)
@@ -2634,7 +2635,7 @@ showGNode(GNode *p, int n)
 		case TBLTYPE_Tag: {
 			TBLTag *t = (TBLTag *)p->data;
 			const char *s = empty;
-			if ((t->tclass == ASN1_UNI) && (t->code < 32))
+			if ((t->tclass == BER_CLASS_UNI) && (t->code < 32))
 				s = asn1_tag[t->code];
 			if (asn1_verbose) g_message("%*stag %c%d[%s]", n, empty,
 						    tag_class[t->tclass], t->code, s);
@@ -2876,7 +2877,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 				 * or new class is not universal.
 				 */
 			if ( ((xcls|xtag) == 0) || (xcls == CLASSREF) ||
-					(((TBLTag *)q->data)->tclass != ASN1_UNI) ) {
+					(((TBLTag *)q->data)->tclass != BER_CLASS_UNI) ) {
 				p->tclass = ((TBLTag *)q->data)->tclass;
 				p->tag = ((TBLTag *)q->data)->code;
 				if (asn1_verbose)
@@ -3178,7 +3179,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				q = g_node_next_sibling(q);
 			} else { /* use default tag for this type */
 				tr = &typeDef_names[((TBLTypeRef *)q->data)->typeDefId];
-				if ((((p->flags & PDU_IMPLICIT) == 0) && (tr->defclass != ASN1_UNI)) ||
+				if ((((p->flags & PDU_IMPLICIT) == 0) && (tr->defclass != BER_CLASS_UNI)) ||
 				    				((p->tclass | p->tag) == 0 )) {
 					/* not implicit, use this tag */
 					p->tclass = tr->defclass;
@@ -4325,7 +4326,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	} else {
 		/* EOC is only present for indefinite length sequences, etc. end of sequence is always
 		 * indicated by the synthetic EOI call. */
-		if ((class == ASN1_UNI) && (tag == ASN1_EOC)) { /* explicit EOC never has a name */
+		if ((class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_EOC)) { /* explicit EOC never has a name */
 			PUSHNODE(pos); /* restore stack */
 			ret = "explicit-EOC";
 			if (asn1_verbose) g_message("  return '%s', ignore", ret);
@@ -4655,7 +4656,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				pos.type = gettype(pos.node); /* the resulting type */
 				info = getinfo(pos.node);
 				tmp = "inknown tag";
-				if ((info->tclass == ASN1_UNI) && (info->tag < 31)) {
+				if ((info->tclass == BER_CLASS_UNI) && (info->tag < 31)) {
 					tmp = asn1_tag[info->tag];
 					pos.type = asn1_uni_type[info->tag]; /* get univsrsal type */
 				}
