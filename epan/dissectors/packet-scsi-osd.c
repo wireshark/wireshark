@@ -48,11 +48,23 @@ static int hf_scsi_osd_option_dpo	= -1;
 static int hf_scsi_osd_option_fua	= -1;
 static int hf_scsi_osd_getsetattrib	= -1;
 static int hf_scsi_osd_timestamps_control	= -1;
+static int hf_scsi_osd_formatted_capacity	= -1;
+static int hf_scsi_osd_get_attributes_page	= -1;
+static int hf_scsi_osd_get_attributes_allocation_length	= -1;
+static int hf_scsi_osd_retreived_attributes_offset = -1;
+static int hf_scsi_osd_set_attributes_page	= -1;
+static int hf_scsi_osd_set_attribute_length	= -1;
+static int hf_scsi_osd_set_attribute_number	= -1;
+static int hf_scsi_osd_set_attributes_offset	= -1;
 
 
 static gint ett_osd_option		= -1;
 
 
+typedef struct _scsi_osd_extra_data_t {
+	guint16 svcaction;
+	guint8  gsatype;
+} scsi_osd_extra_data_t;
 
 static const true_false_string option_dpo_tfs = {
 	"DPO is SET",
@@ -97,8 +109,12 @@ static const value_string scsi_osd_getsetattrib_vals[] = {
 };
 /* OSD2 5.2.2.1 */
 static void
-dissect_osd_getsetattrib(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_osd_getsetattrib(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
 {
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		extra_data->gsatype=(tvb_get_guint8(tvb, offset)>>4)&0x03;
+	}
 	proto_tree_add_item(tree, hf_scsi_osd_getsetattrib, tvb, offset, 1, 0);
 }
 
@@ -116,7 +132,55 @@ dissect_osd_timestamps_control(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
+static void
+dissect_osd_formatted_capacity(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_scsi_osd_formatted_capacity, tvb, offset, 8, 0);
+}
 
+
+/* do we need to store these in the itlq structure ?*/
+static void
+dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
+{
+	guint8 gsatype=0;
+
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		gsatype=extra_data->gsatype;
+	} else {
+		return;
+	}
+
+	switch(gsatype){
+	case 2: /* 5.2.2.2  attribute page */
+		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_page, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_allocation_length, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_page, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_set_attribute_length, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_set_attribute_number, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_offset, tvb, offset, 4, 0);
+		offset+=4;
+		break;
+	case 3: /* 5.2.2.3  attribute list */
+/*qqq*/
+		break;
+	}
+}
+
+/* 4.9.2.2 */
+static void
+dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+/*qqq*/
+}
 
 
 
@@ -134,7 +198,7 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		offset++;
 
 		/* getset attributes byte */
-		dissect_osd_getsetattrib(tvb, offset, tree);
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
 		offset++;
 
 		/* timestamps control */
@@ -144,6 +208,20 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* 23 reserved bytes */
 		offset+=23;
 
+		/* formatted capacity */
+		dissect_osd_formatted_capacity(tvb, offset, tree);
+		offset+=8;
+
+		/* 8 reserved bytes */
+		offset+=8;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=80;
 /*qqq*/
 	}
 
@@ -221,7 +299,14 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* We must store the service action for this itlq
 			 * so we can indentify what the data contains
 			 */
-			cdata->itlq->svcaction=svcaction;
+			if((!pinfo->fd->flags.visited) && (!cdata->itlq->extra_data)){
+				scsi_osd_extra_data_t *extra_data;
+
+				extra_data=se_alloc(sizeof(scsi_osd_extra_data_t));
+				extra_data->svcaction=svcaction;
+				extra_data->gsatype=0;
+				cdata->itlq->extra_data=extra_data;
+			}
 		}
 		proto_tree_add_item (tree, hf_scsi_osd_svcaction, tvb, offset, 2, 0);
 		offset+=2;
@@ -241,8 +326,9 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If it was not a CDB, try to find the service action and pass it
 	 * off to the service action dissector
 	 */
-	if(cdata && cdata->itlq){
-		svcaction=cdata->itlq->svcaction;
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		svcaction=extra_data->svcaction;
 	}
 	if(check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
@@ -570,6 +656,30 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_timestamps_control,
           {"Timestamps Control", "scsi.osd.timestamps_control", FT_UINT8, BASE_HEX,
            VALS(scsi_osd_timestamps_control_vals), 0x0, "", HFILL}},
+        { &hf_scsi_osd_formatted_capacity,
+          {"Formatted Capacity", "scsi.osd.formatted_capacity", FT_UINT64, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_get_attributes_page,
+          {"Get Attributes Page", "scsi.osd.get_attributes_page", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_get_attributes_allocation_length,
+          {"Get Attributes Allocation Length", "scsi.osd.get_attributes_allocation_length", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_retreived_attributes_offset,
+          {"Retreived Attributes Offset", "scsi.osd.retreived_attributes_offset", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attributes_page,
+          {"Set Attributes Page", "scsi.osd.set_attributes_page", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attribute_length,
+          {"Set Attribute Length", "scsi.osd.set_attribute_length", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attribute_number,
+          {"Set Attribute Number", "scsi.osd.set_attribute_number", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attributes_offset,
+          {"Set Attributes Offset", "scsi.osd.set_attributes_offset", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
 	};
 
 	/* Setup protocol subtree array */
@@ -589,3 +699,4 @@ void
 proto_reg_handoff_scsi_osd(void)
 {
 }
+

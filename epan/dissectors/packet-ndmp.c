@@ -1190,6 +1190,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->flags=0;
 			ndmp_conv_data->task->itlq->alloc_len=0;
 			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;
+			ndmp_conv_data->task->itlq->extra_data=NULL;
 		}
 		if(ndmp_conv_data->task->itlq){
 			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));

@@ -763,6 +763,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.last_exchange_frame=0;
         cdata->itlq.flags=0;
         cdata->itlq.alloc_len=0;
+        cdata->itlq.extra_data=NULL;
         cdata->data_in_frame=0;
         cdata->data_out_frame=0;
 
