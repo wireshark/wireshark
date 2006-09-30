@@ -73,6 +73,7 @@
 
 #include "../ui_util.h"
 #include "file_util.h"
+#include "webbrowser.h"
 
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
 #include <gdk/gdkwin32.h>
