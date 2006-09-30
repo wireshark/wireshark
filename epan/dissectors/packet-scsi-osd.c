@@ -72,6 +72,7 @@ static int hf_scsi_osd_ricv		= -1;
 static int hf_scsi_osd_request_nonce	= -1;
 static int hf_scsi_osd_diicvo		= -1;
 static int hf_scsi_osd_doicvo		= -1;
+static int hf_scsi_osd_requested_partition_id	= -1;
 
 
 static gint ett_osd_option		= -1;
@@ -346,10 +347,75 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 
+static void
+dissect_osd_requested_partition_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* request partition id */
+	proto_tree_add_item(tree, hf_scsi_osd_requested_partition_id, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+static void
+dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+		/* options byte */
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
+
+		/* getset attributes byte */
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+		offset++;
+
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 3 reserved bytes */
+		offset+=3;
+
+		/* requested partiton id */
+		dissect_osd_requested_partition_id(tvb, offset, tree);
+		offset+=8;
+
+		/* 28 reserved bytes */
+		offset+=28;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=80;
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=40;
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* no data out for create partition */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* no data in for create partition */
+	}
+	
+}
+
+
 /* OSD Service Actions */
 #define OSD_FORMAT_OSD		0x8801
+#define OSD_CREATE_PARTITION	0x880b
 static const value_string scsi_osd_svcaction_vals[] = {
     {OSD_FORMAT_OSD,		"Format OSD"},
+    {OSD_CREATE_PARTITION,	"Create Partition"},
     {0, NULL},
 };
 
@@ -360,6 +426,7 @@ typedef struct _scsi_osd_svcaction_t {
 } scsi_osd_svcaction_t;
 static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FORMAT_OSD, 		dissect_osd_format_osd},
+    {OSD_CREATE_PARTITION,	dissect_osd_create_partition},
     {0, NULL},
 };
 
@@ -835,6 +902,9 @@ proto_register_scsi_osd(void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_doicvo,
           {"Data-Out Integrity Check Value Offset", "scsi.osd.doicvo", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_requested_partition_id,
+          {"Requested Partition Id", "scsi.osd.requested_partition_id", FT_BYTES, BASE_HEX,
            NULL, 0, "", HFILL}},
 	};
 
