@@ -65,6 +65,13 @@ static int hf_scsi_osd_audit= -1;
 static int hf_scsi_osd_capability_discriminator	= -1;
 static int hf_scsi_osd_object_created_time= -1;
 static int hf_scsi_osd_object_type	= -1;
+static int hf_scsi_osd_permission_bitmask= -1;
+static int hf_scsi_osd_object_descriptor_type	= -1;
+static int hf_scsi_osd_object_descriptor= -1;
+static int hf_scsi_osd_ricv		= -1;
+static int hf_scsi_osd_request_nonce	= -1;
+static int hf_scsi_osd_diicvo		= -1;
+static int hf_scsi_osd_doicvo		= -1;
 
 
 static gint ett_osd_option		= -1;
@@ -197,6 +204,12 @@ static const value_string scsi_osd_object_type_vals[] = {
     {0x80,	"USER"},
     {0, NULL},
 };
+static const value_string scsi_osd_object_descriptor_type_vals[] = {
+    {0, "NONE: the object descriptor field shall be ignored"},
+    {1, "U/C: a single collection or user object"},
+    {2, "PAR: a single partition, including partition zero"},
+    {0, NULL},
+};
 
 /* 4.9.2.2 */
 static void
@@ -238,12 +251,45 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_scsi_osd_object_type, tvb, offset, 1, 0);
 	offset++;
 
-/*qqq*/
+	/* permission bitmask */
+/*qqq should be broken out into a helper and have the individual bits dissected */
+	proto_tree_add_item(tree, hf_scsi_osd_permission_bitmask, tvb, offset, 5, 0);
+	offset+=5;
+
+	/* a reserved byte */
+	offset++;
+
+	/* object descriptor type */
+	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor_type, tvb, offset, 1, 0);
+	offset++;
+
+	/* object descriptor */
+	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor, tvb, offset, 24, 0);
+	offset+=24;
 }
 
 
 
+/* 5.2.6 */
+static void
+dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* request integrity check value */
+	proto_tree_add_item(tree, hf_scsi_osd_ricv, tvb, offset, 20, 0);
+	offset+=20;
 
+	/* request nonce */
+	proto_tree_add_item(tree, hf_scsi_osd_request_nonce, tvb, offset, 12, 0);
+	offset+=12;
+
+	/* data in integrity check value offset */
+	proto_tree_add_item(tree, hf_scsi_osd_diicvo, tvb, offset, 4, 0);
+	offset+=4;
+
+	/* data out integrity check value offset */
+	proto_tree_add_item(tree, hf_scsi_osd_doicvo, tvb, offset, 4, 0);
+	offset+=4;
+}
 
 static void
 dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -281,7 +327,10 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* capability */
 		dissect_osd_capability(tvb, offset, tree);
 		offset+=80;
-/*qqq*/
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=40;
 	}
 
 	/* dissecting the DATA OUT */
@@ -766,6 +815,27 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_object_type,
           {"Object Type", "scsi.osd.object_type", FT_UINT8, BASE_HEX,
            VALS(scsi_osd_object_type_vals), 0, "", HFILL}},
+        { &hf_scsi_osd_permission_bitmask,
+          {"Permission Bitmask", "scsi.osd.permission_bitmask", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_object_descriptor_type,
+          {"Object Descriptor Type", "scsi.osd.object_descriptor_type", FT_UINT8, BASE_HEX,
+           VALS(scsi_osd_object_descriptor_type_vals), 0xf0, "", HFILL}},
+        { &hf_scsi_osd_object_descriptor,
+          {"Object Descriptor", "scsi.osd.object_descriptor", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_ricv,
+          {"Request Integrity Check value", "scsi.osd.ricv", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_request_nonce,
+          {"Request Nonce", "scsi.osd.request_nonce", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_diicvo,
+          {"Data-In Integrity Check Value Offset", "scsi.osd.diicvo", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_doicvo,
+          {"Data-Out Integrity Check Value Offset", "scsi.osd.doicvo", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
 	};
 
 	/* Setup protocol subtree array */
