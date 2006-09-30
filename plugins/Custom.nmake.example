@@ -28,17 +28,17 @@ foo::
 	cd ..
 
 clean:
-	cd ../foo
+	cd foo
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
 distclean: clean
-	cd ../foo
+	cd foo
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
 maintainer-clean: distclean
-	cd ../foo
+	cd foo
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 
