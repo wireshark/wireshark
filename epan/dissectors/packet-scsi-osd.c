@@ -258,7 +258,7 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
 static scsi_dissector_t
 find_svcaction_dissector(guint16 svcaction)
 {
-	scsi_osd_svcaction_t *sa=scsi_osd_svcaction;
+	const scsi_osd_svcaction_t *sa=scsi_osd_svcaction;
 
 	while(sa&&sa->dissector){
 		if(sa->svcaction==svcaction){
