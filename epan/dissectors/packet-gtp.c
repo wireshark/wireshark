@@ -4754,8 +4754,8 @@ decode_gtp_ms_time_zone(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	guint16		length;
 	proto_tree	*ext_tree;
 	proto_item	*te;
-	guint8		data;
-	char		sign;
+	/*guint8		data;*/
+	/*char		sign;*/
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_MS_TIME_ZONE, gtp_val, "Unknown"));
