@@ -42,28 +42,222 @@ static int proto_scsi_osd		= -1;
 int hf_scsi_osd_opcode			= -1;
 static int hf_scsi_osd_control		= -1;
 static int hf_scsi_osd_add_cdblen	= -1;
-static int hf_scsi_osd_svcaction = -1;
+static int hf_scsi_osd_svcaction	= -1;
+static int hf_scsi_osd_option		= -1;
+static int hf_scsi_osd_option_dpo	= -1;
+static int hf_scsi_osd_option_fua	= -1;
+static int hf_scsi_osd_getsetattrib	= -1;
+static int hf_scsi_osd_timestamps_control	= -1;
+
+
+static gint ett_osd_option		= -1;
+
+
+
+static const true_false_string option_dpo_tfs = {
+	"DPO is SET",
+	"Dpo is NOT set"
+};
+static const true_false_string option_fua_tfs = {
+	"FUA is SET",
+	"Fua is NOT set"
+};
+
+/* OSD2 5.2.4 */
+static void
+dissect_osd_option(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	proto_tree *tree=NULL;
+	proto_item *it=NULL;
+	guint8 option;
+
+	option=tvb_get_guint8(tvb, offset);
+
+	if(parent_tree){
+		it=proto_tree_add_item(parent_tree, hf_scsi_osd_option, tvb, offset, 1, 0);
+		tree = proto_item_add_subtree(it, ett_osd_option);
+	}
+
+	proto_tree_add_item(tree, hf_scsi_osd_option_dpo, tvb, offset, 1, 0);
+	if(option&0x10){
+		proto_item_append_text(tree, " DPO");
+	}
+
+	proto_tree_add_item(tree, hf_scsi_osd_option_fua, tvb, offset, 1, 0);
+	if(option&0x08){
+		proto_item_append_text(tree, " FUA");
+	}
+}
+
+
+static const value_string scsi_osd_getsetattrib_vals[] = {
+    {2,		"Get an attributes page and set an attribute value"},
+    {3,		"Get and set attributes using a list"},
+    {0, NULL},
+};
+/* OSD2 5.2.2.1 */
+static void
+dissect_osd_getsetattrib(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_scsi_osd_getsetattrib, tvb, offset, 1, 0);
+}
+
+
+static const value_string scsi_osd_timestamps_control_vals[] = {
+    {0x00,	"Timestamps shall be updated"},
+    {0x7f,	"Timestamps shall not be updated"},
+    {0, NULL},
+};
+/* OSD2 5.2.8 */
+static void
+dissect_osd_timestamps_control(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_scsi_osd_timestamps_control, tvb, offset, 1, 0);
+}
+
+
+
+
 
 
 
 
 static void
-dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint16 svcaction;
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+		/* options byte */
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
 
-    if(!tree)
-        return;
+		/* getset attributes byte */
+		dissect_osd_getsetattrib(tvb, offset, tree);
+		offset++;
 
-    /* dissecting the CDB */
-    if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_osd_control, tvb, offset, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_osd_add_cdblen, tvb, offset+6, 1, 0);
-        svcaction=tvb_get_ntohs(tvb, offset+7);
-        proto_tree_add_item (tree, hf_scsi_osd_svcaction, tvb, offset+7, 2, 0);
-    }
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 23 reserved bytes */
+		offset+=23;
+
+/*qqq*/
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* no data out for format osd */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* no data in for format osd */
+	}
+	
+}
+
+
+/* OSD Service Actions */
+#define OSD_FORMAT_OSD		0x8801
+static const value_string scsi_osd_svcaction_vals[] = {
+    {OSD_FORMAT_OSD,		"Format OSD"},
+    {0, NULL},
+};
+
+/* OSD Service Action dissectors */
+typedef struct _scsi_osd_svcaction_t {
+	guint16 svcaction;
+	scsi_dissector_t dissector;
+} scsi_osd_svcaction_t;
+static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
+    {OSD_FORMAT_OSD, 		dissect_osd_format_osd},
+    {0, NULL},
+};
+
+static scsi_dissector_t
+find_svcaction_dissector(guint16 svcaction)
+{
+	scsi_osd_svcaction_t *sa=scsi_osd_svcaction;
+
+	while(sa&&sa->dissector){
+		if(sa->svcaction==svcaction){
+			return sa->dissector;
+		}
+		sa++;
+	}
+	return NULL;
+}
+
+
+
+static void
+dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len, scsi_task_data_t *cdata)
+{
+	guint16 svcaction=0;
+	scsi_dissector_t dissector;
+
+	if(!tree) {
+		return;
+	}
+
+	/* dissecting the CDB */
+	if (isreq && iscdb) {
+		proto_tree_add_item (tree, hf_scsi_osd_control, tvb, offset, 1, 0);
+		offset++;
+
+		/* 5 reserved bytes */
+		offset+=5;
+
+		proto_tree_add_item (tree, hf_scsi_osd_add_cdblen, tvb, offset, 1, 0);
+		offset++;
+
+		svcaction=tvb_get_ntohs(tvb, offset);
+		if(cdata && cdata->itlq){
+			/* We must store the service action for this itlq
+			 * so we can indentify what the data contains
+			 */
+			cdata->itlq->svcaction=svcaction;
+		}
+		proto_tree_add_item (tree, hf_scsi_osd_svcaction, tvb, offset, 2, 0);
+		offset+=2;
+
+
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+				val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
+		}
+		dissector=find_svcaction_dissector(svcaction);
+		if(dissector){
+			(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata);
+		}
+		return;
+	}
+
+	/* If it was not a CDB, try to find the service action and pass it
+	 * off to the service action dissector
+	 */
+	if(cdata && cdata->itlq){
+		svcaction=cdata->itlq->svcaction;
+	}
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+			val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
+	}
+	if(svcaction){
+		proto_item *it;
+		it=proto_tree_add_uint_format(tree, hf_scsi_osd_svcaction, tvb, 0, 0, svcaction, "Service Action: 0x%04x", svcaction);
+		PROTO_ITEM_SET_GENERATED(it);
+	}
+	dissector=find_svcaction_dissector(svcaction);
+	if(dissector){
+		(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata);
+	}
+
 }
 
 
@@ -359,20 +553,36 @@ proto_register_scsi_osd(void)
           {"Additional CDB Length", "scsi.osd.addcdblen", FT_UINT8, BASE_DEC,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_svcaction,
-          {"Service Action", "scsi.osd.svcaction", FT_UINT16, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Service Action", "scsi.osd.svcaction", FT_UINT16, BASE_HEX,
+           VALS(scsi_osd_svcaction_vals), 0x0, "", HFILL}},
+        { &hf_scsi_osd_option,
+          {"Option", "scsi.osd.option", FT_UINT8, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_option_dpo,
+          {"DPO", "scsi.osd.option.dpo", FT_BOOLEAN, 8,
+           TFS(&option_dpo_tfs), 0x10, "", HFILL}},
+        { &hf_scsi_osd_option_fua,
+          {"FUA", "scsi.osd.option.fua", FT_BOOLEAN, 8,
+           TFS(&option_fua_tfs), 0x08, "", HFILL}},
+        { &hf_scsi_osd_getsetattrib,
+          {"GET/SET CDBFMT", "scsi.osd.getset", FT_UINT8, BASE_HEX,
+           VALS(scsi_osd_getsetattrib_vals), 0x30, "", HFILL}},
+        { &hf_scsi_osd_timestamps_control,
+          {"Timestamps Control", "scsi.osd.timestamps_control", FT_UINT8, BASE_HEX,
+           VALS(scsi_osd_timestamps_control_vals), 0x0, "", HFILL}},
 	};
 
 	/* Setup protocol subtree array */
-/*	static gint *ett[] = {
-	};*/
+	static gint *ett[] = {
+		&ett_osd_option,
+	};
 
 	/* Register the protocol name and description */
 	proto_scsi_osd = proto_register_protocol("SCSI_OSD", "SCSI_OSD", "scsi_osd");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_scsi_osd, hf, array_length(hf));
-/*proto_register_subtree_array(ett, array_length(ett));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
