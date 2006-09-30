@@ -56,6 +56,15 @@ static int hf_scsi_osd_set_attributes_page	= -1;
 static int hf_scsi_osd_set_attribute_length	= -1;
 static int hf_scsi_osd_set_attribute_number	= -1;
 static int hf_scsi_osd_set_attributes_offset	= -1;
+static int hf_scsi_osd_capability_format	= -1;
+static int hf_scsi_osd_key_version	= -1;
+static int hf_scsi_osd_icva		= -1;
+static int hf_scsi_osd_security_method	= -1;
+static int hf_scsi_osd_capability_expiration_time= -1;
+static int hf_scsi_osd_audit= -1;
+static int hf_scsi_osd_capability_discriminator	= -1;
+static int hf_scsi_osd_object_created_time= -1;
+static int hf_scsi_osd_object_type	= -1;
 
 
 static gint ett_osd_option		= -1;
@@ -175,10 +184,60 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *tree, sc
 	}
 }
 
+
+static const value_string scsi_osd_capability_format_vals[] = {
+    {0x00,	"No Capability"},
+    {0x01,	"SCSI OSD2 Capabilities"},
+    {0, NULL},
+};
+static const value_string scsi_osd_object_type_vals[] = {
+    {0x01,	"ROOT"},
+    {0x02,	"PARTITION"},
+    {0x40,	"COLLECTION"},
+    {0x80,	"USER"},
+    {0, NULL},
+};
+
 /* 4.9.2.2 */
 static void
 dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	/* capability format */
+	proto_tree_add_item(tree, hf_scsi_osd_capability_format, tvb, offset, 1, 0);
+	offset++;
+
+	/* key version and icva */
+	proto_tree_add_item(tree, hf_scsi_osd_key_version, tvb, offset, 1, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_icva, tvb, offset, 1, 0);
+	offset++;
+
+	/* security method */
+	proto_tree_add_item(tree, hf_scsi_osd_security_method, tvb, offset, 1, 0);
+	offset++;
+
+	/* a reserved byte */
+	offset++;
+
+	/* capability expiration time */
+	proto_tree_add_item(tree, hf_scsi_osd_capability_expiration_time, tvb, offset, 6, 0);
+	offset+=6;
+
+	/* audit */
+	proto_tree_add_item(tree, hf_scsi_osd_audit, tvb, offset, 20, 0);
+	offset+=20;
+
+	/* capability discriminator */
+	proto_tree_add_item(tree, hf_scsi_osd_capability_discriminator, tvb, offset, 12, 0);
+	offset+=12;
+
+	/* object created time */
+	proto_tree_add_item(tree, hf_scsi_osd_object_created_time, tvb, offset, 6, 0);
+	offset+=6;
+
+	/* object type */
+	proto_tree_add_item(tree, hf_scsi_osd_object_type, tvb, offset, 1, 0);
+	offset++;
+
 /*qqq*/
 }
 
@@ -680,6 +739,33 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_set_attributes_offset,
           {"Set Attributes Offset", "scsi.osd.set_attributes_offset", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_capability_format,
+          {"Capability Format", "scsi.osd.capability_format", FT_UINT8, BASE_HEX,
+           VALS(scsi_osd_capability_format_vals), 0x0f, "", HFILL}},
+        { &hf_scsi_osd_key_version,
+          {"Key Version", "scsi.osd.key_version", FT_UINT8, BASE_HEX,
+           NULL, 0xf0, "", HFILL}},
+        { &hf_scsi_osd_icva,
+          {"Integrity Check Value Algorithm", "scsi.osd.icva", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, "", HFILL}},
+        { &hf_scsi_osd_security_method,
+          {"Security Method", "scsi.osd.security_method", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, "", HFILL}},
+        { &hf_scsi_osd_capability_expiration_time,
+          {"Capability Expiration Time", "scsi.osd.capability_expiration_time", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_audit,
+          {"Audit", "scsi.osd.audit", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_capability_discriminator,
+          {"Capability Discriminator", "scsi.osd.capability_descriminator", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_object_created_time,
+          {"Object Created Time", "scsi.osd.object_created_time", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_object_type,
+          {"Object Type", "scsi.osd.object_type", FT_UINT8, BASE_HEX,
+           VALS(scsi_osd_object_type_vals), 0, "", HFILL}},
 	};
 
 	/* Setup protocol subtree array */
