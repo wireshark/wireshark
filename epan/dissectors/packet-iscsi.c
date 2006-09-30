@@ -1489,14 +1489,21 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		  ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
 	tvbuff_t *cdb_tvb, *data_tvb;
 	int tvb_len, tvb_rlen;
+	guint8 scsi_opcode;
 
         /* SCSI Command */
 	tvb_len=tvb_length_remaining(tvb, cdb_offset);
-	if(tvb_len>16)
-	    tvb_len=16;
 	tvb_rlen=tvb_reported_length_remaining(tvb, cdb_offset);
-	if(tvb_rlen>16)
-	    tvb_rlen=16;
+	scsi_opcode=tvb_get_guint8(tvb, cdb_offset);
+	/* cdb 0x7f is variable length so dont clamp the cdb tvb */
+	if(scsi_opcode!=0x7f){
+		if(tvb_len>16){
+		    tvb_len=16;
+		}
+		if(tvb_rlen>16){
+		    tvb_rlen=16;
+		}
+	}
 	cdb_tvb=tvb_new_subset(tvb, cdb_offset, tvb_len, tvb_rlen);
         dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
 	/* we dont want the immediata below to overwrite our CDB info */
