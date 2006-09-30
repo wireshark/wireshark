@@ -715,7 +715,7 @@ install-common-files:
 	xcopy ".\README.win32" $(INSTALL_DIR) /d
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\COPYING" $(INSTALL_DIR) /d
-	xcopy ".\NEWS" $(INSTALL_DIR)\NEWS.txt /d
+	copy ".\NEWS" $(INSTALL_DIR)\NEWS.txt /d
 	xcopy ".\cfilters" $(INSTALL_DIR) /d
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
