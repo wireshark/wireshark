@@ -1517,15 +1517,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		/* We have a variable length CDB where bytes >16 is transported
 		 * in the AHS.
 		 */
-		cdb_buf=ep_alloc(16+ahs_length);
+		cdb_buf=ep_alloc(16+ahs_length-1);
 		/* the 16 first bytes of the cdb */
 		tvb_memcpy(tvb, cdb_buf, cdb_offset, 16);
 		/* hte remainder of the cdb from the ahs */
-		tvb_memcpy(tvb, cdb_buf+16, cdb_offset+20, ahs_length);
+		tvb_memcpy(tvb, cdb_buf+16, cdb_offset+20, ahs_length-1);
 
 		cdb_tvb = tvb_new_real_data(cdb_buf,
-					  ahs_length+16,
-					  ahs_length+16);
+					  ahs_length+16-1,
+					  ahs_length+16-1);
 
 		tvb_set_child_real_data_tvbuff(tvb, cdb_tvb);
 
