@@ -119,6 +119,10 @@ CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAsserti
 #.FN_BODY OtherNameValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
+#.FN_FTR IA5String
+  if(hf_index == hf_x509ce_uniformResourceIdentifier)
+	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
 #.END
 
 

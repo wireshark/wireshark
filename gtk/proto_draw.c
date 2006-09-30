@@ -1721,7 +1721,8 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         g_object_set (cell, "weight-set", TRUE, NULL);*/
 	}
 
-    if(fi->hfinfo->type == FT_FRAMENUM) {
+    if((fi->hfinfo->type == FT_FRAMENUM) ||
+       (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
         g_object_set (cell, "foreground", "blue", NULL);
         g_object_set (cell, "foreground-set", TRUE, NULL);
 
@@ -1939,8 +1940,15 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 static void
 tree_view_follow_link(field_info   *fi)
 {
+    gchar *url;
+
     if(fi->hfinfo->type == FT_FRAMENUM) {
         cf_goto_frame(&cfile, fi->value.value.integer);
+    }
+    if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
+      url = g_strndup(tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);
+      browser_open_url(url);
+      g_free(url);
     }
 }
 

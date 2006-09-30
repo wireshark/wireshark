@@ -14,6 +14,11 @@ LogotypeExtn B "1.3.6.1.5.5.7.1.12" "id-pe-logotype"
 LogotypeExtn B "1.3.6.1.5.5.7.20.1" "id-pe-logo-loyalty"
 LogotypeExtn B "1.3.6.1.5.5.7.20.2" "id-pe-logo-background"
 
+#.FN_FTR IA5String
+	if((hf_index == hf_logotypecertextn_logotypeURI_item) ||
+	   (hf_index == hf_logotypecertextn_refStructURI_item)) 
+	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
 #.NO_EMIT
 
 #.TYPE_RENAME
