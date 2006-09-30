@@ -73,7 +73,11 @@ static int hf_scsi_osd_request_nonce	= -1;
 static int hf_scsi_osd_diicvo		= -1;
 static int hf_scsi_osd_doicvo		= -1;
 static int hf_scsi_osd_requested_partition_id	= -1;
-
+static int hf_scsi_osd_sortorder	= -1;
+static int hf_scsi_osd_partition_id	= -1;
+static int hf_scsi_osd_list_identifier	= -1;
+static int hf_scsi_osd_allocation_length= -1;
+static int hf_scsi_osd_initial_object_id= -1;
 
 static gint ett_osd_option		= -1;
 
@@ -356,6 +360,16 @@ dissect_osd_requested_partition_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
+dissect_osd_partition_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* request partition id */
+	proto_tree_add_item(tree, hf_scsi_osd_partition_id, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+
+
+static void
 dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -409,12 +423,118 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	
 }
 
+static const value_string scsi_osd_sort_order_vals[] = {
+    {0x00,	"Ascending numeric value"},
+    {0, NULL},
+};
+static void
+dissect_osd_sortorder(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* sort order */
+	proto_tree_add_item(tree, hf_scsi_osd_sortorder, tvb, offset, 1, 0);
+	offset++;
+}
+
+static void
+dissect_osd_list_identifier(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* list identifier */
+	proto_tree_add_item(tree, hf_scsi_osd_list_identifier, tvb, offset, 4, 0);
+	offset+=4;
+}
+
+static void
+dissect_osd_allocation_length(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* allocation length */
+	proto_tree_add_item(tree, hf_scsi_osd_allocation_length, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+static void
+dissect_osd_initial_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* initial object id */
+	proto_tree_add_item(tree, hf_scsi_osd_initial_object_id, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+static void
+dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+		/* options byte */
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
+
+		/* getset attributes byte / sort order */
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+		dissect_osd_sortorder(tvb, offset, tree);
+		offset++;
+
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 3 reserved bytes */
+		offset+=3;
+
+		/* partiton id */
+		dissect_osd_partition_id(tvb, offset, tree);
+		offset+=8;
+
+		/* 8 reserved bytes */
+		offset+=8;
+
+		/* list identifier */
+		dissect_osd_list_identifier(tvb, offset, tree);
+		offset+=4;
+
+		/* allocation length */
+		dissect_osd_allocation_length(tvb, offset, tree);
+		offset+=8;
+
+		/* initial object id */
+		dissect_osd_initial_object_id(tvb, offset, tree);
+		offset+=8;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=80;
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=40;
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* no data out for LIST */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* dissection of the LIST DATA-IN */
+/* qqq to be added ... */
+	}
+	
+}
+
 
 /* OSD Service Actions */
 #define OSD_FORMAT_OSD		0x8801
+#define OSD_LIST		0x8803
 #define OSD_CREATE_PARTITION	0x880b
 static const value_string scsi_osd_svcaction_vals[] = {
     {OSD_FORMAT_OSD,		"Format OSD"},
+    {OSD_LIST,			"List"},
     {OSD_CREATE_PARTITION,	"Create Partition"},
     {0, NULL},
 };
@@ -426,6 +546,7 @@ typedef struct _scsi_osd_svcaction_t {
 } scsi_osd_svcaction_t;
 static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FORMAT_OSD, 		dissect_osd_format_osd},
+    {OSD_LIST,			dissect_osd_list},
     {OSD_CREATE_PARTITION,	dissect_osd_create_partition},
     {0, NULL},
 };
@@ -905,6 +1026,21 @@ proto_register_scsi_osd(void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_requested_partition_id,
           {"Requested Partition Id", "scsi.osd.requested_partition_id", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_sortorder,
+          {"Sort Order", "scsi.osd.sort_order", FT_UINT8, BASE_DEC,
+           VALS(scsi_osd_sort_order_vals), 0x0f, "", HFILL}},
+        { &hf_scsi_osd_partition_id,
+          {"Partition Id", "scsi.osd.partition_id", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_list_identifier,
+          {"List Identifier", "scsi.osd.list_identifier", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_allocation_length,
+          {"Allocation Length", "scsi.osd.allocation_length", FT_UINT64, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_initial_object_id,
+          {"Initial Object Id", "scsi.osd.initial_object_id", FT_BYTES, BASE_HEX,
            NULL, 0, "", HFILL}},
 	};
 
