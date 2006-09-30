@@ -133,9 +133,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\plugins\v5ua\v5ua.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\stats_tree\stats_tree.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\mate\mate.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-!IFDEF LUA_DIR
-	$(COPY) $(TOPDIR)\plugins\lua\lua.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-!ENDIF
 	$(COPY) $(TOPDIR)\radius\dictionary $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.3com $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.3gpp $(DEVICE)\radius $(COPY_FLAGS)
@@ -205,7 +202,7 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\doc\wireshark.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\wireshark-filter.html $(DEVICE) $(COPY_FLAGS)
 !IFDEF LUA_DIR
-	$(COPY) $(TOPDIR)\plugins\lua\init.lua $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\epan\wslua\init.lua $(DEVICE) $(COPY_FLAGS)
 !ENDIF
 # host
 #
@@ -241,6 +238,10 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GNUTLS_DIR)\bin\libtasn1-3.dll $(HOST) $(COPY_FLAGS)
 !endif
+!ifdef LUA_DIR
+	$(COPY) $(LUA_DIR)\lib\dll\lua5.1.dll $(HOST) $(COPY_FLAGS)
+!endif
+
 !IFDEF GTK2_DIR
 	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS) 
 # can't get /i to work with $(COPY) above to do the rename there
