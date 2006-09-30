@@ -1414,7 +1414,7 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
  	guint32 *ptr;
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	struct tcp_analysis *tcpd=NULL;
-	gchar **strings; /* An array for spitting the request URI into hostname and port */
+	gchar **strings; /* An array for splitting the request URI into hostname and port */
 
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
 	if(stat_info->request_uri && stat_info->response_code == 200 &&
