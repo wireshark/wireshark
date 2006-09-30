@@ -12,6 +12,7 @@ all: \
 	artnet \
 	asn1 \
 	ciscosm \
+	custom \
 	docsis \
 	enttec \
 	giop \
@@ -58,6 +59,9 @@ ciscosm::
 	cd ciscosm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
+
+custom:: 
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake
 
 docsis::
 	cd docsis
@@ -221,6 +225,7 @@ clean:
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
 
 distclean: clean
 	cd acn
@@ -276,6 +281,7 @@ distclean: clean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
 maintainer-clean: distclean
 	cd acn
@@ -329,6 +335,7 @@ maintainer-clean: distclean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake maintainer-clean
 
 ################################################################################
 # copy all plugins to /plugins/$(VERSION), so Wireshark will load them, when
@@ -367,6 +374,7 @@ install-plugins:
 	xcopy sbus\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 
 clean-deps:

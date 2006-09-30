@@ -1,0 +1,48 @@
+#
+# $Id$
+#
+
+include ..\config.nmake
+
+#
+# Custom plugin build template.
+#
+# If you need to develop a custom plugin (a plugin not yet released to the 
+# public) this file is for you.
+#
+# To generate a custom plugin:
+#
+# 1. Create the new plugin directory and implement the plugin (at least to be 
+#    ready for a first build try). The easiest way to do this is to copy an 
+#    existing plugin and modify the contents.
+# 2. Rename this file to Custom.nmake
+# 3. Replace every appearance of foo in this file with your plugin dir name
+# 4. Build Wireshark as usual
+#
+
+all: foo
+
+foo:: 
+	cd foo
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+clean:
+	cd ../foo
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+
+distclean: clean
+	cd ../foo
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+
+maintainer-clean: distclean
+	cd ../foo
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
+install-plugins:
+!IFDEF ENABLE_LIBWIRESHARK
+	xcopy foo\*.dll $(VERSION) /d
+!ENDIF
