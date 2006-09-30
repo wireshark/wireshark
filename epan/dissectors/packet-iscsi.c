@@ -2154,6 +2154,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	guint32 pduLen = 48;
 	guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
 	int badPdu = FALSE;
+	guint8 ahsLen=0;
 
 	/* mask out any extra bits in the opcode byte */
 	opcode = tvb_get_guint8(tvb, offset + 0);
@@ -2226,7 +2227,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 
 	if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
 	    /* ahsLen */
-	    pduLen += tvb_get_guint8(tvb, offset + 4) * 4;
+	    ahsLen = tvb_get_guint8(tvb, offset + 4);
+	    pduLen += ahsLen * 4;
 	}
 
 	pduLen += data_segment_len;
@@ -2266,11 +2268,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             conversation_set_dissector(conversation, iscsi_handle);
         }
         /* try to autodetect if header digest is used or not */
-	if(digestsActive && (available_bytes>=52) && (iscsi_session->header_digest==ISCSI_HEADER_DIGEST_AUTO) ){
+	if(digestsActive && (available_bytes>=(48+4+ahsLen*4)) && (iscsi_session->header_digest==ISCSI_HEADER_DIGEST_AUTO) ){
             guint32 crc;
 		/* we have enough data to test if HeaderDigest is enabled */
-            crc= ~calculateCRC32(tvb_get_ptr(tvb, offset, 48), 48, CRC32C_PRELOAD);
-            if(crc==tvb_get_ntohl(tvb,48)){
+            crc= ~calculateCRC32(tvb_get_ptr(tvb, offset, 48+ahsLen*4), 48+ahsLen*4, CRC32C_PRELOAD);
+            if(crc==tvb_get_ntohl(tvb,48+ahsLen*4)){
                 iscsi_session->header_digest=ISCSI_HEADER_DIGEST_CRC32;
             } else {
                 iscsi_session->header_digest=ISCSI_HEADER_DIGEST_NONE;
