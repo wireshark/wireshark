@@ -58,14 +58,24 @@
 #define DFILTER_FILE_NAME	"dfilters"
 
 /*
- * List of capture filters.
+ * List of capture filters - saved.
  */
 static GList *capture_filters = NULL;
 
 /*
- * List of display filters.
+ * List of display filters - saved.
  */
 static GList *display_filters = NULL;
+
+/*
+ * List of capture filters - currently edited.
+ */
+static GList *capture_edited_filters = NULL;
+
+/*
+ * List of display filters - currently edited.
+ */
+static GList *display_edited_filters = NULL;
 
 /*
  * Read in a list of filters.
@@ -78,16 +88,37 @@ static GList *display_filters = NULL;
 
 #define INIT_BUF_SIZE	128
 
+GList *
+add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
+{
+    filter_def *filt;
+
+    filt         = (filter_def *) g_malloc(sizeof(filter_def));
+    filt->name   = g_strdup(filt_name);
+    filt->strval = g_strdup(filt_expr);
+    return g_list_append(fl, filt);
+}
+
+GList *
+remove_filter_entry(GList *fl, GList *fl_entry)
+{
+  filter_def *filt;
+
+  filt = (filter_def *) fl_entry->data;
+  g_free(filt->name);
+  g_free(filt->strval);
+  g_free(filt);
+  return g_list_remove_link(fl, fl_entry);
+}
+
 void
-read_filter_list(filter_list_type_t list, char **pref_path_return,
+read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     int *errno_return)
 {
   const char *ff_name;
   char       *ff_path;
   FILE       *ff;
-  GList      **flp;
-  GList      *fl_ent;
-  filter_def *filt;
+  GList      **flpp;
   int         c;
   char       *filt_name, *filt_expr;
   int         filt_name_len, filt_expr_len;
@@ -96,16 +127,16 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
 
   *pref_path_return = NULL;	/* assume no error */
 
-  switch (list) {
+  switch (list_type) {
 
   case CFILTER_LIST:
     ff_name = CFILTER_FILE_NAME;
-    flp = &capture_filters;
+    flpp = &capture_filters;
     break;
 
   case DFILTER_LIST:
     ff_name = DFILTER_FILE_NAME;
-    flp = &display_filters;
+    flpp = &display_filters;
     break;
 
   default:
@@ -170,17 +201,9 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   }
 
   /* If we already have a list of filters, discard it. */
-  if (*flp != NULL) {
-    fl_ent = g_list_first(*flp);
-    while (fl_ent != NULL) {
-      filt = (filter_def *) fl_ent->data;
-      g_free(filt->name);
-      g_free(filt->strval);
-      g_free(filt);
-      fl_ent = fl_ent->next;
-    }
-    g_list_free(*flp);
-    *flp = NULL;
+  /* this should never happen - this function is called only once for each list! */
+  while(*flpp) {
+    *flpp = remove_filter_entry(*flpp, g_list_first(*flpp));        
   }
 
   /* Allocate the filter name buffer. */
@@ -327,10 +350,7 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     filt_expr[filt_expr_index] = '\0';
 
     /* Add the new filter to the list of filters */
-    filt         = (filter_def *) g_malloc(sizeof(filter_def));
-    filt->name   = g_strdup(filt_name);
-    filt->strval = g_strdup(filt_expr);
-    *flp = g_list_append(*flp, filt);
+    *flpp = add_filter_entry(*flpp, filt_name, filt_expr);
   }
   if (ferror(ff)) {
     *pref_path_return = ff_path;
@@ -340,43 +360,64 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   fclose(ff);
   g_free(filt_name);
   g_free(filt_expr);
+  
+  /* init the corresponding edited list */
+  switch (list_type) {
+  case CFILTER_LIST:
+    copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
+    break;
+  case DFILTER_LIST:
+    copy_filter_list(DFILTER_EDITED_LIST, DFILTER_LIST);
+    break;
+  default:
+    g_assert_not_reached();
+    return;
+  }
 }
 
 /*
  * Get a pointer to a list of filters.
  */
 static GList **
-get_filter_list(filter_list_type_t list)
+get_filter_list(filter_list_type_t list_type)
 {
-  GList **flp;
+  GList **flpp;
 
-  switch (list) {
+  switch (list_type) {
 
   case CFILTER_LIST:
-    flp = &capture_filters;
+    flpp = &capture_filters;
     break;
 
   case DFILTER_LIST:
-    flp = &display_filters;
+    flpp = &display_filters;
+    break;
+
+  case CFILTER_EDITED_LIST:
+    flpp = &capture_edited_filters;
+    break;
+
+  case DFILTER_EDITED_LIST:
+    flpp = &display_edited_filters;
     break;
 
   default:
     g_assert_not_reached();
-    flp = NULL;
+    flpp = NULL;
   }
-  return flp;
+  return flpp;
 }
 
 /*
  * Get a pointer to the first entry in a filter list.
  */
 GList *
-get_filter_list_first(filter_list_type_t list)
+get_filter_list_first(filter_list_type_t list_type)
 {
-  GList      **flp;
+  GList      **flpp;
 
-  flp = get_filter_list(list);
-  return g_list_first(*flp);
+  flpp = get_filter_list(list_type);
+  return g_list_first(*flpp);
 }
 
 /*
@@ -384,35 +425,27 @@ get_filter_list_first(filter_list_type_t list)
  * Returns a pointer to the newly-added entry.
  */
 GList *
-add_to_filter_list(filter_list_type_t list, const char *name,
+add_to_filter_list(filter_list_type_t list_type, const char *name,
     const char *expression)
 {
-  GList      **flp;
-  filter_def *filt;
+  GList      **flpp;
 
-  flp = get_filter_list(list);
-  filt = (filter_def *) g_malloc(sizeof(filter_def));
-  filt->name = g_strdup(name);
-  filt->strval = g_strdup(expression);
-  *flp = g_list_append(*flp, filt);
-  return g_list_last(*flp);
+  flpp = get_filter_list(list_type);
+  *flpp = add_filter_entry(*flpp, name, expression);
+
+  return g_list_last(*flpp);
 }
 
 /*
  * Remove a filter from a list.
  */
 void
-remove_from_filter_list(filter_list_type_t list, GList *fl_entry)
+remove_from_filter_list(filter_list_type_t list_type, GList *fl_entry)
 {
-  GList      **flp;
-  filter_def *filt;
+  GList      **flpp;
 
-  flp = get_filter_list(list);
-  filt = (filter_def *) fl_entry->data;
-  g_free(filt->name);
-  g_free(filt->strval);
-  g_free(filt);
-  *flp = g_list_remove_link(*flp, fl_entry);
+  flpp = get_filter_list(list_type);
+  *flpp = remove_filter_entry(*flpp, fl_entry);
 }
 
 /*
@@ -424,20 +457,20 @@ remove_from_filter_list(filter_list_type_t list, GList *fl_entry)
  * and "*errno_return" is set to the error.
  */
 void
-save_filter_list(filter_list_type_t list, char **pref_path_return,
+save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     int *errno_return)
 {
   const gchar *ff_name;
   gchar      *ff_path, *ff_path_new;
   GList      *fl;
-  GList      *flp;
+  GList      *flpp;
   filter_def *filt;
   FILE       *ff;
   guchar     *p, c;
 
   *pref_path_return = NULL;	/* assume no error */
 
-  switch (list) {
+  switch (list_type) {
 
   case CFILTER_LIST:
     ff_name = CFILTER_FILE_NAME;
@@ -467,9 +500,9 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     g_free(ff_path_new);
     return;
   }
-  flp = g_list_first(fl);
-  while (flp) {
-    filt = (filter_def *) flp->data;
+  flpp = g_list_first(fl);
+  while (flpp) {
+    filt = (filter_def *) flpp->data;
 
     /* Write out the filter name as a quoted string; escape any quotes
        or backslashes. */
@@ -494,7 +527,7 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
       g_free(ff_path_new);
       return;
     }
-    flp = flp->next;
+    flpp = flpp->next;
   }
   if (fclose(ff) == EOF) {
     *pref_path_return = ff_path;
@@ -531,3 +564,35 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   g_free(ff_path_new);
   g_free(ff_path);
 }
+
+/*
+ * Copy a filter list into another.
+ */
+void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
+{
+    GList      **flpp_dest;
+    GList      **flpp_src;
+    GList      *flp_src;
+    filter_def *filt;
+
+    g_assert(dest_type != src_type);
+
+    flpp_dest = get_filter_list(dest_type);
+    flpp_src = get_filter_list(src_type);
+    flp_src = *flpp_src;
+
+    /* throw away the "old" destination list - a NULL list is ok here */
+    while(*flpp_dest) {
+        *flpp_dest = remove_filter_entry(*flpp_dest, g_list_first(*flpp_dest));        
+    }
+    g_assert(g_list_length(*flpp_dest) == 0);
+
+    /* copy the list entries */
+    while(flp_src) {
+        filt = (flp_src)->data;
+
+        *flpp_dest = add_filter_entry(*flpp_dest, filt->name, filt->strval);
+        flp_src = g_list_next(flp_src);
+    }
+}
+

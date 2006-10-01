@@ -27,8 +27,10 @@
  * Filter lists.
  */
 typedef enum {
-	CFILTER_LIST,	/* capture filter list */
-	DFILTER_LIST	/* display filter list */
+	CFILTER_LIST,	        /* capture filter list - saved */
+	DFILTER_LIST,	        /* display filter list - saved */
+	CFILTER_EDITED_LIST,	/* capture filter list - currently edited */
+	DFILTER_EDITED_LIST	/* display filter list - currently edited */
 } filter_list_type_t;
 
 /*
@@ -47,7 +49,7 @@ typedef struct {
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
-void read_filter_list(filter_list_type_t list, char **pref_path_return,
+void read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     int *errno_return);
 
 /*
@@ -75,5 +77,11 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
-void save_filter_list(filter_list_type_t list, char **pref_path_return,
+void save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     int *errno_return);
+
+/*
+ * Clone the filter list so it can be edited.
+ */
+void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type);
+
