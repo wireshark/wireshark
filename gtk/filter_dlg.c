@@ -290,6 +290,82 @@ get_filter_dialog_list(filter_list_type_t list_type)
 	}
 }
 
+
+static void
+fill_list(GtkWidget  *main_w, filter_list_type_t list_type)
+{
+    GList      *fl_entry;
+    filter_def *filt;
+    const gchar *filter_te_str = NULL;
+#if GTK_MAJOR_VERSION < 2
+    GtkWidget  *nl_item,
+               *nl_lb,
+               *l_select = NULL;
+    GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
+#else
+    gboolean           l_select = FALSE;
+    GtkTreeView        *filter_l;
+    GtkListStore       *store;
+    GtkTreeIter        iter;
+    GtkTreeIter        sel_iter;
+
+    filter_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY));
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(filter_l));
+#endif
+
+    /* fill in data */
+    fl_entry = get_filter_list_first(list_type);
+    while (fl_entry != NULL) {
+        filt    = (filter_def *) fl_entry->data;
+#if GTK_MAJOR_VERSION < 2
+        nl_lb   = gtk_label_new(filt->name);
+        nl_item = gtk_list_item_new();
+
+        SIGNAL_CONNECT(nl_item, "button_press_event", filter_sel_list_button_cb,
+                       filter_l);
+
+        gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
+        gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
+        gtk_widget_show(nl_lb);
+        gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
+        gtk_widget_show(nl_item);
+        OBJECT_SET_DATA(nl_item, E_FILT_LBL_KEY, nl_lb);
+        OBJECT_SET_DATA(nl_item, E_FILT_LIST_ITEM_MODEL_KEY, fl_entry);
+#else
+        gtk_list_store_append(store, &iter);
+        gtk_list_store_set(store, &iter, 0, filt->name,
+                           1, fl_entry, -1);
+#endif
+
+        if (filter_te_str && filt->strval) {
+            if (strcmp(filter_te_str, filt->strval) == 0) {
+#if GTK_MAJOR_VERSION < 2 
+                l_select = nl_item;
+#else
+                sel_iter = iter;
+                l_select = TRUE;
+#endif
+            }
+        }
+
+        fl_entry = fl_entry->next;
+    }
+}
+
+static void
+clear_list(GtkWidget *main_w) {
+    GtkWidget    *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
+#if GTK_MAJOR_VERSION >= 2
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(filter_l));
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    gtk_list_clear_items(GTK_LIST(filter_l), 0, -1);
+#else
+    gtk_list_store_clear(GTK_LIST_STORE(model));
+#endif
+}
+
 static GtkWidget *
 filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                   filter_list_type_t list_type, construct_args_t *construct_args)
@@ -321,24 +397,19 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *edit_fr,
                *props_fr;
     GtkTooltips *tooltips;
-    GList      *fl_entry;
-    filter_def *filt;
     static filter_list_type_t cfilter_list_type = CFILTER_EDITED_LIST;
     static filter_list_type_t dfilter_list_type = DFILTER_EDITED_LIST;
     filter_list_type_t *filter_list_type_p;
     GList       **filter_dialogs;
     const gchar *filter_te_str = NULL;
 #if GTK_MAJOR_VERSION < 2
-    GtkWidget  *nl_item,
-               *nl_lb,
-               *l_select = NULL;
+    GtkWidget   *l_select = NULL;
 #else
     gboolean           l_select = FALSE;
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
-    GtkTreeIter        iter;
     GtkTreeIter        sel_iter;
 #endif
 
@@ -479,42 +550,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                     construct_args->activate_on_ok ? "" : NULL);
 
     /* fill in data */
-    fl_entry = get_filter_list_first(list_type);
-    while (fl_entry != NULL) {
-        filt    = (filter_def *) fl_entry->data;
-#if GTK_MAJOR_VERSION < 2
-        nl_lb   = gtk_label_new(filt->name);
-        nl_item = gtk_list_item_new();
+    fill_list(main_w, list_type);
 
-        SIGNAL_CONNECT(nl_item, "button_press_event", filter_sel_list_button_cb,
-                       filter_l);
-
-        gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
-        gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
-        gtk_widget_show(nl_lb);
-        gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
-        gtk_widget_show(nl_item);
-        OBJECT_SET_DATA(nl_item, E_FILT_LBL_KEY, nl_lb);
-        OBJECT_SET_DATA(nl_item, E_FILT_LIST_ITEM_MODEL_KEY, fl_entry);
-#else
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 0, filt->name,
-                           1, fl_entry, -1);
-#endif
-
-        if (filter_te_str && filt->strval) {
-            if (strcmp(filter_te_str, filt->strval) == 0) {
-#if GTK_MAJOR_VERSION < 2 
-                l_select = nl_item;
-#else
-                sel_iter = iter;
-                l_select = TRUE;
-#endif
-            }
-        }
-
-        fl_entry = fl_entry->next;
-    }
 #if GTK_MAJOR_VERSION >= 2 
     g_object_unref(G_OBJECT(store));
 #endif
@@ -866,7 +903,18 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 	}
 }
 
-/* cancel button pressed, revert changes saved and exit dialog */
+/* update a remaining dialog if another one was cancelled */
+static void filter_dlg_update_list_cb(gpointer data, gpointer user_data)
+{
+    GtkWidget  *main_w = data;
+    filter_list_type_t list_type = *(filter_list_type_t *)user_data;
+
+    /* refill the list */
+    clear_list(main_w);
+    fill_list(main_w, list_type);
+}
+
+/* cancel button pressed, revert changes and exit dialog */
 static void
 filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data)
 {
@@ -875,7 +923,6 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data)
 
 
     /* revert changes in the edited list */
-    /* XXX - how to tell other dialogs that the list changed? */
     switch (list_type) {
     case CFILTER_EDITED_LIST:
             copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
@@ -889,6 +936,9 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data)
     }
 
     window_destroy(GTK_WIDGET(main_w));
+
+    /* update other open filter dialogs */
+    g_list_foreach(get_filter_dialog_list(list_type), filter_dlg_update_list_cb, &list_type);
 }
 
 /* Treat this as a cancel, by calling "filter_dlg_cancel_cb()" */
