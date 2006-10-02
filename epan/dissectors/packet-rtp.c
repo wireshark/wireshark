@@ -742,7 +742,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 2;
 		if ( hdr_extension > 0 ) {
 			if ( tree ) {
-				ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
+				ti = proto_tree_add_text(rtp_tree, tvb, offset, hdr_extension * 4, "Header extensions");
 				/* I'm re-using the old tree variable here
 				   from the CSRC list!*/
 				rtp_csrc_tree = proto_item_add_subtree( ti,
