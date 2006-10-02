@@ -352,6 +352,7 @@ fill_list(GtkWidget  *main_w, filter_list_type_t list_type)
     }
 }
 
+#if 0
 static void
 clear_list(GtkWidget *main_w) {
     GtkWidget    *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
@@ -365,6 +366,7 @@ clear_list(GtkWidget *main_w) {
     gtk_list_store_clear(GTK_LIST_STORE(model));
 #endif
 }
+#endif /* 0 */
 
 static GtkWidget *
 filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
@@ -903,6 +905,7 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 	}
 }
 
+#if 0
 /* update a remaining dialog if another one was cancelled */
 static void filter_dlg_update_list_cb(gpointer data, gpointer user_data)
 {
@@ -913,6 +916,7 @@ static void filter_dlg_update_list_cb(gpointer data, gpointer user_data)
     clear_list(main_w);
     fill_list(main_w, list_type);
 }
+#endif
 
 /* cancel button pressed, revert changes and exit dialog */
 static void
@@ -920,25 +924,32 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data)
 {
     filter_list_type_t list_type = *(filter_list_type_t *)data;
     GtkWidget  *main_w = gtk_widget_get_toplevel(cancel_bt);
+    static GList *filter_list;
 
-
-    /* revert changes in the edited list */
-    switch (list_type) {
-    case CFILTER_EDITED_LIST:
-            copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
-	    break;
-    case DFILTER_EDITED_LIST:
-            copy_filter_list(DFILTER_EDITED_LIST, DFILTER_LIST);
-	    break;
-    default:
-	    g_assert_not_reached();
-	    break;
-    }
 
     window_destroy(GTK_WIDGET(main_w));
 
+    /* if this was the last open filter dialog, revert the changes made */
+    filter_list = get_filter_dialog_list(list_type);
+    if(g_list_length(filter_list) == 0) {
+        /* revert changes in the edited list */
+        switch (list_type) {
+        case CFILTER_EDITED_LIST:
+                copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
+	        break;
+        case DFILTER_EDITED_LIST:
+                copy_filter_list(DFILTER_EDITED_LIST, DFILTER_LIST);
+	        break;
+        default:
+	        g_assert_not_reached();
+	        break;
+        }
+    }
+
+#if 0
     /* update other open filter dialogs */
     g_list_foreach(get_filter_dialog_list(list_type), filter_dlg_update_list_cb, &list_type);
+#endif
 }
 
 /* Treat this as a cancel, by calling "filter_dlg_cancel_cb()" */
