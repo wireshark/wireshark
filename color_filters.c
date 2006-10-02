@@ -131,16 +131,6 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
         return colorf;
 }
 
-static void
-prime_edt(gpointer data, gpointer user_data)
-{
-	color_filter_t  *colorf = data;
-	epan_dissect_t   *edt = user_data;
-
-	if (colorf->c_colorfilter != NULL)
-		epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
-}
-
 gboolean 
 color_filters_used(void)
 {
@@ -154,50 +144,15 @@ color_filters_enable(gboolean enable)
 }
 
 
-typedef struct {
-  color_filter_t *colorf;
-  epan_dissect_t *edt;
-} apply_color_filter_args;
-
-/*
- * If no color filter has been applied, apply this one.
- * (The "if no color filter has been applied" is to handle the case where
- * more than one color filter matches the packet.)
- */
+/* prepare the epan_dissect_t for the filter */
 static void
-apply_color_filter(gpointer filter_arg, gpointer argp)
+prime_edt(gpointer data, gpointer user_data)
 {
-  color_filter_t *colorf = filter_arg;
-  apply_color_filter_args *args = argp;
+	color_filter_t  *colorf = data;
+	epan_dissect_t   *edt = user_data;
 
-  if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
-    if (dfilter_apply_edt(colorf->c_colorfilter, args->edt))
-      args->colorf = colorf;
-  }
-}
-
-
-color_filter_t *
-color_filters_colorize_packet(gint row, epan_dissect_t *edt)
-{
-  apply_color_filter_args args;
-
-
-  /* We don't yet have a color filter to apply. */
-  args.colorf = NULL;
-
-  /* If we have color filters, "search" for the matching one. */
-    if (color_filters_used()) {
-      args.edt = edt;
-      g_slist_foreach(color_filter_list, apply_color_filter, &args);
-
-    /* If the packet matches a color filter, apply the colors. */
-    if (args.colorf != NULL) {
-      packet_list_set_colors(row, &(args.colorf->fg_color), &(args.colorf->bg_color));
-    }
-    }
-
-    return args.colorf;
+	if (colorf->c_colorfilter != NULL)
+		epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
 }
 
 /* Prime the epan_dissect_t with all the compiler
@@ -206,6 +161,31 @@ void
 color_filters_prime_edt(epan_dissect_t *edt)
 {
 	g_slist_foreach(color_filter_list, prime_edt, edt);
+}
+
+/* Colorize a single packet of the packet list */
+color_filter_t *
+color_filters_colorize_packet(gint row, epan_dissect_t *edt)
+{
+    GSList *curr;
+    color_filter_t *colorf;
+
+    /* If we have color filters, "search" for the matching one. */
+    if (color_filters_used()) {
+        curr = color_filter_list;
+
+        while( (curr = g_slist_next(curr)) != NULL) {
+            colorf = curr->data;
+            if ((colorf->c_colorfilter != NULL) &&
+                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
+                    /* this is the filter to use, apply it to the packet list */
+                    packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
+                    return colorf;
+            }
+        }
+    }
+
+    return NULL;
 }
 
 /* read filters from the given file */
@@ -500,6 +480,23 @@ color_filters_write(void)
 	return TRUE;
 }
 
+/* save filters in some other filter file (export) */
+gboolean
+color_filters_export(gchar *path, gboolean only_marked)
+{
+	FILE *f;
+
+	if ((f = eth_fopen(path, "w+")) == NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Could not open\n%s\nfor writing: %s.",
+		    path, strerror(errno));
+		return FALSE;
+	}
+	write_filters_file(f, only_marked);
+	fclose(f);
+	return TRUE;
+}
+
 /* delete users filter file and reload global filters */
 gboolean
 color_filters_revert(void)
@@ -517,22 +514,4 @@ color_filters_revert(void)
 	/* Reload the (global) filters - Note: this does not update the dialog. */
 	color_filters_init();
         return TRUE;
-}
-
-
-/* save filters in some other filter file (export) */
-gboolean
-color_filters_export(gchar *path, gboolean only_marked)
-{
-	FILE *f;
-
-	if ((f = eth_fopen(path, "w+")) == NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Could not open\n%s\nfor writing: %s.",
-		    path, strerror(errno));
-		return FALSE;
-	}
-	write_filters_file(f, only_marked);
-	fclose(f);
-	return TRUE;
 }
