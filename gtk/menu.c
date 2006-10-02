@@ -598,8 +598,10 @@ static GtkItemFactoryEntry menu_items[] =
                        init_conversation_notebook_cb, 0, WIRESHARK_STOCK_CONVERSATIONS),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/Endpoints", NULL,
                        init_hostlist_notebook_cb, 0, WIRESHARK_STOCK_ENDPOINTS),
+#ifdef HAVE_LUA_5_1
     ITEM_FACTORY_ENTRY("/_Tools", NULL, NULL, 0, "<Branch>", NULL),
-   ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
+#endif
+    ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
 #if (GLIB_MAJOR_VERSION >= 2)
