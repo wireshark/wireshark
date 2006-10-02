@@ -74,7 +74,10 @@ gboolean color_filters_import(gchar *path, gpointer arg);
  */
 gboolean color_filters_export(gchar *path, gboolean only_marked);
 
-/** @todo don't what this function is for, please add explanation
+/* Prime the epan_dissect_t with all the compiler
+ * color filters in 'color_filter_list'. 
+ *
+ * @param the epan dissector details
  */
 void color_filters_prime_edt(epan_dissect_t *edt);
 
@@ -117,7 +120,7 @@ color_filter_t *color_filter_new(const gchar *name, const gchar *filter_string,
  */
 void color_filter_remove(color_filter_t *colorf);
 
-/** Add a color filter.
+/** A color filter was added (from import).
  *
  * @param colorf the new color filter
  * @param arg the color filter widget

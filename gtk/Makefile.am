@@ -47,6 +47,7 @@ noinst_HEADERS = \
 	capture_prefs.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
+	color_edit_dlg.h	\
 	colors.h	\
 	column_prefs.h	\
 	compat_macros.h	\

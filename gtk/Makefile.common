@@ -50,6 +50,7 @@ WIRESHARK_GTK_SRC = \
 	capture_prefs.c	\
 	cfilter_combo_utils.c	\
 	color_dlg.c	\
+	color_edit_dlg.c	\
 	color_utils.c	\
 	colors.c	\
 	column_prefs.c	\
