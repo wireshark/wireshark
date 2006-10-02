@@ -43,10 +43,10 @@ void color_display_cb(GtkWidget *widget, gpointer data);
  */
 void color_display_with_filter(char *filter);
 
-/** Count the number of color filters.
+/** Count the number of selected color filters.
  *
- * @return the number of color filters
+ * @return the number of selected color filters
  */
-int color_marked_count(void);
+int color_selected_count(void);
 
 #endif /* color_dlg.h */

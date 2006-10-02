@@ -113,9 +113,9 @@ static GtkWidget *file_save_as_w;
 
 /* XXX - can we make these not be static? */
 static packet_range_t range;
-static gboolean color_marked;
+static gboolean color_selected;
 static int filetype;
-static GtkWidget *cfmark_cb;
+static GtkWidget *cfselect_cb;
 static GtkWidget *ft_om;
 static GtkWidget *range_tb;
 
@@ -1752,37 +1752,37 @@ file_color_import_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 static GtkWidget *file_color_export_w;
 /*
- * Set the "Export only marked filters" toggle button as appropriate for
- * the current output file type and count of marked filters.
+ * Set the "Export only selected filters" toggle button as appropriate for
+ * the current output file type and count of selected filters.
  *
- * Called when the "Export" dialog box is created and when the marked
+ * Called when the "Export" dialog box is created and when the selected
  * count changes.
  */
 static void
-color_set_export_marked_sensitive(GtkWidget * cfmark_cb)
+color_set_export_selected_sensitive(GtkWidget * cfselect_cb)
 {
   if (file_color_export_w == NULL) {
     /* We don't currently have an "Export" dialog box up. */
     return;
   }
 
-  /* We can request that only the marked filters be saved only if
-        there *are* marked filters. */
-  if (color_marked_count() != 0)
-    gtk_widget_set_sensitive(cfmark_cb, TRUE);
+  /* We can request that only the selected filters be saved only if
+        there *are* selected filters. */
+  if (color_selected_count() != 0)
+    gtk_widget_set_sensitive(cfselect_cb, TRUE);
   else {
-    /* Force the "Export only marked filters" toggle to "false", turn
+    /* Force the "Export only selected filters" toggle to "false", turn
        off the flag it controls. */
-    color_marked = FALSE;
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfmark_cb), FALSE);
-    gtk_widget_set_sensitive(cfmark_cb, FALSE);
+    color_selected = FALSE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfselect_cb), FALSE);
+    gtk_widget_set_sensitive(cfselect_cb, FALSE);
   }
 }
 
 static void
-color_toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
+color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 {
-  color_marked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+  color_selected = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 }
 
 void
@@ -1800,7 +1800,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  color_marked   = FALSE;
+  color_selected   = FALSE;
   filetype = cfile.cd_t;
 
   file_color_export_w = file_selection_new("Wireshark: Export Color Filters",
@@ -1812,12 +1812,12 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   file_selection_set_extra_widget(file_color_export_w, main_vb);
   gtk_widget_show(main_vb);
 
-  cfmark_cb = gtk_check_button_new_with_label("Export only marked filters");
-  gtk_container_add(GTK_CONTAINER(main_vb), cfmark_cb);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfmark_cb), FALSE);
-  SIGNAL_CONNECT(cfmark_cb, "toggled", color_toggle_marked_cb, NULL);
-  gtk_widget_show(cfmark_cb);
-  color_set_export_marked_sensitive(cfmark_cb);
+  cfselect_cb = gtk_check_button_new_with_label("Export only selected filters");
+  gtk_container_add(GTK_CONTAINER(main_vb), cfselect_cb);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfselect_cb), FALSE);
+  SIGNAL_CONNECT(cfselect_cb, "toggled", color_toggle_selected_cb, NULL);
+  gtk_widget_show(cfselect_cb);
+  color_set_export_selected_sensitive(cfselect_cb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
   gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
@@ -1875,9 +1875,9 @@ file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
   }
 
   /* Write out the filters (all, or only the ones that are currently
-     displayed or marked) to the file with the specified name. */
+     displayed or selected) to the file with the specified name. */
 
-   if (!color_filters_export(cf_name, color_marked))
+   if (!color_filters_export(cf_name, color_selected))
    {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
