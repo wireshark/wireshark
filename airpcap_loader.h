@@ -34,6 +34,14 @@
 
 #define MAX_ENCRYPTION_KEYS 64
 
+#define AIRPCAP_CHANNEL_ANY_NAME "ANY"
+
+/*
+ * WEP_KEY_MAX_SIZE is in bytes. but each byte is rapresented in strings with an ascii char
+ * 4 bit are needed to store an exadecimal number, 8 bit to store a char...
+ */
+#define WEP_KEY_MAX_CHAR_SIZE (WEP_KEY_MAX_SIZE*2)
+
 typedef PCHAR (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
 typedef BOOL (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, PCHAR Ebuf);
 typedef VOID (*AirpcapFreeDeviceListHandler)(PAirpcapDeviceDescription PAllDevs);

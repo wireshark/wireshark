@@ -32,10 +32,13 @@
 
 #include <gtk/gtk.h>
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include <string.h>
 
 #include <epan/filesystem.h>
+
+#include <pcap.h>
 
 #include "gtk/main.h"
 #include "dlg_utils.h"
@@ -264,7 +267,6 @@ if(keys_in_list > 0)
 
 	/*
 	 * Allocate the collection
-	 * We use malloc so it's easier to reuse the code in C programs
 	 */
 	KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
 	if(!KeysCollection)
@@ -304,7 +306,7 @@ if(keys_in_list > 0)
 	}
 
 	/*
-	 * XXX - Free the old adapter key collection!
+	 * Free the old adapter key collection!
 	 */
 	if(airpcap_if_selected->keysCollection != NULL)
 		g_free(airpcap_if_selected->keysCollection);
@@ -315,6 +317,8 @@ if(keys_in_list > 0)
 	airpcap_if_selected->keysCollection = KeysCollection;
 	airpcap_if_selected->keysCollectionSize = KeysCollectionSize;
 }
+
+return;
 }
 
 
@@ -528,7 +532,7 @@ void update_blink(gpointer data _U_)
 {
 airpcap_if_info_t* sel;
 PAirpcapHandle ad;
-char* ebuf = NULL;
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
 sel = (airpcap_if_info_t*)data;
 
@@ -556,7 +560,7 @@ void
 blink_cb( GtkWidget *blink_bt _U_, gpointer if_data )
 {
 PAirpcapHandle ad = NULL;
-char* ebuf = NULL;
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
 if(airpcap_if_selected != NULL)
 	if(!(airpcap_if_selected->blinking))
@@ -596,7 +600,7 @@ static void
 airpcap_if_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	PAirpcapHandle ad = NULL;
-	char* ebuf = NULL;
+	gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
 	/* Retrieve object data */
     GtkWidget *main_w;
@@ -706,8 +710,10 @@ airpcap_if_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 		if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
 			{
 			gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-			airpcap_channel_combo_set_by_number(toolbar_channel_cm,airpcap_if_selected->channel);
-			airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
+			
+			airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
+			
+            airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
 			gtk_signal_handler_block_by_func (GTK_OBJECT(toolbar_decryption_ck),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), toolbar);
 			if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
@@ -791,7 +797,7 @@ airpcap_advanced_apply_cb(GtkWidget *button, gpointer data _U_)
 	if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
 		{
 		gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-		airpcap_channel_combo_set_by_number(toolbar_channel_cm,airpcap_if_selected->channel);
+		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
 		airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
      	gtk_signal_handler_block_by_func (GTK_OBJECT(toolbar_decryption_ck),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), toolbar);
@@ -844,7 +850,7 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
 	if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
 		{
 		gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-		airpcap_channel_combo_set_by_number(toolbar_channel_cm,airpcap_if_selected->channel);
+		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
 		airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
      	gtk_signal_handler_block_by_func (GTK_OBJECT(toolbar_decryption_ck),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), toolbar);
@@ -911,9 +917,15 @@ new_key = g_string_new(text_entered);
 g_strchug(new_key->str);
 g_strchomp(new_key->str);
 
+if((new_key->len) > WEP_KEY_MAX_CHAR_SIZE)
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is 2-%d characters (8-%d bits).",WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MAX_SIZE*8);	
+    return;
+	}
+
 if((new_key->len % 2) != 0)
 	{
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","1) A Wep key must is an arbitrary length hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.\nThe number of characters must be even.");
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Wrong WEP key!\nThe number of characters must be even.");
 	return;
 	}
 
@@ -921,7 +933,7 @@ for(i = 0; i < new_key->len; i++)
 	{
 	if(!g_ascii_isxdigit(new_key->str[i]))
 		{
-		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","2) A Wep key must is an arbitrary length hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.\nThe number of characters must be even.");
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Wrong WEP key!\nA WEP key must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 		return;
 		}
 	}
@@ -935,6 +947,7 @@ g_string_free(new_key,TRUE);
 g_free(text_entered);
 
 window_destroy(GTK_WIDGET(data));
+
 return;
 }
 
@@ -972,9 +985,15 @@ new_key = g_string_new(text_entered);
 g_strchug(new_key->str);
 g_strchomp(new_key->str);
 
+if((new_key->len) > WEP_KEY_MAX_CHAR_SIZE)
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is 2-%d characters (8-%d bits).",WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MAX_SIZE*8);	
+    return;
+	}
+
 if((new_key->len % 2) != 0)
 	{
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","1) A Wep key must is an arbitrary length hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.\nThe number of characters must be even.");
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Wrong WEP key!\nThe number of characters must be even.");
 	return;
 	}
 
@@ -982,7 +1001,7 @@ for(i = 0; i < new_key->len; i++)
 	{
 	if(!g_ascii_isxdigit(new_key->str[i]))
 		{
-		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","2) A Wep key must is an arbitrary length hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.\nThe number of characters must be even.");
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Wrong WEP key!\nA WEP key must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 		return;
 		}
 	}
@@ -1403,7 +1422,7 @@ airpcap_if_selected->saved = FALSE;
 
 /* Turns the decryption on or off */
 static void
-encryption_check_cb(GtkWidget *w, gpointer data)
+wep_encryption_check_cb(GtkWidget *w, gpointer data)
 {
 if( !block_advanced_signals && (airpcap_if_selected != NULL))
 	{
@@ -1420,14 +1439,13 @@ if( !block_advanced_signals && (airpcap_if_selected != NULL))
 	}
 }
 
-
 /* Called to create the airpcap settings' window */
 void
 display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 {
 	/* Main window */
 	GtkWidget   *airpcap_advanced_w;
-
+	
 	/* Blink button */
 	GtkWidget	*blink_bt,
 				*channel_combo;
@@ -1497,7 +1515,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 	/* other stuff */
 	GList				*channel_list,*capture_list;
 	GList				*linktype_list = NULL;
-	gchar				*channel_s,*capture_s;
+	gchar				*capture_s;
 
 
 	/* user data - RETRIEVE pointers of toolbar widgets */
@@ -1659,8 +1677,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 	/* Select the first entry */
 	if(airpcap_if_selected != NULL)
 		{
-		channel_s = g_strdup_printf("%d",airpcap_if_selected->channel);
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_combo)->entry), channel_s);
+		airpcap_update_channel_combo(GTK_WIDGET(channel_combo), airpcap_if_selected);
 		}
 
 	channel_te = GTK_COMBO(channel_combo)->entry;
@@ -1755,7 +1772,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 
 	/* encryption enabled box */
 	encryption_check = gtk_check_button_new_with_label("Enable WEP Decryption");
-	OBJECT_SET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_DECRYPTION_KEY,encryption_check);
+	OBJECT_SET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY,encryption_check);
 
 	/* Fcs Presence check box */
 	if(airpcap_if_selected != NULL)
@@ -1766,7 +1783,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(encryption_check),FALSE);
 		}
 
-	SIGNAL_CONNECT(encryption_check,"toggled",encryption_check_cb,NULL);
+	SIGNAL_CONNECT(encryption_check,"toggled",wep_encryption_check_cb,NULL);
 	gtk_box_pack_start (GTK_BOX (encryption_box), encryption_check, FALSE, FALSE, 0);
 	gtk_widget_show(encryption_check);
 

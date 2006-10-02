@@ -127,4 +127,16 @@ airpcap_get_channel_name(UINT n);
 void
 airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel);
 
+/*
+ * Returns '1' if this is the "Any" adapter, '0' otherwise
+ */
+int
+airpcap_if_is_any(airpcap_if_info_t* if_info);
+
+/*
+ * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
+ */
+void
+airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info);
+
 #endif

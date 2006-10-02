@@ -261,7 +261,7 @@ airpcap_if_info_t *
 airpcap_if_info_new(char *name, char *description)
 {
 PAirpcapHandle ad;
-char* ebuf = NULL;
+gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
 	airpcap_if_info_t *if_info;
 
@@ -493,27 +493,39 @@ return NULL;
 }
 
 /*
- * Returns the ASCII string of a key given the key bites
+ * Returns the ASCII string of a key given the key bytes
  */
 gchar*
 airpcap_get_key_string(AirpcapKey key)
 {
 unsigned int j = 0;
-gchar *s,*s1;
+unsigned int l = 0;
+gchar *dst,*src;
 
-s = NULL;
-s1 = NULL;
+src = NULL;
 
 if(key.KeyType == AIRPCAP_KEYTYPE_WEP)
 	{
-	s = g_strdup_printf("");
-	for(j = 0; j < key.KeyLen != 0; j++)
-		{
-		s1 = g_strdup_printf("%.2x", key.KeyData[j]);
-		g_strlcat(s,s1,WEP_KEY_MAX_SIZE);
-		}
+	if(key.KeyLen != 0)
+	    {
+        /* Allocate the string used to store the ASCII representation of the WEP key */
+        dst = (gchar*)g_malloc(sizeof(gchar)*WEP_KEY_MAX_CHAR_SIZE + 1);
+        /* Make sure that the first char is '\0' in order to make g_strlcat() work */
+        dst[0]='\0';
+        
+	    for(j = 0; j < key.KeyLen; j++)
+		    {
+		    src = g_strdup_printf("%.2x\0", key.KeyData[j]);
+		    /*
+             * XXX - use g_strconcat() instead ??? 
+             */		
+	    	l = g_strlcat(dst,src,WEP_KEY_MAX_CHAR_SIZE+1);
+	    	}
+    	g_free(src);
+        }
 	}
-return s;
+
+return dst;
 }
 
 /*
@@ -558,8 +570,21 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
 	int a;
 
 	a = sscanf(if_info->name,AIRPCAP_DEVICE_NUMBER_EXTRACT_STRING,&n);
-
-	number = g_strdup_printf("%.2u\0",n);
+    
+    /* If sscanf() returned 1, it means that has read a number, so interface is not "Any"
+     * Otherwise, check if it is the "Any" adapter...
+     */
+     if(a == 0)
+          {
+          if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)!=0)
+               number = g_strdup_printf("??");
+          else
+               number = g_strdup_printf(AIRPCAP_CHANNEL_ANY_NAME);
+          }
+     else
+          {
+          number = g_strdup_printf("%.2u\0",n);
+          }
 
 	return number;
 }

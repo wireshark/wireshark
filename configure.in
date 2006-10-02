@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(wireshark, 0.99.4)
+AM_INIT_AUTOMAKE(wireshark, 0.99.4-Freightliner-19394)
 
 AM_DISABLE_STATIC
 

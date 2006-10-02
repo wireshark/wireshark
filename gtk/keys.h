@@ -72,7 +72,9 @@
 #define AIRPCAP_ADVANCED_EDIT_KEY_TEXT_KEY	"airpcap_advanced_edit_key_text_key"
 #define AIRPCAP_ADVANCED_EDIT_KEY_OK_KEY	"airpcap_advanced_edit_key_ok_key"
 #define AIRPCAP_ADVANCED_EDIT_KEY_LABEL_KEY	"airpcap_advanced_edit_key_label_key"
-#define AIRPCAP_ADVANCED_DECRYPTION_KEY		"airpcap_advanced_decryption_key"
+#define AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY	"airpcap_advanced_wep_decryption_key"
+#define AIRPCAP_ADVANCED_WPA_DECRYPTION_KEY	"airpcap_advanced_wpa_decryption_key"
+#define AIRPCAP_ADVANCED_NOTEBOOK_KEY		"airpcap_advanced_notebook_key"
 
 #define AIRPCAP_OPTIONS_ADVANCED_KEY    "airpcap_options_advanced_key"
 

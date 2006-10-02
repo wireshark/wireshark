@@ -82,7 +82,7 @@ if(if_info != NULL)
 	gtk_widget_set_sensitive(airpcap_toolbar_button,FALSE);
 	gtk_widget_set_sensitive(airpcap_toolbar_decryption,FALSE);
 	airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
-    airpcap_channel_combo_set_by_number(GTK_WIDGET(airpcap_toolbar_channel),if_info->channel);
+    airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
 
 	/*decription check box*/
    	gtk_signal_handler_block_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
@@ -145,7 +145,7 @@ if(if_info != NULL)
 	gtk_widget_set_sensitive(airpcap_toolbar_button,TRUE);
 	gtk_widget_set_sensitive(airpcap_toolbar_decryption,TRUE);
 	airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
-    airpcap_channel_combo_set_by_number(GTK_WIDGET(airpcap_toolbar_channel),if_info->channel);
+    airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
 
 	/*decription check box*/
    	gtk_signal_handler_block_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
@@ -205,14 +205,20 @@ airpcap_fill_key_list(GtkWidget *keylist,airpcap_if_info_t* if_info)
 {
 GtkWidget	 *nl_item,*nl_lb;
 gchar*		 s;
-unsigned int i;
+unsigned int i,n;
+
+n = 0;
 
 	if( (if_info != NULL) && (if_info->keysCollection != NULL))
 		{
+        n = if_info->keysCollection->nKeys;
  		for(i = 0; i < if_info->keysCollection->nKeys; i++)
 			{
-			s = airpcap_get_key_string(if_info->keysCollection->Keys[i]);
+			s = airpcap_get_key_string(if_info->keysCollection->Keys[i]); /* g_strdup_printf("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\0"); */
+
 			nl_lb   = gtk_label_new(s);
+			g_free(s);
+
 			nl_item = gtk_list_item_new();
 			gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
 			gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
@@ -396,6 +402,36 @@ void
 airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel)
 {
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),airpcap_get_channel_name(channel));
+}
+
+/*
+ * Returns '1' if this is the "Any" adapter, '0' otherwise
+ */
+int
+airpcap_if_is_any(airpcap_if_info_t* if_info)
+{
+if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
+    return 1;
+else
+    return 0;
+}
+
+/*
+ * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
+ */
+void
+airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
+{
+if(airpcap_if_is_any(if_info))
+    {
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry)," ");
+    gtk_widget_set_sensitive(GTK_WIDGET(w),FALSE);
+    }
+else
+    {
+    airpcap_channel_combo_set_by_number(w,if_info->channel);
+    gtk_widget_set_sensitive(GTK_WIDGET(w),TRUE);
+    }
 }
 
 #endif /* HAVE_AIRPCAP */

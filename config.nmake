@@ -238,7 +238,7 @@ GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
 # If you don't have the AirPcap developer's pack, comment this line out, 
 # so that AIRPCAP_DIR isn't defined.
 #
-# AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap
 
 
 

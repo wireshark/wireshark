@@ -68,6 +68,12 @@ extern "C" {
 #define AIRPCAP_DEVICE_NUMBER_EXTRACT_STRING "\\\\.\\airpcap%u"
 
 /*!
+  \brief This string is the scanf modifier to extract the adapter "Any" string from an adapter name.
+  It can be used to parse the name field in an AirpcapDeviceDescription structure with scanf.
+*/
+#define AIRPCAP_DEVICE_ANY_EXTRACT_STRING "\\\\.\\airpcap_any"
+
+/*!
   \brief Entry in the list returned by \ref AirpcapGetDeviceList();
 */
 typedef struct _AirpcapDeviceDescription

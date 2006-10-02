@@ -850,11 +850,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   advanced_hb = gtk_hbox_new(FALSE,5);
   gtk_box_pack_start(GTK_BOX(capture_vb), advanced_hb, FALSE, FALSE, 0);
 
-  advanced_bt = gtk_button_new();
+  advanced_bt = gtk_button_new_with_label("Wireless Settings");
 
   /* set the text */
   #if GTK_MAJOR_VERSION >= 2
-  /* XXX - find a way to set the GtkButton label in GTK 1.x */
+  /* XXX - find a way to set the GtkButton label in GTK 2.x */
   gtk_button_set_label(GTK_BUTTON(advanced_bt), "Wireless Settings");
   #else
   /* Set the GtkButton label in GTK 1.x */
