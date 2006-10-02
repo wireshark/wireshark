@@ -37,7 +37,7 @@ typedef struct _color_filter {
         dfilter_t *c_colorfilter; /* compiled filter expression */
         void      *edit_dialog;   /* if filter is being edited, dialog
                                    * box for it */
-	gboolean    marked;         /* set if the filter is marked in the color dialog box */
+	gboolean   selected;      /* set if the filter is selected in the color dialog box */
 } color_filter_t;
 
 /* List of all color filters. */
@@ -69,10 +69,10 @@ gboolean color_filters_import(gchar *path, gpointer arg);
 /** Save filters (export) to some other filter file.
  *
  * @param path the path to the filter file
- * @param only_marked TRUE if only the marked filters should be saved
+ * @param only_selected TRUE if only the selected filters should be saved
  * @return TRUE, if write succeeded
  */
-gboolean color_filters_export(gchar *path, gboolean only_marked);
+gboolean color_filters_export(gchar *path, gboolean only_selected);
 
 /* Prime the epan_dissect_t with all the compiler
  * color filters in 'color_filter_list'. 

@@ -132,23 +132,23 @@ color_display_with_filter(char *filter)
   }
 }
 
-/* if this filter is marked count it in the given int* */
+/* if this filter is selected - count it in the given int* */
 static void
-count_this_mark(gpointer filter_arg, gpointer counter_arg)
+count_this_select(gpointer filter_arg, gpointer counter_arg)
 {
   color_filter_t *colorf = filter_arg;
   int * cnt = counter_arg;
 
-  if (colorf->marked)
+  if (colorf->selected)
     (*cnt)++;
 }
 
 /* TODO: implement count of selected filters. Plug in to file_dlg update of "export selected" checkbox. */
-int color_marked_count(void)
+int color_selected_count(void)
 {
   int count = 0;
 
-  g_slist_foreach(color_filter_list, count_this_mark, &count);
+  g_slist_foreach(color_filter_list, count_this_select, &count);
 
   return count;
 }
@@ -271,7 +271,7 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_export, BUTTON_SIZE_X, BUTTON_SIZE_Y);
 #endif
-  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to a file"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/selected filters to a file"), NULL);
 
   color_import = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
@@ -544,7 +544,7 @@ color_filter_up_cb(GtkButton *button, gpointer user_data _U_)
 
 #if GTK_MAJOR_VERSION < 2
   colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), 0);
-  if (colorf->marked)
+  if (colorf->selected)
     return;
 #endif
 
@@ -552,7 +552,7 @@ color_filter_up_cb(GtkButton *button, gpointer user_data _U_)
   {
 #if GTK_MAJOR_VERSION < 2
     colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), filter_number);
-    if (colorf->marked)
+    if (colorf->selected)
       move_this_row (color_filters, filter_number, amount);
 #else
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
@@ -584,7 +584,7 @@ color_filter_down_cb(GtkButton *button, gpointer user_data _U_)
 
 #if GTK_MAJOR_VERSION < 2
     colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), num_of_filters - 1);
-    if (colorf->marked)
+    if (colorf->selected)
       return;
 #endif
 
@@ -597,7 +597,7 @@ color_filter_down_cb(GtkButton *button, gpointer user_data _U_)
     gtk_tree_model_iter_nth_child(model, &iter, NULL, filter_number);
     gtk_tree_model_get(model, &iter, 4, &colorf, -1);
 #endif
-    if (colorf->marked)
+    if (colorf->selected)
       move_this_row (color_filters, filter_number, amount);
   }
 }
@@ -614,7 +614,7 @@ remember_selected_row(GtkCList *clist, gint row, gint column _U_,
     row_selected = row;
 
     colorf = gtk_clist_get_row_data(clist, row);
-    colorf->marked = TRUE;
+    colorf->selected = TRUE;
     
     /*
      * A row is selected, so we can move it up *if* it's not at the top
@@ -639,8 +639,8 @@ remember_selected_row(GtkCList *clist, gint row, gint column _U_,
 struct remember_data
 {
     gint count;               /* count of selected filters */
-    gboolean first_marked;    /* true if the first filter in the list is marked */
-    gboolean last_marked;     /* true if the last filter in the list is marked */
+    gboolean first_selected;  /* true if the first filter in the list is selected */
+    gboolean last_selected;   /* true if the last filter in the list is selected */
     gpointer color_filters;
 };
 /* called for each selected row in the tree.
@@ -652,7 +652,7 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
     struct remember_data *data = arg;
     
     gtk_tree_model_get(model, iter, 4, &colorf, -1);
-    colorf->marked = TRUE;
+    colorf->selected = TRUE;
         
     path_index = gtk_tree_path_get_indices(path);   /* not to be freed */
     if (path_index == NULL)       /* can return NULL according to API doc.*/
@@ -662,20 +662,20 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
     row_selected = path_index[0];
 
     if (row_selected == 0)
-      data->first_marked = TRUE;
+      data->first_selected = TRUE;
     if (row_selected == num_of_filters - 1)
-      data->last_marked = TRUE;
+      data->last_selected = TRUE;
 
     data->count++;
 }
 
-/* clear the mark on this filter */
+/* clear the selection of this filter */
 static void
-clear_mark(gpointer filter_arg, gpointer arg _U_)
+clear_select(gpointer filter_arg, gpointer arg _U_)
 {
   color_filter_t *colorf = filter_arg;
 
-  colorf->marked = FALSE;
+  colorf->selected = FALSE;
 }
 
 /* The gtk+2.0 version gets called for, (maybe multiple,) changes in the selection. */
@@ -685,11 +685,11 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
     GtkWidget    *button;
     struct remember_data data;
 
-    data.first_marked = data.last_marked = FALSE;
+    data.first_selected = data.last_selected = FALSE;
     data.count = 0; 
     data.color_filters = color_filters;
 
-    g_slist_foreach(color_filter_list, clear_mark, NULL);
+    g_slist_foreach(color_filter_list, clear_select, NULL);
     gtk_tree_selection_selected_foreach(sel,remember_this_row, &data);
                                       
     if (data.count > 0)
@@ -710,9 +710,9 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
        * and move them down *if* one of them isn't the bottom row.
       */
       button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_UP_LB);
-      gtk_widget_set_sensitive(button, !data.first_marked);
+      gtk_widget_set_sensitive(button, !data.first_selected);
       button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DOWN_LB);
-      gtk_widget_set_sensitive(button, !data.last_marked);
+      gtk_widget_set_sensitive(button, !data.last_selected);
     }
     else
     {
@@ -749,9 +749,9 @@ unremember_selected_row                 (GtkCList        *clist,
   row_selected = -1;
 
   colorf = gtk_clist_get_row_data(clist, row);
-  colorf->marked = FALSE;
+  colorf->selected = FALSE;
 
-  if (color_marked_count() == 0)
+  if (color_selected_count() == 0)
   {
     /*
      * No row is selected, so we can't do operations that affect the
@@ -1002,7 +1002,7 @@ color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
   {
 #if GTK_MAJOR_VERSION < 2
     colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row);
-    if (colorf->marked)
+    if (colorf->selected)
       color_delete (row, color_filters);
 #else
     gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
