@@ -922,9 +922,10 @@ dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 static int
 dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 	guint32 param_id = 0xffffffff;
 	h248_pkg_param_t* evtpar;
+
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
 	if (next_tvb) {
 		switch(tvb_length(next_tvb)) {

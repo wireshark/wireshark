@@ -1334,9 +1334,10 @@ dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 static int
 dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 	guint32 param_id = 0xffffffff;
 	h248_pkg_param_t* evtpar;
+
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
 	if (next_tvb) {
 		switch(tvb_length(next_tvb)) {
@@ -5756,7 +5757,7 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1678 "packet-h248-template.c"
+#line 1679 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6946,7 +6947,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1811 "packet-h248-template.c"
+#line 1812 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7106,7 +7107,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1836 "packet-h248-template.c"
+#line 1837 "packet-h248-template.c"
   };
 
   module_t *h248_module;
