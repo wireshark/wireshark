@@ -2333,6 +2333,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item	*stat_item=NULL;
     proto_tree  *stat_tree=NULL;
     struct tcaphash_context_t * p_tcap_context;
+    dissector_handle_t subdissector_handle;
 
     tcap_top_tree = parent_tree;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -2365,6 +2366,21 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       }
       p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
       tcap_private.context=p_tcap_context;
+
+      /* If the current message is TCAP only, 
+	 save the Application contexte name for the next messages */
+      if ( p_tcap_context &&
+	   cur_oid &&
+	   !p_tcap_context->oid_present ) {
+	/* Save the application context and the sub dissector */
+	ber_oid_dissector_table = find_dissector_table("ber.oid");
+	strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+	if ( (subdissector_handle 
+	      = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+	  p_tcap_context->subdissector_handle=subdissector_handle;
+	  p_tcap_context->oid_present=TRUE;
+	}
+      } 
       
       if (gtcap_HandleSRT &&
 	  p_tcap_context &&
@@ -2945,7 +2961,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 281 "packet-tcap-template.c"
+#line 297 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3010,7 +3026,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 291 "packet-tcap-template.c"
+#line 307 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
