@@ -46,8 +46,12 @@
 
 static gboolean read_users_filters(GSList **cfl);
 
-
+/* the currently active filters */
 static GSList *color_filter_list = NULL;
+
+/* keep "old" deleted filters in this list until 
+ * the dissection no longer needs them (e.g. file is closed) */
+static GSList *color_filter_deleted_list = NULL;
 
 /* Color Filters can en-/disabled. */
 gboolean filters_enabled = TRUE;
@@ -146,13 +150,20 @@ color_filter_list_clone(GSList *cfl)
 void
 color_filters_init(void)
 {
-	/* delete all existing filters */
+	/* delete all currently existing filters */
 	color_filter_list_delete(&color_filter_list);
 
 	/* try to read the users filters */
 	if (!read_users_filters(&color_filter_list))
 		/* if that failed, try to read the global filters */
 		color_filters_read_globals(&color_filter_list);
+}
+
+void
+color_filters_cleanup(void)
+{
+        /* delete the previously deleted filters */
+        color_filter_list_delete(&color_filter_deleted_list);
 }
 
 static void
@@ -189,17 +200,9 @@ color_filter_compile_cb(gpointer filter_arg, gpointer *cfl)
 void
 color_filters_apply(GSList *cfl)
 {
-        /* remove "old" entries */
-/*        color_filter_list_delete(&color_filter_list);*/
-
-        /* deleting the color filters crashes unpredictably 
-         * (e.g. sometimes while clearing the list) :-(
-         *
-         * for now, just clear the list and let the filters remain in memory
-         * until WS is closed -> memory leak
-         *
-         * XXX - move the filters to a "removed list" as before
-         * and delete them if the file is closed (or on rescan of packets or such?) */
+        /* "move" old entries to the deleted list
+         * we must keep them until the dissection no longer needs them */
+        color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
         color_filter_list = NULL;
 
         /* clone all list entries from edit to normal list */

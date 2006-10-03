@@ -347,6 +347,8 @@ cf_close(capture_file *cf)
   /* close things, if not already closed before */
   if(cf->state != FILE_CLOSED) {
 
+	  color_filters_cleanup();
+
 	  cf_reset_state(cf);
 
 	  cleanup_dissection();

@@ -48,7 +48,8 @@ typedef struct _color_filter {
 /** Init the color filters (incl. initial read from file). */
 void color_filters_init(void);
 
-
+/** Cleanup remaining color filter zombies */
+void color_filters_cleanup(void);
 
 /** Color filters currently used?
  *
