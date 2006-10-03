@@ -128,9 +128,17 @@ proto_register_newmail(void)
 void
 proto_reg_handoff_newmail(void)
 {
+	static gboolean inited = FALSE;
+
 	dissector_handle_t newmail_handle;
 
 	newmail_handle = find_dissector("newmail");
+
+	if(!inited) {
+		dissector_add("udp.port", preference_default_port, newmail_handle);
+		preference_default_port_last = preference_default_port;
+		inited = TRUE;
+	}
 	
 	if(preference_default_port != preference_default_port_last) {	
 		/* Unregister the last setting */
