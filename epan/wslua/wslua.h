@@ -53,7 +53,7 @@
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
 
-#include "wslua_register.h"
+#include "declare_wslua.h"
 
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define LOG_DOMAIN_LUA "wslua"
@@ -226,35 +226,9 @@ int dummy##C
 
 #define WSLUA_INIT(L) \
 	luaL_openlibs(L); \
-	WSLUA_REGISTER_CLASSES(); \
-	WSLUA_REGISTER_FUNCTIONS();
+	wslua_register_classes(L); \
+	wslua_register_functions(L);
 
-
-#else /* Lua 5.0 */
-
-#define WSLUA_REGISTER_CLASS(C) { \
-	luaL_openlib(L, #C, C ## _methods, 0); \
-	luaL_newmetatable(L, #C); \
-	luaL_openlib(L, 0, C ## _meta, 0); \
-	lua_pushliteral(L, "__index"); \
-	lua_pushvalue(L, -3); \
-	lua_rawset(L, -3); \
-	lua_pushliteral(L, "__metatable"); \
-	lua_pushvalue(L, -3); \
-	lua_rawset(L, -3); \
-	lua_pop(L, 1); \
-}
-
-#define WSLUA_REGISTER_META(C) luaL_newmetatable (L, #C); luaL_openlib (L, NULL, C ## _meta, 0);
-
-#define WSLUA_INIT(L) \
-	if ( ! L) L = lua_open(); \
-	luaopen_base(L); \
-	luaopen_table(L); \
-	luaopen_io(L); \
-	luaopen_string(L); \
-	WSLUA_REGISTER_CLASSES(); \
-	WSLUA_REGISTER_FUNCTIONS();
 
 #endif
 

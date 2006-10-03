@@ -35,28 +35,41 @@ while (<>) {
 	push @functions, $1 if  /WSLUA_FUNCTION\s+wslua_([a-z_]+)/;
 }
 
-print "/* This file is automatically genrated by elua_makereg.pl do not edit */\n\n";
+open C, ">register_wslua.c";
+open H, ">declare_wslua.h";
 
-print "#define WSLUA_DECLARE_CLASSES() \\\n"; 
+print H "/* This file is automatically genrated by make-reg.pl do not edit */\n\n";
+print C "/* This file is automatically genrated by make-reg.pl do not edit */\n\n";
+
+print H "#define WSLUA_DECLARE_CLASSES() \\\n"; 
 for (@classes) {
-	print "\tWSLUA_CLASS_DECLARE($_);\\\n"
+	print H "\tWSLUA_CLASS_DECLARE($_);\\\n"
 }
-print "\n\n";
+print H "\n\n";
 
-print "#define WSLUA_REGISTER_CLASSES() { \\\n"; 
+print H "#define WSLUA_DECLARE_FUNCTIONS() \\\n"; 
+for (@functions) {
+	print H "\tWSLUA_FUNCTION wslua_$_(lua_State* L);\\\n"
+}
+print H "\n\n";
+print H "extern void wslua_register_classes(lua_State* L);\n"; 
+print H "extern void wslua_register_functions(lua_State* L);\n"; 
+print H "\n\n";
+
+
+print C '#include "wslua.h"' . "\n\n"; 
+print C "void wslua_register_classes(lua_State* L) { \n"; 
 for (@classes) {
-	print "\t${_}_register(L);\\\n"
+	print C "\t${_}_register(L);\n"
 }
-print "}\n\n";
+print C "}\n\n";
 
-print "#define WSLUA_DECLARE_FUNCTIONS() \\\n"; 
-for (@functions) {
-	print "\tWSLUA_FUNCTION wslua_$_(lua_State* L);\\\n"
-}
-print "\n\n";
 
-print "#define WSLUA_REGISTER_FUNCTIONS() {\\\n"; 
+print C "void wslua_register_functions(lua_State* L) {\n"; 
 for (@functions) {
-	print "\t	WSLUA_REGISTER_FUNCTION($_); \\\n"
+	print C "\tWSLUA_REGISTER_FUNCTION($_); \n"
 }
-print "}\n\n";
+print C "}\n\n";
+
+close H;
+close C;

@@ -504,6 +504,11 @@ static void funnel_set_filter(const char* filter_string) {
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 }
 
+static void funnel_apply_filter() {
+	const char* filter_string = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	main_filter_packets(&cfile, filter_string, FALSE);	
+}
+
 /* XXX: finish this */
 static void funnel_logger(const gchar *log_domain _U_,
                           GLogLevelFlags log_level _U_,
@@ -584,7 +589,8 @@ static const funnel_ops_t funnel_ops = {
 	copy_to_clipboard,
 	funnel_set_filter,
 	funnel_open_file,
-	funnel_reload
+	funnel_reload,
+	funnel_apply_filter
 };
 
 

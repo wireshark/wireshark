@@ -38,6 +38,7 @@ wslua_modules = 	\
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \
+	register_wslua.c \
 	init_wslua.c \
 	wslua.h
 
@@ -45,7 +46,8 @@ libwslua_la_LIBADD = @LUA_LIBS@
 
 BUILT_SOURCES = \
 	taps.c-inc \
-	wslua_register.h
+	register_wslua.c \
+	declare_wslua.h
 
 pkgdata_DATA = init.lua
 
@@ -63,7 +65,8 @@ MAINTAINERCLEANFILES = \
 	init.lua
 
 EXTRA_DIST = \
-	wslua_register.h \
+	declare_wslua.h \
+	register_wslua.c \
 	taps \
 	make-reg.pl \
 	make-doc.pl \
@@ -86,33 +89,15 @@ taps.c-inc: make-taps.pl taps
 
 taps.txt: taps.c-inc
 	
-wslua.h: wslua_register.h
+wslua.h: declare_wslua.h
 
-# do not do not unnecessarilly modify the old file in order avoid recompiling every module every time 
-wslua_register.h: make-reg.pl $(lua_modules) taps.c-inc
-	$(PERL) $(srcdir)/make-reg.pl \
-		wslua_tvb.c \
-		wslua_proto.c \
-		wslua_tree.c \
-		wslua_pinfo.c \
-		wslua_listener.c \
-		wslua_gui.c \
-		wslua_util.c \
-		wslua_field.c \
-		wslua_dumper.c > wslua_register.h.new ;\
-	if diff wslua_register.h.new wslua_register.h >/dev/null; then rm wslua_register.h.new; else mv wslua_register.h.new wslua_register.h; fi
+register_wslua.c: declare_wslua.h
 
-doc: make-doc.pl $(lua_modules)
-	$(PERL) $(srcdir)/make-doc.pl \
-		wslua_tvb.c \
-		wslua_proto.c \
-		wslua_tree.c \
-		wslua_pinfo.c \
-		wslua_listener.c \
-		wslua_gui.c \
-		wslua_util.c \
-		wslua_field.c \
-		wslua_dumper.c
+declare_wslua.h: make-reg.pl $(wslua_modules) taps.c-inc
+	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
+
+doc: make-doc.pl $(wslua_modules)
+	$(PERL) $(srcdir)/make-doc.pl $(wslua_modules)
 
 dummy:
 	touch dummy

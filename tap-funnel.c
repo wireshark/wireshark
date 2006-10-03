@@ -101,6 +101,7 @@ static const funnel_ops_t funnel_ops = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	NULL
 };
 
