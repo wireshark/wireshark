@@ -75,6 +75,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
 #define E_PREFSW_TREE_KEY       "prefsw_tree"
 #define E_PREFSW_NOTEBOOK_KEY   "prefsw_notebook"
+#define E_PREFSW_SAVE_BT_KEY    "prefsw_save_bt"
 #define E_PAGE_ITER_KEY         "page_iter"
 #define E_PAGE_MODULE_KEY       "page_module"
 #define E_PAGESW_FRAME_KEY      "pagesw_frame"
@@ -619,7 +620,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.is_protocol = FALSE;
   prefs_module_list_foreach(NULL, module_prefs_show, &cts);
 
-  /* Button row: OK and cancel buttons */
+  /* Button row: OK and alike buttons */
 
   if(topic_available(HELP_PREFERENCES_DIALOG)) {
     bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
@@ -637,6 +638,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
   SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
+  OBJECT_SET_DATA(prefs_w, E_PREFSW_SAVE_BT_KEY, save_bt);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
@@ -653,6 +655,12 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, prefs_w);
 
   gtk_widget_show(prefs_w);
+
+  /* hide the Save button if the user uses implicit save */
+  if(!prefs.gui_use_pref_save) {
+    gtk_widget_hide(save_bt);
+  }
+
   window_present(prefs_w);
 
 #if GTK_MAJOR_VERSION >= 2
@@ -1167,6 +1175,8 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 static void
 prefs_main_apply_all(GtkWidget *dlg)
 {
+  GtkWidget *save_bt;
+
   /*
    * Apply the protocol preferences first - "gui_prefs_apply()" could
    * cause redissection, and we have to make sure the protocol
@@ -1191,6 +1201,14 @@ prefs_main_apply_all(GtkWidget *dlg)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_apply(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+
+  /* show/hide the Save button - depending on setting */
+  save_bt = OBJECT_GET_DATA(prefs_w, E_PREFSW_SAVE_BT_KEY);
+  if(prefs.gui_use_pref_save) {
+    gtk_widget_show(save_bt);
+  } else {
+    gtk_widget_hide(save_bt);
+  }
 }
 
 
@@ -1236,50 +1254,11 @@ prefs_main_destroy_all(GtkWidget *dlg)
 
 
 static void
-prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
+prefs_main_write(void)
 {
-  gboolean must_redissect = FALSE;
-
-  if (!prefs_main_fetch_all(parent_w, &must_redissect))
-    return; /* Errors in some preference setting */
-
-  prefs_main_apply_all(parent_w);
-
-  /* Now destroy the "Preferences" dialog. */
-  window_destroy(GTK_WIDGET(parent_w));
-
-  if (must_redissect) {
-    /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
-  }
-}
-
-static void
-prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
-{
-  gboolean must_redissect = FALSE;
-
-  if (!prefs_main_fetch_all(parent_w, &must_redissect))
-    return; /* Errors in some preference setting */
-
-  prefs_main_apply_all(parent_w);
-
-  if (must_redissect) {
-    /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
-  }
-}
-
-static void
-prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
-{
-  gboolean must_redissect = FALSE;
   int err;
   char *pf_dir_path;
   char *pf_path;
-
-  if (!prefs_main_fetch_all(parent_w, &must_redissect))
-    return; /* Errors in some preference setting */
 
   /* Create the directory that holds personal configuration files, if
      necessary.  */
@@ -1298,6 +1277,58 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
        g_free(pf_path);
     }
   }
+}
+
+
+static void
+prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
+{
+  gboolean must_redissect = FALSE;
+
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting - already reported */
+
+  /* if we don't have a Save button, just save the settings now */
+  if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+  }
+
+  prefs_main_apply_all(parent_w);
+
+  /* Now destroy the "Preferences" dialog. */
+  window_destroy(GTK_WIDGET(parent_w));
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    cf_redissect_packets(&cfile);
+  }
+}
+
+static void
+prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
+{
+  gboolean must_redissect = FALSE;
+
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting - already reported */
+
+  prefs_main_apply_all(parent_w);
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    cf_redissect_packets(&cfile);
+  }
+}
+
+static void
+prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
+{
+  gboolean must_redissect = FALSE;
+
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting - already reported */
+
+  prefs_main_write();
 
   /* Now apply those preferences.
      XXX - should we do this?  The user didn't click "OK" or "Apply".

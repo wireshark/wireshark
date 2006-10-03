@@ -1033,6 +1033,7 @@ init_prefs(void) {
   prefs.gui_fileopen_preview       = 3;
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;
+  prefs.gui_use_pref_save          = FALSE;
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_layout_type            = layout_type_5;
@@ -1380,6 +1381,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_FILEOPEN_PREVIEW         "gui.fileopen.preview"
 #define PRS_GUI_ASK_UNSAVED              "gui.ask_unsaved"
 #define PRS_GUI_FIND_WRAP                "gui.find_wrap"
+#define PRS_GUI_USE_PREF_SAVE            "gui.use_pref_save"
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
 #define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
 #define PRS_GUI_GEOMETRY_SAVE_MAXIMIZED  "gui.geometry.save.maximized"
@@ -1723,6 +1725,13 @@ set_pref(gchar *pref_name, gchar *value)
     }
     else {
 	    prefs.gui_find_wrap = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_USE_PREF_SAVE) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+	    prefs.gui_use_pref_save = TRUE;
+    }
+    else {
+	    prefs.gui_use_pref_save = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_WEBBROWSER) == 0) {
     g_free(prefs.gui_webbrowser);
@@ -2355,6 +2364,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_FIND_WRAP ": %s\n",
 		  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");                  
 
+  fprintf(pf, "\n# Settings dialogs use a save button?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_USE_PREF_SAVE ": %s\n",
+		  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");                  
+
   fprintf(pf, "\n# The path to the webbrowser.\n");
   fprintf(pf, "# Ex: mozilla %%s\n");
   fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
@@ -2568,6 +2582,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_fileopen_preview = src->gui_fileopen_preview;
   dest->gui_ask_unsaved = src->gui_ask_unsaved;
   dest->gui_find_wrap = src->gui_find_wrap;
+  dest->gui_use_pref_save = src->gui_use_pref_save;
   dest->gui_layout_type = src->gui_layout_type;
   dest->gui_layout_content_1 = src->gui_layout_content_1;
   dest->gui_layout_content_2 = src->gui_layout_content_2;

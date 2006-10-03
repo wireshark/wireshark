@@ -42,6 +42,7 @@
 #include "compat_macros.h"
 #include "gtkglobals.h"
 #include "help_dlg.h"
+#include <epan/prefs.h>
 
 #define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
 #define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"
@@ -71,6 +72,7 @@ static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
 static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
 static void filter_apply(GtkWidget *main_w, gboolean destroy);
+static void filter_dlg_save(filter_list_type_t list_type);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_destroy_cb(GtkWidget *win, gpointer data);
 
@@ -616,47 +618,28 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
 
-    /* button row */
-    if (parent_filter_te != NULL) {
-        if (construct_args->wants_apply_button) {
-            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-        } else {
-            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-        }
-    } else {
-        if (construct_args->wants_apply_button) {
-            bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-        } else {
-            bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-        }
-    }
+    /* button row (create all possible buttons and hide the unrequired later - it's a lot easier) */
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
     gtk_widget_show(bbox);
 
-    ok_bt = NULL;
-    if (parent_filter_te != NULL) {
-        /*
-         * We have a filter text entry that we can fill in if
-         * the "OK" button is clicked, so put in an "OK" button.
-         */
-        ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-        SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, NULL);
-        gtk_tooltips_set_tip (tooltips, ok_bt, ("Apply the filters and close this dialog"), NULL);
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, filter_list_type_p);
+    gtk_tooltips_set_tip (tooltips, ok_bt, ("Apply the filters and close this dialog"), NULL);
 
-        /* Catch the "activate" signal on the filter name and filter
-           expression text entries, so that if the user types Return
-           there, we act as if the "OK" button had been selected, as
-           happens if Return is typed if some widget that *doesn't*
-           handle the Return key has the input focus. */
+    /* Catch the "activate" signal on the filter name and filter
+       expression text entries, so that if the user types Return
+       there, we act as if the "OK" button had been selected, as
+       happens if Return is typed if some widget that *doesn't*
+       handle the Return key has the input focus. */
+    if (parent_filter_te != NULL) {
         dlg_set_activate(name_te, ok_bt);
         dlg_set_activate(filter_te, ok_bt);
     }
 
-    if (construct_args->wants_apply_button) {
-        apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
-        SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
-        gtk_tooltips_set_tip (tooltips, apply_bt, ("Apply the filters and keep this dialog open"), NULL);
-    }
+    apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+    SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
+    gtk_tooltips_set_tip (tooltips, apply_bt, ("Apply the filters and keep this dialog open"), NULL);
 
     save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_type_p);
@@ -712,6 +695,22 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
 
     gtk_widget_show(main_w);
+
+    /* hide the Ok button, if we don't have to apply it and our caller wants a Save button */
+    if (parent_filter_te == NULL && prefs.gui_use_pref_save) {
+        gtk_widget_hide(ok_bt);
+    }
+
+    /* hide the Apply button, if our caller don't wants one */
+    if (!construct_args->wants_apply_button) {
+        gtk_widget_hide(apply_bt);
+    }
+
+    /* hide the Save button if the user uses implicit save */
+    if (!prefs.gui_use_pref_save) {
+        gtk_widget_hide(save_bt);
+    }
+
     window_present(main_w);
 
     return main_w;
@@ -783,12 +782,19 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
 }
 
 static void
-filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
+filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
 {
+	filter_list_type_t list_type = *(filter_list_type_t *)data;
+
 	/*
 	 * Destroy the dialog box and apply the filter.
 	 */
 	filter_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
+
+	/* if we don't have a Save button, just save the settings now */
+	if (!prefs.gui_use_pref_save) {
+		filter_dlg_save(list_type);
+	}
 }
 
 static void
@@ -856,10 +862,10 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
 	}
 }
 
+
 static void
-filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
+filter_dlg_save(filter_list_type_t list_type)
 {
-	filter_list_type_t list_type = *(filter_list_type_t *)data;
 	char *pf_dir_path;
 	char *f_path;
 	int f_save_errno;
@@ -903,6 +909,15 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 		    filter_type, f_path, strerror(f_save_errno));
 		g_free(f_path);
 	}
+}
+
+
+static void
+filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
+{
+	filter_list_type_t list_type = *(filter_list_type_t *)data;
+
+	filter_dlg_save(list_type);
 }
 
 #if 0

@@ -97,7 +97,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
   GtkWidget *main_vb, *bbox, *proto_list, *label, *proto_sw, *proto_frame,
-            *proto_vb, *button;
+            *proto_vb, *button, *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
   const gchar *titles[] = { "Status", "Protocol", "Description" };
 #if GTK_MAJOR_VERSION < 2
   gint width;
@@ -228,22 +228,22 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  button = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT(button, "clicked", proto_ok_cb, proto_w);
-  gtk_widget_grab_default(button);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  SIGNAL_CONNECT(ok_bt, "clicked", proto_ok_cb, proto_w);
+  gtk_widget_grab_default(ok_bt);
 
-  button = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
-  SIGNAL_CONNECT(button, "clicked", proto_apply_cb, proto_w);
+  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+  SIGNAL_CONNECT(apply_bt, "clicked", proto_apply_cb, proto_w);
 
-  button = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
-  SIGNAL_CONNECT(button, "clicked", proto_save_cb, proto_w);
+  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+  SIGNAL_CONNECT(save_bt, "clicked", proto_save_cb, proto_w);
 
-  button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-  window_set_cancel_button(proto_w, button, proto_cancel_cb);
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
   if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
-    button = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-    SIGNAL_CONNECT(button, "clicked", topic_cb, HELP_ENABLED_PROTOCOLS_DIALOG);
+    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_ENABLED_PROTOCOLS_DIALOG);
   }
 
   SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_event_cb, NULL);
@@ -252,6 +252,12 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
 
   gtk_widget_show(proto_w);
+
+  /* hide the Save button if the user uses implicit save */
+  if(!prefs.gui_use_pref_save) {
+    gtk_widget_hide(save_bt);
+  }
+
   window_present(proto_w);
 } /* proto_cb */
 
@@ -408,10 +414,39 @@ proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
   return FALSE;
 }
 
+static void proto_write(gpointer parent_w)
+{
+  char *pf_dir_path;
+  char *pf_path;
+  int pf_save_errno;
+
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
+      strerror(errno));
+     g_free(pf_dir_path);
+  } else {
+    save_disabled_protos_list(&pf_path, &pf_save_errno);
+    if (pf_path != NULL) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	    "Could not save to your disabled protocols file\n\"%s\": %s.",
+	    pf_path, strerror(pf_save_errno));
+	g_free(pf_path);
+    }
+  }
+}
+
 static void
 proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   gboolean redissect;
+
+  /* if we don't have a Save button, just save the settings now */
+  if (!prefs.gui_use_pref_save) {
+      proto_write(parent_w);
+  }
 
   redissect = set_proto_selection(GTK_WIDGET(parent_w));
   window_destroy(GTK_WIDGET(parent_w));
@@ -429,34 +464,10 @@ proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 {
-  gboolean must_redissect = FALSE;
-  char *pf_dir_path;
-  char *pf_path;
-  int pf_save_errno;
 
-  /* Create the directory that holds personal configuration files, if
-     necessary.  */
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
-      strerror(errno));
-     g_free(pf_dir_path);
-  } else {
-    /*
-     * make disabled/enabled protocol settings current
-     */
-    must_redissect = set_proto_selection(GTK_WIDGET(parent_w));
+  proto_write(parent_w);
 
-    save_disabled_protos_list(&pf_path, &pf_save_errno);
-    if (pf_path != NULL) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	    "Could not save to your disabled protocols file\n\"%s\": %s.",
-	    pf_path, strerror(pf_save_errno));
-	g_free(pf_path);
-    }
-  }
-
-  if (must_redissect) {
+  if (set_proto_selection(GTK_WIDGET(parent_w))) {
     /* Redissect all the packets, and re-evaluate the display filter. */
     cf_redissect_packets(&cfile);
   }

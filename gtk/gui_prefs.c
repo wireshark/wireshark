@@ -70,6 +70,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
 #define GUI_WEBBROWSER_KEY	    "webbrowser"
 #define GUI_FIND_WRAP_KEY       "find_wrap"
+#define GUI_USE_PREF_SAVE_KEY   "use_pref_save"
 
 static const enum_val_t scrollbar_placement_vals[] = {
 	{ "FALSE", "Left", FALSE },
@@ -177,6 +178,7 @@ gui_prefs_show(void)
 #endif
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
 	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb, *find_wrap_cb;
+	GtkWidget *use_pref_save_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 
@@ -297,6 +299,14 @@ gui_prefs_show(void)
 		"wrap in a capture file.", NULL);
 	OBJECT_SET_DATA(main_vb, GUI_FIND_WRAP_KEY, find_wrap_cb);
 
+	/* show an explicit Save button for settings dialogs (preferences and alike)? */
+	use_pref_save_cb = create_preference_check_button(main_tb, pos++,
+	    "Settings dialogs show a save button:", NULL, prefs.gui_use_pref_save);
+	gtk_tooltips_set_tip(tooltips, use_pref_save_cb, 
+                "Whether the various settings dialogs (e.g. Preferences) should "
+		"use an explicit save button - for advanced users.", NULL);
+	OBJECT_SET_DATA(main_vb, GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
+
 	/* Webbrowser */
 	if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++, 
@@ -390,6 +400,9 @@ gui_prefs_fetch(GtkWidget *w)
 
     prefs.gui_find_wrap = 
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_FIND_WRAP_KEY));
+
+    prefs.gui_use_pref_save = 
+	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_USE_PREF_SAVE_KEY));
 
     if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
