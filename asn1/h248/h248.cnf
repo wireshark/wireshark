@@ -21,13 +21,9 @@ SigParamValue
 EventName
 EventParameterName
 EventParamValue
-EventParameter/eventParameterName
 EventParameter/value
-SigParameter/sigParameterName
 SigParameter/value
-StatisticsParameter/statName
-PropertyParm/propertyName
-StatisticsParameter/statValue
+SigParameterName
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
