@@ -1190,7 +1190,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
   GString  *cur_var;
   gboolean  got_val = FALSE;
   gint      fline = 1, pline = 1;
-  gchar     hint[] = "(saving your preferences once should remove this warning)";
+  gchar     hint[] = "(applying your preferences once should remove this warning)";
 
   cur_val = g_string_new("");
   cur_var = g_string_new("");
