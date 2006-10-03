@@ -342,6 +342,9 @@ DISSECTOR_SRC =	\
 	packet-h235.c	\
 	packet-h245.c	\
 	packet-h248.c	\
+	packet-h248_3gpp.c \
+	packet-h248_annex_c.c \
+	packet-h248_annex_e.c \
 	packet-h261.c	\
 	packet-h263.c	\
 	packet-h450.c	\

@@ -6,8 +6,8 @@
  *
  * $Id$
  *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,29 @@
 
 #ifndef PACKET_H248_H
 #define PACKET_H248_H
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/strutil.h>
+#include <epan/emem.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
+#include <epan/to_str.h>
+
+#include <stdio.h>
+#include <string.h>
+
+#include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-q931.h>
+#include <epan/dissectors/packet-mtp3.h>
+#include <epan/dissectors/packet-alcap.h>
+#include <epan/dissectors/packet-isup.h>
+
+#include <epan/sctpppids.h>
 
 /*#include "packet-h248-exp.h"*/
 
@@ -155,5 +178,60 @@ typedef struct _h248_ctx_t {
     h248_terms_t terms;
 } h248_ctx_t;
 
+typedef struct _h248_curr_info_t h248_curr_info_t;
+
+typedef void (*h248_pkg_param_dissector_t)(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, int hfid, h248_curr_info_t*, void*);
+
+extern void h248_param_item(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* ignored);
+extern void h248_param_ber_integer(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* ignored);
+extern void h248_param_ber_octetstring(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* ignored);
+extern void h248_param_ber_boolean(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* ignored);
+extern void external_dissector(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* dissector_handle);
+
+
+typedef struct _h248_pkg_param_t {
+	guint32 id;
+	int* hfid;
+	h248_pkg_param_dissector_t dissector;
+	void* data;
+} h248_pkg_param_t;
+
+typedef struct _h248_pkg_sig_t {
+	guint32 id;
+	int* hfid;
+	gint* ett;
+	h248_pkg_param_t* parameters;	
+} h248_pkg_sig_t;
+
+typedef struct _h248_pkg_evt_t {
+	guint32 id;
+	int* hfid;
+	gint* ett;
+	h248_pkg_param_t* parameters;	
+} h248_pkg_evt_t;
+
+typedef struct _h248_package_t {
+	guint32 id;
+	int* hfid;
+	int* hfid_params;
+	gint* ett;
+	h248_pkg_param_t* properties;
+	h248_pkg_sig_t* signals;
+	h248_pkg_evt_t* events;
+} h248_package_t;
+
+struct _h248_curr_info_t {
+	h248_ctx_t* ctx;
+	h248_trx_t* trx;
+	h248_msg_t* msg;
+	h248_term_t* term;
+	h248_cmd_t* cmd;
+	h248_package_t* pkg;
+	h248_pkg_evt_t* evt;
+	h248_pkg_sig_t* sig;
+	h248_pkg_param_t* par;
+};
+
+void h248_register_package(h248_package_t*);
 
 #endif  /* PACKET_H248_H */

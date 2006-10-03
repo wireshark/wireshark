@@ -1,7 +1,7 @@
 -- This ASN definition is taken from
 -- http://132.151.1.19/internet-drafts/draft-ietf-megaco-h248v2-04.txt
 --
--- and has been modified to pass through the asn2wrs compiler
+-- and has been modified to pass through the ASN2ETH compiler
 -- (we dont support automatic tags yet so the tags had to be added by
 --  hand)
 
@@ -489,14 +489,20 @@ BEGIN
              
       EventParameter ::= SEQUENCE 
       { 
-         eventParameterName      [0] IMPLICIT Name, 
-         value                   [1] IMPLICIT Value, 
+         eventParameterName      [0] IMPLICIT EventParameterName, 
+         eventParamValue         [1] IMPLICIT EventParamValues, 
     
          -- For use of extraInfo see the comment related to PropertyParm 
          extraInfo               [2] ExtraInfo OPTIONAL,
          ... 
        
       }
+
+	  EventParameterName ::= Name
+	
+	  EventParamValues ::= SEQUENCE OF EventParamValue
+	  
+	  EventParamValue ::= OCTET STRING
 
       EventParameters ::= SEQUENCE OF EventParameter
 
@@ -802,13 +808,19 @@ BEGIN
        
       SigParameter ::= SEQUENCE 
       { 
-         sigParameterName     [0] IMPLICIT Name, 
-         value                [1] IMPLICIT Value, 
+         sigParameterName     [0] IMPLICIT SigParameterName, 
+         sigParameterValue    [1] IMPLICIT SigParamValues,
       -- For use of extraInfo see the comment related to PropertyParm 
          extraInfo            [2] ExtraInfo OPTIONAL,
          ... 
-      } 
-       
+      }
+	
+	  SigParameterName ::= Name
+	  
+	  SigParamValues ::= SEQUENCE OF SigParamValue
+	  
+	  SigParamValue ::= OCTET STRING
+	  
       -- For an AuditCapReply with all events, the RequestID SHALL be ALL. 
       -- ALL is represented by 0xffffffff. 
        

@@ -12,11 +12,15 @@
 #.NO_EMIT
 MtpAddress
 PkgdName
-PropertyID
-SignalName
-EventName
 ContextID
 ErrorCode
+PropertyID
+SignalName
+SigParameterName
+SigParamValue
+EventName
+EventParameterName
+EventParamValue
 EventParameter/eventParameterName
 EventParameter/value
 SigParameter/sigParameterName
@@ -87,42 +91,42 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 
 #.FN_HDR Message
-    msg = h248_msg(pinfo,TVB_RAW_OFFSET(tvb));
+    curr_info.msg = h248_msg(pinfo,TVB_RAW_OFFSET(tvb));
 #.END
 
 #.FN_FTR Message
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, h248_msg_to_str(msg));
+        col_set_str(pinfo->cinfo, COL_INFO, h248_msg_to_str(curr_info.msg));
         
     if (keep_persistent_data)
-        analyze_h248_msg(msg);
+        analyze_h248_msg(curr_info.msg);
 #.END
 
 #.FN_BODY TransactionRequest/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    trx = h248_trx(msg,trx_id,H248_TRX_REQUEST);
+    curr_info.trx = h248_trx(curr_info.msg,trx_id,H248_TRX_REQUEST);
     error_code = 0;
 #.END
 
 #.FN_BODY TransactionPending/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    trx = h248_trx(msg,trx_id,H248_TRX_PENDING);
+    curr_info.trx = h248_trx(msg,trx_id,H248_TRX_PENDING);
     error_code = 0;
 #.END
 
 #.FN_BODY TransactionReply/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    trx = h248_trx(msg,trx_id,H248_TRX_REPLY);
+    curr_info.trx = h248_trx(curr_info.msg,trx_id,H248_TRX_REPLY);
     error_code = 0;
 #.END
 
 #.FN_BODY TransactionResponseAck/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    trx = h248_trx(msg,trx_id,H248_TRX_ACK);
+    curr_info.trx = h248_trx(curr_info.msg,trx_id,H248_TRX_ACK);
     error_code = 0;
 #.END
 
@@ -130,142 +134,142 @@ IndAudStatisticsDescriptor/statName		iAStatName
 #.FN_BODY ActionRequest/contextId
     guint32 ctx_id = 0;
 	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
-    ctx = h248_ctx(msg,trx,ctx_id);
-    term = NULL;
+    curr_info.ctx = h248_ctx(curr_info.msg,curr_info.trx,ctx_id);
+    curr_info.term = NULL;
 #.END
 
 #.FN_BODY ActionReply/contextId
     guint32 ctx_id;
 	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
-    ctx = h248_ctx(msg ,trx,ctx_id);
-    cmd = NULL;
-    term = NULL;
+    curr_info.ctx = h248_ctx(curr_info.msg ,curr_info.trx,ctx_id);
+    curr_info.cmd = NULL;
+    curr_info.term = NULL;
 #.END
 
 #.FN_FTR ActionReply
-    if (!cmd)
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_REPLY,offset);
+    if (!curr_info.cmd)
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_REPLY,offset);
 #.END
 
 #.FN_HDR Command/addReq
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_ADD_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_ADD_REQ,offset);
 #.END
 
 #.FN_FTR Command/addReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/moveReq
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_MOVE_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOVE_REQ,offset);
 #.END
 
 #.FN_FTR Command/moveReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/modReq
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_MOD_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOD_REQ,offset);
 #.END
 #.FN_FTR Command/modReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/subtractReq
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_SUB_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SUB_REQ,offset);
 #.END
 #.FN_FTR Command/subtractReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/auditCapRequest
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_AUDITCAP_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITCAP_REQ,offset);
 #.END
 #.FN_FTR Command/auditCapRequest
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/auditValueRequest
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_AUDITVAL_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITVAL_REQ,offset);
 #.END
 #.FN_FTR Command/auditValueRequest
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/notifyReq
-	  cmd = h248_cmd(msg,trx,ctx,H248_CMD_NOTIFY_REQ,offset);
+	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_NOTIFY_REQ,offset);
 #.END
 #.FN_FTR Command/notifyReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR Command/ServiceChangeRequest
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_SVCCHG_REQ,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REQ,offset);
 #.END
 #.FN_FTR Command/ServiceChangeRequest
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR ContextRequest/topologyReq
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_TOPOLOGY_REQ,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_TOPOLOGY_REQ,offset);
 #.END
 #.FN_FTR ContextRequest/topologyReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR ActionRequest/contextAttrAuditReq
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_CTX_ATTR_AUDIT_REQ,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_CTX_ATTR_AUDIT_REQ,offset);
 #.END
 #.FN_FTR ActionRequest/contextAttrAuditReq
-      cmd = NULL;
+      curr_info.cmd = NULL;
 #.END
 
 #.FN_HDR CommandReply/addReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_ADD_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_ADD_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/moveReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_MOVE_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOVE_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/modReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_MOD_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOD_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/subtractReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_SUB_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SUB_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/notifyReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_NOTIFY_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_NOTIFY_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/ServiceChangeReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_SVCCHG_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/auditCapReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_AUDITCAP_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITCAP_REPLY,offset);
 #.END
 
 #.FN_HDR CommandReply/auditValueReply
-      cmd = h248_cmd(msg,trx,ctx,H248_CMD_AUDITVAL_REPLY,offset);
+      curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITVAL_REPLY,offset);
 #.END
 
 #.FN_BODY ErrorDescriptor/errorCode
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &error_code);
     expert_add_info_format(pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
     
-    if (cmd) {
-        h248_cmd_set_error(cmd,error_code);
-    } else if (trx) {
-        h248_trx_set_error(trx,error_code);
+    if (curr_info.cmd) {
+        h248_cmd_set_error(curr_info.cmd,error_code);
+    } else if (curr_info.trx) {
+        h248_trx_set_error(curr_info.trx,error_code);
     }
     
     return offset;
 #.END
 
 #.FN_HDR TerminationID
-    term = ep_new0(h248_term_t);
+    curr_info.term = ep_new0(h248_term_t);
     wild_term = H248_WILDCARD_NONE;
 #.END
 
@@ -286,23 +290,23 @@ IndAudStatisticsDescriptor/statName		iAStatName
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
 	if (new_tvb) {
-		term->len = tvb_length(new_tvb);
-		term->type = 0; /* unknown */
+		curr_info.term->len = tvb_length(new_tvb);
+		curr_info.term->type = 0; /* unknown */
 
-		if (term->len) {
-			term->buffer = ep_tvb_memdup(new_tvb,0,term->len);
-			term->str = bytes_to_str(term->buffer,term->len);
+		if (curr_info.term->len) {
+			curr_info.term->buffer = ep_tvb_memdup(new_tvb,0,curr_info.term->len);
+			curr_info.term->str = bytes_to_str(curr_info.term->buffer,curr_info.term->len);
 		}
 
-		term = h248_cmd_add_term(msg, trx, cmd, term, wild_term);
+		curr_info.term = h248_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term);
 
 		if (h248_term_handle) {
 			call_dissector(h248_term_handle, new_tvb, pinfo, tree);
 		}
 	} else {
-		term->len = 0;
-		term->buffer = (guint8*)ep_strdup("");
-		term->str = ep_strdup("?");
+		curr_info.term->len = 0;
+		curr_info.term->buffer = (guint8*)ep_strdup("");
+		curr_info.term->str = ep_strdup("?");
 	}
 #.END
 
