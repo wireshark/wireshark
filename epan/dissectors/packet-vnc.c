@@ -802,6 +802,12 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    FALSE);
 				offset += 4;
 
+				if(vnc_preference_desegment && pinfo->can_desegment &&
+				   tvb_length_remaining(tvb, offset) < text_len) {
+					pinfo->desegment_offset = 0;
+					pinfo->desegment_len = text_len - tvb_length_remaining(tvb, offset);
+					return;
+				}
 				proto_tree_add_item(vnc_server_message_type_tree, hf_vnc_server_cut_text, tvb, offset, text_len,
 						    FALSE);
 				offset += text_len;
