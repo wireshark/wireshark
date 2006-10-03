@@ -59,6 +59,7 @@
 #include <epan/prefs.h>
 #include "column_prefs.h"
 #include "prefs_dlg.h"
+#include "file.h"
 
 #include "gtkglobals.h"
 
@@ -499,6 +500,9 @@ static void funnel_new_dialog(const gchar* title,
     gtk_widget_show(win);
 }
 
+static void funnel_set_filter(const char* filter_string) {	
+	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+}
 
 /* XXX: finish this */
 static void funnel_logger(const gchar *log_domain _U_,
@@ -512,6 +516,55 @@ static void funnel_retap_packets(void) {
 	cf_retap_packets(&cfile, FALSE);
 }
 
+static gboolean funnel_open_file(const char* fname, const char* filter, char** error) {
+	int err = 0;
+	dfilter_t   *rfcode = NULL;
+	
+	*error = "no error";
+
+	switch (cfile.state) {
+		case FILE_CLOSED:
+			break;
+		case FILE_READ_DONE:
+		case FILE_READ_ABORTED:
+			cf_close(&cfile);
+			break;
+		case FILE_READ_IN_PROGRESS:
+			*error = "file read in progress";
+			return FALSE;
+	}
+	
+	if (filter) {
+		if (!dfilter_compile(filter, &rfcode)) {
+			*error = dfilter_error_msg ? dfilter_error_msg : "cannot compile filter";
+			return FALSE;
+		}
+	}
+	
+	
+	if (cf_open(&cfile, fname, FALSE, &err) != CF_OK) {
+		*error = strerror(err);
+		if (rfcode != NULL) dfilter_free(rfcode);
+		return FALSE;
+	}
+
+	cfile.rfcode = rfcode;
+	
+	switch (cf_read(&cfile)) {
+		case CF_READ_OK:
+		case CF_READ_ERROR:
+			break;
+		default:
+			*error = "problem while reading file";
+			return FALSE;
+	}
+	
+	return TRUE;
+}
+
+static void funnel_reload() {
+	if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
+}
 
 static const funnel_ops_t funnel_ops = {
     new_text_window,
@@ -527,7 +580,11 @@ static const funnel_ops_t funnel_ops = {
     /*...,*/
     funnel_new_dialog,
     funnel_logger,
-	funnel_retap_packets
+	funnel_retap_packets,
+	copy_to_clipboard,
+	funnel_set_filter,
+	funnel_open_file,
+	funnel_reload
 };
 
 

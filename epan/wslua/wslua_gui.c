@@ -503,3 +503,72 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 }
 
 
+WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* copy a string into the clipboard */
+#define WSLUA_ARG_copy_to_clipboard_TEXT 1 /* The string to be copied into the clipboard. */
+	const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
+	GString* gstr;
+	if (!ops->copy_to_clipboard) {
+		WSLUA_ERROR(wslua_copy_to_clipboard, "does not work on TShark");
+	}
+
+	if (!copied_str) {
+		WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"must be a string");
+	}
+
+	gstr = g_string_new(copied_str);
+
+	ops->copy_to_clipboard(gstr);
+
+	g_string_free(gstr,TRUE);
+
+	return 0;
+}
+
+WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) {
+#define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
+#define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter tgo be applied as the file gets opened. */
+	
+	const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
+	const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
+	char* error = NULL;
+
+	if (!ops->open_file) {
+		WSLUA_ERROR(wslua_open_capture_file, "does not work on TShark");
+	}
+
+	if (!fname) {
+		WSLUA_ARG_ERROR(open_capture_file,FILENAME,"must be a string");
+	}
+
+	if (! ops->open_file(fname,filter,&error) ) {
+		lua_pushboolean(L,FALSE);
+		
+		if (error)
+			lua_pushstring(L,error);
+		else
+			lua_pushnil(L);
+		
+		return 2;
+	} else {
+		lua_pushboolean(L,TRUE);
+		return 1;
+	}
+}
+
+WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* set the main filter text */
+#define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
+	const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
+
+	if (!ops->set_filter) {
+		WSLUA_ERROR(wslua_set_filter, "does not work on TShark");
+	}
+
+	if (!filter_str) {
+		WSLUA_ARG_ERROR(set_filter,TEXT,"must be a string");
+	}
+
+	ops->set_filter(filter_str);
+
+	return 0;
+}
+
