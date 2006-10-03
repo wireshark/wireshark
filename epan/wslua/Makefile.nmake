@@ -27,6 +27,7 @@ MODULES = 	\
 
 OBJECTS= \
 	init_wslua.obj \
+	register_wslua.obj \
 	wslua_dumper.obj \
 	wslua_field.obj \
 	wslua_gui.obj \
@@ -43,7 +44,7 @@ wslua.lib	: $(OBJECTS) init.lua
 clean:
 	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps.c-inc 
 
-init_wslua.c: wslua_register.h
+init_wslua.c: declare_wslua.h
 
 distclean: clean
 
@@ -64,12 +65,13 @@ taps.c-inc: make-taps.pl taps
 wslua_listener.c: taps.c-inc
 
 taps.txt: taps.c-inc
-	
-wslua.h: wslua_register.h
 
-# do not do not unnecessarilly modify the old file in order avoid recompiling every module every time 
-wslua_register.h: make-reg.pl $(MODULES) 
-	$(PERL) make-reg.pl $(MODULES) > wslua_register.h
+register_wslua.c: declare_wslua.h
+	
+wslua.h: declare_wslua.h
+
+declare_wslua.h: make-reg.pl $(MODULES) 
+	$(PERL) make-reg.pl $(MODULES)
 
 doc: $(MODULES)
 	$(PERL) make-doc.pl $(MODULES)
