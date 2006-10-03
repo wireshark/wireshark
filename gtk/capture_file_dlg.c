@@ -91,8 +91,6 @@ static void set_file_type_list(GtkWidget *option_menu);
 #define E_MERGE_CHRONO_KEY 	      "merge_dlg_chrono_key"
 #define E_MERGE_APPEND_KEY 	      "merge_dlg_append_key"
 
-#define ARGUMENT_CL "argument_cl"
-
 
 #define PREVIEW_TABLE_KEY       "preview_table_key"
 #define PREVIEW_FILENAME_KEY    "preview_filename_key"
@@ -1668,7 +1666,6 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list)
   SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  OBJECT_SET_DATA(file_color_import_w, ARGUMENT_CL, data);
 
   if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) == GTK_RESPONSE_ACCEPT)
   {
@@ -1680,9 +1677,6 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list)
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
                  file_color_import_ok_cb, color_filters);
-
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_color_import_w)->ok_button,
-                  ARGUMENT_CL, color_filters);
 
   window_set_cancel_button(file_color_import_w,
       GTK_FILE_SELECTION(file_color_import_w)->cancel_button, window_cancel_button_cb);
@@ -1699,10 +1693,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list)
 static void
 file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
   gchar     *cf_name, *s;
-  gpointer  argument;
   GtkWidget *fs = gtk_widget_get_toplevel(w);
-
-  argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into color_filters_import */
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1722,7 +1713,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
 
   /* Try to open the color filter file. */
 
-  if (!color_filters_import(cf_name, argument)) {
+  if (!color_filters_import(cf_name, color_filters)) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
