@@ -583,7 +583,7 @@ win32_export_raw_file(HWND h_wnd) {
 }
 
 void
-win32_export_color_file(HWND h_wnd) {
+win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     static OPENFILENAME ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
@@ -613,7 +613,7 @@ win32_export_color_file(HWND h_wnd) {
 
     /* XXX - Support marked filters */
     if (GetSaveFileName(&ofn)) {
-	if (!color_filters_export(utf_16to8(file_name), FALSE))
+	if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */))
 	    return;
 
 	/* Save the directory name for future file dialogs. */
@@ -623,7 +623,7 @@ win32_export_color_file(HWND h_wnd) {
 }
 
 void
-win32_import_color_file(HWND h_wnd) {
+win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     static OPENFILENAME ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
@@ -649,9 +649,9 @@ win32_import_color_file(HWND h_wnd) {
     ofn.lpfnHook = NULL;
     ofn.lpTemplateName = NULL;
 
-    /* XXX - Support marked filters */
+    /* XXX - Support export limited to selected filters */
     if (GetOpenFileName(&ofn)) {
-	if (!color_filters_import(utf_16to8(file_name), NULL))
+	if (!color_filters_import(utf_16to8(file_name), color_filters))
 	    return;
 
 	/* Save the directory name for future file dialogs. */

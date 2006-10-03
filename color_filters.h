@@ -34,52 +34,21 @@ typedef struct _color_filter {
         gchar     *filter_text;   /* text of the filter expression */
         color_t    bg_color;      /* background color for packets that match */
         color_t    fg_color;      /* foreground color for packets that match */
+	gboolean   selected;      /* set if the filter is selected in the color dialog box */
+
+        /* only used inside of color_filters.c */
         dfilter_t *c_colorfilter; /* compiled filter expression */
+
+        /* only used outside of color_filters.c (beside init) */
         void      *edit_dialog;   /* if filter is being edited, dialog
                                    * box for it */
-	gboolean   selected;      /* set if the filter is selected in the color dialog box */
 } color_filter_t;
 
-/* List of all color filters. */
-extern GSList *color_filter_list;
 
-/** Init the color filters. */
+/** Init the color filters (incl. initial read from file). */
 void color_filters_init(void);
 
-/** Save filters in users filter file.
- *
- * @return TRUE if write succeeded
- */
-gboolean color_filters_write(void);
 
-/** Delete users filter file and reload global filters.
- *
- * @return TRUE if write succeeded
- */
-gboolean color_filters_revert(void);
-
-/** Load filters (import) from some other filter file.
- *
- * @param path the path to the filter file
- * @param arg the color filter widget
- * @return TRUE, if read succeeded
- */
-gboolean color_filters_import(gchar *path, gpointer arg);
-
-/** Save filters (export) to some other filter file.
- *
- * @param path the path to the filter file
- * @param only_selected TRUE if only the selected filters should be saved
- * @return TRUE, if write succeeded
- */
-gboolean color_filters_export(gchar *path, gboolean only_selected);
-
-/* Prime the epan_dissect_t with all the compiler
- * color filters in 'color_filter_list'. 
- *
- * @param the epan dissector details
- */
-void color_filters_prime_edt(epan_dissect_t *edt);
 
 /** Color filters currently used?
  *
@@ -94,6 +63,15 @@ gboolean color_filters_used(void);
 void
 color_filters_enable(gboolean enable);
 
+
+
+/* Prime the epan_dissect_t with all the compiler
+ * color filters of the current filter list. 
+ *
+ * @param the epan dissector details
+ */
+void color_filters_prime_edt(epan_dissect_t *edt);
+
 /** Colorize a specific packet.
  *
  * @param row the row in the packet list
@@ -103,7 +81,64 @@ color_filters_enable(gboolean enable);
 color_filter_t *
 color_filters_colorize_packet(gint row, epan_dissect_t *edt);
 
-/** Create a new color filter.
+
+
+/** Clone the currently active filter list.
+ *
+ * @param user_data will be returned by each call to to color_filter_add_cb()
+ */
+void color_filters_clone(gpointer user_data);
+
+/** Load filters (import) from some other filter file.
+ *
+ * @param path the path to the import file
+ * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @return TRUE, if read succeeded
+ */
+gboolean color_filters_import(gchar *path, gpointer user_data);
+
+/** Read filters from the global filter file (not the users file).
+ *
+ * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @return TRUE, if read succeeded
+ */
+gboolean color_filters_read_globals(gpointer user_data);
+
+/** A color filter was added (while importing).
+ * (color_filters.c calls this for every filter coming in)
+ *
+ * @param colorf the new color filter
+ * @param user_data from caller
+ */
+void color_filter_add_cb (color_filter_t *colorf, gpointer user_data);
+
+
+
+/** Apply a changed filter list.
+ *
+ * @param cfl the filter list to apply
+ */
+void color_filters_apply(GSList *cfl);
+
+/** Save filters in users filter file.
+ *
+ * @param cfl the filter list to write
+ * @return TRUE if write succeeded
+ */
+gboolean color_filters_write(GSList *cfl);
+
+/** Save filters (export) to some other filter file.
+ *
+ * @param path the path to the filter file
+ * @param cfl the filter list to write
+ * @param only_selected TRUE if only the selected filters should be saved
+ * @return TRUE, if write succeeded
+ */
+gboolean color_filters_export(gchar *path, GSList *cfl, gboolean only_selected);
+
+
+
+/** Create a new color filter (g_malloc'ed).
  *
  * @param name the name of the filter
  * @param filter_string the filter string
@@ -111,20 +146,25 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt);
  * @param fg_color foreground color
  * @return the new color filter
  */
-color_filter_t *color_filter_new(const gchar *name, const gchar *filter_string,
+color_filter_t *color_filter_new(
+    const gchar *name, const gchar *filter_string,
     color_t *bg_color, color_t *fg_color);
 
-/** Remove the color filter.
+/** Delete a single color filter (g_free'ed).
  *
  * @param colorf the color filter to be removed
  */
-void color_filter_remove(color_filter_t *colorf);
+void color_filter_delete(color_filter_t *colorf);
 
-/** A color filter was added (from import).
+
+
+
+/** Delete a filter list including all entries.
  *
- * @param colorf the new color filter
- * @param arg the color filter widget
+ * @param cfl the filter list to delete
  */
-void color_filter_add_cb (color_filter_t *colorf, gpointer arg);
+void color_filter_list_delete(GSList **cfl);
+
+
 
 #endif

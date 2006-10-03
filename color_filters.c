@@ -44,78 +44,14 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 
-static gboolean read_users_filters(void);
-static gboolean read_global_filters(void);
+static gboolean read_users_filters(GSList **cfl);
 
-/* Variables and routines defined in color.h */
 
-GSList *color_filter_list = NULL;
-GSList *removed_filter_list = NULL;
+static GSList *color_filter_list = NULL;
 
 /* Color Filters can en-/disabled. */
 gboolean filters_enabled = TRUE;
 
-/* Remove the specified filter from the list of existing color filters,
- * and add it to the list of removed color filters.
- * This way, unmarking and marking a packet which matches a now removed
- * color filter will still be colored correctly as the color filter is
- * still reachable. */
-void color_filter_remove(color_filter_t *colorf)
-{
-	/* Remove colorf from the list of color filters */
-	color_filter_list = g_slist_remove(color_filter_list, colorf);
-	/* Add colorf to the list of removed color filters */
-	removed_filter_list = g_slist_prepend(removed_filter_list, colorf);
-}
-
-/* delete the specified filter */
-static void
-color_filter_delete(color_filter_t *colorf)
-{
-	if (colorf->filter_name != NULL)
-		g_free(colorf->filter_name);
-	if (colorf->filter_text != NULL)
-		g_free(colorf->filter_text);
-	if (colorf->c_colorfilter != NULL)
-		dfilter_free(colorf->c_colorfilter);
-	g_free(colorf);
-}
-
-/* delete the specified filter (called from g_slist_foreach) */
-static void
-color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
-{
-	color_filter_t *colorf = filter_arg;
-	color_filter_delete(colorf);
-}
-
-/* delete all the filters */
-static void
-color_filters_delete_all(void)
-{
-        /* delete the color_filter_list */
-        g_slist_foreach(color_filter_list, color_filter_delete_cb, NULL);
-	g_slist_free(color_filter_list);
-	color_filter_list = NULL;
-
-        /* delete the removed_filter_list */
-        g_slist_foreach(removed_filter_list, color_filter_delete_cb, NULL);
-	g_slist_free(removed_filter_list);
-	removed_filter_list = NULL;
-}
-
-/* Initialize the filter structures (reading from file) for general running, including app startup */
-void
-color_filters_init(void)
-{
-	/* delete all existing filters */
-	color_filters_delete_all();
-
-        /* try to read the users filters */
-	if (!read_users_filters())
-		/* if that failed, try to read the global filters */
-		read_global_filters();
-}
 
 /* Create a new filter */
 color_filter_t *
@@ -134,20 +70,145 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	colorf->selected = FALSE;
-	color_filter_list = g_slist_append(color_filter_list, colorf);
         return colorf;
+}
+
+/* delete the specified filter */
+void
+color_filter_delete(color_filter_t *colorf)
+{
+	if (colorf->filter_name != NULL)
+		g_free(colorf->filter_name);
+	if (colorf->filter_text != NULL)
+		g_free(colorf->filter_text);
+	if (colorf->c_colorfilter != NULL)
+		dfilter_free(colorf->c_colorfilter);
+	g_free(colorf);
+}
+
+/* delete the specified filter (called from g_slist_foreach) */
+static void
+color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
+{
+	color_filter_t *colorf = filter_arg;
+
+	color_filter_delete(colorf);
+}
+
+/* delete the specified list */
+void
+color_filter_list_delete(GSList **cfl)
+{
+        g_slist_foreach(*cfl, color_filter_delete_cb, NULL);
+        g_slist_free(*cfl);
+        *cfl = NULL;
+}
+
+/* clone a single list entries from normal to edit list */
+static color_filter_t *
+color_filter_clone(color_filter_t *colorf)
+{
+	color_filter_t *new_colorf;
+
+	new_colorf = g_malloc(sizeof (color_filter_t));
+	new_colorf->filter_name = g_strdup(colorf->filter_name);
+	new_colorf->filter_text = g_strdup(colorf->filter_text);
+	new_colorf->bg_color = colorf->bg_color;
+	new_colorf->fg_color = colorf->fg_color;
+	new_colorf->c_colorfilter = NULL;
+	new_colorf->edit_dialog = NULL;
+	new_colorf->selected = FALSE;
+
+        return new_colorf;
+}
+
+static void
+color_filter_list_clone_cb(gpointer filter_arg, gpointer *cfl)
+{
+    color_filter_t *new_colorf;
+
+    new_colorf = color_filter_clone(filter_arg);
+    *cfl = g_slist_append(*cfl, new_colorf);
+}
+
+/* clone the specified list */
+static GSList *
+color_filter_list_clone(GSList *cfl)
+{
+        GSList *new_list = NULL;
+
+        g_slist_foreach(cfl, color_filter_list_clone_cb, &new_list);
+
+        return new_list;
+}
+
+/* Initialize the filter structures (reading from file) for general running, including app startup */
+void
+color_filters_init(void)
+{
+	/* delete all existing filters */
+	color_filter_list_delete(&color_filter_list);
+
+	/* try to read the users filters */
+	if (!read_users_filters(&color_filter_list))
+		/* if that failed, try to read the global filters */
+		color_filters_read_globals(&color_filter_list);
+}
+
+static void
+color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
+{
+	color_filter_t * new_colorf = color_filter_clone(filter_arg);
+
+	color_filter_add_cb (new_colorf, user_data);
+}
+
+void
+color_filters_clone(gpointer user_data)
+{
+    g_slist_foreach(color_filter_list, color_filters_clone_cb, user_data);
+}
+
+
+static void
+color_filter_compile_cb(gpointer filter_arg, gpointer *cfl)
+{
+	color_filter_t *colorf = filter_arg;
+
+        g_assert(colorf->c_colorfilter == NULL);
+	if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		"Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
+			      colorf->filter_name, colorf->filter_text, dfilter_error_msg);
+		/* this filter was compilable before, so this should never happen */
+		g_assert_not_reached();
+	}
+}
+
+/* apply changes from the edit list */
+void
+color_filters_apply(GSList *cfl)
+{
+        /* remove "old" entries */
+        color_filter_list_delete(&color_filter_list);
+
+        /* clone all list entries from edit to normal list */
+        color_filter_list = color_filter_list_clone(cfl);
+
+        /* compile all filter */
+        g_slist_foreach(color_filter_list, color_filter_compile_cb, NULL);
 }
 
 gboolean 
 color_filters_used(void)
 {
-    return color_filter_list != NULL && filters_enabled;
+        return color_filter_list != NULL && filters_enabled;
 }
 
 void
 color_filters_enable(gboolean enable)
 {
-    filters_enabled = enable;
+        filters_enabled = enable;
 }
 
 
@@ -199,7 +260,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
 /* XXX - Would it make more sense to use GStrings here instead of reallocing
    our buffers? */
 static gboolean
-read_filters_file(FILE *f, gpointer arg)
+read_filters_file(FILE *f, gpointer user_data)
 {
 #define INIT_BUF_SIZE 128
 	gchar  *name = NULL;
@@ -328,10 +389,18 @@ read_filters_file(FILE *f, gpointer arg)
 
 			colorf = color_filter_new(name, filter_exp, &bg_color,
 			    &fg_color);
-			colorf->c_colorfilter = temp_dfilter;
+                        if(user_data == &color_filter_list) {
+                                GSList **cfl = (GSList **)user_data;
 
-			if (arg != NULL)
-				color_filter_add_cb (colorf, arg);
+                                /* internal call */
+				colorf->c_colorfilter = temp_dfilter;
+                                *cfl = g_slist_append(*cfl, colorf);
+                        } else {
+                                /* external call */
+				/* just editing, don't need the compiled filter */
+				dfilter_free(temp_dfilter);
+				color_filter_add_cb (colorf, user_data);
+                        }
 		}    /* if sscanf */
 
 		skip_end_of_line = TRUE;
@@ -344,7 +413,7 @@ read_filters_file(FILE *f, gpointer arg)
 
 /* read filters from the user's filter file */
 static gboolean
-read_users_filters(void)
+read_users_filters(GSList **cfl)
 {
 	gchar *path;
 	FILE *f;
@@ -364,14 +433,14 @@ read_users_filters(void)
 	g_free(path);
 	path = NULL;
 
-	ret = read_filters_file(f, NULL);
+	ret = read_filters_file(f, cfl);
 	fclose(f);
 	return ret;
 }
 
 /* read filters from the filter file */
-static gboolean
-read_global_filters(void)
+gboolean
+color_filters_read_globals(gpointer user_data)
 {
 	gchar *path;
 	FILE *f;
@@ -391,14 +460,14 @@ read_global_filters(void)
 	g_free(path);
 	path = NULL;
 
-	ret = read_filters_file(f, NULL);
+	ret = read_filters_file(f, user_data);
 	fclose(f);
 	return ret;
 }
 
 /* read filters from some other filter file (import) */
 gboolean
-color_filters_import(gchar *path, gpointer arg)
+color_filters_import(gchar *path, gpointer user_data)
 {
 	FILE *f;
 	gboolean ret;
@@ -410,7 +479,7 @@ color_filters_import(gchar *path, gpointer arg)
 		return FALSE;
 	}
 
-	ret = read_filters_file(f, arg);
+	ret = read_filters_file(f, user_data);
 	fclose(f);
 	return ret;
 }
@@ -444,7 +513,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 
 /* save filters in a filter file */
 static gboolean
-write_filters_file(FILE *f, gboolean only_selected)
+write_filters_file(GSList *cfl, FILE *f, gboolean only_selected)
 {
 	struct write_filter_data data;
 
@@ -452,13 +521,13 @@ write_filters_file(FILE *f, gboolean only_selected)
 	data.only_selected = only_selected;
   
 	fprintf(f,"# DO NOT EDIT THIS FILE!  It was created by Wireshark\n");
-        g_slist_foreach(color_filter_list, write_filter, &data);
+        g_slist_foreach(cfl, write_filter, &data);
 	return TRUE;
 }
 
 /* save filters in users filter file */
 gboolean
-color_filters_write(void)
+color_filters_write(GSList *cfl)
 {
 	gchar *pf_dir_path;
 	const gchar *path;
@@ -481,14 +550,14 @@ color_filters_write(void)
 		    path, strerror(errno));
 		return FALSE;
 	}
-	write_filters_file(f, FALSE);
+	write_filters_file(cfl, f, FALSE);
 	fclose(f);
 	return TRUE;
 }
 
 /* save filters in some other filter file (export) */
 gboolean
-color_filters_export(gchar *path, gboolean only_marked)
+color_filters_export(gchar *path, GSList *cfl, gboolean only_marked)
 {
 	FILE *f;
 
@@ -498,27 +567,8 @@ color_filters_export(gchar *path, gboolean only_marked)
 		    path, strerror(errno));
 		return FALSE;
 	}
-	write_filters_file(f, only_marked);
+	write_filters_file(cfl, f, only_marked);
 	fclose(f);
 	return TRUE;
 }
 
-/* delete users filter file and reload global filters */
-gboolean
-color_filters_revert(void)
-{
-	gchar *path;
-
-	/* try to delete the "old" user color filter file */
-	path = get_persconffile_path("colorfilters", TRUE);
-	if (!deletefile(path)) {
-		g_free(path);
-		return FALSE;
-	}
-
-	g_free(path);
-
-	/* Reload the (global) filters - Note: this does not update the dialog. */
-	color_filters_init();
-        return TRUE;
-}

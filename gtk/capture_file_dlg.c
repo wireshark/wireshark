@@ -77,9 +77,9 @@ static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_color_import_ok_cb(GtkWidget *w, gpointer fs);
+static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_color_export_ok_cb(GtkWidget *w, gpointer fs);
+static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 static void set_file_type_list(GtkWidget *option_menu);
 
@@ -1623,10 +1623,10 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 
 /* Import color filters */
 void
-file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
+file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list)
 {
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_import_color_file(GDK_WINDOW_HWND(top_level->window));
+  win32_import_color_file(GDK_WINDOW_HWND(top_level->window), color_filters);
 #else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget	*main_vb, *cfglobal_but;
 #if GTK_MAJOR_VERSION < 2
@@ -1672,17 +1672,17 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 
   if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) == GTK_RESPONSE_ACCEPT)
   {
-      file_color_import_ok_cb(file_color_import_w, file_color_import_w);
+      file_color_import_ok_cb(file_color_import_w, color_filters);
   }
   else window_destroy(file_color_import_w);
 #else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
-                 file_color_import_ok_cb, file_color_import_w);
+                 file_color_import_ok_cb, color_filters);
 
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_color_import_w)->ok_button,
-                  ARGUMENT_CL, data);
+                  ARGUMENT_CL, color_filters);
 
   window_set_cancel_button(file_color_import_w,
       GTK_FILE_SELECTION(file_color_import_w)->cancel_button, window_cancel_button_cb);
@@ -1697,9 +1697,10 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 }
 
 static void
-file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
+file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
   gchar     *cf_name, *s;
   gpointer  argument;
+  GtkWidget *fs = gtk_widget_get_toplevel(w);
 
   argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into color_filters_import */
 
@@ -1786,10 +1787,10 @@ color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 }
 
 void
-file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
+file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_export_color_file(GDK_WINDOW_HWND(top_level->window));
+  win32_export_color_file(GDK_WINDOW_HWND(top_level->window), filter_list);
 #else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget *main_vb, *cfglobal_but;
 
@@ -1829,14 +1830,14 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
   {
-      file_color_export_ok_cb(file_color_export_w, file_color_export_w);
+      file_color_export_ok_cb(file_color_export_w, filter_list);
   }
   else window_destroy(file_color_export_w);
 #else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   /* Connect the ok_button to file_export_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
-                 file_color_export_ok_cb, file_color_export_w);
+                 file_color_export_ok_cb, filter_list);
 
   window_set_cancel_button(file_color_export_w,
       GTK_FILE_SELECTION(file_color_export_w)->cancel_button, window_cancel_button_cb);
@@ -1853,9 +1854,10 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 static void
-file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
+file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
   gchar	*cf_name;
   gchar	*dirname;
+  GtkWidget *fs = gtk_widget_get_toplevel(w);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1877,7 +1879,7 @@ file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
   /* Write out the filters (all, or only the ones that are currently
      displayed or selected) to the file with the specified name. */
 
-   if (!color_filters_export(cf_name, color_selected))
+   if (!color_filters_export(cf_name, filter_list, color_selected))
    {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
