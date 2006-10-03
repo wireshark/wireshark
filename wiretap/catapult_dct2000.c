@@ -979,6 +979,13 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             aal_header_chars[header_chars_seen] = linebuff[n];
         }
 
+        /* Sometimes see strange encoding of cid in last (non-digit) character */
+        if (header_chars_seen == (AAL_HEADER_CHARS-1))
+        {
+            aal_header_chars[AAL_HEADER_CHARS-1] = linebuff[n];
+            header_chars_seen++;
+        }
+
         if (header_chars_seen != AAL_HEADER_CHARS || n >= line_length)
         {
             return FALSE;
@@ -1042,7 +1049,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         /* Didn't fit in buffer.  Fail rather than use truncated */
         return FALSE;
     }
-    
+
     /* Convert found value into number */
     seconds_buff[seconds_chars] = '\0';
     *seconds = atoi(seconds_buff);
@@ -1227,10 +1234,19 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t di
     /* 0 means we don't know how many cells the frame comprises. */
     pseudo_header->dct2000.inner_pseudo_header.atm.cells = 0;
 
-    /* cid is last byte */
-    pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
-        ((hex_from_char(aal_header_chars[10]) << 4) |
-          hex_from_char(aal_header_chars[11]));
+    /* cid is usually last byte.  Unless last char is not hex digit, in which
+       case cid is derived from last char in ascii */
+    if (isalnum(aal_header_chars[11]))
+    {
+        pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
+            ((hex_from_char(aal_header_chars[10]) << 4) |
+              hex_from_char(aal_header_chars[11]));
+    }
+    else
+    {
+        pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
+            (int)aal_header_chars[11] - 48;
+    }
 
 }
 

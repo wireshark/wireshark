@@ -1073,7 +1073,8 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         {
             /* Power offset */
             proto_tree_add_float(tree, hf_fp_power_offset, tvb, offset, 1,
-                                 -32.0 + ((float)(tvb_get_guint8(tvb, offset)) * 0.25));
+                                 (float)(-32.0) +
+                                  ((float)(tvb_get_guint8(tvb, offset)) * (float)(0.25)));
             offset++;
 
             /* Code number */
@@ -1567,7 +1568,10 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+        col_append_str(pinfo->cinfo, COL_INFO,
+                       is_control_frame ? " [Control] " : 
+                                          ((p_fp_info->is_uplink) ? " [ULData] " :
+                                                                    " [DLData]" ));
     }
 
     if (is_control_frame)
@@ -1885,7 +1889,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
         /* Payload CRC (optional) */
         /* TODO: is this test correct...? */
-        if (p_fp_info->dch_crc_present)
+        /* if (p_fp_info->dch_crc_present) */
+        if (tvb_length_remaining(tvb, offset) == 2)
         {
             proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
         }
