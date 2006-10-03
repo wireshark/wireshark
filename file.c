@@ -3068,16 +3068,6 @@ cf_select_packet(capture_file *cf, int row)
   /* We don't need the columns here. */
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
-  /* colorize packet: coloring rules might be changed (removed) since last run,
-     recalculate now.
-     if packet is marked, use preferences, otherwise try to apply color filters */
-  if (fdata->flags.marked) {
-      fdata->color_filter = NULL;
-      packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-  } else {
-      fdata->color_filter = color_filters_colorize_packet(row, cf->edt);
-  }
-
   epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
           NULL);
 

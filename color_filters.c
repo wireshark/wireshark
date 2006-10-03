@@ -190,7 +190,17 @@ void
 color_filters_apply(GSList *cfl)
 {
         /* remove "old" entries */
-        color_filter_list_delete(&color_filter_list);
+/*        color_filter_list_delete(&color_filter_list);*/
+
+        /* deleting the color filters crashes unpredictably 
+         * (e.g. sometimes while clearing the list) :-(
+         *
+         * for now, just clear the list and let the filters remain in memory
+         * until WS is closed -> memory leak
+         *
+         * XXX - move the filters to a "removed list" as before
+         * and delete them if the file is closed (or on rescan of packets or such?) */
+        color_filter_list = NULL;
 
         /* clone all list entries from edit to normal list */
         color_filter_list = color_filter_list_clone(cfl);
