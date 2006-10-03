@@ -55,7 +55,7 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	taps.c-inc \
+	$(BUILT_SOURCES) \
 	taps.txt \
 	wslua_register.h
 
