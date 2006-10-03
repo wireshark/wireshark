@@ -1483,7 +1483,6 @@ static guint
 fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
 #endif
 
-#if 0
 /**
  * BACnetDeviceObjectReference ::= SEQUENCE {
  *  deviceIdentifier    [0] BACnetObjectIdentifier OPTIONAL,
@@ -1496,7 +1495,6 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
-#endif
 
 #if 0
 /**
@@ -2010,19 +2008,6 @@ fSelectionCriteria (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fObjectSelectionCriteria (tvbuff_t *tvb, proto_tree *subtree, guint offset);
-
-/**
- * ObjectSpecifier ::= CHOICE {
- * 	objectType	[0] BACnetObjectType,
- *  objectIdentifier	[1] BACnetObjectIdentifier
- * }
- * @param tvb
- * @param tree
- * @param offset
- * @return modified offset
- */
-static guint
-fObjectSpecifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * BACnet-Error ::= SEQUENCE {
