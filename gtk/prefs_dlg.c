@@ -1312,6 +1312,11 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   if (!prefs_main_fetch_all(parent_w, &must_redissect))
     return; /* Errors in some preference setting - already reported */
 
+  /* if we don't have a Save button, just save the settings now */
+  if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+  }
+
   prefs_main_apply_all(parent_w);
 
   if (must_redissect) {

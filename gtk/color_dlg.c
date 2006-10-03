@@ -1163,6 +1163,13 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
   color_filters_apply(color_filter_edit_list);
 
+  /* if we don't have a Save button, just save the settings now */
+  if (!prefs.gui_use_pref_save) {
+      if (!color_filters_write(color_filter_edit_list))
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	        "Could not open filter file: %s", strerror(errno));
+  }
+
   cf_colorize_packets(&cfile);
 }
 

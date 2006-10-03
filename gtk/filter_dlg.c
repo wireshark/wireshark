@@ -69,8 +69,8 @@ static GtkWidget *filter_dialog_new(GtkWidget *button, GtkWidget *filter_te,
                                     construct_args_t *construct_args);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
 			      gpointer activate);
-static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
-static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
+static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data);
+static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer data);
 static void filter_apply(GtkWidget *main_w, gboolean destroy);
 static void filter_dlg_save(filter_list_type_t list_type);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
@@ -638,7 +638,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
-    SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
+    SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, filter_list_type_p);
     gtk_tooltips_set_tip (tooltips, apply_bt, ("Apply the filters and keep this dialog open"), NULL);
 
     save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
@@ -798,12 +798,19 @@ filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
 }
 
 static void
-filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy _U_)
+filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer data)
 {
+	filter_list_type_t list_type = *(filter_list_type_t *)data;
+
 	/*
 	 * Apply the filter, but don't destroy the dialog box.
 	 */
 	filter_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
+
+	/* if we don't have a Save button, just save the settings now */
+	if (!prefs.gui_use_pref_save) {
+		filter_dlg_save(list_type);
+	}
 }
 
 static void
