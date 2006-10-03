@@ -1063,7 +1063,7 @@ color_export_cb(GtkButton *button, gpointer data _U_)
 
   color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
 
-  file_color_export_cmd_cb(color_filters, &color_filter_edit_list);
+  file_color_export_cmd_cb(color_filters, color_filter_edit_list);
 }
 
 /* User pressed "Import": Pop up an "Import color filter" dialog box. */
