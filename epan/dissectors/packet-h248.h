@@ -218,6 +218,13 @@ typedef struct _h248_pkg_evt_t {
 	h248_pkg_param_t* parameters;	
 } h248_pkg_evt_t;
 
+typedef struct _h248_pkg_stat_t {
+	guint32 id;
+	int* hfid;
+	gint* ett;
+	h248_pkg_param_t* parameters;	
+} h248_pkg_stat_t;
+
 typedef struct _h248_package_t {
 	guint32 id;
 	int* hfid;
@@ -226,6 +233,7 @@ typedef struct _h248_package_t {
 	h248_pkg_param_t* properties;
 	h248_pkg_sig_t* signals;
 	h248_pkg_evt_t* events;
+	h248_pkg_stat_t* statistics;
 } h248_package_t;
 
 struct _h248_curr_info_t {
@@ -237,6 +245,7 @@ struct _h248_curr_info_t {
 	h248_package_t* pkg;
 	h248_pkg_evt_t* evt;
 	h248_pkg_sig_t* sig;
+	h248_pkg_stat_t* stat;
 	h248_pkg_param_t* par;
 };
 

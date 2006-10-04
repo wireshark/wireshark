@@ -952,6 +952,7 @@ static h248_package_t h248_annexc_package = {
 	&ett_annexc,
 	h248_annexc_package_properties,
 	NULL,
+	NULL,
 	NULL
 };
 

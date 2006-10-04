@@ -541,7 +541,7 @@ static const value_string cmd_type[] = {
     { 0, NULL }
 };
 
-h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
 static h248_wildcard_t wild_term;
 
@@ -1771,6 +1771,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     curr_info.pkg = NULL;
     curr_info.evt = NULL;
     curr_info.sig = NULL;
+    curr_info.stat = NULL;
     curr_info.par = NULL;
 
     /* Check if it is actually a text based h248 encoding, which we call

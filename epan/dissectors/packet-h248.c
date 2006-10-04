@@ -953,7 +953,7 @@ static const value_string cmd_type[] = {
     { 0, NULL }
 };
 
-h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
 static h248_wildcard_t wild_term;
 
@@ -5886,6 +5886,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     curr_info.pkg = NULL;
     curr_info.evt = NULL;
     curr_info.sig = NULL;
+    curr_info.stat = NULL;
     curr_info.par = NULL;
 
     /* Check if it is actually a text based h248 encoding, which we call
@@ -7058,7 +7059,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1890 "packet-h248-template.c"
+#line 1891 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7218,7 +7219,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1915 "packet-h248-template.c"
+#line 1916 "packet-h248-template.c"
   };
 
   module_t *h248_module;

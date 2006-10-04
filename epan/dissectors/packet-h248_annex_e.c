@@ -64,7 +64,8 @@ static h248_package_t h248_pkg_generic = {
 	&ett_h248_pkg_generic,
 	NULL,
 	NULL,
-	h248_pkg_generic_cause_evts
+	h248_pkg_generic_cause_evts,
+	NULL
 };
 
 
@@ -95,6 +96,8 @@ static h248_package_t h248_pkg_root = {
 	&ett_h248_pkg_root,
 	h248_pkg_root_properties,
 	NULL,
+	NULL,
+	NULL,
 	NULL
 };
 */
@@ -120,6 +123,7 @@ static h248_package_t h248_pkg_tonegen = {
 	&hf_h248_pkg_tonegen_params,
 	&ett_h248_pkg_tonegen,
 	h248_pkg_root_properties,
+	NULL,
 	NULL,
 	NULL
 };
@@ -158,6 +162,7 @@ static h248_package_t h248_pkg_tdmc = {
 	&hf_h248_pkg_tdmc_param,
 	&ett_h248_pkg_tdmc,
 	h248_pkg_tdmc_props,
+	NULL,
 	NULL,
 	NULL
 };

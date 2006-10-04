@@ -112,6 +112,7 @@ static h248_package_t h248_package_3GUP = {
 	&ett_h248_package_3GUP,
 	h248_package_3GUP_properties,
 	NULL,
+	NULL,
 	NULL
 };
 
