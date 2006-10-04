@@ -441,8 +441,8 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	lua_settop(L,4);
 
 	if (ops->add_button) {
-		fbt = ep_alloc(sizeof(funnel_bt_t));
-		cbd = ep_alloc(sizeof(wslua_bt_cb_t));
+		fbt = g_malloc(sizeof(funnel_bt_t));
+		cbd = g_malloc(sizeof(wslua_bt_cb_t));
 
 		fbt->tw = tw;
 		fbt->func = wslua_button_callback;

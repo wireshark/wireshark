@@ -72,6 +72,7 @@ struct _funnel_text_window_t {
     GtkWidget* bt_close;
     text_win_close_cb_t close_cb;
     void* close_data;
+	GPtrArray* buttons;
 };
 
 struct _funnel_tree_window_t {
@@ -95,19 +96,28 @@ static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
 
 static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
-    
+    unsigned i;
+	
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
 
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
     
+	for (i = 0; i < tw->buttons->len; i++) {
+		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
+		/* XXX a free cb should be passed somehow */ 
+		if (cbd->data) g_free(cbd->data);
+		g_free(cbd);
+	}
+	g_ptr_array_free(tw->buttons,TRUE);
     g_free(tw);
 }
 
 
 static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data) {
     funnel_text_window_t* tw = user_data;
+    unsigned i;
     
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
@@ -115,6 +125,13 @@ static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *eve
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
     
+	for (i = 0; i < tw->buttons->len; i++) {
+		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
+		/* XXX a free cb should be passed somehow */ 
+		if (cbd->data) g_free(cbd->data);
+		g_free(cbd);
+	}
+	g_ptr_array_free(tw->buttons,TRUE);	
     g_free(tw);
     
     return TRUE;
@@ -139,7 +156,8 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 
     tw->close_cb = NULL;
     tw->close_data = NULL;
-    
+    tw->buttons = g_ptr_array_new();
+	
     tw->win = window_new(GTK_WINDOW_TOPLEVEL,title);
     SIGNAL_CONNECT(tw->win, "delete-event", text_window_delete_event_cb, tw);
 
@@ -354,10 +372,18 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
         SIGNAL_CONNECT(tw->bt_close, "clicked", unref_text_win_cancel_bt_cb, tw);
         SIGNAL_CONNECT(tw->win, "delete-event", text_window_unref_del_event_cb, tw);
     } else {
+		unsigned i;
         /*
          * we have no window anymore a human user closed
          * the window already just free the container
          */
+		for (i = 0; i < tw->buttons->len; i++) {
+			funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
+			/* XXX a free cb should be passed somehow */ 
+			if (cbd->data) g_free(cbd->data);
+			g_free(cbd);
+		}
+		g_ptr_array_free(tw->buttons,TRUE);
         g_free(tw);
     }
 }
@@ -386,6 +412,7 @@ static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, 
 	GtkWidget *button;
 	
 	cbd->tw = tw;
+	g_ptr_array_add(tw->buttons,cbd);
 	
 	button = gtk_button_new_with_label(label);
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
@@ -521,34 +548,32 @@ static void funnel_retap_packets(void) {
 	cf_retap_packets(&cfile, FALSE);
 }
 
-static gboolean funnel_open_file(const char* fname, const char* filter, char** error) {
+static gboolean funnel_open_file(const char* fname, const char* filter, char** err_str) {
 	int err = 0;
 	dfilter_t   *rfcode = NULL;
 	
-	*error = "no error";
+	*err_str = "no error";
 
 	switch (cfile.state) {
 		case FILE_CLOSED:
-			break;
 		case FILE_READ_DONE:
 		case FILE_READ_ABORTED:
-			cf_close(&cfile);
 			break;
 		case FILE_READ_IN_PROGRESS:
-			*error = "file read in progress";
+			*err_str = "file read in progress";
 			return FALSE;
 	}
 	
 	if (filter) {
 		if (!dfilter_compile(filter, &rfcode)) {
-			*error = dfilter_error_msg ? dfilter_error_msg : "cannot compile filter";
+			*err_str = dfilter_error_msg ? dfilter_error_msg : "cannot compile filter";
 			return FALSE;
 		}
 	}
 	
 	
 	if (cf_open(&cfile, fname, FALSE, &err) != CF_OK) {
-		*error = strerror(err);
+		*err_str = strerror(err);
 		if (rfcode != NULL) dfilter_free(rfcode);
 		return FALSE;
 	}
@@ -560,7 +585,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, char** e
 		case CF_READ_ERROR:
 			break;
 		default:
-			*error = "problem while reading file";
+			*err_str = "problem while reading file";
 			return FALSE;
 	}
 	
