@@ -278,10 +278,49 @@ static const value_string package_name_vals[] = {
 static const value_string event_name_vals[] = {
   {   0x00000000, "Media stream properties H.248.1 Annex C" },
   {   0x00010000, "g H.248.1 Annex E" },
-  {   0x00010001, "g, Cause" },
-  {   0x00010002, "g, Signal Completion" },
+  {   0x00010001, "g/Cause" },
+  {   0x00010002, "g/Signal Completion" },
+  {   0x00040001, "tonedet/std(Start tone detected)" },
+  {   0x00040002, "tonedet/etd(End tone detected)" },
+  {   0x00040003, "tonedet/ltd(Long tone detected)" },
+  {   0x00060004, "dd, DigitMap Completion Event" },
+  {   0x00060010, "dd, DTMF character 0" },
+  {   0x00060011, "dd, DTMF character 1" },
+  {   0x00060012, "dd, DTMF character 2" },
+  {   0x00060013, "dd, DTMF character 3" },
+  {   0x00060014, "dd, DTMF character 4" },
+  {   0x00060015, "dd, DTMF character 5" },
+  {   0x00060016, "dd, DTMF character 6" },
+  {   0x00060017, "dd, DTMF character 7" },
+  {   0x00060018, "dd, DTMF character 8" },
+  {   0x00060019, "dd, DTMF character 9" },
+  {   0x0006001a, "dd, DTMF character A" },
+  {   0x0006001b, "dd, DTMF character B" },
+  {   0x0006001c, "dd, DTMF character C" },
+  {   0x0006001d, "dd, DTMF character D" },
+  {   0x00060020, "dd, DTMF character *" },
+  {   0x00060021, "dd, DTMF character #" },
+  {   0x00080030, "cd, Dial Tone" },
+  {   0x00080031, "cd, Ringing Tone" },
+  {   0x00080032, "cd, Busy Tone" },
+  {   0x00080033, "cd, Congestion Tone" },
+  {   0x00080034, "cd, Special Information Tone" },
+  {   0x00080035, "cd, (Recording) Warning Tone" },
+  {   0x00080036, "cd, Payphone Recognition Tone" },
+  {   0x00080037, "cd, Call Waiting Tone" },
+  {   0x00080038, "cd, Caller Waiting Tone" },
+  {   0x00090004, "al, onhook" },
+  {   0x00090005, "al, offhook" },
+  {   0x00090006, "al, flashhook" },
+  {   0x0009ffff, "al, *" },
+  {   0x000a0005, "ct, Completion" },
+  {   0x000b0005, "nt, network failure" },
+  {   0x000b0006, "nt, quality alert" },
+  {   0x000c0001, "rtp, Payload Transition" },
   {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" },
-  {   0x00210001, "GB BNC change" },
+  {   0x00210001, "GB/BNCChange" },
+  {   0x002a0001, "H.245/h245msg (Incoming H.245 Message)" },
+  {   0x002a0004, "H.245/h245ChC (H.245 Channel Closed)" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -292,12 +331,53 @@ static const value_string event_name_vals[] = {
 static const value_string signal_name_vals[] = {
   {   0x00000000, "Media stream properties H.248.1 Annex C" },
   {   0x00010000, "g H.248.1 Annex E" },
+  {   0x00030001, "tonegen/pt(Play tone)" },
+  {   0x00050010, "dg, DTMF character 0" },
+  {   0x00050011, "dg, DTMF character 1" },
+  {   0x00050012, "dg, DTMF character 2" },
+  {   0x00050013, "dg, DTMF character 3" },
+  {   0x00050014, "dg, DTMF character 4" },
+  {   0x00050015, "dg, DTMF character 5" },
+  {   0x00050016, "dg, DTMF character 6" },
+  {   0x00050017, "dg, DTMF character 7" },
+  {   0x00050018, "dg, DTMF character 8" },
+  {   0x00050019, "dg, DTMF character 9" },
+  {   0x0005001a, "dg, DTMF character A" },
+  {   0x0005001b, "dg, DTMF character B" },
+  {   0x0005001c, "dg, DTMF character C" },
+  {   0x0005001d, "dg, DTMF character D" },
+  {   0x00050020, "dg, DTMF character *" },
+  {   0x00050021, "dg, DTMF character #" },
+  {   0x00070030, "cg, Dial Tone" },
+  {   0x00070031, "cg/rt (Ringing Tone)" },
+  {   0x00070032, "cg, Busy Tone" },
+  {   0x00070033, "cg, Congestion Tone" },
+  {   0x00070034, "cg, Special Information Tone" },
+  {   0x00070035, "cg, (Recording) Warning Tone" },
+  {   0x00070036, "cg, Payphone Recognition Tone" },
+  {   0x00070037, "cg, Call Waiting Tone" },
+  {   0x00070038, "cg, Caller Waiting Tone" },
+  {   0x00090002, "al, ring" },
+  {   0x0009ffff, "al, *" },
+  {   0x000a0003, "ct, Continuity test" },
+  {   0x000a0004, "ct, Continuity respond" },
   {   0x00210000, "GB Generic Bearer Connection Q.1950 Annex A" },
-  {   0x00210001, "GB Establish BNC" },
-  {   0x00210002, "GB Modify BNC" },
-  {   0x00210003, "GB Release BNC" },
+  {   0x00210001, "GB/EstBNC(Establish BNC)" },
+  {   0x00210002, "GB/ModBNC (Modify BNC)" },
+  {   0x00210003, "GB/RelBNC(Release BNC)" },
+  
+  {   0x002a0001, "H.245/cs (channel state)" },
+  {   0x002a0002, "H.245/termtype (Terminal Type)" },
+
+  {   0x002c0001, "H.324/cmod (Communication mode)" },
+  {   0x002c0002, "H.324/muxlv (Highest Multiplexing level)" },
+  {   0x002c0003, "H.324/demux (Demultiplex)" },
+  {   0x002c0004, "H.324/h223capr (Remote H.223 capability)" },
+  {   0x002c0005, "H.324/muxtbl_in (Incoming Multiplex Table)" },
+  {   0x002c0006, "H.324/muxtbl_out (Outgoing Multiplex Table)" },
+
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
-	{0,     NULL}
+  {0,     NULL}
 };
 
 
@@ -1867,12 +1947,12 @@ void proto_register_h248(void) {
 
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
-  dissector_handle_t h248_handle;
 
   h248_handle = find_dissector("h248");
   h248_term_handle = find_dissector("h248term");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
+  dissector_add("udp.port", udp_port, h248_handle);
 }
 
