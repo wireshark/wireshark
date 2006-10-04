@@ -98,8 +98,8 @@ static const true_false_string mip6_bu_k_flag_value = {
 };
 
 static const true_false_string mip6_bu_m_flag_value = {
-    "Multiple Care of Address Comaptibility",
-    "No Multiple Care of Address Comaptibility",
+    "MAP Registration Compatibility",
+    "No MAP Registration Compatibility",
 };
 
 static const true_false_string nemo_bu_r_flag_value = {
