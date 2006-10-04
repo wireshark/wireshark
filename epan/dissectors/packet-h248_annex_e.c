@@ -29,9 +29,9 @@
 #define PNAME  "H.248 Annex E"
 #define PSNAME "H248E"
 #define PFNAME "h248e"
-
-//#include <epan/dissectors/packet-alcap.h>
-
+/*
+#include <epan/dissectors/packet-alcap.h>
+*/
 static int proto_h248_annex_E = -1;
 
 /* H.248.1 E.1  Generic Package */

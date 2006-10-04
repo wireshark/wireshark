@@ -669,9 +669,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	
 	if (! pkg ) pkg = &no_package;
 
-	printf(">>>%p,%p,%i\n",pkg,pkg->hfid_params,pkg->id);
-	hf_param = *(pkg->hfid_params); // XXX crashes here!
-	printf(">>>%i\n",hf_param); 
+	hf_param = *(pkg->hfid_params);
 	proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
 	
   } else {

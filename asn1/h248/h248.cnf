@@ -21,9 +21,6 @@ SigParamValue
 EventName
 EventParameterName
 EventParamValue
-EventParameter/value
-SigParameter/value
-SigParameterName
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
@@ -32,11 +29,6 @@ ActionReply/contextId					contextId
 TransactionRequest/transactionId		transactionId
 TransactionPending/transactionId		transactionId
 TransactionReply/transactionId			transactionId
-TransactionResponseAck/transactionId    transactionId
-EventParameter/eventParameterName		EventOrSigParameterName
-EventParameter/value				EventOrSigParameterValue
-SigParameter/sigParameterName			EventOrSigParameterName
-SigParameter/value				EventOrSigParameterValue
 StatisticsParameter/statName		StatName
 StatisticsParameter/statValue			StatValue
 PropertyParm/propertyName		PropertyName
@@ -81,8 +73,6 @@ NotifyRequest/terminationID			terminationIDList
 NotifyReply/terminationID			terminationIDList
 ServiceChangeRequest/terminationID			terminationIDList
 ServiceChangeReply/terminationID			terminationIDList
-EventParameter/value				eventParameterValue
-SigParameter/value				sigParameterValue
 IndAudStatisticsDescriptor/statName		iAStatName
 
 
@@ -105,39 +95,10 @@ IndAudStatisticsDescriptor/statName		iAStatName
     error_code = 0;
 #.END
 
-#.FN_BODY TransactionPending/transactionId
-    guint32 trx_id = 0;
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = h248_trx(msg,trx_id,H248_TRX_PENDING);
-    error_code = 0;
-#.END
-
-#.FN_BODY TransactionReply/transactionId
-    guint32 trx_id = 0;
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = h248_trx(curr_info.msg,trx_id,H248_TRX_REPLY);
-    error_code = 0;
-#.END
-
-#.FN_BODY TransactionResponseAck/transactionId
-    guint32 trx_id = 0;
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = h248_trx(curr_info.msg,trx_id,H248_TRX_ACK);
-    error_code = 0;
-#.END
-
-
 #.FN_BODY ActionRequest/contextId
     guint32 ctx_id = 0;
 	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
     curr_info.ctx = h248_ctx(curr_info.msg,curr_info.trx,ctx_id);
-    curr_info.term = NULL;
-#.END
-
-#.FN_BODY ActionReply/contextId
-    guint32 ctx_id;
-	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
-    curr_info.ctx = h248_ctx(curr_info.msg ,curr_info.trx,ctx_id);
     curr_info.cmd = NULL;
     curr_info.term = NULL;
 #.END
@@ -198,10 +159,10 @@ IndAudStatisticsDescriptor/statName		iAStatName
       curr_info.cmd = NULL;
 #.END
 
-#.FN_HDR Command/ServiceChangeRequest
+#.FN_HDR ServiceChangeRequest
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REQ,offset);
 #.END
-#.FN_FTR Command/ServiceChangeRequest
+#.FN_FTR ServiceChangeRequest
       curr_info.cmd = NULL;
 #.END
 
@@ -239,7 +200,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_NOTIFY_REPLY,offset);
 #.END
 
-#.FN_HDR CommandReply/ServiceChangeReply
+#.FN_HDR ServiceChangeReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REPLY,offset);
 #.END
 
