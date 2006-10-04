@@ -51,6 +51,8 @@ bytes_to_str_punct
 bytes_to_str
 bytestring_to_str
 call_dissector
+camel_opr_code_strings          DATA
+camelSRTtype_naming             DATA
 capture_ap1394
 capture_arcnet
 capture_atm
@@ -326,6 +328,8 @@ funnel_set_funnel_ops
 funnel_register_menu
 funnel_register_all_menus
 GatekeeperRejectReason_vals     DATA
+gcamel_StatSRT                  DATA
+gtcap_StatSRT                   DATA
 get_addr_name
 get_basename
 get_ber_identifier

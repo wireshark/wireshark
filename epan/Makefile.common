@@ -32,6 +32,7 @@ LIBWIRESHARK_SRC = 		\
 	atalk-utils.c		\
 	base64.c		\
 	bitswap.c		\
+	camel-persistentdata.c	\
 	charsets.c		\
 	circuit.c		\
 	column.c		\
@@ -108,6 +109,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	base64.h		\
 	bitswap.h		\
 	bridged_pids.h		\
+	camel-persistentdata.h	\
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\

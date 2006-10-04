@@ -120,6 +120,8 @@ WIRESHARK_TAP_SRC = \
 	ansi_a_stat.c	\
 	ansi_map_stat.c	\
 	bootp_stat.c	\
+	camel_counter.c	\
+	camel_srt.c	\
 	conversations_eth.c	\
 	conversations_fc.c	\
 	conversations_fddi.c	\

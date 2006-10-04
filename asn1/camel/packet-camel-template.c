@@ -54,6 +54,8 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
+#include "epan/camel-persistentdata.h"
+#include "epan/tcap-persistentdata.h"
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"
@@ -62,6 +64,8 @@
 /* Initialize the protocol and registered fields */
 int proto_camel = -1;
 int date_format = 1; /*assume european date format */
+int camel_tap = -1;
+
 static int hf_digit = -1; 
 static int hf_camel_invokeCmd = -1;             /* Opcode */
 static int hf_camel_invokeid = -1;              /* INTEGER */
@@ -89,7 +93,28 @@ static int hf_camel_PDPAddress_IPv6 = -1;
 static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 static int hf_camel_RP_Cause = -1;
 
+/* Used by camel-persistentdata.c */
+int hf_camelsrt_SessionId=-1;
+int hf_camelsrt_RequestNumber=-1;
+int hf_camelsrt_Duplicate=-1;
+int hf_camelsrt_RequestFrame=-1;
+int hf_camelsrt_ResponseFrame=-1;
+int hf_camelsrt_DeltaTime=-1;
+int hf_camelsrt_SessionTime=-1;
+int hf_camelsrt_DeltaTime31=-1;
+int hf_camelsrt_DeltaTime75=-1;
+int hf_camelsrt_DeltaTime65=-1;
+int hf_camelsrt_DeltaTime22=-1;
+int hf_camelsrt_DeltaTime35=-1;
+int hf_camelsrt_DeltaTime80=-1;
+
+static struct camelsrt_info_t * gp_camelsrt_info;
+
 #include "packet-camel-hf.c"
+
+gboolean gcamel_HandleSRT=FALSE;
+extern gboolean gcamel_PersistentSRT;
+extern gboolean gcamel_DisplaySRT;
 
 /* Initialize the subtree pointers */
 static gint ett_camel = -1;
@@ -105,6 +130,7 @@ static gint ett_camel_MSRadioAccessCapability = -1;
 static gint ett_camel_MSNetworkCapability = -1;
 static gint ett_camel_AccessPointName = -1;
 static gint ett_camel_pdptypenumber = -1;
+static gint ett_camel_stat = -1;
 
 #include "packet-camel-ett.c"
 
@@ -323,6 +349,7 @@ static guint32 opcode=0;
 static int
 dissect_camel_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
+  gp_camelsrt_info->opcode=opcode;
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     /* Add Camel Opcode to INFO column */
@@ -670,6 +697,10 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
       if (version_ptr)
 	application_context_version = atoi(version_ptr+1);
     }
+    gp_camelsrt_info->tcap_context=p_private_tcap->context; 
+    if (p_private_tcap->context)
+      gp_camelsrt_info->tcap_session_id
+	= ( (struct tcaphash_context_t *) (p_private_tcap->context))->session_id;
   }
 
   camel_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
@@ -692,6 +723,8 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_item    *item=NULL;
   proto_tree    *tree=NULL;
+  proto_item  *stat_item=NULL;
+  proto_tree  *stat_tree=NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Camel");
@@ -702,9 +735,21 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, FALSE);
      tree = proto_item_add_subtree(item, ett_camel);
   }
-
+  /* camelsrt reset counter, and initialise global pointer
+     to store service response time related data */
+  gp_camelsrt_info=camelsrt_razinfo();
   dissect_camel_camelPDU(FALSE, tvb, 0, pinfo, tree, -1);
-
+  
+  /* If a Tcap context is associated to this transaction */
+  if (gcamel_HandleSRT &&
+      gp_camelsrt_info->tcap_context ) {
+    if (gcamel_DisplaySRT && tree) {
+      stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+      stat_tree = proto_item_add_subtree(stat_item, ett_camel_stat);
+    }
+    camelsrt_call_matching(tvb, pinfo, stat_tree, gp_camelsrt_info);
+    tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
+  }
 }
 
 /*--- proto_reg_handoff_camel ---------------------------------------*/
@@ -729,6 +774,7 @@ void proto_reg_handoff_camel(void) {
     camel_prefs_initialized = TRUE;
     camel_handle = create_dissector_handle(dissect_camel, proto_camel);
 
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version1(0)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
@@ -832,6 +878,86 @@ void proto_register_camel(void) {
       FT_UINT8, BASE_DEC, NULL, 0,
 	"RP Cause Value", HFILL }},
 
+  /* Camel Service Response Time */
+    { &hf_camelsrt_SessionId,
+      { "Session Id",
+        "camel.srt.session_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "", HFILL }
+    },
+    { &hf_camelsrt_RequestNumber,
+      { "Request Number",
+        "camel.srt.request_number",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        "", HFILL }
+    },
+    { &hf_camelsrt_Duplicate,
+      { "Request Duplicate",
+        "camel.srt.duplicate",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "", HFILL }
+    },
+    { &hf_camelsrt_RequestFrame,
+      { "Requested Frame",
+        "camel.srt.reqframe",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "SRT Request Frame", HFILL }
+    },
+    { &hf_camelsrt_ResponseFrame,
+      { "Response Frame",
+        "camel.srt.rspframe",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "SRT Response Frame", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime,
+      { "Service Response Time",
+        "camel.srt.deltatime",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between Request and Response", HFILL }
+    },
+    { &hf_camelsrt_SessionTime,
+      { "Session duration",
+        "camel.srt.sessiontime",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "Duration of the TCAP session", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime31,
+      { "Service Response Time",
+        "camel.srt.deltatime31",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between InitialDP and Continue", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime65,
+      { "Service Response Time",
+        "camel.srt.deltatime65",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between InitialDPSMS and ContinueSMS", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime75,
+      { "Service Response Time",
+        "camel.srt.deltatime75",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between InitialDPGPRS and ContinueGPRS", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime35,
+      { "Service Response Time",
+        "camel.srt.deltatime35",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between ApplyCharginReport and ApplyCharging", HFILL }
+    },
+    { &hf_camelsrt_DeltaTime22,
+      { "Service Response Time",
+        "camel.srt.deltatime22",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between EventReport(Disconnect) and Release Call", HFILL }
+    },
+  { &hf_camelsrt_DeltaTime80,
+      { "Service Response Time",
+        "camel.srt.deltatime80",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
+    },
+
 #ifdef REMOVED
 #endif
 #include "packet-camel-hfarr.c"
@@ -852,6 +978,8 @@ void proto_register_camel(void) {
 	&ett_camel_MSNetworkCapability,
 	&ett_camel_AccessPointName,
 	&ett_camel_pdptypenumber,
+    &ett_camel_stat,
+
 #include "packet-camel-ettarr.c"
   };
   /* Register protocol */
@@ -876,5 +1004,19 @@ void proto_register_camel(void) {
     "TCAP SSNs",
     "TCAP Subsystem numbers used for Camel",
     &global_ssn_range, MAX_SSN);
+
+  prefs_register_bool_preference(camel_module, "srt",
+				 "Service Response Time Analyse",
+				 "Activate the analyse for Response Time",
+				 &gcamel_HandleSRT);
+
+  prefs_register_bool_preference(camel_module, "persistentsrt",
+				 "Persistent stats for SRT",
+				 "Statistics for Response Time",
+				 &gcamel_PersistentSRT);
+  
+  /* Routine for statistic */ 
+  register_init_routine(&camelsrt_init_routine);
+  camel_tap=register_tap(PSNAME);
 }
 

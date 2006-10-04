@@ -48,7 +48,7 @@
 
 #define CAMELSRT_SMS_INITIALDP 9
 
-extern const value_string  camelSRTtype_naming[];
+WS_VAR_IMPORT const value_string  camelSRTtype_naming[];
 
 /* If we have a request message and its response,
    (eg: ApplyCharging, ApplyChargingReport)

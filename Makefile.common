@@ -97,6 +97,8 @@ TSHARK_TAP_SRC =	\
 	tap-afpstat.c	\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c	\
+	tap-camelcounter.c	\
+	tap-camelsrt.c	\
 	tap-dcerpcstat.c	\
 	tap-funnel.c \
 	tap-gsm_astat.c	\
