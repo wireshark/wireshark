@@ -48,18 +48,7 @@
 
 #define CAMELSRT_SMS_INITIALDP 9
 
-static const value_string  camelSRTtype_naming[]= {
-  { CAMELSRT_SESSION,         "TCAP_Session" },
-  { CAMELSRT_VOICE_INITIALDP, "InialDP/Continue" },
-  { CAMELSRT_VOICE_ACR1,      "Slice1_ACR/ACH" }, 
-  { CAMELSRT_VOICE_ACR2,      "Slice2_ACR/ACH" },
-  { CAMELSRT_VOICE_ACR3,      "Slice3_ACR/ACH" },
-  { CAMELSRT_VOICE_DISC,      "EvtRepBSCM/Release" },
-  { CAMELSRT_SMS_INITIALDP,   "InitialDP/ContinueSMS" },
-  { CAMELSRT_GPRS_INITIALDP,  "InitialDP/ContinueGPRS" },
-  { CAMELSRT_GPRS_REPORT,     "EvtRepGPRS/ContinueGPRS" },
-  { 0,NULL}
-};
+extern const value_string  camelSRTtype_naming[];
 
 /* If we have a request message and its response,
    (eg: ApplyCharging, ApplyChargingReport)

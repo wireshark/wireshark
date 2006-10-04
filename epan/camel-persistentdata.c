@@ -38,6 +38,19 @@
 #include "epan/dissectors/packet-tcap.h"
 #include "epan/dissectors/packet-mtp3.h"
 
+const value_string  camelSRTtype_naming[]= {
+  { CAMELSRT_SESSION,         "TCAP_Session" },
+  { CAMELSRT_VOICE_INITIALDP, "InialDP/Continue" },
+  { CAMELSRT_VOICE_ACR1,      "Slice1_ACR/ACH" }, 
+  { CAMELSRT_VOICE_ACR2,      "Slice2_ACR/ACH" },
+  { CAMELSRT_VOICE_ACR3,      "Slice3_ACR/ACH" },
+  { CAMELSRT_VOICE_DISC,      "EvtRepBSCM/Release" },
+  { CAMELSRT_SMS_INITIALDP,   "InitialDP/ContinueSMS" },
+  { CAMELSRT_GPRS_INITIALDP,  "InitialDP/ContinueGPRS" },
+  { CAMELSRT_GPRS_REPORT,     "EvtRepGPRS/ContinueGPRS" },
+  { 0,NULL}
+};
+
 static gint camelsrt_call_equal(gconstpointer k1, gconstpointer k2);
 static guint camelsrt_call_hash(gconstpointer k);
 static struct camelsrt_call_t * find_camelsrt_call(struct camelsrt_call_info_key_t * p_camelsrt_call_key,
