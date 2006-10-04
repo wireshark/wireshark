@@ -574,7 +574,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* set the main filter text */
 
 WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* apply the filter in the main filter box */
 	if (!ops->apply_filter) {
-		WSLUA_ERROR(wslua_set_filter, "does not work on TShark");
+		WSLUA_ERROR(wslua_apply_filter, "does not work on TShark");
 	}
 
 	ops->apply_filter();
@@ -583,8 +583,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* apply the filter in the mai
 }
 
 
-WSLUA_FUNCTION wslua_reload(lua_State* L) { /* set the main filter text */
-#define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
+WSLUA_FUNCTION wslua_reload(lua_State* L) { /* reload the current capture file */
 
 	if (!ops->reload) {
 		WSLUA_ERROR(wslua_reload, "does not work on TShark");

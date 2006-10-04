@@ -126,4 +126,58 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 	return 0;
 }
 
+const char* get_actual_filename(const char* fname) {
+	const char* filename;
+	
+	if ( file_exists(fname) ) {
+		return fname;
+	}
+	
+	filename = get_persconffile_path(fname,FALSE);
+	
+	if ( file_exists(filename) ) {
+		return filename;
+	}
+	
+	filename = get_datafile_path(fname);
 
+	return filename;
+}
+
+WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
+#define WSLUA_ARG_loadfile_FILENAME 1
+	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
+	const char* filename;
+	
+	if (!given_fname) WSLUA_ARG_ERROR(loadfile,FILENAME,"must be a string");
+	
+	filename = get_actual_filename(given_fname);
+	
+	if (!filename)  WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
+	
+	if (luaL_loadfile(L, filename) == 0) {
+		return 1;
+	} else {
+		lua_pushnil(L);
+		lua_insert(L, -2);
+		return 2;
+	}
+}
+
+WSLUA_FUNCTION wslua_dofile(lua_State* L) {
+#define WSLUA_ARG_dofile_FILENAME 1
+	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
+	const char* filename;
+	int n;
+	
+	if (!given_fname) WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
+	
+	filename = get_actual_filename(given_fname);
+	
+	if (!filename)  WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
+	
+	n = lua_gettop(L);
+	if (luaL_loadfile(L, filename) != 0) lua_error(L);
+	lua_call(L, 0, LUA_MULTRET);
+	return lua_gettop(L) - n;
+}

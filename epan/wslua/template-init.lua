@@ -26,8 +26,7 @@
 -- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
--- If lua is to be disabled even if it was installed uncomment the following
--- line.
+-- If lua is to be completely disabled uncomment the following line.
 -- disable_lua = true; do return end;
 
 
@@ -35,15 +34,19 @@
 -- tells whether scripts other than this one are to be run.
 run_user_scripts_when_superuser = false
 
+
 -- disable potentialy harmful lua functions when running superuser
 if running_superuser then
+	local disabled_lib = {}
+	setmetatable(disabled_lib,{ __index = function() error("this package has been disabled") end } );
+
     dofile = function() error("dofile has been disabled") end
     loadfile = function() error("loadfile has been disabled") end
     loadlib = function() error("loadlib has been disabled") end
     require = function() error("require has been disabled") end
-    os = {}
-    io = {}
-    file = {}
+    os = disabled_lib
+    io = disabled_lib
+    file = disabled_lib
 end
 
 -- to avoid output to stdout which can caause problems lua's print ()

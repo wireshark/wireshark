@@ -61,6 +61,8 @@ DISTCLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in	\
+	register_wslua.c \
+	declare_wslua.h \
 	doc/*.pod	\
 	init.lua
 

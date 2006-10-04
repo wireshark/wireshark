@@ -137,7 +137,10 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 	FieldInfo fi = checkFieldInfo(L,1);
 	if (fi) {
-		lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+		if (fi->value.ftype->val_to_string_repr)
+			lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+		else
+			luaL_error(L,"field has no string representation");
 	}
 	return 1;
 }
