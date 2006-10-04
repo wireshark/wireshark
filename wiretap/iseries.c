@@ -159,9 +159,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
   /* UNICODE identification */
   char unicodemagic[ISERIES_HDR_MAGIC_LEN] =
     { '\xFF', '\xFE', '\x20', '\x00', '\x43', '\x00', '\x4F', '\x00', '\x4D',
-      '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00',
-      '\x43', '\x00', '\x41'
-    };
+    '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00',
+    '\x43', '\x00', '\x41'
+  };
 
   /*
    * Check that file starts with a valid iSeries COMMS TRACE header
@@ -536,8 +536,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * If we have Wiretap Header then populate it here
    *
    * XXX - Timer resolution on the iSeries is hardware dependant, the value for csec may be
-   * different on other platforms though all the traces I've seen seem so show resolution
-   * to 5 digits (i.e HH:MM:SS.nnnnn) so hopefully this will not require special handling
+   * different on other platforms though all the traces I've seen seem to show resolution
+   * to Milliseconds (i.e HH:MM:SS.nnnnn) or Nanoseconds (i.e HH:MM:SS.nnnnnn)
    */
   if (wth->capture.iseries->sdate)
     {
@@ -551,7 +551,16 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       tm.tm_sec = sec;
       tm.tm_isdst = -1;
       wth->phdr.ts.secs = mktime (&tm);
-      wth->phdr.ts.nsecs = csec * 10000;
+      /* Handle Millisecond precision for timer */
+      if (csec > 99999)
+	{
+	  wth->phdr.ts.nsecs = csec * 1000;
+	}
+      /* Handle Nanosecond precision for timer */
+      else
+	{
+	  wth->phdr.ts.nsecs = csec * 10000;
+	}
       wth->phdr.caplen = cap_len;
       wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
       pseudo_header->eth.fcs_len = -1;
@@ -594,7 +603,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	    }
 	}
 
-      /* Convert UNICODE data to ASCII and determine line length*/
+      /* Convert UNICODE data to ASCII and determine line length */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
 	  buflen = iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
