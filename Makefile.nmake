@@ -337,7 +337,9 @@ clean: clean_gtk2.tmp clean-deps
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../..
+	cd ../u3/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../../..
 
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
@@ -363,7 +365,9 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../..
+	cd ../u3/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../../..
 
 # Make "maintainer-clean" only if you would like to remove ALL generated
 # files.
@@ -390,7 +394,9 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../..
+	cd ../u3/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../../..
 
 tools::
 	cd tools
