@@ -447,6 +447,8 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 		fbt->tw = tw;
 		fbt->func = wslua_button_callback;
 		fbt->data = cbd;
+		fbt->free = g_free;
+		fbt->free_data = g_free;
 		
 		cbd->L = L;
 		cbd->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
