@@ -93,14 +93,6 @@ irda::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-lua::
-!IFDEF LUA_DIR
-	cd lua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake init.lua
-	cd ..
-!ENDIF
-
 lwres::
 	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -194,8 +186,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../lua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mate
@@ -249,8 +239,6 @@ distclean: clean
 	cd ../h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../lua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -306,8 +294,6 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../lua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../mate
@@ -357,9 +343,6 @@ install-plugins:
 	xcopy gryphon\*.dll $(VERSION) /d
 	xcopy h223\*.dll $(VERSION) /d
 	xcopy irda\*.dll $(VERSION) /d
-!IFDEF LUA_DIR
-	xcopy lua\*.dll $(VERSION) /d
-!ENDIF
 	xcopy lwres\*.dll $(VERSION) /d
 	xcopy mate\*.dll $(VERSION) /d
 	xcopy megaco\*.dll $(VERSION) /d
