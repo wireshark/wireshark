@@ -269,6 +269,7 @@ static gint hf_krb_gssapi_c_flag_replay = -1;
 static gint hf_krb_gssapi_c_flag_sequence = -1;
 static gint hf_krb_gssapi_c_flag_conf = -1;
 static gint hf_krb_gssapi_c_flag_integ = -1;
+static gint hf_krb_gssapi_c_flag_dce_style = -1;
 static gint hf_krb_smb_nt_status = -1;
 static gint hf_krb_smb_unknown = -1;
 
@@ -2997,6 +2998,7 @@ dissect_krb5_authenticator_vno(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 #define KRB5_GSS_C_SEQUENCE_FLAG	0x08
 #define KRB5_GSS_C_CONF_FLAG		0x10
 #define KRB5_GSS_C_INTEG_FLAG		0x20
+#define KRB5_GSS_C_DCE_STYLE		0x1000
 static const true_false_string tfs_gss_flags_deleg = {
 	"Delegate credantials to remote peer",
 	"Do NOT delegate"
@@ -3022,6 +3024,11 @@ static const true_false_string tfs_gss_flags_integ = {
 	"Do NOT use integrity protection"
 };
 
+static const true_false_string tfs_gss_flags_dce_style = {
+	"DCE-STYLE",
+	"Not using DCE-STYLE"
+};
+
 /* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
  */
 static int
@@ -3042,6 +3049,7 @@ dissect_krb5_rfc1964_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 	/* flags */
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_dce_style, tvb, offset, 4, TRUE);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, TRUE);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, TRUE);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_sequence, tvb, offset, 4, TRUE);
@@ -4879,6 +4887,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_gssapi_c_flag_integ, {
 	    "Integ", "kerberos.gssapi.checksum.flags.integ", FT_BOOLEAN, 32,
 	    VALS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_dce_style, {
+	    "DCE-style", "kerberos.gssapi.checksum.flags.dce-style", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, "", HFILL }},
 	{ &hf_krb_gssapi_dlgopt, {
 	    "DlgOpt", "kerberos.gssapi.dlgopt", FT_UINT16, BASE_DEC,
 	    NULL, 0, "GSSAPI DlgOpt", HFILL }},
