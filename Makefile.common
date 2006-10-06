@@ -157,6 +157,7 @@ wireshark_SOURCES =	\
 
 # corresponding headers
 wireshark_INCLUDES =	\
+	airpcap.h \
 	airpcap_loader.h \
 	alert_box.h	\
 	capture.h	\
