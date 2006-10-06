@@ -693,6 +693,10 @@ EXTRA_DIST = \
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
+	packaging/u3/win32/README.txt		\
+	packaging/u3/win32/makefile.nmake	\
+	packaging/u3/win32/manifest.tmpl	\
+	packaging/u3/win32/u3util.c		\
 	wka.tmpl
 
 if SETUID_INSTALL
