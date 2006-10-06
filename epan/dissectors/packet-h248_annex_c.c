@@ -161,6 +161,7 @@ static int hf_h248_pkg_annexc_sdp_k = -1;
 static int hf_h248_pkg_annexc_sdp_a = -1;
 static int hf_h248_pkg_annexc_sdp_t = -1;
 static int hf_h248_pkg_annexc_sdp_r = -1;
+static int hf_h248_pkg_annexc_sdp_m = -1;
 
 static int hf_h248_pkg_annexc_olc = -1;
 static int hf_h248_pkg_annexc_olcack = -1;
@@ -749,8 +750,8 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
 	
 	tree = proto_item_add_subtree(get_ber_last_created_item(),ett_codec);
-	len = tvb_get_guint8(new_tvb,0);
-	dissect_codec_mode(tree,new_tvb,1,len);
+	len = tvb_length(new_tvb);
+	dissect_codec_mode(tree,new_tvb,0,len);
 }
 
 static void dissect_h248_annexc_BIR(proto_tree* tree,
@@ -934,6 +935,7 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, h248_param_ber_octetstring, NULL },
 	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, h248_param_ber_octetstring, NULL },
 	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, h248_param_ber_octetstring, NULL },
+	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, h248_param_ber_octetstring, NULL },
 	
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring, NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
@@ -1435,6 +1437,10 @@ void proto_register_h248_annex_c(void) {
 		{ "sdp_r", "h248.pkg.annexc.sdp_r",
 			FT_STRING, BASE_HEX, NULL, 0,
 			"SDP R", HFILL }},
+		{ &hf_h248_pkg_annexc_sdp_m,
+		{ "sdp_m", "h248.pkg.annexc.sdp_m",
+			FT_STRING, BASE_HEX, NULL, 0,
+			"SDP M", HFILL }},
 			
 		{ &hf_h248_pkg_annexc_olc,
 		{ "OLC", "h248.pkg.annexc.olc",

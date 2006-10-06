@@ -54,6 +54,7 @@ static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 
 static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
 	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params},
+	{ 0, NULL, NULL, NULL}
 };
 
 
@@ -137,6 +138,91 @@ static int hf_h248_pkg_tonedet_evt_etd = -1;
 static int hf_h248_pkg_tonedet_evt_ltd = -1;
 */
 
+/* H.248.1 E.9 Analog Line Supervision Package */
+static int hf_h248_pkg_al = -1;
+static int hf_h248_pkg_al_param = -1;
+static int hf_h248_pkg_al_evt_onhook = -1;
+static int hf_h248_pkg_al_evt_offhook = -1;
+static int hf_h248_pkg_al_evt_flashhook = -1;
+static int hf_h248_pkg_al_evt_onhook_par_strict = -1;
+static int hf_h248_pkg_al_evt_onhook_par_init = -1;
+static int hf_h248_pkg_al_evt_flashhook_par_mindur = -1;
+
+static gint ett_h248_pkg_al = -1;
+static gint ett_h248_pkg_al_evt_onhook = -1;
+static gint ett_h248_pkg_al_evt_offhook = -1;
+static gint ett_h248_pkg_al_evt_flashhook = -1;
+
+/* Events defenitions */
+static const value_string h248_pkg_al_evt_onhook_strict_vals[] = {
+	{ 0, "exact"},
+	{ 1, "state"},
+	{ 2, "failWrong"},
+	{ 0, NULL }
+};
+
+static const true_false_string h248_pkg_al_evt_onhook_par_init_vals = {
+	"already off-hook",
+	"actual state transition to off-hook"
+};
+
+static h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
+	{ 0x0001, &hf_h248_pkg_al_evt_onhook_par_strict, h248_param_ber_integer, NULL },
+	{ 0x0002, &hf_h248_pkg_al_evt_onhook_par_init, h248_param_ber_boolean, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
+static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
+	{ 0x0001, &hf_h248_pkg_al_evt_flashhook_par_mindur, h248_param_ber_integer, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
+static h248_pkg_evt_t h248_pkg_al_evts[] = {
+	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params },
+	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_onhook_params },
+
+	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params },
+
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Packet defenitions */
+
+static h248_package_t h248_pkg_al = {
+	0x0009,
+	&hf_h248_pkg_al,
+	&hf_h248_pkg_al_param,
+	&ett_h248_pkg_al,
+	NULL,						/* Properties */
+	NULL,						/* signals */
+	h248_pkg_al_evts,			/* events */
+	NULL						/* statistics */
+};
+
+/* H.248.1 E.12 RTP package */
+static int hf_h248_pkg_rtp = -1;
+static int hf_h248_pkg_rtp_param = -1;
+static int hf_h248_pkg_rtp_stat_ps = -1;
+
+static int ett_h248_pkg_rtp = -1;
+
+static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
+	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, h248_param_ber_integer, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_rtp = {
+	0x000c,
+	&hf_h248_pkg_rtp,
+	&hf_h248_pkg_rtp_param,
+	&ett_h248_pkg_rtp,
+	NULL,						/* Properties */
+	NULL,						/* signals */
+	NULL,						/* events */
+	h248_pkg_rtp_stat			/* statistics */
+};
+
 /* H.248.1 E.13 TDM Circuit Package */
 static int hf_h248_pkg_tdmc = -1;
 static int hf_h248_pkg_tdmc_param = -1;
@@ -154,6 +240,7 @@ static const true_false_string h248_tdmc_ec_vals = {
 static h248_pkg_param_t h248_pkg_tdmc_props[] = {
 	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, NULL },
 	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, NULL },
+	{ 0, NULL, NULL, NULL}
 };
 
 static h248_package_t h248_pkg_tdmc = {
@@ -161,21 +248,33 @@ static h248_package_t h248_pkg_tdmc = {
 	&hf_h248_pkg_tdmc,
 	&hf_h248_pkg_tdmc_param,
 	&ett_h248_pkg_tdmc,
-	h248_pkg_tdmc_props,
-	NULL,
-	NULL,
-	NULL
+	h248_pkg_tdmc_props,		/* Properties */
+	NULL,						/* signals */
+	NULL,						/* events */
+	NULL						/* statistics */
 };
 
 
 
 void proto_register_h248_annex_e(void) {
 	static hf_register_info hf[] = {
+		/* H.248.1 E.1  Generic Package */
 		{ &hf_h248_pkg_generic, { "Generic Package", "h248.pkg.generic", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_generic_cause_evt, { "Cause Event", "h248.pkg.generic.cause", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.pkg.generic.cause.gencause", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }}, 
 		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
-		
+		/* H.248.1 E.9 Analog Line Supervision Package */
+		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook_par_strict, { "strict", "h248.pkg.al.ev.onhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.pkg.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+		/* H.248.1 E.12 RTP package */
+		{ &hf_h248_pkg_rtp, { "RTP package", "h248.pkg.rtp", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_rtp_stat_ps, { "Packets Sent", "h248.pkg.rtp.stat.ps", FT_UINT64, BASE_DEC, NULL, 0, "Packets Sent", HFILL }},
+		/* H.248.1 E.13 TDM Circuit Package */
+		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.pkg.tdmc", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_tdmc_ec, { "Echo Cancellation", "h248.pkg.tdmc.ec", FT_BOOLEAN, 8, TFS(&h248_tdmc_ec_vals), 0, "Echo Cancellation", HFILL }},
 		{ &hf_h248_pkg_tdmc_gain, { "Gain", "h248.pkg.tdmc.gain", FT_UINT32, BASE_HEX, NULL, 0, "Gain", HFILL }},
 	};
@@ -184,7 +283,10 @@ void proto_register_h248_annex_e(void) {
 		&ett_h248_pkg_generic_cause_evt,
 		&ett_h248_pkg_generic,
 
+		&ett_h248_pkg_al,
+		&ett_h248_pkg_al_evt_onhook,
 		
+		&ett_h248_pkg_rtp,
 		&ett_tdmc
 	};
 
@@ -195,6 +297,8 @@ void proto_register_h248_annex_e(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	
 	h248_register_package(&h248_pkg_generic);
+	h248_register_package(&h248_pkg_al);
+	h248_register_package(&h248_pkg_rtp);
 	h248_register_package(&h248_pkg_tdmc);
 }
 

@@ -749,8 +749,9 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	
 	if (! pkg ) pkg = &no_package;
 
-	hf_param = *(pkg->hfid_params);
-	proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
+	if (hf_param > 0)
+		/* TODO: Will this ever happen now??*/
+		proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
 	
   } else {
 	  pkg = &no_package;

@@ -2859,14 +2859,15 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
 	{ 0x02,	"BICC data with unrecognized information element, discarded"},
 	{ 0,	NULL }
 };
-
+/* This routine should bve called with offset at Organization_Identifier not the lengh indicator
+ * because of use from other disectors.
+ */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
 	guint8 tempdata;
 	proto_tree *scs_item, *acs_item;
 	proto_tree *scs_tree, *acs_tree;
 	
 	
-	offset = offset + 1;
 	tempdata = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_Organization_Identifier , tvb, offset, 1, tempdata );
 	switch ( tempdata ){
@@ -2980,7 +2981,7 @@ guint8 compatibility_info;
 	proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
 	proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
 
-	offset = dissect_codec_mode(bat_ase_element_tree, parameter_tvb, offset,length_indicator-1);
+	offset = dissect_codec_mode(bat_ase_element_tree, parameter_tvb, offset+1,length_indicator-1);
 return offset;
 }
 

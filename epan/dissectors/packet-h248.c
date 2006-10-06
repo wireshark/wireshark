@@ -1161,8 +1161,9 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	
 	if (! pkg ) pkg = &no_package;
 
-	hf_param = *(pkg->hfid_params);
-	proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
+	if (hf_param > 0)
+		/* TODO: Will this ever happen now??*/
+		proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
 	
   } else {
 	  pkg = &no_package;
@@ -5868,7 +5869,7 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1757 "packet-h248-template.c"
+#line 1758 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -7059,7 +7060,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1891 "packet-h248-template.c"
+#line 1892 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7219,7 +7220,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1916 "packet-h248-template.c"
+#line 1917 "packet-h248-template.c"
   };
 
   module_t *h248_module;
