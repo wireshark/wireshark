@@ -29,7 +29,22 @@ WIRESHARK_WIN32_GTK_SRC = \
 	print_mswin.c \
 	win32-file-dlg.c \
 !IFDEF PORTAUDIO_DIR
+!IF "$(PORTAUDIO_VERSION)" == "18"
 	pa_lib.c \
+!ELSE
+	pa_front.c \
+	pa_allocation.c \
+	pa_converters.c \
+	pa_cpuload.c \
+	pa_dither.c \
+	pa_process.c \
+	pa_skeleton.c \
+	pa_stream.c \
+	pa_trace.c \
+	pa_win_util.c \
+	pa_win_hostapis.c \
+	pa_x86_plain_converters.c \
+!ENDIF
 	pa_win_wmme.c 
 !ENDIF
 
@@ -46,11 +61,55 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.comm
 	@echo Making wireshark-tap-register.c
 	@$(SH) ../make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
 
+
+!IF "$(PORTAUDIO_VERSION)" == "18"
 pa_lib.obj: $(PORTAUDIO_DIR)\pa_common\pa_lib.c
 	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_DIR)\pa_common\pa_lib.c -o $@
 
 pa_win_wmme.obj: $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c
-	$(CC) -c /Zi /W1 /Od /I$(PORTAUDIO_DIR)\pa_common $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c -o $@
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\pa_win_wmme\pa_win_wmme.c -o $@
+!ELSE
+pa_front.obj: $(PORTAUDIO_DIR)\src\common\pa_front.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_front.c -o $@
+
+pa_allocation.obj: $(PORTAUDIO_DIR)\src\common\pa_allocation.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_allocation.c -o $@
+
+pa_converters.obj: $(PORTAUDIO_DIR)\src\common\pa_converters.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_converters.c -o $@
+
+pa_cpuload.obj: $(PORTAUDIO_DIR)\src\common\pa_cpuload.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_cpuload.c -o $@
+
+pa_dither.obj: $(PORTAUDIO_DIR)\src\common\pa_dither.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_dither.c -o $@
+
+pa_process.obj: $(PORTAUDIO_DIR)\src\common\pa_process.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_process.c -o $@
+
+pa_skeleton.obj: $(PORTAUDIO_DIR)\src\common\pa_skeleton.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_skeleton.c -o $@
+
+pa_stream.obj: $(PORTAUDIO_DIR)\src\common\pa_stream.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_stream.c -o $@
+
+pa_trace.obj: $(PORTAUDIO_DIR)\src\common\pa_trace.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\common\pa_trace.c -o $@
+
+
+pa_win_wmme.obj: $(PORTAUDIO_DIR)\src\hostapi\wmme\pa_win_wmme.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\hostapi\wmme\pa_win_wmme.c -o $@
+
+pa_win_util.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_util.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\os\win\pa_win_util.c -o $@
+
+pa_win_hostapis.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_hostapis.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\os\win\pa_win_hostapis.c -o $@
+
+pa_x86_plain_converters.obj: $(PORTAUDIO_DIR)\src\os\win\pa_x86_plain_converters.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\os\win\pa_x86_plain_converters.c -o $@
+
+!ENDIF
 
 clean:
 	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*

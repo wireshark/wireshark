@@ -206,6 +206,8 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 # PORTAUDIO_DIR isn't defined.
 #
 PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19
+
 #
 # Version number of PortAudio
 # 
@@ -592,13 +594,16 @@ LUA_CONFIG=
 !ENDIF
 
 !IFDEF PORTAUDIO_DIR
-PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\pa_common
 # Nmake uses carets to escape special characters
 PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
 !IF "$(PORTAUDIO_VERSION)" == "18"
 # V18 uses API version 1 and v19 API version 2
+PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\pa_common
 PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
+!ELSE
+PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\include /I$(PORTAUDIO_DIR)\src\common
 !ENDIF
+
 !else
 PORTAUDIO_CFLAGS=
 PORTAUDIO_CONFIG=

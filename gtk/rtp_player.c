@@ -231,6 +231,7 @@ typedef struct _rtp_play_channles {
 	PaTimestamp out_diff_time;
 #else /* PORTAUDIO_API_1 */
 	PaTime out_diff_time;
+	PaTime pa_start_time;
 #endif /* PORTAUDIO_API_1 */
 } rtp_play_channles_t;
 
@@ -773,6 +774,16 @@ stop_channels(void)
 		return;
 	}
 
+	err = Pa_CloseStream(pa_stream);
+	if( err != paNoError ) {
+		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+							  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+							  "Can not Close Stream in PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+		return;
+	}
+
 	rtp_channels->start_index[0] = 0;
 	rtp_channels->start_index[1] = 0;
 	rtp_channels->end_index[0] = 0;
@@ -810,11 +821,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 #if PORTAUDIO_API_1
 	index = Pa_StreamTime( pa_stream ) - rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
 #else  /* PORTAUDIO_API_1 */
-	/*
-	Pa_StreamTime has changed significantly into Pa_GetStreamTime
-	 */
-	/* remove once new api is implemented */
-	index = 0;
+	index = ((guint32)(SAMPLE_RATE) * (Pa_GetStreamTime(pa_stream)-rtp_channels->pa_start_time))- rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
 #endif  /* PORTAUDIO_API_1 */
 
 
@@ -830,7 +837,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	}
 
 	/* draw the previous saved pixbuf line */
-	if (rci->cursor_pixbuf) {
+	if (rci->cursor_pixbuf && (rci->cursor_prev>=0)) {
 
 		gdk_draw_pixbuf(rci->pixmap, NULL, rci->cursor_pixbuf, 0, 0, (int) (rci->cursor_prev/MULT), 0, -1, -1, GDK_RGB_DITHER_NONE, 0 ,0);
 
@@ -844,20 +851,22 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		g_object_unref(rci->cursor_pixbuf);
 	}
 
-	rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (index/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+	if (index>0 && (rci->cursor_prev>=0)) {
+		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (index/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
-	gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
-		(int) (index/MULT),
-		0,
-		(int) (index/MULT),
-		rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+		gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
+			(int) (index/MULT),
+			0,
+			(int) (index/MULT),
+			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
-	gdk_draw_drawable(rci->draw_area->window,
-		rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
-		rci->pixmap,
-		(int) (index/MULT), 0,
-		(int) (index/MULT), 0,
-		1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+		gdk_draw_drawable(rci->draw_area->window,
+			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],	
+			rci->pixmap,
+			(int) (index/MULT), 0,
+			(int) (index/MULT), 0,
+			1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+	}
 
 	/* Disconnect the scroll bar "value" signal to not be called */
 	SIGNAL_DISCONNECT_BY_FUNC(rci->h_scrollbar_adjustment, h_scrollbar_changed, rci);
@@ -994,19 +1003,13 @@ static int paCallback(   void *inputBuffer, void *outputBuffer,
                              PaTimestamp outTime, void *userData)
 {
 #else /* PORTAUDIO_API_1 */
-static int paCallback(
-	    const void *input, void *output,
-	    unsigned long frameCount,
-	    const PaStreamCallbackTimeInfo* timeInfo,
-	    PaStreamCallbackFlags statusFlags,
-	    void *userData )
-
+static int paCallback( void *inputBuffer, void *outputBuffer,
+                             unsigned long framesPerBuffer,
+							 const PaStreamCallbackTimeInfo* outTime,
+							 PaStreamCallbackFlags statusFlags,
+                             void *userData)
 {
-	/* Remove once this has been properly impelented */
-	void *inputBuffer;
-	void *outputBuffer;
-        unsigned long framesPerBuffer;
-        PaTime outTime;
+/*	(void) statusFlags;*/
 #endif /* PORTAUDIO_API_1 */
     rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
     SAMPLE *wptr = (SAMPLE*)outputBuffer;
@@ -1029,9 +1032,7 @@ static int paCallback(
 #if PORTAUDIO_API_1
 	rpci->out_diff_time = outTime -  Pa_StreamTime(pa_stream) ;
 #else /* PORTAUDIO_API_1 */
-	/*
-	Pa_StreamTime has changed significantly into Pa_GetStreamTime
-	 */
+	rpci->out_diff_time = (guint32)(SAMPLE_RATE) * (outTime->outputBufferDacTime - Pa_GetStreamTime(pa_stream)) ; 
 #endif /* PORTAUDIO_API_1 */
 
 
@@ -1391,7 +1392,6 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 
 /****************************************************************************/
 static void
-/*add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ ) */
 add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _U_ )
 {
 	GString *label = NULL;
@@ -1495,25 +1495,15 @@ play_channels(void)
 			  paCallback,
 			  rtp_channels );
 #else /* PORTAUDIO_API_1 */
-	/*
-		set up PaStreamParameters for output stream
-		err = Pa_OpenStream(
-                       PaStream** stream,
-                       const PaStreamParameters *inputParameters,
-                       const PaStreamParameters *outputParameters,
-                       double sampleRate,
-                       unsigned long framesPerBuffer,
-                       PaStreamFlags streamFlags,
-                       PaStreamCallback *streamCallback,
-                       void *userData );
-	*/
-		/* remove once things work */
-		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
-		  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-		  "PortAudio Library API 2 not supported (PortAudio version >= 19.\n");
-		gtk_dialog_run (GTK_DIALOG (dialog));
-		gtk_widget_destroy (dialog);
-		return;
+		err = Pa_OpenDefaultStream( 
+				&pa_stream,
+                0,
+                NUM_CHANNELS,
+                PA_SAMPLE_TYPE,
+                SAMPLE_RATE,
+                FRAMES_PER_BUFFER,
+                paCallback,
+                rtp_channels );
 #endif /* PORTAUDIO_API_1 */
 
 		if( err != paNoError ) {
@@ -1534,6 +1524,9 @@ play_channels(void)
 			gtk_widget_destroy (dialog);
 			return;
 		}
+#if !PORTAUDIO_API_1
+		rtp_channels->pa_start_time = Pa_GetStreamTime(pa_stream);
+#endif /* PORTAUDIO_API_1 */
 
 		rtp_channels->stop = FALSE;
 
