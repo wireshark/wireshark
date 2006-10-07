@@ -385,13 +385,19 @@ get_airpcap_interface_list(int *err, char *err_str)
 	GList  *il = NULL;
 	airpcap_if_info_t *if_info;
 	int i, n_adapts;
-    AirpcapDeviceDescription *devsList, *adListEntry;
+	AirpcapDeviceDescription *devsList, *adListEntry;
+
+	if(g_PAirpcapGetDeviceList == NULL) {
+		/* Airpcap.dll not available */
+		*err = NO_AIRPCAP_INTERFACES_FOUND;
+		return NULL;
+	}
 
 	if(!g_PAirpcapGetDeviceList(&devsList, err_str))
 	{
-		/* No interfaces, return il = NULL; */
+		/* No interfaces */
 		*err = NO_AIRPCAP_INTERFACES_FOUND;
-		return il;
+		return NULL;
 	}
 
 	/*
