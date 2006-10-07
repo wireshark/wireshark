@@ -153,7 +153,6 @@ DISSECTOR_SRC =	\
 	packet-cimd.c	\
 	packet-cip.c	\
 	packet-cisco-wids.c	\
-	packet-cisco-wireless.c	\
 	packet-cisco-oui.c	\
 	packet-clearcase.c	\
 	packet-clip.c	\
@@ -663,7 +662,7 @@ DISSECTOR_SRC =	\
 	packet-umts_rrc.c	\
 	packet-umts_rrc_ies.c	\
 	packet-umts_rrc_pdu_def.c	\
-	packet-user_encap.c \
+	packet-user_encap.c	\
 	packet-v120.c	\
 	packet-vines.c	\
 	packet-vj.c	\
@@ -681,6 +680,7 @@ DISSECTOR_SRC =	\
 	packet-winsrepl.c	\
 	packet-wlancap.c	\
 	packet-wlancertextn.c	\
+	packet-wlccp.c	\
 	packet-wsp.c	\
 	packet-wtls.c	\
 	packet-wtp.c	\

@@ -47,7 +47,7 @@ static dissector_handle_t data_handle;
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,					"IP"				},
     {ETHERTYPE_IPv6,				"IPv6"				},
-    {ETHERTYPE_CISCOWL,				"Cisco Wireless"		},
+    {ETHERTYPE_WLCCP,				"Cisco Wireless Lan Context Control Protocol"		},
     {ETHERTYPE_CENTRINO_PROMISC,	"IEEE 802.11 (Centrino promiscuous)" },
     {ETHERTYPE_XNS_IDP,				"XNS Internet Datagram Protocol" },
     {ETHERTYPE_X25L3,				"X.25 Layer 3"			},

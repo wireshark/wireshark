@@ -196,8 +196,8 @@
 #define ETHERTYPE_IPv6		0x86dd
 #endif
 
-#ifndef ETHERTYPE_CISCOWL
-#define ETHERTYPE_CISCOWL	0x872d	/* Cisco Wireless (Aironet) */
+#ifndef ETHERTYPE_WLCCP
+#define ETHERTYPE_WLCCP		0x872d	/* Cisco Wireless Lan Context Control Protocol */
 #endif
 
 #ifndef ETHERTYPE_MAC_CONTROL
