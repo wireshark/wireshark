@@ -101,7 +101,9 @@ static int hf_iscsi_response_frame = -1;
 static int hf_iscsi_AHS = -1;
 static int hf_iscsi_AHS_length = -1;
 static int hf_iscsi_AHS_type = -1;
-static int hf_iscsi_AHS_specific = -1;
+static int hf_iscsi_AHS_blob = -1;
+static int hf_iscsi_AHS_read_data_length = -1;
+static int hf_iscsi_AHS_extended_cdb = -1;
 static int hf_iscsi_Padding = -1;
 static int hf_iscsi_ping_data = -1;
 static int hf_iscsi_immediate_data = -1;
@@ -753,8 +755,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint immediate_data_length=0;
     guint immediate_data_offset=0;
     itl_nexus_t *itl=NULL;
-    guint16 ahs_length=0;
-    guint8 ahs_type=0;
+    guint ahs_cdb_length=0;
+    guint ahs_cdb_offset=0;
 
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -975,17 +977,51 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpectedDataTransferLength, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
-	    {
-		if(ahsLen > 0) {
-		    ahs_length=tvb_get_ntohs(tvb, offset+48);
-		    proto_tree_add_item(ti, hf_iscsi_AHS_length, tvb, offset + 48, 2, FALSE);
-		    ahs_type=tvb_get_guint8(tvb, offset+50);
-		    proto_tree_add_item(ti, hf_iscsi_AHS_type, tvb, offset + 50, 1, FALSE);
-		    proto_tree_add_item(ti, hf_iscsi_AHS_specific, tvb, offset + 51, 1, FALSE);
-		    proto_tree_add_item(ti, hf_iscsi_AHS, tvb, offset + 52, ahsLen-4, FALSE);
+	    if(ahsLen > 0) {
+		int ahs_offset=offset+48;
+		guint16 ahs_length=0;
+		guint8 ahs_type=0;
+
+		while(ahs_offset<(offset+48+ahsLen)){
+
+		    ahs_length=tvb_get_ntohs(tvb, ahs_offset);
+		    proto_tree_add_item(ti, hf_iscsi_AHS_length, tvb, ahs_offset, 2, FALSE);
+		    ahs_offset+=2;
+
+		    ahs_type=tvb_get_guint8(tvb, ahs_offset);
+		    proto_tree_add_item(ti, hf_iscsi_AHS_type, tvb, ahs_offset, 1, FALSE);
+		    ahs_offset++;
+		
+		    switch(ahs_type){
+		    case 0x01: /* extended CDB */
+			/* additional cdb */
+			ahs_cdb_offset=ahs_offset+1;
+			ahs_cdb_length=ahs_length-1;
+			proto_tree_add_item(ti, hf_iscsi_AHS_extended_cdb, tvb, ahs_cdb_offset, ahs_cdb_length, FALSE);
+			ahs_offset+=ahs_length;
+			break;
+		    case 0x02: /* bidirectional read data length */
+			/* skip reserved byte */
+			ahs_offset++;
+			/* read data length */
+			proto_tree_add_item(ti, hf_iscsi_AHS_read_data_length, tvb, ahs_offset, 4, FALSE);
+			ahs_offset+=4;
+			break;
+		    default:
+			proto_tree_add_item(ti, hf_iscsi_AHS_blob, tvb, ahs_offset, ahs_length, FALSE);
+			ahs_offset+=ahs_length;
+		    }
+
+		    /* strip off padding bytes */
+		    if(ahs_offset&0x0003){
+			ahs_offset=(ahs_offset+3)&0xfffc;
+		    }
+
 		}
-		offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48 + ahsLen);
+
 	    }
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48 + ahsLen);
+	    
             immediate_data_offset=offset;
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_immediate_data);
 	    immediate_data_length=offset-immediate_data_offset;
@@ -1511,21 +1547,21 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	tvb_len=tvb_length_remaining(tvb, cdb_offset);
 	tvb_rlen=tvb_reported_length_remaining(tvb, cdb_offset);
 	scsi_opcode=tvb_get_guint8(tvb, cdb_offset);
-	if(ahs_type==1 && ahs_length && ahs_length<1024){
+	if(ahs_cdb_length && ahs_cdb_length<1024){
 		char *cdb_buf;
 
 		/* We have a variable length CDB where bytes >16 is transported
 		 * in the AHS.
 		 */
-		cdb_buf=ep_alloc(16+ahs_length-1);
+		cdb_buf=ep_alloc(16+ahs_cdb_length);
 		/* the 16 first bytes of the cdb */
 		tvb_memcpy(tvb, cdb_buf, cdb_offset, 16);
-		/* hte remainder of the cdb from the ahs */
-		tvb_memcpy(tvb, cdb_buf+16, cdb_offset+20, ahs_length-1);
+		/* the remainder of the cdb from the ahs */
+		tvb_memcpy(tvb, cdb_buf+16, ahs_cdb_offset, ahs_cdb_length);
 
 		cdb_tvb = tvb_new_real_data(cdb_buf,
-					  ahs_length+16-1,
-					  ahs_length+16-1);
+					  ahs_cdb_length+16,
+					  ahs_cdb_length+16);
 
 		tvb_set_child_real_data_tvbuff(tvb, cdb_tvb);
 
@@ -2419,15 +2455,25 @@ proto_register_iscsi(void)
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "Length of Additional header segment", HFILL }
 	},
+	{ &hf_iscsi_AHS_read_data_length,
+	  { "Bidirectional Read Data Length", "iscsi.ahs.bidir.length",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
 	{ &hf_iscsi_AHS_type,
 	  { "AHS Type", "iscsi.ahs.type",
 	    FT_UINT8, BASE_DEC, VALS(ahs_type_vals), 0,
 	    "Type of Additional header segment", HFILL }
 	},
-	{ &hf_iscsi_AHS_specific,
-	  { "AHS Specific", "iscsi.ahs",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Specific qualifier of Additional header segment", HFILL }
+	{ &hf_iscsi_AHS_extended_cdb,
+	  { "AHS Extended CDB", "iscsi.ahs.extended_cdb",
+	    FT_BYTES, BASE_HEX, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_iscsi_AHS_blob,
+	  { "Unknown AHS blob", "iscsi.ahs.unknown_blob",
+	    FT_BYTES, BASE_HEX, NULL, 0,
+	    "", HFILL }
 	},
 	{ &hf_iscsi_Padding,
 	  { "Padding", "iscsi.padding",
