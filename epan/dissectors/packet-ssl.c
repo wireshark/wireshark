@@ -589,7 +589,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dummy.addr = pinfo->dst;
             dummy.port = pinfo->destport;
         }
-        ssl_debug_printf("dissect_ssl server %hhd.%hhd.%hhd.%hhd:%d\n",
+        ssl_debug_printf("dissect_ssl server %hhu.%hhu.%hhu.%hhu:%u\n",
             dummy.addr.data[0],
             dummy.addr.data[1],dummy.addr.data[2],
             dummy.addr.data[3],dummy.port);
@@ -1310,8 +1310,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
         length   = tvb_get_ntoh24(tvb, offset + 1);
 
-        ssl_debug_printf("dissect_ssl3_handshake iteration %d type %d offset %d lenght %d "
-            "bytes, remaning %d \n", first_iteration, msg_type, offset, length, record_length);
+        ssl_debug_printf("dissect_ssl3_handshake iteration %d type %d offset %d length %d "
+            "bytes, remaining %d \n", first_iteration, msg_type, offset, length, record_length);
         if (!msg_type_str && !first_iteration)
         {
             /* only dissect / report messages if they're
