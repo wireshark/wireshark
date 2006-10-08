@@ -51,11 +51,15 @@ static int hf_scsi_osd_timestamps_control	= -1;
 static int hf_scsi_osd_formatted_capacity	= -1;
 static int hf_scsi_osd_get_attributes_page	= -1;
 static int hf_scsi_osd_get_attributes_allocation_length	= -1;
+static int hf_scsi_osd_get_attributes_list_length= -1;
+static int hf_scsi_osd_get_attributes_list_offset= -1;
 static int hf_scsi_osd_retreived_attributes_offset = -1;
 static int hf_scsi_osd_set_attributes_page	= -1;
 static int hf_scsi_osd_set_attribute_length	= -1;
 static int hf_scsi_osd_set_attribute_number	= -1;
 static int hf_scsi_osd_set_attributes_offset	= -1;
+static int hf_scsi_osd_set_attributes_list_length= -1;
+static int hf_scsi_osd_set_attributes_list_offset= -1;
 static int hf_scsi_osd_capability_format	= -1;
 static int hf_scsi_osd_key_version	= -1;
 static int hf_scsi_osd_icva		= -1;
@@ -94,6 +98,16 @@ static gint ett_osd_security_parameters	= -1;
 typedef struct _scsi_osd_extra_data_t {
 	guint16 svcaction;
 	guint8  gsatype;
+	union {
+		struct {	/* gsatype: attribute list */
+			guint32 get_list_length;
+			guint32 get_list_offset;
+			guint32 get_list_allocation_length;
+			guint32 retreived_list_offset;
+			guint32 set_list_length;
+			guint32 set_list_offset;
+		};
+	};
 } scsi_osd_extra_data_t;
 
 static const true_false_string option_dpo_tfs = {
@@ -169,13 +183,13 @@ dissect_osd_formatted_capacity(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-/* do we need to store these in the itlq structure ?*/
 static void
 dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tree, scsi_task_data_t *cdata)
 {
 	guint8 gsatype=0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	scsi_osd_extra_data_t *extra_data=NULL;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 28,
@@ -184,7 +198,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 	}
 		
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		extra_data=cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
 	} else {
 		return;
@@ -208,7 +222,88 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		offset+=4;
 		break;
 	case 3: /* 5.2.2.3  attribute list */
+		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_list_length, tvb, offset, 4, 0);
+		extra_data->get_list_length=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_list_offset, tvb, offset, 4, 0);
+		extra_data->get_list_offset=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_allocation_length, tvb, offset, 4, 0);
+		extra_data->get_list_allocation_length=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		proto_tree_add_item(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, 0);
+		extra_data->retreived_list_offset=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_length, tvb, offset, 4, 0);
+		extra_data->set_list_length=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_offset, tvb, offset, 4, 0);
+		extra_data->set_list_offset=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		/* 4 reserved bytes */
+		offset+=4;
+
+		break;
+	}
+}
+
+
+static void
+dissect_osd_attribute_data_out(tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata)
+{
+	guint8 gsatype=0;
+	scsi_osd_extra_data_t *extra_data=NULL;
+
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		extra_data=cdata->itlq->extra_data;
+		gsatype=extra_data->gsatype;
+	} else {
+		return;
+	}
+
+	switch(gsatype){
+	case 2: /* 5.2.2.2  attribute page */
 /*qqq*/
+		break;
+	case 3: /* 5.2.2.3  attribute list */
+		if(extra_data->get_list_length){
+			proto_tree_add_text(tree, tvb, extra_data->get_list_offset, extra_data->get_list_length, "Get Attributes Data");
+		}
+		if(extra_data->set_list_length){
+			proto_tree_add_text(tree, tvb, extra_data->set_list_offset, extra_data->set_list_length, "Set Attributes Data");
+		}
+		break;
+	}
+}
+
+
+static void
+dissect_osd_attribute_data_in(tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata)
+{
+	guint8 gsatype=0;
+	scsi_osd_extra_data_t *extra_data=NULL;
+
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		extra_data=cdata->itlq->extra_data;
+		gsatype=extra_data->gsatype;
+	} else {
+		return;
+	}
+
+	switch(gsatype){
+	case 2: /* 5.2.2.2  attribute page */
+/*qqq*/
+		break;
+	case 3: /* 5.2.2.3  attribute list */
+		if(extra_data->get_list_allocation_length){
+			proto_tree_add_text(tree, tvb, extra_data->retreived_list_offset, extra_data->get_list_allocation_length, "Get Attributes Data");
+		}
 		break;
 	}
 }
@@ -375,11 +470,17 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
 		/* no data out for format osd */
 	}
 
 	/* dissecting the DATA IN */
 	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
+
 		/* no data in for format osd */
 	}
 	
@@ -448,11 +549,17 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
 		/* no data out for create partition */
 	}
 
 	/* dissecting the DATA IN */
 	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
+
 		/* no data in for create partition */
 	}
 	
@@ -585,6 +692,9 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
 		/* no data out for LIST */
 	}
 
@@ -592,6 +702,9 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	if(!isreq && !iscdb){
 		guint64 additional_length;
 		gboolean is_root;
+
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
 
 		/* dissection of the LIST DATA-IN */
 		/* additional length */
@@ -701,11 +814,17 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
 		/* no data out for create */
 	}
 
 	/* dissecting the DATA IN */
 	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
+
 		/* no data in for create */
 	}
 	
@@ -1144,6 +1263,18 @@ proto_register_scsi_osd(void)
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_get_attributes_page,
           {"Get Attributes Page", "scsi.osd.get_attributes_page", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_get_attributes_list_length,
+          {"Get Attributes List Length", "scsi.osd.get_attributes_list_length", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_get_attributes_list_offset,
+          {"Get Attributes List Offset", "scsi.osd.get_attributes_list_offset", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attributes_list_length,
+          {"Set Attributes List Length", "scsi.osd.set_attributes_list_length", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_osd_set_attributes_list_offset,
+          {"Set Attributes List Offset", "scsi.osd.set_attributes_list_offset", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_get_attributes_allocation_length,
           {"Get Attributes Allocation Length", "scsi.osd.get_attributes_allocation_length", FT_UINT32, BASE_HEX,
