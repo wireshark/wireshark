@@ -155,10 +155,9 @@ typedef enum {
 extern initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter);
 
-#ifdef HAVE_LIBPCAP
-extern int
-cap_pipe_dispatch(loop_data *, guchar *, char *, int);
-#endif
+int
+capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
+		      char *errmsg, int errmsg_len);
 
 extern gboolean
 capture_loop_open_input(capture_options *capture_opts, loop_data *ld,

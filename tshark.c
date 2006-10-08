@@ -1522,7 +1522,6 @@ capture(void)
   condition  *volatile cnd_autostop_size = NULL;
   condition  *volatile cnd_autostop_duration = NULL;
   char       *descr;
-  guchar      pcap_data[WTAP_MAX_PACKET_SIZE];
 #ifndef _WIN32
   void        (*oldhandler)(int);
 #endif
@@ -1703,10 +1702,8 @@ capture(void)
          each packet. */
       pcap_cnt = 1;
     }
-    if (ld.from_cap_pipe) {
-      inpkts = cap_pipe_dispatch(&ld, pcap_data, errmsg, sizeof errmsg);
-    } else
-      inpkts = pcap_dispatch(ld.pcap_h, pcap_cnt, ld.packet_cb, (u_char *) &ld);
+
+    inpkts = capture_loop_dispatch(NULL, &ld, errmsg, sizeof errmsg);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()", or error or "no more packets" from
          "cap_pipe_dispatch(). */

@@ -477,7 +477,7 @@ error:
 
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
-int
+static int
 cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
 {
   struct pcap_pkthdr phdr;
@@ -934,7 +934,7 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
 }
 
 /* dispatch incoming packets (pcap or capture pipe) */
-static int
+int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 		      char *errmsg, int errmsg_len) {
   int       inpkts;
@@ -1581,10 +1581,10 @@ error:
 void capture_loop_stop(void)
 {
 #ifdef HAVE_PCAP_BREAKLOOP
-  pcap_breakloop(ld.pcap_h);
-#else
-  ld.go = FALSE;
+  if(ld.pcap_h != NULL)
+    pcap_breakloop(ld.pcap_h);
 #endif
+  ld.go = FALSE;
 }
 
 
