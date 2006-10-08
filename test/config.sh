@@ -35,7 +35,7 @@ DUMPCAP=$ETH_BIN_PATH/dumpcap
 # interface with at least a few packets/sec traffic on it
 # (e.g. start a web radio to generate some traffic :-)
 # an interfaces index (1 based) should do well for recent devbuilds
-TRAFFIC_CAPTURE_IFACE=2
+TRAFFIC_CAPTURE_IFACE=3
 
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
@@ -45,3 +45,7 @@ TRAFFIC_CAPTURE_DURATION=3
 # (this makes known trouble with some Windows WLAN adapters)
 # if you need promiscuous mode, comment this line out
 TRAFFIC_CAPTURE_PROMISC=-p
+
+# Windows (even cygwin) don't provide the mkfifo used here
+# if you have mkfifo, you may uncomment this line
+#TEST_FIFO

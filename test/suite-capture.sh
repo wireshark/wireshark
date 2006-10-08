@@ -93,6 +93,36 @@ capture_step_10packets_stdout() {
 	fi
 }
 
+# capture packets via a fifo
+capture_step_fifo() {
+	mkfifo 'fifo'
+	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) > fifo &
+	$DUT -i fifo $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	rm 'fifo'
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# we should have an output file now
+	if [ ! -f "./testout.pcap" ]; then
+		test_step_failed "No output file!"
+		return
+	fi
+	
+	# ok, we got a capture file, does it contain exactly 8 packets?
+	$CAPINFOS ./testout.pcap > ./testout.txt
+	grep -i 'Number of packets: 8' ./testout.txt > /dev/null
+	if [ $? -eq 0 ]; then
+		test_step_ok
+	else
+		echo
+		cat ./testout.txt
+		test_step_failed "No or not enough traffic captured."
+	fi
+}    
+
 # capture exactly 2 times 10 packets (multiple files)
 capture_step_2multi_10packets() {
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
@@ -200,6 +230,9 @@ tshark_capture_suite() {
 	DUT=$TSHARK
 	test_step_add "Capture 10 packets" capture_step_10packets
 	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
+	if [ $TEST_FIFO ]; then
+		test_step_add "Capture via fifo" capture_step_fifo
+	fi
 	test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
@@ -209,6 +242,9 @@ dumpcap_capture_suite() {
 	DUT=$DUMPCAP
 	test_step_add "Capture 10 packets" capture_step_10packets
 	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
+	if [ $TEST_FIFO ]; then
+		test_step_add "Capture via fifo" capture_step_fifo
+	fi
 	# read (display) filters intentionally doesn't work with dumpcap!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
