@@ -24,7 +24,7 @@
 # 
 
 # path to the Wireshark binaries, only used for the settings below
-ETH_BIN_PATH=../Debug_GTK2
+ETH_BIN_PATH=../wireshark-gtk2
 
 # Tweak the following to your liking.
 WIRESHARK=$ETH_BIN_PATH/wireshark
@@ -40,3 +40,8 @@ TRAFFIC_CAPTURE_IFACE=2
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
 TRAFFIC_CAPTURE_DURATION=3
+
+# the default is to not capture in promiscuous mode
+# (this makes known trouble with some Windows WLAN adapters)
+# if you need promiscuous mode, comment this line out
+TRAFFIC_CAPTURE_PROMISC=-p
