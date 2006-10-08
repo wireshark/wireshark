@@ -87,7 +87,9 @@ static int hf_scsi_osd_requested_user_object_id	= -1;
 static int hf_scsi_osd_number_of_user_objects	= -1;
 
 static gint ett_osd_option		= -1;
-
+static gint ett_osd_attribute_parameters= -1;
+static gint ett_osd_capability		= -1;
+static gint ett_osd_security_parameters	= -1;
 
 typedef struct _scsi_osd_extra_data_t {
 	guint16 svcaction;
@@ -169,10 +171,18 @@ dissect_osd_formatted_capacity(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* do we need to store these in the itlq structure ?*/
 static void
-dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
+dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tree, scsi_task_data_t *cdata)
 {
 	guint8 gsatype=0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
 
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 28,
+		    "Attribute Parameters");
+		tree = proto_item_add_subtree(item, ett_osd_attribute_parameters);
+	}
+		
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
 		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
@@ -225,8 +235,17 @@ static const value_string scsi_osd_object_descriptor_type_vals[] = {
 
 /* 4.9.2.2 */
 static void
-dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 80,
+		    "Capabilitiy");
+		tree = proto_item_add_subtree(item, ett_osd_capability);
+	}
+		
 	/* capability format */
 	proto_tree_add_item(tree, hf_scsi_osd_capability_format, tvb, offset, 1, 0);
 	offset++;
@@ -284,8 +303,17 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* 5.2.6 */
 static void
-dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 40,
+		    "Security Parameters");
+		tree = proto_item_add_subtree(item, ett_osd_security_parameters);
+	}
+		
 	/* request integrity check value */
 	proto_tree_add_item(tree, hf_scsi_osd_ricv, tvb, offset, 20, 0);
 	offset+=20;
@@ -1227,6 +1255,9 @@ proto_register_scsi_osd(void)
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_osd_option,
+		&ett_osd_attribute_parameters,
+		&ett_osd_capability,
+		&ett_osd_security_parameters,
 	};
 
 	/* Register the protocol name and description */
