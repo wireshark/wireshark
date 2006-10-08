@@ -24,6 +24,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef PACKET_ISUP_H
+#define PACKET_ISUP_H
+
 #define	ISUP_MAX_NUM_MESSAGE_TYPES	256
 
 typedef struct _isup_tap_rec_t {
@@ -155,7 +158,7 @@ WS_VAR_IMPORT const value_string q850_cause_code_vals[];
 extern const value_string isup_parameter_type_value[]; 
 extern const value_string isup_transmission_medium_requirement_value[];
 extern const value_string isup_calling_partys_category_value[];
-
+extern const value_string bearer_network_connection_characteristics_vals[];
 /*
  * Export dissection of some parameters
  */
@@ -168,3 +171,5 @@ void dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, prot
 void dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);
+
+#endif  /* PACKET_ISUP_H */

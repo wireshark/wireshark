@@ -2775,7 +2775,7 @@ static const value_string optimisation_mode_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string bearer_network_connection_characteristics_vals[] = {
+const value_string bearer_network_connection_characteristics_vals[] = {
 
 	{ 0x00,	"no indication"},
 	{ 0x01,	"AAL type 1"},
