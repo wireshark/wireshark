@@ -470,7 +470,7 @@ doxygen: doxygen.cfg doxygen-run
 # Prepare build environment by downloading and installing required libraries
 ################################################################################
 
-# The required tools to build Ethereal.
+# The required tools to build Wireshark.
 #
 # The 'find' tool is available both in \WINNT\System32 and in cygwin's /usr/bin.
 # We only need the cygwin version (for some shell scripts).
@@ -819,12 +819,16 @@ install-deps2: install-common-deps2
 !ENDIF
 
 install-common-deps1:
+!IFDEF GTK1_DIR
 	set INSTALL_DIR=$(INSTALL1_DIR)
 	nmake -f Makefile.nmake install-common-deps
+!ENDIF
 
 install-common-deps2:
+!IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	nmake -f Makefile.nmake install-common-deps
+!ENDIF
 
 install-common-deps:
 	set copycmd=/y
