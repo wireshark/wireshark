@@ -1,5 +1,6 @@
 /* packet-scsi-osd.c
  * Ronnie sahlberg 2006
+ * Joe Breher 2006
  *
  * $Id$
  *
@@ -38,6 +39,7 @@
 #include "packet-scsi.h"
 #include "packet-scsi-osd.h"
 
+
 static int proto_scsi_osd		= -1;
 int hf_scsi_osd_opcode			= -1;
 static int hf_scsi_osd_control		= -1;
@@ -69,7 +71,18 @@ static int hf_scsi_osd_audit= -1;
 static int hf_scsi_osd_capability_discriminator	= -1;
 static int hf_scsi_osd_object_created_time= -1;
 static int hf_scsi_osd_object_type	= -1;
-static int hf_scsi_osd_permission_bitmask= -1;
+static int hf_scsi_osd_permissions	= -1;
+static int hf_scsi_osd_permissions_read = -1;
+static int hf_scsi_osd_permissions_write	= -1;
+static int hf_scsi_osd_permissions_get_attr	= -1;
+static int hf_scsi_osd_permissions_set_attr	= -1;
+static int hf_scsi_osd_permissions_create	= -1;
+static int hf_scsi_osd_permissions_remove	= -1;
+static int hf_scsi_osd_permissions_obj_mgmt	= -1;
+static int hf_scsi_osd_permissions_append	= -1;
+static int hf_scsi_osd_permissions_dev_mgmt	= -1;
+static int hf_scsi_osd_permissions_global	= -1;
+static int hf_scsi_osd_permissions_pol_sec	= -1;
 static int hf_scsi_osd_object_descriptor_type	= -1;
 static int hf_scsi_osd_object_descriptor= -1;
 static int hf_scsi_osd_ricv		= -1;
@@ -99,6 +112,7 @@ static int hf_scsi_osd_collection_object_id	= -1;
 static gint ett_osd_option		= -1;
 static gint ett_osd_attribute_parameters= -1;
 static gint ett_osd_capability		= -1;
+static gint ett_osd_permission_bitmask	= -1;
 static gint ett_osd_security_parameters	= -1;
 
 typedef struct _scsi_osd_extra_data_t {
@@ -317,7 +331,7 @@ dissect_osd_attribute_data_in(tvbuff_t *tvb, int offset _U_, proto_tree *tree, s
 
 static const value_string scsi_osd_capability_format_vals[] = {
     {0x00,	"No Capability"},
-    {0x01,	"SCSI OSD2 Capabilities"},
+    {0x01,	"SCSI OSD Capabilities"},
     {0, NULL},
 };
 static const value_string scsi_osd_object_type_vals[] = {
@@ -334,6 +348,111 @@ static const value_string scsi_osd_object_descriptor_type_vals[] = {
     {0, NULL},
 };
 
+static const true_false_string permissions_read_tfs = {
+	"READ is SET",
+	"Read is NOT set"
+};
+static const true_false_string permissions_write_tfs = {
+	"WRITE is SET",
+	"Write is NOT set"
+};
+static const true_false_string permissions_get_attr_tfs = {
+	"GET_ATTR is SET",
+	"Get_attr is NOT set"
+};
+static const true_false_string permissions_set_attr_tfs = {
+	"SET_ATTR is SET",
+	"Set_attr is NOT set"
+};
+static const true_false_string permissions_create_tfs = {
+	"CREATE is SET",
+	"Create is NOT set"
+};
+static const true_false_string permissions_remove_tfs = {
+	"REMOVE is SET",
+	"Remove is NOT set"
+};
+static const true_false_string permissions_obj_mgmt_tfs = {
+	"OBJ_MGMT is SET",
+	"Obj_mgmt is NOT set"
+};
+static const true_false_string permissions_append_tfs = {
+	"APPEND is SET",
+	"Append is NOT set"
+};
+static const true_false_string permissions_dev_mgmt_tfs = {
+	"DEV_MGMT is SET",
+	"Dev_mgmt is NOT set"
+};
+static const true_false_string permissions_global_tfs = {
+	"GLOBAL is SET",
+	"Global is NOT set"
+};
+static const true_false_string permissions_pol_sec_tfs = {
+	"POL/SEC is SET",
+	"Pol/sec is NOT set"
+};
+/* OSD 4.9.2.2.1 */
+static void
+dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	proto_tree *tree=NULL;
+	proto_item *it=NULL;
+	guint16 permissions;
+
+	permissions=tvb_get_ntohs(tvb, offset); 
+
+	if(parent_tree){
+		it=proto_tree_add_item(parent_tree, hf_scsi_osd_permissions, tvb, offset, 2, 0);
+		tree = proto_item_add_subtree(it, ett_osd_permission_bitmask);
+	}
+
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_read, tvb, offset, 2, 0);
+	if(permissions&0x8000){
+		proto_item_append_text(tree, " READ");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_write, tvb, offset, 2, 0);
+	if(permissions&0x4000){
+		proto_item_append_text(tree, " WRITE");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_get_attr, tvb, offset, 2, 0);
+	if(permissions&0x2000){
+		proto_item_append_text(tree, " GET_ATTR");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_set_attr, tvb, offset, 2, 0);
+	if(permissions&0x1000){
+		proto_item_append_text(tree, " SET_ATTR");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_create, tvb, offset, 2, 0);
+	if(permissions&0x0800){
+		proto_item_append_text(tree, " CREATE");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_remove, tvb, offset, 2, 0);
+	if(permissions&0x0400){
+		proto_item_append_text(tree, " REMOVE");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_obj_mgmt, tvb, offset, 2, 0);
+	if(permissions&0x0200){
+		proto_item_append_text(tree, " OBJ_MGMT");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_append, tvb, offset, 2, 0);
+	if(permissions&0x0100){
+		proto_item_append_text(tree, " APPEND");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_dev_mgmt, tvb, offset, 2, 0);
+	if(permissions&0x0080){
+		proto_item_append_text(tree, " DEV_MGMT");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_global, tvb, offset, 2, 0);
+	if(permissions&0x0040){
+		proto_item_append_text(tree, " GLOBAL");
+	}
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_pol_sec, tvb, offset, 2, 0);
+	if(permissions&0x0020){
+		proto_item_append_text(tree, " POL/SEC");
+	}
+}
+
 /* 4.9.2.2 */
 static void
 dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
@@ -343,7 +462,7 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 80,
-		    "Capabilitiy");
+		    "Capability");
 		tree = proto_item_add_subtree(item, ett_osd_capability);
 	}
 		
@@ -384,8 +503,7 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	offset++;
 
 	/* permission bitmask */
-/*qqq should be broken out into a helper and have the individual bits dissected */
-	proto_tree_add_item(tree, hf_scsi_osd_permission_bitmask, tvb, offset, 5, 0);
+	dissect_osd_permissions(tvb, offset, tree);
 	offset+=5;
 
 	/* a reserved byte */
@@ -1569,7 +1687,7 @@ proto_register_scsi_osd(void)
           {"Service Action", "scsi.osd.svcaction", FT_UINT16, BASE_HEX,
            VALS(scsi_osd_svcaction_vals), 0x0, "", HFILL}},
         { &hf_scsi_osd_option,
-          {"Option", "scsi.osd.option", FT_UINT8, BASE_HEX,
+          {"Options Byte", "scsi.osd.option", FT_UINT8, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_option_dpo,
           {"DPO", "scsi.osd.option.dpo", FT_BOOLEAN, 8,
@@ -1646,9 +1764,43 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_object_type,
           {"Object Type", "scsi.osd.object_type", FT_UINT8, BASE_HEX,
            VALS(scsi_osd_object_type_vals), 0, "", HFILL}},
-        { &hf_scsi_osd_permission_bitmask,
-          {"Permission Bitmask", "scsi.osd.permission_bitmask", FT_BYTES, BASE_HEX,
+        { &hf_scsi_osd_permissions,
+          {"Permissions", "scsi.osd.permissions", FT_UINT16, BASE_HEX,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_permissions_read,
+          {"READ", "scsi.osd.permissions.read", FT_BOOLEAN, 16,
+           TFS(&permissions_read_tfs), 0x8000, "", HFILL}},
+        { &hf_scsi_osd_permissions_write,
+          {"WRITE", "scsi.osd.permissions.write", FT_BOOLEAN, 16,
+           TFS(&permissions_write_tfs), 0x4000, "", HFILL}},
+        { &hf_scsi_osd_permissions_get_attr,
+          {"GET_ATTR", "scsi.osd.permissions.get_attr", FT_BOOLEAN, 16,
+           TFS(&permissions_get_attr_tfs), 0x2000, "", HFILL}},
+        { &hf_scsi_osd_permissions_set_attr,
+          {"SET_ATTR", "scsi.osd.permissions.set_attr", FT_BOOLEAN, 16,
+           TFS(&permissions_set_attr_tfs), 0x1000, "", HFILL}},
+        { &hf_scsi_osd_permissions_create,
+          {"CREATE", "scsi.osd.permissions.create", FT_BOOLEAN, 16,
+           TFS(&permissions_create_tfs), 0x0800, "", HFILL}},
+        { &hf_scsi_osd_permissions_remove,
+          {"REMOVE", "scsi.osd.permissions.remove", FT_BOOLEAN, 16,
+           TFS(&permissions_remove_tfs), 0x0400, "", HFILL}},
+        { &hf_scsi_osd_permissions_obj_mgmt,
+          {"OBJ_MGMT", "scsi.osd.permissions.obj_mgmt", FT_BOOLEAN, 16,
+           TFS(&permissions_obj_mgmt_tfs), 0x0200, "", HFILL}},
+        { &hf_scsi_osd_permissions_append,
+          {"APPEND", "scsi.osd.permissions.append", FT_BOOLEAN, 16,
+           TFS(&permissions_append_tfs), 0x0100, "", HFILL}},
+        { &hf_scsi_osd_permissions_dev_mgmt,
+          {"DEV_MGMT", "scsi.osd.permissions.dev_mgmt", FT_BOOLEAN, 16,
+           TFS(&permissions_dev_mgmt_tfs), 0x0080, "", HFILL}},
+        { &hf_scsi_osd_permissions_global,
+          {"GLOBAL", "scsi.osd.permissions.global", FT_BOOLEAN, 16,
+           TFS(&permissions_global_tfs), 0x0040, "", HFILL}},
+        { &hf_scsi_osd_permissions_pol_sec,
+          {"POL/SEC", "scsi.osd.permissions.pol_sec", FT_BOOLEAN, 16,
+           TFS(&permissions_pol_sec_tfs), 0x0020, "", HFILL}},
+
         { &hf_scsi_osd_object_descriptor_type,
           {"Object Descriptor Type", "scsi.osd.object_descriptor_type", FT_UINT8, BASE_HEX,
            VALS(scsi_osd_object_descriptor_type_vals), 0xf0, "", HFILL}},
@@ -1731,6 +1883,7 @@ proto_register_scsi_osd(void)
 		&ett_osd_option,
 		&ett_osd_attribute_parameters,
 		&ett_osd_capability,
+		&ett_osd_permission_bitmask,
 		&ett_osd_security_parameters,
 	};
 
