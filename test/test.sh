@@ -81,7 +81,7 @@ test_set_output VERBOSE
 
 if [ "$1" == "all" ] ; then
         test_suite_run "All" test_suite
-        exit
+        exit $?
 fi
 
 MENU_LEVEL=0

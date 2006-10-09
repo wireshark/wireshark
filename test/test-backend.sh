@@ -114,14 +114,14 @@ test_suite_run() {
 		$color_reset
 	fi
 
-	# exit status
-	#if [ $TEST_FAILED -eq 0 ]; then
-	#	exit 0
-	#else
-	#	exit 1
-	#fi
-
 	TEST_RUN="OFF"
+
+	# exit status
+	if [ $TEST_FAILED -eq 0 ]; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 
