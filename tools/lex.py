@@ -5,8 +5,6 @@
 #
 # Copyright (C) 2001-2006, David M. Beazley
 #
-# $Header: /cvs/projects/PLY/lex.py,v 1.1.1.1 2004/05/21 15:34:10 beazley Exp $
-#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -41,20 +39,6 @@
 #   -  The interface is geared towards LALR(1) and LR(1) parser
 #      generators.  That is tokens are generated one at a time
 #      rather than being generated in advanced all in one step.
-#
-# There are a few limitations of this module
-#
-#   -  The module interface makes it somewhat awkward to support more
-#      than one lexer at a time.  Although somewhat inelegant from a
-#      design perspective, this is rarely a practical concern for
-#      most compiler projects.
-#
-#   -  The lexer requires that the entire input text be read into
-#      a string before scanning.  I suppose that most machines have
-#      enough memory to make this a minor issues, but it makes
-#      the lexer somewhat difficult to use in interactive sessions
-#      or with streaming data.
-#
 #-----------------------------------------------------------------------------
 
 r"""
@@ -186,18 +170,19 @@ scanner you have defined.
 # -----------------------------------------------------------------------------
 
 
-__version__ = "1.8"
+__version__ = "2.1"
 
 import re, types, sys, copy
 
 # Available instance types.  This is used when lexers are defined by a class.
-# it's a little funky because I want to preserve backwards compatibility
+# It's a little funky because I want to preserve backwards compatibility
 # with Python 2.0 where types.ObjectType is undefined.
 
 try:
    _INSTANCETYPE = (types.InstanceType, types.ObjectType)
 except AttributeError:
    _INSTANCETYPE = types.InstanceType
+   class object: pass       # Note: needed if no new-style classes present
 
 # Exception thrown when invalid token encountered and no default
 class LexError(Exception):
@@ -206,9 +191,9 @@ class LexError(Exception):
          self.text = s
 
 # Token class
-class LexToken:
+class LexToken(object):
     def __str__(self):
-        return "LexToken(%s,%r,%d)" % (self.type,self.value,self.lineno)
+        return "LexToken(%s,%r,%d,%d)" % (self.type,self.value,self.lineno,self.lexpos)
     def __repr__(self):
         return str(self)
     def skip(self,n):
@@ -220,42 +205,66 @@ class LexToken:
 # -----------------------------------------------------------------------------
 # Lexer class
 #
+# This class encapsulates all of the methods and data associated with a lexer.
+#
 #    input()          -  Store a new string in the lexer
 #    token()          -  Get the next token
 # -----------------------------------------------------------------------------
 
 class Lexer:
     def __init__(self):
-        self.lexre = None           # Master regular expression
-	self.lexreflags = 0         # Option re compile flags
-        self.lexdata = None         # Actual input data (as a string)
-        self.lexpos = 0             # Current position in input text
-        self.lexlen = 0             # Length of the input text
-        self.lexindexfunc = [ ]     # Reverse mapping of groups to functions and types
-        self.lexerrorf = None       # Error rule (if any)
-        self.lextokens = None       # List of valid tokens
-        self.lexignore = None       # Ignored characters
-        self.lineno = 1             # Current line number
-        self.debug = 0              # Debugging mode
-        self.optimize = 0           # Optimized mode
-        self.token = self.errtoken
+        self.lexre = None             # Master regular expression. This is a list of 
+                                      # tuples (re,findex) where re is a compiled
+                                      # regular expression and findex is a list
+                                      # mapping regex group numbers to rules
 
-    def __copy__(self):
+        self.lexreflags = 0           # Optional re compile flags
+        self.lexdata = None           # Actual input data (as a string)
+        self.lexpos = 0               # Current position in input text
+        self.lexlen = 0               # Length of the input text
+        self.lexerrorf = None         # Error rule (if any)
+        self.lextokens = None         # List of valid tokens
+        self.lexignore = None         # Ignored characters
+        self.lexliterals = ""         # Literal characters that can be passed through
+        self.lexmodule = None         # Module
+        self.lineno = 1               # Current line number
+        self.lexdebug = 0             # Debugging mode
+        self.lexoptimize = 0          # Optimized mode
+
+    def clone(self,object=None):
         c = Lexer()
         c.lexre = self.lexre
-	c.lexreflags = self.lexreflags
+        c.lexreflags = self.lexreflags
         c.lexdata = self.lexdata
         c.lexpos = self.lexpos
         c.lexlen = self.lexlen
-        c.lexindexfunc = self.lexindexfunc
         c.lexerrorf = self.lexerrorf
         c.lextokens = self.lextokens
         c.lexignore = self.lexignore
-	c.debug = self.debug
+        c.lexdebug = self.lexdebug
         c.lineno = self.lineno
-        c.optimize = self.optimize
-        c.token = c.realtoken
-	return c
+        c.lexoptimize = self.lexoptimize
+        c.lexliterals = self.lexliterals
+        c.lexmodule   = self.lexmodule
+
+        # If the object parameter has been supplied, it means we are attaching the
+        # lexer to a new object.  In this case, we have to rebind the methods
+
+        if object:
+            newre = []
+            for cre, findex in c.lexre:
+                 # Loop over findex and adjust methods
+                 newfindex = []
+                 for f in findex:
+                     if not f or not f[0]: 
+                          newfindex.append(f)
+                          continue
+                     newfindex.append((getattr(object,f[0].__name__),f[1]))
+                 newre.append((cre,newfindex))
+            c.lexre = newre 
+            c.lexmodule = object
+
+        return c
 
     # ------------------------------------------------------------
     # input() - Push a new string into the lexer
@@ -266,19 +275,7 @@ class Lexer:
         self.lexdata = s
         self.lexpos = 0
         self.lexlen = len(s)
-        self.token = self.realtoken
-        
-        # Change the token routine to point to realtoken()
-        global token
-        if token == self.errtoken:
-            token = self.token
 
-    # ------------------------------------------------------------
-    # errtoken() - Return error if token is called with no data
-    # ------------------------------------------------------------
-    def errtoken(self):
-        raise RuntimeError, "No input string given with input()"
-    
     # ------------------------------------------------------------
     # token() - Return the next token from the Lexer
     #
@@ -286,13 +283,13 @@ class Lexer:
     # as possible.  Don't make changes unless you really know what
     # you are doing
     # ------------------------------------------------------------
-    def realtoken(self):
+    def token(self):
         # Make local copies of frequently referenced attributes
         lexpos    = self.lexpos
         lexlen    = self.lexlen
         lexignore = self.lexignore
         lexdata   = self.lexdata
-        
+
         while lexpos < lexlen:
             # This code provides some short-circuit code for whitespace, tabs, and other ignored characters
             if lexdata[lexpos] in lexignore:
@@ -300,61 +297,78 @@ class Lexer:
                 continue
 
             # Look for a regular expression match
-            m = self.lexre.match(lexdata,lexpos)
-            if m:
-                i = m.lastindex
-                lexpos = m.end()
+            for lexre,lexindexfunc in self.lexre:
+                m = lexre.match(lexdata,lexpos)
+                if not m: continue
+
                 tok = LexToken()
                 tok.value = m.group()
                 tok.lineno = self.lineno
+                tok.lexpos = lexpos
                 tok.lexer = self
-                func,tok.type = self.lexindexfunc[i]
+
+                lexpos = m.end()
+                i = m.lastindex
+                func,tok.type = lexindexfunc[i]
+                self.lexpos = lexpos
+
                 if not func:
-                    self.lexpos = lexpos
                     return tok
                 
                 # If token is processed by a function, call it
-                self.lexpos = lexpos
                 newtok = func(tok)
-                self.lineno = tok.lineno     # Update line number
                 
                 # Every function must return a token, if nothing, we just move to next token
-                if not newtok: continue
+                if not newtok: 
+                    lexpos = self.lexpos        # This is here in case user has updated lexpos.
+                    break
                 
                 # Verify type of the token.  If not in the token map, raise an error
-                if not self.optimize:
+                if not self.lexoptimize:
                     if not self.lextokens.has_key(newtok.type):
                         raise LexError, ("%s:%d: Rule '%s' returned an unknown token type '%s'" % (
                             func.func_code.co_filename, func.func_code.co_firstlineno,
                             func.__name__, newtok.type),lexdata[lexpos:])
 
                 return newtok
-
-            # No match. Call t_error() if defined.
-            if self.lexerrorf:
-                tok = LexToken()
-                tok.value = self.lexdata[lexpos:]
-                tok.lineno = self.lineno
-                tok.type = "error"
-                tok.lexer = self
-                oldpos = lexpos
-                newtok = self.lexerrorf(tok)
-                lexpos += getattr(tok,"_skipn",0)
-                if oldpos == lexpos:
-                    # Error method didn't change text position at all. This is an error.
+            else:
+                # No match, see if in literals
+                if lexdata[lexpos] in self.lexliterals:
+                    tok = LexToken()
+                    tok.value = lexdata[lexpos]
+                    tok.lineno = self.lineno
+                    tok.lexer = self
+                    tok.type = tok.value
+                    tok.lexpos = lexpos
+                    self.lexpos = lexpos + 1
+                    return tok
+        
+                # No match. Call t_error() if defined.
+                if self.lexerrorf:
+                    tok = LexToken()
+                    tok.value = self.lexdata[lexpos:]
+                    tok.lineno = self.lineno
+                    tok.type = "error"
+                    tok.lexer = self
+                    tok.lexpos = lexpos
+                    oldpos = lexpos
+                    newtok = self.lexerrorf(tok)
+                    lexpos += getattr(tok,"_skipn",0)
+                    if oldpos == lexpos:
+                        # Error method didn't change text position at all. This is an error.
+                        self.lexpos = lexpos
+                        raise LexError, ("Scanning error. Illegal character '%s'" % (lexdata[lexpos]), lexdata[lexpos:])
+                    if not newtok: continue
                     self.lexpos = lexpos
-                    raise LexError, ("Scanning error. Illegal character '%s'" % (lexdata[lexpos]), lexdata[lexpos:])
-                if not newtok: continue
+                    return newtok
+
                 self.lexpos = lexpos
-                return newtok
+                raise LexError, ("No match found", lexdata[lexpos:])
 
-            self.lexpos = lexpos
-            raise LexError, ("No match found", lexdata[lexpos:])
-
-        # No more input data
         self.lexpos = lexpos + 1
+        if self.lexdata is None:
+             raise RuntimeError, "No input string given with input()"
         return None
-
         
 # -----------------------------------------------------------------------------
 # validate_file()
@@ -404,34 +418,74 @@ def validate_file(filename):
 
 def _read_lextab(lexer, fdict, module):
     exec "import %s as lextab" % module
-    lexer.lexre = re.compile(lextab._lexre, re.VERBOSE | lextab._lexreflags)
+    lexre = []
+    for regex,ltab in lextab._lexre:
+        ftab = []
+        for t in ltab:
+            if t and t[0]:
+                 ftab.append((fdict[t[0]], t[1]))
+            else:
+                 ftab.append(t)
+        lexre.append((re.compile(regex, re.VERBOSE | lextab._lexreflags), ftab))
+    lexer.lexre = lexre
     lexer.lexreflags = lextab._lexreflags
-    lexer.lexindexfunc = lextab._lextab
-    for i in range(len(lextab._lextab)):
-        t = lexer.lexindexfunc[i]
-        if t:
-            if t[0]:
-                lexer.lexindexfunc[i] = (fdict[t[0]],t[1])
     lexer.lextokens = lextab._lextokens
     lexer.lexignore = lextab._lexignore
     if lextab._lexerrorf:
         lexer.lexerrorf = fdict[lextab._lexerrorf]
-        
+    lexer.lexliterals = lextab._lexliterals
+
+# -----------------------------------------------------------------------------
+# _form_master_re()
+#
+# This function takes a list of all of the regex components and attempts to
+# form the master regular expression.  Given limitations in the Python re
+# module, it may be necessary to break the master regex into separate expressions.
+# -----------------------------------------------------------------------------
+
+def _form_master_re(relist,reflags,ldict):
+    if not relist: return []
+    regex = "|".join(relist)
+    try:
+        lexre = re.compile(regex,re.VERBOSE | reflags)
+
+        # Build the index to function map for the matching engine
+        lexindexfunc = [ None ] * (max(lexre.groupindex.values())+1)
+        for f,i in lexre.groupindex.items():
+            handle = ldict.get(f,None)
+            if type(handle) in (types.FunctionType, types.MethodType):
+                lexindexfunc[i] = (handle,handle.__name__[2:])
+            elif handle is not None:
+                # If rule was specified as a string, we build an anonymous
+                # callback function to carry out the action
+                lexindexfunc[i] = (None,f[2:])
+         
+        return [(lexre,lexindexfunc)],[regex]
+    except Exception,e:
+        m = int(len(relist)/2)
+        if m == 0: m = 1
+        llist, lre = _form_master_re(relist[:m],reflags,ldict)
+        rlist, rre = _form_master_re(relist[m:],reflags,ldict)
+        return llist+rlist, lre+rre
+ 
 # -----------------------------------------------------------------------------
 # lex(module)
 #
 # Build all of the regular expression rules from definitions in the supplied module
 # -----------------------------------------------------------------------------
-def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
+def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0):
+    global lexer
     ldict = None
-    regex = ""
+    regex_list = []
     error = 0
     files = { }
-    lexer = Lexer()
-    lexer.debug = debug
-    lexer.optimize = optimize
+    lexobj = Lexer()
+    lexobj.lexdebug = debug
+    lexobj.lexoptimize = optimize
     global token,input
     
+    if object: module = object
+
     if module:
         # User supplied a module object.
         if isinstance(module, types.ModuleType):
@@ -443,6 +497,7 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
                 ldict[i] = v
         else:
             raise ValueError,"Expected a module or instance"
+        lexobj.lexmodule = module
         
     else:
         # No module given.  We might be able to get information from the caller.
@@ -456,11 +511,12 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
 
     if optimize and lextab:
         try:
-            _read_lextab(lexer,ldict, lextab)
-            if not lexer.lexignore: lexer.lexignore = ""            
-            token = lexer.token
-            input = lexer.input
-            return lexer
+            _read_lextab(lexobj,ldict, lextab)
+            if not lexobj.lexignore: lexobj.lexignore = ""            
+            token = lexobj.token
+            input = lexobj.input
+            lexer = lexobj
+            return lexobj
         
         except ImportError:
             pass
@@ -480,7 +536,7 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
         raise SyntaxError,"lex: tokens must be a list or tuple."
 
     # Build a dictionary of valid token names
-    lexer.lextokens = { }
+    lexobj.lextokens = { }
     if not optimize:
 
         # Utility function for verifying tokens
@@ -493,15 +549,26 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
             if not is_identifier(n):
                 print "lex: Bad token name '%s'" % n
                 error = 1
-            if lexer.lextokens.has_key(n):
+            if lexobj.lextokens.has_key(n):
                 print "lex: Warning. Token '%s' multiply defined." % n
-            lexer.lextokens[n] = None
+            lexobj.lextokens[n] = None
     else:
-        for n in tokens: lexer.lextokens[n] = None
+        for n in tokens: lexobj.lextokens[n] = None
         
 
     if debug:
-        print "lex: tokens = '%s'" % lexer.lextokens.keys()
+        print "lex: tokens = '%s'" % lexobj.lextokens.keys()
+
+    # Get literals
+    if (module and isinstance(module,_INSTANCETYPE)):
+        literals = getattr(module,"literals","")
+    else:
+        try:
+            literals = ldict["literals"]
+        except KeyError:
+            literals = ""
+
+    lexobj.lexliterals = literals
 
     # Get a list of symbols with the t_ prefix
     tsymbols = [f for f in ldict.keys() if f[:2] == 't_']
@@ -559,15 +626,21 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
                 continue
         
         if f.__name__ == 't_error':
-            lexer.lexerrorf = f
+            lexobj.lexerrorf = f
             continue
 
         if f.__doc__:
             if not optimize:
                 try:
-                    c = re.compile(f.__doc__, re.VERBOSE | reflags)
+                    c = re.compile("(?P<%s>%s)" % (f.__name__,f.__doc__), re.VERBOSE | reflags)
+                    if c.match(""):
+                         print "%s:%d: Regular expression for rule '%s' matches empty string." % (file,line,f.__name__)
+                         error = 1
+                         continue
                 except re.error,e:
                     print "%s:%d: Invalid regular expression for rule '%s'. %s" % (file,line,f.__name__,e)
+                    if '#' in f.__doc__:
+                         print "%s:%d. Make sure '#' in rule '%s' is escaped with '\\#'." % (file,line, f.__name__)                 
                     error = 1
                     continue
 
@@ -577,8 +650,7 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
             # Okay. The regular expression seemed okay.  Let's append it to the master regular
             # expression we're building
   
-            if (regex): regex += "|"
-            regex += "(?P<%s>%s)" % (f.__name__,f.__doc__)
+            regex_list.append("(?P<%s>%s)" % (f.__name__,f.__doc__))
         else:
             print "%s:%d: No regular expression defined for rule '%s'" % (file,line,f.__name__)
 
@@ -586,7 +658,7 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
     for name,r in ssymbols:
 
         if name == 't_ignore':
-            lexer.lexignore = r
+            lexobj.lexignore = r
             continue
         
         if not optimize:
@@ -595,41 +667,38 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
                 error = 1
                 continue
         
-            if not lexer.lextokens.has_key(name[2:]):
+            if not lexobj.lextokens.has_key(name[2:]):
                 print "lex: Rule '%s' defined for an unspecified token %s." % (name,name[2:])
                 error = 1
                 continue
             try:
-                c = re.compile(r,re.VERBOSE)
+                c = re.compile("(?P<%s>%s)" % (name,r),re.VERBOSE | reflags)
+                if (c.match("")):
+                     print "lex: Regular expression for rule '%s' matches empty string." % name
+                     error = 1
+                     continue
             except re.error,e:
                 print "lex: Invalid regular expression for rule '%s'. %s" % (name,e)
+                if '#' in r:
+                     print "lex: Make sure '#' in rule '%s' is escaped with '\\#'." % name
+
                 error = 1
                 continue
             if debug:
                 print "lex: Adding rule %s -> '%s'" % (name,r)
                 
-        if regex: regex += "|"
-        regex += "(?P<%s>%s)" % (name,r)
+        regex_list.append("(?P<%s>%s)" % (name,r))
 
     if not optimize:
         for f in files.keys():
             if not validate_file(f):
                 error = 1
     try:
-        if debug:
-            print "lex: regex = '%s'" % regex
-        lexer.lexre = re.compile(regex, re.VERBOSE | reflags)
 
-        # Build the index to function map for the matching engine
-        lexer.lexindexfunc = [ None ] * (max(lexer.lexre.groupindex.values())+1)
-        for f,i in lexer.lexre.groupindex.items():
-            handle = ldict[f]
-            if type(handle) in (types.FunctionType, types.MethodType):
-                lexer.lexindexfunc[i] = (handle,handle.__name__[2:])
-            else:
-                # If rule was specified as a string, we build an anonymous
-                # callback function to carry out the action
-                lexer.lexindexfunc[i] = (None,f[2:])
+        lexobj.lexre, re_groups = _form_master_re(regex_list,reflags,ldict)
+        if debug:
+            for i in range(len(re_groups)):
+                 print "lex: regex[%d] = '%s'" % (i, re_groups[i])
 
         # If a lextab was specified, we create a file containing the precomputed
         # regular expression and index table
@@ -637,26 +706,32 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
         if lextab and optimize:
             lt = open(lextab+".py","w")
             lt.write("# %s.py.  This file automatically created by PLY. Don't edit.\n" % lextab)
-            lt.write("_lexre = %s\n" % repr(regex))
+
+            tabre = []
+            for i in range(len(re_groups)):
+                 indexf = []
+                 for t in lexobj.lexre[i][1]:
+                     if t:
+                         if t[0]:
+                             indexf.append((t[0].__name__,t[1]))
+                         else:
+                             indexf.append((None,t[1]))
+                     else:
+                             indexf.append(None)
+                 tabre.append((re_groups[i],indexf))
+            
+            lt.write("_lexre = %s\n" % repr(tabre))
+
+            # Create an alternative lexre representation
+
             lt.write("_lexreflags = %d\n" % reflags)
-            lt.write("_lextab = [\n");
-            for i in range(0,len(lexer.lexindexfunc)):
-                t = lexer.lexindexfunc[i]
-                if t:
-                    if t[0]:
-                        lt.write("  ('%s',%s),\n"% (t[0].__name__, repr(t[1])))
-                    else:
-                        lt.write("  (None,%s),\n" % repr(t[1]))
-                else:
-                    lt.write("  None,\n")
-                    
-            lt.write("]\n");
-            lt.write("_lextokens = %s\n" % repr(lexer.lextokens))
-            lt.write("_lexignore = %s\n" % repr(lexer.lexignore))
-            if (lexer.lexerrorf):
-                lt.write("_lexerrorf = %s\n" % repr(lexer.lexerrorf.__name__))
+            lt.write("_lextokens = %s\n" % repr(lexobj.lextokens))
+            lt.write("_lexignore = %s\n" % repr(lexobj.lexignore))
+            if (lexobj.lexerrorf):
+                lt.write("_lexerrorf = %s\n" % repr(lexobj.lexerrorf.__name__))
             else:
                 lt.write("_lexerrorf = None\n")
+            lt.write("_lexliterals = %s\n" % repr(lexobj.lexliterals))
             lt.close()
         
     except re.error,e:
@@ -664,16 +739,17 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab",reflags=0):
         error = 1
     if error:
         raise SyntaxError,"lex: Unable to build lexer."
-    if not lexer.lexerrorf:
+    if not lexobj.lexerrorf:
         print "lex: Warning. no t_error rule is defined."
 
-    if not lexer.lexignore: lexer.lexignore = ""
+    if not lexobj.lexignore: lexobj.lexignore = ""
     
     # Create global versions of the token() and input() functions
-    token = lexer.token
-    input = lexer.input
+    token = lexobj.token
+    input = lexobj.input
+    lexer = lexobj
     
-    return lexer
+    return lexobj
 
 # -----------------------------------------------------------------------------
 # run()
@@ -705,8 +781,22 @@ def runmain(lexer=None,data=None):
     while 1:
         tok = _token()
         if not tok: break
-        print "(%s,%r,%d)" % (tok.type, tok.value, tok.lineno)
+        print "(%s,%r,%d,%d)" % (tok.type, tok.value, tok.lineno,tok.lexpos)
         
+
+# -----------------------------------------------------------------------------
+# @TOKEN(regex)
+#
+# This decorator function can be used to set the regex expression on a function
+# when its docstring might need to be set in an alternative way
+# -----------------------------------------------------------------------------
+
+def TOKEN(r):
+    def set_doc(f):
+        f.__doc__ = r
+        return f
+    return set_doc
+
     
 
 
