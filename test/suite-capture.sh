@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
 
 
 # common exit status values
@@ -32,6 +32,11 @@ EXIT_ERROR=2
 
 # capture exactly 10 packets
 capture_step_10packets() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -47,7 +52,7 @@ capture_step_10packets() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout.txt
 	grep -i 'Number of packets: 10' ./testout.txt > /dev/null
@@ -65,6 +70,11 @@ capture_step_10packets() {
 
 # capture exactly 10 packets using "-w -" (piping to stdout)
 capture_step_10packets_stdout() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -w - > ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -78,7 +88,7 @@ capture_step_10packets_stdout() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
 	grep -i 'Number of packets: 10' ./testout2.txt > /dev/null
@@ -110,7 +120,7 @@ capture_step_fifo() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 8 packets?
 	$CAPINFOS ./testout.pcap > ./testout.txt
 	grep -i 'Number of packets: 8' ./testout.txt > /dev/null
@@ -121,10 +131,15 @@ capture_step_fifo() {
 		cat ./testout.txt
 		test_step_failed "No or not enough traffic captured."
 	fi
-}    
+}
 
 # capture exactly 2 times 10 packets (multiple files)
 capture_step_2multi_10packets() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -140,7 +155,7 @@ capture_step_2multi_10packets() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout.txt
 	grep -i 'Number of packets: 10' ./testout.txt > /dev/null
@@ -155,6 +170,11 @@ capture_step_2multi_10packets() {
 
 # capture with a very unlikely read filter, packets must be zero afterwards
 capture_step_read_filter() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	# valid, but very unlikely filter
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -a duration:$TRAFFIC_CAPTURE_DURATION -R 'dcerpc.cn_call_id==123456' -c 10 > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -184,6 +204,11 @@ capture_step_read_filter() {
 
 # capture with a snapshot length
 capture_step_snapshot() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	# capture with a snapshot length of 68 bytes for $TRAFFIC_CAPTURE_DURATION seconds
 	# this should result in no packets
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -s 68 -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1

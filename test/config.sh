@@ -21,16 +21,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
+
+# Set WS_SYSTEM to our system type, e.g. Windows, Linux, Darwin
+# http://support.microsoft.com/kb/100843
+if [ -n "${OS#Windows}" ] ; then
+	WS_SYSTEM="Windows"
+else
+	WS_SYSTEM=`uname -s`
+fi
 
 # path to the Wireshark binaries, only used for the settings below
-ETH_BIN_PATH=../wireshark-gtk2
+if [ "$WS_SYSTEM" = "Windows" ] ; then
+	WS_BIN_PATH=../wireshark-gtk2
+else
+	WS_BIN_PATH=..
+fi
 
 # Tweak the following to your liking.
-WIRESHARK=$ETH_BIN_PATH/wireshark
-TSHARK=$ETH_BIN_PATH/tshark
-CAPINFOS=$ETH_BIN_PATH/capinfos
-DUMPCAP=$ETH_BIN_PATH/dumpcap
+WIRESHARK=$WS_BIN_PATH/wireshark
+TSHARK=$WS_BIN_PATH/tshark
+CAPINFOS=$WS_BIN_PATH/capinfos
+DUMPCAP=$WS_BIN_PATH/dumpcap
 
 # interface with at least a few packets/sec traffic on it
 # (e.g. start a web radio to generate some traffic :-)

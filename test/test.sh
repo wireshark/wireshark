@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
 
 # an existing capture file
 CAPFILE=./dhcp.pcap
@@ -44,7 +44,7 @@ test_step_prerequisites() {
 			echo "Couldn't find $i"
 			NOTFOUND=1
 		fi
-	done 
+	done
 	if [ $NOTFOUND -eq 1 ]; then
 		test_step_failed "Tool not found"
 		exit 1
@@ -79,6 +79,11 @@ test_set_output VERBOSE
 #test_suite_run "All" test_suite
 #test_suite_show "All" test_suite
 
+if [ "$1" == "all" ] ; then
+        test_suite_run "All" test_suite
+        exit
+fi
+
 MENU_LEVEL=0
 
 menu_title[0]="All"
@@ -86,10 +91,10 @@ menu_function[0]=test_suite
 
 echo "----------------------------------------------------------------------"
 
-for ((a=0; a <= 100000000000 ; a++)) 
+for ((a=0; a <= 100000000000 ; a++))
 do
 	TEST_STEPS[0]=0			# number of steps of a specific nesting level
-	
+
 	#echo $current_title $current_function
 	test_suite_show "${menu_title[MENU_LEVEL]}" "${menu_function[MENU_LEVEL]}"
 	echo "1-$TEST_STEPS  : Select item"

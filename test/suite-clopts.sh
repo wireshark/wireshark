@@ -21,8 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
- 
+#
+
 # common exit status values
 EXIT_OK=0
 EXIT_COMMAND_LINE=1
@@ -84,17 +84,34 @@ clopts_suite_tshark_invalid_chars() {
 
 # check exit status of all single char option being valid
 clopts_suite_valid_chars() {
-	for index in D G L h v
+	for index in G h v
 	do
 	  test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
 	done
 }
 
+# special case: interface-specific opts should work under Windows and fail as
+# a regular user on other systems.
+clopts_suite_interface_chars() {
+	for index in D L
+	do
+          if [ "$WS_SYSTEM" = "Windows" ] ; then
+	    test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
+          else
+	    test_step_add "Invalid permissions for TShark parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $TSHARK $index $EXIT_ERROR"
+          fi
+        done
+}
 
 # S V l n p q x
 
 # check exit status and grep output string of an invalid capture filter
 clopts_step_invalid_capfilter() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	$TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -148,6 +165,11 @@ clopts_step_invalid_interface_index() {
 # check exit status and grep output string of an invalid capture filter
 # XXX - how to efficiently test the *invalid* flags?
 clopts_step_valid_name_resolving() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
 	$TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -173,6 +195,7 @@ clopt_suite() {
 	test_suite_add "Basic tests" clopts_suite_basic
 	test_suite_add "Invalid TShark single char options" clopts_suite_tshark_invalid_chars
 	test_suite_add "Valid TShark single char options" clopts_suite_valid_chars
+	test_suite_add "Interface-specific TShark single char options" clopts_suite_interface_chars
 	test_step_add  "Invalid capture filter -f" clopts_step_invalid_capfilter
 	test_step_add  "Invalid capture interface -i" clopts_step_invalid_interface
 	test_step_add  "Invalid capture interface index 0" clopts_step_invalid_interface_index

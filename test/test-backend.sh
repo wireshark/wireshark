@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
 
 
 # References:
@@ -39,6 +39,7 @@
 color_reset="tput sgr0"
 color_green='\E[32;40m'
 color_red='\E[31;40m'
+color_yellow='\E[33;40m'
 color_blue='\E[36;40m'
 
 # runtime flags
@@ -52,6 +53,7 @@ TEST_STEPS[0]=0			# number of steps of a specific nesting level
 # output counters
 TEST_OK=0				# global count of succeeded steps
 TEST_FAILED=0			# global count of failed steps
+TEST_SKIPPED=0			# global count of failed steps
 
 TEST_STEP_PRE_CB=
 TEST_STEP_POST_CB=
@@ -59,8 +61,8 @@ TEST_STEP_POST_CB=
 # level number of this test item (suite or step)
 test_level() {
 	LIMIT_LEVEL=100
-	
-	for ((a=0; a <= LIMIT_LEVEL ; a++)) 
+
+	for ((a=0; a <= LIMIT_LEVEL ; a++))
 	do
 		if [ ! $a -eq 0 ]; then
 			echo -n "."
@@ -70,7 +72,7 @@ test_level() {
 			#echo "end"
 			return
 		fi
-	done                           
+	done
 }
 
 # set output format
@@ -93,7 +95,7 @@ test_suite_run() {
 
 	# run the actual test suite
 	$2
-	
+
 	# results
 	if [ $TEST_RUN = "ON" ]; then
 		echo ""
@@ -107,6 +109,8 @@ test_suite_run() {
 		echo "Ok    : $TEST_OK"
 		echo -n -e $color_red
 		echo "Failed: $TEST_FAILED"
+		echo -n -e $color_yellow
+		echo "Skipped: $TEST_SKIPPED"
 		$color_reset
 	fi
 
@@ -137,7 +141,7 @@ test_suite_show() {
 
 	# show this test suite subitems
 	$2
-	
+
 	echo ""
 }
 
@@ -148,12 +152,12 @@ test_suite_show() {
 test_suite_add() {
 	# increase step counter of this nesting level
 	let "TEST_STEPS[$TEST_NESTING_LEVEL] += 1"
-	
+
 	if [ $TEST_RUN = "ON" ]; then
 		echo ""
 	fi
-	
-	# title output if we'll list the subitems 
+
+	# title output if we'll list the subitems
 	if [[ $TEST_RUN = "ON" ]]; then
 		echo -n -e $color_blue
 		test_level
@@ -172,7 +176,7 @@ test_suite_add() {
 
 	# reset test step counter back to zero
 	TEST_STEP=0
-	
+
 	# call the suites function
 	let "TEST_NESTING_LEVEL += 1"
 	TEST_STEPS[$TEST_NESTING_LEVEL]=0
@@ -185,7 +189,7 @@ test_suite_add() {
 		test_level
 		echo "  Suite: $1 (${TEST_STEPS[TEST_NESTING_LEVEL+1]} subitems)"
 		$color_reset
-	fi	
+	fi
 
 }
 
@@ -200,7 +204,7 @@ test_step_add() {
 	if [[ ($TEST_RUN = "ON" && $TEST_OUTPUT = "DOTTED") && $TEST_NESTING_LEVEL -eq 0 ]]; then
 		echo ""
 	fi
-	
+
 	if [[ ( $TEST_RUN = "ON" && $TEST_OUTPUT = "VERBOSE" ) || $TEST_NESTING_LEVEL -eq 0 ]]; then
 		echo -n -e $color_blue
 		test_level
@@ -208,13 +212,13 @@ test_step_add() {
 		$color_reset
 	fi
 
-	if [ $TEST_RUN = "ON" ]; then		
+	if [ $TEST_RUN = "ON" ]; then
 		# preprecessing step
 		$TEST_STEP_PRE_CB
 		#echo "command: "$2" opt1: "$3" opt2: "$4" opt3: "$5" opt4: "$6" opt5: "$7
 		TEST_STEP_NAME=$1
 		# actually run the command to test now
-		$2 
+		$2
 		#"$3" "$4" "$5" "$6" "$7"
 		# post precessing step
 		$TEST_STEP_POST_CB
@@ -248,7 +252,7 @@ test_remark_add() {
 		if [[ $TEST_RUN = "ON" && $TEST_OUTPUT = "DOTTED" ]]; then
 			echo ""
 		fi
-		
+
 		# remark
 		echo -n -e $color_blue
 		echo "  Remark: $1"
@@ -261,16 +265,16 @@ test_remark_add() {
 test_step_ok() {
 	# count appearance
 	let "TEST_OK += 1"
-	
+
 	# output in green
 	echo -n -e $color_green
-	
+
 	if [ $TEST_OUTPUT = "VERBOSE" ]; then
 		echo " Ok"
 	else
 		echo -n .
 	fi
-	
+
 	$color_reset
 }
 
@@ -278,18 +282,35 @@ test_step_ok() {
 # $1 output text
 test_step_failed() {
 	let "TEST_FAILED += 1"
-	
+
 	# output in red
 	echo -n -e "$color_red"
-	
+
 	echo ""
 	echo "\"$TEST_STEP_NAME\" Failed!"
 	echo $1
-	
+
 	$color_reset
-	
+
 	exit 1
-	
+
 	# XXX - add a mechanism to optionally stop here
+}
+
+# the test step succeeded
+test_step_skipped() {
+	# count appearance
+	let "TEST_SKIPPED += 1"
+
+	# output in green
+	echo -n -e $color_yellow
+
+	if [ $TEST_OUTPUT = "VERBOSE" ]; then
+		echo " Skipped"
+	else
+		echo -n .
+	fi
+
+	$color_reset
 }
 
