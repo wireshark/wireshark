@@ -220,9 +220,9 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		offset+=4;
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_page, tvb, offset, 4, 0);
 		offset+=4;
-		proto_tree_add_item(tree, hf_scsi_osd_set_attribute_length, tvb, offset, 4, 0);
-		offset+=4;
 		proto_tree_add_item(tree, hf_scsi_osd_set_attribute_number, tvb, offset, 4, 0);
+		offset+=4;
+		proto_tree_add_item(tree, hf_scsi_osd_set_attribute_length, tvb, offset, 4, 0);
 		offset+=4;
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_offset, tvb, offset, 4, 0);
 		offset+=4;
