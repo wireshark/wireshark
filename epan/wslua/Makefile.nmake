@@ -42,7 +42,7 @@ wslua.lib	: $(OBJECTS) init.lua
 	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps.c-inc 
+	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps.c-inc declare_wslua.h register_wslua.c taps.txt
 
 init_wslua.c: declare_wslua.h
 
