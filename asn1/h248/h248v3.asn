@@ -1,0 +1,1081 @@
+MEDIA-GATEWAY-CONTROL {itu-t(0) recommendation(0) h(8) h248(248) modules(0)
+media-gateway-control(0) version3(3)}
+--
+-- $Id:$
+--DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+-- Has been modified to pass through the ASN2ETH compiler
+-- (we dont support automatic tags yet so the tags had to be added by
+--  hand)
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	MegacoMessage ::= SEQUENCE
+	{
+		authHeader		[0] AuthenticationHeader OPTIONAL,
+		mess			[1] Message
+	}
+
+	AuthenticationHeader ::= SEQUENCE
+	{
+		secParmIndex	[0] SecurityParmIndex,
+		seqNum			[1] SequenceNum,
+		ad				[2] AuthData
+	}
+
+	SecurityParmIndex ::= OCTET STRING(SIZE(4))
+
+	SequenceNum ::= OCTET STRING(SIZE(4))
+
+	AuthData ::= OCTET STRING (SIZE (12..32))
+
+	Message ::= SEQUENCE
+	{
+		version			[0] INTEGER(0..99),
+		-- The version of the protocol defined here is equal to 3.
+		mId				[1] MId, -- Name/address of message originator
+		messageBody		[2] CHOICE
+		{
+			messageError	[0] ErrorDescriptor,
+			transactions	[1] SEQUENCE OF Transaction
+		},
+		...
+	}
+
+	MId ::= CHOICE
+	{
+		ip4Address		[0]	IP4Address,
+		ip6Address		[1] IP6Address,
+		domainName		[2] DomainName,
+		deviceName		[3] PathName,
+		mtpAddress		[4] MtpAddress,
+		-- Addressing structure of mtpAddress:
+		-- 25 - 15 0
+		-- | PC | NI |
+		-- 24 - 14 bits 2 bits
+		-- NOTE – 14 bits are defined for international use.
+		-- Two national options exist where the point code is 16 or 24 bits.
+		-- To octet align the mtpAddress, the MSBs shall be encoded as 0s.
+		...
+	}
+-- Wireshark specific	
+	MtpAddress ::= OCTET STRING(SIZE(2..4))
+	
+	DomainName ::= SEQUENCE
+	{
+		name			[0] IA5String,
+		-- The name starts with an alphanumeric digit followed by a sequence
+		-- of alphanumeric digits, hyphens and dots. No two dots shall occur
+		-- consecutively.
+
+	portNumber			[1] INTEGER(0..65535) OPTIONAL
+	}
+
+	IP4Address ::= SEQUENCE
+	{
+		address			[0] OCTET STRING (SIZE(4)),
+		portNumber		[1] INTEGER(0..65535) OPTIONAL
+	}
+
+	IP6Address ::= SEQUENCE
+	{
+		address			[0] OCTET STRING (SIZE(16)),
+		portNumber		[1] INTEGER(0..65535) OPTIONAL
+	}
+
+	PathName ::= IA5String(SIZE (1..64))
+	-- See A.3
+
+	Transaction ::= CHOICE
+	{
+		transactionRequest		[0] TransactionRequest,
+		transactionPending		[1] TransactionPending,
+		transactionReply		[2] TransactionReply,
+		transactionResponseAck	[3] TransactionResponseAck,
+		-- use of response acks is dependent on underlying transport
+		...,
+		segmentReply			[4] SegmentReply
+	}
+
+	TransactionId ::= INTEGER(0..4294967295) -- 32-bit unsigned integer
+
+	TransactionRequest ::= SEQUENCE
+	{
+		transactionId			[0] TransactionId,
+		actions					[1] SEQUENCE OF ActionRequest,
+		...
+		}
+
+	TransactionPending ::= SEQUENCE
+	{
+		transactionId			[0] TransactionId,
+		...
+	}
+
+	TransactionReply ::= SEQUENCE
+	{
+		transactionId			[0] TransactionId,
+		immAckRequired			[1] NULL OPTIONAL,
+		transactionResult		[2] CHOICE
+		{
+			transactionError		[0]ErrorDescriptor,
+			actionReplies			[1] SEQUENCE OF ActionReply
+		},
+		...,
+		segmentNumber			[3] SegmentNumber OPTIONAL,
+		segmentationComplete	[4] NULL OPTIONAL
+	}
+
+	SegmentReply ::= SEQUENCE
+	{
+		transactionId			[0] TransactionId,
+		segmentNumber			[1] SegmentNumber,
+		segmentationComplete	[2] NULL OPTIONAL,
+		...
+	}
+
+	SegmentNumber ::= INTEGER(0..65535)
+	
+	TransactionResponseAck ::= SEQUENCE OF TransactionAck
+
+	TransactionAck ::= SEQUENCE
+	{
+		firstAck		[0] TransactionId,
+		lastAck			[1] TransactionId OPTIONAL
+	}
+
+	ErrorDescriptor ::= SEQUENCE
+	{
+		errorCode		[0] ErrorCode,
+		errorText		[1] ErrorText OPTIONAL
+	}
+
+	ErrorCode ::= INTEGER(0..65535)
+	-- See clause 14 for IANA considerations with respect to error codes
+
+	ErrorText ::= IA5String
+	
+	ContextID ::= INTEGER(0..4294967295)
+	-- Context NULL Value: 0
+	-- Context CHOOSE Value: 4294967294 (0xFFFFFFFE)
+	-- Context ALL Value: 4294967295 (0xFFFFFFFF)
+
+	ActionRequest ::= SEQUENCE
+	{
+		contextId				[0] ContextID,
+		contextRequest			[1] ContextRequest OPTIONAL,
+		contextAttrAuditReq		[2] ContextAttrAuditRequest OPTIONAL,
+		commandRequests			[3] SEQUENCE OF CommandRequest
+	}
+
+	ActionReply ::= SEQUENCE
+	{
+		contextId				[0] ContextID,
+		errorDescriptor			[1] ErrorDescriptor OPTIONAL,
+		contextReply			[2] ContextRequest OPTIONAL,
+		commandReply			[3] SEQUENCE OF CommandReply
+	}
+
+	ContextRequest ::= SEQUENCE
+	{
+		priority				[0] INTEGER(0..15) OPTIONAL,
+		emergency				[1] BOOLEAN OPTIONAL,
+		topologyReq				[2] SEQUENCE OF TopologyRequest OPTIONAL,
+		...,
+		iepscallind				[3] BOOLEAN OPTIONAL,
+		contextProp				[4] SEQUENCE OF PropertyParm OPTIONAL,
+		contextList				[5] SEQUENCE OF ContextID OPTIONAL
+	}
+
+-- When returning a contextList, the contextId in the ActionReply construct will
+-- return the contextId from the associated ActionRequest.
+
+	ContextAttrAuditRequest ::= SEQUENCE
+	{
+		topology				[0] NULL OPTIONAL,
+		emergency				[1] NULL OPTIONAL,
+		priority				[2] NULL OPTIONAL,
+		...,
+		iepscallind				[3] NULL OPTIONAL,
+		contextPropAud			[4] SEQUENCE OF IndAudPropertyParm OPTIONAL,
+		selectpriority			[5] INTEGER(0..15) OPTIONAL,
+		-- to select given priority
+		selectemergency			[6] BOOLEAN OPTIONAL,
+		-- to select if emergency set/not set (T/F)
+		selectiepscallind		[7] BOOLEAN OPTIONAL,
+		-- to select if IEPS set/not set (T/F)
+		selectLogic				[8] SelectLogic OPTIONAL -- default is AND
+	}
+
+	SelectLogic ::= CHOICE
+	{
+		andAUDITSelect			[0] NULL, -- all filter conditions satisfied
+		orAUDITSelect			[1] NULL, -- at least one filter condition satisfied
+		...
+	}
+
+	CommandRequest ::= SEQUENCE
+	{
+		command			[0] Command,
+		optional		[1]	NULL OPTIONAL,
+		wildcardReturn	[2] NULL OPTIONAL,
+		...
+	}
+
+	Command ::= CHOICE
+	{
+		addReq				[0] AmmRequest,
+		moveReq				[1] AmmRequest,
+		modReq				[2]	AmmRequest,
+		-- Add, Move, Modify requests have the same parameters
+		subtractReq			[3] SubtractRequest,
+		auditCapRequest		[4] AuditRequest,
+		auditValueRequest	[5] AuditRequest,
+		notifyReq			[6]	NotifyRequest,
+		serviceChangeReq	[7] ServiceChangeRequest,
+		...
+	}
+
+	CommandReply ::= CHOICE
+	{
+		addReply			[0] AmmsReply,
+		moveReply			[1] AmmsReply,
+		modReply			[2] AmmsReply,
+		subtractReply		[3] AmmsReply,
+		-- Add, Move, Modify, Subtract replies have the same parameters
+		auditCapReply		[4] AuditReply,
+		auditValueReply		[5] AuditReply,
+		notifyReply			[6] NotifyReply,
+		serviceChangeReply  [7] ServiceChangeReply,
+		...
+	}
+	
+	TopologyRequest ::= SEQUENCE
+	{
+		terminationFrom				[0] TerminationID,
+		terminationTo				[1] TerminationID,
+		topologyDirection			[2] ENUMERATED
+		{
+			bothway(0),
+			isolate(1),
+			oneway(2)
+		},
+		...,
+		streamID					[3]StreamID OPTIONAL,
+		topologyDirectionExtension	[4] ENUMERATED
+		{
+			onewayexternal(0),
+			onewayboth(1),
+			...
+		}
+	}
+
+	AmmRequest ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		descriptors					[1] SEQUENCE OF AmmDescriptor,
+		-- At most one descriptor of each type (see AmmDescriptor)
+		-- allowed in the sequence.
+		...
+	}
+
+	AmmDescriptor ::= CHOICE
+	{
+		mediaDescriptor				[0] MediaDescriptor,
+		modemDescriptor				[1] ModemDescriptor,
+		muxDescriptor				[2] MuxDescriptor,
+		eventsDescriptor			[3] EventsDescriptor,
+		eventBufferDescriptor		[4] EventBufferDescriptor,
+		signalsDescriptor			[5] SignalsDescriptor,
+		digitMapDescriptor			[6] DigitMapDescriptor,
+		auditDescriptor				[7] AuditDescriptor,
+		...,
+		statisticsDescriptor		[8] StatisticsDescriptor
+	}
+
+	AmmsReply ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		terminationAudit			[1]TerminationAudit OPTIONAL,
+		...
+	}
+
+	SubtractRequest ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		auditDescriptor				[1] AuditDescriptor OPTIONAL,
+		...
+	}
+
+	AuditRequest ::= SEQUENCE
+	{
+		terminationID				[0] TerminationID,
+		auditDescriptor				[1] AuditDescriptor,
+		...,
+		terminationIDList			[3] TerminationIDList OPTIONAL
+	}
+	-- terminationID shall contain the first termination in the
+	-- list when using the terminationIDList construct in AuditRequest
+
+	AuditReply ::= CHOICE
+	{
+		contextAuditResult			[0] TerminationIDList,
+		error						[1] ErrorDescriptor,
+		auditResult					[2] AuditResult,
+		...,
+		auditResultTermList			[3] TermListAuditResult
+	}
+
+	AuditResult ::= SEQUENCE
+	{
+		terminationID				[0] TerminationID,
+		terminationAuditResult		[1] TerminationAudit
+	}
+
+	TermListAuditResult ::= SEQUENCE
+	{
+		terminationIDList			[0] TerminationIDList,
+		terminationAuditResult		[1] TerminationAudit,
+		...
+	}
+
+	TerminationAudit ::= SEQUENCE OF AuditReturnParameter
+
+	AuditReturnParameter ::= CHOICE
+	{
+		errorDescriptor				[0] ErrorDescriptor,
+		mediaDescriptor				[1] MediaDescriptor,
+		modemDescriptor				[2] ModemDescriptor,
+		muxDescriptor				[3] MuxDescriptor,
+		eventsDescriptor			[4] EventsDescriptor,
+		eventBufferDescriptor		[5] EventBufferDescriptor,
+		signalsDescriptor			[6] SignalsDescriptor,
+		digitMapDescriptor			[7] DigitMapDescriptor,
+		observedEventsDescriptor	[8] ObservedEventsDescriptor,
+		statisticsDescriptor		[9] StatisticsDescriptor,
+		packagesDescriptor			[10] PackagesDescriptor,
+		emptyDescriptors			[11] AuditDescriptor,
+		...
+	}
+
+	AuditDescriptor ::= SEQUENCE
+	{
+		auditToken					[0] BIT STRING
+		{
+			muxToken(0),
+			modemToken(1),
+			mediaToken(2),
+			eventsToken(3),
+			signalsToken(4),
+			digitMapToken(5),
+			statsToken(6),
+			observedEventsToken(7),
+			packagesToken(8),
+			eventBufferToken(9)
+		} OPTIONAL,
+		...,
+		auditPropertyToken			[1] SEQUENCE OF IndAuditParameter OPTIONAL
+	}
+
+	IndAuditParameter ::= CHOICE
+	{
+		indaudmediaDescriptor		[0] IndAudMediaDescriptor,
+		indaudeventsDescriptor		[1] IndAudEventsDescriptor,
+		indaudeventBufferDescriptor [2] IndAudEventBufferDescriptor,
+		indaudsignalsDescriptor		[3] IndAudSignalsDescriptor,
+		indauddigitMapDescriptor	[4] IndAudDigitMapDescriptor,
+		indaudstatisticsDescriptor  [5] IndAudStatisticsDescriptor,
+		indaudpackagesDescriptor	[6] IndAudPackagesDescriptor,
+		...
+	}
+
+	IndAudMediaDescriptor ::= SEQUENCE
+	{
+		termStateDescr				[0] IndAudTerminationStateDescriptor OPTIONAL,
+		streams						[1] CHOICE
+		{
+			oneStream		[0] IndAudStreamParms,
+			multiStream		[1] SEQUENCE OF IndAudStreamDescriptor
+		} OPTIONAL,
+		...
+	}
+
+	IndAudStreamDescriptor ::= SEQUENCE
+	{
+		streamID		[0] StreamID,
+		streamParms		[1] IndAudStreamParms
+	}
+
+	IndAudStreamParms ::= SEQUENCE
+	{
+		localControlDescriptor		[0] IndAudLocalControlDescriptor OPTIONAL,
+		localDescriptor				[1] IndAudLocalRemoteDescriptor OPTIONAL,
+		remoteDescriptor			[2] IndAudLocalRemoteDescriptor OPTIONAL,
+		...,
+		statisticsDescriptor		[3] IndAudStatisticsDescriptor OPTIONAL
+	}
+
+	IndAudLocalControlDescriptor ::= SEQUENCE
+	{
+		streamMode					[0] NULL OPTIONAL,
+		reserveValue				[1] NULL OPTIONAL,
+		reserveGroup				[2] NULL OPTIONAL,
+		propertyParms				[3] SEQUENCE OF IndAudPropertyParm OPTIONAL,
+		...,
+		streamModeSel				[4] StreamMode OPTIONAL
+	}
+	-- must not have both streamMode and streamModeSel
+	-- if both are present only streamModeSel shall be honoured
+
+	IndAudPropertyParm ::= SEQUENCE
+	{
+		name						[0] PkgdName,
+		...,
+		propertyParms				[1] PropertyParm OPTIONAL
+	}
+	-- to select based on property values
+	-- AND/OR selection logic is specified at context level
+
+	IndAudLocalRemoteDescriptor ::= SEQUENCE
+	{
+		propGroupID					[0] INTEGER(0..65535) OPTIONAL,
+		propGrps					[1] IndAudPropertyGroup,
+		...
+	}
+
+	IndAudPropertyGroup ::= SEQUENCE OF IndAudPropertyParm
+
+	IndAudTerminationStateDescriptor ::= SEQUENCE
+	{
+		propertyParms				[0] SEQUENCE OF IndAudPropertyParm,
+		eventBufferControl			[1] NULL OPTIONAL,
+		serviceState				[2] NULL OPTIONAL,
+		...,
+		serviceStateSel				[3] ServiceState OPTIONAL
+	}
+	-- must not have both serviceState and serviceStateSel
+	-- if both are present only serviceStateSel shall be honoured
+
+	IndAudEventsDescriptor ::= SEQUENCE
+	{
+		requestID					[0] RequestID OPTIONAL,
+		pkgdName					[1] PkgdName,
+		streamID					[2] StreamID OPTIONAL,
+		...
+	}
+
+	IndAudEventBufferDescriptor ::= SEQUENCE
+	{
+		eventName					[0] PkgdName,
+		streamID					[1] StreamID OPTIONAL,
+		...
+	}
+
+	IndAudSignalsDescriptor ::=CHOICE
+	{
+		signal						[0] IndAudSignal,
+		seqSigList					[1] IndAudSeqSigList,
+		...
+	}
+
+	IndAudSeqSigList ::= SEQUENCE
+	{
+		id							[0] INTEGER(0..65535),
+		signalList					[1] IndAudSignal OPTIONAL
+	}
+
+	IndAudSignal ::= SEQUENCE
+	{
+		signalName					[0] PkgdName,
+		streamID					[1] StreamID OPTIONAL,
+		...,
+		signalRequestID				[2] RequestID OPTIONAL
+	}
+
+	IndAudDigitMapDescriptor ::= SEQUENCE
+	{
+		digitMapName				[0] DigitMapName OPTIONAL
+	}
+
+	IndAudStatisticsDescriptor ::= SEQUENCE
+	{
+		statName					[0] PkgdName
+	}
+
+	IndAudPackagesDescriptor ::= SEQUENCE
+	{
+		packageName					[0] Name,
+		packageVersion				[1] INTEGER(0..99),
+		...
+	}
+
+	NotifyRequest ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		observedEventsDescriptor	[1] ObservedEventsDescriptor,
+		errorDescriptor				[2] ErrorDescriptor OPTIONAL,
+		...
+	}
+
+	NotifyReply ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		errorDescriptor				[1] ErrorDescriptor OPTIONAL,
+		...
+	}
+
+	ObservedEventsDescriptor ::= SEQUENCE
+	{
+		requestId					[0] RequestID,
+		observedEventLst			[1] SEQUENCE OF ObservedEvent
+	}
+
+	ObservedEvent ::= SEQUENCE
+	{
+		eventName					[0] EventName,
+		streamID					[1] StreamID OPTIONAL,
+		eventParList				[2] SEQUENCE OF EventParameter,
+		timeNotation				[3] TimeNotation OPTIONAL,
+		...
+	}
+
+	EventName ::= PkgdName
+
+	EventParameter ::= SEQUENCE
+	{
+-- Wireshark specific
+--		eventParameterName			[0] Name,
+--		value						[1] Value,
+		eventParameterName			[0] EventParameterName, 
+		eventParamValue				[1] EventParamValues, 
+-- end
+		-- For use of extraInfos see the comment related to PropertyParm
+		extraInfo CHOICE
+		{
+			relation		[0] Relation,
+			range			[1] BOOLEAN,
+			sublist			[2] BOOLEAN
+		} OPTIONAL,
+		...
+	}
+-- Wireshark specific
+	EventParameterName ::= Name
+	
+	EventParamValues ::= SEQUENCE OF EventParamValue
+	  
+	EventParamValue ::= OCTET STRING
+-- end
+	ServiceChangeRequest ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		serviceChangeParms			[1] ServiceChangeParm,
+		...
+	}
+
+	ServiceChangeReply ::= SEQUENCE
+	{
+		terminationID				[0] TerminationIDList,
+		serviceChangeResult			[1] ServiceChangeResult,
+		...
+	}
+	-- For ServiceChangeResult, no parameters are mandatory. Hence the
+	-- distinction between ServiceChangeParm and ServiceChangeResParm.
+
+	ServiceChangeResult ::= CHOICE
+	{
+		errorDescriptor				[0] ErrorDescriptor,
+		serviceChangeResParms		[1] ServiceChangeResParm
+	}
+
+	WildcardField ::= OCTET STRING(SIZE(1))
+
+	TerminationID ::= SEQUENCE
+	{
+		wildcard					[0] SEQUENCE OF WildcardField,
+		id							[1] OCTET STRING(SIZE(1..8)),
+		...
+	}
+	-- See A.1 for explanation of wildcarding mechanism.
+	-- TerminationID 0xFFFFFFFFFFFFFFFF indicates the Root Termination.
+
+	TerminationIDList ::= SEQUENCE OF TerminationID
+
+	MediaDescriptor ::= SEQUENCE
+	{
+		termStateDescr				[0] TerminationStateDescriptor OPTIONAL,
+		streams						[1] CHOICE
+		{
+			oneStream		[0] StreamParms,
+			multiStream		[1] SEQUENCE OF StreamDescriptor
+		} OPTIONAL,
+		...
+	}
+
+	StreamDescriptor ::= SEQUENCE
+	{
+		streamID					[0] StreamID,
+		streamParms					[1] StreamParms
+	}
+
+	StreamParms ::= SEQUENCE
+	{
+		localControlDescriptor		[0] LocalControlDescriptor OPTIONAL,
+		localDescriptor				[1] LocalRemoteDescriptor OPTIONAL,
+		remoteDescriptor			[2] LocalRemoteDescriptor OPTIONAL,
+		...,
+		statisticsDescriptor		[3] StatisticsDescriptor OPTIONAL
+	}
+
+	LocalControlDescriptor ::= SEQUENCE
+	{
+	streamMode						[0] StreamMode OPTIONAL,
+	reserveValue					[1] BOOLEAN OPTIONAL,
+	reserveGroup					[2] BOOLEAN OPTIONAL,
+	propertyParms					[3] SEQUENCE OF PropertyParm,
+	...
+	}
+
+	StreamMode ::= ENUMERATED
+	{
+		sendOnly(0),
+		recvOnly(1),
+		sendRecv(2),
+		inactive(3),
+		loopBack(4),
+		...
+	}
+-- In PropertyParm, value is a SEQUENCE OF octet string. When sent
+-- by an MGC the interpretation is as follows:
+-- empty sequence means CHOOSE
+-- one element sequence specifies value
+-- If the sublist field is not selected, a longer sequence means
+-- "choose one of the values" (i.e., value1 OR value2 OR ...)
+-- If the sublist field is selected,
+-- a sequence with more than one element encodes the value of a
+-- list-valued property (i.e., value1 AND value2 AND ...).
+-- The relation field may only be selected if the value sequence
+-- has length 1. It indicates that the MG has to choose a value
+-- for the property. E.g., x > 3 (using the greaterThan
+-- value for relation) instructs the MG to choose any value larger
+-- than 3 for property x.
+-- The range field may only be selected if the value sequence
+-- has length 2. It indicates that the MG has to choose a value
+-- in the range between the first octet in the value sequence and
+-- the trailing octet in the value sequence, including the
+-- boundary values.
+-- When sent by the MG, only responses to an AuditCapability request
+-- may contain multiple values, a range, or a relation field.
+	PropertyParm ::= SEQUENCE
+	{
+--		name				[0] PkgdName,
+		propertyName		[0] PkgdName,
+--		value				[1] SEQUENCE OF OCTET STRING,
+		value				[1] SEQUENCE OF PropertyID,
+		extraInfo			[3] CHOICE
+		{
+			relation	[0] Relation,
+			range		[1] BOOLEAN,
+			sublist		[2] BOOLEAN
+		} OPTIONAL,
+		...
+	}
+
+	Name ::= OCTET STRING(SIZE(2))
+	
+	PkgdName ::= OCTET STRING(SIZE(4))
+	-- represents Package Name (2 octets) plus property, event,
+	-- signal names or StatisticsID. (2 octets)
+	-- To wildcard a package use 0xFFFF for first two octets, CHOOSE
+	-- is not allowed. To reference native property tag specified in
+	-- Annex C, use 0x0000 as first two octets.
+	-- To wildcard a PropertyID, EventID, SignalID, or StatisticsID, use
+	-- 0xFFFF for last two octets, CHOOSE is not allowed.
+	-- Wildcarding of Package Name is permitted only if PropertyID,
+	-- EventID, SignalID, or StatisticsID are also wildcarded.
+-- Wireshark specific
+	PropertyID ::= OCTET STRING
+
+	Relation ::= ENUMERATED
+	{
+		greaterThan(0),
+		smallerThan(1),
+		unequalTo(2),
+		...
+	}
+
+	LocalRemoteDescriptor ::= SEQUENCE
+	{
+		propGrps				[0] SEQUENCE OF PropertyGroup,
+		...
+	}
+
+	PropertyGroup ::= SEQUENCE OF PropertyParm
+
+	TerminationStateDescriptor ::= SEQUENCE
+	{
+		propertyParms			[0] SEQUENCE OF PropertyParm,
+		eventBufferControl		[1] EventBufferControl OPTIONAL,
+		serviceState			[3] ServiceState OPTIONAL,
+		...
+	}
+
+	EventBufferControl ::= ENUMERATED
+	{
+		off(0),
+		lockStep(1),
+		...
+	}
+
+	ServiceState ::= ENUMERATED
+	{
+		test(0),
+		outOfSvc(1),
+		inSvc(2),
+		...
+	}
+
+	MuxDescriptor ::= SEQUENCE
+	{
+		muxType					[0] MuxType,
+		termList				[1] SEQUENCE OF TerminationID,
+		nonStandardData			[2] NonStandardData OPTIONAL,
+		...
+	}
+
+	MuxType ::= ENUMERATED
+	{
+		h221(0),
+		h223(1),
+		h226(2),
+		v76(3),
+		...,
+		nx64k(4)
+	}
+
+	StreamID ::= INTEGER(0..65535) -- 16-bit unsigned integer
+
+	EventsDescriptor ::= SEQUENCE
+	{
+		requestID				[0] RequestID OPTIONAL,
+		-- RequestID must be present if eventList
+		-- is non empty
+		eventList				[1] SEQUENCE OF RequestedEvent,
+		...
+	}
+
+	RequestedEvent ::= SEQUENCE
+	{
+		pkgdName				[0] PkgdName,
+		streamID				[1] StreamID OPTIONAL,
+		eventAction				[2] RequestedActions OPTIONAL,
+		evParList				[3] SEQUENCE OF EventParameter,
+		...
+	}
+
+	RegulatedEmbeddedDescriptor ::= SEQUENCE
+	{
+		secondEvent				[0] SecondEventsDescriptor OPTIONAL,
+		signalsDescriptor		[1] SignalsDescriptor OPTIONAL,
+		...
+	}
+
+	NotifyBehaviour ::= CHOICE
+	{
+		notifyImmediate			[0] NULL,
+		notifyRegulated			[1] RegulatedEmbeddedDescriptor,
+		neverNotify				[2] NULL,
+		...
+	}
+
+	RequestedActions ::= SEQUENCE
+	{
+		keepActive				[0] BOOLEAN OPTIONAL,
+		eventDM					[1] EventDM OPTIONAL,
+		secondEvent				[2] SecondEventsDescriptor OPTIONAL,
+		signalsDescriptor		[3] SignalsDescriptor OPTIONAL,
+		...,
+		notifyBehaviour			[4] NotifyBehaviour OPTIONAL,
+		resetEventsDescriptor	[5] NULL OPTIONAL
+	}
+
+	EventDM ::= CHOICE
+	{
+		digitMapName			[0] DigitMapName,
+		digitMapValue			[1] DigitMapValue
+	}
+	
+	SecondEventsDescriptor ::= SEQUENCE
+	{
+		requestID				[0] RequestID OPTIONAL,
+		eventList				[1] SEQUENCE OF SecondRequestedEvent,
+		...
+	}
+
+	SecondRequestedEvent ::= SEQUENCE
+	{
+		pkgdName				[0] PkgdName,
+		streamID				[1] StreamID OPTIONAL,
+		eventAction				[2] SecondRequestedActions OPTIONAL,
+		evParList				[3] SEQUENCE OF EventParameter,
+		...
+	}
+
+	SecondRequestedActions ::= SEQUENCE
+	{
+		keepActive				[0] BOOLEAN OPTIONAL,
+		eventDM					[1] EventDM OPTIONAL,
+		signalsDescriptor		[2] SignalsDescriptor OPTIONAL,
+		...,
+		notifyBehaviour			[3] NotifyBehaviour OPTIONAL,
+		resetEventsDescriptor	[4] NULL OPTIONAL
+	}
+	
+	EventBufferDescriptor ::= SEQUENCE OF EventSpec
+
+	EventSpec ::= SEQUENCE
+	{
+		eventName				[0] EventName,
+		streamID				[1] StreamID OPTIONAL,
+		eventParList			[2] SEQUENCE OF EventParameter,
+		...
+	}
+
+	SignalsDescriptor ::= SEQUENCE OF SignalRequest
+	
+	SignalRequest ::=CHOICE
+	{
+		signal					[0] Signal,
+		seqSigList				[1] SeqSigList,
+		...
+	}
+
+	SeqSigList ::= SEQUENCE
+	{
+		id						[0] INTEGER(0..65535),
+		signalList				[1] SEQUENCE OF Signal
+	}
+
+	Signal ::= SEQUENCE
+	{
+		signalName				[0] SignalName,
+		streamID				[1] StreamID OPTIONAL,
+		sigType					[2] SignalType OPTIONAL,
+		duration				[3] INTEGER (0..65535) OPTIONAL,
+		notifyCompletion		[4] NotifyCompletion OPTIONAL,
+		keepActive				[5] BOOLEAN OPTIONAL,
+		sigParList				[6] SEQUENCE OF SigParameter,
+		...,
+		direction				[7] SignalDirection OPTIONAL,
+		requestID				[8] RequestID OPTIONAL,
+		intersigDelay			[9] INTEGER (0..65535) OPTIONAL
+	}
+
+	SignalType ::= ENUMERATED
+	{
+		brief(0),
+		onOff(1),
+		timeOut(2),
+		...
+	}
+
+	SignalDirection ::= ENUMERATED
+	{
+		internal(0),
+		external(1),
+		both(2),
+		...
+	}
+
+	SignalName ::= PkgdName
+
+	NotifyCompletion ::= BIT STRING
+	{
+		onTimeOut(0), onInterruptByEvent(1),
+		onInterruptByNewSignalDescr(2), otherReason(3), onIteration(4)
+	}
+
+	SigParameter ::= SEQUENCE
+	{
+--		sigParameterName		[0] Name,
+--		value					[1] Value,
+		sigParameterName		[0] SigParameterName,
+		value					[1] SigParamValues,
+	-- For use of extraInfo see the comment related to PropertyParm
+		extraInfo				[2] CHOICE
+		{
+			relation	[0] Relation,
+			range		[1] BOOLEAN,
+			sublist		[2] BOOLEAN
+		} OPTIONAL,
+	...
+	}
+-- Wireshark specific	
+	SigParameterName ::= Name
+	  
+	SigParamValues ::= SEQUENCE OF SigParamValue
+	  
+	SigParamValue ::= OCTET STRING
+-- end
+	-- For an AuditCapReply with all events, the RequestID shall be ALL.
+	-- ALL is represented by 0xffffffff.
+	RequestID ::= INTEGER(0..4294967295) -- 32-bit unsigned integer
+
+	ModemDescriptor ::= SEQUENCE
+	{
+		mtl					[0] SEQUENCE OF ModemType,
+		mpl					[1] SEQUENCE OF PropertyParm,
+		nonStandardData		[2] NonStandardData OPTIONAL
+	}
+
+	ModemType ::= ENUMERATED
+	{
+		v18(0),
+		v22(1),
+		v22bis(2),
+		v32(3),
+		v32bis(4),
+		v34(5),
+		v90(6),
+		v91(7),
+		synchISDN(8),
+		...
+	}
+
+	DigitMapDescriptor ::= SEQUENCE
+	{
+		digitMapName			[0] DigitMapName OPTIONAL,
+		digitMapValue			[1] DigitMapValue OPTIONAL
+	}
+
+	DigitMapName ::= Name
+
+	DigitMapValue ::= SEQUENCE
+	{
+		startTimer				[0] INTEGER(0..99) OPTIONAL,
+		shortTimer				[1] INTEGER(0..99) OPTIONAL,
+		longTimer				[2] INTEGER(0..99) OPTIONAL,
+		digitMapBody			[3] IA5String,
+		-- Units are seconds for start, short and long timers, and hundreds
+		-- of milliseconds for duration timer. Thus start, short, and long
+		-- range from 1 to 99 seconds and duration from 100 ms to 9.9 s
+		-- See A.3 for explanation of DigitMap syntax
+		...,
+		durationTimer			[4] INTEGER (0..99) OPTIONAL
+	}
+
+	ServiceChangeParm ::= SEQUENCE
+	{
+		serviceChangeMethod			[0] ServiceChangeMethod,
+		serviceChangeAddress		[1] ServiceChangeAddress OPTIONAL,
+		serviceChangeVersion		[2] INTEGER(0..99) OPTIONAL,
+		serviceChangeProfile		[3] ServiceChangeProfile OPTIONAL,
+		serviceChangeReason			[4] Value,
+		-- A serviceChangeReason consists of a numeric reason code
+		-- and an optional text description.
+		-- The serviceChangeReason shall be a string consisting of
+		-- a decimal reason code, optionally followed by a single
+		-- space character and a textual description string.
+		-- This string is first BER-encoded as an IA5String.
+		-- The result of this BER-encoding is then encoded as
+		-- an ASN.1 OCTET STRING type, "double wrapping" the
+		-- value as was done for package elements.
+
+		serviceChangeDelay			[5] INTEGER(0..4294967295) OPTIONAL,
+		-- 32-bit unsigned integer
+		serviceChangeMgcId			[6] MId OPTIONAL,
+		timeStamp					[7] TimeNotation OPTIONAL,
+		nonStandardData				[8] NonStandardData OPTIONAL,
+		...,
+		serviceChangeInfo			[9] AuditDescriptor OPTIONAL,
+		serviceChangeIncompleteFlag [10] NULL OPTIONAL
+	}
+
+	ServiceChangeAddress ::= CHOICE
+	{
+		portNumber					[0] INTEGER(0..65535), -- TCP/UDP port number
+		ip4Address					[1] IP4Address,
+		ip6Address					[2] IP6Address,
+		domainName					[3] DomainName,
+		deviceName					[4] PathName,
+		mtpAddress					[5] MtpAddress,
+		...
+	}
+
+	ServiceChangeResParm ::= SEQUENCE
+	{
+		serviceChangeMgcId			[0] MId OPTIONAL,
+		serviceChangeAddress		[1] ServiceChangeAddress OPTIONAL,
+		serviceChangeVersion		[2] INTEGER(0..99) OPTIONAL,
+		serviceChangeProfile		[3] ServiceChangeProfile OPTIONAL,
+		timestamp					[4] TimeNotation OPTIONAL,
+		...
+	}
+
+	ServiceChangeMethod ::= ENUMERATED
+	{
+		failover(0),
+		forced(1),
+		graceful(2),
+		restart(3),
+		disconnected(4),
+		handOff(5),
+		...
+	}
+
+	ServiceChangeProfile ::= SEQUENCE
+	{
+		profileName IA5String(SIZE (1..67))
+		-- 64 characters for name, 1 for "/", 2 for version to match ABNF
+	}
+
+	PackagesDescriptor ::= SEQUENCE OF PackagesItem
+
+	PackagesItem ::= SEQUENCE
+	{
+		packageName					[0] Name,
+		packageVersion				[1] INTEGER(0..99),
+		...
+	}
+
+	StatisticsDescriptor ::= SEQUENCE OF StatisticsParameter
+
+	StatisticsParameter ::= SEQUENCE
+	{
+		statName					[0] PkgdName,
+		statValue					[1] Value OPTIONAL
+	}
+	-- If statistic consists of a sub-lists there will be more than
+	-- one octetstring in statValue.
+	NonStandardData ::= SEQUENCE
+	{
+		nonStandardIdentifier		[0] NonStandardIdentifier,
+		data						[1] OCTET STRING
+	}
+
+	NonStandardIdentifier ::= CHOICE
+	{
+		object						[0] OBJECT IDENTIFIER,
+		h221NonStandard				[1] H221NonStandard,
+		experimental				[2] IA5String(SIZE(8)),
+		-- first two characters should be "X-" or "X+"
+		...
+	}
+
+	H221NonStandard ::= SEQUENCE
+	{	
+		t35CountryCode1				[0] INTEGER(0..255),
+		t35CountryCode2				[1] INTEGER(0..255),	-- country, as per T.35
+		t35Extension				[2] INTEGER(0..255),	-- assigned nationally
+		manufacturerCode			[3] INTEGER(0..65535),	-- assigned nationally
+		...
+	}
+
+	TimeNotation ::= SEQUENCE
+	{
+		date						[0] IA5String(SIZE(8)), -- yyyymmdd format
+		time						[1] IA5String(SIZE(8)) -- hhmmssss format
+		-- per ISO 8601:2004
+	}
+
+	Value ::= SEQUENCE OF OCTET STRING
+
+END
