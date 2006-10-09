@@ -47,7 +47,7 @@ DUMPCAP=$WS_BIN_PATH/dumpcap
 # interface with at least a few packets/sec traffic on it
 # (e.g. start a web radio to generate some traffic :-)
 # an interfaces index (1 based) should do well for recent devbuilds
-TRAFFIC_CAPTURE_IFACE=3
+TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-3}
 
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
