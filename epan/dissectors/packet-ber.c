@@ -1,4 +1,4 @@
-/*#define DEBUG_BER 1 
+/*#define DEBUG_BER 1 */
 /* TODO: change #.REGISTER signature to new_dissector_t and
  * update call_ber_oid_callback() accordingly.
  *
