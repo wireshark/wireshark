@@ -127,8 +127,9 @@ color_filter_clone(color_filter_t *colorf)
 }
 
 static void
-color_filter_list_clone_cb(gpointer filter_arg, gpointer *cfl)
+color_filter_list_clone_cb(gpointer filter_arg, gpointer cfl_arg)
 {
+    gpointer *cfl = cfl_arg;
     color_filter_t *new_colorf;
 
     new_colorf = color_filter_clone(filter_arg);
@@ -182,7 +183,7 @@ color_filters_clone(gpointer user_data)
 
 
 static void
-color_filter_compile_cb(gpointer filter_arg, gpointer *cfl)
+color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 {
 	color_filter_t *colorf = filter_arg;
 
