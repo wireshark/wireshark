@@ -4182,7 +4182,6 @@ proto_register_ieee80211 (void)
      * we build them using g_string_sprintf and just leave them 
      * allocated. */
     g_string_sprintf(key_name, "wep_key%d", i + 1);
-fprintf(stderr, "%s\n", key_name->str);
     g_string_sprintf(key_title, "WEP key #%d", i + 1);
     g_string_sprintf(key_desc, "WEP key #%d bytes in hexadecimal (A:B:C:D:E) "
 	    "[40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key "
