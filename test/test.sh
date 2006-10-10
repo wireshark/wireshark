@@ -25,7 +25,32 @@
 
 # an existing capture file
 CAPFILE=./dhcp.pcap
+USE_COLOR=1
+RUN_SUITE=""
+PRINT_USAGE=0
 
+while getopts "chs:" OPTION ; do
+        case $OPTION in
+          c) USE_COLOR=0 ;;
+          h) PRINT_USAGE=1 ;;
+          s) RUN_SUITE="$OPTARG" ;;
+          *) echo "Unknown option: " $OPTION $OPTARG
+        esac
+done
+
+shift $(( $OPTIND - 1 ))
+
+if [ $PRINT_USAGE -ne 0 ] ; then
+        THIS=`basename $0`
+        cat <<FIN
+Usage: $THIS [-c] [-h] [-s <suite>]
+  -c: Disable color output
+  -h: Print this message and exit
+  -s: Run a suite.  Must be one of: all, capture, clopts, io, or
+      prerequisites
+FIN
+        exit 0
+fi
 
 source test-backend.sh
 
@@ -79,9 +104,24 @@ test_set_output VERBOSE
 #test_suite_run "All" test_suite
 #test_suite_show "All" test_suite
 
-if [ "$1" == "all" ] ; then
-        test_suite_run "All" test_suite
-        exit $?
+if [ -n "$RUN_SUITE" ] ; then
+        case $RUN_SUITE in
+          "all")
+            test_suite_run "All" test_suite
+            exit $? ;;
+	  "capture")
+            test_suite_run "Capture" capture_suite
+            exit $? ;;
+	  "clopts")
+	    test_suite_run "Command line options" clopt_suite
+            exit $? ;;
+	  "io")
+	    test_suite_run "File I/O" io_suite
+            exit $? ;;
+	  "prerequisites")
+            test_suite_run "Prerequisites" prerequisites_suite
+            exit $? ;;
+        esac
 fi
 
 MENU_LEVEL=0
