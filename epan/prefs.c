@@ -50,7 +50,6 @@
 #include <epan/prefs-int.h>
 
 /* Internal functions */
-static module_t *find_module(const char *name);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
@@ -209,7 +208,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		 * protocol preferences to have a bogus "protocol.", or
 		 * something such as that, to be added to all their names).
 		 */
-		g_assert(find_module(name) == NULL);
+		g_assert(prefs_find_module(name) == NULL);
 
 		/*
 		 * Insert this module in the list of all modules.
@@ -311,8 +310,8 @@ module_match(gconstpointer a, gconstpointer b)
 	return strcmp(name, module->name);
 }
 
-static module_t *
-find_module(const char *name)
+module_t *
+prefs_find_module(const char *name)
 {
 	GList *list_entry;
 
@@ -494,7 +493,7 @@ find_preference(module_t *module, const char *name)
 gboolean
 prefs_is_registered_protocol(const char *name)
 {
-	module_t *m = find_module(name);
+	module_t *m = prefs_find_module(name);
 
 	return (m != NULL && !m->obsolete);
 }
@@ -505,7 +504,7 @@ prefs_is_registered_protocol(const char *name)
 const char *
 prefs_get_title_by_name(const char *name)
 {
-	module_t *m = find_module(name);
+	module_t *m = prefs_find_module(name);
 
 	return (m != NULL && !m->obsolete) ? m->title : NULL;
 }
@@ -1823,7 +1822,7 @@ set_pref(gchar *pref_name, gchar *value)
             had_a_dot = TRUE;
         }
         *dotp = '\0';		/* separate module and preference name */
-        module = find_module(pref_name);
+        module = prefs_find_module(pref_name);
 
         /*
          * XXX - "Diameter" rather than "diameter" was used in earlier
@@ -1842,14 +1841,14 @@ set_pref(gchar *pref_name, gchar *value)
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
-            module = find_module("diameter");
+            module = prefs_find_module("diameter");
           else if (strcmp(pref_name, "bxxp") == 0)
-            module = find_module("beep");
+            module = prefs_find_module("beep");
           else if (strcmp(pref_name, "gtpv0") == 0 ||
                    strcmp(pref_name, "gtpv1") == 0)
-            module = find_module("gtp");
+            module = prefs_find_module("gtp");
           else if (strcmp(pref_name, "smpp-gsm-sms") == 0)
-            module = find_module("gsm-sms-ud");
+            module = prefs_find_module("gsm-sms-ud");
         }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
@@ -2016,7 +2015,7 @@ set_pref(gchar *pref_name, gchar *value)
           pref = find_preference(module, "desegment_body");
       } else if (strcmp(module->name, "smpp") == 0) {
         /* Handle preferences that moved from SMPP. */
-        module_t *new_module = find_module("gsm-sms-ud");
+        module_t *new_module = prefs_find_module("gsm-sms-ud");
         if(new_module){
           if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
             pref = find_preference(new_module, "port_number_udh_means_wsp");

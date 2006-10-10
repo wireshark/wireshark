@@ -351,6 +351,16 @@ extern void free_prefs(e_prefs *pr);
 #define PREFS_SET_NO_SUCH_PREF	2	/* no such preference */
 #define PREFS_SET_OBSOLETE	3	/* preference used to exist but no longer does */
 
+/** Given a module name, return a pointer to its pref_module struct,
+ * or NULL if it's not found.
+ *
+ * @param name The preference module name.  Usually the same as the protocol
+ * name, e.g. "tcp".
+ * @return A pointer to the corresponding preference module, or NULL if it
+ * wasn't found.
+ */
+module_t *prefs_find_module(const char *name);
+
 extern int prefs_set_pref(char *prefarg);
 
 #endif /* prefs.h */

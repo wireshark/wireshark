@@ -32,8 +32,6 @@
 #define	CANT_GET_AIRPCAP_INTERFACE_LIST	0	/* error getting list */
 #define	NO_AIRPCAP_INTERFACES_FOUND	1	/* list is empty */
 
-#define MAX_ENCRYPTION_KEYS 64
-
 #define AIRPCAP_CHANNEL_ANY_NAME "ANY"
 
 /*

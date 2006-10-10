@@ -83,6 +83,8 @@ typedef struct _AirpcapDeviceDescription
 	PCHAR	Description;								/* Device description */
 } AirpcapDeviceDescription, *PAirpcapDeviceDescription;
 
+#define MAX_ENCRYPTION_KEYS 64
+
 #define WEP_KEY_MAX_SIZE 32		/* Maximum size of a WEP key, in bytes. This is the size of an entry in the */
 								/* AirpcapWepKeysCollection structure */
 

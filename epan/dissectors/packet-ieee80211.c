@@ -71,6 +71,13 @@
 #include <ctype.h>
 #include "isprint.h"
 
+#ifdef HAVE_AIRPCAP
+#include <airpcap.h>
+#else
+/* XXX - This is probably a bit much */
+#define MAX_ENCRYPTION_KEYS 64
+#endif
+
 #ifndef roundup2
 #define	roundup2(x, y)	(((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
 #endif
@@ -112,7 +119,7 @@ static int weak_iv(guchar *iv);
  */
 
 #ifndef USE_ENV
-static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
+static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #endif
 
 /* ************************************************************************* */
@@ -3302,6 +3309,9 @@ wlan_defragment_init(void)
 void
 proto_register_ieee80211 (void)
 {
+  int i;
+  GString *key_name, *key_title, *key_desc;
+
   static const value_string frame_type[] = {
     {MGT_FRAME,     "Management frame"},
     {CONTROL_FRAME, "Control frame"},
@@ -4163,22 +4173,28 @@ proto_register_ieee80211 (void)
 				 "How many WEP keys do we have to choose from? (0 to disable, up to 4)",
 				 &num_wepkeys, wep_keys_options, FALSE);
 
-  prefs_register_string_preference(wlan_module, "wep_key1",
-				   "WEP key #1",
-				   "First WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
-				   &wep_keystr[0]);
-  prefs_register_string_preference(wlan_module, "wep_key2",
-				   "WEP key #2",
-				   "Second WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
-				   &wep_keystr[1]);
-  prefs_register_string_preference(wlan_module, "wep_key3",
-				   "WEP key #3",
-				   "Third WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
-				   &wep_keystr[2]);
-  prefs_register_string_preference(wlan_module, "wep_key4",
-				   "WEP key #4",
-				   "Fourth WEP key (A:B:C:D:E) [40bit] (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
-				   &wep_keystr[3]);
+  for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
+    key_name = g_string_new("");
+    key_title = g_string_new("");
+    key_desc = g_string_new("");
+    wep_keystr[i] = NULL;
+    /* prefs_register_*_preference() expects unique strings, so
+     * we build them using g_string_sprintf and just leave them 
+     * allocated. */
+    g_string_sprintf(key_name, "wep_key%d", i + 1);
+fprintf(stderr, "%s\n", key_name->str);
+    g_string_sprintf(key_title, "WEP key #%d", i + 1);
+    g_string_sprintf(key_desc, "WEP key #%d bytes in hexadecimal (A:B:C:D:E) "
+	    "[40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key "
+	    "length you're using", i + 1);
+    
+    prefs_register_string_preference(wlan_module, key_name->str, 
+	    key_title->str, key_desc->str, &wep_keystr[i]);
+
+    g_string_free(key_name, FALSE);
+    g_string_free(key_title, FALSE);
+    g_string_free(key_desc, FALSE);
+  }
 #endif
 }
 
