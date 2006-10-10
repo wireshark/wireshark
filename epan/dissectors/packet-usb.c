@@ -44,18 +44,18 @@ typedef enum {
 } urb_type_t;
 
 typedef struct usb_header {
-  u_int32_t urb_type;  
-  u_int32_t device_address;
-  u_int32_t endpoint_number;
-  u_int32_t setup_packet;
+  guint32 urb_type;  
+  guint32 device_address;
+  guint32 endpoint_number;
+  guint32 setup_packet;
 } usb_header_t;
 
 typedef struct usb_setup {
-  u_int32_t bmRequestType;
-  u_int32_t bRequest;
-  u_int32_t wValue;
-  u_int32_t wIndex;
-  u_int32_t wLength;
+  guint32 bmRequestType;
+  guint32 bRequest;
+  guint32 wValue;
+  guint32 wIndex;
+  guint32 wLength;
 } usb_setup_t;
 
 
