@@ -52,7 +52,6 @@ void proto_reg_handoff_linx();
 static void dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_linx = -1;
-static dissector_handle_t linx_handle;
 
 /* ALL */
 static int hf_linx_nexthdr         = -1;
