@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.3">
+  <!ENTITY WiresharkCurrentVersion "0.99.4">
 
 ]>
 
@@ -36,39 +36,10 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	  The SCSI dissector could crash.
-	  <!-- Fixed in r18832 -->
-	  <!-- Bug IDs: 1034 -->
-	  Versions affected: 0.99.2.
-        </para></listitem>
-
-	<listitem><para>
-	  If Wireshark was compiled with ESP decryption support, the
-	  IPsec ESP preference parser was susceptible to off-by-one
-	  errors.
-	  <!-- Fixed in r18856, r18915, r18943 -->
-	  <!-- Bug IDs: None -->
-	  Versions affected: 0.99.2.
-        </para></listitem>
-
-        <listitem><para>
-	  The DHCP dissector (and possibly others) in the Windows version of
-          Wireshark could trigger a bug in Glib and crash.
-	  <!-- Fixed in r18883 -->
-	  <!-- Bug IDs: 1025 -->
-          <!-- Gnome bug ID: 351034 -->
-	  Versions affected: 0.10.13 - 0.99.2.
-        </para></listitem>
-
-        <listitem><para>
-	  If the SSCOP dissector has a port range configured
-	  <emphasis>and</emphasis> the SSCOP payload protocol is
-	  Q.2931, a malformed packet could make the Q.2931 dissector
-	  use up available memory.  No port range is configured
-	  by default.
-	  <!-- Fixed in r18992 -->
-	  <!-- Bug IDs: None -->
-	  Versions affected: 0.7.9 - 0.99.2.
+	  The HTTP dissector could crash.
+	  <!-- Fixed in r19022, r19153 -->
+	  <!-- Bug IDs: 1050, 1079 -->
+	  Versions affected: 0.99.3.
         </para></listitem>
 
       </itemizedlist>
@@ -80,18 +51,6 @@ Wireshark Info
     The following bugs have been fixed:
 
       <itemizedlist>
-
-        <listitem><para>
-          The VOIP call analysis feature could cause an assertion.
-        </para></listitem>
-
-        <listitem><para>
-          The RTP analysis feature could freeze for an extended period.
-        </para></listitem>
-
-        <listitem><para>
-          Selecting "Apply as Filter" wouldn't work for some tree items.
-        </para></listitem>
 
       </itemizedlist>
     </para>
@@ -105,24 +64,9 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	ESP, Kerberos, and SSL decryption are now supported in the
-	Windows installer.  (As as result, Wireshark is now subject to
-	United States export controls.)
-        </para></listitem>
-
-        <listitem><para>
-        The packet list context menu now includes a conversation filter.
-        </para></listitem>
-
-        <listitem><para>
-        Wireshark can now generate ACL rules for several popular firewall
-        products.
-        </para></listitem>
-
-        <listitem><para>
-        Wireshark now supports
         <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>,
-        including raw 802.11 captures under Windows.
+        support (which provides raw mode capture under Windows) has been
+	enhanced..
         </para></listitem>
 
       </itemizedlist>
@@ -132,67 +76,12 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
-Daytime,
-JPEG (RTP payload),
-Pegasus Lightweight Stream Control,
-Pro-MPEG FEC,
-UMTS RRC,
-Veritas Low Latency Transport
 
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
 
-All ASN.1 dissectors,
-
-3G A11,
-802.11,
-AIM SST,
-AJP13,
-ANSI 637,
-AVS WLAN,
-BACapp,
-BFD,
-CDP,
-Cisco WIDS,
-DCERPC (DCERPC, CONV, DFS, EPM, FLDB, NETLOGON, NT, PN-IO, RS_PGO),
-DCOM,
-DHCP,
-DIAMETER,
-DTLS,
-EAPOL,
-ESP,
-H.225,
-H.245,
-H.450,
-HTTP,
-IPv6,
-ISAKMP,
-Juniper,
-Kerberos,
-L2TP,
-LDAP,
-MSRP,
-NTLMSSP,
-PN-CBA,
-PN-RT,
-Prism,
-RSVP,
-RTCP,
-RUDP,
-SCSI,
-SCTP,
-SDP,
-SIP,
-SIPFRAG,
-Skinny,
-SMB,
-SSL,
-TCP,
-text/media,
-Time,
-XML
 
 
     </para>
@@ -201,9 +90,8 @@ XML
     <section><title>New and Updated Capture File Support</title>
     <para>
 
-Catapult DCT2000,
-nettl
-    </para>
+
+</para>
     </section>
 
   </section>
@@ -218,9 +106,10 @@ nettl
     <section><title>Vendor-supplied Packages</title>
       <para>
 	Most Linux and Unix vendors supply their own Wireshark packages.
-	You can install or upgrade Wireshark using the package management
+	You can usually install or upgrade Wireshark using the package management
 	system specific to that platform.  A list of third-party packages
-        can be found on the <ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
+	can be found on the
+	<ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
     </section>
 
