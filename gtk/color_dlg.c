@@ -92,10 +92,6 @@ static void color_clear_cb(GtkWidget *button, gpointer user_data);
 static void color_export_cb(GtkButton *button, gpointer user_data );
 static void color_import_cb(GtkButton *button, gpointer user_data );
 
-static GtkWidget* color_sel_win_new(color_filter_t *colorf, gboolean);
-static void color_sel_ok_cb(GtkButton *button, gpointer user_data);
-static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
-
 
 static GtkWidget *colorize_win;
 gint	  num_of_filters;  /* number of filters being displayed */
