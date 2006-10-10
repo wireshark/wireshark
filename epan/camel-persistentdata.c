@@ -34,6 +34,7 @@
 #include <epan/emem.h>
 #include "epan/packet.h"
 #include "epan/conversation.h"
+#include "epan/tap.h"
 #include "epan/camel-persistentdata.h"
 #include "epan/dissectors/packet-tcap.h"
 #include "epan/dissectors/packet-mtp3.h"
