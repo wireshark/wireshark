@@ -265,18 +265,18 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
-	g_string_append(str, ".");
 	do_word_wrap(str, break_point);
 
 #ifndef HAVE_LIBPCRE
 	break_point = str->len - 1;
 	g_string_append(str,
-			"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
+			".\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
 			"\nsyntax.");
-	do_word_wrap(str, break_point);
+#else
+	g_string_append(str, ",");
 #endif	/* HAVE_LIBPCRE */
+	do_word_wrap(str, break_point);
 
-	end_string(str);
 }
 
 /*

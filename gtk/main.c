@@ -2067,17 +2067,6 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
-#ifdef HAVE_LIBPORTAUDIO
-#ifdef PORTAUDIO_API_1
-  g_string_append(comp_info_str, "with PortAudio <= V18");
-#else
-  g_string_append(comp_info_str, "with PortAudio ");
-  g_string_append(comp_info_str, Pa_GetVersionText());
-#endif
-#else
-  g_string_append(comp_info_str, "without PortAudio");
-#endif /* HAVE_LIBPORTAUDIO */
-  g_string_append(comp_info_str, ", ");
 
   g_string_append(comp_info_str, "with ");
   g_string_sprintfa(comp_info_str,
@@ -2090,6 +2079,19 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, ", ");
 
   get_compiled_version_info(comp_info_str);
+
+#ifdef HAVE_LIBPORTAUDIO
+  g_string_append(comp_info_str, " ");
+#ifdef PORTAUDIO_API_1
+  g_string_append(comp_info_str, "with PortAudio <= V18");
+#else
+  g_string_append(comp_info_str, "with PortAudio ");
+  g_string_append(comp_info_str, Pa_GetVersionText());
+#endif
+#else
+  g_string_append(comp_info_str, "without PortAudio");
+#endif /* HAVE_LIBPORTAUDIO */
+  g_string_append(comp_info_str, ".");
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
