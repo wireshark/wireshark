@@ -125,7 +125,7 @@ void proto_register_h248_3gpp(void) {
 	{ &hf_h248_package_3GUP_parameters,
 	{ "Parameter", "h248.package_3GUP.parameter",
 		FT_UINT16, BASE_HEX, VALS(h248_3GUP_parameters), 0,
-		"Mode", HFILL }},
+		"Parameter", HFILL }},
 		
 		
 		{ &hf_h248_package_3GUP_UPversions,
