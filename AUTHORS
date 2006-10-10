@@ -2462,6 +2462,7 @@ Eric Hultin		<Eric.Hultin[AT]arrisi.com> {
 
 Paolo Abeni		<paolo.abeni [AT] email.it> {
 	SSL-decryption
+	Dissector for USB packets and pcap/wiretap support
 }
 
 W. Borgert		<debacle [AT] debian.org> {

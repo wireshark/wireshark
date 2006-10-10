@@ -658,6 +658,7 @@ DISSECTOR_SRC =	\
 	packet-uma.c	\
 	packet-udp.c	\
 	packet-ulp.c	\
+	packet-usb.c	\
 	packet-umts_fp.c	\
 	packet-umts_rrc.c	\
 	packet-umts_rrc_ies.c	\

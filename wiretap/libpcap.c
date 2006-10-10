@@ -410,6 +410,8 @@ static const struct {
         { 181,          WTAP_ENCAP_JUNIPER_CHDLC },
         /* VOIP Frames prepended with meta-information */
         { 183,          WTAP_ENCAP_JUNIPER_VP },
+	/* raw USB packets */
+	{ 186, 		WTAP_ENCAP_USB },
 
 
 	/*

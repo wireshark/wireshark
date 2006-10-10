@@ -363,6 +363,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_JUNIPER_VP */
 	{ "Juniper Voice PIC", "juniper-vp" },
+
+	/* WTAP_ENCAP_USB */
+	{ "Raw USB packets", "usb" },
 };
 
 /* Name that should be somewhat descriptive. */
