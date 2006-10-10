@@ -573,7 +573,7 @@ extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packe
 }
 
 
-static h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &hf_248_no_pkg_param, &ett_h248_no_pkg, NULL, NULL, NULL };
+static h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &hf_248_no_pkg_param, &ett_h248_no_pkg, NULL, NULL, NULL, NULL };
 static h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL };
 static h248_pkg_param_t no_param = { 0, &hf_h248_no_param, h248_param_item,  NULL };
 static h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL };
