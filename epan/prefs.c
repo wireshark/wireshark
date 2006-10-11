@@ -397,6 +397,19 @@ prefs_apply_all(void)
 }
 
 /*
+ * Call the "apply" callback function for a specific module if any of
+ * its preferences have changed, and then clear the flag saying its
+ * preferences have changed, as the module has been notified of that
+ * fact.
+ */
+void
+prefs_apply(module_t *module)
+{
+	if (module && module->prefs_changed)
+		call_apply_cb(module, NULL);
+}
+
+/*
  * Register a preference in a module's list of preferences.
  * If it has a title, give it an ordinal number; otherwise, it's a
  * preference that won't show up in the UI, so it shouldn't get an

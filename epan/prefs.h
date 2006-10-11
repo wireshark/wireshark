@@ -235,6 +235,14 @@ extern guint prefs_modules_foreach(module_cb callback, gpointer user_data);
  */
 extern void prefs_apply_all(void);
 
+/*
+ * Call the "apply" callback function for a specific module if any of
+ * its preferences have changed, and then clear the flag saying its
+ * preferences have changed, as the module has been notified of that
+ * fact.
+ */
+extern void prefs_apply(module_t *module);
+
 struct preference;
 
 typedef struct preference pref_t;
