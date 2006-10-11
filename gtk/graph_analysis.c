@@ -313,7 +313,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	list = g_list_first(user_data->graph_info->list);
 	current_item = 0;
 	i = 0;
-	while (list)
+	while (list && current_item < NUM_DISPLAY_ITEMS)
 	{
 		gai = list->data;
 		if (gai->display){
