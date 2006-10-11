@@ -51,11 +51,11 @@ typedef struct usb_header {
 } usb_header_t;
 
 typedef struct usb_setup {
-  guint32 bmRequestType;
-  guint32 bRequest;
-  guint32 wValue;
-  guint32 wIndex;
-  guint32 wLength;
+  guint8 bmRequestType;
+  guint8 bRequest;
+  guint16 wValue;
+  guint16 wIndex;
+  guint16 wLength;
 } usb_setup_t;
 
 
@@ -162,23 +162,23 @@ proto_register_usb(void)
                 "usb endpoint number", HFILL }},
 
         { &hf_usb_request_type,
-        { "Request Type", "usb.request_type", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "Request Type", "usb.setup.request_type", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_request,
-        { "Request", "usb.request", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "Request", "usb.setup.request", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_value,
-        { "value", "usb.value", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "value", "usb.setup.value", FT_UINT16, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_index,
-        { "Index", "usb.index", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Index", "usb.setup.index", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_length,
-        { "Length", "usb.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Length", "usb.setup.length", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
                 
         { &hf_usb_data,
