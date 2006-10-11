@@ -98,6 +98,7 @@
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
+#include "packet-ntlmssp.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -199,9 +200,12 @@ static int hf_ldap_name = -1;                     /* LDAPDN */
 static int hf_ldap_authentication = -1;           /* AuthenticationChoice */
 static int hf_ldap_simple = -1;                   /* Simple */
 static int hf_ldap_sasl = -1;                     /* SaslCredentials */
+static int hf_ldap_ntlmsspNegotiate = -1;         /* T_ntlmsspNegotiate */
+static int hf_ldap_ntlmsspAuth = -1;              /* T_ntlmsspAuth */
 static int hf_ldap_mechanism = -1;                /* Mechanism */
 static int hf_ldap_credentials = -1;              /* Credentials */
 static int hf_ldap_bindResponse_resultCode = -1;  /* BindResponse_resultCode */
+static int hf_ldap_matchedDN1 = -1;               /* T_matchedDN */
 static int hf_ldap_serverSaslCreds = -1;          /* ServerSaslCreds */
 static int hf_ldap_baseObject = -1;               /* LDAPDN */
 static int hf_ldap_scope = -1;                    /* T_scope */
@@ -254,7 +258,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 148 "packet-ldap-template.c"
+#line 149 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -305,7 +309,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 157 "packet-ldap-template.c"
+#line 158 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 
@@ -324,6 +328,7 @@ static gboolean is_binary_attr_type = FALSE;
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
+static dissector_handle_t ntlmssp_handle = NULL;
 
 
 /* different types of rpc calls ontop of ms cldap */
@@ -994,15 +999,51 @@ static int dissect_sasl_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
+
+static int
+dissect_ldap_T_ntlmsspNegotiate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 601 "ldap.cnf"
+	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
+	offset+=tvb_length_remaining(tvb, offset);
+
+
+
+  return offset;
+}
+static int dissect_ntlmsspNegotiate_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ldap_T_ntlmsspNegotiate(TRUE, tvb, offset, pinfo, tree, hf_ldap_ntlmsspNegotiate);
+}
+
+
+
+static int
+dissect_ldap_T_ntlmsspAuth(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 605 "ldap.cnf"
+	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
+	offset+=tvb_length_remaining(tvb, offset);
+
+
+
+  return offset;
+}
+static int dissect_ntlmsspAuth_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ldap_T_ntlmsspAuth(TRUE, tvb, offset, pinfo, tree, hf_ldap_ntlmsspAuth);
+}
+
+
 static const value_string ldap_AuthenticationChoice_vals[] = {
   {   0, "simple" },
   {   3, "sasl" },
+  {  10, "ntlmsspNegotiate" },
+  {  11, "ntlmsspAuth" },
   { 0, NULL }
 };
 
 static const ber_choice_t AuthenticationChoice_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_simple_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sasl_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_ntlmsspNegotiate_impl },
+  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_ntlmsspAuth_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1140,6 +1181,31 @@ static int dissect_bindResponse_resultCode(packet_info *pinfo, proto_tree *tree,
 
 
 static int
+dissect_ldap_T_matchedDN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 609 "ldap.cnf"
+	tvbuff_t *new_tvb=NULL;
+
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
+
+	if(  new_tvb
+	&&  (tvb_length(new_tvb)>=7)
+	&&  (!tvb_memeql(new_tvb, 0, "NTLMSSP", 7))){
+		call_dissector(ntlmssp_handle, new_tvb, pinfo, tree);
+	}
+	return offset;
+
+
+
+
+  return offset;
+}
+static int dissect_matchedDN1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ldap_T_matchedDN(FALSE, tvb, offset, pinfo, tree, hf_ldap_matchedDN1);
+}
+
+
+
+static int
 dissect_ldap_ErrorMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ldap_LDAPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
@@ -1256,7 +1322,7 @@ static int dissect_serverSaslCreds_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static const ber_sequence_t BindResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_bindResponse_resultCode },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN1 },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_errorMessage },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_referral_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serverSaslCreds_impl },
@@ -2775,7 +2841,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 540 "packet-ldap-template.c"
+#line 542 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -4010,6 +4076,14 @@ void proto_register_ldap(void) {
       { "sasl", "ldap.sasl",
         FT_NONE, BASE_NONE, NULL, 0,
         "ldap.SaslCredentials", HFILL }},
+    { &hf_ldap_ntlmsspNegotiate,
+      { "ntlmsspNegotiate", "ldap.ntlmsspNegotiate",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ldap.T_ntlmsspNegotiate", HFILL }},
+    { &hf_ldap_ntlmsspAuth,
+      { "ntlmsspAuth", "ldap.ntlmsspAuth",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ldap.T_ntlmsspAuth", HFILL }},
     { &hf_ldap_mechanism,
       { "mechanism", "ldap.mechanism",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4022,6 +4096,10 @@ void proto_register_ldap(void) {
       { "resultCode", "ldap.resultCode",
         FT_UINT32, BASE_DEC, VALS(ldap_BindResponse_resultCode_vals), 0,
         "ldap.BindResponse_resultCode", HFILL }},
+    { &hf_ldap_matchedDN1,
+      { "matchedDN", "ldap.matchedDN",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ldap.T_matchedDN", HFILL }},
     { &hf_ldap_serverSaslCreds,
       { "serverSaslCreds", "ldap.serverSaslCreds",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4224,7 +4302,7 @@ void proto_register_ldap(void) {
         "ldap.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1596 "packet-ldap-template.c"
+#line 1598 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4277,7 +4355,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1607 "packet-ldap-template.c"
+#line 1609 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4333,6 +4411,8 @@ proto_reg_handoff_ldap(void)
 
 	gssapi_handle = find_dissector("gssapi");
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
+
+	ntlmssp_handle = find_dissector("ntlmssp");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
 	add_oid_str_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");

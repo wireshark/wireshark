@@ -1,7 +1,7 @@
 -- Module Lightweight-Directory-Access-Protocol-V3 (RFC 2251:12/1997)
 Lightweight-Directory-Access-Protocol-V3
 --
--- $Id:$
+-- $Id$
 -- Copyright (C) The Internet Society (1997). This version of
 -- this ASN.1 module is part of RFC 2251;
 -- see the RFC itself for full legal notices.
@@ -134,7 +134,10 @@ BindRequest ::= [APPLICATION 0]  SEQUENCE {
 AuthenticationChoice ::= CHOICE {
   simple  [0]  Simple,
   -- 1 and 2 reserved
-  sasl    [3]  SaslCredentials
+  sasl    [3]  SaslCredentials,
+  -- 10,11 from bug 1148
+  ntlmsspNegotiate	[10] IMPLICIT OCTET STRING,
+  ntlmsspAuth		[11] IMPLICIT OCTET STRING
 }
 
 Simple ::= OCTET STRING

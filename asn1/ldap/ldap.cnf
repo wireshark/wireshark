@@ -597,6 +597,27 @@ ldap_conv_info_t *ldap_info;
 
 	proto_item_append_text(it, "%%s", Filter_string);
 
+#.FN_BODY AuthenticationChoice/ntlmsspNegotiate
+	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
+	offset+=tvb_length_remaining(tvb, offset);
+
+#.FN_BODY AuthenticationChoice/ntlmsspAuth
+	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
+	offset+=tvb_length_remaining(tvb, offset);
+
+#.FN_BODY BindResponse/matchedDN
+	tvbuff_t *new_tvb=NULL;
+
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
+
+	if(  new_tvb
+	&&  (tvb_length(new_tvb)>=7)
+	&&  (!tvb_memeql(new_tvb, 0, "NTLMSSP", 7))){
+		call_dissector(ntlmssp_handle, new_tvb, pinfo, tree);
+	}
+	return offset;
+
+
 #.NO_EMIT
 AttributeType
 Attribute

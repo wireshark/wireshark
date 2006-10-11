@@ -90,6 +90,7 @@
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
+#include "packet-ntlmssp.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -172,6 +173,7 @@ static gboolean is_binary_attr_type = FALSE;
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
+static dissector_handle_t ntlmssp_handle = NULL;
 
 
 /* different types of rpc calls ontop of ms cldap */
@@ -1659,6 +1661,8 @@ proto_reg_handoff_ldap(void)
 
 	gssapi_handle = find_dissector("gssapi");
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
+
+	ntlmssp_handle = find_dissector("ntlmssp");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
 	add_oid_str_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
