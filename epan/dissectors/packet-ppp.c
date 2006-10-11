@@ -131,6 +131,7 @@ static gint ett_pppmuxcp = -1;
 static gint ett_pppmuxcp_options = -1;
 
 static int proto_pppmux = -1;
+static int hf_pppmux_protocol = -1;
 
 static gint ett_pppmux = -1;
 static gint ett_pppmux_subframe = -1;
@@ -3039,9 +3040,12 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       ti = proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
 
-      if (flags & PPPMUX_PFF_BIT_SET)
-	proto_tree_add_text(hdr_tree,tvb,offset + length_field,pid_field,"%s: %s(0x%02x)",
-			    "Protocol ID",val_to_str(pid,ppp_vals,"Unknown"), pid);
+      ti = proto_tree_add_uint(hdr_tree,hf_pppmux_protocol,tvb,offset + length_field,pid_field, pid);
+
+      /* if protocol is not present in the sub-frame */
+      if (!(flags & PPPMUX_PFF_BIT_SET))
+	/* mark this item as generated */
+ 	PROTO_ITEM_SET_GENERATED(ti);
 
       offset += hdr_length;
       length_remaining -= hdr_length;
@@ -4290,6 +4294,14 @@ proto_reg_handoff_pppmuxcp(void)
 void
 proto_register_pppmux(void)
 {
+  static hf_register_info hf[] =
+  {
+    { &hf_pppmux_protocol,
+      { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
+        VALS(ppp_vals), 0x0, 
+        "The protocol of the sub-frame.", HFILL }},
+  };
+	
   static gint *ett[] = {
     &ett_pppmux,
     &ett_pppmux_subframe,
@@ -4301,6 +4313,7 @@ proto_register_pppmux(void)
   proto_pppmux = proto_register_protocol("PPP Multiplexing",
 				       "PPP PPPMux",
 				      "pppmux");
+  proto_register_field_array(proto_pppmux, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
