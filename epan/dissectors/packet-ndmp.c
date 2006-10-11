@@ -1186,6 +1186,9 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->fd->num;
 			ndmp_conv_data->task->itlq->last_exchange_frame=0;
 			ndmp_conv_data->task->itlq->scsi_opcode=0xffff;
+			ndmp_conv_data->task->itlq->task_flags=0;
+			ndmp_conv_data->task->itlq->data_length=0;
+			ndmp_conv_data->task->itlq->bidir_data_length=0;
 			ndmp_conv_data->task->itlq->flags=0;
 			ndmp_conv_data->task->itlq->alloc_len=0;
 			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;

@@ -770,6 +770,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata = se_alloc (sizeof(iscsi_conv_data_t));
         cdata->itlq.lun=0xffff;
         cdata->itlq.scsi_opcode=0xffff;
+	cdata->itlq.task_flags=0;
+	cdata->itlq.data_length=0;
+	cdata->itlq.bidir_data_length=0;
         cdata->itlq.fc_time = pinfo->fd->abs_ts;
         cdata->itlq.first_exchange_frame=0;
         cdata->itlq.last_exchange_frame=0;
@@ -958,12 +961,19 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    guint32 ahsLen = tvb_get_guint8(tvb, offset + 4) * 4;
     	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
+
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_F, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_R, tvb, offset + 1, 1, b);
+		if(b&0x40){
+		    cdata->itlq.task_flags|=SCSI_DATA_READ;
+		}
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
+		if(b&0x20){
+		    cdata->itlq.task_flags|=SCSI_DATA_WRITE;
+		}
 		proto_tree_add_uint(tt, hf_iscsi_SCSICommand_Attr, tvb, offset + 1, 1, b);
 	    }
 	    if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
@@ -974,6 +984,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpectedDataTransferLength, tvb, offset + 20, 4, FALSE);
+	    cdata->itlq.data_length=tvb_get_ntohl(tvb, offset+20);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    if(ahsLen > 0) {
@@ -1004,6 +1015,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 			ahs_offset++;
 			/* read data length */
 			proto_tree_add_item(ti, hf_iscsi_AHS_read_data_length, tvb, ahs_offset, 4, FALSE);
+			cdata->itlq.bidir_data_length=tvb_get_ntohl(tvb, ahs_offset);
 			ahs_offset+=4;
 			break;
 		    default:

@@ -61,6 +61,7 @@ static int hf_fcp_addlcdblen = -1;
 static int hf_fcp_rddata     = -1;
 static int hf_fcp_wrdata     = -1;
 static int hf_fcp_dl         = -1;
+static int hf_fcp_bidir_dl   = -1;
 static int hf_fcp_data_ro    = -1;
 static int hf_fcp_burstlen   = -1;
 static int hf_fcp_rspflags   = -1;
@@ -397,7 +398,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     int offset = 0;
     int len,
         add_len = 0;
-    guint8 flags, lun0;
+    guint8 flags, rwflags, lun0;
         guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
     int tvb_len, tvb_rlen;
@@ -447,6 +448,15 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
     dissect_task_mgmt_flags(pinfo, tree, tvb, offset+10);
     proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
+    rwflags=tvb_get_guint8(tvb, offset+11);
+    if(fchdr->itlq){
+	if(rwflags&0x02){
+	    fchdr->itlq->task_flags|=SCSI_DATA_READ;
+	}
+	if(rwflags&0x01){
+	    fchdr->itlq->task_flags|=SCSI_DATA_WRITE;
+	}
+    }
     proto_tree_add_item(tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
     proto_tree_add_item(tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
 
@@ -461,6 +471,20 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,
 			 4, 0);
+    if(fchdr->itlq){
+	fchdr->itlq->data_length=tvb_get_ntohl(tvb, offset+12+16+add_len);
+    }
+
+    if( ((rwflags&0x03)==0x03)
+    &&  tvb_length_remaining(tvb, offset+12+16+add_len+4)>=4){
+	proto_tree_add_item(tree, hf_fcp_bidir_dl, tvb, offset+12+16+add_len+4,
+			 4, 0);
+	if(fchdr->itlq){
+	    fchdr->itlq->bidir_data_length=tvb_get_ntohl(tvb, offset+12+16+add_len+4);
+	}
+
+    }
+	
 }
 
 static void
@@ -713,6 +737,8 @@ proto_register_fcp (void)
           {"WRDATA", "fcp.wrdata", FT_BOOLEAN, 8, NULL, 0x01, "", HFILL}},
         { &hf_fcp_dl,
           {"FCP_DL", "fcp.dl", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+        { &hf_fcp_bidir_dl,
+          {"FCP_BIDIRECTIONAL_READ_DL", "fcp.bidir_dl", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
         { &hf_fcp_data_ro,
           {"FCP_DATA_RO", "fcp.data_ro", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},

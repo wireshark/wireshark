@@ -53,10 +53,32 @@ typedef struct _itlq_nexus_t {
     guint16 lun;         /* initialized to 0xffff == unknown */
     guint16 scsi_opcode; /* initialized to 0xffff == unknown */
     guint16 flags;
+
+#define SCSI_DATA_READ	0x0001
+#define SCSI_DATA_WRITE	0x0002
+    guint16 task_flags; /* Flags set by the transport for this
+			 * scsi task.
+			 * 
+			 * If there is no data being transferred both flags
+			 * are 0 and both data lengths below are undefined.
+			 *
+			 * If one of the flags are set the amount of
+			 * data being transferred is held in data_length
+			 * and bidir_data_length is undefined.
+			 *
+			 * If both flags are set (a bidirectional transfer) 
+			 * data_length specifies the amount of DATA-OUT and
+			 * bidir_data_length specifies the amount of DATA-IN
+			 */
+    guint32 data_length;
+    guint32 bidir_data_length;
+
     guint32 alloc_len;	/* we need to track alloc_len between the CDB and 
 			 * the DATA pdus for some opcodes. 
 			 */
     nstime_t fc_time;
+
+
     void *extra_data;     /* extra data that that is task specific */
 } itlq_nexus_t;
 
