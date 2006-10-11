@@ -2229,11 +2229,11 @@ dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         flags = tvb_get_guint8 (tvb, offset);
 
         proto_tree_add_uint_format (tree, hf_scsi_logsel_flags, tvb, offset, 1,
-                                    flags, "PCR = %u, SP = %u", flags & 0x2,
+                                    flags, "PCR = %u, SP = %u", (flags & 0x2) >> 1,
                                     flags & 0x1);
         proto_tree_add_uint_format (tree, hf_scsi_logsel_pc, tvb, offset+1, 1,
                                     tvb_get_guint8 (tvb, offset+1),
-                                    "PC: 0x%x", flags & 0xC0);
+                                    "PC: 0x%x", (flags & 0xC0) >> 6);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
 
         flags = tvb_get_guint8 (tvb, offset+8);
