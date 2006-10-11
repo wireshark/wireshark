@@ -457,7 +457,9 @@ other_decode_bitfield_value
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
+prefs_apply
 prefs_apply_all
+prefs_find_module
 prefs_get_title_by_name
 prefs_is_registered_protocol
 prefs_modules_foreach
