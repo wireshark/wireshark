@@ -2704,7 +2704,33 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              (flags & 0x01));
         break;
     case SCSI_SSC2_MODEPAGE_MEDPAR1:
-        return FALSE;
+	    flags = tvb_get_guint8 (tvb, offset+2);
+	    proto_tree_add_text (tree, tvb, offset+2, 1,
+				 "Maximum Additional Partitions: %u",
+				 flags);
+	    flags = tvb_get_guint8 (tvb, offset+3);
+	    proto_tree_add_text (tree, tvb, offset+3, 1,
+				 "Additional Partitions Defined: %u",
+				 flags);
+	    flags = tvb_get_guint8 (tvb, offset+4);
+	    proto_tree_add_text (tree, tvb, offset+4, 1,
+				 "FDP: %u, DSP: %u, IDP: %u, PSUM: %u, POFM: %u, CLEAR: %u, ADDP: %u",
+				 (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+				 (flags & 0x20) >> 5, (flags & 0x18) >> 3,
+				 (flags & 0x04) >> 2, (flags & 0x02) >> 1,
+				 (flags & 0x01));
+	    flags = tvb_get_guint8 (tvb, offset+5);
+	    proto_tree_add_text (tree, tvb, offset+5, 1,
+				 "Media Formar Recognition: %u",
+				 flags);
+	    flags = tvb_get_guint8 (tvb, offset+6);
+	    proto_tree_add_text (tree, tvb, offset+6, 1,
+				 "Partition Units: %u",
+				 flags & 0x0f);
+	    proto_tree_add_text (tree, tvb, offset+8, 2,
+				 "Partition Size: %u",
+				 tvb_get_ntohs (tvb, offset+8));
+	    break;
     case SCSI_SSC2_MODEPAGE_MEDPAR2:
         return FALSE;
     case SCSI_SSC2_MODEPAGE_MEDPAR3:
