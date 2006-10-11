@@ -829,7 +829,7 @@ static const value_string scsi_logsns_page_val[] = {
     {0x3, "Error Counter (read) Page"},
     {0x4, "Error Counter (read reverse) Page"},
     {0x5, "Error Counter (verify) Page"},
-    {0x1, "Error Counter (write) Page"},
+    {0x2, "Error Counter (write) Page"},
     {0xB, "Last n Deferred Errors or Async Events Page"},
     {0x7, "Last n Error Events Page"},
     {0x6, "Non-medium Error Page"},
