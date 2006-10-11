@@ -48,6 +48,7 @@
 #include <epan/dissectors/packet-eth.h>
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/dissectors/packet-tr.h>
+#include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-fddi.h>
 

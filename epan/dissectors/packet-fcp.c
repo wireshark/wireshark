@@ -46,9 +46,9 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
+#include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcp.h"
-#include "packet-scsi.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_fcp         = -1;

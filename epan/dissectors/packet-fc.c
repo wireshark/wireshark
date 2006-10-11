@@ -49,6 +49,7 @@
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
+#include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"

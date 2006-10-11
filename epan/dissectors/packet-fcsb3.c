@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
+#include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcsb3.h"
 

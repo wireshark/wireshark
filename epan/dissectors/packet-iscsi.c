@@ -45,7 +45,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include "packet-fc.h"
 #include "packet-scsi.h"
 #include "epan/nstime.h"
 #include <epan/emem.h>

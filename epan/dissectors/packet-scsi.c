@@ -91,8 +91,8 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include "packet-fc.h"
 #include "packet-scsi.h"
+#include "packet-fc.h"
 #include "packet-scsi-osd.h"
 
 static int proto_scsi                    = -1;

@@ -26,6 +26,52 @@
 #define __PACKET_SCSI_H_
 
 
+/* Structure containing itl nexus data :
+ * The itlq nexus is a structure containing data specific
+ * for a initiator target lun combination.
+ */
+typedef struct _itl_nexus_t {
+#define SCSI_CMDSET_DEFAULT	0x80
+#define SCSI_CMDSET_MASK	0x7f
+    guint8 cmdset;         /* This is a bitfield.
+			    * The MSB (0x80) represents whether 
+			    * 0: the commandset is known from a INQ PDU
+			    * 1: is using the "default" from preferences.
+			    * The lower 7 bits represent the commandset used
+			    * for decoding commands on this itl nexus.
+			    * The field is initialized to 0xff == unknown.
+			    */
+} itl_nexus_t;
+
+/* Structure containing itlq nexus data :
+ * The itlq nexus is a structure containing data specific
+ * for a initiator target lun queue/commandid combination.
+ */
+typedef struct _itlq_nexus_t {
+    guint32 first_exchange_frame;
+    guint32 last_exchange_frame;
+    guint16 lun;         /* initialized to 0xffff == unknown */
+    guint16 scsi_opcode; /* initialized to 0xffff == unknown */
+    guint16 flags;
+    guint32 alloc_len;	/* we need to track alloc_len between the CDB and 
+			 * the DATA pdus for some opcodes. 
+			 */
+    nstime_t fc_time;
+    void *extra_data;     /* extra data that that is task specific */
+} itlq_nexus_t;
+
+
+#define SCSI_PDU_TYPE_CDB       1
+#define SCSI_PDU_TYPE_DATA      2
+#define SCSI_PDU_TYPE_RSP       4
+#define SCSI_PDU_TYPE_SNS       5
+typedef struct _scsi_task_data {
+    int type;
+    itlq_nexus_t *itlq;
+    itl_nexus_t *itl;
+} scsi_task_data_t;
+
+
 /* list of commands for each commandset */
 typedef void (*scsi_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree, guint offset,

@@ -43,7 +43,6 @@
 #include <epan/emem.h>
 #include "packet-rpc.h"
 #include "packet-tcp.h"
-#include "packet-fc.h"
 #include "packet-scsi.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
