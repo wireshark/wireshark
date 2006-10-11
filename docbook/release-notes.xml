@@ -52,6 +52,18 @@ Wireshark Info
 
       <itemizedlist>
 
+        <listitem><para>
+          Trying to save flow data may crash Wireshark.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
+          396</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          It may not be possible to re-order coloring rules under Windows.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
+          699</ulink>)
+        </para></listitem>
+
       </itemizedlist>
     </para>
 
@@ -146,30 +158,6 @@ Wireshark Info
       file dialogs under Windows.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942">Bug
       942</ulink>)
-    </para>
-
-    <para>
-      Trying to save flow data may crash Wireshark.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
-      396</ulink>)
-    </para>
-
-    <para>
-      It may not be possible to re-order coloring rules under Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
-      699</ulink>)
-    </para>
-
-    <para>
-      Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757">Bug
-      757</ulink>)
-    </para>
-
-    <para>
-      Wireshark may crash while viewing TCP streams.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852">Bug
-      852</ulink>)
     </para>
 
   </section>
