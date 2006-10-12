@@ -2023,7 +2023,8 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
     if(str_length == 0)
     {
         proto_tree_add_string(ndps_tree, hfinfo, tvb, offset, 4, "<Not Specified>");
-        *stringval = ep_strdup("");
+        if (stringval != NULL)
+          *stringval = ep_strdup("");
         return foffset;
     }
     if (str_length <= 2 || (str_length & 0x01) || tvb_get_guint8(tvb, foffset + 1) != 0) {
