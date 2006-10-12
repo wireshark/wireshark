@@ -127,16 +127,16 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
         setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
         
-        proto_tree_add_item(setup_tree, hf_usb_request_type, tvb, offset, 4, FALSE);
-        offset += 4;
-        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 4, FALSE);
-        offset += 4;
-        proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 4, FALSE);
-        offset += 4;
-        proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 4, FALSE);
-        offset += 4;
-        proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 4, FALSE);
-        offset += 4;
+        proto_tree_add_item(setup_tree, hf_usb_request_type, tvb, offset, 1, FALSE);
+        offset += 1;
+        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
+        offset += 1;
+        proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
+        offset += 2;
+        proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, FALSE);
+        offset += 2;
+        proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, FALSE);
+        offset += 2;
     }
     
     proto_tree_add_item(tree, hf_usb_data, tvb,
