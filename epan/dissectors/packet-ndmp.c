@@ -272,6 +272,7 @@ typedef struct _ndmp_conv_data_t {
 	emem_tree_t *tasks;	/* indexed by Sequence# */
 	emem_tree_t *itl;		/* indexed by packet# */
 	ndmp_task_data_t *task;
+	conversation_t *conversation;
 } ndmp_conv_data_t;
 ndmp_conv_data_t *ndmp_conv_data=NULL;
 static proto_tree *top_tree;
@@ -284,6 +285,7 @@ get_itl_nexus(ndmp_conv_data_t *ndmp_conv_data, packet_info *pinfo, gboolean cre
 	if(create_new || !(itl=se_tree_lookup32_le(ndmp_conv_data->itl, pinfo->fd->num))){
 		itl=se_alloc(sizeof(itl_nexus_t));
 		itl->cmdset=0xff;
+		itl->conversation=ndmp_conv_data->conversation;
 		se_tree_insert32(ndmp_conv_data->itl, pinfo->fd->num, itl);
 	}
 	return itl;
@@ -2882,6 +2884,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_conv_data->version=NDMP_PROTOCOL_UNKNOWN;
 		ndmp_conv_data->tasks=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP tasks");
 		ndmp_conv_data->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP itl");
+		ndmp_conv_data->conversation=conversation;
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 	}

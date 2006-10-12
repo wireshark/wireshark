@@ -441,6 +441,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if(!itl){
         itl=se_alloc(sizeof(itl_nexus_t));
         itl->cmdset=0xff;
+	itl->conversation=conversation;
         se_tree_insert32(fcp_conv_data->luns, lun, itl);
     }
 

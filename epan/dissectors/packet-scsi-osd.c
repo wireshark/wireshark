@@ -108,13 +108,52 @@ static int hf_scsi_osd_key_identifier		= -1;
 static int hf_scsi_osd_seed			= -1;
 static int hf_scsi_osd_collection_fcr		= -1;
 static int hf_scsi_osd_collection_object_id	= -1;
+static int hf_scsi_osd_partition_created_in	= -1;
+static int hf_scsi_osd_partition_removed_in	= -1;
 
 static gint ett_osd_option		= -1;
+static gint ett_osd_partition		= -1;
 static gint ett_osd_attribute_parameters= -1;
 static gint ett_osd_capability		= -1;
 static gint ett_osd_permission_bitmask	= -1;
 static gint ett_osd_security_parameters	= -1;
 
+
+
+/* There will be one such structure create for each conversation ontop of which
+ * there is an OSD session
+ */
+typedef struct _scsi_osd_conv_info_t {
+	emem_tree_t *luns;
+} scsi_osd_conv_info_t;
+
+/* there will be one such structure created for each lun for each conversation
+ * that is handled by the OSD dissector
+ */
+typedef struct _scsi_osd_lun_info_t {
+	emem_tree_t *partitions;
+} scsi_osd_lun_info_t;
+
+typedef void (*scsi_osd_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree, guint offset,
+		gboolean isreq, gboolean iscdb,
+                guint32 payload_len, scsi_task_data_t *cdata,
+		scsi_osd_conv_info_t *conv_info,
+		scsi_osd_lun_info_t *lun_info
+		);
+
+/* One such structure is created per conversation/lun/partition to
+ * keep track of when partitions are created/used/destroyed
+ */
+typedef struct _partition_info_t {
+	int created_in;
+	int removed_in;
+} partition_info_t;
+
+
+/* This is a set of extra data specific to OSD that we need to attach to every
+ * task.
+ */
 typedef struct _scsi_osd_extra_data_t {
 	guint16 svcaction;
 	guint8  gsatype;
@@ -553,7 +592,9 @@ dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 static void
 dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info _U_)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -612,27 +653,66 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_osd_requested_partition_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index, scsi_osd_lun_info_t *lun_info, gboolean is_created, gboolean is_removed)
 {
-	/* request partition id */
-	proto_tree_add_item(tree, hf_scsi_osd_requested_partition_id, tvb, offset, 8, 0);
-	offset+=8;
-}
+	proto_item *item=NULL;
+	guint64 partition_id;
 
-static void
-dissect_osd_partition_id(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
 	/* partition id */
-	proto_tree_add_item(tree, hf_scsi_osd_partition_id, tvb, offset, 8, 0);
+	item=proto_tree_add_item(tree, hf_index, tvb, offset, 8, 0);
+	partition_id=tvb_get_ntoh64(tvb, offset);
+	if(!partition_id){
+		proto_item_append_text(item, " (ROOT partition)");
+	} else {
+		partition_info_t *part_info;
+		emem_tree_key_t pikey[2];
+		proto_tree *partition_tree=NULL;
+
+		pikey[0].length=2;
+		pikey[0].key=(guint32 *)&partition_id;
+		pikey[1].length=0;
+		part_info=se_tree_lookup32_array(lun_info->partitions, &pikey[0]);
+		if(!part_info){
+			part_info=se_alloc(sizeof(partition_info_t));
+			part_info->created_in=0;
+			part_info->removed_in=0;
+
+			pikey[0].length=2;
+			pikey[0].key=(guint32 *)&partition_id;
+			pikey[1].length=0;
+			se_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
+		}
+		if(is_created){
+			part_info->created_in=pinfo->fd->num;
+		}
+		if(is_removed){
+			part_info->removed_in=pinfo->fd->num;
+		}
+		if(item){
+			partition_tree=proto_item_add_subtree(item, ett_osd_partition);
+		}
+		if(part_info->created_in){
+			proto_item *tmp_item;
+			tmp_item=proto_tree_add_uint(partition_tree, hf_scsi_osd_partition_created_in, tvb, 0, 0, part_info->created_in);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
+		}
+		if(part_info->removed_in){
+			proto_item *tmp_item;
+			tmp_item=proto_tree_add_uint(partition_tree, hf_scsi_osd_partition_removed_in, tvb, 0, 0, part_info->removed_in);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
+		}
+	}
 	offset+=8;
 }
 
 
 
 static void
-dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -652,7 +732,7 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		offset+=3;
 
 		/* requested partiton id */
-		dissect_osd_requested_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_requested_partition_id, lun_info, TRUE, FALSE);
 		offset+=8;
 
 		/* 28 reserved bytes */
@@ -760,9 +840,11 @@ dissect_osd_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -783,7 +865,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 		offset+=8;
 
 		/* 8 reserved bytes */
@@ -857,7 +939,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* list of user object ids or partition ids */
 		while(additional_length > (offset-8)){
 			if(is_root){
-				dissect_osd_partition_id(tvb, offset, tree);
+				dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 			} else {
 				dissect_osd_user_object_id(tvb, offset, tree);
 			}
@@ -884,9 +966,11 @@ dissect_osd_number_of_user_objects(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -906,7 +990,7 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 		offset+=8;
 
 		/* requested user_object id */
@@ -956,9 +1040,11 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -978,7 +1064,7 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, TRUE);
 		offset+=8;
 
 		/* 28 reserved bytes */
@@ -1046,9 +1132,11 @@ dissect_osd_seed(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -1068,7 +1156,7 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 		offset+=8;
 
 		/* key version */
@@ -1115,9 +1203,11 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -1137,7 +1227,7 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 		offset+=8;
 
 		/* user object id */
@@ -1198,9 +1288,11 @@ dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static void
-dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
 {
 	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
 	if(isreq && iscdb){
@@ -1221,7 +1313,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 		offset+=3;
 
 		/* partiton id */
-		dissect_osd_partition_id(tvb, offset, tree);
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 		offset+=8;
 
 		/* collection object id */
@@ -1286,7 +1378,7 @@ static const value_string scsi_osd_svcaction_vals[] = {
 /* OSD Service Action dissectors */
 typedef struct _scsi_osd_svcaction_t {
 	guint16 svcaction;
-	scsi_dissector_t dissector;
+	scsi_osd_dissector_t dissector;
 } scsi_osd_svcaction_t;
 static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FORMAT_OSD, 		dissect_osd_format_osd},
@@ -1300,7 +1392,7 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {0, NULL},
 };
 
-static scsi_dissector_t
+static scsi_osd_dissector_t
 find_svcaction_dissector(guint16 svcaction)
 {
 	const scsi_osd_svcaction_t *sa=scsi_osd_svcaction;
@@ -1322,10 +1414,31 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint payload_len, scsi_task_data_t *cdata)
 {
 	guint16 svcaction=0;
-	scsi_dissector_t dissector;
+	scsi_osd_dissector_t dissector;
+	scsi_osd_conv_info_t *conv_info=NULL;
+	scsi_osd_lun_info_t *lun_info=NULL;
 
 	if(!tree) {
 		return;
+	}
+
+	/* We must have an itl an itlq and a conversation */
+	if(!cdata || !cdata->itl || !cdata->itl->conversation || !cdata->itlq){
+		return;
+	}
+	/* make sure we have a conversation info for this */
+	conv_info=conversation_get_proto_data(cdata->itl->conversation, proto_scsi_osd);
+	if(!conv_info){
+		conv_info=se_alloc(sizeof(scsi_osd_conv_info_t));
+		conv_info->luns=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD luns tree");
+		conversation_add_proto_data(cdata->itl->conversation, proto_scsi_osd, conv_info);
+	}
+	/* make sure we have a lun_info structure for this */
+	lun_info=se_tree_lookup32(conv_info->luns, cdata->itlq->lun);
+	if(!lun_info){
+		lun_info=se_alloc(sizeof(scsi_osd_lun_info_t));
+		lun_info->partitions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD partitions tree");
+		se_tree_insert32(conv_info->luns, cdata->itlq->lun, (void *)lun_info);
 	}
 
 	/* dissecting the CDB */
@@ -1363,7 +1476,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		dissector=find_svcaction_dissector(svcaction);
 		if(dissector){
-			(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata);
+			(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata, conv_info, lun_info);
 		}
 		return;
 	}
@@ -1386,7 +1499,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	dissector=find_svcaction_dissector(svcaction);
 	if(dissector){
-		(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata);
+		(*dissector)(tvb, pinfo, tree, offset, isreq, iscdb, payload_len, cdata, conv_info, lun_info);
 	}
 
 }
@@ -1820,13 +1933,13 @@ proto_register_scsi_osd(void)
           {"Data-Out Integrity Check Value Offset", "scsi.osd.doicvo", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_requested_partition_id,
-          {"Requested Partition Id", "scsi.osd.requested_partition_id", FT_BYTES, BASE_HEX,
+          {"Requested Partition Id", "scsi.osd.requested_partition_id", FT_UINT64, BASE_HEX,
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_sortorder,
           {"Sort Order", "scsi.osd.sort_order", FT_UINT8, BASE_DEC,
            VALS(scsi_osd_sort_order_vals), 0x0f, "", HFILL}},
         { &hf_scsi_osd_partition_id,
-          {"Partition Id", "scsi.osd.partition_id", FT_BYTES, BASE_HEX,
+          {"Partition Id", "scsi.osd.partition_id", FT_UINT64, BASE_HEX,
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_list_identifier,
           {"List Identifier", "scsi.osd.list_identifier", FT_UINT32, BASE_DEC,
@@ -1876,11 +1989,20 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_collection_object_id,
           {"Collection Object Id", "scsi.osd.collection_object_id", FT_BYTES, BASE_HEX,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_partition_created_in,
+          { "Created In", "scsi.osd.partition.created_in", FT_FRAMENUM, BASE_NONE,
+          NULL, 0x0, "The frame this partition was created", HFILL }},
+
+        { &hf_scsi_osd_partition_removed_in,
+          { "Removed In", "scsi.osd.partition.removed_in", FT_FRAMENUM, BASE_NONE,
+          NULL, 0x0, "The frame this partition was removed", HFILL }},
+
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_osd_option,
+		&ett_osd_partition,
 		&ett_osd_attribute_parameters,
 		&ett_osd_capability,
 		&ett_osd_permission_bitmask,

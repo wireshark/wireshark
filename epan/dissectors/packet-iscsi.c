@@ -740,7 +740,7 @@ handleDataSegmentAsTextKeys(proto_item *ti, tvbuff_t *tvb, guint offset, guint d
 
 /* Code to actually dissect the packets */
 static void
-dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, iscsi_session_t *iscsi_session) {
+dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
 
     guint original_offset = offset;
     proto_tree *ti = NULL;
@@ -839,6 +839,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         if(!itl){
             itl=se_alloc(sizeof(itl_nexus_t));
             itl->cmdset=0xff;
+            itl->conversation=conversation;
             se_tree_insert32(iscsi_session->itl, lun, itl);
         }
 
@@ -2385,7 +2386,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	}
 
-	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, iscsi_session);
+	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, iscsi_session, conversation);
 	if(pduLen > available_bytes)
 	    pduLen = available_bytes;
 	offset += pduLen;

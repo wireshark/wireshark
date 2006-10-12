@@ -41,6 +41,7 @@ typedef struct _itl_nexus_t {
 			    * for decoding commands on this itl nexus.
 			    * The field is initialized to 0xff == unknown.
 			    */
+    conversation_t *conversation;
 } itl_nexus_t;
 
 /* Structure containing itlq nexus data :
