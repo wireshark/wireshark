@@ -33,6 +33,12 @@
 #include "packet-llc.h"
 #include "packet-vlan.h"
 #include <epan/etypes.h>
+#include <epan/prefs.h>
+
+void proto_reg_handoff_vlan(void);
+
+static unsigned int old_q_in_q_ethertype;
+static unsigned int q_in_q_ethertype = 0x9100;
 
 static int proto_vlan = -1;
 static int hf_vlan_priority = -1;
@@ -150,19 +156,39 @@ proto_register_vlan(void)
 		NULL, 0x0, "VLAN Trailer", HFILL }}
   };
   static gint *ett[] = {
-	&ett_vlan,
+	&ett_vlan
   };
+  module_t *vlan_module;
 
   proto_vlan = proto_register_protocol("802.1Q Virtual LAN", "VLAN", "vlan");
   proto_register_field_array(proto_vlan, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  vlan_module = prefs_register_protocol(proto_vlan, proto_reg_handoff_vlan);
+  prefs_register_uint_preference(vlan_module, "qinq_ethertype",
+	"802.1QinQ Ethertype",
+	"The Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
+	16, &q_in_q_ethertype);
 }
 
 void
 proto_reg_handoff_vlan(void)
 {
-  dissector_handle_t vlan_handle;
+  static gboolean prefs_initialized = FALSE;
+  static dissector_handle_t vlan_handle;
 
-  vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
-  dissector_add("ethertype", ETHERTYPE_VLAN, vlan_handle);
+  if (!prefs_initialized)
+  {
+    vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
+    dissector_add("ethertype", ETHERTYPE_VLAN, vlan_handle);
+    prefs_initialized = TRUE;
+  }
+  else
+  {
+    dissector_delete("ethertype", old_q_in_q_ethertype, vlan_handle);
+  }
+
+  old_q_in_q_ethertype = q_in_q_ethertype;
+
+  dissector_add("ethertype", q_in_q_ethertype, vlan_handle);
 }
