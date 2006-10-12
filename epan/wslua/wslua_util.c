@@ -149,11 +149,9 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
 	const char* filename;
 	
-	if (!given_fname) WSLUA_ARG_ERROR(loadfile,FILENAME,"must be a string");
-	
 	filename = get_actual_filename(given_fname);
 	
-	if (!filename)  WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
+	if (!filename) WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
 	
 	if (luaL_loadfile(L, filename) == 0) {
 		return 1;
@@ -180,4 +178,152 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	if (luaL_loadfile(L, filename) != 0) lua_error(L);
 	lua_call(L, 0, LUA_MULTRET);
 	return lua_gettop(L) - n;
+}
+
+
+WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
+#define WSLUA_OPTARG_persconffile_path_FILENAME 1
+	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
+	const char* filename = get_persconffile_path(fname,FALSE);
+	
+	lua_pushstring(L,filename);
+	return 1;
+}
+
+WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
+#define WSLUA_OPTARG_datafile_path_FILENAME 1
+	const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
+	const char* filename = get_datafile_path(fname);
+
+	lua_pushstring(L,filename);
+	return 1;
+}
+
+
+WSLUA_CLASS_DEFINE(Dir,NOP,NOP); /* A Directory */
+
+WSLUA_CONSTRUCTOR wslua_Dir_open(lua_State* L) {
+#define WSLUA_ARG_Dir_open_PATHNAME 1
+#define WSLUA_OPTARG_Dir_open_EXTENSION 2
+	
+	const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
+	const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
+	Dir dir;
+
+	if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
+	if (!test_for_directory(dirname))  WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a directory");
+
+	dir = g_malloc(sizeof(struct _wslua_dir));
+	dir->dir = OPENDIR_OP(dirname);
+	dir->ext = extension ? g_strdup(extension) : NULL;
+#if GLIB_MAJOR_VERSION >= 2
+	dir->dummy = g_malloc(sizeof(GError *));
+	*(dir->dummy) = NULL;
+#endif
+	
+	if (dir->dir == NULL) {
+#if GLIB_MAJOR_VERSION >= 2
+		g_free(dir->dummy);
+#endif
+		g_free(dir);
+
+		WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
+		return 0;
+	}
+	
+	pushDir(L,dir);
+	return 1;
+}
+
+WSLUA_METAMETHOD wslua_Dir__call(lua_State* L) {
+#define WSLUA_ARG_Dir__call_DIR 1
+	Dir dir = checkDir(L,1);
+	const FILE_T* file;
+	const gchar* filename;
+	const char* ext;
+	
+	if (!dir) 
+		WSLUA_ARG_ERROR(Dir__call,DIR,"must be a Dir");
+
+	if (!dir->dir) {
+		return 0;
+	}
+	
+	if ( ! ( file = DIRGETNEXT_OP(dir->dir ) )) {
+		CLOSEDIR_OP(dir->dir);
+		dir->dir = NULL;
+		return 0;
+	}
+
+
+	if ( ! dir->ext ) {
+		filename = GETFNAME_OP(file);
+		lua_pushstring(L,filename);
+		return 1;
+	}
+	
+	do {
+		filename = GETFNAME_OP(file);
+
+		/* XXX strstr returns ptr to first match,
+			this fails ext=".xxx" filename="aaa.xxxz.xxx"  */
+		if ( ( ext = strstr(filename,dir->ext)) && g_str_equal(ext,dir->ext) ) {
+			lua_pushstring(L,filename);
+			return 1;
+		}
+	} while(( file = DIRGETNEXT_OP(dir->dir) ));
+		
+	CLOSEDIR_OP(dir->dir);
+	dir->dir = NULL;
+	return 0;
+}
+
+WSLUA_METHOD wslua_Dir_close(lua_State* L) {
+#define WSLUA_ARG_Dir_close_DIR 1
+	Dir dir = checkDir(L,1);
+
+	if (dir->dir) {
+		CLOSEDIR_OP(dir->dir);
+		dir->dir = NULL;
+	}
+
+	return 0;
+}
+
+WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
+#define WSLUA_ARG_Dir__gc_DIR 1
+	Dir dir = checkDir(L,1);
+	
+	if (dir->dir) {
+		CLOSEDIR_OP(dir->dir);
+	}
+	
+#if GLIB_MAJOR_VERSION >= 2
+	g_free(dir->dummy);
+#endif
+	
+	if (dir->ext) g_free(dir->ext);
+
+	g_free(dir);
+	
+	return 0;
+}
+
+static const luaL_reg Dir_methods[] = {
+    {"open", wslua_Dir_open},
+    {"close", wslua_Dir_close},
+    {0, 0}
+};
+
+static const luaL_reg Dir_meta[] = {
+    {"__call", wslua_Dir__call},
+    {"__gc", wslua_Dir__gc},
+    {0, 0}
+};
+
+int Dir_register(lua_State* L) {
+	
+    WSLUA_REGISTER_CLASS(Dir);
+	
+    return 1;
 }

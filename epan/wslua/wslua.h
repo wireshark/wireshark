@@ -121,11 +121,31 @@ struct _wslua_treeitem {
 	proto_tree* tree;
 };
 
-#if 0
-struct _wslua_main {
-	capture_options capture_opts;
-};
+
+#if GLIB_MAJOR_VERSION < 2
+#  define DIRECTORY_T DIR
+#  define FILE_T struct dirent
+#  define OPENDIR_OP(name) opendir(name)
+#  define DIRGETNEXT_OP(dir) readdir(dir)
+#  define GETFNAME_OP(file) (gchar *)file->d_name
+#  define CLOSEDIR_OP(dir) closedir(dir)
+#else /* GLIB 2 */
+#  define DIRECTORY_T GDir
+#  define FILE_T gchar
+#  define OPENDIR_OP(name) g_dir_open(name, 0, dir->dummy)
+#  define DIRGETNEXT_OP(dir) g_dir_read_name(dir)
+#  define GETFNAME_OP(file) (file);
+#  define CLOSEDIR_OP(dir) g_dir_close(dir)
 #endif
+
+struct _wslua_dir {
+	DIRECTORY_T* dir;
+	char* ext;
+#if GLIB_MAJOR_VERSION >= 2
+	GError** dummy;
+#endif
+
+};
 
 typedef void (*tap_extractor_t)(lua_State*,const void*);
 
@@ -158,6 +178,7 @@ typedef tvbparse_wanted_t* Rule;
 typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_main* WireShark;
+typedef struct _wslua_dir* Dir;
 
 /*
  * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
