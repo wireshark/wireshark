@@ -1,4 +1,4 @@
-$Id$
+$ID$
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use some of the important functions and
@@ -231,15 +231,7 @@ as some compilers will reject the first of those statements.  Instead,
 initialize the array at the point at which it's first declared, so that
 the size is known.
 
-Don't put declarations in the middle of a block; put them before all
-code.  Not all compilers support declarations in the middle of code,
-such as
-
-	int i;
-
-	i = foo();
-
-	int j;
+Don't put a comma after the last tuple of an initializer of an array.
 
 For #define names and enum member names, prefix the names with a tag so
 as to avoid collisions with other names - this might be more of an issue
@@ -249,12 +241,12 @@ OPTIONAL.
 Don't use the "numbered argument" feature that many UNIX printf's
 implement, e.g.:
 
-	sprintf(add_string, " - (%1$d) (0x%1$04x)", value);
+	g_snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);
 
 as not all UNIX printf's implement it, and Windows printf doesn't appear
 to implement it.  Use something like
 
-	sprintf(add_string, " - (%d) (0x%04x)", value, value);
+	g_snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);
 
 instead.
 
@@ -328,7 +320,8 @@ buffer overflows for large strings.
 When using a buffer to create a string, do not use a buffer stored on the stack.
 I.e. do not use a buffer declared as
    char buffer[1024];
-instead allocate a buffer dynamically using the emem routines (see README.malloc) such as
+instead allocate a buffer dynamically using the emem routines (see 
+README.malloc) such as
    char *buffer=NULL;
    ...
    #define MAX_BUFFER 1024
@@ -337,8 +330,8 @@ instead allocate a buffer dynamically using the emem routines (see README.malloc
    ...
    g_snprintf(buffer, MAX_BUFFER, ...
 
-This avoid the stack to be corrupted in case there is a bug in your code that 
-accidentally writes beyond the end of the buffer.
+This avoids the stack from being corrupted in case there is a bug in your code 
+that accidentally writes beyond the end of the buffer.
 
 
 If you write a routine that will create and return a pointer to a filled in 
@@ -375,7 +368,7 @@ instead write the code as
 Use ep_ allocated buffers. They are very fast and nice. These buffers are all
 automatically free()d when the dissection of the current packet ends so you 
 don't have to worry about free()ing them explicitly in order to not leak memory.
-Please read README.malloc .
+Please read README.malloc.
 
 
 1.1.3 Robustness.
@@ -509,6 +502,8 @@ Testing using editcap can be done using preexisting capture files and the
     editcap -E 0.03 infile.pcap outfile.pcap
     tshark -nVr outfile.pcap
 
+The script fuzz-test.sh is available to help automate these tests.
+
 1.1.4 Name convention.
 
 Wireshark uses the underscore_convention rather than the InterCapConvention for
@@ -567,19 +562,17 @@ code inside
 is needed only if you are using a function from libpcre, e.g. the
 "pcre_compile()" function.
 
-The "$Id$"
-in the comment will be updated by CVS when the file is
-checked in; it will allow the RCS "ident" command to report which
-version of the file is currently checked out.
+The "$Id$" in the comment will be updated by Subversion when the file is 
+checked in.
 
-When creating a new file, it is fine to just write "$Id$" as RCS will
+When creating a new file, it is fine to just write "$Id$" as Subversion will
 automatically fill in the identifier at the time the file will be added to the
-SVN repository (checked in).
+SVN repository (committed).
 
 ------------------------------------Cut here------------------------------------
 /* packet-PROTOABBREV.c
  * Routines for PROTONAME dissection
- * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
+ * Copyright 200x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
  * $Id$
  *
@@ -760,7 +753,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_PROTOABBREV(void)
 {                 
-  module_t *PROTOABBREV_module;
+	module_t *PROTOABBREV_module;
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
@@ -768,12 +761,12 @@ proto_register_PROTOABBREV(void)
 			{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
 			FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,          
 			"FIELDDESCR", HFILL }
-		},
+		}
 	};
 
 /* Setup protocol subtree array */
 	static gint *ett[] = {
-		&ett_PROTOABBREV,
+		&ett_PROTOABBREV
 	};
 
 /* Register the protocol name and description */
@@ -784,14 +777,15 @@ proto_register_PROTOABBREV(void)
 	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
         
-/* Register preferences module (See Section 2.6 for more on preferences) */       
-        PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV, proto_reg_handoff_PROTOABBREV);
+/* Register preferences module (See Section 2.6 for more on preferences) */
+	PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV, 
+	    proto_reg_handoff_PROTOABBREV);
      
-/* Register a sample preference */        
-        prefs_register_bool_preference(PROTOABBREV_module, "showHex", 
-             "Display numbers in Hex",
+/* Register a sample preference */
+	prefs_register_bool_preference(PROTOABBREV_module, "showHex", 
+	     "Display numbers in Hex",
 	     "Enable to display numerical values in hexadecimal.",
-	     &gPREF_HEX );        
+	     &gPREF_HEX);
 }
 
 
@@ -806,18 +800,18 @@ proto_register_PROTOABBREV(void)
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-        static gboolean inited = FALSE;
+	static gboolean inited = FALSE;
         
-        if( !inited ) {
+	if (!inited) {
 
-	dissector_handle_t PROTOABBREV_handle;
+	    dissector_handle_t PROTOABBREV_handle;
 
-	PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
-	    proto_PROTOABBREV);
-	dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+	    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
+	        proto_PROTOABBREV);
+	    dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
         
-        inited = TRUE;
-        }
+	    inited = TRUE;
+	}
         
         /* 
           If you perform registration functions which are dependant upon
@@ -829,8 +823,8 @@ proto_reg_handoff_PROTOABBREV(void)
 
           static int currentPort = -1;
 
-          if( -1 != currentPort ) {
-              dissector_delete( "tcp.port", currentPort, PROTOABBREV_handle);
+          if (currentPort != -1) {
+              dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
           }
 
           currentPort = gPortPref;
@@ -856,8 +850,9 @@ PROTONAME	The name of the protocol; this is displayed in the
 		top-level protocol tree item for that protocol.
 PROTOSHORTNAME	An abbreviated name for the protocol; this is displayed
 		in the "Preferences" dialog box if your dissector has
-		any preferences, and in the dialog box for filter fields
-		when constructing a filter expression.
+		any preferences, in the dialog box of enabled protocols,
+		and in the dialog box for filter fields when constructing 
+		a filter expression.
 PROTOABBREV	A name for the protocol for use in filter expressions;
 		it shall contain only lower-case letters, digits, and
 		hyphens.
@@ -899,7 +894,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 1.4.2 Extracting data from packets.
 
-NOTE: See the tvbuff.h file for more details
+NOTE: See the tvbuff.h file for more details.
 
 The "tvb" argument to a dissector points to a buffer containing the raw
 data to be analyzed by the dissector; for example, for a protocol
@@ -1450,7 +1445,7 @@ For fields of that type, you would declare an array of "value_string"s:
 	static const value_string valstringname[] = {
 		{ INTVAL1, "Descriptive String 1" }, 
 		{ INTVAL2, "Descriptive String 2" }, 
-		{ 0,       NULL },
+		{ 0,       NULL }
 	};
 
 (the last entry in the array must have a NULL 'strptr' value, to
@@ -1600,7 +1595,7 @@ array of pointers to "gint" variables to hold the subtree type values to
 
 	static gint *ett[] = {
 		&ett_eg,
-		&ett_field_a,
+		&ett_field_a
 	};
 
 	proto_register_subtree_array(ett, array_length(ett));
@@ -2200,9 +2195,9 @@ This is like proto_tree_add_text(), but takes, as the last argument, a
 variable-length list of arguments to add a text item to the protocol
 tree.
 
-1.7 Utility routines
+1.7 Utility routines.
 
-1.7.1 match_strval and val_to_str
+1.7.1 match_strval and val_to_str.
 
 A dissector may need to convert a value to a string, using a
 'value_string' structure, by hand, rather than by declaring a field with
@@ -2245,7 +2240,7 @@ them; this permits the results of up to three calls to 'val_to_str' to
 be passed as arguments to a routine using those strings.)
 
 
-1.8 Calling Other Dissectors
+1.8 Calling Other Dissectors.
 
 As each dissector completes its portion of the protocol analysis, it
 is expected to create a new tvbuff of type TVBUFF_SUBSET which
@@ -2321,7 +2316,7 @@ compile).
 
 1.10 Using the SVN source code tree.
 
-  See <http://www.wireshark.org/development.html#source>
+  See <http://www.wireshark.org/develop.html>
 
 1.11 Submitting code for your new dissector.
 
@@ -2337,9 +2332,12 @@ compile).
   
   - 'svn diff' the workspace and save the result to a file.
   
-  - Send the diff file along with a note requesting it's inclusion to
+  - Send a note with the attached diff file requesting its inclusion to
     <mailto:wireshark-dev@wireshark.org>. You can also use this procedure for
-    providing patches to your dissector or any other part of wireshark.
+    providing patches to your dissector or any other part of Wireshark.
+
+  - Create a Wiki page on the protocol at <http://wiki.wireshark.org>. 
+    A template is provided so it is easy to setup in a consistent style.
 
   - If possible, add sample capture files to the sample captures page at
     <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
@@ -2351,7 +2349,10 @@ compile).
 
 2. Advanced dissector topics.
 
-2.1 ?? 
+2.1 Introduction.
+
+Some of the advanced features are being worked on constantly. When using them
+it is wise to check the relevant header and source files for additional details.
 
 2.2 Following "conversations".
 
@@ -2535,7 +2536,7 @@ Where:
 is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
-2.2.7 The example conversation code with GMemChunk's
+2.2.7 The example conversation code with GMemChunk's.
 
 For a conversation between two IP addresses and ports you can use this as an
 example.  This example uses the GMemChunk to allocate memory and stores the data
@@ -2553,7 +2554,7 @@ protocol_register routine.
 /* define your structure here */
 typedef struct {
 
-}my_entry_t;
+} my_entry_t;
 
 /* the GMemChunk base structure */
 static GMemChunk *my_vals = NULL;
@@ -2576,9 +2577,8 @@ conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */
-if ( conversation)
-    data_ptr = (my_entry_t*)conversation_get_proto_data(conversation,
-    	    my_proto);
+if (conversation)
+    data_ptr = (my_entry_t*)conversation_get_proto_data(conversation, my_proto);
 else {
 
     /* new conversation create local data structure */
@@ -2591,7 +2591,7 @@ else {
 
     conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
-    conversation_add_proto_data(conversation, my_proto, (void *) data_ptr);
+    conversation_add_proto_data(conversation, my_proto, (void *)data_ptr);
 }
 
 /* at this point the conversation data is ready */
@@ -2602,18 +2602,19 @@ else {
 #define my_init_count 20
 
 static void
-my_dissector_init( void){
+my_dissector_init(void)
+{
 
     /* destroy memory chunks if needed */
 
-    if ( my_vals)
+    if (my_vals)
 	g_mem_chunk_destroy(my_vals);
 
     /* now create memory chunks */
 
-    my_vals = g_mem_chunk_new( "my_proto_vals",
-	    sizeof( _entry_t),
-	    my_init_count * sizeof( my_entry_t),
+    my_vals = g_mem_chunk_new("my_proto_vals",
+	    sizeof(my_entry_t),
+	    my_init_count * sizeof(my_entry_t),
 	    G_ALLOC_AND_FREE);
 }
 
@@ -2621,12 +2622,12 @@ my_dissector_init( void){
 
 /* register re-init routine */
 
-register_init_routine( &my_dissector_init);
+register_init_routine(&my_dissector_init);
 
 my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
 
-2.2.8 An example conversation code that starts at a specific frame number
+2.2.8 An example conversation code that starts at a specific frame number.
 
 Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
@@ -2650,7 +2651,7 @@ that starts at the specific frame number.
 	}
 
 
-2.2.9 The example conversation code using conversation index field
+2.2.9 The example conversation code using conversation index field.
 
 Sometimes the conversation isn't enough to define a unique data storage
 value for the network traffic.  For example if you are storing information
@@ -2685,12 +2686,12 @@ upon the conversation index and values inside the request packets.
 	request_key.service = pntohs(&rxh->serviceId);
 	request_key.callnumber = pntohl(&rxh->callNumber);
 
-	request_val = (struct afs_request_val *) g_hash_table_lookup(
+	request_val = (struct afs_request_val *)g_hash_table_lookup(
 		afs_request_hash, &request_key);
 
 	/* only allocate a new hash element when it's a request */
 	opcode = 0;
-	if ( !request_val && !reply)
+	if (!request_val && !reply)
 	{
 		new_request_key = g_mem_chunk_alloc(afs_request_keys);
 		*new_request_key = request_key;
@@ -2705,7 +2706,7 @@ upon the conversation index and values inside the request packets.
 
 
 
-2.3 Dynamic conversation dissector registration
+2.3 Dynamic conversation dissector registration.
 
 
 NOTE:   This sections assumes that all information is available to
@@ -2746,7 +2747,7 @@ An example -
 static dissector_handle_t sub_dissector_handle;
 
 /* prototype for the dynamic dissector */
-static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
+static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *tree);
 
 /* in the main protocol dissector, where the next dissector is setup */
@@ -2764,19 +2765,19 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
    someone else's protocol then we just create a new conversation
    and assign our protocol to it.
 */
-        if( (conversation==NULL) 
-	  || (conversation->dissector_handle!=sub_dissector_handle) ){
-            new_conv_info = g_mem_chunk_alloc( new_conv_vals);
+	if ( (conversation == NULL) ||
+	     (conversation->dissector_handle != sub_dissector_handle) ) {
+            new_conv_info = g_mem_chunk_alloc(new_conv_vals);
             new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic port */
-            conversation = conversation_new(pinfo->fd->num, 
-		    &pinfo->src, &pinfo->dst, protocol,
-                    src_port, dst_port, new_conv_info, 0);
+	    conversation = conversation_new(pinfo->fd->num, 
+	        &pinfo->src, &pinfo->dst, protocol,
+	        src_port, dst_port, new_conv_info, 0);
 
 /* set the dissector for the new conversation */
-            conversation_set_dissector(conversation, sub_dissector_handle);
-        }
+	    conversation_set_dissector(conversation, sub_dissector_handle);
+	}
 		...
 
 void
@@ -2790,7 +2791,7 @@ proto_register_PROTOABBREV(void)
 	...
 }
 
-2.4 Dynamic server port dissector registration
+2.4 Dynamic server port dissector registration.
 
 NOTE: While this example used both NO_ADDR2 and NO_PORT2 to create a
 conversation with only one port and address set, this isn't a
@@ -2840,7 +2841,7 @@ static dissector_handle_t sub_dissector_handle;
 
 /* if conversation has a data field, create it and load structure */
 
-        new_conv_info = g_mem_chunk_alloc( new_conv_vals);
+        new_conv_info = g_mem_chunk_alloc(new_conv_vals);
         new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic server address and port 	*/
@@ -2857,17 +2858,17 @@ static dissector_handle_t sub_dissector_handle;
    someone else's protocol then we just create a new conversation
    and assign our protocol to it.
 */
-        if( (conversation==NULL) 
-	  || (conversation->dissector_handle!=sub_dissector_handle) ){
-            conversation = conversation_new(pinfo->fd->num,  
-		&server_src_addr, 0, protocol,
-                server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
+	if ( (conversation == NULL) ||
+	     (conversation->dissector_handle != sub_dissector_handle) ) {
+	    conversation = conversation_new(pinfo->fd->num,  
+	    &server_src_addr, 0, protocol,
+	    server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
 /* set the dissector for the new conversation */
-            conversation_set_dissector(conversation, sub_dissector_handle);
+	    conversation_set_dissector(conversation, sub_dissector_handle);
 	}
 
-2.5 Per packet information
+2.5 Per packet information.
 
 Information can be stored for each data packet that is processed by the dissector.
 The information is added with the p_add_proto_data function and retrieved with the 
@@ -2886,7 +2887,7 @@ Where:
 	proto_data - pointer to the dissector data.
 
 
-2.6 User Preferences
+2.6 User Preferences.
 
 If the dissector has user options, there is support for adding these preferences
 to a configuration dialog.
@@ -2897,7 +2898,7 @@ module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
 
 Where: proto_id   - the value returned by "proto_register_protocol()" when
 		    the protocol was registered
-	 apply_cb - Callback routine that is call when preferences are applied
+       apply_cb   - Callback routine that is call when preferences are applied
 
 
 Then you can register the fields that can be configured by the user with these routines -
@@ -2984,7 +2985,7 @@ This will create preferences "beep.tcp.port" and
 "beep.strict_header_terminator", the first of which is an unsigned
 integer and the second of which is a Boolean.
 
-2.7 Reassembly/desegmentation for protocols running atop TCP
+2.7 Reassembly/desegmentation for protocols running atop TCP.
 
 There are two main ways of reassembling a Protocol Data Unit (PDU) which
 spans across multiple TCP segments.  The first approach is simpler, but  
@@ -2994,7 +2995,7 @@ fixed amount of data that includes enough information to determine the PDU
 length, possibly followed by additional data.  The second method is more 
 generic but requires more code and is less efficient.
 
-2.7.1 Using tcp_dissect_pdus()
+2.7.1 Using tcp_dissect_pdus().
 
 For the first method, you register two different dissection methods, one
 for the TCP case, and one for the other cases.  It is a good idea to
@@ -3057,7 +3058,7 @@ The arguments to tcp_dissect_pdus are:
 	and proto_tree pointer, with the tvbuff containing a
 	possibly-reassembled PDU, and that should dissect that PDU.
 
-2.7.2 Modifying the pinfo struct
+2.7.2 Modifying the pinfo struct.
 
 The second reassembly mode is preferred when the dissector cannot determine 
 how many bytes it will need to read in order to determine the size of a PDU. 
@@ -3115,7 +3116,7 @@ static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     guint offset = 0;
     gint available = tvb_reported_length_remaining(tvb, offset);
-    gint len = tvb_strnlen( tvb, offset, available );
+    gint len = tvb_strnlen(tvb, offset, available);
 
     if( -1 == len ) {
         /* No '\0' found, ask for another byte. */
@@ -3143,7 +3144,7 @@ protocol tree. Unfortunately since there is no way to guess the size of C String
 without seeing the entire string this dissector can never request more than one
 additional byte.
 
-2.8 ptvcursors
+2.8 ptvcursors.
 
 The ptvcursor API allows a simpler approach to writing dissectors for
 simple protocols. The ptvcursor API works best for protocols whose fields
@@ -3165,7 +3166,7 @@ To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
 is an example of how to use it. You don't need to look at it as a guide; 
 instead, the API description here should be good enough.
 
-2.8.1 API
+2.8.1 API.
 
 ptvcursor_t*
 ptvcursor_new(proto_tree*, tvbuff_t*, gint offset)
@@ -3195,7 +3196,7 @@ ptvcursor_free(ptvcursor_t*)
     Frees the memory associated with the ptvcursor. You must call this
 after your dissection with the ptvcursor API is completed.
 
-2.8.2 Miscellaneous functions
+2.8.2 Miscellaneous functions.
 
 tvbuff_t*
 ptvcursor_tvbuff(ptvcursor_t*)
@@ -3213,14 +3214,16 @@ void
 ptvcursor_set_tree(ptvcursor_t*, proto_tree *)
     sets a new proto_tree for the ptvcursor
 
-3. Plugins
+3. Plugins.
 
 See the README.plugins for more information on how to "pluginize" 
 a dissector.
 
-4.0 Extending Wiretap.
+4. Extending Wiretap.
 
-5.0 How the Display Filter Engine works
+See wiretap/README.developer.
+
+5. How the Display Filter Engine works.
 
 code:
 epan/dfilter/* - the display filter engine, including
@@ -3229,7 +3232,7 @@ epan/dfilter/* - the display filter engine, including
 epan/ftypes/* - the definitions of the various FT_* field types.
 epan/proto.c   - proto_tree-related routines
 
-5.1 Parsing text
+5.1 Parsing text.
 
 The scanner/parser pair read the string representing the display filter
 and convert it into a very simple syntax tree.  The syntax tree is very
@@ -3247,7 +3250,7 @@ During the process of checking the semantics, the simple syntax tree is
 fleshed out and no longer contains nodes with unparsed information.  The
 syntax tree is no longer in its simple form, but in its complete form.
 
-5.2 Converting to DFVM bytecode
+5.2 Converting to DFVM bytecode.
 
 The syntax tree is analyzed to create a sequence of bytecodes in the
 "DFVM" language.  "DFVM" stands for Display Filter Virtual Machine.  The
@@ -3260,7 +3263,7 @@ a list of VM bytecodes than to attempt to filter packets directly from
 the syntax tree.  (heh...  no measurement has been made to support this
 supposition)
 
-5.3 Filtering
+5.3 Filtering.
 
 Once the DFVM bytecode has been produced, it's a simple matter of
 running the DFVM engine against the proto_tree from the packet
@@ -3271,7 +3274,7 @@ field_info structures that are interesting to the display filter.  This
 makes lookup of those field_info structures during the filtering process
 faster.
 
-5.4 Display Filter Functions
+5.4 Display Filter Functions.
 
 You define a display filter function by adding an entry to
 the df_functions table in epan/dfilter/dfunctions.c. The record struct
@@ -3334,12 +3337,13 @@ If everything is okay with the value of that stnode_t, your function
 does nothing --- it merely returns. If something is wrong, however,
 it should THROW a TypeError exception.
 
+6. The end
 
+This developer guide is compiled to give in depth information on Wireshark.
+It is by no means all inclusive and complete. Please feel free to send 
+remarks and patches to the developer mailing list.
 
-6.0 Adding new capabilities.
-
-
-
+6.1 Contributors
 
 James Coe <jammer@cin.net>
 Gilbert Ramirez <gram@alumni.rice.edu>
@@ -3348,3 +3352,4 @@ Olivier Abad <oabad@cybercable.fr>
 Laurent Deniel <laurent.deniel@free.fr>
 Gerald Combs <gerald@wireshark.org>
 Guy Harris <guy@alum.mit.edu>
+
