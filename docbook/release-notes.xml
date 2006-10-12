@@ -78,7 +78,14 @@ Wireshark Info
         <listitem><para>
         <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>,
         support (which provides raw mode capture under Windows) has been
-	enhanced..
+        enhanced.
+        </para></listitem>
+
+        <listitem><para>
+        The following dialogs show typical "Ok" / "Apply" / "Cancel" buttons now:
+        "Edit/Preferences", "View/Coloring Rules", "Capture/Capture Filters", 
+        "Analyze/Display Filters" and "Analyze/Enabled Protocols".
+        The former "Save" button behaviour confused a lot of people.
         </para></listitem>
 
       </itemizedlist>
