@@ -869,17 +869,13 @@ install-common-deps:
 !ENDIF
 
 clean-deps1:
-	rm -f $(INSTALL1_DIR)\*.dll
-	rm -rf $(INSTALL1_DIR)\etc
-	rm -rf $(INSTALL1_DIR)\lib
+	rm -rf $(INSTALL1_DIR)
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
 
 clean-deps2:
-	rm -f $(INSTALL2_DIR)\*.dll
-	rm -rf $(INSTALL2_DIR)\etc
-	rm -rf $(INSTALL2_DIR)\lib
+	rm -rf $(INSTALL2_DIR)
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
