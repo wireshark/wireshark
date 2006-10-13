@@ -7876,12 +7876,20 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
+    /* If this is not the start of the data in/out then dont even try to
+     * dissect the data as SCSI
+     */
+    if (relative_offset) {
+        call_dissector (data_handle, tvb, pinfo, scsi_tree);
+        goto end_of_payload;
+    }
+
     if (tree == NULL) {
         /*
          * We have to dissect INQUIRY responses, in order to determine the
          * types of devices.
          *
-         * We don't bother dissecting other payload if we're not buildng
+         * We don't bother dissecting other payload if we're not building
          * a protocol tree.
          *
 	 * We assume opcode 0x12 is always INQUIRY regardless of the
@@ -7906,6 +7914,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
+end_of_payload:
     pinfo->current_proto=old_proto;
 }
 
