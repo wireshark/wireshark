@@ -1466,8 +1466,12 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 	proto_tree *tree;
 	guint8 *buf = ep_alloc(10240);
 
-	item=proto_tree_add_string(megaco_tree, hf_megaco_h245, tvb,
+	/*item=proto_tree_add_string(megaco_tree, hf_megaco_h245, tvb,
 		offset, len, msg );
+		*/
+	item = proto_tree_add_text(megaco_tree, tvb, offset, len,
+			"%s", msg);
+
 	tree = proto_item_add_subtree(item, ett_megaco_h245);
 
 	/* arbitrary maximum length */
@@ -1646,10 +1650,13 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
 	tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
 
+	megaco_eventsdescriptor_ti = proto_tree_add_text(megaco_tree_command_line, tvb, tvb_previous_offset, tokenlen,
+		"%s", tvb_format_text(tvb, tvb_previous_offset, tokenlen));
+
+	/*
 	megaco_eventsdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_events_descriptor,tvb,tvb_previous_offset,tokenlen, FALSE);
+	*/
 	megaco_eventsdescriptor_tree = proto_item_add_subtree(megaco_eventsdescriptor_ti, ett_megaco_eventsdescriptor);
-
-
 
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '=');
 	tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
@@ -1776,9 +1783,9 @@ static void
 dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree_command_line,  gint tvb_RBRKT, gint tvb_previous_offset)
 {
 
-	gint tokenlen, tvb_current_offset, tvb_next_offset, tvb_help_offset;
+	gint tokenlen, pkg_tokenlen, tvb_current_offset, tvb_next_offset, tvb_help_offset;
 	gint tvb_signals_end_offset, tvb_signals_start_offset, tvb_LBRKT;
-	proto_tree  *megaco_signalsdescriptor_tree, *megaco_signalsdescriptor_ti;
+	/*proto_tree  *megaco_signalsdescriptor_tree, *megaco_signalsdescriptor_ti;*/
 
 	gint requested_signal_start_offset, requested_signal_end_offset;
 	proto_tree	*megaco_requestedsignal_tree, *megaco_requestedsignal_ti;
@@ -1793,20 +1800,27 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 	requested_signal_start_offset	= 0;
 	requested_signal_end_offset		= 0;
 
-	tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
+	tvb_signals_end_offset   = tvb_RBRKT;
+	tvb_signals_start_offset = tvb_previous_offset;
 
+	tvb_LBRKT = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
+	tokenlen =  (tvb_LBRKT+1) - tvb_signals_start_offset;
+
+	proto_tree_add_text(megaco_tree_command_line, tvb, tvb_signals_start_offset, tokenlen,
+		"%s", tvb_format_text(tvb, tvb_signals_start_offset, tokenlen));
+
+	/*
 	megaco_signalsdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_signal_descriptor,tvb,tvb_previous_offset,tokenlen, FALSE);
 	megaco_signalsdescriptor_tree = proto_item_add_subtree(megaco_signalsdescriptor_ti, ett_megaco_signalsdescriptor);
+	*/
 
-	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
+	tvb_current_offset = tvb_LBRKT;
 	tvb_next_offset = tvb_skip_wsp(tvb, tvb_current_offset+1);
 	if (check_col(pinfo->cinfo, COL_INFO) )
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (Signal:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen-tvb_current_offset+tvb_previous_offset));
 
-	tvb_signals_end_offset   = tvb_RBRKT;
-	tvb_signals_start_offset = tvb_previous_offset;
 
-	if ( tvb_current_offset < tvb_RBRKT && tvb_current_offset != -1 && tvb_next_offset != tvb_signals_end_offset){
+	if ( tvb_current_offset < tvb_signals_end_offset && tvb_current_offset != -1 && tvb_next_offset != tvb_signals_end_offset){
 
 
 		tvb_RBRKT = tvb_next_offset+1;
@@ -1851,7 +1865,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
 			}
 
-			tvb_help_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
+			tvb_help_offset = tvb_LBRKT = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
 
 			/* if there are signalparameter  */
 
@@ -1860,17 +1874,20 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 				requested_signal_start_offset = tvb_help_offset;
 				requested_signal_end_offset	 = tvb_RBRKT;
 				tvb_help_offset = tvb_skip_wsp_return(tvb, tvb_help_offset-1);
-				tokenlen = tvb_help_offset - tvb_previous_offset;
+				pkg_tokenlen = tvb_help_offset - tvb_previous_offset;
+				tokenlen = tvb_LBRKT+1 - tvb_previous_offset;
 			}
 			/* no parameters */
 			else {
-				tokenlen = tvb_RBRKT+1 - tvb_previous_offset;
+				tokenlen = pkg_tokenlen = tvb_RBRKT+1 - tvb_previous_offset;
 			}
 
-
-			megaco_requestedsignal_ti = proto_tree_add_item(megaco_signalsdescriptor_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,tokenlen, FALSE);
+			megaco_requestedsignal_ti = proto_tree_add_text(megaco_tree_command_line, tvb, tvb_previous_offset, tokenlen,
+				"%s", tvb_format_text(tvb, tvb_previous_offset, tokenlen));
 			megaco_requestedsignal_tree = proto_item_add_subtree(megaco_requestedsignal_ti, ett_megaco_requestedsignal);
 
+			proto_tree_add_item(megaco_requestedsignal_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,pkg_tokenlen, FALSE);
+			
 			if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
 				gchar *msg;
 
@@ -1881,12 +1898,14 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
 				msg=tvb_format_text(tvb,requested_signal_start_offset, tokenlen+1);
 				if(!strncmp("h245", msg, 4)){
-					dissect_megaco_h245(tvb, pinfo, megaco_requestedsignal_tree, requested_signal_start_offset, tokenlen, msg);
+					dissect_megaco_h245(tvb, pinfo, megaco_tree_command_line, requested_signal_start_offset, tokenlen, msg);
 				} else {
-					proto_tree_add_text(megaco_requestedsignal_tree, tvb, requested_signal_start_offset, tokenlen,
+					proto_tree_add_text(megaco_tree_command_line, tvb, requested_signal_start_offset, tokenlen,
 						"%s", msg);
 				}
-
+				/* Print the trailing '}' */
+				proto_tree_add_text(megaco_tree_command_line, tvb, tvb_RBRKT, 1,
+					"%s", tvb_format_text(tvb, tvb_RBRKT, 1));
 			}
 
 			tvb_current_offset  = tvb_find_guint8(tvb, tvb_RBRKT,
@@ -1900,8 +1919,15 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
 			tvb_LBRKT = tvb_previous_offset;
 			tvb_RBRKT = tvb_previous_offset;
+			/* Print the trailing '}' */
+			proto_tree_add_text(megaco_tree_command_line, tvb, tvb_signals_end_offset, 1,
+				"%s", tvb_format_text(tvb, tvb_signals_end_offset, 1));
 
 		} while ( tvb_current_offset < tvb_signals_end_offset );
+	}else{
+		/* signals{}*/
+		proto_tree_add_text(megaco_tree_command_line, tvb, tvb_signals_end_offset, 1,
+				"%s", tvb_format_text(tvb, tvb_signals_end_offset, 1));
 	}
 
 
