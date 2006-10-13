@@ -92,6 +92,7 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/reassemble.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-scsi-osd.h"
@@ -352,6 +353,14 @@ static int hf_ssc3_space6_count = -1;
 static int hf_ssc3_space16_count = -1;
 static int hf_ssc3_locate10_loid = -1;
 static int hf_ssc3_locate16_loid = -1;
+static int hf_scsi_fragments = -1;
+static int hf_scsi_fragment = -1;
+static int hf_scsi_fragment_overlap = -1;
+static int hf_scsi_fragment_overlap_conflict = -1;
+static int hf_scsi_fragment_multiple_tails = -1;
+static int hf_scsi_fragment_too_long_fragment = -1;
+static int hf_scsi_fragment_error = -1;
+static int hf_scsi_reassembled_in = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -360,11 +369,41 @@ static gint ett_scsi_inq_acaflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
+static gint ett_scsi_fragments = -1;
+static gint ett_scsi_fragment  = -1;
 
 static int scsi_tap = -1;
 
-/* Defragment fragmented SCSI DATA IN/OUT transfers */
-static gboolean scsi_defragment = FALSE;
+/* Defragment of SCSI DATA IN/OUT */
+static gboolean scsi_defragment = TRUE;
+
+static GHashTable *scsi_fragment_table = NULL;
+static GHashTable *scsi_reassembled_table = NULL;
+
+static void
+scsi_defragment_init(void)
+{
+  fragment_table_init(&scsi_fragment_table);
+  reassembled_table_init(&scsi_reassembled_table);
+}
+
+static const fragment_items scsi_frag_items = {
+	&ett_scsi_fragment,
+	&ett_scsi_fragments,
+	&hf_scsi_fragments,
+	&hf_scsi_fragment,
+	&hf_scsi_fragment_overlap,
+	&hf_scsi_fragment_overlap_conflict,
+	&hf_scsi_fragment_multiple_tails,
+	&hf_scsi_fragment_too_long_fragment,
+	&hf_scsi_fragment_error,
+	&hf_scsi_reassembled_in,
+	"fragments"
+};
+
+
+
+
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -7809,6 +7848,9 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *old_proto;
     cmdset_t *csdata;
     guint32 expected_length;
+    fragment_data *ipfd_head=NULL;
+    tvbuff_t *next_tvb=tvb;
+    gboolean   update_col_info = TRUE;
 
     if(!itlq || !itl){
         /* we have no record of this exchange and so we can't dissect the
@@ -7891,10 +7933,27 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If we are not doing data reassembly we only call the dissector
      * for the very first data in/out pdu in each transfer
      */
-    if (relative_offset && !scsi_defragment) {
-        call_dissector (data_handle, tvb, pinfo, scsi_tree);
-        goto end_of_payload;
+    if (!scsi_defragment) {
+        if (relative_offset) {
+            call_dissector (data_handle, tvb, pinfo, scsi_tree);
+            goto end_of_payload;
+        } else {
+            goto dissect_the_payload;
+        }
     }
+
+    /* If we dont have the entire PDU there is no point in even trying 
+     * reassembly
+     */
+    if(tvb_length_remaining(tvb, offset)!=tvb_reported_length_remaining(tvb, offset)){
+        if (relative_offset) {
+            call_dissector (data_handle, tvb, pinfo, scsi_tree);
+            goto end_of_payload;
+        } else {
+            goto dissect_the_payload;
+        }
+    }
+
 
     /* What is the expected data length for this transfer */
     if( (itlq->task_flags&(SCSI_DATA_READ|SCSI_DATA_WRITE))==(SCSI_DATA_READ|SCSI_DATA_WRITE) ){
@@ -7909,8 +7968,26 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expected_length=itlq->data_length;
     }
 
+    /* If this PDU already contains all the expected data we dont have to do
+     * reassembly.
+     */
+    if( (!relative_offset) && (tvb_length_remaining(tvb, offset)==expected_length) ){
+        goto dissect_the_payload;
+    }
 
 
+    /* Start reassembly */
+    ipfd_head = fragment_add_check(tvb, offset, pinfo, 
+                             itlq->first_exchange_frame, /* key */
+                             scsi_fragment_table,
+                             scsi_reassembled_table,
+                             relative_offset,
+                             tvb_length_remaining(tvb, offset),
+                             (tvb_length_remaining(tvb,offset)+relative_offset)!=expected_length);
+    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, scsi_tree);
+
+
+dissect_the_payload:
     if (tree == NULL) {
         /*
          * We have to dissect INQUIRY responses, in order to determine the
@@ -7923,7 +8000,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * commandset used.
 	 */
         if (opcode == SCSI_SPC2_INQUIRY) {
-            dissect_spc3_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
+            dissect_spc3_inquiry (next_tvb, pinfo, scsi_tree, offset, isreq,
                                   FALSE, payload_len, cdata);
         }
     } else {
@@ -7931,13 +8008,13 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            All commandsets support SPC?
         */
         if(csdata->cdb_table && (csdata->cdb_table)[opcode].func){
-            (csdata->cdb_table)[opcode].func(tvb, pinfo, scsi_tree, offset,
+            (csdata->cdb_table)[opcode].func(next_tvb, pinfo, scsi_tree, offset,
                                isreq, FALSE, payload_len, cdata);
         } else if(spc[opcode].func){
-            spc[opcode].func(tvb, pinfo, scsi_tree, offset,
+            spc[opcode].func(next_tvb, pinfo, scsi_tree, offset,
                                isreq, FALSE, payload_len, cdata);
         } else { /* dont know this CDB */
-            call_dissector (data_handle, tvb, pinfo, scsi_tree);
+            call_dissector (data_handle, next_tvb, pinfo, scsi_tree);
         }
     }
 
@@ -8779,6 +8856,37 @@ proto_register_scsi (void)
 	  { "Response in", "scsi.response_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,
 	    "The response to this transaction is in this frame", HFILL }},
 
+	{ &hf_scsi_fragments,
+	  { "SCSI Fragments", "scsi.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+	    "SCSI Fragments", HFILL }},
+
+	{ &hf_scsi_fragment_overlap,
+	  { "Fragment overlap",	"scsi.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Fragment overlaps with other fragments", HFILL }},
+
+	{ &hf_scsi_fragment_overlap_conflict,
+	  { "Conflicting data in fragment overlap",	"scsi.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Overlapping fragments contained conflicting data", HFILL }},
+
+	{ &hf_scsi_fragment_multiple_tails,
+	  { "Multiple tail fragments found",	"scsi.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Several tails were found when defragmenting the packet", HFILL }},
+
+	{ &hf_scsi_fragment_too_long_fragment,
+	  { "Fragment too long",	"scsi.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Fragment contained data past end of packet", HFILL }},
+
+	{ &hf_scsi_fragment_error,
+	  { "Defragmentation error", "scsi.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	    "Defragmentation error due to illegal fragments", HFILL }},
+
+	{ &hf_scsi_fragment,
+	  { "SCSI DATA Fragment", "scsi.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	    "SCSI DATA Fragment", HFILL }},
+
+	{ &hf_scsi_reassembled_in,
+	  { "Reassembled SCSI DATA in frame", "scsi.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	    "This SCSI DATA packet is reassembled in this frame", HFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -8790,6 +8898,8 @@ proto_register_scsi (void)
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
 	&ett_scsi_inq_reladrflags,
+	&ett_scsi_fragments,
+	&ett_scsi_fragment,
     };
     module_t *scsi_module;
 
@@ -8810,6 +8920,11 @@ proto_register_scsi (void)
                                     scsi_devtype_options, 
                                     FALSE);
 
+    prefs_register_bool_preference(scsi_module, "defragment",
+        "Reassemble fragmented SCSI DATA IN/OUT transfers",
+        "Whether fragmented SCSI DATA IN/OUT transfers should be reassembled",
+        &scsi_defragment);
+    register_init_routine(scsi_defragment_init);
 }
 
 void
