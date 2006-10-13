@@ -108,6 +108,7 @@ static int hf_fc_param = -1;
 static int hf_fc_ftype = -1;    /* Derived field, non-existent in FC hdr */
 static int hf_fc_reassembled = -1;
 static int hf_fc_eisl = -1;
+static int hf_fc_relative_offset = -1;
 
 /* Network_Header fields */
 static int hf_fc_nh_da = -1;
@@ -586,6 +587,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint32 frag_id;
     guint32 frag_size;
     guint8 df_ctl, seq_id;
+    guint32 f_ctl;
     
     guint32 param;
     guint16 real_seqcnt;
@@ -640,6 +642,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fchdr.seqcnt = tvb_get_ntohs (tvb, offset+14);
     fchdr.oxid=tvb_get_ntohs(tvb,offset+16);
     fchdr.rxid=tvb_get_ntohs(tvb,offset+18);
+    fchdr.relative_offset=0;
     param = tvb_get_ntohl (tvb, offset+20);
     seq_id = tvb_get_guint8 (tvb, offset+12);
 
@@ -892,6 +895,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
 
     dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9);
+    f_ctl = tvb_get_ntoh24(tvb, offset+9);
 
 
     proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
@@ -928,6 +932,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         } else {
             proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20,
                                  4, FALSE);
+        }
+    } else if (ftype == FC_FTYPE_SCSI ) {
+        if (f_ctl&FC_FCTL_REL_OFFSET){
+            proto_tree_add_item (fc_tree, hf_fc_relative_offset, tvb, offset+20, 4, FALSE);
+            fchdr.relative_offset=tvb_get_ntohl(tvb, offset+20);
+        } else {
+            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
         }
     } else {
         proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
@@ -1269,6 +1280,9 @@ proto_register_fc(void)
            0, "Time since the first frame of the Exchange", HFILL }},
         { &hf_fc_eisl,
           {"EISL Header", "fc.eisl", FT_BYTES, BASE_HEX, NULL, 0, "EISL Header", HFILL}},
+        { &hf_fc_relative_offset,
+          {"Relative Offset", "fc.relative_offset", FT_UINT32, BASE_DEC, NULL,
+           0, "Relative offset of data", HFILL}},
     };
 
     /* Setup protocol subtree array */
