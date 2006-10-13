@@ -756,6 +756,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     itl_nexus_t *itl=NULL;
     guint ahs_cdb_length=0;
     guint ahs_cdb_offset=0;
+    guint32 data_offset=0;
 
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -1312,6 +1313,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
+	    data_offset=tvb_get_ntohl(tvb, offset+40);
+
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    /* do not update offset here because the data segment is
 	     * dissected below */
@@ -1356,6 +1359,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
+	    data_offset=tvb_get_ntohl(tvb, offset+40);
+
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_SCSIData_ResidualCount, tvb, offset + 44, 4, FALSE);
 	    }
@@ -1604,7 +1609,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    data_tvb=tvb_new_subset(tvb, immediate_data_offset, tvb_len, tvb_rlen);
             dissect_scsi_payload (data_tvb, pinfo, tree,
 		  	          TRUE,
-			          &cdata->itlq, itl);
+			          &cdata->itlq, itl,
+				  0);
 	}
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
@@ -1652,7 +1658,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
         dissect_scsi_payload (data_tvb, pinfo, tree,
 			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
-			      &cdata->itlq, itl);
+			      &cdata->itlq, itl,
+			      data_offset);
     }
 
     if(S_bit){

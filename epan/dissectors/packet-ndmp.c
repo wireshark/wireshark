@@ -1242,7 +1242,9 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 		if(ndmp_conv_data->task->itlq){
 			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
-		 		   ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
+				   ndmp_conv_data->task->itlq, 
+				   get_itl_nexus(ndmp_conv_data, pinfo, FALSE),
+				   0);
 		}
 		offset += payload_len_full;
 	}

@@ -46,7 +46,8 @@
  *   guint, itlq_nexus_t *, itl_nexus_t *);
  * o dissect_scsi_payload - invoked to decode SCSI responses
  *   void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
- *                              gboolean, itlq_nexusu_t *, itl_nexus_t *);
+ *                              gboolean, itlq_nexusu_t *, itl_nexus_t *,
+ *                              guint32 relative_offset);
  *   The final parameter is the length of the response field that is negotiated
  *   as part of the SCSI transport layer. If this is not tracked by the
  *   transport, it can be set to 0.
@@ -7792,7 +7793,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void
 dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      gboolean isreq, itlq_nexus_t *itlq, itl_nexus_t *itl)
+                      gboolean isreq, itlq_nexus_t *itlq, itl_nexus_t *itl,
+                      guint32 relative_offset _U_)
 {
     int offset=0;
     proto_item *ti;
