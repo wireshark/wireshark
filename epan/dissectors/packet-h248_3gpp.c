@@ -4,7 +4,7 @@
  *
  *  (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: packet-h248-template.c 17587 2006-03-11 13:02:41Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
