@@ -96,6 +96,11 @@ static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
 
 /* Stuff for the WEP decoder */
+/* XXX - Instead of making the user specify the number of WEP keys manually,
+ * we may want to change the "WEP key count" option to a toggle that
+ * enables/disables WEP decryption, and automatically figure out how
+ * many keys we have by parsing the key list.
+ */
 static gint num_wepkeys = 0;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
@@ -1270,7 +1275,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 	switch (type) {
 	case AIRONET_IE_VERSION:
 		proto_tree_add_item (ietree, hf_aironet_ie_version, tvb, offset, 1, TRUE);
-		proto_item_append_text(aironet_item, ": Aironet CCX version = %d", 
+		proto_item_append_text(aironet_item, ": Aironet CCX version = %d",
 			tvb_get_guint8(tvb, offset));
 		dont_change = TRUE;
 		break;
@@ -1312,7 +1317,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 		break;
 	}
 	if (!dont_change) {
-		proto_item_append_text(aironet_item, ": Aironet %s", 
+		proto_item_append_text(aironet_item, ": Aironet %s",
 			val_to_str(type, aironet_ie_type_vals, "Unknown"));
 	}
 }
@@ -1771,7 +1776,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
 
-    case TAG_QBSS_LOAD:  
+    case TAG_QBSS_LOAD:
       if (tag_len < 4 || tag_len >5)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Wrong QBSS Tag Length %u", tag_len);
@@ -1789,7 +1794,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, TRUE);
         proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 1, FALSE);
-      } 
+      }
       else if (tag_len == 5)
       {
          /* QBSS Version 2 */
@@ -1885,7 +1890,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len >= 3) {
 		oui = tvb_get_ntoh24(tvb, offset + 2);
 		tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
-		
+
 #define WPAWME_OUI	0x0050F2
 #define RSNOUI_VAL	0x000FAC
 
@@ -4059,7 +4064,7 @@ proto_register_ieee80211 (void)
     { &hf_aironet_ie_data,
       { "Aironet IE data", "wlan_mgmt.aironet.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
-	
+
     {&hf_qbss_version,
      {"QBSS Version", "wlan_mgt.qbss.version",
       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
@@ -4071,7 +4076,7 @@ proto_register_ieee80211 (void)
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
        FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-		
+
     {&hf_qbss_adc,
      {"Available Admission Capabilities", "wlan_mgt.qbss.adc",
      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
@@ -4124,14 +4129,7 @@ proto_register_ieee80211 (void)
   };
   module_t *wlan_module;
 
-  static const enum_val_t wep_keys_options[] = {
-    {"0", "0", 0},
-    {"1", "1", 1},
-    {"2", "2", 2},
-    {"3", "3", 3},
-    {"4", "4", 4},
-    {NULL, NULL, -1},
-  };
+  enum_val_t *wep_keys_options = g_malloc(sizeof(enum_val_t) * (MAX_ENCRYPTION_KEYS + 2));
 
 
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
@@ -4168,10 +4166,25 @@ proto_register_ieee80211 (void)
 				 &wlan_ignore_wep);
 
 #ifndef USE_ENV
+
+  for (i = 0; i <= MAX_ENCRYPTION_KEYS; i++) {
+    key_name = g_string_new("");
+    g_string_sprintf(key_name, "%d", i);
+    wep_keys_options[i].name = key_name->str;
+    wep_keys_options[i].description = key_name->str;
+    wep_keys_options[i].value = i;
+    g_string_free(key_name, FALSE);
+  }
+  wep_keys_options[i].name = NULL;
+  wep_keys_options[i].description = NULL;
+  wep_keys_options[i].value = -1;
+
+  key_desc = g_string_new("");
+  g_string_sprintf(key_desc, "How many WEP keys do we have to choose from? (0 to disable, up to %d)", MAX_ENCRYPTION_KEYS);
   prefs_register_enum_preference(wlan_module, "wep_keys",
-				 "WEP key count",
-				 "How many WEP keys do we have to choose from? (0 to disable, up to 4)",
+				 "WEP key count", key_desc->str,
 				 &num_wepkeys, wep_keys_options, FALSE);
+  g_string_free(key_desc, FALSE);
 
   for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
     key_name = g_string_new("");
@@ -4179,15 +4192,15 @@ proto_register_ieee80211 (void)
     key_desc = g_string_new("");
     wep_keystr[i] = NULL;
     /* prefs_register_*_preference() expects unique strings, so
-     * we build them using g_string_sprintf and just leave them 
+     * we build them using g_string_sprintf and just leave them
      * allocated. */
     g_string_sprintf(key_name, "wep_key%d", i + 1);
     g_string_sprintf(key_title, "WEP key #%d", i + 1);
     g_string_sprintf(key_desc, "WEP key #%d bytes in hexadecimal (A:B:C:D:E) "
 	    "[40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key "
 	    "length you're using", i + 1);
-    
-    prefs_register_string_preference(wlan_module, key_name->str, 
+
+    prefs_register_string_preference(wlan_module, key_name->str,
 	    key_title->str, key_desc->str, &wep_keystr[i]);
 
     g_string_free(key_name, FALSE);
