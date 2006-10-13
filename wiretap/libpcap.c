@@ -412,6 +412,8 @@ static const struct {
         { 183,          WTAP_ENCAP_JUNIPER_VP },
 	/* raw USB packets */
 	{ 186, 		WTAP_ENCAP_USB },
+	/* bluetooth hci frams, like hcidump */
+	{ 187, 		WTAP_ENCAP_BLUETOOTH_H4 },
 
 
 	/*
