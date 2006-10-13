@@ -363,6 +363,9 @@ static gint ett_scsi_inq_reladrflags = -1;
 
 static int scsi_tap = -1;
 
+/* Defragment fragmented SCSI DATA IN/OUT transfers */
+static gboolean scsi_defragment = FALSE;
+
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
  * in the command CDB.
@@ -7805,6 +7808,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int payload_len;
     const char *old_proto;
     cmdset_t *csdata;
+    guint32 expected_length;
 
     if(!itlq || !itl){
         /* we have no record of this exchange and so we can't dissect the
@@ -7876,13 +7880,36 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    /* If this is not the start of the data in/out then dont even try to
-     * dissect the data as SCSI
+    /* If we dont know the CDB opcode there is no point in trying to
+     * dissect the data.
      */
-    if (relative_offset) {
+    if( !itlq->first_exchange_frame ){
         call_dissector (data_handle, tvb, pinfo, scsi_tree);
         goto end_of_payload;
     }
+
+    /* If we are not doing data reassembly we only call the dissector
+     * for the very first data in/out pdu in each transfer
+     */
+    if (relative_offset && !scsi_defragment) {
+        call_dissector (data_handle, tvb, pinfo, scsi_tree);
+        goto end_of_payload;
+    }
+
+    /* What is the expected data length for this transfer */
+    if( (itlq->task_flags&(SCSI_DATA_READ|SCSI_DATA_WRITE))==(SCSI_DATA_READ|SCSI_DATA_WRITE) ){
+        /* This is a bidirectional transfer */
+        if(isreq){
+            expected_length=itlq->data_length;
+        } else {
+            expected_length=itlq->bidir_data_length;
+        }
+    } else {
+        /* This is a unidirectional transfer */
+        expected_length=itlq->data_length;
+    }
+
+
 
     if (tree == NULL) {
         /*
