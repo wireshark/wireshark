@@ -7995,6 +7995,10 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 dissect_the_payload:
+    if(!next_tvb){
+        /* reassembly has not yet finished so we dont have a tvb yet */
+        goto end_of_payload;
+    }
     if (tree == NULL) {
         /*
          * We have to dissect INQUIRY responses, in order to determine the
