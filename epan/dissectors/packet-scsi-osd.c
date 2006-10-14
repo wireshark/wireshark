@@ -94,6 +94,8 @@ static int hf_scsi_osd_sortorder	= -1;
 static int hf_scsi_osd_partition_id	= -1;
 static int hf_scsi_osd_list_identifier	= -1;
 static int hf_scsi_osd_allocation_length= -1;
+static int hf_scsi_osd_length= -1;
+static int hf_scsi_osd_starting_byte_address	= -1;
 static int hf_scsi_osd_initial_object_id= -1;
 static int hf_scsi_osd_additional_length= -1;
 static int hf_scsi_osd_continuation_object_id= -1;
@@ -108,6 +110,7 @@ static int hf_scsi_osd_key_identifier		= -1;
 static int hf_scsi_osd_seed			= -1;
 static int hf_scsi_osd_collection_fcr		= -1;
 static int hf_scsi_osd_collection_object_id	= -1;
+static int hf_scsi_osd_requested_collection_object_id	= -1;
 static int hf_scsi_osd_partition_created_in	= -1;
 static int hf_scsi_osd_partition_removed_in	= -1;
 
@@ -1354,22 +1357,198 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	
 }
 
+
+static void
+dissect_osd_length(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* length */
+	proto_tree_add_item(tree, hf_scsi_osd_length, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+static void
+dissect_osd_starting_byte_address(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* starting_byte_address */
+	proto_tree_add_item(tree, hf_scsi_osd_starting_byte_address, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+
+static void
+dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
+{
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+		/* options byte */
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
+
+		/* getset attributes byte / sort order */
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+		dissect_osd_sortorder(tvb, offset, tree);
+		offset++;
+
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 3 reserved bytes */
+		offset+=3;
+
+		/* partiton id */
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+		offset+=8;
+
+		/* user object id */
+		dissect_osd_user_object_id(tvb, offset, tree);
+		offset+=8;
+
+		/* 4 reserved bytes */
+		offset+=4;
+
+		/* length */
+		dissect_osd_length(tvb, offset, tree);
+		offset+=8;
+
+		/* starting byte address */
+		dissect_osd_starting_byte_address(tvb, offset, tree);
+		offset+=8;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=80;
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=40;
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
+		/* xxx should dissect the data ? */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
+
+		/* no data in for WRITE */
+	}
+	
+}
+
+
+static void
+dissect_osd_requested_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* requested collection object id */
+	proto_tree_add_item(tree, hf_scsi_osd_requested_collection_object_id, tvb, offset, 8, 0);
+	offset+=8;
+}
+
+
+static void
+dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
+{
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+		/* options byte */
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
+
+		/* getset attributes byte */
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+		dissect_osd_collection_fcr(tvb, offset, tree);
+		offset++;
+
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 3 reserved bytes */
+		offset+=3;
+
+		/* partiton id */
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+		offset+=8;
+
+		/* requested collection object id */
+		dissect_osd_requested_collection_object_id(tvb, offset, tree);
+		offset+=8;
+
+		/* 20 reserved bytes */
+		offset+=20;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=80;
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=40;
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* attribute data out */
+		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+
+		/* no data out for create collection */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(tvb, offset, tree, cdata);
+
+		/* no data in for create collection */
+	}
+	
+}
+
+
+
 /* OSD Service Actions */
 #define OSD_FORMAT_OSD		0x8801
 #define OSD_CREATE		0x8802
 #define OSD_LIST		0x8803
+#define OSD_WRITE		0x8806
 #define OSD_REMOVE		0x880a
 #define OSD_CREATE_PARTITION	0x880b
 #define OSD_REMOVE_PARTITION	0x880c
+#define OSD_CREATE_COLLECTION	0x8815
 #define OSD_REMOVE_COLLECTION	0x8816
 #define OSD_SET_KEY		0x8818
 static const value_string scsi_osd_svcaction_vals[] = {
     {OSD_FORMAT_OSD,		"Format OSD"},
     {OSD_CREATE,		"Create"},
     {OSD_LIST,			"List"},
+    {OSD_WRITE,			"Write"},
     {OSD_REMOVE,		"Remove"},
     {OSD_CREATE_PARTITION,	"Create Partition"},
     {OSD_REMOVE_PARTITION,	"Remove Partition"},
+    {OSD_CREATE_COLLECTION,	"Create Collection"},
     {OSD_REMOVE_COLLECTION,	"Remove Collection"},
     {OSD_SET_KEY,		"Set Key"},
     {0, NULL},
@@ -1384,9 +1563,11 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FORMAT_OSD, 		dissect_osd_format_osd},
     {OSD_CREATE,		dissect_osd_create},
     {OSD_LIST,			dissect_osd_list},
+    {OSD_WRITE,			dissect_osd_write},
     {OSD_REMOVE,		dissect_osd_remove},
     {OSD_CREATE_PARTITION,	dissect_osd_create_partition},
     {OSD_REMOVE_PARTITION,	dissect_osd_remove_partition},
+    {OSD_CREATE_COLLECTION,	dissect_osd_create_collection},
     {OSD_REMOVE_COLLECTION,	dissect_osd_remove_collection},
     {OSD_SET_KEY,		dissect_osd_set_key},
     {0, NULL},
@@ -1947,6 +2128,12 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_allocation_length,
           {"Allocation Length", "scsi.osd.allocation_length", FT_UINT64, BASE_DEC,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_length,
+          {"Length", "scsi.osd.length", FT_UINT64, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_starting_byte_address,
+          {"Starting Byte Address", "scsi.osd.starting_byte_address", FT_UINT64, BASE_DEC,
+           NULL, 0, "", HFILL}},
         { &hf_scsi_osd_initial_object_id,
           {"Initial Object Id", "scsi.osd.initial_object_id", FT_BYTES, BASE_HEX,
            NULL, 0, "", HFILL}},
@@ -1988,6 +2175,9 @@ proto_register_scsi_osd(void)
            TFS(&collection_fcr_tfs), 0x01, "", HFILL}},
         { &hf_scsi_osd_collection_object_id,
           {"Collection Object Id", "scsi.osd.collection_object_id", FT_BYTES, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_osd_requested_collection_object_id,
+          {"Requested Collection Object Id", "scsi.osd.requested_collection_object_id", FT_BYTES, BASE_HEX,
            NULL, 0, "", HFILL}},
         { &hf_scsi_osd_partition_created_in,
           { "Created In", "scsi.osd.partition.created_in", FT_FRAMENUM, BASE_NONE,
