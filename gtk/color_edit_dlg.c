@@ -1,5 +1,5 @@
-/* color_dlg.c
- * Definitions for dialog boxes for color filters
+/* color_edit_dlg.c
+ * Definitions for single color filter edit dialog boxes
  *
  * $Id$
  *
