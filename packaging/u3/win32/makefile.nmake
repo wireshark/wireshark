@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake 18526 2006-06-21 06:31:06Z jake $
+# $Id$
 #
 
 include ../../../config.nmake

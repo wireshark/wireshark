@@ -1,4 +1,4 @@
-$Id: README.txt 18191 2006-05-20 17:54:12Z gerald $
+$Id$
 
 U3 Packaging
 ============

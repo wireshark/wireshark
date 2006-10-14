@@ -1,7 +1,7 @@
 /* u3util.c
  * Utility routines for U3 device support
  *
- * $Id: oid_resolv.c 18197 2006-05-21 05:12:17Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
