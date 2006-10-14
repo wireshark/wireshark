@@ -375,7 +375,7 @@ static gint ett_scsi_fragment  = -1;
 static int scsi_tap = -1;
 
 /* Defragment of SCSI DATA IN/OUT */
-static gboolean scsi_defragment = TRUE;
+static gboolean scsi_defragment = FALSE;
 
 static GHashTable *scsi_fragment_table = NULL;
 static GHashTable *scsi_reassembled_table = NULL;
@@ -7984,7 +7984,14 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              relative_offset,
                              tvb_length_remaining(tvb, offset),
                              (tvb_length_remaining(tvb,offset)+relative_offset)!=expected_length);
-    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, scsi_tree);
+    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, tree);
+
+    if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ",
+              ipfd_head->reassembled_in);
+        }
+    }
 
 
 dissect_the_payload:
