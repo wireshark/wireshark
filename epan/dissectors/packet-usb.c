@@ -65,15 +65,19 @@ static int proto_usb = -1;
 static int hf_usb_urb_type = -1;
 static int hf_usb_device_address = -1;
 static int hf_usb_endpoint_number = -1;
-static int hf_usb_request_type = -1;
 static int hf_usb_request = -1;
 static int hf_usb_value = -1;
 static int hf_usb_index = -1;
 static int hf_usb_length = -1;
 static int hf_usb_data = -1;
+static int hf_usb_setup_bmRequestType = -1;
+static int hf_usb_setup_bmRequestType_direction = -1;
+static int hf_usb_setup_bmRequestType_type = -1;
+static int hf_usb_setup_bmRequestType_recipient = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
+static gint ett_usb_setup_bmrequesttype = -1;
 
 static const value_string usb_urb_type_vals[] = {
     {URB_CONTROL_INPUT, "URB_CONTROL_INPUT"},
@@ -88,6 +92,46 @@ static const value_string usb_urb_type_vals[] = {
     {0, NULL}
 };
 
+
+static const true_false_string tfs_bmrequesttype_direction = {
+	"Device-to-host",
+	"Host-to-device"
+};
+static const value_string bmrequesttype_type_vals[] = {
+    {0, "Standard"},
+    {1, "Class"},
+    {2, "Vendor"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+static const value_string bmrequesttype_recipient_vals[] = {
+    {0, "Device"},
+    {1, "Interface"},
+    {2, "Endpoint"},
+    {3, "Other"},
+    {0, NULL}
+};
+
+static int
+dissect_usb_setup_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+	        item=proto_tree_add_item(parent_tree, hf_usb_setup_bmRequestType, tvb, offset, 1, FALSE);
+		tree = proto_item_add_subtree(item, ett_usb_setup_bmrequesttype);
+	}
+
+	proto_tree_add_item(tree, hf_usb_setup_bmRequestType_direction, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_usb_setup_bmRequestType_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_usb_setup_bmRequestType_recipient, tvb, offset, 1, FALSE);
+
+	offset++;
+	return offset;
+}
+
+
 static void
 dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
@@ -96,7 +140,6 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     gboolean setup;
     proto_tree *tree = NULL;
     static guint32 src_addr=0xffffffff, dst_addr=0xffffffff; /* has to be static due to SET_ADDRESS */
-    guint32 tmpaddr;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
@@ -154,11 +197,11 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         proto_tree *setup_tree = NULL;
 
 
-        ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
+        ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
         setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
         
-        proto_tree_add_item(setup_tree, hf_usb_request_type, tvb, offset, 1, FALSE);
-        offset += 1;
+	offset=dissect_usb_setup_bmrequesttype(setup_tree, tvb, offset);
+
         proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
         offset += 1;
         proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
@@ -191,36 +234,49 @@ proto_register_usb(void)
         { "Endpoint", "usb.endpoint_number", FT_UINT32, BASE_DEC, NULL, 0x0,
                 "usb endpoint number", HFILL }},
 
-        { &hf_usb_request_type,
-        { "Request Type", "usb.setup.request_type", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { &hf_usb_setup_bmRequestType,
+        { "bmRequestType", "usb.setup.bmRequestType", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_request,
-        { "Request", "usb.setup.request", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_value,
-        { "value", "usb.setup.value", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "wValue", "usb.setup.wValue", FT_UINT16, BASE_HEX, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_index,
-        { "Index", "usb.setup.index", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "wIndex", "usb.setup.wIndex", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
 
         { &hf_usb_length,
-        { "Length", "usb.setup.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "wLength", "usb.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
                 
         { &hf_usb_data,
         {"Application Data", "usb.data",
             FT_BYTES, BASE_HEX, NULL, 0x0,
-            "Payload is application data", HFILL }}
+            "Payload is application data", HFILL }},
     
+        { &hf_usb_setup_bmRequestType_direction,
+        { "Direction", "usb.setup.bmRequestType.direction", FT_BOOLEAN, 8, 
+          TFS(&tfs_bmrequesttype_direction), 0x80, "", HFILL }},
+
+        { &hf_usb_setup_bmRequestType_type,
+        { "Type", "usb.setup.bmRequestType.type", FT_UINT8, BASE_HEX, 
+          VALS(bmrequesttype_type_vals), 0x70, "", HFILL }},
+
+        { &hf_usb_setup_bmRequestType_recipient,
+        { "Recipient", "usb.setup.bmRequestType.recipient", FT_UINT8, BASE_HEX, 
+          VALS(bmrequesttype_recipient_vals), 0x0f, "", HFILL }},
+
     };
     
     static gint *usb_subtrees[] = {
             &usb_hdr,
-            &usb_setup_hdr
+            &usb_setup_hdr,
+            &ett_usb_setup_bmrequesttype
     };
 
      
