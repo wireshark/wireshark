@@ -113,6 +113,10 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     type = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_usb_urb_type, tvb, offset, 4, FALSE);
     offset += 4;
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+            val_to_str(type, usb_urb_type_vals, "Unknown type %x"));
+    }
 
 #define USB_ADDR_LEN 4
     proto_tree_add_item(tree, hf_usb_device_address, tvb, offset, 4, FALSE);
