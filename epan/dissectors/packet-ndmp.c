@@ -1241,6 +1241,12 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
 		if(ndmp_conv_data->task->itlq){
+			/* ndmp conceptually always send both read and write 
+			 * data and always a full nonfragmented pdu
+			 */
+			ndmp_conv_data->task->itlq->task_flags=SCSI_DATA_READ|SCSI_DATA_WRITE;
+			ndmp_conv_data->task->itlq->data_length=payload_len;
+			ndmp_conv_data->task->itlq->bidir_data_length=payload_len;
 			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
 				   ndmp_conv_data->task->itlq, 
 				   get_itl_nexus(ndmp_conv_data, pinfo, FALSE),
