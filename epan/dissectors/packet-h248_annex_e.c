@@ -207,7 +207,7 @@ static int hf_h248_pkg_rtp_stat_ps = -1;
 static int ett_h248_pkg_rtp = -1;
 
 static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
-	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, h248_param_ber_integer, NULL },
+	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL },
 	{ 0, NULL, NULL, NULL}
 };
 
