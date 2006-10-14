@@ -1778,7 +1778,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	static struct opt_info o63_opt[]= {
 		/* 0 */ {"",none,NULL},
 		/* 1 */ {"NWIP does not exist on subnet",presence,NULL},
-		/* 2 */ {"NWIP exist in options area",presence,NULL},
+		/* 2 */ {"NWIP exists in options area",presence,NULL},
 		/* 3 */ {"NWIP exists in sname/file",presence,NULL},
 		/* 4 */ {"NWIP exists, but too big",presence,NULL},
 		/* 5 */ {"Broadcast for nearest Netware server",val_boolean,TFS(&yes_no_tfs)},
@@ -1811,7 +1811,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			if (subopt_len != 0) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 0", subopt);
-				suboptoff += subopt_len;
 				break;
 			}
 			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].text);
@@ -1821,7 +1820,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			if (subopt_len != 4) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 4", subopt);
-				suboptoff += subopt_len;
 				break;
 			}
 			if (suboptoff+4 > optend) {
@@ -1834,7 +1832,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			    "Suboption %d: %s = %s" ,
 			    subopt, o63_opt[subopt].text,
 			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
-			suboptoff += 4;
 			break;
 
 		case ipv4_list:
@@ -1844,7 +1841,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				    "Suboption %d : %s = %s",
 				    subopt, o63_opt[subopt].text,
 				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
-				suboptoff += 4;
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(v_tree, tvb, optoff,
@@ -1857,7 +1853,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 						proto_tree_add_text(o63_v_tree,
 						    tvb, suboptoff, suboptleft,
 						    "Suboption length isn't a multiple of 4");
-						suboptoff += suboptleft;
 						break;
 					}
 					proto_tree_add_text(o63_v_tree, tvb, suboptoff, 4, "IP Address: %s",
@@ -1869,8 +1864,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		case val_boolean:
 			if (subopt_len != 1) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 1", subopt);
-				suboptoff += subopt_len;
+					"Suboption %d: suboption length isn't 1", subopt);
 				break;
 			}
 			if (suboptoff+1 > optend) {
@@ -1891,14 +1885,12 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				    o63_opt[subopt].text,
 				    i == 0 ? tfs->false_string : tfs->true_string);
 			}
-			suboptoff += 1;
 			break;
 
 		case val_u_byte:
 			if (subopt_len != 1) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 1", subopt);
-				suboptoff += subopt_len;
 				break;
 			}
 			if (suboptoff+1 > optend) {
@@ -1910,16 +1902,15 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
 			    subopt, o63_opt[subopt].text,
 			    tvb_get_guint8(tvb, suboptoff));
-			suboptoff += 1;
 			break;
 
 		default:
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,"Unknown suboption %d", subopt);
-			suboptoff += subopt_len;
 			break;
 		}
 	}
-	return suboptoff;
+	optoff += (subopt_len + 2);
+	return optoff;
 }
 
 
