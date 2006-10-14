@@ -46,7 +46,9 @@ typedef enum {
   AT_STRINGZ,	/* null-terminated string */
   AT_EUI64,		/* IEEE EUI-64 */
   AT_URI,		/* URI/URL/URN */
-  AT_TIPC		/* TIPC Address Zone,Subnetwork,Processor */
+  AT_TIPC,		/* TIPC Address Zone,Subnetwork,Processor */
+  AT_USB		/* USB Device address 
+			 * (0xffffffff represents the host) */
 } address_type;
 
 typedef struct _address {

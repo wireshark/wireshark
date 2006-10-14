@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include <string.h>
 
 typedef enum { 
   URB_CONTROL_INPUT,
@@ -94,6 +95,8 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     int type;
     gboolean setup;
     proto_tree *tree = NULL;
+    static guint32 src_addr=0xffffffff, dst_addr=0xffffffff; /* has to be static due to SET_ADDRESS */
+    guint32 tmpaddr;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
@@ -110,8 +113,31 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     type = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_usb_urb_type, tvb, offset, 4, FALSE);
     offset += 4;
+
+#define USB_ADDR_LEN 4
     proto_tree_add_item(tree, hf_usb_device_address, tvb, offset, 4, FALSE);
+    switch(type){
+    case URB_CONTROL_INPUT:
+    case URB_ISOCHRONOUS_INPUT:
+    case URB_INTERRUPT_INPUT:
+    case URB_BULK_INPUT:
+        src_addr=tvb_get_ntohl(tvb, offset);
+        break;
+    case URB_CONTROL_OUTPUT:
+    case URB_ISOCHRONOUS_OUTPUT:
+    case URB_INTERRUPT_OUTPUT:
+    case URB_BULK_OUTPUT:
+        dst_addr=tvb_get_ntohl(tvb, offset);
+        break;
+    default:
+        break;
+    }
     offset += 4;
+    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+    SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+    SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+
     proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, offset, 4, FALSE);
     offset += 4;
     

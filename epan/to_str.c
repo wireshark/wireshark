@@ -316,6 +316,17 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
   g_snprintf(buf, buf_len, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
 }
 
+
+void
+usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
+{
+  if(pletohl(&addrp[0])==0xffffffff){
+    g_snprintf(buf, buf_len, "host");
+  } else {
+    g_snprintf(buf, buf_len, "%d", pletohl(&addrp[0]));
+  }
+}
+
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
 
@@ -798,6 +809,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     break;
   case AT_VINES:
     vines_addr_to_str_buf(addr->data, buf, buf_len);
+    break;
+  case AT_USB:
+    usb_addr_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_OSI:
     print_nsap_net_buf(addr->data, addr->len, buf, buf_len);
