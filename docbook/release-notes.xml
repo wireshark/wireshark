@@ -42,6 +42,27 @@ Wireshark Info
 	  Versions affected: 0.99.3.
         </para></listitem>
 
+        <listitem><para>
+	  The LDAP dissector (and possibly others) could crash.
+	  <!-- Fixed in r19154 -->
+	  <!-- Bug IDs: 1079 -->
+	  Versions affected: 0.99.3.
+        </para></listitem>
+
+        <listitem><para>
+	  The XOT dissector could attempt to allocate a large amount of memory and crash.
+	  <!-- Fixed in r19365 -->
+	  <!-- Bug IDs: 1133 -->
+	  Versions affected: 0.9.8 to 0.99.3.
+        </para></listitem>
+
+        <listitem><para>
+	  If AirPcap support was enabled, parsing a WEP key could sometimes cause a crash.
+	  <!-- Fixed in r19401 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.99.3.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -53,6 +74,12 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          The file set dialog could grow excessively large.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=331">Bug
+          331</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Trying to save flow data may crash Wireshark.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
           396</ulink>)
@@ -62,6 +89,42 @@ Wireshark Info
           It may not be possible to re-order coloring rules under Windows.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
           699</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Printing each packet to a new page didn't work under Windows.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=707">Bug
+          707</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The personal hosts configuration file wasn't being parsed correctly.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=795">Bug
+          795</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          "Save as" to an existing file wasn't allowed.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=927">Bug
+          927</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The SNMP dissector was not handling 64-bit counters properly.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1047">Bug
+          1047</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark and TShark would fail to start under Windows while trying to acquire a crypto context.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1096">Bug
+          1096</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Invalid characters could show up in PDML output.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1110">Bug
+          1110</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -82,10 +145,35 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        The following dialogs show typical "Ok" / "Apply" / "Cancel" buttons now:
-        "Edit/Preferences", "View/Coloring Rules", "Capture/Capture Filters", 
-        "Analyze/Display Filters" and "Analyze/Enabled Protocols".
-        The former "Save" button behaviour confused a lot of people.
+        VoIP call playback has been enhanced.  If Wireshark is linked with
+        the PortAudio library, you can play back G.711 conversations.  This
+        feature is present in the standard Windows installer.
+        </para></listitem>
+
+        <listitem><para>
+        The capture interface dialog display has been enhanced.
+        </para></listitem>
+
+        <listitem><para>
+        The "Save" button has been removed from the "Ok" / "Apply" / "Cancel"
+        button group in the following dialogs:
+        <itemizedlist>
+          <listitem><para>Edit/Preferences</para></listitem>
+          <listitem><para>View/Coloring Rules</para></listitem>
+          <listitem><para>Capture/Capture Filters</para></listitem>
+          <listitem><para>Analyze/Display Filters</para></listitem>
+          <listitem><para>"Analyze/Enabled Protocols</para></listitem>
+        </itemizedlist>
+        If you're fond of the "Save" button it can be resurrected in the
+        User Interface preferences.
+        </para></listitem>
+
+        <listitem><para>
+        Reading from stdin ("-i -") now works under Windows.
+        </para></listitem>
+
+        <listitem><para>
+        Expert analysis has been enhanced.
         </para></listitem>
 
       </itemizedlist>
@@ -95,12 +183,116 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+Enea LINX,
+Ethernet Powerlink (v1 and v2),
+H.248 Q.1950 Annex A,
+Linux pktgen,
+MP2T,
+NEWMAIL,
+PNG,
+SCSI OSD,
+UDLD,
+UMTS FP,
+USB,
+WLCCP,
+WZCSVC,
 
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
 
+(Left off at 19450)
+
+3Com NJACK,
+802.11,
+ACSE,
+AH,
+ALCAP,
+ANSI MAP,
+ATM,
+ASN.1,
+BACapp,
+BER,
+BGP,
+BSSAP,
+Camel,
+Catapult DCT2000,
+CFlow,
+CLNP,
+Common Windows networking,
+DAP,
+DCERPC (DCERPC, ATSVC, DFS, EFS, EPM, EVENTLOG, INITSHUTDOWN, MAPI, NT, PIPE, SAMR, SPOOLSS, SRVSVC, SVCCTL, WINREG),
+DCOM (DCOM, CBA-ACCO, SYSACT),
+DIAMETER,
+DISP,
+DNS,
+DOP,
+DSP,
+ESP,
+Ethernet,
+GSM A,
+GSM MAP,
+GSM SMS,
+GSSAPI,
+GTP,
+H.225,
+H.245,
+H.248,
+HTTP,
+ICQ,
+IKE,
+ISAKMP,
+iSCSI,
+ISUP,
+IUUP,
+Kerberos 4,
+LAP-D,
+LDAP,
+LLC,
+LogotypeCertExtn,
+MEGACO,
+MIME Multipart,
+MIP6,
+MMS,
+MSRP,
+MTP3,
+NCP,
+NDMP,
+NFS,
+NTP,
+OSI,
+PER,
+PN-MRP,
+PPP,
+19154Q.931,
+RADIUS,
+Redback,
+RPC,
+RTCP,
+RTP,
+SCCP,
+SCSI,
+SDP,
+SIP,
+SMB,
+SMRSE,
+SNMP,
+SSL,
+STANAG 5066,
+STP,
+TCAP,
+TCP,
+TFTP,
+TIPC,
+UDP,
+UMA,
+VNC,
+VRRP,
+X.509ce
+X11,
+YMSG,
+WTLS,
 
 
     </para>
@@ -109,8 +301,9 @@ Wireshark Info
     <section><title>New and Updated Capture File Support</title>
     <para>
 
+Catapult DCT2000, EyeSDN, iSeries
 
-</para>
+    </para>
     </section>
 
   </section>
