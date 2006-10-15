@@ -437,6 +437,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         break;
     default:
         /* dont know */
+	;
     }
 
 
@@ -556,7 +557,7 @@ proto_register_usb(void)
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
 
-    register_dissector("eth", dissect_usb, proto_usb);
+    register_dissector("usb", dissect_usb, proto_usb);
 }
 
 void
