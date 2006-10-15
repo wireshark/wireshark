@@ -65,6 +65,14 @@ typedef struct _usb_conv_info_t {
     emem_tree_t *transactions;
 } usb_conv_info_t;
 
+/* there is one such structure for each request/response */
+typedef struct _usb_trans_info_t {
+    guint32 request_in;
+    guint32 response_in;
+    guint8 requesttype;
+    guint8 request;
+} usb_trans_info_t;
+
 typedef enum { 
   URB_CONTROL_INPUT,
   URB_CONTROL_OUTPUT,
@@ -129,31 +137,36 @@ static const value_string descriptor_type_vals[] = {
 
 /* SETUP dissectors */
 static void
-dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 requesttype)
+dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info)
 {
-    switch(requesttype){
-    case 0x80:			/* 9.4.3 */
-        proto_tree_add_item(tree, hf_usb_descriptor_type, tvb, offset, 1, FALSE);
-        offset++;
-        proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, FALSE);
-        offset++;
-        proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, FALSE);
-        offset+=2;
-        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
-        offset += 2;
-        break;
-    default:
-        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, FALSE);
-        offset += 2;
-        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, FALSE);
-        offset += 2;
-        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
-        offset += 2;
+    if(is_request){
+        switch(usb_trans_info->requesttype){
+        case 0x80:			/* 9.4.3 */
+            proto_tree_add_item(tree, hf_usb_descriptor_type, tvb, offset, 1, FALSE);
+            offset++;
+            proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, FALSE);
+            offset++;
+            proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, FALSE);
+            offset+=2;
+            proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
+            offset += 2;
+            break;
+        default:
+            proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, FALSE);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, FALSE);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
+            offset += 2;
+        }
+    } else {
+        /* XXX dissect the descriptor coming back from the device */
+        proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "get descriptor  data...");
     }
 }
 
 
-typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 requesttype);
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info);
 
 typedef struct _usb_setup_dissector_table_t {
     guint8 request;
@@ -338,6 +351,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
         guint8 requesttype, request;
+        usb_trans_info_t *usb_trans_info;
 
         if(is_request){
             /* this is a request */
@@ -350,6 +364,15 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
             offset += 1;
 
+            usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+            if(!usb_trans_info){
+                usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
+                usb_trans_info->request_in=pinfo->fd->num;
+                usb_trans_info->response_in=0;
+                usb_trans_info->requesttype=requesttype;
+                usb_trans_info->request=request;
+                se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+            }
 
             dissector=NULL;
             for(tmp=setup_dissectors;tmp->dissector;tmp++){
@@ -360,7 +383,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             }
   
             if(dissector){
-                dissector(pinfo, setup_tree, tvb, offset, requesttype);
+                dissector(pinfo, setup_tree, tvb, offset, is_request, usb_trans_info);
                 offset+=6;
             } else {
                 proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
@@ -372,9 +395,31 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             }
         } else {
             /* this is a response */
+            if(pinfo->fd->flags.visited){
+                usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+            } else {
+                usb_trans_info=se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
+                if(usb_trans_info){
+                    usb_trans_info->response_in=pinfo->fd->num;
+                    se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+                }
+            }
+            if(usb_trans_info){
+                dissector=NULL;
+                for(tmp=setup_dissectors;tmp->dissector;tmp++){
+                    if(tmp->request==usb_trans_info->request){
+                        dissector=tmp->dissector;
+                        break;
+                    }
+                }
+  
+                if(dissector){
+                    dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info);
+                }
+            } else {
+                /* could not find a matching request */
+            }
         }
-        proto_tree_add_item(tree, hf_usb_data, tvb,
-            offset, tvb_length_remaining(tvb, offset), FALSE);
         return;
         }
         break;
