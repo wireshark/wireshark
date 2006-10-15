@@ -374,6 +374,12 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
             }
 
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_clear(pinfo->cinfo, COL_INFO);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+                    val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
+            }
+
             dissector=NULL;
             for(tmp=setup_dissectors;tmp->dissector;tmp++){
                 if(tmp->request==request){
@@ -413,6 +419,12 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     }
                 }
   
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_clear(pinfo->cinfo, COL_INFO);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+                        val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
+                }
+
                 if(dissector){
                     dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info);
                 }
