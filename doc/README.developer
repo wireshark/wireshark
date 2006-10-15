@@ -4,6 +4,17 @@ This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use some of the important functions and
 variables.
 
+0. Prerequisites.
+
+Before starting to develop a new dissector, a "running" Wireshark build 
+environment is required - there's no such thing as a standalone "dissector 
+build toolkit". 
+
+How to setup such an environment is platform dependant, detailed information 
+about these steps can be found in the "Developer's Guide" (available from:
+http://www.wireshark.org) and in the INSTALL and README files of the sources 
+root dir.
+
 1. Setting up your protocol dissector code.
 
 This section provides skeleton code for a protocol dissector. It also explains
@@ -894,7 +905,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 1.4.2 Extracting data from packets.
 
-NOTE: See the tvbuff.h file for more details.
+NOTE: See the file /epan/tvbuff.h for more details.
 
 The "tvb" argument to a dissector points to a buffer containing the raw
 data to be analyzed by the dissector; for example, for a protocol
@@ -2332,6 +2343,9 @@ compile).
   
   - 'svn diff' the workspace and save the result to a file.
   
+  - Edit the diff file - remove any changes unrelated to your new dissector, 
+    e.g. changes in config.nmake
+  
   - Send a note with the attached diff file requesting its inclusion to
     <mailto:wireshark-dev@wireshark.org>. You can also use this procedure for
     providing patches to your dissector or any other part of Wireshark.
@@ -3166,7 +3180,7 @@ To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
 is an example of how to use it. You don't need to look at it as a guide; 
 instead, the API description here should be good enough.
 
-2.8.1 API.
+2.8.1 ptvcursor API.
 
 ptvcursor_t*
 ptvcursor_new(proto_tree*, tvbuff_t*, gint offset)
@@ -3339,7 +3353,7 @@ it should THROW a TypeError exception.
 
 6. The end
 
-This developer guide is compiled to give in depth information on Wireshark.
+This file is compiled to give in depth information on Wireshark.
 It is by no means all inclusive and complete. Please feel free to send 
 remarks and patches to the developer mailing list.
 
