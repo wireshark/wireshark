@@ -557,13 +557,13 @@ $
 	<itemizedlist>
 	<listitem>
 	<para>
-    have a look at the Wireshark source code
+    see all the README.xxx files in the source code - these are various 
+	documentation files on different topics
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    there are various documentation files on different topics inside the 
-	source code, see all the README.xxx files
+    have a look at the Wireshark source code
 	</para>
 	</listitem>
 	<listitem>
