@@ -145,7 +145,9 @@ static int hf_h248_pkg_al_evt_onhook = -1;
 static int hf_h248_pkg_al_evt_offhook = -1;
 static int hf_h248_pkg_al_evt_flashhook = -1;
 static int hf_h248_pkg_al_evt_onhook_par_strict = -1;
+static int hf_h248_pkg_al_evt_offhook_par_strict = -1;
 static int hf_h248_pkg_al_evt_onhook_par_init = -1;
+static int hf_h248_pkg_al_evt_offhook_par_init = -1;
 static int hf_h248_pkg_al_evt_flashhook_par_mindur = -1;
 
 static gint ett_h248_pkg_al = -1;
@@ -162,6 +164,11 @@ static const value_string h248_pkg_al_evt_onhook_strict_vals[] = {
 };
 
 static const true_false_string h248_pkg_al_evt_onhook_par_init_vals = {
+	"already on-hook",
+	"actual state transition to on-hook"
+};
+
+static const true_false_string h248_pkg_al_evt_offhook_par_init_vals = {
 	"already off-hook",
 	"actual state transition to off-hook"
 };
@@ -172,6 +179,12 @@ static h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
+static h248_pkg_param_t  h248_pkg_al_evt_offhook_params[] = {
+	{ 0x0001, &hf_h248_pkg_al_evt_offhook_par_strict, h248_param_ber_integer, NULL },
+	{ 0x0002, &hf_h248_pkg_al_evt_offhook_par_init, h248_param_ber_boolean, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
 static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
 	{ 0x0001, &hf_h248_pkg_al_evt_flashhook_par_mindur, h248_param_ber_integer, NULL },
 	{ 0, NULL, NULL, NULL}
@@ -179,7 +192,7 @@ static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
 
 static h248_pkg_evt_t h248_pkg_al_evts[] = {
 	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params },
-	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_onhook_params },
+	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params },
 
 	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params },
 
@@ -187,6 +200,16 @@ static h248_pkg_evt_t h248_pkg_al_evts[] = {
 };
 
 /* Packet defenitions */
+static const value_string h248_pkg_al_parameters[] = {
+	/* Signals */
+	{   0x0002, "ri (Ring)" },
+	/* Events */
+	{   0x0004, "on (On-hook)" },
+	{   0x0005, "off (Off-hook)" },
+	{   0x0006, "fl (Flashhook)" },
+
+	{0,     NULL},
+};
 
 static h248_package_t h248_pkg_al = {
 	0x0009,
@@ -275,10 +298,17 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
 		/* H.248.1 E.9 Analog Line Supervision Package */
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_al_param,
+			{ "Parameter", "h248.pkg.al.parameter", 
+			FT_UINT16, BASE_HEX, VALS(h248_pkg_al_parameters), 0, "Parameter", HFILL }
+		},
 		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_onhook_par_strict, { "strict", "h248.pkg.al.ev.onhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook_par_init, { "init", "h248.pkg.al.ev.onhook.init", FT_BOOLEAN, 8, TFS(&h248_pkg_al_evt_onhook_par_init_vals), 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook_par_strict, { "strict", "h248.pkg.al.ev.offhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, "", HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook_par_init, { "init", "h248.pkg.al.ev.onhook.init", FT_BOOLEAN, 8, TFS(&h248_pkg_al_evt_offhook_par_init_vals), 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.pkg.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 		/* H.248.1 E.12 RTP package */
 		{ &hf_h248_pkg_rtp, { "RTP package", "h248.pkg.rtp", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},

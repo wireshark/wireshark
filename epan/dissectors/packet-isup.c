@@ -2782,6 +2782,7 @@ const value_string bearer_network_connection_characteristics_vals[] = {
 	{ 0x02,	"AAL type 2"},
 	{ 0x03,	"Structured AAL type 1"},
 	{ 0x04,	"IP/RTP"},
+	{ 0x05, "TDM (reserved for use by ITU-T Rec. Q.1950)"},
 	{ 0,	NULL }
 };
 
