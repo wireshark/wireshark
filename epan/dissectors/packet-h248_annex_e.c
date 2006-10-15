@@ -206,6 +206,16 @@ static int hf_h248_pkg_rtp_stat_ps = -1;
 
 static int ett_h248_pkg_rtp = -1;
 
+static const value_string h248_pkg_rtp_parameters[] = {
+	{   0x0001, "pltrans (Payload Transition)" },
+	{   0x0004, "ps (Packets Sent)" },
+	{   0x0005, "pr (Packets Received)" },
+	{   0x0006, "pl (Packet Loss)" },
+	{   0x0007, "jit (Jitter)" },
+	{   0x0008, "delay (Delay)" },
+	{0,     NULL},
+};
+
 static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
 	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL },
 	{ 0, NULL, NULL, NULL}
@@ -272,6 +282,10 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.pkg.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 		/* H.248.1 E.12 RTP package */
 		{ &hf_h248_pkg_rtp, { "RTP package", "h248.pkg.rtp", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_h248_pkg_rtp_param,	
+			{ "Parameter", "h248.pkg.rtp.parameter", 
+			FT_UINT16, BASE_HEX, VALS(h248_pkg_rtp_parameters), 0, "Parameter", HFILL }
+		},
 		{ &hf_h248_pkg_rtp_stat_ps, { "Packets Sent", "h248.pkg.rtp.stat.ps", FT_UINT64, BASE_DEC, NULL, 0, "Packets Sent", HFILL }},
 		/* H.248.1 E.13 TDM Circuit Package */
 		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.pkg.tdmc", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},

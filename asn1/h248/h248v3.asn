@@ -1,7 +1,7 @@
 MEDIA-GATEWAY-CONTROL {itu-t(0) recommendation(0) h(8) h248(248) modules(0)
 media-gateway-control(0) version3(3)}
 --
--- $Id:$
+-- $Id$
 --DEFINITIONS AUTOMATIC TAGS ::=
 --BEGIN
 -- Has been modified to pass through the ASN2ETH compiler
@@ -714,7 +714,7 @@ BEGIN
 	{
 		propertyParms			[0] SEQUENCE OF PropertyParm,
 		eventBufferControl		[1] EventBufferControl OPTIONAL,
-		serviceState			[3] ServiceState OPTIONAL,
+		serviceState			[2] ServiceState OPTIONAL,
 		...
 	}
 

@@ -12,7 +12,6 @@
 #.NO_EMIT
 MtpAddress
 PkgdName
-ContextID
 ErrorCode
 PropertyID
 SignalName
@@ -29,9 +28,9 @@ ActionReply/contextId					contextId
 TransactionRequest/transactionId		transactionId
 TransactionPending/transactionId		transactionId
 TransactionReply/transactionId			transactionId
-StatisticsParameter/statName		StatName
+StatisticsParameter/statName			StatName
 StatisticsParameter/statValue			StatValue
-PropertyParm/propertyName		PropertyName
+PropertyParm/propertyName				PropertyName
 
 #.FIELD_RENAME
 IP4Address/address		iP4Address
