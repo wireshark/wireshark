@@ -120,7 +120,8 @@ typedef enum {
   PT_DDP,		/* DDP AppleTalk connection */
   PT_SBCCS,		/* FICON */
   PT_IDP,		/* XNS IDP sockets */
-  PT_TIPC		/* TIPC PORT */
+  PT_TIPC,		/* TIPC PORT */
+  PT_USB		/* USB endpoint 0xffff means the host */
 } port_type;
 
 /* Types of circuit IDs Wireshark knows about. */

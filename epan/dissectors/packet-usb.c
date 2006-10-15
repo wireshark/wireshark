@@ -30,7 +30,40 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
+#include <epan/conversation.h>
 #include <string.h>
+
+/* protocols and header fields */
+static int proto_usb = -1;
+static int hf_usb_urb_type = -1;
+static int hf_usb_device_address = -1;
+static int hf_usb_endpoint_number = -1;
+static int hf_usb_src_endpoint_number = -1;
+static int hf_usb_dst_endpoint_number = -1;
+static int hf_usb_request = -1;
+static int hf_usb_value = -1;
+static int hf_usb_index = -1;
+static int hf_usb_length = -1;
+static int hf_usb_data = -1;
+static int hf_usb_setup_bmRequestType = -1;
+static int hf_usb_setup_bmRequestType_direction = -1;
+static int hf_usb_setup_bmRequestType_type = -1;
+static int hf_usb_setup_bmRequestType_recipient = -1;
+static int hf_usb_descriptor_type = -1;
+static int hf_usb_descriptor_index = -1;
+static int hf_usb_language_id = -1;
+
+static gint usb_hdr = -1;
+static gint usb_setup_hdr = -1;
+static gint ett_usb_setup_bmrequesttype = -1;
+
+
+
+/* there is one such structure for each device/endpoint conversation */
+typedef struct _usb_conv_info_t {
+    emem_tree_t *transactions;
+} usb_conv_info_t;
 
 typedef enum { 
   URB_CONTROL_INPUT,
@@ -60,27 +93,6 @@ typedef struct usb_setup {
 } usb_setup_t;
 
 
-/* protocols and header fields */
-static int proto_usb = -1;
-static int hf_usb_urb_type = -1;
-static int hf_usb_device_address = -1;
-static int hf_usb_endpoint_number = -1;
-static int hf_usb_request = -1;
-static int hf_usb_value = -1;
-static int hf_usb_index = -1;
-static int hf_usb_length = -1;
-static int hf_usb_data = -1;
-static int hf_usb_setup_bmRequestType = -1;
-static int hf_usb_setup_bmRequestType_direction = -1;
-static int hf_usb_setup_bmRequestType_type = -1;
-static int hf_usb_setup_bmRequestType_recipient = -1;
-static int hf_usb_descriptor_type = -1;
-static int hf_usb_descriptor_index = -1;
-static int hf_usb_language_id = -1;
-
-static gint usb_hdr = -1;
-static gint usb_setup_hdr = -1;
-static gint ett_usb_setup_bmrequesttype = -1;
 
 static const value_string usb_urb_type_vals[] = {
     {URB_CONTROL_INPUT, "URB_CONTROL_INPUT"},
@@ -203,15 +215,21 @@ dissect_usb_setup_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offs
 }
 
 
+
+
+
 static void
 dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
     int offset = 0;
-    int type;
+    int type, endpoint;
     gboolean setup;
     proto_tree *tree = NULL;
-    static guint32 src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
-
+    static guint32 src_addr, dst_addr, tmp_addr; /* has to be static due to SET_ADDRESS */
+    guint32 src_port, dst_port;
+    gboolean is_request;
+    usb_conv_info_t *usb_conv_info;
+    conversation_t *conversation;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
@@ -235,28 +253,140 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
 #define USB_ADDR_LEN 4
     proto_tree_add_item(tree, hf_usb_device_address, tvb, offset, 4, FALSE);
-/*XXX set src/dst address properly */
-    src_addr=0xffffffff;
-    dst_addr=tvb_get_ntohl(tvb, offset);
-
+    tmp_addr=tvb_get_ntohl(tvb, offset);
     offset += 4;
+
+    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, offset, 4, FALSE);
+    endpoint=tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+    /* check for setup hdr presence */
+    setup = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+
+    /* set up addresses and ports */
+    switch(type){
+    case URB_CONTROL_INPUT:
+        /* CONTROL INPUT packets are requests if they contain a "setup"
+         * blob and responses othervise
+         */
+        if(setup){
+            src_addr=0xffffffff;
+            dst_addr=tmp_addr;
+            src_port=0xffff;
+            dst_port=endpoint;
+            is_request=TRUE;
+        } else {
+            src_addr=tmp_addr;
+            dst_addr=0xffffffff;
+            src_port=endpoint;
+            dst_port=0xffff;
+            is_request=FALSE;
+        }
+        break;
+    default:
+        /* dont know */
+        src_addr=0xffffffff;
+        dst_addr=0xffffffff;
+        src_port=0xffff;
+        dst_port=0xffff;
+        is_request=FALSE;
+    }
     SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
     SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
     SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
     SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+    pinfo->ptype=PT_USB;
+    pinfo->srcport=src_port;
+    pinfo->destport=dst_port;
 
-    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, offset, 4, FALSE);
-    offset += 4;
-    
-    /* check for setup hdr presence */
-    setup = tvb_get_ntohl(tvb, offset);
-    offset += 4;
+
+    /*
+     * Do we have a conversation for this connection?
+     */
+    conversation = find_conversation(pinfo->fd->num, 
+                               &pinfo->src, &pinfo->dst,
+                               pinfo->ptype, 
+                               pinfo->srcport, pinfo->destport, 0);
+    if (conversation == NULL) {
+         /* We don't yet have a conversation, so create one. */
+         conversation = conversation_new(pinfo->fd->num, 
+                               &pinfo->src, &pinfo->dst,
+                               pinfo->ptype,
+                                   pinfo->srcport, pinfo->destport, 0);
+    }
+    /* do we have conversation specific data ? */
+    usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
+    if(!usb_conv_info){
+        /* no not yet so create some */
+        usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
+        usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
+
+        conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
+    }
+   
+
+
+
+
+    switch(type){
+    case URB_CONTROL_INPUT:
+        {
+        const usb_setup_dissector_table_t *tmp;
+        usb_setup_dissector dissector;
+        proto_item *ti = NULL;
+        proto_tree *setup_tree = NULL;
+        guint8 requesttype, request;
+
+        if(is_request){
+            /* this is a request */
+            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
+            setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
+            requesttype=tvb_get_guint8(tvb, offset);        
+            offset=dissect_usb_setup_bmrequesttype(setup_tree, tvb, offset);
+
+            request=tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
+            offset += 1;
+
+
+            dissector=NULL;
+            for(tmp=setup_dissectors;tmp->dissector;tmp++){
+                if(tmp->request==request){
+                    dissector=tmp->dissector;
+                    break;
+                }
+            }
+  
+            if(dissector){
+                dissector(pinfo, setup_tree, tvb, offset, requesttype);
+                offset+=6;
+            } else {
+                proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
+                offset += 2;
+                proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, FALSE);
+                offset += 2;
+                proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, FALSE);
+                offset += 2;
+            }
+        } else {
+            /* this is a response */
+        }
+        proto_tree_add_item(tree, hf_usb_data, tvb,
+            offset, tvb_length_remaining(tvb, offset), FALSE);
+        return;
+        }
+        break;
+    default:
+        /* dont know */
+    }
+
+
     if (setup) {
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
         guint8 requesttype, request;
-        const usb_setup_dissector_table_t *tmp;
-        usb_setup_dissector dissector;
 
         ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
         setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
@@ -269,26 +399,12 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
         offset += 1;
 
-
-        dissector=NULL;
-        for(tmp=setup_dissectors;tmp->dissector;tmp++){
-            if(tmp->request==request){
-                dissector=tmp->dissector;
-                break;
-            }
-        }
-
-        if(dissector){
-            dissector(pinfo, setup_tree, tvb, offset, requesttype);
-            offset+=6;
-        } else {
-            proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
-            offset += 2;
-            proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, FALSE);
-            offset += 2;
-            proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, FALSE);
-            offset += 2;
-        }
+        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, FALSE);
+        offset += 2;
+        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, FALSE);
+        offset += 2;
+        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
+        offset += 2;
     }
     
     proto_tree_add_item(tree, hf_usb_data, tvb,
@@ -310,8 +426,16 @@ proto_register_usb(void)
                 "USB device address", HFILL }},
 
         { &hf_usb_endpoint_number,
-        { "Endpoint", "usb.endpoint_number", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Endpoint", "usb.endpoint_number", FT_UINT32, BASE_HEX, NULL, 0x0,
                 "usb endpoint number", HFILL }},
+
+        { &hf_usb_src_endpoint_number,
+        { "Src Endpoint", "usb.src.endpoint", FT_UINT32, BASE_HEX, NULL, 0x0,
+                "src usb endpoint number", HFILL }},
+
+        { &hf_usb_dst_endpoint_number,
+        { "Dst Endpoint", "usb.dst.endpoint", FT_UINT32, BASE_HEX, NULL, 0x0,
+                "dst usb endpoint number", HFILL }},
 
         { &hf_usb_setup_bmRequestType,
         { "bmRequestType", "usb.setup.bmRequestType", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -375,7 +499,6 @@ proto_register_usb(void)
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
 
-    
     register_dissector("eth", dissect_usb, proto_usb);
 }
 

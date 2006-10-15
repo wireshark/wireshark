@@ -972,6 +972,17 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
+  case PT_USB:
+    /* XXX - resolve USB endpoint numbers */
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%08x", port);
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "usb.src.endpoint");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "usb.dst.endpoint");
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%08x", port);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
   default:
     break;
   }
