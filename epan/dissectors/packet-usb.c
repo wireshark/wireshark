@@ -1,6 +1,6 @@
 /* Man this is suboptimal.
- * The USB Header and the setup data are LITTLE ENDIAN
- * but all the real usb data is BIG ENDIAN.
+ * The USB Header and the setup data are BIG ENDIAN
+ * but all the real usb data is LITTLE ENDIAN.
  */
 
 /* packet-usb.c
