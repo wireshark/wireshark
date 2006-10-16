@@ -124,12 +124,16 @@
 	as described already in <xref linkend="ChToolsWin32Verify"/>.
 	</para>
 	<para>
-	Then it will download the zipped libraries into the directory specified by 
-	WIRESHARK_LIBS and install (unzip) all required library files there.
+	Then it will download the zipped libraries (together around 30MB!) from 
+	the server location at: <ulink 
+	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/> 
+	into the directory specified by WIRESHARK_LIBS and install (unzip) all 
+	required library files there.
 	</para>
 	<para>
-	If you have problems downloading the library files, see the wget proxy 
-	comment in <xref linkend="ChToolsWget"/>.
+	If you have problems downloading the library files, you might be connected 
+	to the internet through a proxy/firewall. 
+	In this case see the wget proxy comment in <xref linkend="ChToolsWget"/>.
 	</para>
 
 	<section id="ChLibsSetupUpdate">
@@ -140,8 +144,8 @@
 	</para>
 	<para>
 	You could simply remove everything in the WIRESHARK_LIBS dir and call the 
-	setup target again, but that would require to download every file again 
-	(currently about 33MB), which isn't necessary.
+	setup target again, but that would require to download every file again, 
+	which isn't necessary.
 	</para>
 	<para>
 	The following will bring your libraries up to date:
@@ -506,8 +510,21 @@ utilities."
 	the Windows desktop environment."
 	</para>
 	<para>
-	Wimp is only available for the GTK2.x versions at: 
+	GTK-Wimp can be used to get a native Look-and-Feel on WinXP machines, 
+	especially with the "coloured" WinXP theme. It will only take effect
+	together with the GTK2 version of Wireshark. 
+	</para>
+	<para>
+	No changes to the Wireshark sources are needed, GTK-Wimp simply changes 
+	the way GTK2 displays the widgets (by changing the GTK2 default theme).
+	</para>
+	<para>
+	Wimp is available at: 
 	<ulink url="http://gtk-wimp.sourceforge.net/"/>.
+	</para>
+	<para>
+	Since GTK version 2.8 the GTK Wimp is included in the GTK releases, 
+	so no need to download/install it seperately if these versions used.
 	</para>
 
   </section>

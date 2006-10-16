@@ -106,7 +106,6 @@
 	CVS in the Wireshark documentation and source files.
 	</para>
 	</tip>
-  </section>
 	
   <section id="ChSrcWebInterface">
 	<title>The web interface to the Subversion repository</title>
@@ -141,6 +140,7 @@
 	</itemizedlist>
 	</para>
   </section>	
+  </section>
 
   <section id="ChSrcObtain">
 	<title>Obtain the Wireshark sources</title>
@@ -330,7 +330,7 @@
   </section>
 
   <section id="ChSrcBuildFirstTime">
-	<title>Build Wireshark for the first time</title>
+	<title>Build Wireshark</title>
 	<para>
 	The sources contains several documentation files, it's a good idea to
 	look at these files first.
@@ -376,16 +376,27 @@ make
 	<section>
 	<title>Win32 native</title>
 	<para>
-	The place to look at is <filename>doc/README.win32</filename>, 
-	you will get the latest infos for generation on the win32
-	platforms.
+	The first thing to do will be checking the file 
+	<filename>config.nmake</filename> if it reflects your configuration.
+	The settings in this file are well documented, so please have a look at 
+	that file. 
+	However, if you've installed the libraries and tools as recommended there 
+	should be no need to edit things here.	
 	</para>
 	<para>
-	The next thing to do will be editing the file 
-	<filename>config.nmake</filename> to reflect your configuration.
-	The settings in this file are well documented, so please have a look at 
-	that file.
-	</para>
+	Many of the file and directory names used in the build process go past the 
+	old 8.3 naming limitations.
+	As a result, you should use the "cmd.exe" command interpreter instead of the 
+	old "command.com".
+	</para>	
+	<para>	
+	Be sure that your command-line environment is set up to compile
+	and link with MSVC++. When installing MSVC++, you can have your
+	system's environment set up to always allow compiling from the
+	command line, or you can invoke the vcvars32.bat script, which can
+	usually be found in the "VC98\Bin" subdirectory of the directory in
+	which Visual Studio was installed.
+	</para>	
 	<para>
 	Then you should cleanup any intermediate files, which are shipped for 
 	convenience of Unix users, by typing inside the command line (cmd.exe):
@@ -412,7 +423,7 @@ make
   </section>
 
   <section id="ChSrcRunFirstTime">
-	<title>Run generated Wireshark for the first time</title>
+	<title>Run generated Wireshark</title>
 	<tip><title>Tip!</title>
 	<para>
 	An already installed Wireshark may interfere with your newly generated 
@@ -1060,9 +1071,9 @@ $Id&#36;
 	generation script at: <filename>packaging/nsis/wireshark.nsi</filename>.
 	</para>
 	<para>
-	You will probably have to modify the <filename>config.nmake</filename> 
-	file to specify where the NSIS binaries are
-	installed and wether to use the modern UI (which is recommended) or not.
+	You will probably have to modify the MAKENSIS setting in the 
+	<filename>config.nmake</filename> file to specify where the NSIS binaries 
+	are installed.
 	</para>
 	<para>
 	In the wireshark directory, type:
