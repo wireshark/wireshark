@@ -181,81 +181,120 @@
   </section>
   
   <section id="ChIntroPlatforms">
-    <title>Platforms Wireshark runs on</title>
+    <title>System Requirements</title>
+    <para>What you'll need to get Wireshark up and running ...</para>
+
+	<section><title>General Remarks</title>
     <para>
-      Wireshark currently runs on most UNIX platforms and various Windows 
-      platforms. It requires GTK+, GLib, libpcap and some other libraries in 
-	  order to run.
+	<itemizedlist>
+	<listitem><para>The values below are the minimum requirements and only 
+	"rules of thumb" for use on a moderately used network</para></listitem>
+	<listitem><para>Working with a busy network can easily produce huge 
+	memory and disk space usage! For example: Capturing on a fully saturated 
+	100MBit/s Ethernet will produce ~ 750MBytes/min! Having a fast processor, 
+	lots of memory and disk space is a good idea here.</para></listitem>
+	<listitem><para>If Wireshark is running out of memory it crashes, 
+	see: <ulink url="http://wiki.wireshark.org/KnownBugs/OutOfMemory"/> 
+	for details and workarounds</para></listitem>
+	<listitem><para>Wireshark won't benefit much from Multiprocessor/Hyperthread 
+	systems (except perhaps during an "Update list of packets in real time" 
+	capture, where capturing traffic runs in one process and dissecting and 
+	displaying packets runs in another process, and the two processes could 
+	run on two processors).</para></listitem>
+	
+	</itemizedlist>
     </para>
+    </section>	
+
+	<section><title>Microsoft Windows</title>
     <para>
-      If a binary package is not available for your platform, you should 
-      download the source and try to build it. Please report your experiences
-	  to <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
+	<itemizedlist>
+	<listitem><para>Windows 2000, XP Home, XP Pro, XP Tablet PC, XP Media 
+	Center or Server 2003 (XP Pro recommended)
+	</para></listitem>
+	<listitem><para>32-bit Pentium or alike (recommended: 400MHz or greater),
+	64-bit processors in WoW64 emulation, see remarks below
+	</para></listitem>
+	<listitem><para>128MB RAM system memory (recommended: 256MBytes or greater)
+	</para></listitem>
+	<listitem><para>60MB available disk space (plus size of user's capture 
+	files, e.g. 100MB extra)
+	</para></listitem>
+	<listitem><para>800*600 (1280*1024 or higher recommended) resolution with 
+	at least 256 colors
+	</para></listitem>
+	<listitem><para>A supported network card for capturing:
+	</para>
+	<itemizedlist>
+	<listitem><para>Ethernet: any card supported by Windows should do
+	</para></listitem>
+	<listitem><para>WLAN: see the <ulink 
+	url="http://www.micro-logix.com/WinPcap/Supported.asp">MicroLogix support 
+	list</ulink>, no capturing of 802.11 headers and non-data frames
+	</para></listitem>
+	<listitem><para>Other media: See <ulink 
+	url="http://wiki.wireshark.org/CaptureSetup/NetworkMedia"/>
+	</para></listitem>
+	</itemizedlist>
+	</listitem>
+	</itemizedlist>
+
+	Remarks:
+
+	<itemizedlist>
+	<listitem><para>Windows Vista should work, but as it's still beta you 
+	might encounter new bugs
+	</para></listitem>
+	<listitem><para>Windows 95, 98, ME and NT won't work with Wireshark.
+	The last known version to work was Ethereal 0.99.0 (which includes 
+	WinPcap 3.1). 
+	The libraries Wireshark depends on are no longer supporting these systems. 
+	BTW: Microsoft no longer supports 98/ME since July 11, 2006!
+	</para></listitem>
+	<listitem><para>Windows CE and the embedded (NT/XP) versions are not 
+	supported!
+	</para></listitem>
+	<listitem><para>64-bit processors run Wireshark in 32 bit emulation 
+	(called WoW64), at least WinPcap 4.0 beta 1 is required for that
+	</para></listitem>
+	<listitem><para>Multi monitor setups are supported but may behave a bit 
+	strangely
+	</para></listitem>
+	</itemizedlist>
+    </para>
+	</section>
+	
+	<section><title>Unix / Linux</title>
+    <para>
+      Wireshark currently runs on most UNIX platforms. 
+	  The system requirements should be comparable to the Windows values
+	  listed above.
     </para>
     <para>
       Binary packages are available for at least the following platforms:
     </para>
-
-	<section><title>Unix</title>
 	<para>
 	<itemizedlist>
 	<listitem><para>Apple Mac OS X</para></listitem>
-	<listitem><para>BeOS</para></listitem>
-	<listitem><para>FreeBSD</para></listitem>
-	<listitem><para>HP-UX</para></listitem>
-	<listitem><para>IBM AIX</para></listitem>
-	<listitem><para>NetBSD</para></listitem>
-	<listitem><para>OpenBSD</para></listitem>
-	<listitem><para>SCO UnixWare/OpenUnix</para></listitem>
-	<listitem><para>SGI Irix</para></listitem>
-	<listitem><para>Sun Solaris/Intel</para></listitem>
-	<listitem><para>Sun Solaris/Sparc</para></listitem>
-	<listitem><para>Tru64 UNIX (formerly Digital UNIX)</para></listitem>
-	</itemizedlist>
-	</para>
-	</section>
-	
-	<section><title>Linux</title>
-	<para>
-	<itemizedlist>
 	<listitem><para>Debian GNU/Linux</para></listitem>
+	<listitem><para>FreeBSD</para></listitem>
 	<listitem><para>Gentoo Linux</para></listitem>
-	<listitem><para>IBM S/390 Linux (Red Hat)</para></listitem>
-	<listitem><para>Mandrake Linux</para></listitem>
-	<listitem><para>PLD Linux</para></listitem>
-	<listitem><para>Red Hat Linux</para></listitem>
-	<listitem><para>Rock Linux</para></listitem>
-	<listitem><para>Slackware Linux</para></listitem>
-	<listitem><para>SUSE Linux</para></listitem>
+	<listitem><para>HP-UX</para></listitem>
+	<listitem><para>Mandriva Linux</para></listitem>
+	<listitem><para>NetBSD</para></listitem>
+	<listitem><para>OpenPKG</para></listitem>
+	<listitem><para>Red Hat Fedora/Enterprise Linux</para></listitem>
+	<listitem><para>rPath Linux</para></listitem>
+	<listitem><para>Sun Solaris/i386</para></listitem>
+	<listitem><para>Sun Solaris/Sparc</para></listitem>
 	</itemizedlist>
 	</para>
-	</section>
-	
-	<section><title>Microsoft Windows</title>
     <para>
-	Maintained: 
-	<itemizedlist>
-	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
-	<listitem><para>Windows Me / 98</para></listitem>
-	</itemizedlist>
-    </para>
-    <para>
-	Unsupported/Unmaintained (because lack of required libraries):
-	<itemizedlist>
-	<listitem><para>Windows CE</para></listitem>
-	<listitem><para>Windows NT / XP Embedded</para></listitem>
-	<listitem><para>Windows 95 is no longer actively maintained by WinPcap,
-	but still may work perfectly</para></listitem>
-	</itemizedlist>
-    </para>
-    <para>
-	No experiences (fresh versions):
-	<itemizedlist>
-	<listitem><para>Windows XP 64-bit Edition</para></listitem>
-	<listitem><para>Windows Vista (aka Longhorn)</para></listitem>
-	</itemizedlist>
-	Please provide your experiences about these fresh versions to: 
-	<ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
+      If a binary package is not available for your platform, you should 
+      download the source and try to build it. 
+	  Please report your experiences
+	  to <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;
+	  </ulink>.
     </para>
 	</section>
 	
