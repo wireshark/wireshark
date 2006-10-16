@@ -598,9 +598,6 @@ static GtkItemFactoryEntry menu_items[] =
                        init_conversation_notebook_cb, 0, WIRESHARK_STOCK_CONVERSATIONS),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/Endpoints", NULL,
                        init_hostlist_notebook_cb, 0, WIRESHARK_STOCK_ENDPOINTS),
-#ifdef HAVE_LUA_5_1
-    ITEM_FACTORY_ENTRY("/_Tools", NULL, NULL, 0, "<Branch>", NULL),
-#endif
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
@@ -771,6 +768,7 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
                        0, NULL, NULL),
 };
 
+
 static int initialize = TRUE;
 static GtkItemFactory *main_menu_factory = NULL;
 static GtkItemFactory *packet_list_menu_factory = NULL;
@@ -826,7 +824,7 @@ menus_init(void) {
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
-
+	
     merge_all_tap_menus(tap_menu_tree_root);
 
     /* Initialize enabled/disabled state of menu items */
@@ -949,7 +947,7 @@ register_stat_menu_item(
     case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
 #endif
     default:
-        g_assert(0);
+        g_assert(!"no such menu group");
         toolspath = NULL;
     }
 
