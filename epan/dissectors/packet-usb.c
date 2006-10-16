@@ -43,6 +43,7 @@
 static int proto_usb = -1;
 static int hf_usb_urb_type = -1;
 static int hf_usb_device_address = -1;
+static int hf_usb_setup = -1;
 static int hf_usb_endpoint_number = -1;
 static int hf_usb_src_endpoint_number = -1;
 static int hf_usb_dst_endpoint_number = -1;
@@ -539,6 +540,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     offset += 4;
 
     /* check for setup hdr presence */
+    proto_tree_add_item(tree, hf_usb_setup, tvb, offset, 4, FALSE);
     setup = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
@@ -735,6 +737,10 @@ proto_register_usb(void)
         { &hf_usb_device_address,
         { "Device", "usb.device_address", FT_UINT32, BASE_DEC, NULL, 0x0,
                 "USB device address", HFILL }},
+
+        { &hf_usb_setup,
+        { "Setup", "usb.setup", FT_UINT32, BASE_DEC, NULL, 0x0,
+                "USB setup", HFILL }},
 
         { &hf_usb_endpoint_number,
         { "Endpoint", "usb.endpoint_number", FT_UINT32, BASE_HEX, NULL, 0x0,
