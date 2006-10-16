@@ -173,7 +173,11 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        Expert analysis has been enhanced.
+        Expert analysis has been improved.
+        </para></listitem>
+
+        <listitem><para>
+        Wireshark now supports USB as a media type.
         </para></listitem>
 
       </itemizedlist>
@@ -202,8 +206,6 @@ WZCSVC,
 
     <section><title>Updated Protocol Support</title> <para>
 
-(Left off at 19450)
-
 3Com NJACK,
 802.11,
 ACSE,
@@ -231,6 +233,8 @@ DOP,
 DSP,
 ESP,
 Ethernet,
+FC,
+FCP,
 GSM A,
 GSM MAP,
 GSM SMS,
@@ -259,6 +263,7 @@ MSRP,
 MTP3,
 NCP,
 NDMP,
+NDPS,
 NFS,
 NTP,
 OSI,
@@ -287,6 +292,7 @@ TFTP,
 TIPC,
 UDP,
 UMA,
+VLAN,
 VNC,
 VRRP,
 X.509ce

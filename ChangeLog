@@ -1697,7 +1697,7 @@ r19127 | jmayer | 2006-09-03 08:41:42 -0700 (Sun, 03 Sep 2006) | 3 lines
 Changed paths:
    M /trunk/gtk/rtp_player.c
 
-Ad $Id: ?\194?\167 and reorder and reformat some comments in the header.
+Ad $Id: § and reorder and reformat some comments in the header.
 
 
 ------------------------------------------------------------------------
@@ -2281,7 +2281,7 @@ r19181 | etxrab | 2006-09-08 00:32:13 -0700 (Fri, 08 Sep 2006) | 6 lines
 Changed paths:
    M /trunk/epan/dissectors/packet-ipsec.c
 
-From Fr?\195?\169d?\195?\169ric Roudaut:
+From Frédéric Roudaut:
 as requested  here is a patch  in order to take into account  Encryption 
 and Authentication keys for ESP in hexa. 
 You only have to write your key with 0x first. In this case if the key 
@@ -5629,7 +5629,7 @@ r19508 | jake | 2006-10-12 14:31:00 -0700 (Thu, 12 Oct 2006) | 1 line
 Changed paths:
    M /trunk/epan/dissectors/packet-vlan.c
 
-Add 802.1QinQ?\194?\160Ethertype preference.
+Add 802.1QinQ Ethertype preference.
 ------------------------------------------------------------------------
 r19509 | ulfl | 2006-10-12 17:21:47 -0700 (Thu, 12 Oct 2006) | 1 line
 Changed paths:
@@ -5697,5 +5697,324 @@ Changed paths:
 
 Make the "WEP key count" option match the number of WEP key slots.  Add
 a note about improving the WEP key interface.
+
+------------------------------------------------------------------------
+r19515 | etxrab | 2006-10-13 10:04:16 -0700 (Fri, 13 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-h248_3gpp.c
+   M /trunk/epan/dissectors/packet-h248_annex_c.c
+
+Set properties.
+------------------------------------------------------------------------
+r19516 | ulfl | 2006-10-13 11:19:42 -0700 (Fri, 13 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/gtk/main.c
+
+remove the experimental display of the highest expert level in the statusbar for now.
+
+as long as we haven't solved that TCP checksum offload problems causing checksum errors all the time, this will display the error level for almost every capture done on a local machine - rendering this display pretty useless in it's current form.
+------------------------------------------------------------------------
+r19517 | sahlberg | 2006-10-13 14:07:07 -0700 (Fri, 13 Oct 2006) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi.c
+
+dont call the scsi data in/out dissectors unless data offset is 0   i.e. the beginning of data in/out
+
+
+
+------------------------------------------------------------------------
+r19518 | sahlberg | 2006-10-13 14:26:03 -0700 (Fri, 13 Oct 2006) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi.c
+
+check the estinated data transfer length for the current transfer  and start adding checks for scsi data reassembly
+
+
+
+------------------------------------------------------------------------
+r19519 | sahlberg | 2006-10-13 15:25:35 -0700 (Fri, 13 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi.c
+
+add scsi data reassembly
+
+
+------------------------------------------------------------------------
+r19520 | ulfl | 2006-10-13 17:22:36 -0700 (Fri, 13 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/gtk/color_edit_dlg.c
+
+as Stephen Fisher noted: fix the files header comment
+------------------------------------------------------------------------
+r19521 | gerald | 2006-10-13 17:27:50 -0700 (Fri, 13 Oct 2006) | 2 lines
+Changed paths:
+   M /trunk/packaging/u3/win32/README.txt
+   M /trunk/packaging/u3/win32/makefile.nmake
+   M /trunk/packaging/u3/win32/manifest.tmpl
+   M /trunk/packaging/u3/win32/u3util.c
+
+Set SVN properties.
+
+------------------------------------------------------------------------
+r19522 | gerald | 2006-10-13 17:31:35 -0700 (Fri, 13 Oct 2006) | 2 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/docbook/release-notes.xml
+
+Release note and changelog updates.
+
+------------------------------------------------------------------------
+r19523 | sahlberg | 2006-10-13 18:44:29 -0700 (Fri, 13 Oct 2006) | 8 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi.c
+
+let SCSI reassembly default to FALSE
+
+put "reassembled in" in the summary line
+
+put the fragment list at the top of the tree instead of down inside the SCSI expansion
+
+
+
+------------------------------------------------------------------------
+r19524 | sahlberg | 2006-10-13 22:02:40 -0700 (Fri, 13 Oct 2006) | 6 lines
+Changed paths:
+   M /trunk/epan/address.h
+   M /trunk/epan/dissectors/packet-usb.c
+   M /trunk/epan/to_str.c
+
+create a new address type AT_USB and start populating the packet list 
+with nice data
+
+
+
+
+------------------------------------------------------------------------
+r19525 | sahlberg | 2006-10-14 02:18:24 -0700 (Sat, 14 Oct 2006) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ndmp.c
+
+set both read/write flags in ndmp scsi   and also always set the expected length to whatever length is transported inside the ndmp pdu
+
+this fixes a regression caused by the recent scsi data in/out reassembly code which made the scsi dissector fail to dissect data in/out over ndmp correctly if scsi reassembly was enabled
+
+
+
+------------------------------------------------------------------------
+r19526 | sahlberg | 2006-10-14 02:43:17 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+put the packet type in the summary line
+
+
+------------------------------------------------------------------------
+r19527 | sahlberg | 2006-10-14 03:09:32 -0700 (Sat, 14 Oct 2006) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+rename some fields in the setup blob to use the same names as in the standard
+
+
+add dissection of the bmRequestType bitmap
+
+
+
+------------------------------------------------------------------------
+r19528 | sahlberg | 2006-10-14 03:52:50 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi-osd.c
+
+implement WRITE and CREATE COLLECTION
+
+
+------------------------------------------------------------------------
+r19529 | sahlberg | 2006-10-14 04:25:38 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi-osd.c
+
+add dissection of FLUSH and FLUSH COLLECTION
+
+
+------------------------------------------------------------------------
+r19530 | etxrab | 2006-10-14 07:13:00 -0700 (Sat, 14 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/plugins/megaco/packet-megaco.c
+
+Dissect observedeventsdescriptor more like the actual text.
+------------------------------------------------------------------------
+r19531 | jake | 2006-10-14 12:00:31 -0700 (Sat, 14 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/doc/README.developer
+
+Update FSF address in code template
+------------------------------------------------------------------------
+r19532 | guy | 2006-10-14 13:17:14 -0700 (Sat, 14 Oct 2006) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-bootp.c
+
+Do the suboption processing in dissect_netware_ip_suboption() a bit more
+like the way it's done in other suboption dissectors.
+
+Fix a typo.
+
+------------------------------------------------------------------------
+r19533 | guy | 2006-10-14 13:18:10 -0700 (Sat, 14 Oct 2006) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-h248_annex_e.c
+
+Fix a compiler warning by doing what I suspect was intended.
+
+------------------------------------------------------------------------
+r19534 | sahlberg | 2006-10-14 15:05:57 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi.c
+
+if reassembly did not give us a new tvb,  then dont call any scsi payload subdissector
+
+
+------------------------------------------------------------------------
+r19535 | sahlberg | 2006-10-14 15:31:27 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi-osd.c
+
+dissect some more osd service actions
+
+
+------------------------------------------------------------------------
+r19536 | sahlberg | 2006-10-14 15:45:07 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi-osd.c
+
+some more service actions
+
+
+------------------------------------------------------------------------
+r19537 | sahlberg | 2006-10-14 19:54:08 -0700 (Sat, 14 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-scsi-osd.c
+
+more serviceactions
+
+
+------------------------------------------------------------------------
+r19538 | sahlberg | 2006-10-14 20:49:27 -0700 (Sat, 14 Oct 2006) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+start dissecting the setup headers
+
+dissect GET DESCRIPTOR as an example on how to add such dissectors
+
+
+------------------------------------------------------------------------
+r19539 | sahlberg | 2006-10-14 23:10:59 -0700 (Sat, 14 Oct 2006) | 8 lines
+Changed paths:
+   M /trunk/epan/address.h
+   M /trunk/epan/column-utils.c
+   M /trunk/epan/dissectors/packet-usb.c
+
+add a new port type for usb endpoints
+
+
+start introducing conversations to the usb dissector so that we can start tracking requests/responses
+which we need to in order to dissect for example the data returned by a device to a GET DESCRIPTORS call
+
+
+
+------------------------------------------------------------------------
+r19540 | sahlberg | 2006-10-15 01:12:41 -0700 (Sun, 15 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+add tracking of request/responses for CONTROL INPUT so we can start passing parameters from request to response and dissect response data
+
+
+------------------------------------------------------------------------
+r19541 | sahlberg | 2006-10-15 01:21:56 -0700 (Sun, 15 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+populate the info column with the request type and whetehr it is a request or a response
+
+
+------------------------------------------------------------------------
+r19542 | jmayer | 2006-10-15 05:27:51 -0700 (Sun, 15 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-usb.c
+
+- gcc dies on "default: }", add a ;
+- proto_register usb instead of eth.
+
+------------------------------------------------------------------------
+r19543 | etxrab | 2006-10-15 09:06:02 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/asn1/h248/Makefile.nmake
+   M /trunk/asn1/h248/h248.cnf
+   M /trunk/asn1/h248/h248v3.asn
+   M /trunk/epan/dissectors/packet-h248.c
+   M /trunk/epan/dissectors/packet-h248.h
+   M /trunk/epan/dissectors/packet-h248_annex_e.c
+
+Upadte to H.248 V3 and add some annex E parameters.
+------------------------------------------------------------------------
+r19544 | etxrab | 2006-10-15 15:11:26 -0700 (Sun, 15 Oct 2006) | 2 lines
+Changed paths:
+   M /trunk/asn1/h248/h248v3.asn
+   M /trunk/epan/dissectors/packet-h248.c
+   M /trunk/epan/dissectors/packet-h248_annex_e.c
+   M /trunk/epan/dissectors/packet-isup.c
+
+Fix Event dissection which was broken when going to V3.
+and add a few parameters.
+------------------------------------------------------------------------
+r19545 | ulfl | 2006-10-15 15:42:22 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/doc/README.developer
+
+add a prerequisites section and some minor changes
+------------------------------------------------------------------------
+r19546 | ulfl | 2006-10-15 15:57:31 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_env_intro.xml
+
+move the README files before the source code, they are more important
+------------------------------------------------------------------------
+r19547 | ulfl | 2006-10-15 18:43:04 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_env_intro.xml
+
+be more specific about the README.developer file
+------------------------------------------------------------------------
+r19548 | ulfl | 2006-10-15 18:48:16 -0700 (Sun, 15 Oct 2006) | 3 lines
+Changed paths:
+   M /trunk/README.win32
+   M /trunk/docbook/wsdg_src/WSDG_chapter_libraries.xml
+   M /trunk/docbook/wsdg_src/WSDG_chapter_sources.xml
+
+deleted lot's of irrelevant/outdated content from README.win32.
+
+move content from the README.win32 file into the wsdg. I've moved the cygwin GCC info to a new Wiki page, it seems more promissing that it's getting updated in the future.
+------------------------------------------------------------------------
+r19549 | ulfl | 2006-10-15 19:37:06 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/doc/README.developer
+   A /trunk/doc/README.display_filter
+
+split the display filter engine doc into it's own file
+------------------------------------------------------------------------
+r19550 | ulfl | 2006-10-15 20:23:43 -0700 (Sun, 15 Oct 2006) | 1 line
+Changed paths:
+   M /trunk/doc/README.binarytrees
+
+fix a typo
+------------------------------------------------------------------------
+r19551 | ulfl | 2006-10-15 20:25:50 -0700 (Sun, 15 Oct 2006) | 4 lines
+Changed paths:
+   M /trunk/doc/README.developer
+
+- some more cleanup
+- mention the other README files
+- encode some @ chars to [AT] in mail addresses
 
 ------------------------------------------------------------------------
