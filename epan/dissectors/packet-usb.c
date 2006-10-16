@@ -71,6 +71,12 @@ typedef struct _usb_trans_info_t {
     guint32 response_in;
     guint8 requesttype;
     guint8 request;
+    union {
+        struct {
+            guint8 type;
+            guint8 index;
+        } get_descriptor;
+    };
 } usb_trans_info_t;
 
 typedef enum { 
@@ -142,14 +148,24 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
     if(is_request){
         switch(usb_trans_info->requesttype){
         case 0x80:			/* 9.4.3 */
+            /* descriptor type */
             proto_tree_add_item(tree, hf_usb_descriptor_type, tvb, offset, 1, FALSE);
+            usb_trans_info->get_descriptor.type=tvb_get_guint8(tvb, offset);
             offset++;
+
+            /* descriptor index */
             proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, FALSE);
+            usb_trans_info->get_descriptor.index=tvb_get_guint8(tvb, offset);
             offset++;
+
+            /* language id */
             proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, FALSE);
             offset+=2;
+
+            /* length */
             proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
             offset += 2;
+
             break;
         default:
             proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, FALSE);
