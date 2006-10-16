@@ -50,7 +50,8 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  The XOT dissector could attempt to allocate a large amount of memory and crash.
+	  The XOT dissector could attempt to allocate a large amount of
+	  memory and crash.
 	  <!-- Fixed in r19365 -->
 	  <!-- Bug IDs: 1133 -->
 	  Versions affected: 0.9.8 to 0.99.3.
@@ -64,7 +65,15 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  If AirPcap support was enabled, parsing a WEP key could sometimes cause a crash.
+	  The MIME Multipart dissector was susceptible to an off-by-one error.
+	  <!-- Fixed in r19566 -->
+	  <!-- Bug IDs: 1135 -->
+	  Versions affected: 0.10.1 to 0.99.3.
+        </para></listitem>
+
+        <listitem><para>
+	  If AirPcap support was enabled, parsing a WEP key could
+	  sometimes cause a crash.
 	  <!-- Fixed in r19401 -->
 	  <!-- Bug IDs: None -->
 	  Versions affected: 0.99.3.
