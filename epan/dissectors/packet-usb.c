@@ -50,9 +50,22 @@ static int hf_usb_setup_bmRequestType = -1;
 static int hf_usb_setup_bmRequestType_direction = -1;
 static int hf_usb_setup_bmRequestType_type = -1;
 static int hf_usb_setup_bmRequestType_recipient = -1;
-static int hf_usb_descriptor_type = -1;
+static int hf_usb_bDescriptorType = -1;
 static int hf_usb_descriptor_index = -1;
 static int hf_usb_language_id = -1;
+static int hf_usb_bLength = -1;
+static int hf_usb_bcdUSB = -1;
+static int hf_usb_bDeviceClass = -1;
+static int hf_usb_bDeviceSubClass = -1;
+static int hf_usb_bDeviceProtocol = -1;
+static int hf_usb_bMaxPacketSize0 = -1;
+static int hf_usb_idVendor = -1;
+static int hf_usb_idProduct = -1;
+static int hf_usb_bcdDevice = -1;
+static int hf_usb_iManufacturer = -1;
+static int hf_usb_iProduct = -1;
+static int hf_usb_iSerialNumber = -1;
+static int hf_usb_bNumConfigurations = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
@@ -142,6 +155,12 @@ static const value_string descriptor_type_vals[] = {
 };
 
 /* SETUP dissectors */
+
+
+/*
+ * This dissector is used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / GET DESCRIPTOR
+ */
 static void
 dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info)
 {
@@ -149,9 +168,13 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         switch(usb_trans_info->requesttype){
         case 0x80:			/* 9.4.3 */
             /* descriptor type */
-            proto_tree_add_item(tree, hf_usb_descriptor_type, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, FALSE);
             usb_trans_info->get_descriptor.type=tvb_get_guint8(tvb, offset);
             offset++;
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                    val_to_str(usb_trans_info->get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
+            }
 
             /* descriptor index */
             proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, FALSE);
@@ -176,10 +199,77 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
             offset += 2;
         }
     } else {
-        /* XXX dissect the descriptor coming back from the device */
-        proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "get descriptor  data...");
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                val_to_str(usb_trans_info->get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
+        }
+        switch(usb_trans_info->get_descriptor.type){
+        case USB_DT_DEVICE: /* 9.6.1 */
+            /* bLength */
+            proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bDescriptorType */
+            proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bcdUSB */
+            proto_tree_add_item(tree, hf_usb_bcdUSB, tvb, offset, 2, FALSE);
+            offset+=2;
+
+            /* bDeviceClass */
+            proto_tree_add_item(tree, hf_usb_bDeviceClass, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bDeviceSubClass */
+            proto_tree_add_item(tree, hf_usb_bDeviceSubClass, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bDeviceProtocol */
+            proto_tree_add_item(tree, hf_usb_bDeviceProtocol, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bMaxPacketSize0 */
+            proto_tree_add_item(tree, hf_usb_bMaxPacketSize0, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* idVendor */
+            proto_tree_add_item(tree, hf_usb_idVendor, tvb, offset, 2, FALSE);
+            offset+=2;
+
+            /* idProduct */
+            proto_tree_add_item(tree, hf_usb_idProduct, tvb, offset, 2, FALSE);
+            offset+=2;
+
+            /* bcdDevice */
+            proto_tree_add_item(tree, hf_usb_bcdDevice, tvb, offset, 2, FALSE);
+            offset+=2;
+
+            /* iManufacturer */
+            proto_tree_add_item(tree, hf_usb_iManufacturer, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* iProduct */
+            proto_tree_add_item(tree, hf_usb_iProduct, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* iSerialNumber */
+            proto_tree_add_item(tree, hf_usb_iSerialNumber, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* bNumConfigurations */
+            proto_tree_add_item(tree, hf_usb_bNumConfigurations, tvb, offset, 1, FALSE);
+            offset++;
+
+            break;
+        default:
+            /* XXX dissect the descriptor coming back from the device */
+            proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "get descriptor  data...");
+        }
     }
 }
+
+
 
 
 typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info);
@@ -548,8 +638,8 @@ proto_register_usb(void)
         { "Recipient", "usb.setup.bmRequestType.recipient", FT_UINT8, BASE_HEX, 
           VALS(bmrequesttype_recipient_vals), 0x0f, "", HFILL }},
 
-        { &hf_usb_descriptor_type,
-        { "Descriptor Type", "usb.DescriptorType", FT_UINT8, BASE_HEX, 
+        { &hf_usb_bDescriptorType,
+        { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_HEX, 
           VALS(descriptor_type_vals), 0x0, "", HFILL }},
 
         { &hf_usb_descriptor_index,
@@ -558,6 +648,58 @@ proto_register_usb(void)
 
         { &hf_usb_language_id,
         { "Language Id", "usb.LanguageId", FT_UINT16, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bLength,
+        { "bLength", "usb.bLength", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bcdUSB,
+        { "bcdUSB", "usb.bcdUSB", FT_UINT16, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bDeviceClass,
+        { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bDeviceSubClass,
+        { "bDeviceSubClass", "usb.bDeviceSubClass", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bDeviceProtocol,
+        { "bDeviceProtocol", "usb.bDeviceProtocol", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bMaxPacketSize0,
+        { "bMaxPacketSize0", "usb.bMaxPacketSize0", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_idVendor,
+        { "idVendor", "usb.idVendor", FT_UINT16, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_idProduct,
+        { "idProduct", "usb.idProduct", FT_UINT16, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bcdDevice,
+        { "bcdDevice", "usb.bcdDevice", FT_UINT16, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_iManufacturer,
+        { "iManufacturer", "usb.iManufacturer", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_iProduct,
+        { "iProduct", "usb.iProduct", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_iSerialNumber,
+        { "iSerialNumber", "usb.iSerialNumber", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bNumConfigurations,
+        { "bNumConfigurations", "usb.bNumConfigurations", FT_UINT8, BASE_DEC, 
           NULL, 0x0, "", HFILL }},
 
     };
