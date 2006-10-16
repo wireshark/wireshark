@@ -244,6 +244,10 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
 					break;
 				}
 			}
+			/* if already zero terminated now, rewind one char to avoid an "off by one" */
+			if(c == 0) {
+				q--;
+			}
 		} else { /* Regular character */
 			if (sep_seen) {
 				sep_seen = 0;
