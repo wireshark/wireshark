@@ -9,6 +9,7 @@
  *
  * usb basic dissector
  * By Paolo Abeni <paolo.abeni@email.com>
+ * Ronnie Sahlberg 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -74,6 +75,22 @@ static int hf_usb_iSerialNumber = -1;
 static int hf_usb_bNumConfigurations = -1;
 static int hf_usb_wLANGID = -1;
 static int hf_usb_bString = -1;
+static int hf_usb_bInterfaceNumber = -1;
+static int hf_usb_bAlternateSetting = -1;
+static int hf_usb_bNumEndpoints = -1;
+static int hf_usb_bInterfaceClass = -1;
+static int hf_usb_bInterfaceSubClass = -1;
+static int hf_usb_bInterfaceProtocol = -1;
+static int hf_usb_iInterface = -1;
+static int hf_usb_bEndpointAddress = -1;
+static int hf_usb_bmAttributes = -1;
+static int hf_usb_wMaxPacketSize = -1;
+static int hf_usb_bInterval = -1;
+static int hf_usb_wTotalLength = -1;
+static int hf_usb_bNumInterfaces = -1;
+static int hf_usb_bConfigurationValue = -1;
+static int hf_usb_iConfiguration = -1;
+static int hf_usb_bMaxPower = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
@@ -131,6 +148,12 @@ typedef struct usb_setup {
 static const value_string usb_langid_vals[] = {
     {0x0000,	"no language specified"},
     {0x0409,	"English (United States)"},
+    {0, NULL}
+};
+
+#define IF_CLASS_MASSTORAGE		0x08
+static const value_string usb_interfaceclass_vals[] = {
+    {IF_CLASS_MASSTORAGE,	"Mass Storage Class"},
     {0, NULL}
 };
 
@@ -348,12 +371,10 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
 	tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-
     /* bLength */
     proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
     len=tvb_get_guint8(tvb, offset);
     offset++;
-
 
     /* bDescriptorType */
     proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
@@ -372,6 +393,182 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
         /* unicode string */
         str=tvb_get_ephemeral_faked_unicode(tvb, offset, (len-2)/2, TRUE);
         proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
+    }
+
+    if(item){
+        proto_item_set_len(item, offset-old_offset);
+    }
+
+    return offset;
+}
+
+
+
+/* 9.6.5 */
+static int
+dissect_usb_interface_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset=offset;
+
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "INTERFACE DESCRIPTOR");
+	tree=proto_item_add_subtree(item, ett_descriptor_device);
+    }
+
+    /* bLength */
+    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bDescriptorType */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bInterfaceNumber */
+    proto_tree_add_item(tree, hf_usb_bInterfaceNumber, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bAlternateSetting */
+    proto_tree_add_item(tree, hf_usb_bAlternateSetting, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bNumEndpoints */
+    proto_tree_add_item(tree, hf_usb_bNumEndpoints, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bInterfaceClass */
+    proto_tree_add_item(tree, hf_usb_bInterfaceClass, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bInterfaceSubClass */
+    proto_tree_add_item(tree, hf_usb_bInterfaceSubClass, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bInterfaceProtocol */
+    proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* iInterface */
+    proto_tree_add_item(tree, hf_usb_iInterface, tvb, offset, 1, TRUE);
+    offset++;
+
+    if(item){
+        proto_item_set_len(item, offset-old_offset);
+    }
+
+    return offset;
+}
+
+/* 9.6.6 */
+static int
+dissect_usb_endpoint_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset=offset;
+
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "ENDPOINT DESCRIPTOR");
+	tree=proto_item_add_subtree(item, ett_descriptor_device);
+    }
+
+    /* bLength */
+    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bDescriptorType */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bEndpointAddress */
+    proto_tree_add_item(tree, hf_usb_bEndpointAddress, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bmAttributes */
+    proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* wMaxPacketSize */
+    proto_tree_add_item(tree, hf_usb_wMaxPacketSize, tvb, offset, 2, TRUE);
+    offset+=2;
+
+    /* bInterval */
+    proto_tree_add_item(tree, hf_usb_bInterval, tvb, offset, 1, TRUE);
+    offset++;
+
+    if(item){
+        proto_item_set_len(item, offset-old_offset);
+    }
+
+    return offset;
+}
+
+/* 9.6.3 */
+static int
+dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset=offset;
+    guint16 len;
+
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "CONFIGURATION DESCRIPTOR");
+	tree=proto_item_add_subtree(item, ett_descriptor_device);
+    }
+
+    /* bLength */
+    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bDescriptorType */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* wTotalLength */
+    proto_tree_add_item(tree, hf_usb_wTotalLength, tvb, offset, 2, TRUE);
+    len=tvb_get_letohs(tvb, offset);
+    offset+=2;
+
+    /* bNumInterfaces */
+    proto_tree_add_item(tree, hf_usb_bNumInterfaces, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bConfigurationValue */
+    proto_tree_add_item(tree, hf_usb_bConfigurationValue, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* iConfiguration */
+    proto_tree_add_item(tree, hf_usb_iConfiguration, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bmAttributes */
+    proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* bMaxPower */
+    proto_tree_add_item(tree, hf_usb_bMaxPower, tvb, offset, 1, TRUE);
+    offset++;
+
+    /* decode any additional interface and endpoint descriptors */
+    while(len>(old_offset-offset)){
+        guint8 next_type;
+
+        if(tvb_length_remaining(tvb, offset)<2){
+            break;
+        }
+        next_type=tvb_get_guint8(tvb, offset+1);
+        switch(next_type){
+        case USB_DT_INTERFACE:
+            offset=dissect_usb_interface_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info);
+            break;
+        case USB_DT_ENDPOINT:
+            offset=dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info);
+            break;
+        default:
+            return offset;
+        }
     }
 
     if(item){
@@ -416,8 +613,17 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         case USB_DT_DEVICE:
             offset=dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
             break;
+        case USB_DT_CONFIGURATION:
+            offset=dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
+            break;
         case USB_DT_STRING: 
             offset=dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
+            break;
+        case USB_DT_INTERFACE:
+            offset=dissect_usb_interface_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
+            break;
+        case USB_DT_ENDPOINT:
+            offset=dissect_usb_endpoint_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
             break;
         case USB_DT_DEVICE_QUALIFIER:
             offset=dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info);
@@ -740,7 +946,7 @@ proto_register_usb(void)
 
         { &hf_usb_setup,
         { "Setup", "usb.setup", FT_UINT32, BASE_DEC, NULL, 0x0,
-                "USB setup", HFILL }},
+                 "USB setup", HFILL }},
 
         { &hf_usb_endpoint_number,
         { "Endpoint", "usb.endpoint_number", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -861,6 +1067,70 @@ proto_register_usb(void)
 
         { &hf_usb_bString,
         { "bString", "usb.bString", FT_STRING, BASE_NONE, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bInterfaceNumber,
+        { "bInterfaceNumber", "usb.bInterfaceNumber", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bAlternateSetting,
+        { "bAlternateSetting","usb.bAlternateSetting", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bNumEndpoints,
+        { "bNumEndpoints","usb.bNumEndpoints", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bInterfaceClass,
+        { "bInterfaceClass", "usb.bInterfaceClass", FT_UINT8, BASE_HEX, 
+          VALS(usb_interfaceclass_vals), 0x0, "", HFILL }},
+
+        { &hf_usb_bInterfaceSubClass,
+        { "bInterfaceSubClass", "usb.bInterfaceSubClass", FT_UINT8, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bInterfaceProtocol,
+        { "bInterfaceProtocol", "usb.bInterfaceProtocol", FT_UINT8, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_iInterface,
+        { "iInterface", "usb.iInterface", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bEndpointAddress,
+        { "bEndpointAddress", "usb.bEndpointAddress", FT_UINT8, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bmAttributes,
+        { "bmAttributes", "usb.bmAttributes", FT_UINT8, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_wMaxPacketSize,
+        { "wMaxPacketSize", "usb.wMaxPacketSize", FT_UINT16, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bInterval,
+        { "bInterval", "usb.bInterval", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_wTotalLength,
+        { "wTotalLength", "usb.wTotalLength", FT_UINT16, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bNumInterfaces,
+        { "bNumInterfaces", "usb.bNumInterfaces", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bConfigurationValue,
+        { "bConfigurationValue", "usb.bConfigurationValue", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_iConfiguration,
+        { "iConfiguration", "usb.iConfiguration", FT_UINT8, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_bMaxPower,
+        { "bMaxPower", "usb.bMaxPower", FT_UINT8, BASE_DEC, 
           NULL, 0x0, "", HFILL }},
 
     };
