@@ -184,7 +184,13 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        Wireshark now supports USB as a media type.
+        Wireshark now supports USB as a media type.  If you're running a
+        Linux distribution with version 2.6.11 of the kernel or greater
+        <strong>and</strong> you have the usbmon module enabled <strong>and</strong>
+        you have a recent CVS version of libpcap (post-0.9.5) installed
+        you can also do live captures.  More details can be found at the
+        <ulink url="http://wiki.wireshark.org/CaptureSetup/USB">USB
+        capture setup</ulink> page on the wiki.
         </para></listitem>
 
       </itemizedlist>
