@@ -57,6 +57,13 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  The WBXML dissector could crash.
+	  <!-- Fixed in r19560 -->
+	  <!-- Bug IDs: 1134 -->
+	  Versions affected: 0.10.11 to 0.99.3.
+        </para></listitem>
+
+        <listitem><para>
 	  If AirPcap support was enabled, parsing a WEP key could sometimes cause a crash.
 	  <!-- Fixed in r19401 -->
 	  <!-- Bug IDs: None -->
