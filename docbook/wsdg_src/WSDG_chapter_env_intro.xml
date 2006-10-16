@@ -557,7 +557,8 @@ $
 	<itemizedlist>
 	<listitem>
 	<para>
-    see all the README.xxx files in the source code - these are various 
+    see the file <filename>doc/README.developer</filename> and 
+	all the other README.xxx files in the source code - these are various 
 	documentation files on different topics
 	</para>
 	</listitem>
