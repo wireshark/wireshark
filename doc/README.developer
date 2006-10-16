@@ -4,6 +4,10 @@ This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use some of the important functions and
 variables.
 
+This file is compiled to give in depth information on Wireshark.
+It is by no means all inclusive and complete. Please feel free to send 
+remarks and patches to the developer mailing list.
+
 0. Prerequisites.
 
 Before starting to develop a new dissector, a "running" Wireshark build 
@@ -14,6 +18,44 @@ How to setup such an environment is platform dependant, detailed information
 about these steps can be found in the "Developer's Guide" (available from:
 http://www.wireshark.org) and in the INSTALL and README files of the sources 
 root dir.
+
+0.1. General README files.
+
+You'll find additional information in the following README files:
+
+- README.capture - the capture engine internals
+- README.design - Wireshark software design - incomplete
+- READEM.developer - this file
+- README.display_filter - Display Filter Engine
+- README.idl2wrs - CORBA IDL converter
+- README.packaging - how to distribute a software package containing WS
+- README.regression - regression testing of WS and TS
+- README.stats_tree - a tree statistics counting specific packets
+- README.tapping - "tap" a dissector to get protocol specific events
+- README.xml-output - how to work with the PDML exported output
+- wiretap/README.developer - how to add additional capture file types to 
+  Wiretap
+
+0.2. Dissector related README files.
+
+You'll find additional dissector related information in the following README 
+files:
+
+- README.binarytrees - fast access to large data collections
+- README.malloc - how to obtain "memory leak free" memory
+- README.plugins - how to "pluginize" a dissector
+- README.request_response_tracking - how to track req./resp. times and such
+
+0.3 Contributors
+
+James Coe <jammer[AT]cin.net>
+Gilbert Ramirez <gram[AT]alumni.rice.edu>
+Jeff Foster <jfoste[AT]woodward.com>
+Olivier Abad <oabad[AT]cybercable.fr>
+Laurent Deniel <laurent.deniel[AT]free.fr>
+Gerald Combs <gerald[AT]wireshark.org>
+Guy Harris <guy[AT]alum.mit.edu>
+Ulf Lamping <ulf.lamping[AT]web.de>
 
 1. Setting up your protocol dissector code.
 
@@ -2335,8 +2377,8 @@ compile).
     Use fuzz-test.sh and/or randpkt against your dissector.  These are
     described at <http://wiki.wireshark.org/FuzzTesting>.
 
-  - Subscribe to <mailto:wireshark-dev@wireshark.org> by sending an email to
-    <mailto:wireshark-dev-request@wireshark.org?body="help"> or visiting 
+  - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
+    <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting 
     <http://www.wireshark.org/lists/>.
   
   - 'svn add' all the files of your new dissector.
@@ -2347,7 +2389,7 @@ compile).
     e.g. changes in config.nmake
   
   - Send a note with the attached diff file requesting its inclusion to
-    <mailto:wireshark-dev@wireshark.org>. You can also use this procedure for
+    <mailto:wireshark-dev[AT]wireshark.org>. You can also use this procedure for
     providing patches to your dissector or any other part of Wireshark.
 
   - Create a Wiki page on the protocol at <http://wiki.wireshark.org>. 
@@ -3227,33 +3269,4 @@ ptvcursor_tree(ptvcursor_t*)
 void
 ptvcursor_set_tree(ptvcursor_t*, proto_tree *)
     sets a new proto_tree for the ptvcursor
-
-3. Plugins.
-
-See the README.plugins for more information on how to "pluginize" 
-a dissector.
-
-4. Extending Wiretap.
-
-See wiretap/README.developer.
-
-5. Display Filter Engine.
-
-See README.display_filter.
-
-6. The end
-
-This file is compiled to give in depth information on Wireshark.
-It is by no means all inclusive and complete. Please feel free to send 
-remarks and patches to the developer mailing list.
-
-6.1 Contributors
-
-James Coe <jammer@cin.net>
-Gilbert Ramirez <gram@alumni.rice.edu>
-Jeff Foster <jfoste@woodward.com>
-Olivier Abad <oabad@cybercable.fr>
-Laurent Deniel <laurent.deniel@free.fr>
-Gerald Combs <gerald@wireshark.org>
-Guy Harris <guy@alum.mit.edu>
 
