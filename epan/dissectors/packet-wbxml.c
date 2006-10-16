@@ -13,7 +13,7 @@
  * Copyright 1998 Gerald Combs
  *
  * WAP Binary XML decoding functionality provided by Olivier Biot.
- * 
+ *
  * The WAP specifications used to be found at the WAP Forum:
  *	<http://www.wapforum.org/what/Technical.htm>
  * But now the correct link is at the Open Mobile Alliance:
@@ -21,17 +21,17 @@
  * Media types defined by OMA affiliates will have their standards at:
  *	<http://www.openmobilealliance.org/tech/affiliates/index.html>
  *	<http://www.openmobilealliance.org/release_program/index.html>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -206,9 +206,9 @@ typedef char * (* ext_t_func_ptr)(tvbuff_t *, guint32, guint32);
  * for binary tokens representing tags or attribute starts.
  * opaque_literal_func_ptr is a pointer to a function handling OPAQUE values
  * for literal tokens representing tags or attribute starts.
- * 
+ *
  * The length field of the OPAQUE entry starts at offset (not offset + 1).
- * 
+ *
  * The length of the processed OPAQUE value is returned by reference.
  *
  * char * opaque_token_function(tvbuff_t *tvb, guint32 offset,
@@ -399,7 +399,7 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
-	if (   (strcmp(token, "Code") == 0)
+	if ( token && ( (strcmp(token, "Code") == 0)
 		|| (strcmp(token, "ContentSize") == 0)
 		|| (strcmp(token, "MessageCount") == 0)
 		|| (strcmp(token, "Validity") == 0)
@@ -411,11 +411,11 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		|| (strcmp(token, "ServerPollMin") == 0)
 		|| (strcmp(token, "TCPAddress") == 0)
 		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) )
+		|| (strcmp(token, "UDPPort") == 0) ) )
 	{
 		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 	}
-	else if (strcmp(token, "DateTime") == 0)
+	else if ( token && ( strcmp(token, "DateTime") == 0) )
 	{
 		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 	}
@@ -496,7 +496,7 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
-	if (   (strcmp(token, "Code") == 0)
+	if ( token && ( (strcmp(token, "Code") == 0)
 		|| (strcmp(token, "ContentSize") == 0)
 		|| (strcmp(token, "MessageCount") == 0)
 		|| (strcmp(token, "Validity") == 0)
@@ -507,13 +507,13 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		|| (strcmp(token, "ParserSize") == 0)
 		|| (strcmp(token, "ServerPollMin") == 0)
 		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) )
+		|| (strcmp(token, "UDPPort") == 0) ) )
 	{
 		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 	}
 	else
-	if (   (strcmp(token, "DateTime") == 0)
-		|| (strcmp(token, "DeliveryTime") == 0) )
+	if ( token && ( (strcmp(token, "DateTime") == 0)
+		|| (strcmp(token, "DeliveryTime") == 0) ) )
 	{
 		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 	}
@@ -603,7 +603,7 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
-	if (   (strcmp(token, "Code") == 0)
+	if ( token && ( (strcmp(token, "Code") == 0)
 		|| (strcmp(token, "ContentSize") == 0)
 		|| (strcmp(token, "MessageCount") == 0)
 		|| (strcmp(token, "Validity") == 0)
@@ -616,13 +616,13 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		|| (strcmp(token, "TCPPort") == 0)
 		|| (strcmp(token, "UDPPort") == 0)
 		|| (strcmp(token, "HistoryPeriod") == 0)
-		|| (strcmp(token, "MaxWatcherList") == 0) )
+		|| (strcmp(token, "MaxWatcherList") == 0) ) )
 	{
 		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 	}
 	else
-	if (   (strcmp(token, "DateTime") == 0)
-		|| (strcmp(token, "DeliveryTime") == 0) )
+	if ( token && ( (strcmp(token, "DateTime") == 0)
+		|| (strcmp(token, "DeliveryTime") == 0) ) )
 	{
 		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 	}
@@ -723,8 +723,8 @@ sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
-	if (   (strcmp(token, "created") == 0)
-		|| (strcmp(token, "si-expires") == 0) )
+	if ( token && ( (strcmp(token, "created") == 0)
+		|| (strcmp(token, "si-expires") == 0) ) )
 	{
 		str = date_time_from_opaque(tvb, offset + *length, data_len);
 	}
@@ -773,7 +773,7 @@ emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
-	if (   (strcmp(token, "timestamp") == 0) )
+	if ( token && (strcmp(token, "timestamp") == 0) )
 	{
 		str = date_time_from_opaque(tvb, offset + *length, data_len);
 	}
@@ -839,7 +839,7 @@ typedef struct _wbxml_integer_list {
     const wbxml_decoding *map;
 } wbxml_integer_list;
 
-/* For the decoding lists on the literal content type */ 
+/* For the decoding lists on the literal content type */
 typedef struct _wbxml_literal_list {
     const char *content_type;
     discriminator_func_ptr discriminator; /* TODO */
@@ -914,7 +914,7 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x110e, "-//PHONE.COM//DTD MMC 2.0//EN" },
 	/* 0x110F -- 0x11FF: unassigned */
 	{ 0x1200, "-//3GPP2.COM//DTD IOTA 1.0//EN" },
-	
+
 	{ 0x00, NULL }
 };
 
@@ -923,7 +923,7 @@ static const value_string vals_wbxml_versions[] = {
 	{ 0x01, "1.1" },	/* WAP-135-WBXML */
 	{ 0x02, "1.2" },	/* WAP-154-WBXML */
 	{ 0x03, "1.3" },	/* WAP-192-WBXML */
-	
+
 	{ 0x00, NULL }
 };
 
@@ -976,7 +976,7 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 
 
 /* WML 1.0
- * 
+ *
  * Wireless Markup Language
  ***************************************/
 static char *
@@ -1213,7 +1213,7 @@ static const wbxml_decoding decode_wmlc_10 = {
 
 
 /* WML 1.1
- * 
+ *
  * Wireless Markup Language
  ***************************************/
 
@@ -1430,7 +1430,7 @@ static const wbxml_decoding decode_wmlc_11 = {
 
 
 /* WML 1.2
- * 
+ *
  * Wireless Markup Language
  ***************************************/
 
@@ -1619,7 +1619,7 @@ static const wbxml_decoding decode_wmlc_12 = {
 
 
 /* WML 1.3
- * 
+ *
  * Wireless Markup Language
  ***************************************/
 
@@ -1769,7 +1769,7 @@ static const wbxml_decoding decode_wmlc_13 = {
 
 
 /* SI 1.0
- * 
+ *
  * Service Indication
  ***************************************/
 
@@ -1853,7 +1853,7 @@ static const wbxml_decoding decode_sic_10 = {
 
 
 /* SL 1.0
- * 
+ *
  * Service Loading
  ***************************************/
 
@@ -1920,7 +1920,7 @@ static const wbxml_decoding decode_slc_10 = {
 
 
 /* CO 1.0
- * 
+ *
  * Cache Operation
  ***************************************/
 
@@ -2273,7 +2273,7 @@ static const wbxml_decoding decode_provc_10 = {
 
 
 /* EMN 1.0
- * 
+ *
  * Email Notification
  ***************************************/
 
@@ -2341,7 +2341,7 @@ static const wbxml_decoding decode_emnc_10 = {
 
 
 /* SyncML 1.0
- * 
+ *
  * SyncML Representation Protocol
  ***************************************/
 
@@ -2452,7 +2452,7 @@ static const wbxml_decoding decode_syncmlc_10 = {
 
 
 /* SyncML 1.1
- * 
+ *
  * SyncML Representation Protocol
  ***************************************/
 
@@ -2566,7 +2566,7 @@ static const wbxml_decoding decode_syncmlc_11 = {
 
 
 /* CHANNEL 1.0
- * 
+ *
  * WTA Channel
  ***************************************/
 
@@ -2638,7 +2638,7 @@ static const wbxml_decoding decode_channelc_10 = {
 
 /* application/x-wap-prov.browser-settings
  * application/x-wap-prov.browser-bookmarks
- * 
+ *
  * Nokia OTA Provisioning document format
  ***************************************/
 
@@ -2747,7 +2747,7 @@ static const wbxml_decoding decode_nokiaprovc_70 = {
 
 
 /* UAProf [WAP-248]
- * 
+ *
  * User-Agent Profile (used in profile-diff WSP header)
  ***************************************/
 
@@ -3138,7 +3138,7 @@ static const wbxml_decoding decode_uaprof_wap_248 = {
 
 
 /* WV-CSP 1.0
- * 
+ *
  * Wireless Village Client Server Protocol
  ***************************************/
 
@@ -3669,7 +3669,7 @@ static const wbxml_decoding decode_wv_cspc_10 = {
 
 
 /* WV-CSP 1.1
- * 
+ *
  * Wireless Village Client Server Protocol
  ***************************************/
 
@@ -4000,7 +4000,7 @@ static const value_string wbxml_wv_csp_11_tags_cp7[] = {
  * NOTE - WV-CSP uses the EXT_T_0 token in a peculiar way: the mb_u_int32
  * does *not* reference an offset in the string table, but it refers to
  * the index in the following value_string.
- * 
+ *
  * Please note that:
  *  - Values 'T' and 'F' are Boolean values representing "True" and "False"
  *    (or "Yes" and "No" in some circumstances) respectively.
@@ -4181,7 +4181,7 @@ static const wbxml_decoding decode_wv_cspc_11 = {
 
 
 /* WV-CSP 1.2
- * 
+ *
  * Wireless Village Client Server Protocol
  ***************************************/
 #ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
@@ -4854,7 +4854,7 @@ static const wbxml_literal_list content_type_list[] = {
     },
     {	NULL, NULL, NULL }
 };
-	
+
 
 /* Returns a pointer to the WBXML token map for the given WBXML public
  * identifier value (see WINA for a table with defined identifiers). */
@@ -5048,7 +5048,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->fd->num));
 	/* WBXML format
-	 * 
+	 *
 	 * Version 1.0: version publicid         strtbl BODY
 	 * Version 1.x: version publicid charset strtbl BODY
 	 *
@@ -5287,7 +5287,7 @@ static const char * Indent (guint8 level) {
 /********************
  * WBXML tag tokens *
  ********************
- * 
+ *
  * Bit Mask  : Example
  * -------------------
  * 00.. .... : <tag />
@@ -5300,7 +5300,7 @@ static const char * Indent (guint8 level) {
  *               atrtribute1="value1"
  *               atrtribute2="value2"
  *             />
- * 
+ *
  * 11.. .... : <tag
  *               atrtribute1="value1"
  *               atrtribute2="value2"
@@ -5356,7 +5356,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
-										   
+
 										   The initial state is FALSE.
 										   This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
@@ -5465,7 +5465,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				    if (map->ext_t[peek & 0x03])
 					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
 				    else
-					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03, 
+					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
 						map_token (map->global, 0, peek));
     				    proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d | Tag   | T %3d    "
@@ -5546,7 +5546,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			 * For efficiency reasons, we store the literal tag representation
 			 * for known tags too, so we can easily close the tag without the
 			 * need of a new lookup and avoiding storage of token codepage.
-			 * 
+			 *
 			 * There are 4 possibilities:
 			 *
 			 *  1. Known tag followed by a known tag
@@ -5768,7 +5768,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	char *tag_new_buf=NULL; /* Will contain "tag_0x%02X" */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
-										   
+
 										   The initial state is FALSE.
 										   This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
@@ -5932,7 +5932,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			 * For efficiency reasons, we store the literal tag representation
 			 * for known tags too, so we can easily close the tag without the
 			 * need of a new lookup and avoiding storage of token codepage.
-			 * 
+			 *
 			 * There are 4 possibilities:
 			 *
 			 *  1. Known tag followed by a known tag
@@ -6151,7 +6151,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  * 0... .... : attr=             (attribute name)
  *             href='http://'    (attribute name with start of attribute value)
  * 1... .... : 'www.'            (attribute value, or part of it)
- * 
+ *
  */
 
 
@@ -6160,7 +6160,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  * recreated. Indentation is generated in order to ease reading.
  *
  * This function performs attribute list parsing.
- * 
+ *
  * The wbxml_decoding entry *map contains the actual token mapping.
  *
  * NOTE: See above for known token mappings.
@@ -6269,7 +6269,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				    if (map->ext_t[peek & 0x03])
 					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
 				    else
-					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03, 
+					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
 						map_token (map->global, 0, peek));
 
     				    proto_tree_add_text (tree, tvb, off, 1+len,
@@ -6389,7 +6389,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
  * is performed.
  *
  * This function performs attribute list parsing.
- * 
+ *
  * NOTE: Code page switches not yet processed in the code!
  */
 static guint32
@@ -6669,15 +6669,15 @@ proto_reg_handoff_wbxml(void)
 
 	/* Register the WSP content types (defined as protocol port)
 	 * for WBXML dissection.
-	 * 
+	 *
 	 * See http://www.wapforum.org/wina/wsp-content-type.htm
-	 * 
+	 *
 	 * As the media types for WSP and HTTP are the same, the WSP dissector
 	 * uses the same string dissector table as the HTTP protocol.
 	 */
 
 	/**** Well-known WBXML WSP Content-Type values ****/
-	
+
 	dissector_add_string("media_type",
 			"application/vnd.wap.wmlc", wbxml_handle);
 	dissector_add_string("media_type",
