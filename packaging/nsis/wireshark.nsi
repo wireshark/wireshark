@@ -1177,11 +1177,22 @@ lbl_winpcap_installed:
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta2" lbl_winpcap_do_install
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta3" lbl_winpcap_do_install
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta4" lbl_winpcap_do_install
+	; WinPcap 4.0 (including betas): the version string starts with "WinPcap 4.0"
+	StrCpy $1 "$WINPCAP_VERSION" 11
+	StrCmp $1 "WinPcap 4.0" lbl_winpcap_dont_upgrade
 
 ;lbl_winpcap_dont_install:
-	; seems to be the current or even a newer version, so don't install
+	; seems to be the current version, so don't install
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
+	Goto lbl_winpcap_done
+
+lbl_winpcap_dont_upgrade:
+	; force the user to upgrade by hand
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 3.1, please uninstall $WINPCAP_VERSION manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 
 lbl_winpcap_do_install:
