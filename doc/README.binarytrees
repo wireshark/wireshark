@@ -22,7 +22,7 @@ storage which means that when you load a new trace into wireshark, the SEasonal
 memory management will automatically release every single byte of data
 associated with the tree.
 
-Please see README.malloc for a description of EmPhereal and SEasonal storage.
+Please see README.malloc for a description of EPhemeral and SEasonal storage.
 
 
 2. Basic Usage
