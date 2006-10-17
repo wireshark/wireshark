@@ -211,7 +211,7 @@ WSLUA_CONSTRUCTOR wslua_Dir_open(lua_State* L) {
 	Dir dir;
 
 	if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
-	if (!test_for_directory(dirname))  WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a directory");
+	if (!test_for_directory(dirname))  WSLUA_ARG_ERROR(Dir_open, PATHNAME, "must be a directory");
 
 	dir = g_malloc(sizeof(struct _wslua_dir));
 	dir->dir = OPENDIR_OP(dirname);

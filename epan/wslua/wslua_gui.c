@@ -373,14 +373,14 @@ static int TextWindow__gc(lua_State* L) {
     return 1;
 }
 
-WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Set the function that will be called when the window closes */
-#define WSLUA_OPTARG_TextWindow_at_close_EDITABLE 2 /* A boolean flag, defaults to true */
+WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editable */
+#define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true */
 
 	TextWindow tw = checkTextWindow(L,1);
 	gboolean editable = luaL_optint(L,2,1);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_set_editable,"cannot be called for something not a TextWindow");
 
 	if (ops->set_editable)
 		ops->set_editable(tw,editable);
@@ -433,7 +433,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	wslua_bt_cb_t* cbd;
 	
 	if (!tw)
-		WSLUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_add_button,"cannot be called for something not a TextWindow");
 	
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
@@ -526,7 +526,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* copy a string into the
 	return 0;
 }
 
-WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) {
+WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a capture file */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
 #define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter tgo be applied as the file gets opened. */
 	

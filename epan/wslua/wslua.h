@@ -121,6 +121,17 @@ struct _wslua_treeitem {
 	proto_tree* tree;
 };
 
+typedef void (*tap_extractor_t)(lua_State*,const void*);
+
+struct _wslua_tap {
+    gchar* name;
+    gchar* filter;
+    tap_extractor_t extractor;
+    lua_State* L;
+    int packet_ref;
+    int draw_ref;
+    int init_ref;
+};
 
 #if GLIB_MAJOR_VERSION < 2
 #  define DIRECTORY_T DIR
@@ -146,8 +157,6 @@ struct _wslua_dir {
 #endif
 
 };
-
-typedef void (*tap_extractor_t)(lua_State*,const void*);
 
 typedef struct { const char* name; tap_extractor_t extractor; } tappable_t;
 
@@ -328,5 +337,7 @@ extern void wslua_print_stack(char* s, lua_State* L);
 
 extern int wslua_init(lua_State* L);
 
-extern int luaopen_libwireshark(lua_State* L);
+extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);
+extern int wslua_set_tap_enums(lua_State* L);
+
 #endif

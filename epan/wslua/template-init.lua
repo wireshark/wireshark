@@ -25,7 +25,6 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
 -- If lua is to be completely disabled uncomment the following line.
 -- disable_lua = true; do return end;
 
@@ -64,26 +63,10 @@ print = info
 
 -- %MENU_GROUPS%
 
--- Console to execute commands in lua
-function wslua_console()
-	local w = TextWindow.new("Lua Console")
-	w:set_editable(TRUE)
+-- other useful constants
+GUI_ENABLED = gui_enabled()
+DATA_DIR = datafile_path()
+USER_DIR = persconffile_path()
 
-	function eval()
-		local text = string.gsub(w:get_text(),"%c*--%[%[.*--%]%]$","")
-		text = string.gsub(text,"^=","return ")
-
-		local result = assert(loadstring(text))()
-
-		if (result ~= nil) then
-			w:set(text .. '\n\n--[[ Result:\n' .. result .. '\n--]]')
-		else
-			w:set(text .. '\n\n--[[  Evaluated --]]')
-		end
-	end
-
-   w:add_button("Evaluate",eval)
-end
-
-register_menu("Lua Console",wslua_console,MENU_TOOLS)
-
+dofile("console.lua")
+--dofile("dtd_gen.lua")

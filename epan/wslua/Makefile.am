@@ -38,6 +38,7 @@ wslua_modules = 	\
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \
+	taps_wslua.c \
 	register_wslua.c \
 	init_wslua.c \
 	wslua.h
@@ -45,11 +46,14 @@ libwslua_la_SOURCES = \
 libwslua_la_LIBADD = @LUA_LIBS@
 
 BUILT_SOURCES = \
-	taps.c-inc \
+	taps_wslua.c \
 	register_wslua.c \
 	declare_wslua.h
 
-pkgdata_DATA = init.lua
+pkgdata_DATA = \
+	init.lua \
+	console.lua \
+	dtd_gen.lua
 
 CLEANFILES = \
 	*~
@@ -86,10 +90,10 @@ taps_used = \
 taps: $(taps_used)
 	touch taps
 
-taps.c-inc: make-taps.pl taps
-	$(PERL) $(srcdir)/make-taps.pl taps taps.c-inc taps.txt
+taps_wslua.c: make-taps.pl taps
+	$(PERL) $(srcdir)/make-taps.pl taps taps_wslua.c taps.txt
 
-taps.txt: taps.c-inc
+taps.txt: taps_wslua.c
 	
 wslua.h: declare_wslua.h
 

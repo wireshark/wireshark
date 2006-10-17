@@ -1,11 +1,13 @@
 /*
- * wslua_tap.c
+ * wslua_listener.c
  *
  * Wireshark's interface to the Lua Programming Language
  *
+ *  Implementation of tap Listeners
+ *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: wslua_tap.c 18268 2006-05-31 17:38:42Z gerald $
+ * $Id: wslua_listener.c 18268 2006-05-31 17:38:42Z gerald $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,33 +30,12 @@
 
 #include "wslua.h"
 
-/* generated file gets included */
-#include "taps.c-inc"
-
 WSLUA_CLASS_DEFINE(Listener,NOP,NOP);
 /*
     A Listener, is called once for every packet that matches a certain filter or has a certain tap.
     It can read the tree, the packet's Tvb eventually the tapped data but it cannot
     add elements to the tree. 
  */
-struct _wslua_tap {
-    gchar* name;
-    gchar* filter;
-    tap_extractor_t extractor;
-    lua_State* L;
-    int packet_ref;
-    int draw_ref;
-    int init_ref;
-};
-
-tap_extractor_t get_extractor(const gchar* name) {
-	tappable_t* t;
-	for(t = tappables; t->name; t++ ) {
-		if (g_str_equal(t->name,name)) return t->extractor;
-	}
-	
-	return NULL;
-}
 
 int tap_packet_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
@@ -224,7 +205,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     
 	tap->name = g_strdup(tap_type);
     tap->filter = filter ? g_strdup(filter) : NULL;
-    tap->extractor = get_extractor(tap_type);
+    tap->extractor = wslua_get_tap_extractor(tap_type);
     tap->L = L;
     tap->packet_ref = LUA_NOREF;
     tap->draw_ref = LUA_NOREF;
@@ -256,7 +237,7 @@ WSLUA_METHOD Listener_remove(lua_State* L) {
     return 0;
 }
 
-static int Listener_tostring(lua_State* L) {
+WSLUA_METAMETHOD Listener_tostring(lua_State* L) {
     Listener tap = checkListener(L,1);
     gchar* str;
     
@@ -326,6 +307,7 @@ static const luaL_reg Listener_meta[] = {
 };
 
 int Listener_register(lua_State* L) {
+	wslua_set_tap_enums(L);
     WSLUA_REGISTER_CLASS(Listener);
 	return 1;
 }

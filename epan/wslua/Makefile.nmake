@@ -28,6 +28,7 @@ MODULES = 	\
 OBJECTS= \
 	init_wslua.obj \
 	register_wslua.obj \
+	taps_wslua.obj \
 	wslua_dumper.obj \
 	wslua_field.obj \
 	wslua_gui.obj \
@@ -42,7 +43,7 @@ wslua.lib	: $(OBJECTS) init.lua
 	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps.c-inc declare_wslua.h register_wslua.c taps.txt
+	rm -f $(OBJECTS) wslua.lib $(PDB_FILE) init.lua taps_wslua.c declare_wslua.h register_wslua.c taps.txt
 
 init_wslua.c: declare_wslua.h
 
@@ -59,12 +60,10 @@ TAPS_USED = \
 taps: $(TAPS_USED)
 	touch taps
 
-taps.c-inc: make-taps.pl taps
-	$(PERL) make-taps.pl taps taps.c-inc taps.txt
+taps_wslua.c: make-taps.pl taps
+	$(PERL) make-taps.pl taps taps_wslua.c taps.txt
 
-wslua_listener.c: taps.c-inc
-
-taps.txt: taps.c-inc
+taps.txt: taps_wslua.c
 
 register_wslua.c: declare_wslua.h
 	

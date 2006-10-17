@@ -49,6 +49,37 @@ my $function;
 my @functions;
 
 my %template = %{{
+	class_header => "<chapter id='%s'><title>%s</title>\n",
+	class_footer => "</chapter>\n",
+	class_desc => "<para>%s</para>\n",
+	class_constructors_header => "<section id='%s_constructors'><title>Constructors</title>\n",
+	class_constructors_footer => "</section>\n",
+	class_methods_header => "<section id='%s_methods'><title>Methods</title>\n",
+	class_methods_footer => "</section>\n",
+	class_attributes_header => "<section id='%s_attribs'><title>Attributes</title>\n",
+	class_attributes_footer => "</section>\n",
+	class_attr_header => "<section id='attrib_%s'><title>%s</title>\n",
+	class_attr_footer => "</section>\n",
+	class_attr_descr => "<para>%s<para>\n",
+	function_header => "<section id='fn_%s'><title>%s</title>\n",
+	function_descr => "<para>%s</para>\n",
+	function_footer => "</section>\n",
+	function_arg_header => "<section id='fn_arg_%s'><title>%s</title>\n",
+	function_arg_descr => "<para>%s</para>\n",
+	function_arg_footer => "</section>\n",
+	function_argerrors_header => "<section id='argerr_%s'><title>Errors</title><itemizedlist>\n",
+	function_argerror => "<listitem><para>%s</para></listitem>\n",
+	function_argerror_footer => "</section>\n",
+	function_returns_header => "<section id='ret_%s'><title>Returns</title>\n",
+	function_returns => "<para>%s</para>\n",
+	function_errors_header => "<section id='err_%s'><title>Errors</title><itemizedlist>\n",
+	function_error => "<listitem><para>%s</para></listitem>\n",
+	function_error_footer => "</section>\n",
+	non_method_functions_header => "<chapter id='non_method_functions'><title>Non Method Functions</title>\n",
+	non_method_functions_footer => "</chapter>\n",
+}};
+
+my %wiki_template = %{{
 	class_header => "= %s =\n",
 	class_desc => "%s\n",
 	class_constructors_header => "== %s constructors ==\n",
@@ -83,7 +114,7 @@ my %metamethods = %{{
 	__unm => "-___",
 	__concat => "__ .. __",
 	__len => "#__",
-	__call => "()",
+	__call => "__()",
 	__eq => "__ == __",
 	__lt => "__ < __",
 	__le => "__ <= __",
@@ -270,7 +301,7 @@ while ( $file =  shift) {
 
 	for my $cname (sort keys %classes) {
 		my $cl = $classes{$cname};
-		printf D $template{class_header}, $cname;
+		printf D $template{class_header}, $cname, $cname;
 		printf D $template{class_desc} , ${$cl}{descr} if ${$cl}{descr};
 		
 		if ( $#{${$cl}{constructors}} >= 0) {
@@ -315,6 +346,11 @@ while ( $file =  shift) {
 			
 			printf D $template{class_attributes_footer}, $cname;
 		}
+		
+		if (exists $template{class_footer}) {
+			printf D $template{class_footer}, $cname, $cname;
+		}
+
 	}
 
 	if ($#functions >= 0) {

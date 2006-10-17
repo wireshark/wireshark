@@ -408,7 +408,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
     WSLUA_RETURN(items_found); /* All the values of this field */
 }
 
-static int Field_tostring(lua_State* L) {
+WSLUA_METAMETHOD Field_tostring(lua_State* L) {
     Field f = checkField(L,1);
 
     if ( !(f && *f) ) {
