@@ -454,6 +454,17 @@ get_runtime_version_info(GString *str)
 
         g_string_append(str, ".");
 
+	/* Compiler info */
+	
+#if defined(__GNUC__) && defined(__VERSION__)
+	g_string_sprintfa(str, "\nBuilt using gcc %s.\n", __VERSION__);
+#elif defined (_MSC_FULL_VER)
+	/* Documented at http://predef.sourceforge.net/precomp.html */
+	/* This should probably be prettified somehow */
+	g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d\n",
+		_MSC_FULL_VER);
+#endif
+	
 	end_string(str);
 }
 
