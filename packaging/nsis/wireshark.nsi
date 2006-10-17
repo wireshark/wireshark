@@ -344,6 +344,8 @@ File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 File "..\..\epan\wslua\init.lua"
+File "..\..\epan\wslua\console.lua"
+File "..\..\epan\wslua\dtd_gen.lua"
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
@@ -972,6 +974,8 @@ Delete "$INSTDIR\cfilters"
 Delete "$INSTDIR\colorfilters"
 Delete "$INSTDIR\dfilters"
 Delete "$INSTDIR\init.lua"
+Delete "$INSTDIR\console.lua"
+Delete "$INSTDIR\dtd_gen.lua"
 RMDir "$INSTDIR"
 SectionEnd
 
