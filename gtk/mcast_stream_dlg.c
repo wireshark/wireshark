@@ -85,7 +85,7 @@ static GList *last_list = NULL;
 static guint32 streams_nb = 0;     /* number of displayed streams */
 
 #define NUM_COLS 12
-static const gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dst IP addr", "Dst port", "Packets", "Packets/s", "Awg Bw", "Max Bw", "Max burst", "Burst Alarms", "Max buffer", "Buff Alarms"};
+static const gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dst IP addr", "Dst port", "Packets", "Packets/s", "Avg Bw", "Max Bw", "Max burst", "Burst Alarms", "Max buffer", "Buff Alarms"};
 
 /****************************************************************************/
 /* append a line to clist */
@@ -348,7 +348,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm treshold you entered isn't valid.");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm threshold you entered isn't valid.");
 		return; }
 	trigger = fnumber;
 

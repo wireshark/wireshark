@@ -272,7 +272,7 @@ if(keys_in_list > 0)
 	if(!KeysCollection)
 	{
 		/* Simple dialog ERROR */
-		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed mamory allocation for KeysCollection!");
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed memory allocation for KeysCollection!");
 		return;
 	}
 

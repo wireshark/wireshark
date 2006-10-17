@@ -1023,7 +1023,7 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 		window_destroy(user_data->dlg.graph_window);
 #endif
 
-	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exeption using GTK1*/
+	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exception using GTK1*/
 	gtk_signal_disconnect(GTK_OBJECT(user_data->dlg.notebook), user_data->dlg.notebook_signal_id);
 
 	g_free(user_data->dlg.col_arrows_fwd);
@@ -2955,7 +2955,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	if(!copy_file(g_dest, channels, format, user_data)) {
 		/* XXX - report the error type! */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"An error occured while saving voice in a file!");
+			"An error occurred while saving voice in a file!");
 		return;
 	}
 	

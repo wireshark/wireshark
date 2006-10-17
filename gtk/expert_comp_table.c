@@ -477,7 +477,7 @@ static GtkItemFactoryEntry error_list_menu_items[] =
 		error_select_filter_cb, 6*256+0, NULL, NULL),
 #if (GTK_MAJOR_VERSION < 2)
    	/* Go to first packet matching this entry */
-	ITEM_FACTORY_ENTRY("/Goto First Occurance", NULL,
+	ITEM_FACTORY_ENTRY("/Goto First Occurrence", NULL,
 		error_select_filter_cb, 7*256+0, NULL, NULL),
 #endif
 };

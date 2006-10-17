@@ -653,7 +653,7 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
     gint column;
 
 
-    /* To qoute the "Gdk Event Structures" doc:
+    /* To quote the "Gdk Event Structures" doc:
      * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
         /* if this is a right click on one of our columns, select it and popup the context menu */
@@ -1286,7 +1286,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) conversations);
     gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
 #endif

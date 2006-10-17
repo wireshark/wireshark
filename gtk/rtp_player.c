@@ -675,9 +675,9 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				(mean_delay + 4*variation)*1000);
 		fflush(stdout);
 
-		/* if the jitter buffer was exceded */	
+		/* if the jitter buffer was exceeded */	
 		if ( diff*1000 > jitter_buff ) {
-			printf("Packet drop by jitter buffer exceded\n");
+			printf("Packet drop by jitter buffer exceeded\n");
 			rci->drop_by_jitter_buff++;
 			status = S_DROP_BY_JITT;
 

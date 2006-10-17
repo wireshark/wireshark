@@ -2413,7 +2413,7 @@ capture_if_details_open(char *iface)
         /* couldn't even get the packet.dll version, must be a very old one or just not existing -> give up */
         /* (this seems to be the case for 2.3 beta and all previous releases) */
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
-            PRIMARY_TEXT_START "Couldn't optain WinPcap packet.dll version!" PRIMARY_TEXT_END
+            PRIMARY_TEXT_START "Couldn't obtain WinPcap packet.dll version!" PRIMARY_TEXT_END
             "\n\nThe WinPcap packet.dll is not installed or the version you use seems to be very old!"
             "\n\nPlease update/install WinPcap.");
         return;

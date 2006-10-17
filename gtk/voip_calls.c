@@ -621,7 +621,7 @@ static void RTP_packet_draw(void *prs _U_)
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
-						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Uknown RTP Event")); 
+						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event")); 
 						g_free(rtp_listinfo->pt_str);
 						new_gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
@@ -722,7 +722,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	}
 
 	/* if setup_frame_number in the t38 packet is 0, it means it was not set using an SDP or H245 sesion, which means we don't 
-	 * have the associated Voip calls. It probably means the the packet was decoded using the deafult t38 port, or using "Decode as.."
+	 * have the associated Voip calls. It probably means the the packet was decoded using the default t38 port, or using "Decode as.."
 	 * in this case we create a "voip" call that only have t38 media (no signaling)
 	 * OR if we have not found the Setup message in the graph. 
 	 */

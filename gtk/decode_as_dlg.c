@@ -97,7 +97,7 @@ static GtkWidget *decode_w = NULL;
 /*
  * A static pointer to the current "Decode As:Show" window.  This is
  * kept so that if somebody tries to do clock the "Show Current"
- * button or slect the "Display:User Specified Decodes" menu item
+ * button or select the "Display:User Specified Decodes" menu item
  * while there's already a "Decode As:Show" window up, we just pop up
  * the existing one, rather than creating a new one.
  */
