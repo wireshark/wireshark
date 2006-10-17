@@ -1687,7 +1687,7 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_time_stamp, tvb,
 				offset, optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-    "%s: tsval %u, tsecr %u", optp->name, tsv, tser);
+    "%s: TSval %u, TSecr %u", optp->name, tsv, tser);
   tcp_info_append_uint(pinfo, "TSV", tsv);
   tcp_info_append_uint(pinfo, "TSER", tser);
 }
@@ -1773,7 +1773,7 @@ static const ip_tcp_opt tcpopts[] = {
   },
   {
     TCPOPT_TIMESTAMP,
-    "Time stamp",
+    "Timestamps",
     NULL,
     FIXED_LENGTH,
     TCPOLEN_TIMESTAMP,
