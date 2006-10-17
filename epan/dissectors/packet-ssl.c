@@ -545,6 +545,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     first_record_in_frame = TRUE;
     ssl_session = NULL;
 
+    ssl_debug_printf("dissect_ssl enter frame #%u\n", pinfo->fd->num);
+
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
      * v3 packet is dissected improperly.  This also allows
@@ -1122,7 +1124,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* show decrypted data info, if available */
         pi = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (pi && pi->app_data.data)
+        if (pi && pi->app_data.data && (pi->app_data.data_len > 0))
         {
             tvbuff_t* new_tvb;
 
