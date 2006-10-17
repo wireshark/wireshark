@@ -98,6 +98,12 @@ static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
 
 
+/* This is the endpoint number user for "no endpoint" or the fake endpoint 
+ * for the host side since we need two endpoints to manage conversations
+ * properly.
+ */
+#define NO_ENDPOINT 0xffff
+
 /* there is one such structure for each device/endpoint conversation */
 typedef struct _usb_conv_info_t {
     emem_tree_t *transactions;
@@ -192,7 +198,7 @@ static const value_string descriptor_type_vals[] = {
 
 
 static conversation_t *
-get_usb_conversation(packet_info *pinfo)
+get_usb_conversation(packet_info *pinfo, guint32 src_endpoint, guint32 dst_endpoint)
 {
     conversation_t *conversation;
 
@@ -202,7 +208,7 @@ get_usb_conversation(packet_info *pinfo)
     conversation = find_conversation(pinfo->fd->num, 
                                &pinfo->src, &pinfo->dst,
                                pinfo->ptype, 
-                               pinfo->srcport, pinfo->destport, 0);
+                               src_endpoint, dst_endpoint, 0);
     if(conversation){
         return conversation;
     }
@@ -211,7 +217,7 @@ get_usb_conversation(packet_info *pinfo)
     conversation = conversation_new(pinfo->fd->num, 
                            &pinfo->src, &pinfo->dst,
                            pinfo->ptype,
-                           pinfo->srcport, pinfo->destport, 0);
+                           src_endpoint, dst_endpoint, 0);
     return conversation;
 }
 
@@ -759,15 +765,15 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
          */
         if(setup){
             src_addr=0xffffffff;
+            src_port=NO_ENDPOINT;
             dst_addr=tmp_addr;
-            src_port=0xffff;
             dst_port=endpoint;
             is_request=TRUE;
         } else {
             src_addr=tmp_addr;
-            dst_addr=0xffffffff;
             src_port=endpoint;
-            dst_port=0xffff;
+            dst_addr=0xffffffff;
+            dst_port=NO_ENDPOINT;
             is_request=FALSE;
         }
         break;
@@ -775,8 +781,8 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         /* dont know */
         src_addr=0xffffffff;
         dst_addr=0xffffffff;
-        src_port=0xffff;
-        dst_port=0xffff;
+        src_port=NO_ENDPOINT;
+        dst_port=NO_ENDPOINT;
         is_request=FALSE;
     }
     SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
@@ -788,7 +794,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     pinfo->destport=dst_port;
 
 
-    conversation=get_usb_conversation(pinfo);
+    conversation=get_usb_conversation(pinfo, pinfo->srcport, pinfo->destport);
 
     /* do we have conversation specific data ? */
     usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
