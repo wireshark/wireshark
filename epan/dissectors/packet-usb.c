@@ -106,6 +106,7 @@ static gint ett_descriptor_device = -1;
 
 /* there is one such structure for each device/endpoint conversation */
 typedef struct _usb_conv_info_t {
+    guint16 class;		/* class for this conversation */
     emem_tree_t *transactions;
 } usb_conv_info_t;
 
@@ -121,6 +122,17 @@ typedef struct _usb_trans_info_t {
             guint8 index;
         } get_descriptor;
     };
+
+
+    /* used to pass the interface class from the
+     * interface descriptor onto the endpoint
+     * descriptors so that we can create a
+     * conversation with the appropriate class
+     * once we know the endpoint.
+     */
+    usb_conv_info_t *interface_info;
+
+
 } usb_trans_info_t;
 
 typedef enum { 
@@ -157,11 +169,13 @@ static const value_string usb_langid_vals[] = {
     {0, NULL}
 };
 
+#define IF_CLASS_UNKNOWN		0xffff
 #define IF_CLASS_MASSTORAGE		0x08
 static const value_string usb_interfaceclass_vals[] = {
     {IF_CLASS_MASSTORAGE,	"Mass Storage Class"},
     {0, NULL}
 };
+
 
 static const value_string usb_urb_type_vals[] = {
     {URB_CONTROL_INPUT, "URB_CONTROL_INPUT"},
@@ -196,6 +210,25 @@ static const value_string descriptor_type_vals[] = {
     {0,NULL}
 };
 
+
+static usb_conv_info_t *
+get_usb_conv_info(conversation_t *conversation)
+{
+    usb_conv_info_t *usb_conv_info;
+
+    /* do we have conversation specific data ? */
+    usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
+    if(!usb_conv_info){
+        /* no not yet so create some */
+        usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
+        usb_conv_info->class=IF_CLASS_UNKNOWN;
+        usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
+
+        conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
+    }
+ 
+    return usb_conv_info;
+}  
 
 static conversation_t *
 get_usb_conversation(packet_info *pinfo, guint32 src_endpoint, guint32 dst_endpoint)
@@ -412,7 +445,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
 
 /* 9.6.5 */
 static int
-dissect_usb_interface_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
+dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -445,6 +478,12 @@ dissect_usb_interface_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree
 
     /* bInterfaceClass */
     proto_tree_add_item(tree, hf_usb_bInterfaceClass, tvb, offset, 1, TRUE);
+    /* save the class so we can access it later in the endpoint descriptor */
+    if(!pinfo->fd->flags.visited){
+        usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
+        usb_trans_info->interface_info->class=tvb_get_guint8(tvb, offset);
+        usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
+    }
     offset++;
 
     /* bInterfaceSubClass */
@@ -468,11 +507,12 @@ dissect_usb_interface_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree
 
 /* 9.6.6 */
 static int
-dissect_usb_endpoint_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
+dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
+    guint8 endpoint;
 
     if(parent_tree){
         item=proto_tree_add_text(parent_tree, tvb, offset, 0, "ENDPOINT DESCRIPTOR");
@@ -489,7 +529,28 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 
     /* bEndpointAddress */
     proto_tree_add_item(tree, hf_usb_bEndpointAddress, tvb, offset, 1, TRUE);
+    endpoint=tvb_get_guint8(tvb, offset)&0x0f;
     offset++;
+
+    /* Together with class from the interface descriptor we know what kind
+     * of class the device at endpoint is.
+     * Make sure a conversation exists for this endpoint and attach a 
+     * usb_conv_into_t structure to it.
+     *
+     * All endpoints for the same interface descriptor share the same
+     * usb_conv_info structure.
+     */
+    if((!pinfo->fd->flags.visited)&&usb_trans_info->interface_info){
+        conversation_t *conversation;
+
+        if(pinfo->destport==NO_ENDPOINT){
+            conversation=get_usb_conversation(pinfo, endpoint, pinfo->destport);
+        } else {
+            conversation=get_usb_conversation(pinfo, pinfo->srcport, endpoint);
+        }
+
+        conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
+    }
 
     /* bmAttributes */
     proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, TRUE);
@@ -556,6 +617,9 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     /* bMaxPower */
     proto_tree_add_item(tree, hf_usb_bMaxPower, tvb, offset, 1, TRUE);
     offset++;
+
+    /* initialize interface_info to NULL */
+    usb_trans_info->interface_info=NULL;
 
     /* decode any additional interface and endpoint descriptors */
     while(len>(old_offset-offset)){
@@ -759,6 +823,42 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
     /* set up addresses and ports */
     switch(type){
+    case URB_BULK_INPUT:
+        /* Bulk input are responses if they contain payload data and
+         * requests otherwise.
+         */
+        if(tvb_length_remaining(tvb, offset)>0){
+            src_addr=tmp_addr;
+            src_port=endpoint;
+            dst_addr=0xffffffff;
+            dst_port=NO_ENDPOINT;
+            is_request=FALSE;
+        } else {
+            src_addr=0xffffffff;
+            src_port=NO_ENDPOINT;
+            dst_addr=tmp_addr;
+            dst_port=endpoint;
+            is_request=TRUE;
+        }
+        break;
+    case URB_BULK_OUTPUT:
+        /* Bulk output are requests if they contain payload data and
+         * responses otherwise.
+         */
+        if(tvb_length_remaining(tvb, offset)>0){
+            src_addr=0xffffffff;
+            src_port=NO_ENDPOINT;
+            dst_addr=tmp_addr;
+            dst_port=endpoint;
+            is_request=TRUE;
+        } else {
+            src_addr=tmp_addr;
+            src_port=endpoint;
+            dst_addr=0xffffffff;
+            dst_port=NO_ENDPOINT;
+            is_request=FALSE;
+        }
+        break;
     case URB_CONTROL_INPUT:
         /* CONTROL INPUT packets are requests if they contain a "setup"
          * blob and responses othervise
@@ -796,11 +896,14 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
     conversation=get_usb_conversation(pinfo, pinfo->srcport, pinfo->destport);
 
+    usb_conv_info=get_usb_conv_info(conversation);
+
     /* do we have conversation specific data ? */
     usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
     if(!usb_conv_info){
         /* no not yet so create some */
         usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
+        usb_conv_info->class=IF_CLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
@@ -811,6 +914,22 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
 
     switch(type){
+    case URB_BULK_INPUT:
+        {
+        proto_item *item;
+
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 1, usb_conv_info->class);
+        PROTO_ITEM_SET_GENERATED(item);
+        }
+        break;
+    case URB_BULK_OUTPUT:
+        {
+        proto_item *item;
+
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 1, usb_conv_info->class);
+        PROTO_ITEM_SET_GENERATED(item);
+        }
+        break;
     case URB_CONTROL_INPUT:
         {
         const usb_setup_dissector_table_t *tmp;
