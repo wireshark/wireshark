@@ -47,7 +47,10 @@ esac
 
 AMVER=`$AUTOMAKE --version | grep '^automake' | sed 's/.*) *//'`
 case "$AMVER" in
-'' | 0.* | 1.[0-5]* )
+1.[6-9]* | 1.[1][0-9]*)
+  ;;
+
+*)
 
   cat >&2 <<_EOF_
 
