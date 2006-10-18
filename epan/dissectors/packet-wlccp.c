@@ -600,5 +600,5 @@ proto_register_wlccp_oui(void)
 		}
 	};
 	
-	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "Cisco WLCCP OUI PID", &hf);
+	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "Cisco WLCCP OUI PID", hf);
 }
