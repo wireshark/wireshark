@@ -4871,25 +4871,25 @@ proto_register_kerberos(void)
 	    NULL, 0, "GSSAPI Bnd field", HFILL }},
 	{ &hf_krb_gssapi_c_flag_deleg, {
 	    "Deleg", "kerberos.gssapi.checksum.flags.deleg", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_mutual, {
 	    "Mutual", "kerberos.gssapi.checksum.flags.mutual", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_replay, {
 	    "Replay", "kerberos.gssapi.checksum.flags.replay", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_sequence, {
 	    "Sequence", "kerberos.gssapi.checksum.flags.sequence", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_conf, {
 	    "Conf", "kerberos.gssapi.checksum.flags.conf", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_integ, {
 	    "Integ", "kerberos.gssapi.checksum.flags.integ", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, "", HFILL }},
 	{ &hf_krb_gssapi_c_flag_dce_style, {
 	    "DCE-style", "kerberos.gssapi.checksum.flags.dce-style", FT_BOOLEAN, 32,
-	    VALS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, "", HFILL }},
+	    TFS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, "", HFILL }},
 	{ &hf_krb_gssapi_dlgopt, {
 	    "DlgOpt", "kerberos.gssapi.dlgopt", FT_UINT16, BASE_DEC,
 	    NULL, 0, "GSSAPI DlgOpt", HFILL }},

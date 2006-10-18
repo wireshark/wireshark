@@ -87,6 +87,7 @@
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/inet_aton.h>
+#include <isprint.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "prefs.h"
@@ -946,7 +947,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 	item = proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length, 
 		tvb_get_ptr(tvb, offset, length));
         PROTO_ITEM_SET_GENERATED(item);
-	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Dissection incomplete", length);
+	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Dissection incomplete");
 
 	offset += length;
 
@@ -966,7 +967,7 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 	item = proto_tree_add_bytes(tree, hf_dcom_nospec, tvb, offset, length, 
 		tvb_get_ptr(tvb, offset, length));
         PROTO_ITEM_SET_GENERATED(item);
-	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible", length);
+	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible");
 
 	offset += length;
 

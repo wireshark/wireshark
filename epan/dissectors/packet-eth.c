@@ -486,12 +486,12 @@ proto_register_eth(void)
 
                 { &hf_eth_ig,
 		{ "IG bit", "eth.ig", FT_BOOLEAN, 24,
-		  VALS(&ig_tfs), 0x010000,
+		  TFS(&ig_tfs), 0x010000,
 		  "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
                 { &hf_eth_lg,
 		{ "LG bit", "eth.lg", FT_BOOLEAN, 24,
-		  VALS(&lg_tfs), 0x020000,
+		  TFS(&lg_tfs), 0x020000,
 		  "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
 
 	};

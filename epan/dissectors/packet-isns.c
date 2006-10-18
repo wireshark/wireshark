@@ -1672,13 +1672,13 @@ void proto_register_isns(void)
 
 	{ &hf_isns_resp_errorcode,
 	  { "ErrorCode","isns.errorcode",
-	    FT_UINT32, BASE_DEC,TFS(isns_errorcode),0,
+	    FT_UINT32, BASE_DEC,VALS(isns_errorcode),0,
 	    "iSNS Response Error Code" ,HFILL}
 	},
 
 	{ &hf_isns_attr_tag,
 	  { "Attribute Tag","isns.attr.tag",
-	    FT_UINT32, BASE_DEC,TFS(isns_attribute_tags),0,
+	    FT_UINT32, BASE_DEC,VALS(isns_attribute_tags),0,
 	    "iSNS Attribute Tag" ,HFILL}
 	},
 
