@@ -45,6 +45,15 @@ static gint ett_h248_pkg_generic_cause_evt = -1;
 static gint ett_tdmc = -1;
 static gint ett_h248_pkg_generic = -1;
 
+static const value_string h248_pkg_generic_cause_gencause_vals[] = {
+	{ 1, "NR (Normal Release)"},
+	{ 2, "UR (Unavailable Resources)"},
+	{ 3, "FT (Failure, Temporary)"},
+	{ 4, "FP (Failure, Permanent)"},
+	{ 5, "IW (Interworking Error)"},
+	{ 6, "UN (Unsupported)"},
+	{ 0, NULL }
+};
 
 static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, NULL },
@@ -137,6 +146,43 @@ static int hf_h248_pkg_tonedet_evt_std = -1;
 static int hf_h248_pkg_tonedet_evt_etd = -1;
 static int hf_h248_pkg_tonedet_evt_ltd = -1;
 */
+
+/* E.5 Basic DTMF Generator Package */
+static int hf_h248_pkg_dg = -1;
+static int hf_h248_pkg_dg_params = -1;
+static int hf_h248_pkg_dg_sig_d0 = -1;
+static int hf_h248_pkg_dg_sig_d1 = -1;
+static int hf_h248_pkg_dg_sig_d2 = -1;
+static int hf_h248_pkg_dg_sig_d3 = -1;
+
+static gint ett_h248_pkg_dg = -1;
+static gint ett_h248_pkg_dg_sig_d0 = -1;
+static gint ett_h248_pkg_dg_sig_d1 = -1;
+static gint ett_h248_pkg_dg_sig_d2 = -1;
+static gint ett_h248_pkg_dg_sig_d3 = -1;
+
+/* Signals defenitions */
+static h248_pkg_sig_t h248_pkg_dg_signals[] = {
+	{ 0x0010, &hf_h248_pkg_dg_sig_d0, &ett_h248_pkg_dg_sig_d0, NULL },
+	{ 0x0011, &hf_h248_pkg_dg_sig_d1, &ett_h248_pkg_dg_sig_d1, NULL },
+	{ 0x0012, &hf_h248_pkg_dg_sig_d2, &ett_h248_pkg_dg_sig_d2, NULL },
+	{ 0x0013, &hf_h248_pkg_dg_sig_d3, &ett_h248_pkg_dg_sig_d3, NULL },
+	/* TODO add the rest of the signals */
+
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_dg = {
+	0x0005,
+	&hf_h248_pkg_dg,
+	&hf_h248_pkg_dg_params,
+	&ett_h248_pkg_dg,
+	NULL,					/* Properties	*/
+	h248_pkg_dg_signals,	/* signals		*/
+	NULL,					/* events		*/
+	NULL					/* statistics	*/
+};
 
 /* H.248.1 E.9 Analog Line Supervision Package */
 static int hf_h248_pkg_al = -1;
@@ -294,7 +340,7 @@ void proto_register_h248_annex_e(void) {
 		/* H.248.1 E.1  Generic Package */
 		{ &hf_h248_pkg_generic, { "Generic Package", "h248.pkg.generic", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_generic_cause_evt, { "Cause Event", "h248.pkg.generic.cause", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.pkg.generic.cause.gencause", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }}, 
+		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.pkg.generic.cause.gencause", FT_UINT32, BASE_HEX, VALS(h248_pkg_generic_cause_gencause_vals), 0, "", HFILL }}, 
 		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
 		/* H.248.1 E.9 Analog Line Supervision Package */
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
@@ -327,6 +373,12 @@ void proto_register_h248_annex_e(void) {
 		&ett_h248_pkg_generic_cause_evt,
 		&ett_h248_pkg_generic,
 
+		&ett_h248_pkg_dg,
+		&ett_h248_pkg_dg_sig_d0,
+		&ett_h248_pkg_dg_sig_d1,
+		&ett_h248_pkg_dg_sig_d2,
+		&ett_h248_pkg_dg_sig_d3,
+
 		&ett_h248_pkg_al,
 		&ett_h248_pkg_al_evt_onhook,
 		
@@ -341,6 +393,7 @@ void proto_register_h248_annex_e(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	
 	h248_register_package(&h248_pkg_generic);
+	h248_register_package(&h248_pkg_dg);
 	h248_register_package(&h248_pkg_al);
 	h248_register_package(&h248_pkg_rtp);
 	h248_register_package(&h248_pkg_tdmc);
