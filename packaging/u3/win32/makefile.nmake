@@ -125,7 +125,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\plugins\opsi\opsi.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\pcli\pcli.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\profinet\profinet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\rdm\rdm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\rlm\rlm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\rtnet\rtnet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\rudp\rudp.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)

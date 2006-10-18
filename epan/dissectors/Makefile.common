@@ -547,6 +547,7 @@ DISSECTOR_SRC =	\
 	packet-radiotap.c	\
 	packet-ranap.c	\
 	packet-raw.c	\
+	packet-rdm.c	\
 	packet-rdt.c	\
 	packet-redback.c \
 	packet-retix-bpdu.c \

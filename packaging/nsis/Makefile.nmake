@@ -82,7 +82,6 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/mgcp/mgcp.dll \
 	../../plugins/opsi/opsi.dll \
 	../../plugins/pcli/pcli.dll \
-	../../plugins/rdm/rdm.dll \
 	../../plugins/rlm/rlm.dll \
 	../../plugins/rtnet/rtnet.dll \
 	../../plugins/rudp/rudp.dll \

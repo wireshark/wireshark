@@ -26,7 +26,6 @@ all: \
 	opsi \
 	pcli \
 	profinet \
-	rdm \
 	rlm \
 	rtnet \
 	rudp \
@@ -127,11 +126,6 @@ profinet::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-rdm:: 
-	cd rdm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
 rlm:: 
 	cd rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -200,8 +194,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../rdm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rtnet
@@ -254,8 +246,6 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../rdm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rtnet
@@ -306,8 +296,6 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../pcli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../rdm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../rtnet
@@ -350,7 +338,6 @@ install-plugins:
 	xcopy opsi\*.dll $(VERSION) /d
 	xcopy pcli\*.dll $(VERSION) /d
 	xcopy profinet\*.dll $(VERSION) /d
-	xcopy rdm\*.dll $(VERSION) /d
 	xcopy rlm\*.dll $(VERSION) /d
 	xcopy rtnet\*.dll $(VERSION) /d
 	xcopy rudp\*.dll $(VERSION) /d

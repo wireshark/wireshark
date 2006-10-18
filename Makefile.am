@@ -206,7 +206,6 @@ plugin_libs = \
 	plugins/opsi/opsi.la \
 	plugins/pcli/pcli.la \
 	plugins/profinet/profinet.la \
-	plugins/rdm/rdm.la \
 	plugins/rlm/rlm.la \
 	plugins/rtnet/rtnet.la \
 	plugins/rudp/rudp.la \
@@ -240,7 +239,6 @@ plugin_ldadd = \
 	"-dlopen" plugins/opsi/opsi.la \
 	"-dlopen" plugins/pcli/pcli.la \
 	"-dlopen" plugins/profinet/profinet.la \
-	"-dlopen" plugins/rdm/rdm.la \
 	"-dlopen" plugins/rlm/rlm.la \
 	"-dlopen" plugins/rtnet/rtnet.la \
 	"-dlopen" plugins/rudp/rudp.la \

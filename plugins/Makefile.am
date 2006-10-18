@@ -40,7 +40,6 @@ SUBDIRS = \
 	opsi \
 	pcli \
 	profinet \
-	rdm \
 	rlm \
 	rtnet \
 	rudp \
