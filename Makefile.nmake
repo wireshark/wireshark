@@ -262,7 +262,13 @@ ps.c	: rdps.exe print.ps
 #
 # Build the version string
 #
-svnversion.h:
+!IF EXIST(".svn/entries")
+SVNENTRIES = .svn/entries
+!ELSE
+SVNENTRIES =
+!ENDIF
+svnversion.h: $(SVNENTRIES)
+	rm -f svnversion.h
 	$(PERL) make-version.pl
 
 #
