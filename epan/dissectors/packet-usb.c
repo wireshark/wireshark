@@ -99,6 +99,9 @@ static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
 
 
+static dissector_table_t usb_bulk_dissector_table;
+
+
 /* This is the endpoint number user for "no endpoint" or the fake endpoint 
  * for the host side since we need two endpoints to manage conversations
  * properly.
@@ -890,6 +893,15 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(item);
+        if(tvb_length_remaining(tvb, offset)){
+            tvbuff_t *next_tvb;
+
+            pinfo->usb_conv_info=usb_conv_info;
+            next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+            if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->class, next_tvb, pinfo, parent)){
+                return;
+            }
+        }
         }
         break;
     case URB_BULK_OUTPUT:
@@ -898,6 +910,15 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(item);
+        if(tvb_length_remaining(tvb, offset)){
+            tvbuff_t *next_tvb;
+
+            pinfo->usb_conv_info=usb_conv_info;
+            next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+            if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->class, next_tvb, pinfo, parent)){
+                return;
+            }
+        }
         }
         break;
     case URB_CONTROL_INPUT:
@@ -1243,6 +1264,10 @@ proto_register_usb(void)
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
 
     register_dissector("usb", dissect_usb, proto_usb);
+
+    usb_bulk_dissector_table = register_dissector_table("usb.bulk",
+        "USB bulk endpoint", FT_UINT8, BASE_DEC);
+
 }
 
 void
