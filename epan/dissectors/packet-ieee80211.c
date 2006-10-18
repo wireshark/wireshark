@@ -96,12 +96,9 @@ static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
 
 /* Stuff for the WEP decoder */
-/* XXX - Instead of making the user specify the number of WEP keys manually,
- * we may want to change the "WEP key count" option to a toggle that
- * enables/disables WEP decryption, and automatically figure out how
- * many keys we have by parsing the key list.
- */
+
 static gint num_wepkeys = 0;
+static gboolean enable_decryption = FALSE;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static void init_wepkeys(void);
@@ -4129,8 +4126,6 @@ proto_register_ieee80211 (void)
   };
   module_t *wlan_module;
 
-  enum_val_t *wep_keys_options = g_malloc(sizeof(enum_val_t) * (MAX_ENCRYPTION_KEYS + 2));
-
 
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
 					"IEEE 802.11", "wlan");
@@ -4167,24 +4162,11 @@ proto_register_ieee80211 (void)
 
 #ifndef USE_ENV
 
-  for (i = 0; i <= MAX_ENCRYPTION_KEYS; i++) {
-    key_name = g_string_new("");
-    g_string_sprintf(key_name, "%d", i);
-    wep_keys_options[i].name = key_name->str;
-    wep_keys_options[i].description = key_name->str;
-    wep_keys_options[i].value = i;
-    g_string_free(key_name, FALSE);
-  }
-  wep_keys_options[i].name = NULL;
-  wep_keys_options[i].description = NULL;
-  wep_keys_options[i].value = -1;
+  prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
-  key_desc = g_string_new("");
-  g_string_sprintf(key_desc, "How many WEP keys do we have to choose from? (0 to disable, up to %d)", MAX_ENCRYPTION_KEYS);
-  prefs_register_enum_preference(wlan_module, "wep_keys",
-				 "WEP key count", key_desc->str,
-				 &num_wepkeys, wep_keys_options, FALSE);
-  g_string_free(key_desc, FALSE);
+  prefs_register_bool_preference(wlan_module, "enable_decryption",
+	"Enable decryption", "Enable WEP decryption",
+	&enable_decryption);
 
   for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
     key_name = g_string_new("");
@@ -4239,7 +4221,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   int i;
   tvbuff_t *decr_tvb = NULL;
 
-  if (num_wepkeys < 1)
+  if (! enable_decryption)
     return NULL;
 
   enc_data = tvb_get_ptr(tvb, offset, len);
@@ -4248,7 +4230,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
     return NULL;  /* krap! */
 
   /* try once with the key index in the packet, then look through our list. */
-  for (i = -1; i < num_wepkeys; i++) {
+  for (i = 0; i < num_wepkeys; i++) {
     /* copy the encrypted data over to the tmp buffer */
 #if 0
     printf("trying %d\n", i);
@@ -4277,10 +4259,10 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
 
 /* de-weps the block.  if successful, buf* will point to the data start. */
-static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
+static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
   guint32 i, j, k, crc, keylen;
   guint8 s[256], key[128], c_crc[4];
-  guint8 keyidx, *dpos, *cpos;
+  guint8 *dpos, *cpos;
 
   /* Needs to be at least 8 bytes of payload */
   if (len < 8)
@@ -4290,12 +4272,8 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
   key[0] = buf[0];
   key[1] = buf[1];
   key[2] = buf[2];
-  keyidx = KEY_OCTET_WEP_KEY(buf[3]);
 
-  if (key_override >= 0)
-    keyidx = key_override;
-
-  if (keyidx >= (guint)num_wepkeys)
+  if (keyidx < 0 || keyidx >= num_wepkeys)
     return -1;
 
   keylen = wep_keylens[keyidx];
@@ -4365,9 +4343,18 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 
 static void init_wepkeys(void) {
   const char *tmp;
-  int i;
+  int i, keyidx;
   GByteArray *bytes;
   gboolean res;
+
+  if (wep_keys) {
+    for (i = 0; i < num_wepkeys; i++)
+      g_free(wep_keys[i]);
+    g_free(wep_keys);
+  }
+
+  if (wep_keylens)
+    g_free(wep_keylens);
 
 #ifdef USE_ENV
   guint8 *buf;
@@ -4378,27 +4365,27 @@ static void init_wepkeys(void) {
     return;
   }
   num_wepkeys = atoi(tmp);
-#else
-  if (num_wepkeys > 4)
-    num_wepkeys = 4;
-#endif
 
   if (num_wepkeys < 1)
     return;
+#endif
 
-  if (wep_keys)
-    g_free(wep_keys);
-
-  if (wep_keylens)
-    g_free(wep_keylens);
-
-  wep_keys = g_malloc(num_wepkeys * sizeof(guint8*));
-  wep_keylens = g_malloc(num_wepkeys * sizeof(int));
+  /* Figure out how many valid keys we have */
   bytes = g_byte_array_new();
+  num_wepkeys = 0;
+  for ( i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
+    res = hex_str_to_bytes(wep_keystr[i], bytes, FALSE);
+    if (wep_keystr[i] && res && bytes-> len > 0) {
+      num_wepkeys++;
+    }
+  }
 
-  for (i = 0 ; i < num_wepkeys; i++) {
-    wep_keys[i] = NULL;
-    wep_keylens[i] = 0;
+  wep_keys = g_malloc0(num_wepkeys * sizeof(guint8*));
+  wep_keylens = g_malloc(num_wepkeys * sizeof(int));
+
+  for (i = 0, keyidx = 0; i < MAX_ENCRYPTION_KEYS && keyidx < num_wepkeys; i++) {
+    wep_keys[keyidx] = NULL;
+    wep_keylens[keyidx] = 0;
 
 #ifdef USE_ENV
     buf=ep_alloc(128);
@@ -4417,19 +4404,19 @@ static void init_wepkeys(void) {
 #endif
 #endif
 
-      if (wep_keys[i]) {
-	g_free(wep_keys[i]);
+      if (wep_keys[keyidx]) {
+	g_free(wep_keys[keyidx]);
       }
 
       res = hex_str_to_bytes(tmp, bytes, FALSE);
-      if (res && bytes->len > 0) {
+      if (tmp && res && bytes->len > 0) {
         if (bytes->len > 32) {
 	  bytes->len = 32;
 	}
-	wep_keys[i] = g_malloc(32 * sizeof(guint8));
-	memset(wep_keys[i], 0, 32 * sizeof(guint8));
-	memcpy(wep_keys[i], bytes->data, bytes->len * sizeof(guint8));
-	wep_keylens[i] = bytes->len;
+	wep_keys[keyidx] = g_malloc0(32 * sizeof(guint8));
+	memcpy(wep_keys[keyidx], bytes->data, bytes->len * sizeof(guint8));
+	wep_keylens[keyidx] = bytes->len;
+	keyidx++;
 #if 0
 	printf("%d: %d bytes\n", i, bytes->len);
 	printf("%d: %s\n", i, bytes_to_str(bytes->data, bytes->len));

@@ -431,6 +431,9 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 	char		one_digit[2];
 
 	g_byte_array_set_size(bytes, 0);
+	if (! hex_str) {
+		return FALSE;
+	}
 	p = (const guchar *)hex_str;
 	while (*p) {
 		q = p+1;

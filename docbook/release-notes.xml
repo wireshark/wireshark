@@ -202,6 +202,11 @@ Wireshark Info
         capture setup</ulink> page on the wiki.
         </para></listitem>
 
+        <listitem><para>
+        The number of WEP keys that the user can specify in the IEEE 802.11
+        protocol preferences has been increased from 4 to 64.
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
