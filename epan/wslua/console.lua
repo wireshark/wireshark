@@ -47,6 +47,13 @@ if (gui_enabled()) then
 
 	local console_open = false
 
+	local date = rawget(os,"date") -- use rawget to avoid disabled's os.__index
+
+	if type(date) ~= "function" then
+		-- 'os' has been disabled use a dummy function for date
+		date = function() return "" end
+	end
+
 	local function run_console()
 		if console_open then return end
 		console_open = true
@@ -61,11 +68,11 @@ if (gui_enabled()) then
 			debug = debug
 		}
 
-		function critical(x)  w:append( os.date() .. " CRITICAL: " .. tostring(x) .. "\n") end
-		function warn(x)  w:append( os.date() .. " WARN: " .. tostring(x) .. "\n") end
-		function message(x)  w:append( os.date() .. " MESSAGE: " .. tostring(x) .. "\n") end
-		function info(x)  w:append( os.date() .. " INFO: " .. tostring(x) .. "\n") end
-		function debug(x)  w:append( os.date() .. " DEBUG: " .. tostring(x) .. "\n") end
+		function critical(x)  w:append( date() .. " CRITICAL: " .. tostring(x) .. "\n") end
+		function warn(x)  w:append( date() .. " WARN: " .. tostring(x) .. "\n") end
+		function message(x)  w:append( date() .. " MESSAGE: " .. tostring(x) .. "\n") end
+		function info(x)  w:append( date() .. " INFO: " .. tostring(x) .. "\n") end
+		function debug(x)  w:append( date() .. " DEBUG: " .. tostring(x) .. "\n") end
 
 		function at_close()
 			critical = orig.critical

@@ -43,43 +43,48 @@ sub gorolla {
 	$s;
 }
 
+my %module = ();
 my $class;
 my %classes;
 my $function;
 my @functions;
 
-my %template = %{{
-	class_header => "<chapter id='%s'><title>%s</title>\n",
-	class_footer => "</chapter>\n",
-	class_desc => "<para>%s</para>\n",
-	class_constructors_header => "<section id='%s_constructors'><title>Constructors</title>\n",
-	class_constructors_footer => "</section>\n",
-	class_methods_header => "<section id='%s_methods'><title>Methods</title>\n",
-	class_methods_footer => "</section>\n",
-	class_attributes_header => "<section id='%s_attribs'><title>Attributes</title>\n",
-	class_attributes_footer => "</section>\n",
-	class_attr_header => "<section id='attrib_%s'><title>%s</title>\n",
-	class_attr_footer => "</section>\n",
-	class_attr_descr => "<para>%s<para>\n",
-	function_header => "<section id='fn_%s'><title>%s</title>\n",
-	function_descr => "<para>%s</para>\n",
-	function_footer => "</section>\n",
-	function_arg_header => "<section id='fn_arg_%s'><title>%s</title>\n",
-	function_arg_descr => "<para>%s</para>\n",
-	function_arg_footer => "</section>\n",
-	function_argerrors_header => "<section id='argerr_%s'><title>Errors</title><itemizedlist>\n",
-	function_argerror => "<listitem><para>%s</para></listitem>\n",
-	function_argerror_footer => "</section>\n",
-	function_returns_header => "<section id='ret_%s'><title>Returns</title>\n",
-	function_returns => "<para>%s</para>\n",
-	function_errors_header => "<section id='err_%s'><title>Errors</title><itemizedlist>\n",
-	function_error => "<listitem><para>%s</para></listitem>\n",
-	function_error_footer => "</section>\n",
-	non_method_functions_header => "<chapter id='non_method_functions'><title>Non Method Functions</title>\n",
-	non_method_functions_footer => "</chapter>\n",
-}};
+my $docbook_template = {
+	module_header => "<chapter id='lua_module_%s'><title>%s</title>\n",
+	module_desc => "\t<para>%s</para>\n",
+	module_footer => "</chapter>\n",
+	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
+	class_footer => "\t</section> <!-- class_footer: %s -->\n",
+	class_desc => "\t\t<para>%s</para>\n",
+	class_constructors_header => "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
+	class_constructors_footer => "\t\t</section> <!-- class_constructors_footer -->\n",
+	class_methods_header => "\t\t\t<section id='lua_class_methods_%s'>\n\t\t\t\t<title>%s Methods</title>\n",
+	class_methods_footer => "\t\t\t</section> <!-- class_methods_footer: %s -->\n",
+	class_attributes_header => "\t\t<section id='lua_class_attribs_%s'>\n\t\t\t<title>%s Attributes</title>\n",
+	class_attributes_footer => "\t\t</section> <!-- class_attributes_footer: %s -->\n",
+	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
+	class_attr_footer => "\t\t</section> <!-- class_attr_footer: %s -->\n",
+	class_attr_descr => "\t\t\t<para>%s<para>\n",
+	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
+	function_descr => "\t\t\t\t<para>%s</para>\n",
+	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
+	function_arg_header => "\t\t\t\t<section id='lua_fn_arg_%s'>\n\t\t\t\t\t<title>%s</title>\n",
+	function_arg_descr => "\t\t\t\t\t<para>%s</para>\n",
+	function_arg_footer => "\t\t\t\t</section> <!-- function_arg_footer: %s -->\n",
+	function_argerror_header => "\t\t\t\t\t<section id='lua_fn_argerr_%s'>\n\t\t\t\t\t<title>Errors</title><itemizedlist>\n",
+	function_argerror => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_argerror_footer => "\t\t\t\t\t</section> <!-- function_argerror_footer: %s -->\n",
+	function_returns_header => "\t\t\t\t<section id='lua_fn_ret_%s'><title>Returns</title>\n",
+	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
+	function_returns => "\t\t\t\t\t<para>%s</para>\n",
+	function_errors_header => "\t\t\t\t<section id='lua_fn_err_%s'>\n\t\t\t\t\t<title>Errors</title><itemizedlist>\n",
+	function_error => "\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_error_footer => "\t\t\t\t</section> <!-- function_error_footer: %s -->\n",
+	non_method_functions_header => "<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
+	non_method_functions_footer => "<!-- Non method --></section>\n",
+};
 
-my %wiki_template = %{{
+my $wiki_template = {
 	class_header => "= %s =\n",
 	class_desc => "%s\n",
 	class_constructors_header => "== %s constructors ==\n",
@@ -98,7 +103,7 @@ my %wiki_template = %{{
 	function_errors_header => "==== errors ====\n",
 	function_errors => "  * %s\n",
 	non_method_functions_header => "= Non method functions =\n",
-}};
+};
 
 
 my %metamethods = %{{
@@ -120,6 +125,9 @@ my %metamethods = %{{
 	__le => "__ <= __",
 }};
 
+my $template_ref = $docbook_template;
+my $out_extension = "xml";
+
 # It's said that only perl can parse perl... my editor isn't perl...
 # if unencoded this causes my editor's autoindent to bail out so I encoded in octal
 # XXX: support \" within "" 
@@ -131,7 +139,12 @@ my @control =
 (
 # This will be scanned in order trying to match the re if it matches
 # the body will be executed immediatelly after. 
- 
+['WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)', 
+sub {
+	$module{name} = $1;
+	$module{descr} = $2
+}],
+
  [ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+)\s*,.*?\051' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
@@ -278,7 +291,7 @@ while ( $file =  shift) {
 	next unless -f $file;
 	
 	my $docfile = $file;
-	$docfile =~ s/\.c$/.pod/;
+	$docfile =~ s/\.c$/.$out_extension/;
 	
 	open C, "< $file";
 	open D, "> doc/$docfile";
@@ -299,62 +312,67 @@ while ( $file =  shift) {
 		}
 	}
 
+	printf D ${$template_ref}{module_header}, $module{name}, $module{name}; 
+	if ( exists  ${$template_ref}{module_desc} ) {
+		printf D ${$template_ref}{module_desc}, $module{descr}, $module{descr}; 		
+	}
+	
 	for my $cname (sort keys %classes) {
 		my $cl = $classes{$cname};
-		printf D $template{class_header}, $cname, $cname;
-		printf D $template{class_desc} , ${$cl}{descr} if ${$cl}{descr};
+		printf D ${$template_ref}{class_header}, $cname, $cname;
+		printf D ${$template_ref}{class_desc} , ${$cl}{descr} if ${$cl}{descr};
 		
 		if ( $#{${$cl}{constructors}} >= 0) {
-			printf D $template{class_constructors_header}, $cname;
+			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
 			
 			for my $c (@{${$cl}{constructors}}) {
 				function_descr($c);
 			}
 
-			printf D $template{class_constructors_footer}, $cname;
+			printf D ${$template_ref}{class_constructors_footer}, $cname, $cname;
 		}
 
 		if ( $#{${$cl}{methods}} >= 0) {
-			printf D $template{class_methods_header}, $cname;
+			printf D ${$template_ref}{class_methods_header}, $cname, $cname;
 			
 			for my $m (@{${$cl}{methods}}) {
 				function_descr($m);
 			}
 			
-			printf D $template{class_methods_footer}, $cname;
+			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
 		}
 		
 		if ( $#{${$cl}{metamethods}} >= 0) {
-			printf D $template{class_metamethods_header}, $cname;
+			printf D ${$template_ref}{class_metamethods_header}, $cname, $cname;
 			
 			for my $m (@{${$cl}{metamethods}}) {
 				function_descr($m,${$m}{name});
 			}
 			
-			printf D $template{class_metamethods_footer}, $cname;
+			printf D ${$template_ref}{class_metamethods_footer}, $cname, $cname;
 		}
 		
 		if ( $#{${$cl}{attributes}} >= 0) {
-			printf D $template{class_attributes_header}, $cname;
+			printf D ${$template_ref}{class_attributes_header}, $cname, $cname;
 			
 			for my $a (@{${$cl}{attributes}}) {
-				printf D $template{class_attr_header}, ${$a}{name};
-				printf D $template{class_attr_descr}, ${$a}{descr} if ${$a}{descr};
-				printf D $template{class_attr_footer}, ${$a}{name};
+				printf D ${$template_ref}{class_attr_header}, ${$a}{name}, ${$a}{name};
+				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, ${$a}{descr} if ${$a}{descr};
+				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
 				
 			}
 			
-			printf D $template{class_attributes_footer}, $cname;
+			printf D ${$template_ref}{class_attributes_footer}, $cname, $cname;
 		}
 		
-		if (exists $template{class_footer}) {
-			printf D $template{class_footer}, $cname, $cname;
+		if (exists ${$template_ref}{class_footer}) {
+			printf D ${$template_ref}{class_footer}, $cname, $cname;
 		}
 
 	}
 
 	if ($#functions >= 0) {
-		print D $template{non_method_functions_header};
+		print D ${$template_ref}{non_method_functions_header};
 
 		for my $f (@functions) {
 			function_descr($f);
@@ -366,6 +384,9 @@ while ( $file =  shift) {
 	$function = undef;
 	@functions = ();
 	close C;
+	
+	printf D ${$template_ref}{module_footer}, $module{name}; 
+
 	close D;
 }
 
@@ -374,7 +395,7 @@ sub function_descr {
 	my $label = $_[1];
 	
 	if (defined $label ) {
-		printf D $template{function_header}, $label;
+		printf D ${$template_ref}{function_header}, $label, $label;
 	} else {
 		my $arglist = '';
 		
@@ -386,36 +407,44 @@ sub function_descr {
 		
 		$arglist =~ s/, $//;
 		
-		printf D $template{function_header}, "${$f}{name}($arglist)";
+		printf D ${$template_ref}{function_header}, "${$f}{name}($arglist)", "${$f}{name}($arglist)";
 	}	
 	
-	printf D $template{function_descr}, ${$f}{descr} if ${$f}{descr};
+	printf D ${$template_ref}{function_descr}, ${$f}{descr} if ${$f}{descr};
 	
 	for my $argname (@{${$f}{arglist}}) {
 		my $arg = ${${$f}{args}}{$argname};
 		$argname =~ tr/A-Z/a-z/;
 		
-		printf D $template{function_arg_header}, $argname;
-		printf D $template{function_arg_descr}, ${$arg}{descr} if ${$arg}{descr};
+		printf D ${$template_ref}{function_arg_header}, $argname, $argname;
+		printf D ${$template_ref}{function_arg_descr}, ${$arg}{descr} , ${$arg}{descr} if ${$arg}{descr};
 
 		if ( $#{${$arg}{errors}} >= 0) {
-			printf D $template{function_argerrors_header}, $argname;
-			printf D $template{function_argerror}, $_ for @{${$arg}{errors}};
-			printf D $template{function_argerrors_footer}, $argname;
+			printf D ${$template_ref}{function_argerrors_header}, $argname, $argname;
+			printf D ${$template_ref}{function_argerror}, $_, $_ for @{${$arg}{errors}};
+			printf D ${$template_ref}{function_argerrors_footer}, $argname, $argname;
 		}
+
+		printf D ${$template_ref}{function_arg_footer}, $argname, $argname;
 	
 	}
 	
 	if ( $#{${$f}{returns}} >= 0) {
-		printf D $template{function_returns_header}, ${$f}{name};
-		printf D $template{function_returns}, $_ for @{${$f}{returns}};
-		printf D $template{function_returns_footer}, ${$f}{name};
+		printf D ${$template_ref}{function_returns_header}, ${$f}{name};
+		printf D ${$template_ref}{function_returns}, $_ for @{${$f}{returns}};
+		printf D ${$template_ref}{function_returns_footer}, ${$f}{name};
 	}	
 
 	if ( $#{${$f}{errors}} >= 0) {
-		printf D $template{function_errors_header}, ${$f}{name};
-		printf D $template{function_errors}, $_ for @{${$f}{errors}};
-		printf D $template{function_errors_footer}, ${$f}{name};
+		printf D ${$template_ref}{function_errors_header}, ${$f}{name};
+		printf D ${$template_ref}{function_errors}, $_ for @{${$f}{errors}};
+		printf D ${$template_ref}{function_errors_footer}, ${$f}{name};
 	}	
+	
+	if (not defined $label ) {
+		$label = '';
+	}	
+	
+	printf D ${$template_ref}{function_footer}, $label, $label;
 	
 }

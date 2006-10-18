@@ -3,7 +3,7 @@
  *  
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * 
- * $Id: wslua_gui.c 18611 2006-06-29 13:49:56Z lego $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,6 +25,8 @@
  */
 
 #include "wslua.h"
+
+/* WSLUA_MODULE Gui Gui Support*/ 
 
 static const funnel_ops_t* ops = NULL;
 
@@ -64,7 +66,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in t
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-	register_stat_group_t group = luaL_optnumber(L,WSLUA_ARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_ARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
 	if ( group > REGISTER_TOOLS_GROUP_NONE)
 		WSLUA_ARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
