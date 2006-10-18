@@ -39,6 +39,7 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <string.h>
+#include "packet-usb.h"
 
 /* protocols and header fields */
 static int proto_usb = -1;
@@ -104,36 +105,7 @@ static gint ett_descriptor_device = -1;
  */
 #define NO_ENDPOINT 0xffff
 
-/* there is one such structure for each device/endpoint conversation */
-typedef struct _usb_conv_info_t {
-    guint16 class;		/* class for this conversation */
-    emem_tree_t *transactions;
-} usb_conv_info_t;
 
-/* there is one such structure for each request/response */
-typedef struct _usb_trans_info_t {
-    guint32 request_in;
-    guint32 response_in;
-    guint8 requesttype;
-    guint8 request;
-    union {
-        struct {
-            guint8 type;
-            guint8 index;
-        } get_descriptor;
-    };
-
-
-    /* used to pass the interface class from the
-     * interface descriptor onto the endpoint
-     * descriptors so that we can create a
-     * conversation with the appropriate class
-     * once we know the endpoint.
-     */
-    usb_conv_info_t *interface_info;
-
-
-} usb_trans_info_t;
 
 typedef enum { 
   URB_CONTROL_INPUT,
@@ -169,8 +141,6 @@ static const value_string usb_langid_vals[] = {
     {0, NULL}
 };
 
-#define IF_CLASS_UNKNOWN		0xffff
-#define IF_CLASS_MASSTORAGE		0x08
 static const value_string usb_interfaceclass_vals[] = {
     {IF_CLASS_MASSTORAGE,	"Mass Storage Class"},
     {0, NULL}
@@ -918,7 +888,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         {
         proto_item *item;
 
-        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 1, usb_conv_info->class);
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(item);
         }
         break;
@@ -926,7 +896,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         {
         proto_item *item;
 
-        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 1, usb_conv_info->class);
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(item);
         }
         break;

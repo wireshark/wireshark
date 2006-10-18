@@ -967,6 +967,7 @@ DISSECTOR_INCLUDES =	\
 	packet-umts_rrc.h	\
 	packet-umts_rrc_ies.h	\
 	packet-umts_rrc_pdu_def.h	\
+	packet-usb.h	\
 	packet-vines.h	\
 	packet-vlan.h	\
 	packet-wap.h	\
