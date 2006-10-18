@@ -41,6 +41,9 @@ static int hf_usb_ms_dCBWDataTransferLength = -1;
 static int hf_usb_ms_dCBWFlags = -1;
 static int hf_usb_ms_dCBWLUN = -1;
 static int hf_usb_ms_dCBWCBLength = -1;
+static int hf_usb_ms_dCSWSignature = -1;
+static int hf_usb_ms_dCSWDataResidue = -1;
+static int hf_usb_ms_dCSWStatus = -1;
 
 static gint ett_usb_ms = -1;
 
@@ -51,13 +54,21 @@ typedef struct _usb_ms_conv_info_t {
     emem_tree_t *itlq;		/* pinfo->fd->num */
 } usb_ms_conv_info_t;
 
+
+static const value_string status_vals[] = {
+    {0x00,	"Command Passed"},
+    {0x01,	"Command Failed"},
+    {0x02,	"Phase Error"},
+    {0, NULL}
+};
+
 static void
 dissect_usb_ms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     usb_conv_info_t *usb_conv_info;
     usb_ms_conv_info_t *usb_ms_conv_info;
     proto_tree *tree=NULL;
-    guint32 signature;
+    guint32 signature=0;
     int offset=0;
     gboolean is_request;
     itl_nexus_t *itl;
@@ -91,7 +102,11 @@ dissect_usb_ms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 
     signature=tvb_get_letohl(tvb, offset);
-    /* is this a CDB ? */
+
+
+    /* 
+     * SCSI CDB inside CBW 
+     */
     if(is_request&&(signature==0x43425355)&&(tvb_length(tvb)==31)){
         tvbuff_t *cdb_tvb;
         int cdbrlen, cdblen;
@@ -168,7 +183,68 @@ dissect_usb_ms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             cdb_tvb=tvb_new_subset(tvb, offset, cdblen, cdbrlen);
             dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
         }
+        return;
     }
+
+
+    /* 
+     * SCSI RESPONSE inside CSW 
+     */
+    if((!is_request)&&(signature==0x53425355)&&(tvb_length(tvb)==13)){
+        guint8 status;
+
+        /* dCSWSignature */
+        proto_tree_add_item(tree, hf_usb_ms_dCSWSignature, tvb, offset, 4, TRUE);
+        offset+=4;
+
+        /* dCSWTag */
+        proto_tree_add_item(tree, hf_usb_ms_dCBWTag, tvb, offset, 4, TRUE);
+        offset+=4;
+
+        /* dCSWDataResidue */
+        proto_tree_add_item(tree, hf_usb_ms_dCSWDataResidue, tvb, offset, 4, TRUE);
+        offset+=4;
+
+        /* dCSWStatus */
+        proto_tree_add_item(tree, hf_usb_ms_dCSWStatus, tvb, offset, 1, TRUE);
+        status=tvb_get_guint8(tvb, offset);
+        offset+=1;
+
+        itlq=(itlq_nexus_t *)se_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+        if(!itlq){
+            return;
+        }
+        itlq->last_exchange_frame=pinfo->fd->num;
+            
+        itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
+        if(!itl){
+            return;
+        }
+       
+        if(!status){
+            dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0);
+        } else {
+            /* just send "check condition" */
+            dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0x02);
+        }
+        return;
+    }
+
+    /*
+     * Ok it was neither CDB not STATUS so just assume it is either data in/out
+     */
+    itlq=(itlq_nexus_t *)se_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+    if(!itlq){
+        return;
+    }
+            
+    itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
+    if(!itl){
+        return;
+    }
+
+    dissect_scsi_payload(tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
+
 }
 
 void
@@ -198,6 +274,18 @@ proto_register_usb_ms(void)
         { &hf_usb_ms_dCBWCBLength,
         { "CDB Length", "usbms.dCBWCBLength", FT_UINT8, BASE_HEX, 
           NULL, 0x1f, "", HFILL }},
+
+        { &hf_usb_ms_dCSWSignature,
+        { "Signature", "usbms.dCSWSignature", FT_UINT32, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_ms_dCSWDataResidue,
+        { "DataResidue", "usbms.dCSWDataResidue", FT_UINT32, BASE_DEC, 
+          NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_ms_dCSWStatus,
+        { "Status", "usbms.dCSWStatus", FT_UINT8, BASE_HEX, 
+          VALS(status_vals), 0x0, "", HFILL }},
 
     };
     
