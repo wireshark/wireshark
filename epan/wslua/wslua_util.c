@@ -3,7 +3,7 @@
  *  
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * 
- * $Id: wslua_util.c 18197 2006-05-21 05:12:17Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* WSLUA_MODULE Util various useful functions */
 
 #include "wslua.h"
 #include <math.h>

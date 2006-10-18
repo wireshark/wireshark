@@ -5,7 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: wslua_tree.c 18231 2006-05-28 16:32:49Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* WSLUA_MODULE Tree adding information to the dissection tree */
 
 #include "wslua.h"
 #include <epan/expert.h>

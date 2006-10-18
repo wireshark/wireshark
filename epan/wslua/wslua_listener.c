@@ -7,7 +7,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: wslua_listener.c 18268 2006-05-31 17:38:42Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -27,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* WSLUA_MODULE Listener post-dissection packet analysis */
 
 #include "wslua.h"
 
