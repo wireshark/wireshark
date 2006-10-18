@@ -58,8 +58,8 @@ my $docbook_template = {
 	class_desc => "\t\t<para>%s</para>\n",
 	class_constructors_header => "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
 	class_constructors_footer => "\t\t</section> <!-- class_constructors_footer -->\n",
-	class_methods_header => "\t\t\t<section id='lua_class_methods_%s'>\n\t\t\t\t<title>%s Methods</title>\n",
-	class_methods_footer => "\t\t\t</section> <!-- class_methods_footer: %s -->\n",
+	class_methods_header => "\t\t<section id='lua_class_methods_%s'>\n\t\t\t<title>%s Methods</title>\n",
+	class_methods_footer => "\t\t</section> <!-- class_methods_footer: %s -->\n",
 	class_attributes_header => "\t\t<section id='lua_class_attribs_%s'>\n\t\t\t<title>%s Attributes</title>\n",
 	class_attributes_footer => "\t\t</section> <!-- class_attributes_footer: %s -->\n",
 	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
@@ -71,17 +71,17 @@ my $docbook_template = {
 	function_arg_header => "\t\t\t\t<section id='lua_fn_arg_%s'>\n\t\t\t\t\t<title>%s</title>\n",
 	function_arg_descr => "\t\t\t\t\t<para>%s</para>\n",
 	function_arg_footer => "\t\t\t\t</section> <!-- function_arg_footer: %s -->\n",
-	function_argerror_header => "\t\t\t\t\t<section id='lua_fn_argerr_%s'>\n\t\t\t\t\t<title>Errors</title><itemizedlist>\n",
-	function_argerror => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_argerror_footer => "\t\t\t\t\t</section> <!-- function_argerror_footer: %s -->\n",
+	function_argerror_header => "\t\t\t\t\t<section id='lua_fn_argerr_%s'>\n\t\t\t\t\t\t<title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
+	function_argerror => "\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_argerror_footer => "\t\t\t\t\t\t</itemizedlist>\n\t\t\t\t\t</section> <!-- function_argerror_footer: %s -->\n",
 	function_returns_header => "\t\t\t\t<section id='lua_fn_ret_%s'><title>Returns</title>\n",
 	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
 	function_returns => "\t\t\t\t\t<para>%s</para>\n",
-	function_errors_header => "\t\t\t\t<section id='lua_fn_err_%s'>\n\t\t\t\t\t<title>Errors</title><itemizedlist>\n",
-	function_error => "\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_error_footer => "\t\t\t\t</section> <!-- function_error_footer: %s -->\n",
-	non_method_functions_header => "<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
-	non_method_functions_footer => "<!-- Non method --></section>\n",
+	function_errors_header => "\t\t\t\t<section id='lua_fn_err_%s'>\n\t\t\t\t\t<title>Errors</title>\n\t\t\t\t\t<itemizedlist>\n",
+	function_errors => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_errors_footer => "\t\t\t\t\t</itemizedlist>\n\t\t\t\t</section> <!-- function_error_footer: %s -->\n",
+	non_method_functions_header => "\t\t<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
+	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
 };
 
 my $wiki_template = {
@@ -377,6 +377,8 @@ while ( $file =  shift) {
 		for my $f (@functions) {
 			function_descr($f);
 		}
+		
+		print D ${$template_ref}{non_method_functions_footer};
 	}
 
 	%classes = ();
@@ -420,9 +422,9 @@ sub function_descr {
 		printf D ${$template_ref}{function_arg_descr}, ${$arg}{descr} , ${$arg}{descr} if ${$arg}{descr};
 
 		if ( $#{${$arg}{errors}} >= 0) {
-			printf D ${$template_ref}{function_argerrors_header}, $argname, $argname;
+			printf D ${$template_ref}{function_argerror_header}, $argname, $argname;
 			printf D ${$template_ref}{function_argerror}, $_, $_ for @{${$arg}{errors}};
-			printf D ${$template_ref}{function_argerrors_footer}, $argname, $argname;
+			printf D ${$template_ref}{function_argerror_footer}, $argname, $argname;
 		}
 
 		printf D ${$template_ref}{function_arg_footer}, $argname, $argname;
