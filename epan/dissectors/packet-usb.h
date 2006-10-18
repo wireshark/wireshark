@@ -28,6 +28,7 @@
 typedef struct _usb_conv_info_t {
     guint16 class;		/* class for this conversation */
     emem_tree_t *transactions;
+    void *masstorage;           /* mass storage data */
 } usb_conv_info_t;
 
 /* there is one such structure for each request/response */
@@ -52,6 +53,14 @@ typedef struct _usb_trans_info_t {
      */
     usb_conv_info_t *interface_info;
 } usb_trans_info_t;
+
+
+/* This is the endpoint number user for "no endpoint" or the fake endpoint 
+ * for the host side since we need two endpoints to manage conversations
+ * properly.
+ */
+#define NO_ENDPOINT 0xffff
+
 
 #define IF_CLASS_UNKNOWN		0xffff
 #define IF_CLASS_MASSTORAGE		0x08
