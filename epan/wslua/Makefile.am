@@ -99,7 +99,7 @@ wslua.h: declare_wslua.h
 
 register_wslua.c: declare_wslua.h
 
-declare_wslua.h: make-reg.pl $(wslua_modules) taps.c-inc
+declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
 	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
 
 doc: make-doc.pl $(wslua_modules)

@@ -27,7 +27,7 @@
 if (gui_enabled()) then 
 	local function evaluate_lua()
 		local w = TextWindow.new("Evaluate Lua")
-		w:set_editable(TRUE)
+		w:set_editable()
 
 		function eval()
 			local text = string.gsub(w:get_text(),"%c*--%[%[.*--%]%]$","")
@@ -61,11 +61,11 @@ if (gui_enabled()) then
 			debug = debug
 		}
 
-		function critical(txt)  w:append( "CRITICAL: " .. txt .. "\n") end
-		function warn(txt)  w:append( "WARN: " .. txt .. "\n") end
-		function message(txt)  w:append( "MESSAGE: " .. txt .. "\n") end
-		function info(txt)  w:append( "INFO: " .. txt .. "\n") end
-		function debug(txt)  w:append( "DEBUG: " .. txt .. "\n") end
+		function critical(x)  w:append( os.date() .. " CRITICAL: " .. tostring(x) .. "\n") end
+		function warn(x)  w:append( os.date() .. " WARN: " .. tostring(x) .. "\n") end
+		function message(x)  w:append( os.date() .. " MESSAGE: " .. tostring(x) .. "\n") end
+		function info(x)  w:append( os.date() .. " INFO: " .. tostring(x) .. "\n") end
+		function debug(x)  w:append( os.date() .. " DEBUG: " .. tostring(x) .. "\n") end
 
 		function at_close()
 			critical = orig.critical
@@ -78,8 +78,9 @@ if (gui_enabled()) then
 		end
 
 		w:set_atclose(at_close)
+		info("Console opened")
 	end
 
-	register_menu("Evaluate Lua",evaluate_lua,MENU_TOOLS)
-	register_menu("Lua Console",run_console,MENU_TOOLS)
+	register_menu("Lua/Evaluate",evaluate_lua,MENU_TOOLS)
+	register_menu("Lua/Console",run_console,MENU_TOOLS)
 end
