@@ -490,7 +490,7 @@ get_runtime_version_info(GString *str)
 #ifdef __IBMC__
 	if ((__IBMC__ % 10) != 0)
 		g_string_sprintfa(str, " patch %d", __IBMC__ % 10);
-#endif /* IBMC */
+#endif /* __IBMC__ */
 	g_string_sprintfa(str, "\n");
 #elif defined(__INTEL_COMPILER)
 	g_string_sprintfa(str, "\nBuilt using Intel C %d.%d",
