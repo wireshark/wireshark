@@ -469,7 +469,7 @@ get_runtime_version_info(GString *str)
 	g_string_append(str, ".");
 
 	/* Compiler info */
-	
+
 	/*
 	 * See http://predef.sourceforge.net/precomp.html for
 	 * information on various defined strings.
@@ -481,11 +481,11 @@ get_runtime_version_info(GString *str)
 	 * string, we should probably prettify the number somehow.
 	 */
 #if defined(__GNUC__) && defined(__VERSION__)
-	g_string_sprintfa(str, "\nBuilt using gcc %s.\n", __VERSION__);
+	g_string_sprintfa(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
 #elif defined(__HP_aCC)
-	g_string_sprintfa(str, "\nBuilt using HP aCC %d.\n", __HP_aCC);
+	g_string_sprintfa(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
 #elif defined(__xlC__)
-	g_string_sprintfa(str, "\nBuilt using IBM XL C %d.%d\n",
+	g_string_sprintfa(str, "\n\nBuilt using IBM XL C %d.%d\n",
 	    (__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
 #ifdef __IBMC__
 	if ((__IBMC__ % 10) != 0)
@@ -493,7 +493,7 @@ get_runtime_version_info(GString *str)
 #endif /* __IBMC__ */
 	g_string_sprintfa(str, "\n");
 #elif defined(__INTEL_COMPILER)
-	g_string_sprintfa(str, "\nBuilt using Intel C %d.%d",
+	g_string_sprintfa(str, "\n\nBuilt using Intel C %d.%d",
 	    __INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
 	if ((__INTEL_COMPILER % 10) != 0)
 		g_string_sprintfa(str, " patch %d", __INTEL_COMPILER % 10);
@@ -502,37 +502,37 @@ get_runtime_version_info(GString *str)
 	    __INTEL_COMPILER_BUILD_DATE / 10000,
 	    (__INTEL_COMPILER_BUILD_DATE / 100) % 100,
 	    __INTEL_COMPILER_BUILD_DATE % 100);
-#endif /* __INTEL_COMPILER_BUILD_DATE */ 
+#endif /* __INTEL_COMPILER_BUILD_DATE */
 	g_string_sprintfa(str, "\n");
 #elif defined(_MSC_FULL_VER)
 	if (_MSC_FULL_VER > 99999999) {
-		g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d",
-		    (_MSC_FULL_VER / 1000000000) - 7,
-		    (_MSC_FULL_VER / 10000000) % 100);
-		if ((_MSC_FULL_VER % 100000) != 0
+		g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+		    (_MSC_FULL_VER / 10000000) - 6,
+		    (_MSC_FULL_VER / 100000) % 100);
+		if ((_MSC_FULL_VER % 100000) != 0)
 			g_string_sprintfa(str, " patch %d",
 			    _MSC_FULL_VER % 100000);
 	} else {
-		g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d",
-		    (_MSC_FULL_VER / 100000000) - 7,
-		    (_MSC_FULL_VER / 1000000) % 100);
-		if ((_MSC_FULL_VER % 10000) != 0
+		g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+		    (_MSC_FULL_VER / 1000000) - 6,
+		    (_MSC_FULL_VER / 10000) % 100);
+		if ((_MSC_FULL_VER % 10000) != 0)
 			g_string_sprintfa(str, " patch %d",
 			    _MSC_FULL_VER % 10000);
 	}
 	g_string_sprintfa(str, "\n");
 #elif defined(_MSC_VER)
 	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
-	g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d\n",
+	g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
 	    (_MSC_VER / 100) - 7, _MSC_VER % 100);
 #elif defined(__SUNPRO_C)
-	g_string_sprintfa(str, "\nBuilt using Sun C %d.%d",
+	g_string_sprintfa(str, "\n\nBuilt using Sun C %d.%d",
 	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
 	if ((__SUNPRO_C & 0xF) != 0)
 		g_string_sprintfa(str, " patch %d", __SUNPRO_C & 0xF);
 	g_string_sprintfa(str, "\n");
 #endif
-	
+
 	end_string(str);
 }
 
