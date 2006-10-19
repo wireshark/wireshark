@@ -79,6 +79,10 @@ EXTRA_DIST = \
 	Makefile.nmake		
 
 scanner.c : scanner.l
+	@if [ ! -x "$(LEX)" ]; then \
+		echo "Neither lex nor flex was found"; \
+		exit 1; \
+	fi
 	$(LEX) -Pdf_ -oscanner.c $(srcdir)/scanner.l
 
 scanner.o : scanner.c grammar.h

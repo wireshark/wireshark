@@ -57,4 +57,8 @@ EXTRA_DIST = \
 AM_YFLAGS=-d -p ascend
 
 ascend-scanner.c : ascend-scanner.l
+	@if [ ! -x "$(LEX)" ]; then \
+		echo "Neither lex nor flex was found"; \
+		exit 1; \
+	fi
 	$(LEX) -Pascend -oascend-scanner.c $(srcdir)/ascend-scanner.l
