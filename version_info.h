@@ -48,6 +48,12 @@ void get_compiled_version_info(GString *str,
     void (*additional_info)(GString *));
 
 /*
+ * Get compile-time information used only by applications that use
+ * libethereal.
+ */
+void get_epan_compiled_version_info(GString *str);
+
+/*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
  */

@@ -882,7 +882,7 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL);
+  get_compiled_version_info(comp_info_str, get_epan_compiled_version_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");

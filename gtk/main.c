@@ -2003,9 +2003,12 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 }
 
 static void
-portaudio_info(GString *str)
+get_epan_and_portaudio_version_info(GString *str)
 {
+  get_epan_compiled_version_info(str);
+
 #ifdef HAVE_LIBPORTAUDIO
+  g_string_append(str, ", ");
 #ifdef PORTAUDIO_API_1
   g_string_append(str, "with PortAudio <= V18");
 #else /* PORTAUDIO_API_1 */
@@ -2120,7 +2123,7 @@ main(int argc, char *argv[])
 #endif
   g_string_append(comp_info_str, ", ");
 
-  get_compiled_version_info(comp_info_str, portaudio_info);
+  get_compiled_version_info(comp_info_str, get_epan_and_portaudio_version_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");

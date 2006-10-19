@@ -89,14 +89,26 @@
 #endif
 
 /*
- * See whether the last line in the string goes past column 80; if so,
- * replace the blank at the specified point with a newline.
+ * Add a word wrap break point, and return its index.
+ */
+static gint
+add_word_wrap_break_point(GString *str)
+{
+	g_string_append(str, " ");
+	return str->len - 1;
+}
+
+/*
+ * Add punctuation at the end of a phrase, and see whether the last line in
+ * the string goes past column 80; if so, replace the blank at the specified
+ * point with a newline.
  */
 static void
-do_word_wrap(GString *str, gint point)
+end_item_and_break(GString *str, char *punct, gint point)
 {
 	char *line_begin;
 
+	g_string_append(str, punct);
 	line_begin = strrchr(str->str, '\n');
 	if (line_begin == NULL)
 		line_begin = str->str;
@@ -145,15 +157,12 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 	    "GLib (version unknown),");
 #endif
 
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 	get_compiled_pcap_version(str);
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* LIBZ */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_LIBZ
 	g_string_append(str, "with libz ");
 #ifdef ZLIB_VERSION
@@ -164,11 +173,35 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #else /* HAVE_LIBZ */
 	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+
+	/* Additional application-dependent information */
+	if (additional_info) {
+		end_item_and_break(str, ",", break_point);
+		break_point = add_word_wrap_break_point(str);
+		(*additional_info)(str);
+	}
+	end_item_and_break(str, ".", break_point);
+
+#ifndef HAVE_LIBPCRE
+	break_point = str->len - 1;
+	g_string_append(str,
+	"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter syntax");
+	end_item_and_break(str, ".", break_point);
+#endif	/* HAVE_LIBPCRE */
+
+	end_string(str);
+}
+
+/*
+ * Get compile-time information used only by applications that use
+ * libethereal.
+ */
+void
+get_epan_compiled_version_info(GString *str)
+{
+	gint break_point;
 
         /* PCRE */
-	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef HAVE_LIBPCRE
 	g_string_append(str, "with libpcre ");
@@ -185,14 +218,12 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, "without libpcre");
 #endif	/* HAVE_LIBPCRE */
 
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* SNMP */
 /* Oh, this is pretty. */
 /* Oh, ha.  you think that was pretty.  Try this:! --Wes */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_UCD_SNMP
@@ -208,58 +239,48 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #else /* no SNMP library */
 	g_string_append(str, "without UCD-SNMP or Net-SNMP");
 #endif /* HAVE_SOME_SNMP */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* ADNS */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_GNU_ADNS
 	g_string_append(str, "with ADNS");
 #else
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* LUA */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_LUA
 	g_string_append(str, "with ");
 	g_string_append(str, LUA_VERSION);
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* GnuTLS */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_LIBGNUTLS
 	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
 #else
 	g_string_append(str, "without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* Gcrypt */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_LIBGCRYPT
 	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
 #else
 	g_string_append(str, "without Gcrypt");
 #endif /* HAVE_LIBGCRYPT */
-	g_string_append(str, ",");
-	do_word_wrap(str, break_point);
+	end_item_and_break(str, ",", break_point);
 
         /* Kerberos */
         /* XXX - I don't see how to get the version number, at least for KfW */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
+	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_KERBEROS
 #ifdef HAVE_MIT_KERBEROS
 	g_string_append(str, "with MIT Kerberos");
@@ -270,27 +291,6 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #else
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
-
-	/* Additional application-dependent information */
-	if (additional_info) {
-		g_string_append(str, ",");
-		do_word_wrap(str, break_point);
-		g_string_append(str, " ");
-		break_point = str->len - 1;
-		(*additional_info)(str);
-	}
-	g_string_append(str, ".");
-	do_word_wrap(str, break_point);
-
-#ifndef HAVE_LIBPCRE
-	break_point = str->len - 1;
-	g_string_append(str,
-			"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
-			"\nsyntax.");
-	do_word_wrap(str, break_point);
-#endif	/* HAVE_LIBPCRE */
-
-	end_string(str);
 }
 
 /*
@@ -524,7 +524,7 @@ get_runtime_version_info(GString *str)
 #elif defined(_MSC_VER)
 	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
 	g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
-	    (_MSC_VER / 100) - 7, _MSC_VER % 100);
+	    (_MSC_VER / 100) - 6, _MSC_VER % 100);
 #elif defined(__SUNPRO_C)
 	g_string_sprintfa(str, "\n\nBuilt using Sun C %d.%d",
 	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
