@@ -886,7 +886,7 @@ main(int argc, char *argv[])
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str);
+  get_runtime_version_info(runtime_info_str, NULL);
 
   /* Print format defaults to this. */
   print_format = PR_FMT_TEXT;

@@ -298,8 +298,10 @@ get_epan_compiled_version_info(GString *str)
  * them to the specified GString.
  */
 void
-get_runtime_version_info(GString *str)
+get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 {
+	gint break_point;
+
 #if defined(_WIN32)
 	OSVERSIONINFO info;
 #elif defined(HAVE_SYS_UTSNAME_H)
@@ -462,11 +464,16 @@ get_runtime_version_info(GString *str)
 	g_string_append(str, "an unknown OS");
 #endif
 
-	g_string_append(str, " ");
+	break_point = add_word_wrap_break_point(str);
 
-	get_runtime_pcap_version(str);
+	/* Additional application-dependent information */
+	if (additional_info) {
+		end_item_and_break(str, ",", break_point);
+		break_point = add_word_wrap_break_point(str);
+		(*additional_info)(str);
+	}
 
-	g_string_append(str, ".");
+	end_item_and_break(str, ".", break_point);
 
 	/* Compiler info */
 

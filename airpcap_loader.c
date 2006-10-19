@@ -53,7 +53,7 @@
  * We load dinamically the dag library in order link it only when
  * it's present on the system
  */
-static HMODULE AirpcapLib;
+static HMODULE AirpcapLib = NULL;
 
 static AirpcapGetLastErrorHandler g_PAirpcapGetLastError;
 static AirpcapGetDeviceListHandler g_PAirpcapGetDeviceList;
@@ -82,6 +82,7 @@ static AirpcapSetDeviceKeysHandler g_PAirpcapSetDeviceKeys;
 static AirpcapGetDecryptionStateHandler g_PAirpcapGetDecryptionState;
 static AirpcapSetDecryptionStateHandler g_PAirpcapSetDecryptionState;
 static AirpcapStoreCurConfigAsAdapterDefaultHandler g_PAirpcapStoreCurConfigAsAdapterDefault;
+static AirpcapGetVersionHandler g_PAirpcapGetVersion;
 
 /* Airpcap interface list */
 GList *airpcap_if_list = NULL;
@@ -1674,8 +1675,37 @@ BOOL load_airpcap(void)
   if((g_PAirpcapGetDecryptionState = (AirpcapGetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDecryptionState")) == NULL) return FALSE;
   if((g_PAirpcapSetDecryptionState = (AirpcapSetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDecryptionState")) == NULL) return FALSE;
   if((g_PAirpcapStoreCurConfigAsAdapterDefault = (AirpcapStoreCurConfigAsAdapterDefaultHandler) GetProcAddress(AirpcapLib, "AirpcapStoreCurConfigAsAdapterDefault")) == NULL) return FALSE;
+  if((g_PAirpcapGetVersion = (AirpcapGetVersionHandler) GetProcAddress(AirpcapLib, "AirpcapGetVersion")) == NULL) return FALSE;
   return TRUE;
  }
+}
+
+/*
+ * Append the version of AirPcap with which we were compiled to a GString.
+ */
+void
+get_compiled_airpcap_version(GString *str)
+{
+	g_string_append(str, "with AirPcap");
+}
+
+/*
+ * Append the version of AirPcap with which we we're running to a GString.
+ */
+void
+get_runtime_airpcap_version(GString *str)
+{
+	guint vmaj, vmin, vrev, build;
+
+	/* See if the DLL has been loaded successfully.  Bail if it hasn't */
+	if (AirpcapLib == NULL || g_PAirpcapGetVersion == NULL) {
+		g_string_append(str, "without AirPcap");
+		return;
+	}
+
+	g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
+	g_string_sprintfa(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
+		vrev, build);
 }
 
 #endif /* _WIN32 */

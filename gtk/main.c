@@ -2003,7 +2003,7 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 }
 
 static void
-get_epan_and_portaudio_version_info(GString *str)
+get_gui_compiled_info(GString *str)
 {
   get_epan_compiled_version_info(str);
 
@@ -2018,6 +2018,24 @@ get_epan_and_portaudio_version_info(GString *str)
 #else /* HAVE_LIBPORTAUDIO */
   g_string_append(str, "without PortAudio");
 #endif /* HAVE_LIBPORTAUDIO */
+
+  g_string_append(str, ", ");
+
+#ifdef HAVE_AIRPCAP
+  get_compiled_airpcap_version(str);
+#else
+  g_string_append(str, "without AirPcap");
+#endif
+}
+
+static void
+get_gui_runtime_info(GString *str)
+{
+#ifdef HAVE_AIRPCAP
+  get_runtime_airpcap_version(str);
+#else
+  g_string_append(str, "without AirPcap");
+#endif
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -2106,6 +2124,26 @@ main(int argc, char *argv[])
   /* ... and also load the packet.dll from wpcap */
   wpcap_packet_load();
 
+#ifdef HAVE_AIRPCAP
+   /* Load the airpcap.dll.  This must also be done before collecting
+    * run-time version information. */
+  if(load_airpcap())
+	{
+	/* load the airpcap interfaces */
+	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+
+	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                  cant_get_if_list_errstr);
+    g_free(cant_get_if_list_errstr);
+	}
+
+	/* select the first ad default (THIS SHOULD BE CHANGED) */
+	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+	}
+#endif
+
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
@@ -2123,11 +2161,11 @@ main(int argc, char *argv[])
 #endif
   g_string_append(comp_info_str, ", ");
 
-  get_compiled_version_info(comp_info_str, get_epan_and_portaudio_version_info);
+  get_compiled_version_info(comp_info_str, get_gui_compiled_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str);
+  get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
 
   /* "pre-scan" the command line parameters, if we have "console only"
@@ -2323,25 +2361,6 @@ main(int argc, char *argv[])
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
-
-#ifdef HAVE_AIRPCAP
-   /* Load the airpcap.dll */
-  if(load_airpcap())
-	{
-	/* load the airpcap interfaces */
-	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
-
-	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                  cant_get_if_list_errstr);
-    g_free(cant_get_if_list_errstr);
-	}
-
-	/* select the first ad default (THIS SHOULD BE CHANGED) */
-	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
-	}
-#endif
 
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
@@ -3732,7 +3751,7 @@ for(i = 0; i < n; i++)
     	{
     	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
    		if(ad)
-            {                                                                                     
+            {
             curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
         	airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
         	/* Save configuration for the curr_if */
@@ -3803,7 +3822,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     		  *channel_cm,
     		  *wrong_crc_lb,
     		  *wrong_crc_cm;
-                  
+
     GtkWidget *enable_decryption_lb;
     GtkWidget *enable_decryption_cb;
     GList     *enable_decryption_cb_items = NULL;
@@ -4055,7 +4074,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show (enable_decryption_lb);
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
     NULL, "Private");
-        
+
     enable_decryption_cb = gtk_combo_new ();
     gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
     gtk_widget_show (enable_decryption_cb);
@@ -4069,16 +4088,16 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
     gtk_combo_set_popdown_strings (GTK_COMBO (enable_decryption_cb), enable_decryption_cb_items);
     g_list_free (enable_decryption_cb_items);
-    
+
     enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
     gtk_widget_set_name (enable_decryption_en, "enable_decryption_en");
     gtk_widget_show (enable_decryption_en);
     gtk_editable_set_editable (GTK_EDITABLE (enable_decryption_en), FALSE);
     GTK_WIDGET_UNSET_FLAGS (enable_decryption_en, GTK_CAN_FOCUS);
-    
+
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_cb,
         "Choose a Decryption Mode", "Private");
-   
+
     /* Set current decryption mode!!!! */
     update_decryption_mode_cm(enable_decryption_cb);
     SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, airpcap_tb);
@@ -4129,7 +4148,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
 		recent.airpcap_toolbar_show = TRUE;
         }
-        
+
 #endif
 
     /* filter toolbar */
@@ -4277,7 +4296,7 @@ show_main_window(gboolean doing_work)
 
   /*** we have finished all init things, show the main window ***/
   gtk_widget_show(top_level);
-  
+
   /* the window can be maximized only, if it's visible, so do it after show! */
   main_load_window_geometry(top_level);
 
@@ -4287,10 +4306,10 @@ show_main_window(gboolean doing_work)
   /* Pop up any queued-up alert boxes. */
   display_queued_messages();
 
-#ifdef HAVE_AIRPCAP  
-/* 
- * This will read the decryption keys from the preferences file, and will store 
- * them into the registry... 
+#ifdef HAVE_AIRPCAP
+/*
+ * This will read the decryption keys from the preferences file, and will store
+ * them into the registry...
  */
 if(!airpcap_check_decryption_keys(airpcap_if_list))
     {
@@ -4299,7 +4318,7 @@ if(!airpcap_check_decryption_keys(airpcap_if_list))
     }
 else /* Keys from lists are equals, or wireshark has got no keys */
     {
-    airpcap_load_decryption_keys(airpcap_if_list);    
+    airpcap_load_decryption_keys(airpcap_if_list);
     }
 #endif
 }

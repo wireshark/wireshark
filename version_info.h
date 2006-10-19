@@ -57,7 +57,8 @@ void get_epan_compiled_version_info(GString *str);
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
  */
-void get_runtime_version_info(GString *str);
+void get_runtime_version_info(GString *str,
+    void (*additional_info)(GString *));
 
 /*
  * Get copyright information.

@@ -76,6 +76,7 @@ typedef BOOL (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpc
 typedef BOOL (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 typedef BOOL (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 typedef BOOL (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
+typedef VOID (*AirpcapGetVersionHandler)(PUINT VersionMajor, PUINT VersionMinor, PUINT VersionRev, PUINT VersionBuild);
 /*
  * The list of interfaces returned by "get_airpcap_interface_list()" is
  * a list of these structures.
@@ -104,7 +105,7 @@ typedef struct {
 typedef struct {
    GList *list;
    int current_index;
-   int number_of_keys; 
+   int number_of_keys;
 } keys_cb_data_t;
 
 /*
@@ -114,7 +115,7 @@ typedef struct {
     GString *key;
     GString *ssid;
     guint   bits;
-    guint   type; 
+    guint   type;
 } decryption_key_t;
 
 /* Airpcap interface list */
@@ -133,13 +134,13 @@ extern airpcap_if_info_t *airpcap_if_active;
  * Function used to read the Decryption Keys from the preferences and store them
  * properly into the airpcap adapter.
  */
-BOOL 
+BOOL
 load_wlan_wep_keys(airpcap_if_info_t* info_if);
 
-/* 
+/*
  *  Function used to save to the prefereces file the Decryption Keys.
  */
-BOOL 
+BOOL
 save_wlan_wep_keys(airpcap_if_info_t* info_if);
 
 /*
@@ -374,7 +375,7 @@ get_airpcap_device_keys(airpcap_if_info_t* if_info);
 
 /*
  * Returns the list of the decryption keys specified for wireshark, NULL if
- * no key is found 
+ * no key is found
  */
 GList*
 get_wireshark_keys();
@@ -395,7 +396,7 @@ merge_key_list(GList* list1, GList* list2);
 
 /*
  * If the given key is contained in the list, returns TRUE.
- * Returns FALSE otherwise. 
+ * Returns FALSE otherwise.
  */
 gboolean
 key_is_in_list(decryption_key_t *dk,GList *list);
@@ -407,7 +408,7 @@ gboolean
 keys_are_equals(decryption_key_t *k1,decryption_key_t *k2);
 
 /*
- * Use this function to free a key list. 
+ * Use this function to free a key list.
  */
 void
 free_key_list(GList *list);
@@ -435,5 +436,14 @@ set_wireshark_decryption(gboolean on_off);
  */
 gboolean
 set_airpcap_decryption(gboolean on_off);
+
+/*
+ * Adds compiled version string to str
+ */
+void
+get_compiled_airpcap_version(GString *str);
+
+void
+get_runtime_airpcap_version(GString *str);
 
 #endif
