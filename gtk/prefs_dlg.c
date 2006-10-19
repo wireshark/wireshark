@@ -59,6 +59,12 @@
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
+#ifdef HAVE_AIRPCAP
+#include "airpcap.h"
+#include "airpcap_loader.h"
+#include "airpcap_gui_utils.h"
+#endif
+
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
@@ -1277,6 +1283,14 @@ prefs_main_write(void)
        g_free(pf_path);
     }
   }
+
+#ifdef HAVE_AIRPCAP
+/* 
+ * Load the Wireshark decryption keys (just set) and save 
+ * the changes to the adapters' registry 
+ */ 
+airpcap_load_decryption_keys(airpcap_if_list);
+#endif
 }
 
 

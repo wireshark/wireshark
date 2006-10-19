@@ -35,10 +35,19 @@
 #define AIRPCAP_CHANNEL_ANY_NAME "ANY"
 
 /*
- * WEP_KEY_MAX_SIZE is in bytes. but each byte is rapresented in strings with an ascii char
+ * WEP_KEY_MAX_SIZE is in bytes, but each byte is rapresented in strings with an ascii char
  * 4 bit are needed to store an exadecimal number, 8 bit to store a char...
  */
 #define WEP_KEY_MAX_CHAR_SIZE (WEP_KEY_MAX_SIZE*2)
+
+/*
+ * WEP_KEY_MAX_SIZE is in bytes, this is in bits...
+ */
+#define WEP_KEY_MAX_BIT_SIZE (WEP_KEY_MAX_SIZE*8)
+
+#define AIRPCAP_WEP_KEY_STRING  "WEP"
+#define AIRPCAP_WPA_KEY_STRING  "WPA"
+#define AIRPCAP_WPA2_KEY_STRING "WPA2"
 
 typedef PCHAR (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
 typedef BOOL (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, PCHAR Ebuf);
@@ -89,6 +98,25 @@ typedef struct {
 	gint					tag;				/* int for the gtk blinking callback */
 } airpcap_if_info_t;
 
+/*
+ * Struct used to store infos to pass to the preferences manager callbacks
+ */
+typedef struct {
+   GList *list;
+   int current_index;
+   int number_of_keys; 
+} keys_cb_data_t;
+
+/*
+ * Struct to store infos about a specific decryption key.
+ */
+typedef struct {
+    GString *key;
+    GString *ssid;
+    guint   bits;
+    guint   type; 
+} decryption_key_t;
+
 /* Airpcap interface list */
 extern GList *airpcap_if_list;
 
@@ -97,6 +125,33 @@ extern airpcap_if_info_t *airpcap_if_selected;
 
 /* Airpcap current active interface */
 extern airpcap_if_info_t *airpcap_if_active;
+
+/* WLAN preferences pointer */
+//extern module_t *wlan_prefs;
+
+/*
+ * Function used to read the Decryption Keys from the preferences and store them
+ * properly into the airpcap adapter.
+ */
+BOOL 
+load_wlan_wep_keys(airpcap_if_info_t* info_if);
+
+/* 
+ *  Function used to save to the prefereces file the Decryption Keys.
+ */
+BOOL 
+save_wlan_wep_keys(airpcap_if_info_t* info_if);
+
+/*
+ * This function will tell the airpcap driver the key list to use
+ * This will be stored into the registry...
+ */
+gboolean
+write_wlan_wep_keys_to_regitry(airpcap_if_info_t* info_if, GList* key_list);
+
+/* Returs TRUE if the WEP key is valid, false otherwise */
+gboolean
+wep_key_is_valid(char* key);
 
 /*
  * Callback used to free an instance of airpcap_if_info_t
@@ -300,4 +355,85 @@ airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection 
  */
 BOOL
 airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+
+/*
+ * DECRYPTION KEYS FUNCTIONS
+ */
+/*
+ * This function is used for DEBUG PURPOSES ONLY!!!
+ */
+void
+print_key_list(GList* key_list);
+
+/*
+ * Retrieves a GList of decryption_key_t structures containing infos about the
+ * keys for the given adapter... returns NULL if no keys are found.
+ */
+GList*
+get_airpcap_device_keys(airpcap_if_info_t* if_info);
+
+/*
+ * Returns the list of the decryption keys specified for wireshark, NULL if
+ * no key is found 
+ */
+GList*
+get_wireshark_keys();
+
+/*
+ * Tests if two collection of keys are equal or not, to be considered equals, they have to
+ * contain the same keys in the SAME ORDER! (If both lists are NULL, which means empty will
+ * return TRUE)
+ */
+gboolean
+key_lists_are_equal(GList* list1, GList* list2);
+
+/*
+ * Merges two lists of keys. If a key is found multiple times, it will just appear once!
+ */
+GList*
+merge_key_list(GList* list1, GList* list2);
+
+/*
+ * If the given key is contained in the list, returns TRUE.
+ * Returns FALSE otherwise. 
+ */
+gboolean
+key_is_in_list(decryption_key_t *dk,GList *list);
+
+/*
+ * Returns TRUE if keys are equals, FALSE otherwise
+ */
+gboolean
+keys_are_equals(decryption_key_t *k1,decryption_key_t *k2);
+
+/*
+ * Use this function to free a key list. 
+ */
+void
+free_key_list(GList *list);
+
+/*
+ * Returns TRUE if the Wireshark decryption is active, false otherwise
+ */
+gboolean
+wireshark_decryption_on();
+
+/*
+ * Returns TRUE if the AirPcap decryption is active, false otherwise
+ */
+gboolean
+airpcap_decryption_on();
+
+/*
+ * Enables decryption for Wireshark if on_off is TRUE, disables it otherwise.
+ */
+void
+set_wireshark_decryption(gboolean on_off);
+
+/*
+ * Enables decryption for all the adapters if on_off is TRUE, disables it otherwise.
+ */
+gboolean
+set_airpcap_decryption(gboolean on_off);
+
 #endif

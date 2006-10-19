@@ -37,6 +37,31 @@
 #define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO	"802.11 + Radio"
 #define AIRPCAP_LINK_TYPE_NAME_UNKNOWN					"Unknown"
 
+#define AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK "Wireshark"
+#define AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP   "AirPcap"
+#define AIRPCAP_DECRYPTION_TYPE_STRING_NONE      "None"
+
+#define NO_ROW_SELECTED -1
+#define NO_COLUMN_SELECTED -1
+
+/*
+ * This structure is used because we need to store infos about the currently selected 
+ * row in the key list. 
+ */
+typedef struct{
+gint row;
+gint column;
+}airpcap_key_ls_selected_info_t;
+
+/*
+ * Used to retrieve a string containing a list of all the channels
+ * on which at least one adapter is capturing. This is true
+ * if the adapter passed as parameter is "Any" ... if not,
+ * this function returns the only channel number string.
+ */
+gchar*
+airpcap_get_all_channels_list(airpcap_if_info_t* if_info);
+
 /*
  * set up the airpcap toolbar for the new capture interface
  */
@@ -53,7 +78,13 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info);
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkWidget *keylist, gchar* s);
+airpcap_add_key_to_list(GtkWidget *keylist, gchar* type, gchar* key, gchar* ssid);
+
+/*
+ * Modify a key given a list and a row
+ */
+void
+airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key, gchar* ssid);
 
 /*
  * Fill the list with the keys
@@ -134,9 +165,45 @@ int
 airpcap_if_is_any(airpcap_if_info_t* if_info);
 
 /*
+ * Takes the keys from the GtkList widget, and add them to the interface list
+ */
+void 
+airpcap_add_keys_from_list(GtkWidget *w, airpcap_if_info_t *if_info);
+
+/*
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
 void
 airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info);
+
+/*
+ * This function will take the current keys (widget list), specified for the
+ * current adapter, and save them as default for ALL the others.
+ */
+void
+airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_info_t* info_if, GList* if_list);
+
+/*
+ * This function will load from the preferences file ALL the
+ * keys (WEP, WPA and WPA2) and will set them as default for 
+ * each adapter. To do this, it will save the keys in the registry...
+ */
+void
+airpcap_load_decryption_keys(GList* if_list);
+
+/*
+ * This function will load from the preferences file ALL the
+ * keys (WEP, WPA and WPA2) and will set them as default for 
+ * each adapter. To do this, it will save the keys in the registry...
+ */
+gboolean
+airpcap_check_decryption_keys(GList* if_list);
+
+/*
+ * This function will set the gibven GList of decryption_key_t structures 
+ * as the defoult for both Wireshark and the AirPcap adapters...
+ */
+void
+airpcap_save_decryption_keys(GList* key_list, GList* adapters_list);
 
 #endif

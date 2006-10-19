@@ -157,7 +157,8 @@ Wireshark Info
         <listitem><para>
         <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>,
         support (which provides raw mode capture under Windows) has been
-        enhanced.
+        enhanced to allow capturing on multiple AirPcap adapters
+        simultaneously using the Multi-Channel Aggregator.
         </para></listitem>
 
         <listitem><para>

@@ -87,7 +87,7 @@ typedef struct _AirpcapDeviceDescription
 
 #define WEP_KEY_MAX_SIZE 32		/* Maximum size of a WEP key, in bytes. This is the size of an entry in the */
 								/* AirpcapWepKeysCollection structure */
-
+								
 #ifndef __MINGW32__
 #pragma pack(push)
 #pragma pack(1)

@@ -53,6 +53,48 @@
 #include "keys.h"
 
 /*
+ * Used to retrieve a string containing a list of all the channels
+ * on which at least one adapter is capturing. This is true
+ * if the adapter passed as parameter is "Any" ... if not,
+ * this function returns the only channel number string.
+ */
+gchar*
+airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
+{
+gchar *channels;
+gchar *tmp;
+guint n,i; 
+GList *current_item;
+airpcap_if_info_t* current_adapter;
+
+/* Allocate the string used to store the ASCII representation of the WEP key */
+channels = (gchar*)g_malloc(sizeof(gchar)*128);
+/* Make sure that the first char is '\0' in order to make g_strlcat() work */
+channels[0]='\0';
+
+if(airpcap_if_is_any(if_info))
+    {
+    n = g_list_length(airpcap_if_list);
+        
+    for(i = 0; i < n; i++)
+        {
+        current_item = g_list_nth(airpcap_if_list,i);
+        current_adapter = (airpcap_if_info_t*)current_item->data;
+        if(current_adapter != if_info)
+            {
+            tmp = g_strdup_printf("%d",current_adapter->channel);
+            g_strlcat(channels,tmp,128);
+            g_free(tmp);
+            
+            if(i<(n-1)) g_strlcat(channels,",",128);  
+            }
+        }       
+    }
+    
+return channels;
+}
+
+/*
  * Set up the airpcap toolbar for the new capture interface
  */
 void
@@ -63,14 +105,16 @@ GtkWidget *airpcap_toolbar_label;
 GtkWidget *airpcap_toolbar_channel;
 GtkWidget *airpcap_toolbar_button;
 GtkWidget *airpcap_toolbar_decryption;
+GtkWidget *airpcap_toolbar_keys_button;
 
 gchar *if_label_text;
 
-airpcap_toolbar_crc_filter_combo = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_WRONG_CRC_KEY);
+airpcap_toolbar_crc_filter_combo = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
 airpcap_toolbar_label    = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
 airpcap_toolbar_channel  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
 airpcap_toolbar_button   = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
 airpcap_toolbar_decryption = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+airpcap_toolbar_keys_button = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
 /* The current interface is an airpcap interface */
 if(if_info != NULL)
@@ -81,6 +125,7 @@ if(if_info != NULL)
 	gtk_widget_set_sensitive(airpcap_toolbar_crc_filter_combo,FALSE);
 	gtk_widget_set_sensitive(airpcap_toolbar_button,FALSE);
 	gtk_widget_set_sensitive(airpcap_toolbar_decryption,FALSE);
+	gtk_widget_set_sensitive(airpcap_toolbar_keys_button,FALSE);
 	airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
     airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
 
@@ -126,14 +171,16 @@ GtkWidget *airpcap_toolbar_label;
 GtkWidget *airpcap_toolbar_channel;
 GtkWidget *airpcap_toolbar_button;
 GtkWidget *airpcap_toolbar_decryption;
+GtkWidget *airpcap_toolbar_keys_button;
 
 gchar *if_label_text;
 
-airpcap_toolbar_crc_filter_combo = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_WRONG_CRC_KEY);
+airpcap_toolbar_crc_filter_combo = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
 airpcap_toolbar_label    = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
 airpcap_toolbar_channel  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
 airpcap_toolbar_button   = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
 airpcap_toolbar_decryption = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+airpcap_toolbar_keys_button = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
 /* The current interface is an airpcap interface */
 if(if_info != NULL)
@@ -144,6 +191,7 @@ if(if_info != NULL)
 	gtk_widget_set_sensitive(airpcap_toolbar_crc_filter_combo,TRUE);
 	gtk_widget_set_sensitive(airpcap_toolbar_button,TRUE);
 	gtk_widget_set_sensitive(airpcap_toolbar_decryption,TRUE);
+	gtk_widget_set_sensitive(airpcap_toolbar_keys_button,TRUE);
 	airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
     airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
 
@@ -183,18 +231,41 @@ else
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkWidget *keylist, gchar* s)
+airpcap_add_key_to_list(GtkWidget *keylist, gchar* type, gchar* key, gchar* ssid)
 {
-GtkWidget	*nl_item,*nl_lb;
 
-nl_lb   = gtk_label_new(s);
-nl_item = gtk_list_item_new();
+gchar*       new_row[3];
 
-gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
-gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
-gtk_widget_show(nl_lb);
-gtk_container_add(GTK_CONTAINER(keylist), nl_item);
-gtk_widget_show(nl_item);
+new_row[0] = g_strdup(type);
+new_row[1] = g_strdup(key);
+new_row[2] = g_strdup(ssid);
+
+gtk_clist_append(GTK_CLIST(keylist),new_row);
+
+g_free(new_row[0]);
+g_free(new_row[1]);
+g_free(new_row[2]);
+}
+
+/*
+ * Modify a key given a list and a row
+ */
+void
+airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key, gchar* ssid)
+{
+gchar*       new_row[3];
+
+new_row[0] = g_strdup(type);
+new_row[1] = g_strdup(key);
+new_row[2] = g_strdup(ssid);
+
+gtk_clist_set_text(GTK_CLIST(keylist),row,0,new_row[0]);
+gtk_clist_set_text(GTK_CLIST(keylist),row,1,new_row[1]);
+gtk_clist_set_text(GTK_CLIST(keylist),row,2,new_row[2]);
+
+g_free(new_row[0]);
+g_free(new_row[1]);
+g_free(new_row[2]);
 }
 
 /*
@@ -203,9 +274,9 @@ gtk_widget_show(nl_item);
 void
 airpcap_fill_key_list(GtkWidget *keylist,airpcap_if_info_t* if_info)
 {
-GtkWidget	 *nl_item,*nl_lb;
 gchar*		 s;
 unsigned int i,n;
+gchar*       new_row[3];
 
 n = 0;
 
@@ -214,17 +285,43 @@ n = 0;
         n = if_info->keysCollection->nKeys;
  		for(i = 0; i < if_info->keysCollection->nKeys; i++)
 			{
-			s = airpcap_get_key_string(if_info->keysCollection->Keys[i]); /* g_strdup_printf("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\0"); */
-
-			nl_lb   = gtk_label_new(s);
+			s = airpcap_get_key_string(if_info->keysCollection->Keys[i]);
+			
+			if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+			{
+            new_row[0] = g_strdup(AIRPCAP_WEP_KEY_STRING);
+			new_row[1] = g_strdup(s);
+			new_row[2] = g_strdup("");
+            }
+            else if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
+            {
+            new_row[0] = g_strdup(AIRPCAP_WPA_KEY_STRING);
+			new_row[1] = g_strdup(s);
+			/* XXX - Put here the SSID */
+			new_row[2] = g_strdup("");     
+            }
+            else if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
+            {
+            new_row[0] = g_strdup(AIRPCAP_WPA2_KEY_STRING);
+			new_row[1] = g_strdup(s);
+			/* XXX - Put here the SSID */
+			new_row[2] = g_strdup("");
+            }
+            else
+            {
+            /* This should never happen... but just in case... */
+            new_row[0] = g_strdup("");
+			new_row[1] = g_strdup("");
+			new_row[2] = g_strdup("");
+            }
+			
+			gtk_clist_append(GTK_CLIST(keylist),new_row);
+			
+			g_free(new_row[0]);
+			g_free(new_row[1]);
+			g_free(new_row[2]);
+			
 			g_free(s);
-
-			nl_item = gtk_list_item_new();
-			gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
-			gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
-			gtk_widget_show(nl_lb);
-			gtk_container_add(GTK_CONTAINER(keylist), nl_item);
-			gtk_widget_show(nl_item);
 			}
 		}
 }
@@ -410,21 +507,25 @@ airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel)
 int
 airpcap_if_is_any(airpcap_if_info_t* if_info)
 {
-if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
+if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)  
     return 1;
 else
-    return 0;
+    return 0;                                   
 }
 
 /*
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
-void
+void 
 airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
 {
+gchar* channels_list;
+                                        
 if(airpcap_if_is_any(if_info))
     {
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry)," ");
+    channels_list = airpcap_get_all_channels_list(if_info);
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),channels_list);
+    g_free(channels_list);
     gtk_widget_set_sensitive(GTK_WIDGET(w),FALSE);
     }
 else
@@ -432,6 +533,251 @@ else
     airpcap_channel_combo_set_by_number(w,if_info->channel);
     gtk_widget_set_sensitive(GTK_WIDGET(w),TRUE);
     }
+}
+
+/*
+ * Takes the keys from the GtkList widget, and add them to the interface list
+ */
+void
+airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info)
+{
+GString		*new_key;
+
+gchar		*text_entered = NULL;
+
+/* airpcap stuff */
+UINT i, j;
+gchar s[3];
+PAirpcapKeysCollection KeysCollection;
+ULONG KeysCollectionSize;
+UCHAR KeyByte;
+
+UINT keys_in_list = 0;
+
+gchar *row_type,
+      *row_key,
+      *row_ssid;
+
+keys_in_list = GTK_CLIST(key_ls)->rows;
+
+/*
+ * Save the encryption keys, if we have any of them
+ */
+KeysCollectionSize = 0;
+
+/*
+ * Calculate the size of the keys collection
+ */
+KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
+
+/*
+ * Allocate the collection
+ */
+KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
+if(!KeysCollection)
+{
+	/* Simple dialog ERROR */
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed mamory allocation for KeysCollection!");
+	return;
+}
+
+/*
+ * Populate the key collection
+ */
+KeysCollection->nKeys = keys_in_list;
+
+for(i = 0; i < keys_in_list; i++)
+{
+    /* Retrieve the row infos */
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);  
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid); 
+    
+    if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_WEP;
+    else if(g_strcasecmp(row_type,AIRPCAP_WPA_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_TKIP;
+    else if(g_strcasecmp(row_type,AIRPCAP_WPA2_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_CCMP;
+
+	/* Retrieve the Item corresponding to the i-th key */
+	new_key = g_string_new(row_key);
+	
+	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
+	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
+
+	for(j = 0 ; j < new_key->len; j += 2)
+	{
+		s[0] = new_key->str[j];
+		s[1] = new_key->str[j+1];
+		s[2] = '\0';
+		KeyByte = (UCHAR)strtol(s, NULL, 16);
+		KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
+	}
+}
+
+/*
+ * Free the old adapter key collection!
+ */
+if(airpcap_if_selected->keysCollection != NULL)
+	g_free(airpcap_if_selected->keysCollection);
+
+/*
+ * Set this collection ad the new one
+ */
+airpcap_if_selected->keysCollection = KeysCollection;
+airpcap_if_selected->keysCollectionSize = KeysCollectionSize;
+
+return;
+}
+
+/*
+ * This function will take the current keys (widget list), specified for the
+ * current adapter, and save them as default for ALL the others.
+ */
+void
+airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_info_t* info_if, GList* if_list)
+{
+gint if_n = 0;
+gint i = 0;
+airpcap_if_info_t* curr_if = NULL;
+
+if( (if_list == NULL) || (info_if == NULL) ) return;
+
+if_n = g_list_length(if_list);
+
+/* For all the adapters in the list, save those keys as default */
+for(i = 0; i < if_n; i++)
+      {
+      curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
+      
+      if(curr_if != NULL)
+          {
+          /* If the interface is not the active one, we need to free it's
+             key list and copy in the selected key list... */
+          airpcap_add_keys_from_list(key_ls,curr_if);
+              
+          /* Save to registry */
+          airpcap_save_selected_if_configuration(curr_if);
+          }
+      }      
+      
+/* Save the settings of the given interface as default for Wireshark...
+ * By the way, now all the adapters have the same keys, so it is not
+ * really necessary to use THIS specific one...
+ */
+save_wlan_wep_keys(info_if);                                          
+}
+
+/*
+ * This function will load from the preferences file ALL the
+ * keys (WEP, WPA and WPA2) and will set them as default for 
+ * each adapter. To do this, it will save the keys in the registry...
+ * A check will be performed, to make sure that keys found in
+ * registry and keys found in Wireshark preferences are the same. If not, 
+ * the user will be asked to choose if use all keys (merge them),
+ * or use Wireshark preferences ones. In the last case, registry keys will
+ * be overwritten for all the connected AirPcap adapters.
+ * In the first case, adapters will use their own keys, but those
+ * keys will not be accessible via Wireshark...
+ */
+gboolean
+airpcap_check_decryption_keys(GList* if_list)
+{
+gint if_n = 0;
+gint i = 0;
+gint n_adapters_keys = 0; 
+airpcap_if_info_t* curr_if = NULL;
+
+GList* wireshark_key_list;
+GList* curr_adapter_key_list;
+
+gboolean equals = TRUE;
+
+/* 
+ * If no AirPcap interface is found, return TRUE, so Wireshark
+ * will use HIS OWN keys.
+ */
+if(if_list == NULL) 
+    return TRUE;
+
+if_n = g_list_length(if_list);
+
+/* Get Wireshark preferences keys */
+wireshark_key_list = get_wireshark_keys();
+
+for(i = 0; i < if_n; i++)
+      {
+      curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
+      curr_adapter_key_list = get_airpcap_device_keys(curr_if);
+      n_adapters_keys += g_list_length(curr_adapter_key_list);
+      equals &= key_lists_are_equal(wireshark_key_list,curr_adapter_key_list);
+      }
+
+if(n_adapters_keys == 0) /* No keys set in any of the AirPcap adapters... */
+    return TRUE; /* Use Wireshark keys and set them ad default for airpcap devices */
+
+return equals;
+}
+
+/*
+ * This function will load from the preferences file ALL the
+ * keys (WEP, WPA and WPA2) and will set them as default for 
+ * each adapter. To do this, it will save the keys in the registry...
+ * A check will be performed, to make sure that keys found in
+ * registry and keys found in Wireshark preferences are the same. If not, 
+ * the user will be asked to choose if use all keys (merge them),
+ * or use Wireshark preferences ones. In the last case, registry keys will
+ * be overwritten for all the connected AirPcap adapters.
+ * In the first case, adapters will use their own keys, but those
+ * keys will not be accessible via Wireshark...
+ */
+void
+airpcap_load_decryption_keys(GList* if_list)
+{
+gint if_n = 0;
+gint i = 0;
+airpcap_if_info_t* curr_if = NULL;
+
+if(if_list == NULL) return;
+
+if_n = g_list_length(if_list);
+
+for(i = 0; i < if_n; i++)
+      {
+      curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
+      load_wlan_wep_keys(curr_if);
+      }
+}
+
+/*
+ * This function will set the gibven GList of decryption_key_t structures 
+ * as the defoult for both Wireshark and the AirPcap adapters...
+ */
+void
+airpcap_save_decryption_keys(GList* key_list, GList* adapters_list)
+{
+gint if_n = 0;
+gint key_n = 0;
+gint i = 0;
+airpcap_if_info_t* curr_if = NULL;
+
+if( (key_list == NULL) || (adapters_list == NULL)) return;
+
+if_n = g_list_length(adapters_list);
+key_n = g_list_length(key_list);
+
+for(i = 0; i < if_n; i++)
+      {
+      curr_if = (airpcap_if_info_t*)g_list_nth_data(adapters_list,i);
+      write_wlan_wep_keys_to_regitry(curr_if,key_list);
+      }
+
+/*
+ * This will set the keys of the current adapter as Wireshark default...
+ * Now all the adapters have the same keys, so curr_if is ok as any other...
+ */
+save_wlan_wep_keys(curr_if);
 }
 
 #endif /* HAVE_AIRPCAP */

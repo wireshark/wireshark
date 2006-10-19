@@ -198,7 +198,7 @@ GtkWidget *airpcap_tb;
 static GtkWidget	*info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *welcome_pane;
-static guint    main_ctx, file_ctx, help_ctx;
+static guint		main_ctx, file_ctx, help_ctx;
 static guint        packets_ctx;
 static gchar        *packets_str = NULL;
 GString *comp_info_str, *runtime_info_str;
@@ -3670,11 +3670,17 @@ if( !block_toolbar_signals && (airpcap_if_active != NULL))
 void
 airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data)
 {
+/* We need to directly access the .ddl functions here... */
 gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 PAirpcapHandle ad;
 
-if( !block_toolbar_signals && (airpcap_if_active != NULL))
-{
+gint n = 0;
+gint i = 0;
+airpcap_if_info_t* curr_if = NULL;
+
+/* Apply changes to the current adapter */
+if( (airpcap_if_active != NULL))
+    {
 	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
 
 	if(ad)
@@ -3703,6 +3709,36 @@ if( !block_toolbar_signals && (airpcap_if_active != NULL))
 			}
 		}
 	}
+else
+    {
+ 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected!");
+ 	return;
+    }
+
+n = g_list_length(airpcap_if_list);
+
+/* The same kind of settings should be propagated to all the adapters */
+/* Apply this change to all the adapters !!! */
+for(i = 0; i < n; i++)
+    {
+    curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+
+    if( (curr_if != NULL) && (curr_if != airpcap_if_selected) )
+    	{
+    	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
+   		if(ad)
+            {                                                                                     
+            curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
+        	airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
+        	/* Save configuration for the curr_if */
+        	if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+        		{
+        		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+        		}
+        	airpcap_if_close(ad);
+            }
+        }
+    }
 }
 #endif
 
@@ -3723,6 +3759,23 @@ int *from_widget;
 }
 #endif
 
+#ifdef HAVE_AIRPCAP
+/*
+ * Callback for the Decryption Key Management button
+ */
+static void
+toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
+{
+int *from_widget;
+
+    from_widget = (gint*)g_malloc(sizeof(gint));
+    *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+
+	display_airpcap_key_management_cb(w,data);
+}
+#endif
+
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
@@ -3738,15 +3791,19 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gchar         *title;
 
 #ifdef HAVE_AIRPCAP
-    GtkWidget
-		  *advanced_bt,
-		  *interface_lb,
-		  *channel_lb,
-		  *channel_cm,
-		  *wrong_crc_lb,
-		  *encryption_ck,
-		  *wrong_crc_cm,
-                  *iconw;
+    GtkWidget *advanced_bt,
+    		  *key_management_bt,
+    		  *interface_lb,
+    		  *channel_lb,
+    		  *channel_cm,
+    		  *wrong_crc_lb,
+    		  *wrong_crc_cm;
+                  
+    GtkWidget *enable_decryption_lb;
+    GtkWidget *enable_decryption_cb;
+    GList     *enable_decryption_cb_items = NULL;
+    GtkWidget *enable_decryption_en;
+
     GList	  *channel_list = NULL;
     GList	  *linktype_list = NULL;
     GList	  *link_list = NULL;
@@ -3927,11 +3984,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 	#if GTK_MAJOR_VERSION < 2
 	gtk_widget_set_usize( GTK_WIDGET(channel_cm),
-                                  45,
+                                  90,
                                   28 );
 	#else
 	gtk_widget_set_size_request( GTK_WIDGET(channel_cm),
-                                  45,
+                                  90,
                                   28 );
     #endif
 
@@ -3958,9 +4015,15 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 	/* Wrong CRC combo */
 	wrong_crc_cm = gtk_combo_new();
 	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(wrong_crc_cm)->entry),FALSE);
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_WRONG_CRC_KEY,wrong_crc_cm);
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY,wrong_crc_cm);
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
         "", "Private");
+
+	#if GTK_MAJOR_VERSION >= 2
+    gtk_widget_set_size_request (wrong_crc_cm, 100, -1);
+    #else
+    gtk_widget_set_usize (wrong_crc_cm, 100, -1);
+    #endif
 
 	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_ALL);
 	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRECT);
@@ -3981,37 +4044,40 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
-	/* encryption enabled box */
-
-	encryption_ck = gtk_toggle_button_new();
-	iconw = xpm_to_widget (wep_closed_24_xpm);
-    gtk_widget_show(iconw);
-    gtk_container_add(GTK_CONTAINER(encryption_ck),iconw);
-
-	#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize( GTK_WIDGET(encryption_ck),
-                                  28,
-                                  28 );
-	#else
-	gtk_widget_set_size_request( GTK_WIDGET(encryption_ck),
-                                  28,
-                                  28 );
+    /* Decryption mode combo box */
+    enable_decryption_lb = gtk_label_new ("Decryption Mode: ");
+    gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
+    gtk_widget_show (enable_decryption_lb);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
+    NULL, "Private");
+        
+    enable_decryption_cb = gtk_combo_new ();
+    gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
+    gtk_widget_show (enable_decryption_cb);
+    #if GTK_MAJOR_VERSION >= 2
+    gtk_widget_set_size_request (enable_decryption_cb, 83, -1);
+    #else
+    gtk_widget_set_usize (enable_decryption_cb, 83, -1);
     #endif
-
-	OBJECT_SET_DATA(GTK_TOOLBAR(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,encryption_ck);
-
-	if(airpcap_if_active != NULL)
-		{
-		if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
-	    	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(encryption_ck),TRUE);
-		else
-	    	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(encryption_ck),FALSE);
-		}
-
-	SIGNAL_CONNECT(encryption_ck,"toggled",airpcap_toolbar_encryption_cb,airpcap_tb);
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), encryption_ck,
-        "Enable the WEP decryption in the wireless driver", "Private");
-	gtk_widget_show(encryption_ck);
+    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+    gtk_combo_set_popdown_strings (GTK_COMBO (enable_decryption_cb), enable_decryption_cb_items);
+    g_list_free (enable_decryption_cb_items);
+    
+    enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
+    gtk_widget_set_name (enable_decryption_en, "enable_decryption_en");
+    gtk_widget_show (enable_decryption_en);
+    gtk_editable_set_editable (GTK_EDITABLE (enable_decryption_en), FALSE);
+    GTK_WIDGET_UNSET_FLAGS (enable_decryption_en, GTK_CAN_FOCUS);
+    
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_cb,
+        "Choose a Decryption Mode", "Private");
+   
+    /* Set current decryption mode!!!! */
+    update_decryption_mode_cm(enable_decryption_cb);
+    SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, airpcap_tb);
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY,enable_decryption_cb);
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
@@ -4023,6 +4089,15 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
         "Set Advanced Wireless Settings...", "Private");
 	gtk_widget_show(advanced_bt);
+
+	/* Key Management button */
+	key_management_bt = gtk_button_new_with_label("Decryption Keys");
+	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
+
+	SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
+        "Manage Decryption Keys...", "Private");
+	gtk_widget_show(key_management_bt);
 
 	/* select the default interface */
 	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
@@ -4049,6 +4124,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
 		recent.airpcap_toolbar_show = TRUE;
         }
+        
 #endif
 
     /* filter toolbar */
@@ -4196,7 +4272,7 @@ show_main_window(gboolean doing_work)
 
   /*** we have finished all init things, show the main window ***/
   gtk_widget_show(top_level);
-
+  
   /* the window can be maximized only, if it's visible, so do it after show! */
   main_load_window_geometry(top_level);
 
@@ -4205,4 +4281,20 @@ show_main_window(gboolean doing_work)
 
   /* Pop up any queued-up alert boxes. */
   display_queued_messages();
+
+#ifdef HAVE_AIRPCAP  
+/* 
+ * This will read the decryption keys from the preferences file, and will store 
+ * them into the registry... 
+ */
+if(!airpcap_check_decryption_keys(airpcap_if_list))
+    {
+    /* Ask the user what to do ...*/
+    airpcap_keys_check_w(NULL,NULL);
+    }
+else /* Keys from lists are equals, or wireshark has got no keys */
+    {
+    airpcap_load_decryption_keys(airpcap_if_list);    
+    }
+#endif
 }
