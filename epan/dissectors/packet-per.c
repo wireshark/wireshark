@@ -218,11 +218,12 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 			*length = val;
 			if(hf_index!=-1){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
-				if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+				if (display_internal_per_fields)
+					proto_item_append_text(pi," %s", str);
+				else
+					PROTO_ITEM_SET_HIDDEN(pi);
 			}
 		
-			if (display_internal_per_fields)
-				proto_item_append_text(pi," %s", str);
 			return offset;
 		}
 		PER_NOT_DECODED_YET("10.9 Unaligned");
