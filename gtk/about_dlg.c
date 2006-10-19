@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -268,6 +268,19 @@ about_folders_page_new(void)
   return scrolledwindow;
 }
 
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+static GtkWidget *
+about_license_page_new(void)
+{
+  GtkWidget   *page;
+  char *absolute_path;
+
+  absolute_path = get_datafile_path("COPYING");
+  page = text_page_new(absolute_path);
+
+  return page;
+}
+#endif
 
 void
 about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
@@ -276,7 +289,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 
   GtkWidget   *page_lb, *about_page, *folders_page, *plugins_page;
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
-  GtkWidget   *authors_page;
+  GtkWidget   *authors_page, *license_page;
 #endif
 
   if (about_wireshark_w != NULL) {
@@ -329,6 +342,12 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   plugins_page = about_plugins_page_new();
   page_lb = gtk_label_new("Plugins");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);
+#endif
+
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+  license_page = about_license_page_new();
+  page_lb = gtk_label_new("License");
+  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), license_page, page_lb);
 #endif
 
   /* Button row */
