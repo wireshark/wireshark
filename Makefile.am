@@ -108,6 +108,7 @@ dtds_DATA = \
 	dtds/pocsettings.dtd \
 	dtds/presence.dtd \
 	dtds/reginfo.dtd \
+	dtds/rlmi.dtd \
 	dtds/rss.dtd \
 	dtds/smil.dtd \
 	dtds/xcap-caps.dtd \
