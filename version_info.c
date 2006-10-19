@@ -464,8 +464,6 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, "an unknown OS");
 #endif
 
-	break_point = add_word_wrap_break_point(str);
-
 	/* Additional application-dependent information */
 	if (additional_info) {
 		end_item_and_break(str, ",", break_point);
