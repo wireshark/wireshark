@@ -60,6 +60,7 @@
 #include "column_prefs.h"
 #include "prefs_dlg.h"
 #include "file.h"
+#include "main.h"
 
 #include "gtkglobals.h"
 
