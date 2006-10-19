@@ -4,7 +4,7 @@
    hierarchy="yes" ?>
 
 <!--
-$Id: reginfo.dtd 18970 2006-08-21 11:52:20Z martinm $
+$Id$
 -->
 
 <!ELEMENT list (name | resource)* >

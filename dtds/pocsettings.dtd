@@ -2,6 +2,9 @@
    proto_name="poc-settings"
    description="poc-settings XML doc (RFC 4354)"
    hierarchy="yes" ?>
+<!--
+$Id:$
+-->
 
 
 <!ELEMENT poc-settings (entity)* >

@@ -1,4 +1,7 @@
 <? wireshark:protocol proto_name="rss" hierarchy="yes" ?>
+<!--
+$Id:$
+-->
 
 <!--
     this DTD is made so that wireshark can dissect RSS up to 2.0, do not try to use it for validating RSS documents

@@ -2,6 +2,9 @@
    proto_name="watcherinfo"
    description="watcherinfo XML doc (RFC 3858)"
    hierarchy="yes" ?>
+<!--
+$Id:$
+-->
 
 
 <!ELEMENT watcherinfo (watcher-list)* >

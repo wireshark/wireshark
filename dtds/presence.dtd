@@ -2,6 +2,9 @@
    proto_name="presence"
    description="presence XML doc (RFC 3863)"
    hierarchy="yes" ?>
+<!--
+$Id:$
+-->
 
 
 <!ELEMENT presence (tuple)* >
