@@ -498,7 +498,7 @@ REQUIRED_TOOLS=\
 	wget
 
 verify_tools:
-	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
+	$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
 # Download and install all the required libraries into WIRESHARK_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
@@ -768,7 +768,6 @@ install-common-files:
 	xcopy ".\plugins\opsi\opsi.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\pcli\pcli.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\profinet\profinet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\rdm\rdm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\rlm\rlm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\rtnet\rtnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\rudp\rudp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
