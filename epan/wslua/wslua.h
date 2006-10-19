@@ -5,7 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: wslua.h 18231 2006-05-28 16:32:49Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -315,6 +315,7 @@ WSLUA_DECLARE_FUNCTIONS()
 
 extern lua_State* wslua_state(void);
 
+extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 

@@ -48,13 +48,26 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facil
 
 void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
-
-    lua_pushcfunction(md->L,menu_cb_error_handler);
-    lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->cb_ref);
+	lua_State* L = md->L;
 	
-	/* XXX handle error */
-    lua_pcall(md->L,0,0,1);
-    
+	lua_settop(L,0);
+    lua_pushcfunction(L,menu_cb_error_handler);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, md->cb_ref);
+	
+	switch ( lua_pcall(L,0,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling menu callback");
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling menu callback");
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+	
     return;
 }
 
@@ -99,7 +112,6 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in t
 struct _dlg_cb_data {
     lua_State* L;
     int func_ref;
-    int data_ref;
 };
 
 static int dlg_cb_error_handler(lua_State* L) {
@@ -117,7 +129,6 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
     lua_settop(L,0);
     lua_pushcfunction(L,dlg_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, dcbd->func_ref);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, dcbd->data_ref);
     
     for (i = 0; (input = user_input[i]) ; i++) {
         lua_pushstring(L,input);
@@ -126,7 +137,7 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
     
     g_free(user_input);
     
-    switch ( lua_pcall(L,i+1,0,1) ) {
+    switch ( lua_pcall(L,i,0,1) ) {
         case 0:
             break;
         case LUA_ERRRUN:
@@ -182,14 +193,10 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     lua_pushvalue(L, 1);
     dcbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_remove(L,1);
-    
-    lua_pushvalue(L, 1);
-    dcbd->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_remove(L,1);
-    
+        
     labels = g_ptr_array_new();
     
-    top -= 3;
+    top -= 2;
     
     for (i = 1; i <= top; i++) {
         gchar* label = (void*)luaL_checkstring(L,i);
@@ -205,7 +212,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     
     ops->new_dialog(title, (const gchar**)labels->pdata, lua_dialog_cb, dcbd);
     
-    g_ptr_array_free(labels,TRUE);
+    g_ptr_array_free(labels,FALSE);
     
     WSLUA_RETURN(0);
 }
@@ -213,6 +220,8 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 
 WSLUA_CLASS_DEFINE(TextWindow,NOP,NOP); /* Manages a text window. */
+
+/* XXX: button and close callback data is being leaked */
 
 WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 #define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. */
@@ -230,7 +239,6 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 struct _close_cb_data {
     lua_State* L;
     int func_ref;
-    int data_ref;
 };
 
 int text_win_close_cb_error_handler(lua_State* L) {
@@ -243,11 +251,11 @@ static void text_win_close_cb(void* data) {
     struct _close_cb_data* cbd = data;
     lua_State* L = cbd->L;
 
+	lua_settop(L,0);
     lua_pushcfunction(L,text_win_close_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->data_ref);
     
-    switch ( lua_pcall(L,1,0,1) ) {
+    switch ( lua_pcall(L,0,0,1) ) {
         case 0:
             break;
         case LUA_ERRRUN:
@@ -271,7 +279,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
 	if (!tw)
 		WSLUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
 
-    lua_settop(L,3);
+    lua_settop(L,2);
 
     if (! lua_isfunction(L,2))
         WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"must be a function");
@@ -279,7 +287,6 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     cbd = g_malloc(sizeof(struct _close_cb_data));
 
     cbd->L = L;
-    cbd->data_ref = luaL_ref(L,  LUA_REGISTRYINDEX);
     cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     ops->set_close_cb(tw,text_win_close_cb,cbd);
@@ -372,14 +379,14 @@ static int TextWindow__gc(lua_State* L) {
 		WSLUA_ERROR(TextWindow_gc,"cannot be called for something not a TextWindow");
 
     ops->destroy_text_window(tw);
-    return 1;
+    return 0;
 }
 
 WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editable */
 #define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true */
 
 	TextWindow tw = checkTextWindow(L,1);
-	gboolean editable = luaL_optint(L,2,1);
+	gboolean editable = wslua_optbool(L,2,TRUE);
 
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set_editable,"cannot be called for something not a TextWindow");
@@ -394,7 +401,6 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 typedef struct _wslua_bt_cb_t {
 	lua_State* L;
 	int func_ref;
-	int data_ref;
 } wslua_bt_cb_t;
 
 static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
@@ -405,9 +411,8 @@ static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
 	lua_pushcfunction(L,dlg_cb_error_handler);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
 	pushTextWindow(L,tw);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->data_ref);
 	
-	switch ( lua_pcall(L,2,0,1) ) {
+	switch ( lua_pcall(L,1,0,1) ) {
 		case 0:
 			break;
 		case LUA_ERRRUN:
@@ -427,7 +432,6 @@ static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 #define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */ 
 #define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */ 
-#define WSLUA_ARG_TextWindow_add_button_DATA 4 /* The data to be passed to the function (other than the window) */ 
 	TextWindow tw = checkTextWindow(L,1);
 	const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
 	
@@ -440,7 +444,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
-	lua_settop(L,4);
+	lua_settop(L,3);
 
 	if (ops->add_button) {
 		fbt = g_malloc(sizeof(funnel_bt_t));
@@ -453,7 +457,6 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 		fbt->free_data = g_free;
 		
 		cbd->L = L;
-		cbd->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 		cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 		ops->add_button(tw,fbt,label);

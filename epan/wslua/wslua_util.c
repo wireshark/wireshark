@@ -29,6 +29,21 @@
 #include "wslua.h"
 #include <math.h>
 
+WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
+	gboolean val = FALSE;
+	
+	if ( lua_isboolean(L,n) ) {
+		val = lua_toboolean(L,n);
+	} else if ( lua_isnil(L,n) || lua_gettop(L) < n ){
+		val = def;
+	} else {
+		luaL_argerror(L,n,"must be a boolean");
+	}
+	
+	return val;
+}
+
+
 WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
     const gchar* p = luaL_checkstring(L, i);
 	

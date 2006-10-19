@@ -40,17 +40,20 @@ sub gorolla {
 	my $s = shift;
 	$s =~ s/^([\n]|\s)*//ms;
 	$s =~ s/([\n]|\s)*$//ms;
+	$s =~ s/\</&lt;/ms;
+	$s =~ s/\>/&gt;/ms;
 	$s;
 }
 
 my %module = ();
+my %modules = ();
 my $class;
 my %classes;
 my $function;
 my @functions;
 
 my $docbook_template = {
-	module_header => "<chapter id='lua_module_%s'><title>%s</title>\n",
+	module_header => "<chapter id='lua_module_%s'>\n\t<title>%s</title>\n",
 	module_desc => "\t<para>%s</para>\n",
 	module_footer => "</chapter>\n",
 	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
@@ -64,7 +67,7 @@ my $docbook_template = {
 	class_attributes_footer => "\t\t</section> <!-- class_attributes_footer: %s -->\n",
 	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
 	class_attr_footer => "\t\t</section> <!-- class_attr_footer: %s -->\n",
-	class_attr_descr => "\t\t\t<para>%s<para>\n",
+	class_attr_descr => "\t\t\t<para>%s</para>\n",
 	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
 	function_descr => "\t\t\t\t<para>%s</para>\n",
 	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
@@ -206,12 +209,14 @@ sub {
 		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
 		my $name = $metamethods{$2};
 		my ($c,$d) = ($1,$5);
+		my $sname = $2;
 		$name =~ s/__/$c/g;
 		$function = {
 			returns => [],
 			arglist => [],
 			args => {},
 			name => $name,
+			section_name => $sname,
 			descr => gorolla($d),
 			type => 'metamethod'
 		};
@@ -290,6 +295,8 @@ while ( $file =  shift) {
 
 	next unless -f $file;
 	
+	%module = ();
+	
 	my $docfile = $file;
 	$docfile =~ s/\.c$/.$out_extension/;
 	
@@ -312,6 +319,8 @@ while ( $file =  shift) {
 		}
 	}
 
+	$modules{$module{name}} = $docfile;
+	
 	printf D ${$template_ref}{module_header}, $module{name}, $module{name}; 
 	if ( exists  ${$template_ref}{module_desc} ) {
 		printf D ${$template_ref}{module_desc}, $module{descr}, $module{descr}; 		
@@ -372,7 +381,7 @@ while ( $file =  shift) {
 	}
 
 	if ($#functions >= 0) {
-		print D ${$template_ref}{non_method_functions_header};
+		printf D ${$template_ref}{non_method_functions_header}, $module{name};
 
 		for my $f (@functions) {
 			function_descr($f);
@@ -392,12 +401,36 @@ while ( $file =  shift) {
 	close D;
 }
 
+my $wsluarm = '';
+open B, "< template-wsluarm.xml";
+$wsluarm .= $_ while(<B>);
+close B;
+
+my $ents = '';
+my $txt = '';
+
+for my $module_name (keys %modules) {
+	$ents .= <<"_ENT";
+	<!ENTITY $module_name SYSTEM "$modules{$module_name}">
+_ENT
+	$txt .= "&$module_name;\n";
+}
+
+$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/; 
+$wsluarm =~ s/<!-- WSLUA_MODULE_TEXT -->/$txt/;
+
+open X, "> doc/wsluarm.xml";
+print X $wsluarm;
+close X;
+
 sub function_descr {
 	my $f = $_[0];
 	my $label = $_[1];
 	
 	if (defined $label ) {
-		printf D ${$template_ref}{function_header}, $label, $label;
+		$label =~ s/>/&gt;/;
+		$label =~ s/</&lt;/;
+		printf D ${$template_ref}{function_header}, ${$f}{section_name}, $label;
 	} else {
 		my $arglist = '';
 		
@@ -408,7 +441,7 @@ sub function_descr {
 		}
 		
 		$arglist =~ s/, $//;
-		
+			
 		printf D ${$template_ref}{function_header}, "${$f}{name}($arglist)", "${$f}{name}($arglist)";
 	}	
 	
@@ -438,7 +471,9 @@ sub function_descr {
 	}	
 
 	if ( $#{${$f}{errors}} >= 0) {
-		printf D ${$template_ref}{function_errors_header}, ${$f}{name};
+		my $sname = exists ${$f}{section_name} ? ${$f}{section_name} : ${$f}{name};
+		
+		printf D ${$template_ref}{function_errors_header}, $sname;
 		printf D ${$template_ref}{function_errors}, $_ for @{${$f}{errors}};
 		printf D ${$template_ref}{function_errors_footer}, ${$f}{name};
 	}	

@@ -102,7 +102,7 @@ register_wslua.c: declare_wslua.h
 declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
 	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
 
-doc: make-doc.pl $(wslua_modules)
+doc: make-doc.pl $(wslua_modules) template-wsluarm.xml
 	$(PERL) $(srcdir)/make-doc.pl $(wslua_modules)
 
 dummy:

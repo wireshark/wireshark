@@ -60,7 +60,7 @@ void* push_Pinfo(lua_State* L, Pinfo pinfo) {
 #define PUSH_COLUMN(L,c) g_ptr_array_add(outstanding_stuff,pushColumn(L,c))
 #define PUSH_COLUMNS(L,c) g_ptr_array_add(outstanding_stuff,pushColumns(L,c))
 
-WSLUA_CLASS_DEFINE(Address,NOP,NOP);
+WSLUA_CLASS_DEFINE(Address,NOP,NOP) /* Represents an address */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) { /* Creates an Address Object representing an IP address. */
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
