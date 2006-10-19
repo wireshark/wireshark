@@ -270,8 +270,7 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
-  g_string_append(comp_info_str, "with ");
-  get_compiled_version_info(comp_info_str);
+  get_compiled_version_info(comp_info_str, NULL);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");

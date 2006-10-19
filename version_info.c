@@ -124,9 +124,14 @@ end_string(GString *str)
 /*
  * Get various library compile-time versions and append them to
  * the specified GString.
+ *
+ * "additional_info" is called at the end to append any additional
+ * information; this is required in order to, for example, put the
+ * Portaudio information at the end of the string, as we currently
+ * don't use Portaudio in TShark.
  */
 void
-get_compiled_version_info(GString *str)
+get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 {
 	gint break_point;
 
@@ -265,18 +270,27 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
+
+	/* Additional application-dependent information */
+	if (additional_info) {
+		g_string_append(str, ",");
+		do_word_wrap(str, break_point);
+		g_string_append(str, " ");
+		break_point = str->len - 1;
+		(*additional_info)(str);
+	}
+	g_string_append(str, ".");
 	do_word_wrap(str, break_point);
 
 #ifndef HAVE_LIBPCRE
 	break_point = str->len - 1;
 	g_string_append(str,
-			".\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
+			"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter"
 			"\nsyntax.");
-#else
-	g_string_append(str, ",");
-#endif	/* HAVE_LIBPCRE */
 	do_word_wrap(str, break_point);
+#endif	/* HAVE_LIBPCRE */
 
+	end_string(str);
 }
 
 /*
@@ -448,21 +462,75 @@ get_runtime_version_info(GString *str)
 	g_string_append(str, "an unknown OS");
 #endif
 
-        g_string_append(str, "\n");
+	g_string_append(str, " ");
 
 	get_runtime_pcap_version(str);
 
-        g_string_append(str, ".");
+	g_string_append(str, ".");
 
 	/* Compiler info */
 	
+	/*
+	 * See http://predef.sourceforge.net/precomp.html for
+	 * information on various defined strings.
+	 *
+	 * GCC's __VERSION__ is a nice text string for humans to
+	 * read.  The page at predef.sourceforge.net largely
+	 * describes numeric #defines that encode the version;
+	 * if the compiler doesn't also offer a nice printable
+	 * string, we should probably prettify the number somehow.
+	 */
 #if defined(__GNUC__) && defined(__VERSION__)
 	g_string_sprintfa(str, "\nBuilt using gcc %s.\n", __VERSION__);
-#elif defined (_MSC_FULL_VER)
-	/* Documented at http://predef.sourceforge.net/precomp.html */
-	/* This should probably be prettified somehow */
-	g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d\n",
-		_MSC_FULL_VER);
+#elif defined(__HP_aCC)
+	g_string_sprintfa(str, "\nBuilt using HP aCC %d.\n", __HP_aCC);
+#elif defined(__xlC__)
+	g_string_sprintfa(str, "\nBuilt using IBM XL C %d.%d\n",
+	    (__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
+#ifdef __IBMC__
+	if ((__IBMC__ % 10) != 0)
+		g_string_sprintfa(str, " patch %d", __IBMC__ % 10);
+#endif /* IBMC */
+	g_string_sprintfa(str, "\n");
+#elif defined(__INTEL_COMPILER)
+	g_string_sprintfa(str, "\nBuilt using Intel C %d.%d",
+	    __INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
+	if ((__INTEL_COMPILER % 10) != 0)
+		g_string_sprintfa(str, " patch %d", __INTEL_COMPILER % 10);
+#ifdef __INTEL_COMPILER_BUILD_DATE
+	g_string_sprinta(str, ", compiler built %04d-%02d-%02d",
+	    __INTEL_COMPILER_BUILD_DATE / 10000,
+	    (__INTEL_COMPILER_BUILD_DATE / 100) % 100,
+	    __INTEL_COMPILER_BUILD_DATE % 100);
+#endif /* __INTEL_COMPILER_BUILD_DATE */ 
+	g_string_sprintfa(str, "\n");
+#elif defined(_MSC_FULL_VER)
+	if (_MSC_FULL_VER > 99999999) {
+		g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d",
+		    (_MSC_FULL_VER / 1000000000) - 7,
+		    (_MSC_FULL_VER / 10000000) % 100);
+		if ((_MSC_FULL_VER % 100000) != 0
+			g_string_sprintfa(str, " patch %d",
+			    _MSC_FULL_VER % 100000);
+	} else {
+		g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d",
+		    (_MSC_FULL_VER / 100000000) - 7,
+		    (_MSC_FULL_VER / 1000000) % 100);
+		if ((_MSC_FULL_VER % 10000) != 0
+			g_string_sprintfa(str, " patch %d",
+			    _MSC_FULL_VER % 10000);
+	}
+	g_string_sprintfa(str, "\n");
+#elif defined(_MSC_VER)
+	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
+	g_string_sprintfa(str, "\nBuilt using Microsoft Visual C++ %d.%d\n",
+	    (_MSC_VER / 100) - 7, _MSC_VER % 100);
+#elif defined(__SUNPRO_C)
+	g_string_sprintfa(str, "\nBuilt using Sun C %d.%d",
+	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
+	if ((__SUNPRO_C & 0xF) != 0)
+		g_string_sprintfa(str, " patch %d", __SUNPRO_C & 0xF);
+	g_string_sprintfa(str, "\n");
 #endif
 	
 	end_string(str);

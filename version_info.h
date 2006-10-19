@@ -38,8 +38,14 @@ const gchar *svnversion;
 /*
  * Get various library compile-time versions and append them to
  * the specified GString.
+ *
+ * "additional_info" is called at the end to append any additional
+ * information; this is required in order to, for example, put the
+ * Portaudio information at the end of the string, as we currently
+ * don't use Portaudio in TShark.
  */
-void get_compiled_version_info(GString *str);
+void get_compiled_version_info(GString *str,
+    void (*additional_info)(GString *));
 
 /*
  * Get various library run-time versions, and the OS version, and append

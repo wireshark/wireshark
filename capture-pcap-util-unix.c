@@ -312,7 +312,6 @@ get_runtime_pcap_version(GString *str)
 #else
 	g_string_append(str, "libpcap (version unknown)");
 #endif
-	g_string_append(str, " ");
 }
 
 #else /* HAVE_LIBPCAP */

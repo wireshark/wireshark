@@ -2002,6 +2002,21 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     }
 }
 
+static void
+portaudio_info(GString *str)
+{
+#ifdef HAVE_LIBPORTAUDIO
+#ifdef PORTAUDIO_API_1
+  g_string_append(str, "with PortAudio <= V18");
+#else /* PORTAUDIO_API_1 */
+  g_string_append(str, "with PortAudio ");
+  g_string_append(str, Pa_GetVersionText());
+#endif /* PORTAUDIO_API_1 */
+#else /* HAVE_LIBPORTAUDIO */
+  g_string_append(str, "without PortAudio");
+#endif /* HAVE_LIBPORTAUDIO */
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -2105,20 +2120,7 @@ main(int argc, char *argv[])
 #endif
   g_string_append(comp_info_str, ", ");
 
-  get_compiled_version_info(comp_info_str);
-
-#ifdef HAVE_LIBPORTAUDIO
-  g_string_append(comp_info_str, " ");
-#ifdef PORTAUDIO_API_1
-  g_string_append(comp_info_str, "with PortAudio <= V18");
-#else
-  g_string_append(comp_info_str, "with PortAudio ");
-  g_string_append(comp_info_str, Pa_GetVersionText());
-#endif
-#else
-  g_string_append(comp_info_str, "without PortAudio");
-#endif /* HAVE_LIBPORTAUDIO */
-  g_string_append(comp_info_str, ".");
+  get_compiled_version_info(comp_info_str, portaudio_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
