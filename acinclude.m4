@@ -1073,6 +1073,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 				PORTAUDIO_INCLUDES=""
 			fi
 			AC_DEFINE(HAVE_LIBPORTAUDIO, 1, [Define to use libportaudio library])
+			want_portaudio=yes
 		],[  
 			#
 			# Restore the versions of CFLAGS, CPPFLAGS,
