@@ -499,8 +499,8 @@ int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       int num_tbs, int offset)
 {
     int n;
-    proto_item *ti;
-    proto_tree *crcis_tree;
+    proto_item *ti = NULL;
+    proto_tree *crcis_tree = NULL;
     guint errors = 0;
 
     /* Add CRCIs subtree */
