@@ -484,14 +484,14 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		    (_MSC_FULL_VER / 10000000) - 6,
 		    (_MSC_FULL_VER / 100000) % 100);
 		if ((_MSC_FULL_VER % 100000) != 0)
-			g_string_sprintfa(str, " patch %d",
+			g_string_sprintfa(str, " build %d",
 			    _MSC_FULL_VER % 100000);
 	} else {
 		g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
 		    (_MSC_FULL_VER / 1000000) - 6,
 		    (_MSC_FULL_VER / 10000) % 100);
 		if ((_MSC_FULL_VER % 10000) != 0)
-			g_string_sprintfa(str, " patch %d",
+			g_string_sprintfa(str, " build %d",
 			    _MSC_FULL_VER % 10000);
 	}
 	g_string_sprintfa(str, "\n");
