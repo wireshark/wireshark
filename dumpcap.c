@@ -193,13 +193,17 @@ cmdarg_err_cont(const char *fmt, ...)
 BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 {
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-        "Console: Ctrl+C");
+        "Console: Control signal");
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-        "Console: Ctrl+C CtrlType: %u", dwCtrlType);
+        "Console: Control signal, CtrlType: %u", dwCtrlType);
 
-    capture_loop_stop();
-
-    return TRUE;
+    /* Keep capture running if we're a service and a user logs off */
+    if (capture_child || (dwCtrlType != CTRL_LOGOFF_EVENT)) {
+        capture_loop_stop();
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 #endif
 
@@ -274,7 +278,7 @@ main(int argc, char *argv[])
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str);
+  get_runtime_version_info(runtime_info_str, NULL);
 
   /* the default_log_handler will use stdout, which makes trouble in */
   /* capture child mode, as it uses stdout for it's sync_pipe */

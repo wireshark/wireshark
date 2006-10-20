@@ -2033,8 +2033,6 @@ get_gui_runtime_info(GString *str)
 {
 #ifdef HAVE_AIRPCAP
   get_runtime_airpcap_version(str);
-#else
-  g_string_append(str, "without AirPcap");
 #endif
 }
 

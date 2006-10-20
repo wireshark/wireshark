@@ -465,6 +465,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #endif
 
 	/* Additional application-dependent information */
+	break_point = add_word_wrap_break_point(str);
 	if (additional_info) {
 		end_item_and_break(str, ",", break_point);
 		break_point = add_word_wrap_break_point(str);
