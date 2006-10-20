@@ -1441,7 +1441,8 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
-    guint32 timestamp;
+    guint64 timestamp;
+    guint32 t32;
     struct netxrayrec_1_x_hdr rec_hdr;
     size_t nwritten;
 
@@ -1462,10 +1463,12 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 
     /* build the header for each packet */
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.secs - netxray->start.secs)*1000000 +
-        phdr->ts.nsecs / 1000;
-    rec_hdr.timelo = htolel(timestamp);
-    rec_hdr.timehi = htolel(0);
+    timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000 
+                + ((guint64)phdr->ts.nsecs)/1000;
+    t32 = (guint32)(timestamp%4294967296);
+    rec_hdr.timelo = htolel(t32);
+    t32 = (guint32)(timestamp/4294967296);
+    rec_hdr.timehi = htolel(t32);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
 
@@ -1630,7 +1633,8 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
-    guint32 timestamp;
+    guint64 timestamp;
+    guint32 t32;
     struct netxrayrec_2_x_hdr rec_hdr;
     size_t nwritten;
 
@@ -1651,10 +1655,12 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 
     /* build the header for each packet */
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.secs - netxray->start.secs)*1000000 +
-        phdr->ts.nsecs/1000;
-    rec_hdr.timelo = htolel(timestamp);
-    rec_hdr.timehi = htolel(0);
+    timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000 
+                + ((guint64)phdr->ts.nsecs)/1000;
+    t32 = (guint32)(timestamp%4294967296);
+    rec_hdr.timelo = htolel(t32);
+    t32 = (guint32)(timestamp/4294967296);
+    rec_hdr.timehi = htolel(t32);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
 
