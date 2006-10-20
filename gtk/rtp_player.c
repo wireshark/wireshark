@@ -1152,7 +1152,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			rci->draw_area->allocation.width,
 			rci->draw_area->allocation.height);
 
-		small_layout = gtk_widget_create_pango_layout(rci->draw_area, label_string);
+		small_layout = gtk_widget_create_pango_layout(rci->draw_area, NULL);
 		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
 
 		/* calculated the pixel offset to display integer seconds */
