@@ -50,6 +50,7 @@
 #include "simple_dialog.h"
 #include "compat_macros.h"
 #include "help_dlg.h"
+#include "keys.h"
 
 #include <epan/prefs-int.h>
 
@@ -1076,6 +1077,67 @@ module_prefs_fetch(module_t *module, gpointer user_data)
   return 0;	/* keep fetching module preferences */
 }
 
+#ifdef HAVE_AIRPCAP
+/*
+ * This function is used to apply changes and update the Wireless Toolbar
+ * whenever we apply some changes to the WEP preferences
+ */
+static void
+prefs_airpcap_update()
+{
+GtkWidget *decryption_cm;
+GtkWidget *decryption_en;
+gboolean wireshark_decryption_was_enabled;
+gboolean airpcap_decryption_was_enabled;
+gboolean wireshark_decryption_is_now_enabled;
+
+decryption_cm = GTK_WIDGET(OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
+decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
+
+if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
+{
+wireshark_decryption_was_enabled = TRUE;
+airpcap_decryption_was_enabled = FALSE;
+}
+else if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
+{
+wireshark_decryption_was_enabled = FALSE;
+airpcap_decryption_was_enabled = TRUE;
+}
+else if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
+{
+wireshark_decryption_was_enabled = FALSE;
+airpcap_decryption_was_enabled = FALSE;
+}
+
+wireshark_decryption_is_now_enabled = wireshark_decryption_on();
+
+if(wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
+	{
+	set_airpcap_decryption(FALSE);
+	gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+	}
+if(wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
+	{
+	set_airpcap_decryption(FALSE);
+	gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+	}
+else if(!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
+	{
+	if(airpcap_decryption_was_enabled)
+		{
+		set_airpcap_decryption(TRUE);
+		gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+		}
+	else
+		{
+		set_airpcap_decryption(FALSE);
+		gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+		}
+	}
+}
+#endif
+
 static guint
 pref_clean(pref_t *pref, gpointer user_data _U_)
 {
@@ -1309,6 +1371,10 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   prefs_main_apply_all(parent_w);
 
+	#ifdef HAVE_AIRPCAP
+	prefs_airpcap_update();
+	#endif
+
   /* Now destroy the "Preferences" dialog. */
   window_destroy(GTK_WIDGET(parent_w));
 
@@ -1316,6 +1382,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /* Redissect all the packets, and re-evaluate the display filter. */
     cf_redissect_packets(&cfile);
   }
+
 }
 
 static void
@@ -1332,6 +1399,10 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   }
 
   prefs_main_apply_all(parent_w);
+
+  	#ifdef HAVE_AIRPCAP
+	prefs_airpcap_update();
+	#endif
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
