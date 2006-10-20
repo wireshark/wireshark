@@ -1210,7 +1210,10 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_actual_count;i++){
+			old_offset = offset;
 			offset = (*fnct)(tvb, offset, pinfo, tree, drep);
+                        if (offset <= old_offset)
+                                THROW(ReportedBoundsError);
 		}
 	}
 
@@ -2549,7 +2552,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			 * prepend a delimiter */
 			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
 		}
-      } 
+      }
 
       /* save context ID for use with dcerpc_add_conv_to_bind_table() */
       /* (if we have multiple contexts, this might cause "decode as"
@@ -2765,7 +2768,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (ctx_tree) {
             proto_tree_add_guid_format (ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
-                                          offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", 
+                                          offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
                                           guid_to_str((e_guid_t *) &trans_id));
         }
         offset += 16;
@@ -3194,7 +3197,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			 * prepend a delimiter */
 			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
 		}
-    } 
+    }
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
@@ -3211,7 +3214,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
             proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-                                          offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s", 
+                                          offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s",
                                           guid_to_str((e_guid_t *) &obj_id));
         }
         offset += 16;
@@ -3330,7 +3333,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* no bind information, simply show stub data */
         pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
         PROTO_ITEM_SET_GENERATED(pi);
-	    expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u", 
+	    expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u",
             ctx_id);
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
@@ -3373,7 +3376,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			 * prepend a delimiter */
 			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
 		}
-    } 
+    }
 
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
@@ -3468,7 +3471,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
         } else {
-		    pi = proto_tree_add_text(dcerpc_tree, 
+		    pi = proto_tree_add_text(dcerpc_tree,
 				        tvb, 0, 0, "No request to this DCE/RPC call found");
 		    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
 			    "No request to this DCE/RPC call found");
@@ -3481,7 +3484,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* no bind information, simply show stub data */
             pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
             PROTO_ITEM_SET_GENERATED(pi);
-	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u", 
+	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u",
                 ctx_id);
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
@@ -3517,7 +3520,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			 * prepend a delimiter */
 			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
 		}
-    } 
+    }
 
     offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_cancel_count, NULL);
@@ -3619,7 +3622,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
         } else {
-		    pi = proto_tree_add_text(dcerpc_tree, 
+		    pi = proto_tree_add_text(dcerpc_tree,
 				        tvb, 0, 0, "No request to this DCE/RPC call found");
 		    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
 			    "No request to this DCE/RPC call found");
@@ -4605,7 +4608,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
     PROTO_ITEM_SET_GENERATED(pi);
     } else {
-		pi = proto_tree_add_text(dcerpc_tree, 
+		pi = proto_tree_add_text(dcerpc_tree,
 				    tvb, 0, 0, "No request to this DCE/RPC call found");
 		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
 			"No request to this DCE/RPC call found");
@@ -4821,7 +4824,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         proto_tree_add_guid_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-            offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s", 
+            offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s",
             guid_to_str((e_guid_t *) &hdr.obj_id));
     }
     offset += 16;
