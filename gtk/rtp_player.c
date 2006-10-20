@@ -1595,7 +1595,8 @@ remove_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr 
 	gtk_widget_destroy(rci->draw_area);
 	gtk_widget_destroy(rci->scroll_window);
 	gtk_widget_destroy(rci->check_bt);
-	gtk_widget_destroy(rci->separator);
+	if (rci->separator)
+		gtk_widget_destroy(rci->separator);
 }
 
 /****************************************************************************/
