@@ -36,6 +36,9 @@
 #include "packet-arp.h"
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/conversation.h>
+#include <epan/prefs.h>
+#include <epan/expert.h>
 
 static int proto_arp = -1;
 static int hf_arp_hard_type = -1;
@@ -61,6 +64,7 @@ static int hf_arp_dst_hw = -1;
 static int hf_arp_dst_hw_mac = -1;
 static int hf_arp_dst_proto = -1;
 static int hf_arp_dst_proto_ipv4 = -1;
+static int hf_arp_packet_storm = -1;
 static int hf_atmarp_src_atm_num_e164 = -1;
 static int hf_atmarp_src_atm_num_nsap = -1;
 static int hf_atmarp_src_atm_subaddr = -1;
@@ -73,6 +77,20 @@ static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
 
 static dissector_handle_t atmarp_handle;
+
+
+/* Used for determining if frequency of ARP requests constitute a storm */
+#define STORM    1
+#define NO_STORM 2
+
+/* Preference settings */
+static gboolean global_arp_detect_request_storm = FALSE;
+static guint32  global_arp_detect_request_storm_packets = 30;
+static guint32  global_arp_detect_request_storm_period = 100;
+
+static guint32  arp_request_count = 0;
+static nstime_t time_at_start_of_count;
+
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -367,6 +385,75 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 	}
 }
 
+/* Take note that a request has been seen */
+void request_seen(packet_info *pinfo)
+{
+    /* Don't count frame again after already recording first time around. */
+    if (p_get_proto_data(pinfo->fd, proto_arp) == 0)
+    {
+        arp_request_count++;
+    }
+}
+
+/* Has storm request rate been exceeded with this request? */
+void check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    gboolean report_storm = FALSE;
+
+    if (p_get_proto_data(pinfo->fd, proto_arp) != 0)
+    {
+        /* Read any previous stored packet setting */
+        report_storm = (p_get_proto_data(pinfo->fd, proto_arp) == (void*)STORM);
+    }
+    else
+    {
+        /* Seeing packet for first time - check against preference settings */
+        gint seconds_delta  = pinfo->fd->abs_ts.secs - time_at_start_of_count.secs;
+        gint nseconds_delta = pinfo->fd->abs_ts.nsecs - time_at_start_of_count.nsecs;
+        gint gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
+
+        /* Reset if gap exceeds period or -ve gap (indicates we're rescanning from start) */
+        if ((gap > (gint)global_arp_detect_request_storm_period) ||
+            (gap < 0))
+        {
+            /* Time period elapsed without threshold being exceeded */
+            arp_request_count = 1;
+            time_at_start_of_count = pinfo->fd->abs_ts;
+            p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
+            return;
+        }
+        else
+        if (arp_request_count > global_arp_detect_request_storm_packets)
+        {
+            /* Storm detected, record and reset start time. */
+            report_storm = TRUE;
+            p_add_proto_data(pinfo->fd, proto_arp, (void*)STORM);
+            time_at_start_of_count = pinfo->fd->abs_ts;
+        }
+        else
+        {
+            /* Threshold not exceeded yet - no storm */
+            p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
+        }
+    }
+
+    if (report_storm)
+    {
+        /* Report storm and reset counter */
+        proto_item *ti = proto_tree_add_none_format(tree, hf_arp_packet_storm, tvb, 0, 0,
+                                                    "Packet storm detected (%u packets in < %u ms)",
+                                                    global_arp_detect_request_storm_packets,
+                                                    global_arp_detect_request_storm_period);
+        expert_add_info_format(pinfo, ti,
+                               PI_SEQUENCE, PI_NOTE,
+                               "ARP packet storm detected (%u packets in < %u ms)",
+                               global_arp_detect_request_storm_packets,
+                               global_arp_detect_request_storm_period);
+        arp_request_count = 0;
+    }
+}
+
+
 /*
  * RFC 2225 ATMARP - it's just like ARP, except where it isn't.
  */
@@ -635,7 +722,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      ar_pln;
   guint16     ar_op;
   int         tot_len;
-  proto_tree  *arp_tree;
+  proto_tree  *arp_tree = NULL;
   proto_item  *ti;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
@@ -679,6 +766,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (ar_op) {
 
     case ARPOP_REQUEST:
+      if (global_arp_detect_request_storm)
+      {
+        request_seen(pinfo);
+      }
     case ARPOP_REPLY:
     default:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
@@ -834,6 +925,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb, tpa_offset, ar_pln, FALSE);
     }
   }
+
+  if (global_arp_detect_request_storm)
+  {
+    check_for_storm_count(tvb, pinfo, arp_tree);
+  }
 }
 
 void
@@ -985,14 +1081,22 @@ proto_register_arp(void)
     { &hf_arp_dst_proto_ipv4,
       { "Target IP address",		"arp.dst.proto_ipv4",
 	FT_IPv4,	BASE_NONE,	NULL,	0x0,
+      "", HFILL }},
+
+    { &hf_arp_packet_storm,
+      { "",		"arp.packet-storm-detected",
+	FT_NONE,	BASE_NONE,	NULL,	0x0,
       "", HFILL }}
   };
+
   static gint *ett[] = {
     &ett_arp,
     &ett_atmarp_nsap,
     &ett_atmarp_tl,
   };
 
+  module_t *arp_module;
+  
   proto_arp = proto_register_protocol("Address Resolution Protocol",
 				      "ARP/RARP", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
@@ -1001,6 +1105,24 @@ proto_register_arp(void)
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
 
   register_dissector( "arp" , dissect_arp, proto_arp );
+
+  /* Preferences */
+  arp_module = prefs_register_protocol(proto_arp, NULL);
+
+  prefs_register_bool_preference(arp_module, "detect_request_storms",
+    "Detect ARP request storms",
+    "Attempt to detect excessive rate of ARP requests",
+     &global_arp_detect_request_storm);
+
+  prefs_register_uint_preference(arp_module, "detect_storm_number_of_packets",
+    "Number of requests to detect during period",
+    "Number of requests needed within period to indicate a storm",
+    10, &global_arp_detect_request_storm_packets);
+
+  prefs_register_uint_preference(arp_module, "detect_storm_period",
+    "Detection period (in ms)",
+    "Period in milliseconds during which a packet storm may be detected",
+    10, &global_arp_detect_request_storm_period);
 }
 
 void
@@ -1015,5 +1137,4 @@ proto_reg_handoff_arp(void)
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
-
 }
