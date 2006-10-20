@@ -89,48 +89,33 @@
 #endif
 
 /*
- * Add a word wrap break point, and return its index.
- */
-static gint
-add_word_wrap_break_point(GString *str)
-{
-	g_string_append(str, " ");
-	return str->len - 1;
-}
-
-/*
- * Add punctuation at the end of a phrase, and see whether the last line in
- * the string goes past column 80; if so, replace the blank at the specified
- * point with a newline.
- */
-static void
-end_item_and_break(GString *str, char *punct, gint point)
-{
-	char *line_begin;
-
-	g_string_append(str, punct);
-	line_begin = strrchr(str->str, '\n');
-	if (line_begin == NULL)
-		line_begin = str->str;
-	else
-		line_begin++;
-	if (strlen(line_begin) > 80) {
-		g_assert(str->str[point] == ' ');
-		str->str[point] = '\n';
-	}
-}
-
-/*
  * If the string doesn't end with a newline, append one.
+ * Then word-wrap it to 80 columns.
  */
 static void
 end_string(GString *str)
 {
 	size_t point;
+	char *p, *q;
 
 	point = strlen(str->str);
 	if (point == 0 || str->str[point - 1] != '\n')
 		g_string_append(str, "\n");
+	p = str->str;
+	while (*p != '\0') {
+		q = strchr(p, '\n');
+		if (q - p > 80) {
+			/*
+			 * Break at or before this point.
+			 */
+			q = p + 80;
+			while (q > p && *q != ' ')
+				q--;
+			if (q != p)
+				*q = '\n';
+		}
+		p = q + 1;
+	}
 }
 
 /*
@@ -145,24 +130,22 @@ end_string(GString *str)
 void
 get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 {
-	gint break_point;
-
         /* GLIB */
 	g_string_append(str, "with ");
 	g_string_sprintfa(str,
 #ifdef GLIB_MAJOR_VERSION
-	    "GLib %d.%d.%d,", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
 	    GLIB_MICRO_VERSION);
 #else
-	    "GLib (version unknown),");
+	    "GLib (version unknown)");
 #endif
 
-	break_point = add_word_wrap_break_point(str);
+	/* Libpcap */
+	g_string_append(str, ", ");
 	get_compiled_pcap_version(str);
-	end_item_and_break(str, ",", break_point);
 
         /* LIBZ */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_LIBZ
 	g_string_append(str, "with libz ");
 #ifdef ZLIB_VERSION
@@ -175,18 +158,14 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #endif /* HAVE_LIBZ */
 
 	/* Additional application-dependent information */
-	if (additional_info) {
-		end_item_and_break(str, ",", break_point);
-		break_point = add_word_wrap_break_point(str);
+	if (additional_info)
 		(*additional_info)(str);
-	}
-	end_item_and_break(str, ".", break_point);
+	g_string_append(str, ".");
 
 #ifndef HAVE_LIBPCRE
-	break_point = str->len - 1;
 	g_string_append(str,
 	"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter syntax");
-	end_item_and_break(str, ".", break_point);
+	g_string_append(str, ".");
 #endif	/* HAVE_LIBPCRE */
 
 	end_string(str);
@@ -199,10 +178,8 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 void
 get_epan_compiled_version_info(GString *str)
 {
-	gint break_point;
-
         /* PCRE */
-	break_point = str->len - 1;
+	g_string_append(str, ", ");
 #ifdef HAVE_LIBPCRE
 	g_string_append(str, "with libpcre ");
 #ifdef PCRE_MAJOR
@@ -218,12 +195,10 @@ get_epan_compiled_version_info(GString *str)
 	g_string_append(str, "without libpcre");
 #endif	/* HAVE_LIBPCRE */
 
-	end_item_and_break(str, ",", break_point);
-
         /* SNMP */
+	g_string_append(str, ", ");
 /* Oh, this is pretty. */
 /* Oh, ha.  you think that was pretty.  Try this:! --Wes */
-	break_point = add_word_wrap_break_point(str);
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_UCD_SNMP
@@ -239,48 +214,43 @@ get_epan_compiled_version_info(GString *str)
 #else /* no SNMP library */
 	g_string_append(str, "without UCD-SNMP or Net-SNMP");
 #endif /* HAVE_SOME_SNMP */
-	end_item_and_break(str, ",", break_point);
 
         /* ADNS */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_GNU_ADNS
 	g_string_append(str, "with ADNS");
 #else
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
-	end_item_and_break(str, ",", break_point);
 
         /* LUA */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_LUA
 	g_string_append(str, "with ");
 	g_string_append(str, LUA_VERSION);
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
-	end_item_and_break(str, ",", break_point);
 
         /* GnuTLS */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_LIBGNUTLS
 	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
 #else
 	g_string_append(str, "without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
-	end_item_and_break(str, ",", break_point);
 
         /* Gcrypt */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_LIBGCRYPT
 	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
 #else
 	g_string_append(str, "without Gcrypt");
 #endif /* HAVE_LIBGCRYPT */
-	end_item_and_break(str, ",", break_point);
 
         /* Kerberos */
         /* XXX - I don't see how to get the version number, at least for KfW */
-	break_point = add_word_wrap_break_point(str);
+	g_string_append(str, ", ");
 #ifdef HAVE_KERBEROS
 #ifdef HAVE_MIT_KERBEROS
 	g_string_append(str, "with MIT Kerberos");
@@ -300,8 +270,6 @@ get_epan_compiled_version_info(GString *str)
 void
 get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 {
-	gint break_point;
-
 #if defined(_WIN32)
 	OSVERSIONINFO info;
 #elif defined(HAVE_SYS_UTSNAME_H)
@@ -464,15 +432,15 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, "an unknown OS");
 #endif
 
-	/* Additional application-dependent information */
-	break_point = add_word_wrap_break_point(str);
-	if (additional_info) {
-		end_item_and_break(str, ",", break_point);
-		break_point = add_word_wrap_break_point(str);
-		(*additional_info)(str);
-	}
+	/* Libpcap */
+	g_string_append(str, ", ");
+	get_runtime_pcap_version(str);
 
-	end_item_and_break(str, ".", break_point);
+	/* Additional application-dependent information */
+	if (additional_info)
+		(*additional_info)(str);
+
+	g_string_append(str, ".");
 
 	/* Compiler info */
 

@@ -2020,7 +2020,6 @@ get_gui_compiled_info(GString *str)
 #endif /* HAVE_LIBPORTAUDIO */
 
   g_string_append(str, ", ");
-
 #ifdef HAVE_AIRPCAP
   get_compiled_airpcap_version(str);
 #else
@@ -2029,9 +2028,14 @@ get_gui_compiled_info(GString *str)
 }
 
 static void
-get_gui_runtime_info(GString *str)
+get_gui_runtime_info(GString *str
+#ifndef HAVE_AIRPCAP
+	_U_
+#endif
+)
 {
 #ifdef HAVE_AIRPCAP
+  g_string_append(str, ", ");
   get_runtime_airpcap_version(str);
 #endif
 }
