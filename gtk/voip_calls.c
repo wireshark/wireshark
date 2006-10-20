@@ -65,11 +65,11 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 
-#if GTK_MAJOR_VERSION >= 2
 #ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
 #include "rtp_player.h"
-#endif /* HAVE_LIBPORTAUDIO */
 #endif /* GTK_MAJOR_VERSION >= 2 */
+#endif /* HAVE_LIBPORTAUDIO */
 
 const char *voip_call_state_name[7]={
 	"CALL SETUP",
@@ -130,9 +130,9 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	GList* list;
 	GList* list2;
 
-	/* reset the RTP player */
-#if GTK_MAJOR_VERSION >= 2
 #ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+	/* reset the RTP player */
 	reset_rtp_player();
 #endif
 #endif
