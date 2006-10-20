@@ -367,6 +367,9 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	/* Performance Index (in I-Could-Be-Router-To-Network) */
 	if (bacnet_mesgtyp == BAC_NET_ICB_R) {
+		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+			tvb, offset, 2, FALSE);
+		offset += 2;
 		proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
 			tvb, offset, 1, FALSE);
 		offset ++;
