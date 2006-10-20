@@ -1572,7 +1572,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		"Tag length %u too short, must be > 0", tag_len);
         break;
       }
-      tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
 
       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
