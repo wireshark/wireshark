@@ -486,7 +486,7 @@ decode_rtp_packet(rtp_packet_t *rp, rtp_channel_info_t *rci, SAMPLE **out_buff)
 }
 
 /****************************************************************************/
-void
+static void
 update_progress_bar(gfloat percentage)
 {
 
@@ -617,8 +617,12 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	start_timestamp = 0;
 
 	/* we update the progress bar 100 times */
+
+	/* Update the progress bar when it gets to this value. */
+	progbar_nextstep = 0;
+	/* When we reach the value that triggers a progress bar update,
+	   bump that value by this amount. */
 	progbar_quantum = total_packets/100;
-	progbar_nextstep = progbar_count;
 
 	status = S_NORMAL;
 
@@ -1121,7 +1125,8 @@ on_bt_check_clicked(GtkButton *button _U_, gpointer user_data _U_)
 /****************************************************************************/
 static void channel_draw(rtp_channel_info_t* rci)
 {
-	int i,j;
+	int i, imax;
+	int j;
 	sample_t sample;
 	SAMPLE min, max;
 	PangoLayout  *small_layout;
@@ -1157,14 +1162,20 @@ static void channel_draw(rtp_channel_info_t* rci)
 				rci->draw_area->allocation.width,
 				rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
+		imax = min(rci->draw_area->allocation.width,(gint)(rci->samples->len/MULT));
+
 		/* we update the progress bar 100 times */
-		progbar_quantum = (total_frames/MULT)/100;
-		progbar_nextstep = progbar_count;
+
+		/* Update the progress bar when it gets to this value. */
+		progbar_nextstep = 0;
+		/* When we reach the value that triggers a progress bar update,
+		   bump that value by this amount. */
+		progbar_quantum = imax/100;
 
 		red_gc = gdk_gc_new(rci->draw_area->window);
 		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 
-		for (i=0; i< min(rci->draw_area->allocation.width,(gint)(rci->samples->len/MULT)); i++) {
+		for (i=0; i< imax; i++) {
 			sample.val = 0;
 			status = S_NORMAL;
 			max=(SAMPLE)0xFFFF;
@@ -1173,7 +1184,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			if (progbar_count >= progbar_nextstep) {
 				g_assert(total_frames > 0);
 
-				progbar_val = (gfloat) progbar_count / (total_frames/MULT);
+				progbar_val = (gfloat) i / imax;
 
 				update_progress_bar(progbar_val);
 
