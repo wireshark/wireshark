@@ -475,7 +475,7 @@ decode_rtp_packet(rtp_packet_t *rp, rtp_channel_info_t *rci, SAMPLE **out_buff)
 		else if (rp->info->info_payload_len%20 == 0)    /* G723 Low 5.3kbps */
 			tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */	
 		else {
-		  return 0;
+			return 0;
 		}
 		decodeG723(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
@@ -774,7 +774,7 @@ stop_channels(void)
 	if( err != paNoError ) {
 		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 							  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-							  "Can not Stop Stream in PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+							  "Can not Stop Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 		gtk_dialog_run (GTK_DIALOG (dialog));
 		gtk_widget_destroy (dialog);
 		return;
@@ -784,11 +784,12 @@ stop_channels(void)
 	if( err != paNoError ) {
 		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 							  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-							  "Can not Close Stream in PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+							  "Can not Close Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 		gtk_dialog_run (GTK_DIALOG (dialog));
 		gtk_widget_destroy (dialog);
 		return;
 	}
+	pa_stream = NULL;	/* to catch errors better */
 
 	rtp_channels->start_index[0] = 0;
 	rtp_channels->start_index[1] = 0;
@@ -1017,13 +1018,13 @@ static int paCallback( void *inputBuffer, void *outputBuffer,
 {
 /*	(void) statusFlags;*/
 #endif /* PORTAUDIO_API_1 */
-    rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
-    SAMPLE *wptr = (SAMPLE*)outputBuffer;
-    sample_t sample;
-    unsigned int i;
-    int finished;
-    unsigned int framesLeft;
-    int framesToPlay;
+	rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
+	SAMPLE *wptr = (SAMPLE*)outputBuffer;
+	sample_t sample;
+	unsigned int i;
+	int finished;
+	unsigned int framesLeft;
+	int framesToPlay;
 
 	/* if it is pasued, we keep the stream running but with silence only */
 	if (rtp_channels->pause) {
@@ -1050,22 +1051,22 @@ static int paCallback( void *inputBuffer, void *outputBuffer,
 
 	framesLeft = rpci->max_frame_index - rpci->frame_index;
 
-    (void) inputBuffer; /* Prevent unused variable warnings. */
-    (void) outTime;
+	(void) inputBuffer; /* Prevent unused variable warnings. */
+	(void) outTime;
 
-    if( framesLeft < framesPerBuffer )
-    {
-        framesToPlay = framesLeft;
-        finished = 1;
-    }
-    else
-    {
-        framesToPlay = framesPerBuffer;
-        finished = 0;
-    }
+	if( framesLeft < framesPerBuffer )
+	{
+		framesToPlay = framesLeft;
+		finished = 1;
+	}
+	else
+	{
+		framesToPlay = framesPerBuffer;
+		finished = 0;
+	}
 
-    for( i=0; i<(unsigned int)framesToPlay; i++ )
-    {
+	for( i=0; i<(unsigned int)framesToPlay; i++ )
+	{
 		if (rpci->rci[0] && ( (rpci->frame_index >= rpci->start_index[0]) && (rpci->frame_index <= rpci->end_index[0]) )) {
 			sample = g_array_index(rpci->rci[0]->samples, sample_t, rpci->rci[0]->frame_index++);
 			*wptr++ = sample.val;
@@ -1079,15 +1080,15 @@ static int paCallback( void *inputBuffer, void *outputBuffer,
 		} else {
 			*wptr++ = 0;
 		}
-    }
-    for( ; i<framesPerBuffer; i++ )
-    {
-        *wptr++ = 0;
+	}
+	for( ; i<framesPerBuffer; i++ )
+	{
 		*wptr++ = 0;
-    }
+		*wptr++ = 0;
+	}
 	rpci->frame_index += framesToPlay;
 
-    return finished;
+	return finished;
 }
 
 /****************************************************************************/
@@ -1510,19 +1511,19 @@ play_channels(void)
 #else /* PORTAUDIO_API_1 */
 		err = Pa_OpenDefaultStream( 
 				&pa_stream,
-                0,
-                NUM_CHANNELS,
-                PA_SAMPLE_TYPE,
-                SAMPLE_RATE,
-                FRAMES_PER_BUFFER,
-                paCallback,
-                rtp_channels );
+				0,
+				NUM_CHANNELS,
+				PA_SAMPLE_TYPE,
+				SAMPLE_RATE,
+				FRAMES_PER_BUFFER,
+				paCallback,
+				rtp_channels );
 #endif /* PORTAUDIO_API_1 */
 
 		if( err != paNoError ) {
 			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-								  "Can not Open Stream in PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+								  "Can not Open Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 			gtk_dialog_run (GTK_DIALOG (dialog));
 			gtk_widget_destroy (dialog);
 			return;
@@ -1889,7 +1890,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	if( err != paNoError ) {
 		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
                                   GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-                                  "Can not Initialize the PortAduio Library.\n Error: %s", Pa_GetErrorText( err ));
+                                  "Can not Initialize the PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 		gtk_dialog_run (GTK_DIALOG (dialog));
 		gtk_widget_destroy (dialog);
 		initialized = FALSE;
