@@ -101,6 +101,15 @@ static guint32 calls_ns = 0;     /* number of selected calls */
 static graph_analysis_data_t *graph_analysis_data = NULL;
 
 #define NUM_COLS 9
+#define CALL_COL_START_TIME		0
+#define CALL_COL_STOP_TIME		1
+#define CALL_COL_INITIAL_SPEAKER	2
+#define CALL_COL_FROM			3
+#define CALL_COL_TO			4
+#define CALL_COL_PROTOCOL		5
+#define CALL_COL_PACKETS		6
+#define CALL_COL_STATE			7
+#define CALL_COL_COMMENTS		8
 static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
 static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 
@@ -123,22 +132,22 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 
 /*	strinfo->selected = FALSE;*/
 
-	g_snprintf(field[0], 15, "%i.%2i", strinfo->start_sec, strinfo->start_usec/10000);
-	g_snprintf(field[1], 15, "%i.%2i", strinfo->stop_sec, strinfo->stop_usec/10000);
-/*	xxx display_signed_time(data[0], sizeof(field[0]), strinfo->start_sec, strinfo->start_usec, USECS); */
-/*	display_signed_time(data[1], sizeof(field[0]), strinfo->stop_sec, strinfo->stop_usec, USECS); */
-	g_snprintf(field[2], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
-	g_snprintf(field[3], 50, "%s", strinfo->from_identity);
-	g_snprintf(field[4], 50, "%s", strinfo->to_identity);
-	g_snprintf(field[5], 15, "%s", voip_protocol_name[strinfo->protocol]);
-	g_snprintf(field[6], 15, "%u", strinfo->npackets);
-	g_snprintf(field[7], 15, "%s", voip_call_state_name[strinfo->call_state]);
+	g_snprintf(field[CALL_COL_START_TIME], 15, "%i.%2i", strinfo->start_sec, strinfo->start_usec/10000);
+	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%i.%2i", strinfo->stop_sec, strinfo->stop_usec/10000);
+/*	xxx display_signed_time(data[0], sizeof(field[CALL_COL_START_TIME]), strinfo->start_sec, strinfo->start_usec, USECS); */
+/*	display_signed_time(data[1], sizeof(field[CALL_COL_STOP_TIME]), strinfo->stop_sec, strinfo->stop_usec, USECS); */
+	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
+	g_snprintf(field[CALL_COL_FROM], 50, "%s", strinfo->from_identity);
+	g_snprintf(field[CALL_COL_TO], 50, "%s", strinfo->to_identity);
+	g_snprintf(field[CALL_COL_PROTOCOL], 15, "%s", voip_protocol_name[strinfo->protocol]);
+	g_snprintf(field[CALL_COL_PACKETS], 15, "%u", strinfo->npackets);
+	g_snprintf(field[CALL_COL_STATE], 15, "%s", voip_call_state_name[strinfo->call_state]);
 
 	/* Add comments based on the protocol */
 	switch(strinfo->protocol){
 		case VOIP_ISUP:
 			tmp_isupinfo = strinfo->prot_info;
-			g_snprintf(field[8],30, "%i-%i -> %i-%i", tmp_isupinfo->ni, tmp_isupinfo->opc,
+			g_snprintf(field[CALL_COL_COMMENTS],30, "%i-%i -> %i-%i", tmp_isupinfo->ni, tmp_isupinfo->opc,
 				tmp_isupinfo->ni, tmp_isupinfo->dpc);
 			break;
 		case VOIP_H323:
@@ -147,11 +156,11 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 				tmp_bool = tmp_h323info->is_faststart_Setup;
 			else
 				if ((tmp_h323info->is_faststart_Setup == TRUE) && (tmp_h323info->is_faststart_Proc == TRUE)) tmp_bool = TRUE; 
-			g_snprintf(field[8],35, "Tunneling: %s  Fast Start: %s", (tmp_h323info->is_h245Tunneling==TRUE?"ON":"OFF"), 
+			g_snprintf(field[CALL_COL_COMMENTS],35, "Tunneling: %s  Fast Start: %s", (tmp_h323info->is_h245Tunneling==TRUE?"ON":"OFF"), 
 				(tmp_bool==TRUE?"ON":"OFF"));
 			break;
 		default:
-			field[8][0]='\0';
+			field[CALL_COL_COMMENTS][0]='\0';
 	}
 
 	
@@ -536,8 +545,8 @@ voip_calls_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
 	switch(clist->sort_column){
-	case 0:
-	case 1:
+	case CALL_COL_START_TIME:
+	case CALL_COL_STOP_TIME:
 		if ((sscanf(text1, "%u.%u", &i1, &i2) != 2) ||
 			(sscanf(text2, "%u.%u", &i3, &i4) != 2) ){
 				return 0;
@@ -547,14 +556,14 @@ voip_calls_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		if (i1<i3)
 			return -1;
 		return (i3-i4);
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 7:
-	case 8:
+	case CALL_COL_INITIAL_SPEAKER:
+	case CALL_COL_FROM:
+	case CALL_COL_TO:
+	case CALL_COL_PROTOCOL:
+	case CALL_COL_STATE:
+	case CALL_COL_COMMENTS:
 		return strcmp (text1, text2);
-	case 6:
+	case CALL_COL_PACKETS:
 		i1=atoi(text1);
 		i2=atoi(text2);
 		return i1-i2;
@@ -599,25 +608,25 @@ static void voip_calls_dlg_create (void)
 	clist = gtk_clist_new (NUM_COLS);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
 
-	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 60);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 60);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 80);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 3, 130);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 130);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 45);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 60);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 8, 100);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_START_TIME, 60);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_STOP_TIME, 60);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_INITIAL_SPEAKER, 80);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_FROM, 130);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_TO, 130);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_PROTOCOL, 50);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_PACKETS, 45);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_STATE, 60);
+	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_COMMENTS, 100);
 
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 3, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_START_TIME, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_STOP_TIME, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_INITIAL_SPEAKER, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_FROM, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_TO, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_PROTOCOL, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_PACKETS, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_STATE, GTK_JUSTIFY_LEFT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), CALL_COL_COMMENTS, GTK_JUSTIFY_LEFT);
 
 	gtk_clist_column_titles_show (GTK_CLIST (clist));
 
@@ -721,13 +730,13 @@ void voip_calls_dlg_update(GList *list)
 		calls_nb = 0;
 		calls_ns = 0;
 
-       	g_snprintf(label_text, 256,
-       		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-		g_list_length(voip_calls_get_info()->strinfo_list),
-        voip_calls_get_info()->start_packets, 
-		voip_calls_get_info()->completed_calls,
-		voip_calls_get_info()->rejected_calls);
-       	gtk_label_set(GTK_LABEL(status_label), label_text);
+		g_snprintf(label_text, 256,
+			"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
+			g_list_length(voip_calls_get_info()->strinfo_list),
+			voip_calls_get_info()->start_packets, 
+			voip_calls_get_info()->completed_calls,
+			voip_calls_get_info()->rejected_calls);
+		gtk_label_set(GTK_LABEL(status_label), label_text);
 
 		gtk_clist_freeze(GTK_CLIST(clist));
 		gtk_clist_clear(GTK_CLIST(clist));
