@@ -85,11 +85,11 @@ const char *voip_call_state_name[7]={
 const char *voip_protocol_name[7]={
 	"SIP",
 	"ISUP",
-	"H323",
+	"H.323",
 	"MGCP",
 	"AC_ISDN",
 	"AC_CAS",
-	"T38"
+	"T.38"
 	};
 
 typedef struct {
@@ -174,8 +174,8 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	tapinfo->ncalls = 0;
 	tapinfo->npackets = 0;
 	tapinfo->start_packets = 0;
-    tapinfo->completed_calls = 0;
-    tapinfo->rejected_calls = 0;
+	tapinfo->completed_calls = 0;
+	tapinfo->rejected_calls = 0;
 
 	/* free the graph data items first */
 	list = g_list_first(tapinfo->graph_analysis->list);
