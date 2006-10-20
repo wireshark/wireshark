@@ -315,12 +315,14 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 		gtk_widget_set_sensitive(bt_stop, stop);
 
 		/* Set sensitive to the check buttons based on the STOP state */
-		g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop);	
+		if (rtp_channels_hash)
+			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop);	
 	} else {
 		gtk_widget_set_sensitive(bt_pause, FALSE);
 		gtk_widget_set_sensitive(bt_stop, FALSE);
 
-		g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &false_val);	
+		if (rtp_channels_hash)
+			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &false_val);	
 	}
 }
 
@@ -1601,12 +1603,12 @@ static void
 reset_channels(void)
 {
 
-	/* Remove the channels from the main window if there are there */
-	g_hash_table_foreach( rtp_channels_hash, (GHFunc)remove_channel_to_window, NULL);
-
-
-	/* destroy the rtp channels hash table */
 	if (rtp_channels_hash) {
+		/* Remove the channels from the main window if there are there */
+		g_hash_table_foreach( rtp_channels_hash, (GHFunc)remove_channel_to_window, NULL);
+
+
+		/* destroy the rtp channels hash table */
 		g_hash_table_destroy(rtp_channels_hash);
 		rtp_channels_hash = NULL;
 	}
@@ -1664,7 +1666,8 @@ decode_streams(void)
 	progbar_count = 0;
 
 	/* Mark the RTP streams to be played using the selected VoipCalls*/
-	g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
+	if (rtp_streams_hash)
+		g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
 
 	/* Decode the RTP streams and add them to the RTP channels to be played */
 	g_list_foreach( rtp_streams_list, (GFunc)decode_rtp_stream, NULL);
@@ -1672,7 +1675,8 @@ decode_streams(void)
 	/* reset the number of frames to be displayed, this is used for the progress bar */
 	total_frames = 0;
 	/* Count the frames in all the RTP channels */
-	g_hash_table_foreach( rtp_channels_hash, (GHFunc)count_channel_frames, NULL);	
+	if (rtp_channels_hash)
+		g_hash_table_foreach( rtp_channels_hash, (GHFunc)count_channel_frames, NULL);	
 
 	/* reset the Progress Bar count again for the progress of creating the channels view */
 	progbar_count = 0;
@@ -1681,11 +1685,12 @@ decode_streams(void)
 
 	/* Display the RTP channels in the window */
 	counter = 0;
-	g_hash_table_foreach( rtp_channels_hash, (GHFunc)add_channel_to_window, &counter);	
+	if (rtp_channels_hash)
+		g_hash_table_foreach( rtp_channels_hash, (GHFunc)add_channel_to_window, &counter);	
 
 	/* Resize the main scroll window to display no more than 5 channels, otherwise the scroll bar need to be used */
 	WIDGET_SET_SIZE(main_scrolled_window, CHANNEL_WIDTH, 
-		min(g_hash_table_size(rtp_channels_hash), 5) * (CHANNEL_HEIGHT+60));
+		min(counter, 5) * (CHANNEL_HEIGHT+60));
 
 	gtk_widget_show_all(main_scrolled_window);
 
