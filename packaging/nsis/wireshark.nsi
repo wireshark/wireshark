@@ -331,6 +331,9 @@ File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
 !endif
 !ifdef LUA_DIR
 File "${LUA_DIR}\lib\dll\lua5.1.dll"
+File "..\..\epan\wslua\init.lua"
+File "..\..\epan\wslua\console.lua"
+File "..\..\epan\wslua\dtd_gen.lua"
 !endif
 File "..\..\FAQ"
 File "..\..\README"
@@ -343,9 +346,6 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
-File "..\..\epan\wslua\init.lua"
-File "..\..\epan\wslua\console.lua"
-File "..\..\epan\wslua\dtd_gen.lua"
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
@@ -751,6 +751,7 @@ File "..\..\plugins\mate\mate.dll"
 SectionEnd
 
 
+!ifdef NET_SNMP_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
@@ -759,6 +760,7 @@ SectionIn 1 2
 SetOutPath $INSTDIR\snmp\mibs
 File "${NET_SNMP_DIR}\mibs\*.txt"
 SectionEnd
+!endif
 
 SectionGroupEnd	; "Plugins / Extensions"
 
