@@ -2164,6 +2164,12 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 	item = proto_tree_add_uint(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0, delay);
 	PROTO_ITEM_SET_GENERATED(item);
 
+	/* Add to expert info */
+	expert_add_info_format(pinfo, item,
+	                       PI_SEQUENCE, PI_NOTE,
+	                       "RTCP round-trip delay detected (%u ms)",
+	                       delay);
+
 	/* Report delay in INFO column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -3853,7 +3859,7 @@ proto_register_rtcp(void)
 		"Minimum roundtrip calculations to report (ms)",
 		"Minimum calculated roundtrip delay time in milliseconds that "
 		"should be reported",
-		MIN_ROUNDTRIP_TO_REPORT_DEFAULT, &global_rtcp_show_roundtrip_calculation_minimum);
+		10, &global_rtcp_show_roundtrip_calculation_minimum);
 
 
 }
