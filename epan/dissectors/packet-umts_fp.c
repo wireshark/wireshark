@@ -1594,7 +1594,7 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_append_str(pinfo->cinfo, COL_INFO,
                        is_control_frame ? " [Control] " : 
                                           ((p_fp_info->is_uplink) ? " [ULData] " :
-                                                                    " [DLData]" ));
+                                                                    " [DLData] " ));
     }
 
     if (is_control_frame)
@@ -2197,13 +2197,13 @@ void proto_register_fp(void)
         { &hf_fp_toa,
             { "ToA",
               "fp.cfn-control", FT_INT16, BASE_DEC, NULL, 0x0,
-              "Connection Frame Number Control", HFILL
+              "Time of arrival (units are 125 microseconds)", HFILL
             }
         },
         { &hf_fp_tb,
             { "TB",
               "fp.tb", FT_NONE, BASE_NONE, NULL, 0x0,
-              "TB", HFILL
+              "Transport Block", HFILL
             }
         },
         { &hf_fp_tfi,
@@ -2329,7 +2329,7 @@ void proto_register_fp(void)
         { &hf_fp_fach_tfi,
             { "TFI",
               "fp.fach.tfi", FT_UINT8, BASE_DEC, 0, 0x1f,
-              "Transport Format Indicator", HFILL
+              "FACH Transport Format Indicator", HFILL
             }
         },
         { &hf_fp_transmit_power_level,
