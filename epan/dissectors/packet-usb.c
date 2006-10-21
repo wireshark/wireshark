@@ -92,11 +92,15 @@ static int hf_usb_bNumInterfaces = -1;
 static int hf_usb_bConfigurationValue = -1;
 static int hf_usb_iConfiguration = -1;
 static int hf_usb_bMaxPower = -1;
+static int hf_usb_configuration_bmAttributes = -1;
+static int hf_usb_configuration_selfpowered = -1;
+static int hf_usb_configuration_remotewakeup = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
 static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
+static gint ett_configuration_bmAttributes = -1;
 
 
 static dissector_table_t usb_bulk_dissector_table;
@@ -539,6 +543,14 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
 }
 
 /* 9.6.3 */
+static const true_false_string tfs_selfpowered = {
+    "This device is SELF-POWERED",
+    "This device is powered from the USB bus"
+};
+static const true_false_string tfs_remotewakeup = {
+    "This device supports REMOTE WAKEUP",
+    "This device does NOT support remote wakeup"
+};
 static int
 dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info)
 {
@@ -546,6 +558,11 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     proto_tree *tree=NULL;
     int old_offset=offset;
     guint16 len;
+    proto_item *flags_item=NULL;
+    proto_tree *flags_tree=NULL;
+    guint8 flags;
+    proto_item *power_item=NULL;
+    guint8 power;
 
     if(parent_tree){
         item=proto_tree_add_text(parent_tree, tvb, offset, 0, "CONFIGURATION DESCRIPTOR");
@@ -578,11 +595,23 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     offset++;
 
     /* bmAttributes */
-    proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, TRUE);
+    if(tree){
+        flags_item=proto_tree_add_item(tree, hf_usb_configuration_bmAttributes, tvb, offset, 1, TRUE);
+        flags_tree=proto_item_add_subtree(flags_item, ett_configuration_bmAttributes);
+    }
+    flags=tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(flags_tree, hf_usb_configuration_selfpowered, tvb, offset, 1, TRUE);
+    proto_item_append_text(flags_item, "  %sSELF-POWERED", (flags&0x40)?"":"NOT ");
+    flags&=~0x40;
+    proto_tree_add_item(flags_tree, hf_usb_configuration_remotewakeup, tvb, offset, 1, TRUE);
+    proto_item_append_text(flags_item, "  %sREMOTE-WAKEUP", (flags&0x20)?"":"NO ");
+    flags&=~0x20;
     offset++;
 
     /* bMaxPower */
-    proto_tree_add_item(tree, hf_usb_bMaxPower, tvb, offset, 1, TRUE);
+    power_item=proto_tree_add_item(tree, hf_usb_bMaxPower, tvb, offset, 1, TRUE);
+    power=tvb_get_guint8(tvb, offset);
+    proto_item_append_text(power_item, "  (%dmA)", power*2);
     offset++;
 
     /* initialize interface_info to NULL */
@@ -1212,6 +1241,10 @@ proto_register_usb(void)
         { "bEndpointAddress", "usb.bEndpointAddress", FT_UINT8, BASE_HEX, 
           NULL, 0x0, "", HFILL }},
 
+        { &hf_usb_configuration_bmAttributes,
+        { "Configuration bmAttributes", "usb.configuration.bmAttributes", FT_UINT8, BASE_HEX, 
+          NULL, 0x0, "", HFILL }},
+
         { &hf_usb_bmAttributes,
         { "bmAttributes", "usb.bmAttributes", FT_UINT8, BASE_HEX, 
           NULL, 0x0, "", HFILL }},
@@ -1244,13 +1277,21 @@ proto_register_usb(void)
         { "bMaxPower", "usb.bMaxPower", FT_UINT8, BASE_DEC, 
           NULL, 0x0, "", HFILL }},
 
+        { &hf_usb_configuration_selfpowered,
+        { "Self-Powered", "usb.configuration.selfpowered", FT_UINT8, BASE_HEX, 
+          TFS(&tfs_selfpowered), 0x40, "", HFILL }},
+
+        { &hf_usb_configuration_remotewakeup,
+        { "Remote Wakeup", "usb.configuration.remotewakeup", FT_UINT8, BASE_HEX, 
+          TFS(&tfs_remotewakeup), 0x20, "", HFILL }},
     };
     
     static gint *usb_subtrees[] = {
             &usb_hdr,
             &usb_setup_hdr,
             &ett_usb_setup_bmrequesttype,
-            &ett_descriptor_device
+            &ett_descriptor_device,
+            &ett_configuration_bmAttributes
     };
 
      
