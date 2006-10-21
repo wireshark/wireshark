@@ -1278,11 +1278,11 @@ proto_register_usb(void)
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_configuration_selfpowered,
-        { "Self-Powered", "usb.configuration.selfpowered", FT_UINT8, BASE_HEX, 
+        { "Self-Powered", "usb.configuration.selfpowered", FT_BOOLEAN, 8, 
           TFS(&tfs_selfpowered), 0x40, "", HFILL }},
 
         { &hf_usb_configuration_remotewakeup,
-        { "Remote Wakeup", "usb.configuration.remotewakeup", FT_UINT8, BASE_HEX, 
+        { "Remote Wakeup", "usb.configuration.remotewakeup", FT_BOOLEAN, 8, 
           TFS(&tfs_remotewakeup), 0x20, "", HFILL }},
     };
     
