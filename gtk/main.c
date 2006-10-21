@@ -2007,8 +2007,8 @@ get_gui_compiled_info(GString *str)
 {
   get_epan_compiled_version_info(str);
 
-#ifdef HAVE_LIBPORTAUDIO
   g_string_append(str, ", ");
+#ifdef HAVE_LIBPORTAUDIO
 #ifdef PORTAUDIO_API_1
   g_string_append(str, "with PortAudio <= V18");
 #else /* PORTAUDIO_API_1 */
