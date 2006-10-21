@@ -347,6 +347,8 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   license_page = about_license_page_new();
   page_lb = gtk_label_new("License");
+  /* set a minmum width to avoid a lot of line breaks at the wrong places */
+  WIDGET_SET_SIZE(license_page, 600, -1);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), license_page, page_lb);
 #endif
 
