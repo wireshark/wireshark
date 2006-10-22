@@ -95,12 +95,15 @@ static int hf_usb_bMaxPower = -1;
 static int hf_usb_configuration_bmAttributes = -1;
 static int hf_usb_configuration_selfpowered = -1;
 static int hf_usb_configuration_remotewakeup = -1;
+static int hf_usb_bEndpointAddress_direction = -1;
+static int hf_usb_bEndpointAddress_number = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
 static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
 static gint ett_configuration_bmAttributes = -1;
+static gint ett_configuration_bEndpointAddress = -1;
 
 
 static dissector_table_t usb_bulk_dissector_table;
@@ -477,11 +480,17 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
 }
 
 /* 9.6.6 */
+static const true_false_string tfs_endpoint_direction = {
+    "IN Endpoint",
+    "OUT Endpoint"
+};
 static int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
+    proto_item *endpoint_item=NULL;
+    proto_tree *endpoint_tree=NULL;
     int old_offset=offset;
     guint8 endpoint;
 
@@ -499,8 +508,15 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     offset++;
 
     /* bEndpointAddress */
-    proto_tree_add_item(tree, hf_usb_bEndpointAddress, tvb, offset, 1, TRUE);
+    if(tree){
+        endpoint_item=proto_tree_add_item(tree, hf_usb_bEndpointAddress, tvb, offset, 1, TRUE);
+	endpoint_tree=proto_item_add_subtree(endpoint_item, ett_configuration_bEndpointAddress);
+    }
     endpoint=tvb_get_guint8(tvb, offset)&0x0f;
+    proto_tree_add_item(endpoint_tree, hf_usb_bEndpointAddress_direction, tvb, offset, 1, TRUE);
+    proto_item_append_text(endpoint_item, "  %s", (tvb_get_guint8(tvb, offset)&0x80)?"IN":"OUT");
+    proto_tree_add_item(endpoint_tree, hf_usb_bEndpointAddress_number, tvb, offset, 1, TRUE);
+    proto_item_append_text(endpoint_item, "  Endpoint:%d", endpoint);
     offset++;
 
     /* Together with class from the interface descriptor we know what kind
@@ -1284,6 +1300,15 @@ proto_register_usb(void)
         { &hf_usb_configuration_remotewakeup,
         { "Remote Wakeup", "usb.configuration.remotewakeup", FT_BOOLEAN, 8, 
           TFS(&tfs_remotewakeup), 0x20, "", HFILL }},
+
+        { &hf_usb_bEndpointAddress_number,
+        { "Endpoint Number", "usb.bEndpointAddress.number", FT_UINT8, BASE_HEX, 
+          NULL, 0x0f, "", HFILL }},
+
+        { &hf_usb_bEndpointAddress_direction,
+        { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8, 
+          TFS(&tfs_endpoint_direction), 0x80, "", HFILL }},
+
     };
     
     static gint *usb_subtrees[] = {
@@ -1291,7 +1316,8 @@ proto_register_usb(void)
             &usb_setup_hdr,
             &ett_usb_setup_bmrequesttype,
             &ett_descriptor_device,
-            &ett_configuration_bmAttributes
+            &ett_configuration_bmAttributes,
+            &ett_configuration_bEndpointAddress
     };
 
      
