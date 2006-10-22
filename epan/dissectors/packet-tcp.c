@@ -112,6 +112,7 @@ static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_probe_ack = -1;
 static int hf_tcp_continuation_to = -1;
 static int hf_tcp_pdu_time = -1;
+static int hf_tcp_pdu_size = -1;
 static int hf_tcp_pdu_last_frame = -1;
 static int hf_tcp_reassembled_in = -1;
 static int hf_tcp_segments = -1;
@@ -1429,6 +1430,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint plen;
   guint length;
   tvbuff_t *next_tvb;
+  proto_item *item=NULL;
 
   while (tvb_reported_length_remaining(tvb, offset) != 0) {
     /*
@@ -1478,6 +1480,13 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       show_reported_bounds_error(tvb, pinfo, tree);
       return;
     }
+    /*
+     * Display the PDU length as a field 
+     */ 
+    item=proto_tree_add_uint(pinfo->tcp_tree, hf_tcp_pdu_size, tvb, 0, 0, plen);
+    PROTO_ITEM_SET_GENERATED(item);
+        
+
 
     /* give a hint to TCP where the next PDU starts
      * so that it can attempt to find it in case it starts
@@ -2095,6 +2104,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, FALSE);
     }
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
+    pinfo->tcp_tree=tcp_tree;
+
     proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
 	"Source port: %s (%u)", get_tcp_port(tcph->th_sport), tcph->th_sport);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
@@ -2832,6 +2843,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_pdu_time,
 		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "How long time has passed until the last frame of this PDU", HFILL}},
+		{ &hf_tcp_pdu_size,
+		  { "PDU Size", "tcp.pdu.size", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "The size of this PDU", HFILL}},
+
 		{ &hf_tcp_pdu_last_frame,
 		  { "Last frame of this PDU", "tcp.pdu.last_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is the last frame of the PDU starting in this segment", HFILL }},

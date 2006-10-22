@@ -175,6 +175,7 @@ typedef struct _packet_info {
   gchar   annex_a_used;
   guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
   void *usb_conv_info;
+  void *tcp_tree;		/* proto_tree for the tcp layer */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */
