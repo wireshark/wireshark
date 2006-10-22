@@ -550,13 +550,13 @@ proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
         /* if this is the first packet, we have to write the CSV header */
         if(edt->pi.fd->num == 1) {
             for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
-	        fprintf(fh, "\"%s\", ", edt->pi.cinfo->col_title[i]);
+	        fprintf(fh, "\"%s\",", edt->pi.cinfo->col_title[i]);
 
             fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_title[i]);
         }
 
         for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
-            fprintf(fh, "\"%s\", ", edt->pi.cinfo->col_data[i]);
+            fprintf(fh, "\"%s\",", edt->pi.cinfo->col_data[i]);
 
         fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_data[i]);
 }
