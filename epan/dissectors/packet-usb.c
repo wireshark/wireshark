@@ -107,6 +107,7 @@ static gint ett_configuration_bEndpointAddress = -1;
 
 
 static dissector_table_t usb_bulk_dissector_table;
+static dissector_table_t usb_control_dissector_table;
 
 
 typedef enum { 
@@ -975,16 +976,19 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(is_request){
+            tvbuff_t *next_tvb;
+
             /* this is a request */
             ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
             requesttype=tvb_get_guint8(tvb, offset);        
             offset=dissect_usb_setup_bmrequesttype(setup_tree, tvb, offset);
 
-            request=tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
-            offset += 1;
 
+            /* read the request code and spawn off to a class specific 
+             * dissector if found 
+             */
+            request=tvb_get_guint8(tvb, offset);
             usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
             if(!usb_trans_info){
                 usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
@@ -994,6 +998,20 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 usb_trans_info->request=request;
                 se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
             }
+            usb_conv_info->usb_trans_info=usb_trans_info;
+            pinfo->usb_conv_info=usb_conv_info;
+
+            /* Try to find a class specific dissector */  
+            next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+            if(dissector_try_port(usb_control_dissector_table, usb_conv_info->class, next_tvb, pinfo, tree)){
+                return;
+            }
+
+            /* 
+             * This was a standard request which is managed by this dissector
+             */
+            proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
+            offset += 1;
 
             if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_clear(pinfo->cinfo, COL_INFO);
@@ -1021,6 +1039,8 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 offset += 2;
             }
         } else {
+            tvbuff_t *next_tvb;
+
             /* this is a response */
             if(pinfo->fd->flags.visited){
                 usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
@@ -1032,6 +1052,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 }
             }
             if(usb_trans_info){
+                usb_conv_info->usb_trans_info=usb_trans_info;
                 dissector=NULL;
                 for(tmp=setup_dissectors;tmp->dissector;tmp++){
                     if(tmp->request==usb_trans_info->request){
@@ -1039,7 +1060,15 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                         break;
                     }
                 }
-  
+
+                /* Try to find a class specific dissector */  
+                usb_conv_info->usb_trans_info=usb_trans_info;
+                pinfo->usb_conv_info=usb_conv_info;
+                next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+                if(dissector_try_port(usb_control_dissector_table, usb_conv_info->class, next_tvb, pinfo, tree)){
+                    return;
+                }
+
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                     col_clear(pinfo->cinfo, COL_INFO);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
@@ -1333,6 +1362,9 @@ proto_register_usb(void)
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", FT_UINT8, BASE_DEC);
+
+    usb_control_dissector_table = register_dissector_table("usb.control",
+        "USB control endpoint", FT_UINT8, BASE_DEC);
 
 }
 

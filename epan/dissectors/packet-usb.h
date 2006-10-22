@@ -24,12 +24,7 @@
 #ifndef __PACKET_USB_H__
 #define __PACKET_USB_H__
 
-/* there is one such structure for each device/endpoint conversation */
-typedef struct _usb_conv_info_t {
-    guint16 class;		/* class for this conversation */
-    emem_tree_t *transactions;
-    void *masstorage;           /* mass storage data */
-} usb_conv_info_t;
+typedef struct _usb_conv_info_t usb_conv_info_t;
 
 /* there is one such structure for each request/response */
 typedef struct _usb_trans_info_t {
@@ -53,6 +48,14 @@ typedef struct _usb_trans_info_t {
      */
     usb_conv_info_t *interface_info;
 } usb_trans_info_t;
+
+/* there is one such structure for each device/endpoint conversation */
+struct _usb_conv_info_t {
+    guint16 class;		/* class for this conversation */
+    emem_tree_t *transactions;
+    void *masstorage;           /* mass storage data */
+    usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
+};
 
 
 /* This is the endpoint number user for "no endpoint" or the fake endpoint 

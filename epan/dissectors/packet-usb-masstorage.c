@@ -44,6 +44,11 @@ static int hf_usb_ms_dCBWCBLength = -1;
 static int hf_usb_ms_dCSWSignature = -1;
 static int hf_usb_ms_dCSWDataResidue = -1;
 static int hf_usb_ms_dCSWStatus = -1;
+static int hf_usb_ms_request = -1;
+static int hf_usb_ms_value = -1;
+static int hf_usb_ms_index = -1;
+static int hf_usb_ms_length = -1;
+static int hf_usb_ms_maxlun = -1;
 
 static gint ett_usb_ms = -1;
 
@@ -62,8 +67,124 @@ static const value_string status_vals[] = {
     {0, NULL}
 };
 
+
+
+
 static void
-dissect_usb_ms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_usb_ms_reset(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
+{
+    if(is_request){
+        proto_tree_add_item(tree, hf_usb_ms_value, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_usb_ms_index, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_usb_ms_length, tvb, offset, 2, FALSE);
+        offset += 2;
+    } else {
+        /* no data in reset response */
+    }
+}
+
+static void
+dissect_usb_ms_get_max_lun(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
+{
+    if(is_request){
+        proto_tree_add_item(tree, hf_usb_ms_value, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_usb_ms_index, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_usb_ms_length, tvb, offset, 2, FALSE);
+        offset += 2;
+    } else {
+        proto_tree_add_item(tree, hf_usb_ms_maxlun, tvb, offset, 1, FALSE);
+        offset++;
+    }
+}
+
+
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+
+typedef struct _usb_setup_dissector_table_t {
+    guint8 request;
+    usb_setup_dissector dissector;
+} usb_setup_dissector_table_t;
+#define USB_SETUP_RESET               0xff
+#define USB_SETUP_GET_MAX_LUN         0xfe
+static const usb_setup_dissector_table_t setup_dissectors[] = {
+    {USB_SETUP_RESET,          dissect_usb_ms_reset},
+    {USB_SETUP_GET_MAX_LUN,    dissect_usb_ms_get_max_lun},
+    {0, NULL}
+};  
+static const value_string setup_request_names_vals[] = {
+    {USB_SETUP_RESET,          "RESET"},
+    {USB_SETUP_GET_MAX_LUN,    "GET MAX LUN"},
+    {0, NULL}
+};  
+
+/* Dissector for mass storage control .
+ * Returns TRUE if a class specific dissector was found
+ * and FALSE othervise.
+ */
+static gint
+dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    gboolean is_request;
+    usb_conv_info_t *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
+    int offset=0;
+    usb_setup_dissector dissector;
+    const usb_setup_dissector_table_t *tmp;
+
+
+    is_request=(pinfo->srcport==NO_ENDPOINT);
+
+    usb_conv_info=pinfo->usb_conv_info;
+    usb_trans_info=usb_conv_info->usb_trans_info;
+
+
+    /* See if we can find a class specific dissector for this request */
+    dissector=NULL;
+    for(tmp=setup_dissectors;tmp->dissector;tmp++){
+        if(tmp->request==usb_trans_info->request){
+            dissector=tmp->dissector;
+            break;
+        }
+    }
+    /* No we could not find any class specific dissector for this request
+     * return FALSE and let USB try any of the standard requests.
+     */
+    if(!dissector){
+        return FALSE;
+    }
+
+
+    if(check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBMS");
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+            val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
+            is_request?"Request":"Response");
+    }
+
+    if(is_request){
+        proto_tree_add_item(tree, hf_usb_ms_request, tvb, offset, 1, TRUE);
+        offset += 1;
+    }
+
+    dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+    return TRUE;
+}
+
+
+/* dissector for mass storage bulk data */
+static void
+dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     usb_conv_info_t *usb_conv_info;
     usb_ms_conv_info_t *usb_ms_conv_info;
@@ -287,6 +408,26 @@ proto_register_usb_ms(void)
         { "Status", "usbms.dCSWStatus", FT_UINT8, BASE_HEX, 
           VALS(status_vals), 0x0, "", HFILL }},
 
+        { &hf_usb_ms_request,
+        { "bRequest", "usbms.setup.bRequest", FT_UINT8, BASE_HEX, VALS(setup_request_names_vals), 0x0,
+                "", HFILL }},
+
+        { &hf_usb_ms_value,
+        { "wValue", "usbms.setup.wValue", FT_UINT16, BASE_HEX, NULL, 0x0,
+                "", HFILL }},
+
+        { &hf_usb_ms_index,
+        { "wIndex", "usbms.setup.wIndex", FT_UINT16, BASE_DEC, NULL, 0x0,
+                "", HFILL }},
+
+        { &hf_usb_ms_length,
+        { "wLength", "usbms.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
+                "", HFILL }},
+                
+        { &hf_usb_ms_maxlun,
+        { "Max LUN", "usbms.setup.maxlun", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "", HFILL }},
+                
     };
     
     static gint *usb_ms_subtrees[] = {
@@ -298,14 +439,18 @@ proto_register_usb_ms(void)
     proto_register_field_array(proto_usb_ms, hf, array_length(hf));
     proto_register_subtree_array(usb_ms_subtrees, array_length(usb_ms_subtrees));
 
-    register_dissector("usbms", dissect_usb_ms, proto_usb_ms);
+    register_dissector("usbms", dissect_usb_ms_bulk, proto_usb_ms);
 }
 
 void
 proto_reg_handoff_usb_ms(void)
 {
-    dissector_handle_t usb_ms_handle;
-    usb_ms_handle = create_dissector_handle(dissect_usb_ms, proto_usb_ms);
+    dissector_handle_t usb_ms_bulk_handle;
+    dissector_handle_t usb_ms_control_handle;
 
-    dissector_add("usb.bulk", IF_CLASS_MASSTORAGE, usb_ms_handle);
+    usb_ms_bulk_handle = create_dissector_handle(dissect_usb_ms_bulk, proto_usb_ms);
+    dissector_add("usb.bulk", IF_CLASS_MASSTORAGE, usb_ms_bulk_handle);
+
+    usb_ms_control_handle = new_create_dissector_handle(dissect_usb_ms_control, proto_usb_ms);
+    dissector_add("usb.control", IF_CLASS_MASSTORAGE, usb_ms_control_handle);
 }
