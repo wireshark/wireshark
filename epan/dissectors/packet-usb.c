@@ -1009,11 +1009,11 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 dissector(pinfo, setup_tree, tvb, offset, is_request, usb_trans_info);
                 offset+=6;
             } else {
-                proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
+                proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, FALSE);
                 offset += 2;
-                proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, TRUE);
+                proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, FALSE);
                 offset += 2;
-                proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
+                proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, FALSE);
                 offset += 2;
             }
         } else {
@@ -1071,19 +1071,19 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 	offset=dissect_usb_setup_bmrequesttype(setup_tree, tvb, offset);
 
         request=tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
+        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, FALSE);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
+        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, FALSE);
         offset += 2;
-        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
+        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, FALSE);
         offset += 2;
-        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, FALSE);
         offset += 2;
     }
     
     proto_tree_add_item(tree, hf_usb_data, tvb,
-        offset, tvb_length_remaining(tvb, offset), TRUE);
+        offset, tvb_length_remaining(tvb, offset), FALSE);
 }
 
 void
