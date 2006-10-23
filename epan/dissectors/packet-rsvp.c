@@ -4868,6 +4868,8 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_rsvp, tvb, offset, msg_length,
 			     FALSE);
     rsvp_tree = proto_item_add_subtree(ti, tree_mode);
+    if (pinfo->ipproto == IP_PROTO_RSVPE2EI) 
+	proto_item_append_text(rsvp_tree, " (E2E-IGNORE)");
     proto_item_append_text(rsvp_tree, ": ");
     proto_item_append_text(rsvp_tree, val_to_str(message_type, message_type_vals,
 						 "Unknown (%u). "));
@@ -4880,6 +4882,8 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s",
 			     val_to_str(message_type, message_type_vals,
 					"Unknown Message (%u). "));
+    if (pinfo->ipproto == IP_PROTO_RSVPE2EI) 
+	proto_item_append_text(ti, " (E2E-IGNORE)");
     rsvp_header_tree = proto_item_add_subtree(ti, TREE(TT_HDR));
 
     proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "RSVP Version: %u",
@@ -5159,7 +5163,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rsvp_request_val *request_val = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, 
+		    (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -5327,6 +5332,7 @@ proto_reg_handoff_rsvp(void)
 
 	rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
 	dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
+	dissector_add("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
 	data_handle = find_dissector("data");
 	rsvp_tap = register_tap("rsvp");
 }
