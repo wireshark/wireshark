@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
 		struct tm starttm;
 
 		memset(&starttm,0,sizeof(struct tm));
-
+		
 		if(!strptime(optarg,"%F %T",&starttm)) {
 			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
 					optarg);
@@ -484,6 +484,8 @@ int main(int argc, char *argv[])
 		}
 
 		check_startstop = TRUE;
+		starttm.tm_isdst = -1;
+		
 		starttime = mktime(&starttm);
 		break;
 	}
@@ -499,6 +501,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		check_startstop = TRUE;
+		stoptm.tm_isdst = -1;
 		stoptime = mktime(&stoptm);
 		break;
 	}
