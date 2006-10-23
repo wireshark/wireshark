@@ -24,7 +24,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 /* Version 0x00 was reverse engineered */
@@ -93,7 +93,8 @@ static const value_string wlccp_node_type_vs[] = {
 	{ 4, "Local Context Manager (LCM)"  },
 	{ 8, "Campus Context Manager (CCM)" },
 	{ 0x10, "Infrastructure (ICN)"      },
-	{ 0x40, "Client"                    }
+	{ 0x40, "Client"                    },
+	{ 0, NULL                           }
 };
 
 static const value_string cisco_pid_vals[] = {
@@ -117,7 +118,7 @@ static const value_string cisco_pid_vals[] = {
 #define F_MIC              (1<<7)
 
 #define WLCCP_UDP_PORT 2887
-/* WLCCP also uses an LCC OUI type and an ethertype */
+/* WLCCP also uses an LLC OUI type and an ethertype */
 
 /* Forward declaration we need below */
 void proto_reg_handoff_wlccp(void);
@@ -176,8 +177,9 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *wlccp_tree, *wlccp_type_tree, *wlccp_flags_tree;
 	gboolean relay_flag;
+	guint8 version;
 	guint16 type, flags;
-	guint offset = 0, version;
+	guint offset = 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
