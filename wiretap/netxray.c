@@ -1465,9 +1465,9 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
     timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000 
                 + ((guint64)phdr->ts.nsecs)/1000;
-    t32 = (guint32)(timestamp%4294967296);
+    t32 = (guint32)(timestamp%G_GINT64_CONSTANT(4294967296));
     rec_hdr.timelo = htolel(t32);
-    t32 = (guint32)(timestamp/4294967296);
+    t32 = (guint32)(timestamp/G_GINT64_CONSTANT(4294967296));
     rec_hdr.timehi = htolel(t32);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
@@ -1657,9 +1657,9 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
     timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000 
                 + ((guint64)phdr->ts.nsecs)/1000;
-    t32 = (guint32)(timestamp%4294967296);
+    t32 = (guint32)(timestamp%G_GINT64_CONSTANT(4294967296));
     rec_hdr.timelo = htolel(t32);
-    t32 = (guint32)(timestamp/4294967296);
+    t32 = (guint32)(timestamp/G_GINT64_CONSTANT(4294967296));
     rec_hdr.timehi = htolel(t32);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
