@@ -25,7 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 /* Todo -
@@ -696,6 +696,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 
             case FT_UINT8:
             case FT_UINT16:
+            case FT_UINT24:
             case FT_UINT32:
                 g_snprintf(value_string, sizeof value_string,
                          "%u", value->value);
@@ -703,6 +704,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 
             case FT_INT8:
             case FT_INT16:
+            case FT_INT24:
             case FT_INT32:
                 g_snprintf(value_string, sizeof value_string,
                          "%d", value->value);
