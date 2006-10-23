@@ -949,8 +949,17 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         *encap = DCT2000_ENCAP_MTP2;
     }
     else
+    if ((strcmp(protocol_name, "nbap") == 0) ||
+        (strcmp(protocol_name, "nbap_r4") == 0) ||
+        (strncmp(protocol_name, "nbap_sscfuni", strlen("nbap_sscfuni")) == 0))
     {
-        /* Not a supported board port protocol/encap, but can show as raw data anyway */
+        /* The entire message in these cases is nbap, so use an encap value. */
+        *encap = DCT2000_ENCAP_NBAP;
+    }
+    else
+    {
+        /* Not a supported board port protocol/encap, but can show as raw data or
+           in some cases find protocol embedded inside primitive */
         *encap = DCT2000_ENCAP_UNHANDLED;
     }
 

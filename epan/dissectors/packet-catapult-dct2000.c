@@ -192,10 +192,11 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
     int offset = *data_offset;
 
     /* Get the sctpprim command code. */
-    guint8 tag = tvb_get_guint8(tvb, offset++);
+    guint8 first_tag = tvb_get_guint8(tvb, offset++);
+    guint8 tag;
 
     /* Only accept interested in data requests or indications */
-    switch (tag)
+    switch (first_tag)
     {
         case 0x04:  /* data request */
         case 0x62:  /* data indication */
@@ -204,17 +205,24 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
             return FALSE;
     }
 
-    /* Length field. msb set indicates 2 bytes */
-    if (tvb_get_guint8(tvb, offset) & 0x80)
+    if (first_tag == 0x04)
     {
-        offset += 2;
+        /* Overall length field. msb set indicates 2 bytes */
+        if (tvb_get_guint8(tvb, offset) & 0x80)
+        {
+            offset += 2;
+        }
+        else
+        {
+            offset++;
+        }
     }
     else
     {
-        offset++;
+        offset += 3;
     }
 
-    /* Skip any other TLC fields before reach payload */
+    /* Skip any other fields before reach payload */
     while (tvb_length_remaining(tvb, offset) > 2)
     {
         /* Look at next tag */
@@ -228,10 +236,29 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
         }
         else
         {
-            /* Read length in next byte */
-            length = tvb_get_guint8(tvb, offset++);
-            /* Skip the following value */
-            offset += length;
+            if (first_tag == 0x62)
+            {
+                switch (tag)
+                {
+                    case 0x0a: /* dest port */
+                    case 0x1e: /* strseqnum */
+                    case 0x0d:
+                        offset += 2;
+                        continue;
+                    case 0x1d:
+                    case 0x09:
+                    case 0x0c:
+                        offset += 4;
+                        continue;
+                }
+            }
+            else
+            {
+                /* Read length in next byte */
+                length = tvb_get_guint8(tvb, offset++);
+                /* Skip the following value */
+                offset += length;
+            }
         }
     }
 
@@ -280,6 +307,9 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         if (tag == 0x1900)
         {
             /* 2-byte length field */
+            offset += 2;
+
+            /* Skip 2-byte length field */
             offset += 2;
 
             /* Data is here!!! */
@@ -371,6 +401,16 @@ dissector_handle_t look_for_dissector(char *protocol_name)
         (strcmp(protocol_name, "iuup_rtp_r6") == 0))
     {
         return find_dissector("rtp");
+    }
+    else
+    if (strcmp(protocol_name, "sipt") == 0)
+    {
+        return find_dissector("sip");
+    }
+    else
+    if (strncmp(protocol_name, "nbap_sctp", strlen("nbap_sctp")) == 0)
+    {
+        return find_dissector("nbap");
     }
 
     /* Try for an exact match */
@@ -695,6 +735,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case DCT2000_ENCAP_MTP2:
             protocol_handle = find_dissector("mtp2");
+            break;
+        case DCT2000_ENCAP_NBAP:
+            protocol_handle = find_dissector("nbap");
             break;
         case DCT2000_ENCAP_UNHANDLED:
             /* Show context.port in src or dest column as appropriate */
