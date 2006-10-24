@@ -57,14 +57,12 @@ my $docbook_template = {
 	module_desc => "\t<title>%s</title>\n",
 	module_footer => "</chapter>\n",
 	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
-	class_footer => "\t</section> <!-- class_footer: %s -->\n",
 	class_desc => "\t\t<para>%s</para>\n",
-	class_constructors_header => "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
-	class_constructors_footer => "\t\t</section> <!-- class_constructors_footer -->\n",
-	class_methods_header => "\t\t<section id='lua_class_methods_%s'>\n\t\t\t<title>%s Methods</title>\n",
-	class_methods_footer => "\t\t</section> <!-- class_methods_footer: %s -->\n",
-	class_attributes_header => "\t\t<section id='lua_class_attribs_%s'>\n\t\t\t<title>%s Attributes</title>\n",
-	class_attributes_footer => "\t\t</section> <!-- class_attributes_footer: %s -->\n",
+	class_footer => "\t</section> <!-- class_footer: %s -->\n",
+#	class_constructors_header => "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
+#	class_constructors_footer => "\t\t</section> <!-- class_constructors_footer -->\n",
+#	class_methods_header => "\t\t<section id='lua_class_methods_%s'>\n\t\t\t<title>%s Methods</title>\n",
+#	class_methods_footer => "\t\t</section> <!-- class_methods_footer: %s -->\n",
 	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
 	class_attr_footer => "\t\t</section> <!-- class_attr_footer: %s -->\n",
 	class_attr_descr => "\t\t\t<para>%s</para>\n",
@@ -88,28 +86,6 @@ my $docbook_template = {
 	non_method_functions_header => "\t\t<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
 	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
 };
-
-my $wiki_template = {
-	class_header => "= %s =\n",
-	class_desc => "%s\n",
-	class_constructors_header => "== %s constructors ==\n",
-	class_methods_header => "== %s methods ==\n",
-	class_attributes_header => "== %s Attributes ==\n",
-	class_attr_header => "=== %s ===\n",
-	class_attr_descr => "%s\n",
-	function_header => "=== %s ===\n",
-	function_descr => "%s\n",
-	function_arg_header => "==== %s ====\n",
-	function_arg_descr => "%s\n",
-	function_argerrors_header => "'''Errors:'''\n",
-	function_argerror => "  * %s\n",
-	function_returns_header => "==== returns ====\n",
-	function_returns => "  * %s\n",
-	function_errors_header => "==== errors ====\n",
-	function_errors => "  * %s\n",
-	non_method_functions_header => "= Non method functions =\n",
-};
-
 
 my %metamethods = %{{
 	__tostring => "tostring(__)",
@@ -150,7 +126,7 @@ sub {
 	$module{descr} = $2
 }],
 
- [ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+)\s*,.*?\051' . $TRAILING_COMMENT_RE,
+ [ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+).*?\051;' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
 	$class = {
@@ -239,7 +215,7 @@ sub {
 [ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
 	sub {
 		deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
-		push @{${$class}{attributes}}, { name => $2, descr => gorolla($4), mode=>$3 };
+		push @{${$class}{attributes}}, { name => "$1.$2", descr => gorolla($4), mode=>$3 };
 	} ],
 
 [ '/\052\s+WSLUA_MOREARGS\s+([A-Za-z_]+)\s+(.*?)\052/',
@@ -328,7 +304,10 @@ while ( $file =  shift) {
 	for my $cname (sort keys %classes) {
 		my $cl = $classes{$cname};
 		printf D ${$template_ref}{class_header}, $cname, $cname;
-		printf D ${$template_ref}{class_desc} , ${$cl}{descr} if ${$cl}{descr};
+		
+		if ( ${$cl}{descr} ) {
+			printf D ${$template_ref}{class_desc} , ${$cl}{descr};
+		}
 		
 		if ( $#{${$cl}{constructors}} >= 0) {
 #			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
@@ -355,16 +334,12 @@ while ( $file =  shift) {
 		}
 		
 		if ( $#{${$cl}{attributes}} >= 0) {
-			printf D ${$template_ref}{class_attributes_header}, $cname, $cname;
-			
 			for my $a (@{${$cl}{attributes}}) {
 				printf D ${$template_ref}{class_attr_header}, ${$a}{name}, ${$a}{name};
 				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, ${$a}{descr} if ${$a}{descr};
 				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
 				
 			}
-			
-			printf D ${$template_ref}{class_attributes_footer}, $cname, $cname;
 		}
 		
 		if (exists ${$template_ref}{class_footer}) {

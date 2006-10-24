@@ -75,9 +75,9 @@ WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
 	/*
 	 * Creates a boolean preference to be added to a Protocol's prefs table.
 	 */
-#define WSLUA_ATTR_Pref_bool_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ATTR_Pref_bool_DEFAULT 2 /* The default value for this preference */
-#define WSLUA_ATTR_Pref_bool_DESCR 3 /* A description of what this preference is */
+#define WSLUA_ARG_Pref_bool_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define WSLUA_ARG_Pref_bool_DEFAULT 2 /* The default value for this preference */
+#define WSLUA_ARG_Pref_bool_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_BOOL);
 }
 
@@ -85,9 +85,9 @@ WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
 	/*
 	 * Creates an (unsigned) integer preference to be added to a Protocol's prefs table.
 	 */
-#define WSLUA_ATTR_Pref_uint_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ATTR_Pref_uint_DEFAULT 2 /* The default value for this preference */
-#define WSLUA_ATTR_Pref_uint_DESCR 3 /* A description of what this preference is */
+#define WSLUA_ARG_Pref_uint_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define WSLUA_ARG_Pref_uint_DEFAULT 2 /* The default value for this preference */
+#define WSLUA_ARG_Pref_uint_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_UINT);
 }
 
@@ -95,9 +95,9 @@ WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
 	/*
 	 * Creates a string preference to be added to a Protocol's prefs table.
 	 */
-#define WSLUA_ATTR_Pref_string_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ATTR_Pref_string_DEFAULT 2 /* The default value for this preference */
-#define WSLUA_ATTR_Pref_string_DESCR 3 /* A description of what this preference is */
+#define WSLUA_ARG_Pref_string_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define WSLUA_ARG_Pref_string_DEFAULT 2 /* The default value for this preference */
+#define WSLUA_ARG_Pref_string_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_STRING);
 }
 
@@ -858,10 +858,10 @@ typedef struct {
 } proto_actions_t;
 
 static const proto_actions_t proto_actions[] = {
-	/* WSLUA_ATTRIBUTE Pinfo_dissector RW the protocol's dissector, a function you define */
+	/* WSLUA_ATTRIBUTE Proto_dissector RW the protocol's dissector, a function you define */
     {"dissector",Proto_get_dissector, Proto_set_dissector},
 
-	/* WSLUA_ATTRIBUTE Pinfo_fields RO the Fields Table of this dissector */
+	/* WSLUA_ATTRIBUTE Proto_fields RO the Fields Table of this dissector */
     {"fields" ,Proto_get_fields, Proto_set_fields},
 	
 	/* WSLUA_ATTRIBUTE Proto_get_prefs RO the preferences of this dissector */
@@ -870,7 +870,7 @@ static const proto_actions_t proto_actions[] = {
 	/* WSLUA_ATTRIBUTE Proto_init WO the init routine of this dissector, a function you define */
     {"init",NULL,Proto_set_init},
 
-	/* WSLUA_ATTRIBUTE Proto_init RO the name given to this dissector */
+	/* WSLUA_ATTRIBUTE Proto_name RO the name given to this dissector */
     {"name",Proto_get_name,NULL},
     {NULL,NULL,NULL}
 };

@@ -107,7 +107,7 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
             
-            if (lua_gettop(tap->L) == 1)
+            if (lua_gettop(tap->L) > 0)
                 retval = luaL_checkint(tap->L,1);
             else 
                 retval = 1;
