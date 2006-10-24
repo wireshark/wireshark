@@ -4108,21 +4108,21 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
 	/* Advanced button */
-	advanced_bt = gtk_button_new_with_label("Wireless Settings");
+	advanced_bt = gtk_button_new_with_label("Wireless Settings...");
 	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
 
 	SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
-        "Set Advanced Wireless Settings...", "Private");
+        "Set Advanced Wireless Settings", "Private");
 	gtk_widget_show(advanced_bt);
 
 	/* Key Management button */
-	key_management_bt = gtk_button_new_with_label("Decryption Keys");
+	key_management_bt = gtk_button_new_with_label("Decryption Keys...");
 	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
 
 	SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
 	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
-        "Manage Decryption Keys...", "Private");
+        "Manage Decryption Keys", "Private");
 	gtk_widget_show(key_management_bt);
 
 	/* select the default interface */
