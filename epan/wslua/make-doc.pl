@@ -35,7 +35,7 @@ sub deb {
 }
 
 sub gorolla {
-# a gorilla stays to a chimp like ... stays to chomp 
+# a gorilla stays to a chimp like gorolla stays to chomp 
 # but this one returns the shrugged string.
 	my $s = shift;
 	$s =~ s/^([\n]|\s)*//ms;
@@ -53,8 +53,8 @@ my $function;
 my @functions;
 
 my $docbook_template = {
-	module_header => "<chapter id='lua_module_%s'>\n\t<title>%s</title>\n",
-	module_desc => "\t<para>%s</para>\n",
+	module_header => "<chapter id='lua_module_%s'>\n",
+	module_desc => "\t<title>%s</title>\n",
 	module_footer => "</chapter>\n",
 	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
 	class_footer => "\t</section> <!-- class_footer: %s -->\n",
@@ -71,18 +71,20 @@ my $docbook_template = {
 	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
 	function_descr => "\t\t\t\t<para>%s</para>\n",
 	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
-	function_arg_header => "\t\t\t\t<section id='lua_fn_arg_%s'>\n\t\t\t\t\t<title>%s</title>\n",
-	function_arg_descr => "\t\t\t\t\t<para>%s</para>\n",
-	function_arg_footer => "\t\t\t\t</section> <!-- function_arg_footer: %s -->\n",
-	function_argerror_header => "\t\t\t\t\t<section id='lua_fn_argerr_%s'>\n\t\t\t\t\t\t<title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
+	function_args_header => "\t\t\t\t\t<command>Arguments</command>\t\t\t\t<variablelist>\n",
+	function_args_footer => "\t\t\t\t</variablelist>\n",
+	function_arg_header => "\t\t\t\t<varlistentry><term>%s</term>\n",
+	function_arg_descr => "\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_arg_footer => "\t\t\t\t</varlistentry> <!-- function_arg_footer: %s -->\n",
+	function_argerror_header => "\t\t\t\t\t<command>Errors</command>\n\t\t\t\t\t\t<itemizedlist>\n",
 	function_argerror => "\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_argerror_footer => "\t\t\t\t\t\t</itemizedlist>\n\t\t\t\t\t</section> <!-- function_argerror_footer: %s -->\n",
-	function_returns_header => "\t\t\t\t<section id='lua_fn_ret_%s'><title>Returns</title>\n",
-	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
+	function_argerror_footer => "\t\t\t\t\t\t</itemizedlist> <!-- function_argerror_footer: %s -->\n",
+	function_returns_header => "\t\t\t\t<command>Returns</command>\n",
+#	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
 	function_returns => "\t\t\t\t\t<para>%s</para>\n",
-	function_errors_header => "\t\t\t\t<section id='lua_fn_err_%s'>\n\t\t\t\t\t<title>Errors</title>\n\t\t\t\t\t<itemizedlist>\n",
+	function_errors_header => "\t\t\t\t<command>Errors</command><itemizedlist>\n",
 	function_errors => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_errors_footer => "\t\t\t\t\t</itemizedlist>\n\t\t\t\t</section> <!-- function_error_footer: %s -->\n",
+	function_errors_footer => "\t\t\t\t\t</itemizedlist> <!-- function_error_footer: %s -->\n",
 	non_method_functions_header => "\t\t<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
 	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
 };
@@ -209,15 +211,12 @@ sub {
 		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
 		my $name = $metamethods{$2};
 		my ($c,$d) = ($1,$5);
-		my $sname = $2;
-		$name =~ s/__/$c/g;
 		$function = {
 			returns => [],
 			arglist => [],
 			args => {},
-			name => $name,
-			section_name => $sname,
-			descr => gorolla($d),
+			name => "$1:$2",
+			descr => gorolla($5),
 			type => 'metamethod'
 		};
 		push @{${$class}{metamethods}}, $function;
@@ -332,33 +331,27 @@ while ( $file =  shift) {
 		printf D ${$template_ref}{class_desc} , ${$cl}{descr} if ${$cl}{descr};
 		
 		if ( $#{${$cl}{constructors}} >= 0) {
-			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
+#			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
 			
 			for my $c (@{${$cl}{constructors}}) {
 				function_descr($c);
 			}
 
-			printf D ${$template_ref}{class_constructors_footer}, $cname, $cname;
+#			printf D ${$template_ref}{class_constructors_footer}, $cname, $cname;
 		}
 
 		if ( $#{${$cl}{methods}} >= 0) {
-			printf D ${$template_ref}{class_methods_header}, $cname, $cname;
+#			printf D ${$template_ref}{class_methods_header}, $cname, $cname;
 			
 			for my $m (@{${$cl}{methods}}) {
 				function_descr($m);
 			}
 			
-			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
-		}
-		
-		if ( $#{${$cl}{metamethods}} >= 0) {
-			printf D ${$template_ref}{class_metamethods_header}, $cname, $cname;
-			
 			for my $m (@{${$cl}{metamethods}}) {
-				function_descr($m,${$m}{name});
+				function_descr($m);
 			}
 			
-			printf D ${$template_ref}{class_metamethods_footer}, $cname, $cname;
+#			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
 		}
 		
 		if ( $#{${$cl}{attributes}} >= 0) {
@@ -409,7 +402,7 @@ close B;
 my $ents = '';
 my $txt = '';
 
-for my $module_name (keys %modules) {
+for my $module_name (sort keys %modules) {
 	$ents .= <<"_ENT";
 	<!ENTITY $module_name SYSTEM "$modules{$module_name}">
 _ENT
@@ -446,6 +439,8 @@ sub function_descr {
 	}	
 	
 	printf D ${$template_ref}{function_descr}, ${$f}{descr} if ${$f}{descr};
+
+	print D ${$template_ref}{function_args_header} if $#{${$f}{arglist}} >= 0;
 	
 	for my $argname (@{${$f}{arglist}}) {
 		my $arg = ${${$f}{args}}{$argname};
@@ -463,6 +458,8 @@ sub function_descr {
 		printf D ${$template_ref}{function_arg_footer}, $argname, $argname;
 	
 	}
+	
+	print D ${$template_ref}{function_args_footer} if $#{${$f}{arglist}} >= 0;
 	
 	if ( $#{${$f}{returns}} >= 0) {
 		printf D ${$template_ref}{function_returns_header}, ${$f}{name};

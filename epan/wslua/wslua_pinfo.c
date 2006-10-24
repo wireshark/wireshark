@@ -62,7 +62,9 @@ void* push_Pinfo(lua_State* L, Pinfo pinfo) {
 
 WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
 
-WSLUA_CONSTRUCTOR Address_ip(lua_State* L) { /* Creates an Address Object representing an IP address. */
+WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
+	/* Creates an Address Object representing an IP address. */
+	
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = g_malloc(sizeof(address));
     guint32* ip_addr = g_malloc(sizeof(guint32));

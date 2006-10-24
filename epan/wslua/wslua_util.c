@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* WSLUA_MODULE Util various useful functions */
+/* WSLUA_MODULE Utility Utility Functions */
 
 #include "wslua.h"
 #include <math.h>
@@ -69,7 +69,7 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
 	WSLUA_RETURN(1); /* a string with the formated date */
 }
 
-WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats an absolute timestamp in a human readable form */
+WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestamp in a human readable form */
 #define WSLUA_ARG_format_time_TIMESTAMP 1 /* a timestamp value to convert */
 	lua_Number time = luaL_checknumber(LS,WSLUA_ARG_format_time_TIMESTAMP);
 	nstime_t then;
@@ -162,6 +162,8 @@ const char* get_actual_filename(const char* fname) {
 }
 
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
+	/* Lua's loadfile() has been modified so that if a file does not exist
+	in the current directory it will look for it in wireshark's user and system directories */
 #define WSLUA_ARG_loadfile_FILENAME 1
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
 	const char* filename;
@@ -180,6 +182,8 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_dofile(lua_State* L) {
+	/* Lua's dofile() has been modified so that if a file does not exist
+	in the current directory it will look for it in wireshark's user and system directories */
 #define WSLUA_ARG_dofile_FILENAME 1
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
 	const char* filename;
@@ -199,29 +203,30 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 
 
 WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
-#define WSLUA_OPTARG_persconffile_path_FILENAME 1
+#define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* a filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
 	const char* filename = get_persconffile_path(fname,FALSE);
 	
 	lua_pushstring(L,filename);
-	return 1;
+	WSLUA_RETURN(1); /* the full pathname for a file in the personal configuration directory */
 }
 
 WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
-#define WSLUA_OPTARG_datafile_path_FILENAME 1
+#define WSLUA_OPTARG_datafile_path_FILENAME 1 /* a filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
 	const char* filename = get_datafile_path(fname);
 
 	lua_pushstring(L,filename);
-	return 1;
+	WSLUA_RETURN(1); /* the full pathname for a file in wireshark's configuration directory */
 }
 
 
 WSLUA_CLASS_DEFINE(Dir,NOP,NOP); /* A Directory */
 
-WSLUA_CONSTRUCTOR wslua_Dir_open(lua_State* L) {
-#define WSLUA_ARG_Dir_open_PATHNAME 1
-#define WSLUA_OPTARG_Dir_open_EXTENSION 2
+WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
+	/* usage: for filename in Dir.open(path) do ... end */
+#define WSLUA_ARG_Dir_open_PATHNAME 1 /* the pathname of the directory */
+#define WSLUA_OPTARG_Dir_open_EXTENSION 2 /* if given, only file with this extension will be returned */
 	
 	const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
 	const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
@@ -249,18 +254,19 @@ WSLUA_CONSTRUCTOR wslua_Dir_open(lua_State* L) {
 	}
 	
 	pushDir(L,dir);
-	return 1;
+	WSLUA_RETURN(1); /* the Dir object */
 }
 
-WSLUA_METAMETHOD wslua_Dir__call(lua_State* L) {
-#define WSLUA_ARG_Dir__call_DIR 1
+WSLUA_METAMETHOD Dir__call(lua_State* L) {
+/* at every invocation will return one file (nil when done) */
+
 	Dir dir = checkDir(L,1);
 	const FILE_T* file;
 	const gchar* filename;
 	const char* ext;
 	
 	if (!dir) 
-		WSLUA_ARG_ERROR(Dir__call,DIR,"must be a Dir");
+		luaL_argerror(L,1,"must be a Dir");
 
 	if (!dir->dir) {
 		return 0;
@@ -295,8 +301,8 @@ WSLUA_METAMETHOD wslua_Dir__call(lua_State* L) {
 	return 0;
 }
 
-WSLUA_METHOD wslua_Dir_close(lua_State* L) {
-#define WSLUA_ARG_Dir_close_DIR 1
+WSLUA_METHOD Dir_close(lua_State* L) {
+/* closes the directory */
 	Dir dir = checkDir(L,1);
 
 	if (dir->dir) {
@@ -308,7 +314,6 @@ WSLUA_METHOD wslua_Dir_close(lua_State* L) {
 }
 
 WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
-#define WSLUA_ARG_Dir__gc_DIR 1
 	Dir dir = checkDir(L,1);
 	
 	if (dir->dir) {
@@ -327,13 +332,13 @@ WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
 }
 
 static const luaL_reg Dir_methods[] = {
-    {"open", wslua_Dir_open},
-    {"close", wslua_Dir_close},
+    {"open", Dir_open},
+    {"close", Dir_close},
     {0, 0}
 };
 
 static const luaL_reg Dir_meta[] = {
-    {"__call", wslua_Dir__call},
+    {"__call", Dir__call},
     {"__gc", wslua_Dir__gc},
     {0, 0}
 };

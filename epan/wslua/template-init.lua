@@ -25,8 +25,8 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
--- If lua is to be completely disabled uncomment the following line.
--- disable_lua = true; do return end;
+-- Lua is disabled by default, comment out the following line to enable Lua support.
+disable_lua = true; do return end;
 
 
 -- If set and we are running with special privileges this setting
@@ -48,7 +48,7 @@ if running_superuser then
     file = disabled_lib
 end
 
--- to avoid output to stdout which can caause problems lua's print ()
+-- to avoid output to stdout which can cause problems lua's print ()
 -- has been suppresed so that it yields an error.
 -- have print() call info() instead.
 print = info
