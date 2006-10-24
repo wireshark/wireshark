@@ -137,7 +137,7 @@ WSLUA_CLASS_DEFINE(Prefs,NOP,NOP); /* The table of preferences of a protocol */
 WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 	/* creates a new preference */
 #define WSLUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference */
-#define WSLUA_ARG_Prefs__newindex_PREF 3 /* A valid still unassigned Pref object */
+#define WSLUA_ARG_Prefs__newindex_PREF 3 /* A valid but still unassigned Pref object */
 
     Pref prefs = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__newindex_NAME);

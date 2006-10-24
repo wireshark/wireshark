@@ -51,8 +51,9 @@ void clear_outstanding_trees(void) {
 }
 
 WSLUA_CLASS_DEFINE(TreeItem,NOP,NOP);
+/* TreeItems represent information in the packet-details pane.
+   A root TreeItem is passed to dissectors as first argument. */
 
-/* ProtoTree class */
 static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     TvbRange tvbr;
     Proto proto;
@@ -183,10 +184,28 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
 }
 
 
-WSLUA_METHOD TreeItem_add(lua_State *L) { return TreeItem_add_item_any(L,FALSE); }
-WSLUA_METHOD TreeItem_add_le(lua_State *L) { return TreeItem_add_item_any(L,TRUE); }
+WSLUA_METHOD TreeItem_add(lua_State *L) {
+	/*
+	 Adds an child item to a given item, returning the child.
+	 tree_item:add([proto_field | proto], [tvbrange], [label], ...)
+	 if the proto_field represents a numeric value (int, uint or float) is to be treated as a Big Endian (network order) Value.
+	*/
+	
+	WSLUA_RETURN(TreeItem_add_item_any(L,FALSE)); /* The child item */
+}
+
+WSLUA_METHOD TreeItem_add_le(lua_State *L) {
+	/*
+	 Adds (and returns) an child item to a given item, returning the child.
+	 tree_item:add([proto_field | proto], [tvbrange], [label], ...)
+	 if the proto_field represents a numeric value (int, uint or float) is to be treated as a Little Endian Value.
+	 */
+	WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The child item */
+}
 
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
+	/* sets the text of the label */
+#define WSLUA_ARG_TreeItem_set_text_TEXT 2 /* The text to be used. */
     TreeItem ti = checkTreeItem(L,1);
     
     if (ti) {
@@ -198,6 +217,8 @@ WSLUA_METHOD TreeItem_set_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_append_text(lua_State *L) {
+	/* appends text to the label */
+#define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s;
     
@@ -208,22 +229,13 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
     return 0;
 }
 
-WSLUA_METHOD TreeItem_set_len(lua_State *L) {
-    TreeItem ti = checkTreeItem(L,1);
-    int len;
-
-    if (ti) {
-        len = luaL_checkint(L,2);
-        proto_item_set_len(ti->item,len);
-    }
-    
-    return 0;
-}
-
 WSLUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
+/* Sets the expert flags of the item. */
+#define WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
+#define WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
     TreeItem ti = checkTreeItem(L,1);
-	int group = luaL_checkint(L,2);
-	int severity = luaL_checkint(L,3);
+	int group = luaL_optint(L,2,PI_DEBUG);
+	int severity = luaL_optint(L,3,PI_CHAT);
 
     if ( ti && ti->item ) {
             proto_item_set_expert_flags(ti->item,group,severity);
@@ -233,9 +245,13 @@ WSLUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
+	/* Sets the expert flags of the item and adds expert info to the packet. */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 3 /* the text for the expert info */
     TreeItem ti = checkTreeItem(L,1);
-	int group = luaL_checkint(L,2);
-	int severity = luaL_checkint(L,3);
+	int group = luaL_optint(L,2,PI_DEBUG);
+	int severity = luaL_optint(L,3,PI_CHAT);
 	const gchar* str = luaL_optstring(L,4,"Expert Info");
 	
     if ( ti && ti->item ) {
@@ -246,6 +262,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
+	/* marks the TreeItem as a generated field (with data infered but not contained in the packet). */
     TreeItem ti = checkTreeItem(L,1);
     if (ti) {
         PROTO_ITEM_SET_GENERATED(ti->item);
@@ -255,6 +272,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 
 
 WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
+	/* should not be used */
     TreeItem ti = checkTreeItem(L,1);
     if (ti) {
         PROTO_ITEM_SET_HIDDEN(ti->item);
@@ -267,7 +285,6 @@ static const luaL_reg TreeItem_methods[] = {
     {"add_le",       TreeItem_add_le},
     {"set_text",       TreeItem_set_text},
     {"append_text",       TreeItem_append_text},
-    {"set_len",       TreeItem_set_len},
     {"set_expert_flags",       TreeItem_set_expert_flags},
     {"add_expert_info",       TreeItem_add_expert_info},
     {"set_generated",       TreeItem_set_generated},

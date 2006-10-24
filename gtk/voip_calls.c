@@ -611,8 +611,14 @@ static void RTP_packet_draw(void *prs _U_)
 						g_free(gai->comment);
 						gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						break;
+					}
+
+					/* we increment the list here to be able to check if it is the last item in this calls, which means the RTP is after so we have to draw it */
+					voip_calls_graph_list = g_list_next(voip_calls_graph_list);
+					if (!voip_calls_graph_list) item++;
+
 					/* add the RTP item to the graph if was not there*/
-					} else if (rtp_listinfo->first_frame_num<gai->frame_num){
+					if (rtp_listinfo->first_frame_num<gai->frame_num || !voip_calls_graph_list){
 						new_gai = g_malloc(sizeof(graph_analysis_item_t));
 						new_gai->frame_num = rtp_listinfo->first_frame_num;
 						new_gai->time = (double)rtp_listinfo->start_rel_sec + (double)rtp_listinfo->start_rel_usec/1000000;
@@ -630,9 +636,7 @@ static void RTP_packet_draw(void *prs _U_)
 						the_tapinfo_struct.graph_analysis->list = g_list_insert(the_tapinfo_struct.graph_analysis->list, new_gai, item);
 						break;
 					}
-					
-					voip_calls_graph_list = g_list_next(voip_calls_graph_list);
-					item++;
+					if (voip_calls_graph_list) item++;
 				}
 				break;
 			}

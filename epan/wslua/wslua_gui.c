@@ -26,7 +26,7 @@
 
 #include "wslua.h"
 
-/* WSLUA_MODULE Gui Gui Support*/ 
+/* WSLUA_MODULE Gui GUI support */
 
 static const funnel_ops_t* ops = NULL;
 
