@@ -78,7 +78,9 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       ${_GTK22IncDir}
       /usr/include/gtk-2.0
       /usr/local/include/gtk-2.0
+      /opt/include/gtk-2.0
       /opt/gnome/include/gtk-2.0
+      /sw/include/gtk-2.0
     )
 
     # Some Linux distributions (e.g. Red Hat) have glibconfig.h
@@ -88,19 +90,24 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
     PKGCONFIG(glib-2.0 _GLIB2IncDir _GLIB2inkDir _GLIB2LinkFlags _GLIB2Cflags)
     PKGCONFIG(gmodule-2.0 _GMODULE2IncDir _GMODULE2inkDir _GMODULE2LinkFlags _GMODULE2Cflags)
     SET(GDIR /opt/gnome/lib/glib-2.0/include)
+
     FIND_PATH(GTK2_GLIBCONFIG_INCLUDE_PATH glibconfig.h
       ${_GLIB2IncDir}
       /opt/gnome/lib64/glib-2.0/include
       /opt/gnome/lib/glib-2.0/include
+      /opt/lib/glib-2.0/include
       /usr/lib64/glib-2.0/include
       /usr/lib/glib-2.0/include
+      /sw/lib/glib-2.0/include
     )
     #MESSAGE(STATUS "DEBUG: GTK2_GLIBCONFIG_INCLUDE_PATH = ${GTK2_GLIBCONFIG_INCLUDE_PATH}")
 
     FIND_PATH(GTK2_GLIB_INCLUDE_PATH glib.h
       ${_GLIB2IncDir}
+      /opt/include/glib-2.0
       /opt/gnome/include/glib-2.0
       /usr/include/glib-2.0
+      /sw/include/glib-2.0
     )
     #MESSAGE(STATUS "DEBUG: GTK2_GLIBCONFIG_INCLUDE_PATH = ${GTK2_GLIBCONFIG_INCLUDE_PATH}")
 
@@ -110,6 +117,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /usr/local/include
       /usr/openwin/share/include
       /opt/gnome/include
+      /opt/include
+      /sw/include
     )
 
     PKGCONFIG(pango _PANGOIncDir _PANGOinkDir _PANGOLinkFlags _PANGOCflags)
@@ -117,7 +126,9 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
     FIND_PATH(GTK2_PANGO_INCLUDE_PATH pango/pango.h
       ${_PANGOIncDir}
       /opt/gnome/include/pango-1.0
+      /opt/include/pango-1.0
       /usr/include/pango-1.0
+      /sw/include/pango-1.0
     )
 
     PKGCONFIG(gdk-2.0 _GDK2IncDir _GDK2inkDir _GDK2LinkFlags _GDK2Cflags)
@@ -126,8 +137,10 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       ${_GDK2IncDir}
       /opt/gnome/lib/gtk-2.0/include
       /opt/gnome/lib64/gtk-2.0/include
+      /opt/lib/gtk-2.0/include
       /usr/lib/gtk-2.0/include
       /usr/lib64/gtk-2.0/include
+      /sw/lib/gtk-2.0/include
     )
 
     PKGCONFIG(cairo _CAIROIncDir _CAIROinkDir _CAIROLinkFlags _CAIROCflags)
@@ -137,6 +150,10 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/gnome/include/cairo
       /usr/include
       /usr/include/cairo
+      /opt/include
+      /opt/include/cairo
+      /sw/include
+      /sw/include/cairo
     )
     #MESSAGE(STATUS "DEBUG: GTK2_CAIRO_INCLUDE_PATH = ${GTK2_CAIRO_INCLUDE_PATH}")
 
@@ -146,6 +163,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       ${_ATKIncDir}
       /opt/gnome/include/atk-1.0
       /usr/include/atk-1.0
+      /opt/include/atk-1.0
+      /sw/include/atk-1.0
     )
     #MESSAGE(STATUS "DEBUG: GTK2_ATK_INCLUDE_PATH = ${GTK2_ATK_INCLUDE_PATH}")
 
@@ -159,6 +178,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_GTK_LIBRARY
@@ -171,6 +192,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_GDK_LIBRARY
@@ -183,6 +206,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_GMODULE_LIBRARY
@@ -195,6 +220,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_GLIB_LIBRARY
@@ -207,6 +234,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_Xi_LIBRARY 
@@ -218,6 +247,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     FIND_LIBRARY(GTK2_GTHREAD_LIBRARY
@@ -229,6 +260,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
 
@@ -241,6 +274,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/openwin/lib
         /usr/X11R6/lib
         /opt/gnome/lib
+        /opt/lib
+        /sw/lib
     )
 
     IF(GTK2_GTK_INCLUDE_PATH)
@@ -264,7 +299,6 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
                       ${GTK2_GDKCONFIG_INCLUDE_PATH}
                       ${GTK2_ATK_INCLUDE_PATH}
                       ${GTK2_CAIRO_INCLUDE_PATH}
-                      CACHE INTERNAL "The include directories for GTK2"
                     )
 
                     SET(GTK2_LIBRARIES
@@ -286,9 +320,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
                         ${GTK2_LIBRARIES}
                         ${GTK2_GTHREAD_LIBRARY}
                       )
-                    SET(GTK2_LIBRARIES ${GTK2_LIBRARIES}
-			CACHE INTERNAL "The libraries for GTK2"
-		    )
+                    SET(GTK2_LIBRARIES ${GTK2_LIBRARIES})
                     ENDIF(GTK2_GTHREAD_LIBRARY)
                   ELSE(GTK2_CAIRO_INCLUDE_PATH)
                     MESSAGE(STATUS "Can not find cairo")

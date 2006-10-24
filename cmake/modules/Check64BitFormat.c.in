@@ -1,0 +1,12 @@
+#include <stdio.h>
+#define LENGTH 16
+int main(int ac, char*av[]){
+  unsigned long long t = 1;
+  char strbuf[LENGTH+1] = {0};
+  sprintf(strbuf, "%016@FORMAT@x", t << 32);
+  if (strcmp(strbuf, "0000000100000000") == 0){
+    exit(0);
+  } else {
+    exit(1);
+  }
+}

@@ -61,3 +61,4 @@ ADD_LIBRARY(wiretap SHARED
         ascend-scanner.c
 )
 
+INSTALL(TARGETS wiretap LIBRARY DESTINATION lib)
