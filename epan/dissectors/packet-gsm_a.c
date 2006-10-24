@@ -687,8 +687,8 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00, "Emergency Number List" },
     /* Call Control Information Elements 10.5.4 */
 	/* Pos 60 */
-    { 0x00,	"Auxiliary States" },
-    { 0x00,	"Bearer Capability" },
+    { 0x00,	"Auxiliary States" },					/* 10.5.4.4 Auxiliary states */
+    { 0x00,	"Bearer Capability" },					/* 10.5.4.4a Backup bearer capability */
     { 0x00,	"Call Control Capabilities" },
     { 0x00,	"Call State" },
     { 0x00,	"Called Party BCD Number" },
@@ -717,14 +717,17 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Signal" },
     { 0x00,	"SS Version Indicator" },
     { 0x00,	"User-user" },
-    { 0x00,	"Alerting Pattern $(NIA)$" },
+    { 0x00,	"Alerting Pattern $(NIA)$" },			/* 10.5.4.26 Alerting Pattern $(NIA)$ */
     { 0x00,	"Allowed Actions $(CCBS)$" },
     { 0x00,	"Stream Identifier" },
     { 0x00,	"Network Call Control Capabilities" },
     { 0x00,	"Cause of No CLI" },
-    { 0x00,	"Immediate Modification Indicator" },
-    { 0x00,	"Supported Codec List" },
-    { 0x00,	"Service Category" },
+    { 0x00,	"Immediate Modification Indicator" },	/* 10.5.4.30 Cause of No CLI */
+	/* 10.5.4.31 Void */
+    { 0x00,	"Supported Codec List" },				/* 10.5.4.32 Supported codec list */
+    { 0x00,	"Service Category" },					/* 10.5.4.33 Service category */
+	/* 10.5.4.34 Redial */
+	/* 10.5.4.35 Network-initiated Service Upgrade indicator */
     /* GPRS Mobility Management Information Elements 10.5.5 */
     { 0x00,	"Attach Result" },
     { 0x00,	"Attach Type" },
@@ -16058,6 +16061,7 @@ dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [4] 9.3.23
+ * 3GPP TS 24.008 version 7.5.0 Release 7
  */
 static void
 dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -16119,13 +16123,16 @@ dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(0x3a, BSSAP_PDU_TYPE_DTAP, DE_CAUSE_NO_CLI, "");
 
+	/* Backup bearer capability O TLV 3-15 10.5.4.4a */
+	ELEM_OPT_TLV(0x41, BSSAP_PDU_TYPE_DTAP, DE_BEARER_CAP, "");
+
     /* uplink only */
 
     ELEM_OPT_TLV(0x7f, BSSAP_PDU_TYPE_DTAP, DE_SS_VER_IND, "");
 
-    ELEM_OPT_T(0xa1, BSSAP_PDU_TYPE_DTAP, DE_FOP, "");
+    ELEM_OPT_T(0xa1, BSSAP_PDU_TYPE_DTAP, DE_CLIR_SUP, "");
 
-    ELEM_OPT_T(0xa2, BSSAP_PDU_TYPE_DTAP, DE_CTS_PERM, "");
+    ELEM_OPT_T(0xa2, BSSAP_PDU_TYPE_DTAP, DE_CLIR_INV, "");
 
     ELEM_OPT_TLV(0x15, BSSAP_PDU_TYPE_DTAP, DE_CC_CAP, "");
 
@@ -16136,6 +16143,11 @@ dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x2d, BSSAP_PDU_TYPE_DTAP, DE_SI, "");
 
     ELEM_OPT_TLV(0x40, BSSAP_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, "");
+
+	/*A3 Redial Redial O T 1 10.5.4.34 
+	/* TODO add this element 
+	ELEM_OPT_T(0xA3, BSSAP_PDU_TYPE_DTAP, DE_REDIAL, "");
+	*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
