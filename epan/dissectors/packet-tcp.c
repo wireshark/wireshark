@@ -778,6 +778,11 @@ finished_checking_retransmission_type:
 	/* first we remove all such segments at the head of the list */
 	while((ual=tcpd->rev->segments)){
 		tcp_unacked_t *tmpual;
+		if(ack==ual->nextseq){
+			tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+			tcpd->ta->frame_acked=ual->frame;
+			nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &ual->ts);
+		}
 		if(GT_SEQ(ual->nextseq,ack)){
 			break;
 		}
@@ -807,11 +812,6 @@ finished_checking_retransmission_type:
 		ual=ual->next;
 	}
 
-#ifdef REMOVED
-		tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
-		tcpd->ta->frame_acked=tcpd->rev->segments->frame;
-		nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &tcpd->rev->segments->ts);
-#endif
 }
 
 static void
