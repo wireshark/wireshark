@@ -110,6 +110,7 @@ TSHARK_TAP_SRC =	\
 	tap-mgcpstat.c	\
 	tap-protocolinfo.c	\
 	tap-protohierstat.c	\
+	tap-radiusstat.c	\
 	tap-rpcstat.c	\
 	tap-rpcprogs.c	\
 	tap-sctpchunkstat.c	\

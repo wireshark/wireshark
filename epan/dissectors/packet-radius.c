@@ -4,6 +4,7 @@
  * Copyright 1999 Johan Feyaerts
  * Changed 03/12/2003 Rui Carmo (http://the.taoofmac.com - added all 3GPP VSAs, some parsing)
  * Changed 07/2005 Luis Ontanon <luis.ontanon@gmail.com> - use FreeRADIUS' dictionary
+ * Changed 10/2006 Alejandro Vaquero <alejandrovaquero@yahoo.com> - add Conversations support
  *
  * $Id$
  *
@@ -60,6 +61,8 @@
 #include <epan/crypt-md5.h>
 #include <epan/sminmpec.h>
 #include <epan/filesystem.h>
+#include <epan/conversation.h>
+#include <epan/tap.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
 
@@ -86,38 +89,20 @@ typedef struct {
 #define UDP_PORT_RADACCT	1646
 #define UDP_PORT_RADACCT_NEW	1813
 
-#define RADIUS_ACCESS_REQUEST			1
-#define RADIUS_ACCESS_ACCEPT			2
-#define RADIUS_ACCESS_REJECT			3
-#define RADIUS_ACCOUNTING_REQUEST		4
-#define RADIUS_ACCOUNTING_RESPONSE		5
-#define RADIUS_ACCOUNTING_STATUS		6
-#define RADIUS_ACCESS_PASSWORD_REQUEST		7
-#define RADIUS_ACCESS_PASSWORD_ACK		8
-#define RADIUS_ACCESS_PASSWORD_REJECT		9
-#define RADIUS_ACCOUNTING_MESSAGE		10
-#define RADIUS_ACCESS_CHALLENGE			11
-#define RADIUS_STATUS_SERVER			12
-#define RADIUS_STATUS_CLIENT			13
-
-#define RADIUS_VENDOR_SPECIFIC_CODE		26
-#define RADIUS_ASCEND_ACCESS_NEXT_CODE		29
-#define RADIUS_ASCEND_ACCESS_NEW_PIN		30
-#define RADIUS_ASCEND_PASSWORD_EXPIRED		32
-#define RADIUS_ASCEND_ACCESS_EVENT_REQUEST	33
-#define RADIUS_ASCEND_ACCESS_EVENT_RESPONSE	34
-#define RADIUS_DISCONNECT_REQUEST		40
-#define RADIUS_DISCONNECT_REQUEST_ACK		41
-#define RADIUS_DISCONNECT_REQUEST_NAK		42
-#define RADIUS_CHANGE_FILTER_REQUEST		43
-#define RADIUS_CHANGE_FILTER_REQUEST_ACK	44
-#define RADIUS_CHANGE_FILTER_REQUEST_NAK	45
-#define RADIUS_EAP_MESSAGE_CODE				79
-#define RADIUS_RESERVED				255
-
 static radius_dictionary_t* dict = NULL;
 
 static int proto_radius = -1;
+
+static int hf_radius_req = -1;
+static int hf_radius_rsp = -1;
+static int hf_radius_req_frame = -1;
+static int hf_radius_rsp_frame = -1;
+static int hf_radius_time = -1;
+
+static int hf_radius_dup = -1;
+static int hf_radius_req_dup = -1;
+static int hf_radius_rsp_dup = -1;
+
 static int hf_radius_id = -1;
 static int hf_radius_code = -1;
 static int hf_radius_length = -1;
@@ -134,6 +119,11 @@ static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_eap = -1;
 
+/*
+ * Define the tap for radius
+ */
+static int radius_tap = -1;
+
 radius_vendor_info_t no_vendor = {"Unknown Vendor",0,NULL,-1};
 
 radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1 };
@@ -149,6 +139,8 @@ static guint alt_port_pref = 0;
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
 static const value_string* radius_vendors = NULL;
+
+static radius_info_t rad_info;
 
 static const value_string radius_vals[] =
 {
@@ -180,6 +172,67 @@ static const value_string radius_vals[] =
 	{RADIUS_RESERVED,			"Reserved"},
 	{0, NULL}
 };
+
+/*
+ * Init Hash table stuff for converation
+ */
+
+typedef struct _radius_call_info_key
+{
+	guint code;
+	guint ident;
+	conversation_t *conversation;
+	nstime_t req_time;
+} radius_call_info_key;
+
+static GMemChunk *radius_call_info_key_chunk;
+static GMemChunk *radius_call_info_value_chunk;
+static GHashTable *radius_calls;
+
+/* Compare 2 keys */
+static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
+{
+	const radius_call_info_key* key1 = (const radius_call_info_key*) k1;
+	const radius_call_info_key* key2 = (const radius_call_info_key*) k2;
+
+	if (key1->ident == key2->ident && key1->conversation == key2->conversation) {
+		nstime_t delta;
+
+		nstime_delta(&delta, &key1->req_time, &key2->req_time);
+		if (abs(nstime_to_sec(&delta)) > (double) 5) return 0;
+
+		if (key1->code == key2->code)
+			return 1;
+		/* check the request and response are of the same code type */
+		if (key1->code == RADIUS_ACCESS_REQUEST && ( key2->code == RADIUS_ACCESS_ACCEPT || key2->code == RADIUS_ACCESS_REJECT ) )
+			return 1;
+
+		if (key1->code == RADIUS_ACCOUNTING_REQUEST && key2->code == RADIUS_ACCOUNTING_RESPONSE )
+			return 1;
+
+		if (key1->code == RADIUS_ACCESS_PASSWORD_REQUEST && ( key2->code == RADIUS_ACCESS_PASSWORD_ACK || key2->code == RADIUS_ACCESS_PASSWORD_REJECT ) )
+			return 1;
+
+		if (key1->code == RADIUS_ASCEND_ACCESS_EVENT_REQUEST && key2->code == RADIUS_ASCEND_ACCESS_EVENT_RESPONSE )
+			return 1;
+
+		if (key1->code == RADIUS_DISCONNECT_REQUEST && ( key2->code == RADIUS_DISCONNECT_REQUEST_ACK || key2->code == RADIUS_DISCONNECT_REQUEST_NAK ) )
+			return 1;
+
+		if (key1->code == RADIUS_CHANGE_FILTER_REQUEST && ( key2->code == RADIUS_CHANGE_FILTER_REQUEST_ACK || key2->code == RADIUS_CHANGE_FILTER_REQUEST_NAK ) )
+			return 1;
+	} 
+	return 0;
+}
+
+/* Calculate a hash key */
+static guint radius_call_hash(gconstpointer k)
+{
+	const radius_call_info_key* key = (const radius_call_info_key*) k;
+
+	return key->ident + /*key->code + */ key->conversation->index;
+}
+
 
 static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb) {
 	int len;
@@ -790,7 +843,24 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint rhident;
 	guint avplength;
 	e_radiushdr rh;
-	
+
+	conversation_t* conversation;
+	radius_call_info_key radius_call_key;
+	radius_call_info_key *new_radius_call_key = NULL;
+	radius_call_t *radius_call = NULL;
+	nstime_t delta;
+	static address null_address = { AT_NONE, 0, NULL };
+
+	/* Initialise stat info for passing to tap */
+	rad_info.code = 0;
+	rad_info.ident = 0;
+	rad_info.req_time.secs = 0;
+	rad_info.req_time.nsecs = 0;
+	rad_info.is_duplicate = FALSE;
+	rad_info.request_available = FALSE;
+	rad_info.req_num = 0; /* frame number request seen */
+	rad_info.rspcode = 0;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -813,6 +883,10 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		*  is 4096.
 		*/
 	
+	/* tap stat info */
+	rad_info.code = rhcode;
+	rad_info.ident = rhident;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
@@ -856,15 +930,225 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	tvb_memcpy(tvb,authenticator,4,AUTHENTICATOR_LENGTH);
 
-	if (tree && avplength > 0) {
-		/* list the attribute value pairs */
-		avptf = proto_tree_add_text(radius_tree, tvb, HDR_LENGTH,
-					    avplength, "Attribute Value Pairs");
-		avptree = proto_item_add_subtree(avptf, ett_radius_avp);
-			
-		dissect_attribute_value_pairs(avptree, pinfo, tvb, HDR_LENGTH,
-					      avplength);
+	if (tree) {
+
+		/* Conversation support REQUEST/RESPONSES */
+		switch (rhcode)
+		{
+			case RADIUS_ACCESS_REQUEST:
+			case RADIUS_ACCOUNTING_REQUEST:
+			case RADIUS_ACCESS_PASSWORD_REQUEST:
+			case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
+			case RADIUS_DISCONNECT_REQUEST:
+			case RADIUS_CHANGE_FILTER_REQUEST:
+				proto_tree_add_boolean_hidden(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
+				/* Keep track of the address and port whence the call came
+				 *  so that we can match up requests with replies.
+				 * 
+				 * Because it is UDP and the reply can come from any IP
+				 * and port (not necessarly the request dest), we only 
+				 * track the source IP and port of the request to match 
+				 * the reply. 
+				 */
+
+				/*
+				 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+				 * you currently still have to pass a non-null
+				 * pointer for the second address argument even
+				 * if you do that.
+				 */
+				conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+					                                 &null_address, pinfo->ptype, pinfo->srcport,
+					                                 pinfo->destport, 0);
+				if (conversation == NULL)
+				{
+					/* It's not part of any conversation - create a new one. */
+					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+					                                &null_address, pinfo->ptype, pinfo->srcport,
+					                                pinfo->destport, 0);
+				}
+
+				/* Prepare the key data */
+				radius_call_key.code = rhcode;
+				radius_call_key.ident = rhident;
+				radius_call_key.conversation = conversation;
+				radius_call_key.req_time = pinfo->fd->abs_ts;
+
+				/* Look up the request */
+				radius_call = g_hash_table_lookup(radius_calls, &radius_call_key);
+				if (radius_call != NULL)
+				{
+					/* We've seen a request with this ID, with the same 
+					   destination, before - but was it *this* request? */
+					if (pinfo->fd->num != radius_call->req_num)
+					{
+						/* No, so it's a duplicate request. Mark it as such. */
+						rad_info.is_duplicate = TRUE;
+						rad_info.req_num = radius_call->req_num;
+						if (check_col(pinfo->cinfo, COL_INFO))
+						{
+							col_append_fstr(pinfo->cinfo, COL_INFO,
+							                ", Duplicate Request ID:%u",
+							                rhident);
+						}
+						if (tree)
+						{
+							proto_item* item;
+							proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rhident);
+							item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0,0, rhident);
+							PROTO_ITEM_SET_GENERATED(item);
+						}
+					}
+				}
+				else
+				{
+					/* Prepare the value data.
+					   "req_num" and "rsp_num" are frame numbers;
+					   frame numbers are 1-origin, so we use 0
+					   to mean "we don't yet know in which frame
+					   the reply for this call appears". */
+					new_radius_call_key = g_mem_chunk_alloc(radius_call_info_key_chunk);
+					*new_radius_call_key = radius_call_key;
+					radius_call = g_mem_chunk_alloc(radius_call_info_value_chunk);
+					radius_call->req_num = pinfo->fd->num;
+					radius_call->rsp_num = 0;
+					radius_call->ident = rhident;
+					radius_call->code = rhcode;
+					radius_call->responded = FALSE;
+					radius_call->req_time=pinfo->fd->abs_ts;
+					radius_call->rspcode = 0;
+
+					/* Store it */
+					g_hash_table_insert(radius_calls, new_radius_call_key, radius_call);
+				}
+				if (radius_call && radius_call->rsp_num)
+				{
+					proto_item* item = proto_tree_add_uint_format(radius_tree, hf_radius_rsp_frame,
+					                                              tvb, 0, 0, radius_call->rsp_num,
+					                                              "The response to this request is in frame %u",
+					                                              radius_call->rsp_num);
+					PROTO_ITEM_SET_GENERATED(item);
+				}
+				break;
+			case RADIUS_ACCESS_ACCEPT:
+			case RADIUS_ACCESS_REJECT:
+			case RADIUS_ACCOUNTING_RESPONSE:
+			case RADIUS_ACCESS_PASSWORD_ACK:
+			case RADIUS_ACCESS_PASSWORD_REJECT:
+			case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
+			case RADIUS_DISCONNECT_REQUEST_ACK:
+			case RADIUS_DISCONNECT_REQUEST_NAK:
+			case RADIUS_CHANGE_FILTER_REQUEST_ACK:
+			case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+				proto_tree_add_boolean_hidden(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
+				/* Check for RADIUS response.  A response must match a call that
+				 * we've seen, and the response must be sent to the same
+				 * port and address that the call came from.
+				 *
+				 * Because it is UDP and the reply can come from any IP
+				 * and port (not necessarly the request dest), we only 
+				 * track the source IP and port of the request to match 
+				 * the reply. 
+				 */
+
+				/* XXX - can we just use NO_ADDR_B?  Unfortunately,
+				 * you currently still have to pass a non-null
+				 * pointer for the second address argument even
+				 * if you do that.
+				 */
+				conversation = find_conversation(pinfo->fd->num, &null_address,
+					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
+					                                 pinfo->destport, 0);
+				if (conversation != NULL)
+				{
+					/* Look only for matching request, if
+					   matching conversation is available. */
+					/* Prepare the key data */
+					radius_call_key.code = rhcode;
+					radius_call_key.ident = rhident;
+					radius_call_key.conversation = conversation;
+					radius_call_key.req_time = pinfo->fd->abs_ts;
+
+					radius_call = g_hash_table_lookup(radius_calls, &radius_call_key);
+					if (radius_call)
+					{
+						/* Indicate the frame to which this is a reply. */
+						if (radius_call->req_num)
+						{
+							proto_item* item;
+							rad_info.request_available = TRUE;
+							rad_info.req_num = radius_call->req_num;
+							radius_call->responded = TRUE;
+
+							item = proto_tree_add_uint_format(radius_tree, hf_radius_req_frame,
+							                                  tvb, 0, 0, radius_call->req_num,
+							                                  "This is a response to a request in frame %u",
+							                                  radius_call->req_num);
+							PROTO_ITEM_SET_GENERATED(item);
+							nstime_delta(&delta, &pinfo->fd->abs_ts, &radius_call->req_time);
+							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
+							PROTO_ITEM_SET_GENERATED(item);
+						}
+
+						if (radius_call->rsp_num == 0)
+						{
+							/* We have not yet seen a response to that call, so
+							   this must be the first response; remember its
+							   frame number. */
+							radius_call->rsp_num = pinfo->fd->num;
+						}
+						else
+						{
+							/* We have seen a response to this call - but was it
+							   *this* response? (disregard provisional responses) */
+							if ( (radius_call->rsp_num != pinfo->fd->num) && (radius_call->rspcode == rhcode) )
+							{
+								/* No, so it's a duplicate response. Mark it as such. */
+								rad_info.is_duplicate = TRUE;
+								if (check_col(pinfo->cinfo, COL_INFO))
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO,
+									                ", Duplicate Response ID:%u",
+									                rhident);
+								}
+								if (tree)
+								{
+									proto_item* item;
+									proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rhident);
+									item = proto_tree_add_uint(radius_tree, hf_radius_rsp_dup,
+									                           tvb, 0, 0, rhident);
+									PROTO_ITEM_SET_GENERATED(item);
+								}
+							}
+						}
+						/* Now store the response code (after comparison above) */
+						radius_call->rspcode = rhcode;
+						rad_info.rspcode = rhcode;
+					}
+				}
+				break;
+			default:
+				break;
+		}
+		
+		if (radius_call)
+		{
+			rad_info.req_time.secs = radius_call->req_time.secs;
+			rad_info.req_time.nsecs = radius_call->req_time.nsecs;
+		}
+
+		if (avplength > 0) {
+			/* list the attribute value pairs */
+			avptf = proto_tree_add_text(radius_tree, tvb, HDR_LENGTH,
+							avplength, "Attribute Value Pairs");
+			avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+				
+			dissect_attribute_value_pairs(avptree, pinfo, tvb, HDR_LENGTH,
+							  avplength);
+		}
 	}
+
+	tap_queue_packet(radius_tap, pinfo, &rad_info);
 }	
 
 
@@ -1034,10 +1318,62 @@ static void reinit_radius(void) {
 	}	
 }
 
+/* Discard and init any state we've saved */
+static void 
+radius_init_protocol(void)
+{
+	if (radius_calls != NULL)
+	{
+		g_hash_table_destroy(radius_calls);
+		radius_calls = NULL;
+	}
+	if (radius_call_info_key_chunk != NULL)
+	{
+		g_mem_chunk_destroy(radius_call_info_key_chunk);
+		radius_call_info_key_chunk = NULL;
+	}
+	if (radius_call_info_value_chunk != NULL)
+	{
+		g_mem_chunk_destroy(radius_call_info_value_chunk);
+		radius_call_info_value_chunk = NULL;
+	}
+
+	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
+	radius_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
+	                                           sizeof(radius_call_info_key),
+	                                           200 * sizeof(radius_call_info_key),
+	                                           G_ALLOC_ONLY);
+	radius_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
+	                                             sizeof(radius_call_t),
+	                                             200 * sizeof(radius_call_t),
+	                                             G_ALLOC_ONLY);
+}
+
 void
 proto_register_radius(void)
 {
 	hf_register_info base_hf[] = {
+
+	{ &hf_radius_req,
+    { "Request", "radius.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if RADIUS request", HFILL }},
+
+	{ &hf_radius_rsp,
+	{ "Response", "radius.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if RADIUS response", HFILL }},
+
+	{ &hf_radius_req_frame,
+	{ "Request Frame", "radius.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "Request Frame", HFILL }},
+
+	{ &hf_radius_rsp_frame,
+	{ "Response Frame", "radius.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "Response Frame", HFILL }},
+
+	{ &hf_radius_time,
+	{ "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+			"Timedelta between Request and Response", HFILL }},
+
 	{ &hf_radius_code,
 	{ "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
 		"", HFILL }},
@@ -1082,7 +1418,18 @@ proto_register_radius(void)
 	{ "Cosine-VCI","radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"", HFILL }},
 
-		
+	{ &hf_radius_dup,
+	{ "Duplicate Message", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		"Duplicate Message", HFILL }},
+
+	{ &hf_radius_req_dup,
+	{ "Duplicate Request", "radius.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		"Duplicate Request", HFILL }},
+
+	{ &hf_radius_rsp_dup,
+	{ "Duplicate Response", "radius.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		"Duplicate Response", HFILL }},
+
 	};
 	
 	gint *base_ett[] = {
@@ -1154,6 +1501,8 @@ proto_register_radius(void)
 	proto_register_field_array(proto_radius,(hf_register_info*)(ri.hf->data),ri.hf->len);
 	proto_register_subtree_array((gint**)(ri.ett->data), ri.ett->len);
 
+	register_init_routine(&radius_init_protocol);
+
 	g_array_free(ri.hf,FALSE);
 	g_array_free(ri.ett,FALSE);
 	g_array_free(ri.vend_vs,FALSE);
@@ -1170,6 +1519,7 @@ proto_register_radius(void)
 
     no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
     
+	radius_tap = register_tap("radius");
 }
 
 void

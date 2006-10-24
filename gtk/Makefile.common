@@ -163,7 +163,8 @@ WIRESHARK_TAP_SRC = \
 	mgcp_stat.c	\
 	mtp3_stat.c	\
 	mtp3_summary.c	\
-	ncp_stat.c  \
+	ncp_stat.c	\
+	radius_stat.c	\
 	rpc_progs.c	\
 	rpc_stat.c	\
 	rtp_analysis.c	\
