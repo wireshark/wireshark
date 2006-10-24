@@ -1733,9 +1733,27 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		 * but display the line as is.
 		 */
 		if (tree) {
-			hdr_item = proto_tree_add_string_format(tree,
-			    *headers[hf_index].hf, tvb, offset, len,
-			    value, "%s", format_text(line, len));
+			header_field_info *hfinfo;
+			guint32 tmp;
+
+			hfinfo = proto_registrar_get_nth(*headers[hf_index].hf);
+			switch(hfinfo->type){
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
+				tmp=strtol(value, NULL, 10);
+				hdr_item = proto_tree_add_uint(tree, *headers[hf_index].hf, tvb, offset, len, tmp);
+				break;
+			default:
+				hdr_item = proto_tree_add_string_format(tree,
+				    *headers[hf_index].hf, tvb, offset, len,
+				    value, "%s", format_text(line, len));
+			}
 		} else
 			hdr_item = NULL;
 
@@ -2016,7 +2034,7 @@ proto_register_http(void)
 		"HTTP Content-Type header", HFILL }},
 	    { &hf_http_content_length,
 	      { "Content-Length",	"http.content_length",
-		FT_STRING, BASE_NONE, NULL, 0x0,
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"HTTP Content-Length header", HFILL }},
 	    { &hf_http_content_encoding,
 	      { "Content-Encoding",	"http.content_encoding",

@@ -3308,6 +3308,9 @@ n_merged_keys = g_list_length(merged_list);
 /* Set up this new list as default for Wireshark and Adapters... */
 airpcap_save_decryption_keys(merged_list,airpcap_if_list);
 
+/* Write the preferences to the preferences file */
+write_prefs_to_file();
+
 free_key_list(wireshark_keys);
 
 gtk_widget_destroy(keys_check_w);
@@ -3371,6 +3374,9 @@ n_merged_keys = g_list_length(merged_list);
 
 /* Set up this new list as default for Wireshark and Adapters... */
 airpcap_save_decryption_keys(merged_list,airpcap_if_list);
+
+/* Write the preferences to the preferences file */
+write_prefs_to_file();
 
 free_key_list(wireshark_keys);
 
