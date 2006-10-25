@@ -856,6 +856,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		g_object_unref(rci->cursor_pixbuf);
+		rci->cursor_pixbuf = NULL;
 	}
 
 	if (index>0 && (rci->cursor_prev>=0)) {
