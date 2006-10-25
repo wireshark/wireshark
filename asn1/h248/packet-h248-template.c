@@ -83,7 +83,7 @@ static gint ett_ctx_term = -1;
 static gint ett_h248_no_pkg = -1;
 static gint ett_h248_no_sig = -1;
 static gint ett_h248_no_evt = -1;
-	
+
 #include "packet-h248-ett.c"
 
 static dissector_handle_t h248_term_handle;
@@ -365,7 +365,7 @@ static const value_string signal_name_vals[] = {
   {   0x00210001, "GB/EstBNC(Establish BNC)" },
   {   0x00210002, "GB/ModBNC (Modify BNC)" },
   {   0x00210003, "GB/RelBNC(Release BNC)" },
-  
+
   {   0x002a0001, "H.245/cs (channel state)" },
   {   0x002a0002, "H.245/termtype (Terminal Type)" },
 
@@ -680,11 +680,11 @@ static const value_string BNCChar_vals[] = {
 
 static GPtrArray* packages = NULL;
 
-void h248_register_package(h248_package_t* pkg) {	
+void h248_register_package(h248_package_t* pkg) {
 	if (! packages) packages = g_ptr_array_new();
 
 	g_assert(pkg != NULL);
-	
+
 	g_ptr_array_add(packages,pkg);
 }
 
@@ -719,7 +719,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   int hf_param;
   h248_package_t* pkg = NULL;
   guint i;
-  
+
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
@@ -736,31 +736,31 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 		package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
 		proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
     }
-	
+
 	for(i=0; i < packages->len; i++) {
 		pkg = g_ptr_array_index(packages,i);
-		
+
 		if (name_major == pkg->id) {
 			break;
 		} else {
 			pkg = NULL;
 		}
 	}
-	
+
 	if (! pkg ) pkg = &no_package;
 
 	hf_param = *(pkg->hfid_params);
 
 	if (hf_param > 0)
 		/* TODO: Will this ever happen now??*/
-		proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor); 
-	
+		proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor);
+
   } else {
 	  pkg = &no_package;
   }
-  
+
   curr_info.pkg = pkg;
-  
+
   return offset;
 }
 
@@ -774,7 +774,7 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
   h248_package_t* pkg = NULL;
   h248_pkg_evt_t* evt = NULL;
   guint i;
-  
+
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
@@ -791,15 +791,15 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
     }
     proto_tree_add_uint(package_tree, hf_h248_event_name, tvb, offset-4, 4, packageandid);
 
-    
+
 	for(i=0; i < packages->len; i++) {
 		pkg = g_ptr_array_index(packages,i);
-		
+
 		if (name_major == pkg->id) {
 			break;
 		}
 	}
-	
+
 	if (!pkg->hfid) pkg = &no_package;
 
 	curr_info.pkg = pkg;
@@ -815,14 +815,14 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
 	} else {
 		evt = &no_event;
 	}
-	
+
 	curr_info.evt = evt;
-	
+
   } else {
 	  curr_info.pkg = &no_package;
 	  curr_info.evt = &no_event;
   }
-  
+
   return offset;
 }
 
@@ -856,37 +856,37 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
 
     for(i=0; i < packages->len; i++) {
 		pkg = g_ptr_array_index(packages,i);
-		
+
 		if (name_major == pkg->id) {
 			break;
 		} else {
 			pkg = NULL;
 		}
 	}
-	
+
 	if (! pkg ) pkg = &no_package;
-	
+
 	if (pkg->signals) {
 		for (sig = pkg->signals; sig->hfid; sig++) {
 			if (name_minor == sig->id) {
 				break;
 			}
 		}
-	
+
 		if (! sig->hfid) sig = &no_signal;
-	
+
 		curr_info.pkg = pkg;
 		curr_info.sig = sig;
 	} else {
 		curr_info.pkg = &no_package;
 		curr_info.sig = &no_signal;
 	}
-	
+
   } else {
 	  curr_info.pkg = &no_package;
 	  curr_info.sig = &no_signal;
   }
-  
+
   return offset;
 }
 
@@ -919,11 +919,11 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 	next_tvb = tvb_new_subset(tvb, offset , len , len );
 	name_major = packageandid >> 16;
 	name_minor = packageandid & 0xffff;
-	
+
 	pkg = (curr_info.pkg) ? curr_info.pkg : &no_package;
-	
+
 	if (pkg->properties) {
-		for (prop = pkg->properties; prop->hfid; prop++) {
+		for (prop = pkg->properties; prop && prop->hfid; prop++) {
 			if (name_minor == prop->id) {
 				break;
 			}
@@ -931,12 +931,12 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 	} else {
 		prop = &no_param;
 	}
-	
-	if (prop) {
+
+	if (prop && prop->hfid && prop->data) {
 		if (!prop->dissector) prop = &no_param;
 		prop->dissector(tree, next_tvb, pinfo, *(prop->hfid), &curr_info, prop->data);
 	}
-	
+
 	return end_offset;
 }
 
@@ -946,7 +946,7 @@ dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
 	h248_pkg_param_t* sigpar;
-	
+
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset,  hf_index, &next_tvb);
 	switch(tvb_length(next_tvb)) {
 		case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
@@ -955,9 +955,9 @@ dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 		case 1: param_id = tvb_get_guint8(next_tvb,0); break;
 		default: break;
 	}
-	
+
 	curr_info.par = &no_param;
-	
+
 	if (curr_info.sig && curr_info.sig->parameters) {
 		for(sigpar = curr_info.sig->parameters; sigpar->hfid; sigpar++) {
 			if (sigpar->id == param_id) {
@@ -966,7 +966,7 @@ dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 			}
 		}
 	}
-	
+
 	return offset;
 }
 
@@ -978,21 +978,21 @@ dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
-	
+
 	old_offset=offset;
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
 	end_offset=offset+len;
-	
+
 	if( (class!=BER_CLASS_UNI)
 		||(tag!=BER_UNI_TAG_OCTETSTRING) ){
 		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 	}
-	
-	
+
+
 	next_tvb = tvb_new_subset(tvb,offset,len,len);
-	
+
 	if ( curr_info.par && curr_info.par->dissector) {
 		curr_info.par->dissector(tree, next_tvb, pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	}
@@ -1017,9 +1017,9 @@ dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 			default: break;
 		}
 	}
-	
+
 	curr_info.par = &no_param;
-	
+
 	if (curr_info.evt->parameters) {
 		for(evtpar = curr_info.evt->parameters; evtpar->hfid; evtpar++) {
 			if (evtpar->id == param_id) {
@@ -1030,7 +1030,7 @@ dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 	} else {
 		curr_info.par = &no_param;
 	}
-	
+
 	return offset;
 }
 
@@ -1042,25 +1042,25 @@ dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
-	
+
 	old_offset=offset;
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
 	end_offset=offset+len;
-	
+
 	if( (class!=BER_CLASS_UNI)
 		||(tag!=BER_UNI_TAG_OCTETSTRING) ){
 		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 	}
-	
-	
+
+
 	next_tvb = tvb_new_subset(tvb,offset,len,len);
-	
+
 	if ( curr_info.par && curr_info.par->dissector) {
 		curr_info.par->dissector(tree, next_tvb, pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	}
-	
+
 	return end_offset;
 }
 
@@ -1108,8 +1108,8 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 	address* dst = &(pinfo->dst);
 	address* lo_addr;
 	address* hi_addr;
-	
-	
+
+
     if (keep_persistent_data) {
 		emem_tree_key_t key[] = {
 			{1,&(framenum)},
@@ -1142,7 +1142,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 		lo_addr = dst;
 		hi_addr = src;
 	}
-	
+
 	switch(lo_addr->type) {
 		case AT_NONE:
 			m->lo_addr = 0;
@@ -1162,7 +1162,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 			m->lo_addr = g_str_hash(address_to_str(lo_addr));
 			break;
 	}
-	
+
     return m;
 }
 
@@ -1190,7 +1190,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
 				{1,&(t_id)},
 				{0,NULL}
 			};
-			
+
             trxmsg = se_alloc(sizeof(h248_trx_msg_t));
             t = se_tree_lookup32_array(trxs,key);
 
@@ -1244,7 +1244,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
 static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
     h248_ctx_t* context = NULL;
     h248_ctx_t** context_p = NULL;
-	
+
     if ( !m || !t ) return NULL;
 
     if (keep_persistent_data) {
@@ -1254,14 +1254,14 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
 		{1,&(c_id)},
 		{0,NULL}
 		};
-		
+
 		emem_tree_key_t trx_key[] = {
 		{1,&(m->hi_addr)},
 		{1,&(m->lo_addr)},
 		{1,&(t->id)},
 		{0,NULL}
 		};
-		
+
         if (m->commited) {
             if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                 return context;
@@ -1624,7 +1624,7 @@ static gchar* h248_trx_to_str(h248_msg_t* m, h248_trx_t* t) {
     h248_cmd_msg_t* c;
 
     if ( !m || !t ) return "-";
-	
+
 	s = ep_strdup_printf("T %x { ",t->id);
 
     if (t->cmds) {
@@ -1815,13 +1815,13 @@ static void h248_init(void)  {
         if ( udp_port )
             dissector_delete("udp.port", udp_port, h248_handle);
 	}
-    
+
     udp_port = temp_udp_port;
-    
+
     if ( udp_port ) {
 		dissector_add("udp.port", udp_port, h248_handle);
 	}
-    
+
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -1889,7 +1889,7 @@ void proto_register_h248(void) {
   { "Unknown Parameter", "h248.pkg.unknown.param",
 	  FT_BYTES, BASE_HEX, NULL, 0,
 	  "", HFILL }},
-	  
+
 #include "packet-h248-hfarr.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
@@ -1939,7 +1939,7 @@ void proto_register_h248(void) {
                                  "Port to be decoded as h248",
                                  10,
                                  &temp_udp_port);
-  
+
   register_init_routine( &h248_init );
 
   msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_msgs");
