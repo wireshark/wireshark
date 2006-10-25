@@ -71,9 +71,9 @@ Wireshark Info
 	  <para>
 	    <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-4805">CVE-2006-4805</ulink>
 	  </para>
-	</para></listitem>
+	</listitem>
 
-	<listitem><para>
+	<listitem>
 	  <para>
 	    The WBXML dissector could crash.
 	    <!-- Fixed in r19560 -->
@@ -83,9 +83,9 @@ Wireshark Info
 	  <para>
 	    <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-5469">CVE-2006-5469</ulink>
 	  </para>
-	</para></listitem>
+	</listitem>
 
-	<listitem><para>
+	<listitem>
 	  <para>
 	    The MIME Multipart dissector was susceptible to an off-by-one error.
 	    <!-- Fixed in r19566 -->
@@ -95,7 +95,7 @@ Wireshark Info
 	  <para>
 	    <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-4574">CVE-2006-4574</ulink>
 	  </para>
-	</para></listitem>
+	</listitem>
 
 	<listitem>
 	  <para>
@@ -106,7 +106,7 @@ Wireshark Info
 	  </para>
 	  <para>Versions affected: 0.99.3.</para>
 	  <!-- No CVE -->
-	</para></listitem>
+	</listitem>
 
       </itemizedlist>
 
