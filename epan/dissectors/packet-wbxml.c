@@ -5676,7 +5676,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 								off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
-						if (off >= tvb_len) {
+						if (off > tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
 							/*
 							 * TODO - Do we need to free g_malloc()ed memory?
