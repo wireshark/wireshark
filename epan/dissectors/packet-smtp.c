@@ -549,7 +549,6 @@ proto_register_smtp(void)
   };
   module_t *smtp_module;
 
-  /* No Configuration options to register? */
 
   proto_smtp = proto_register_protocol("Simple Mail Transfer Protocol",
 				       "SMTP", "smtp");
@@ -557,6 +556,10 @@ proto_register_smtp(void)
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Allow dissector to find be found by name. */
+  register_dissector("smtp", dissect_smtp, proto_smtp);
+
+  /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
   prefs_register_bool_preference(smtp_module, "desegment_lines",
     "Reassemble SMTP command and response lines\nspanning multiple TCP segments",

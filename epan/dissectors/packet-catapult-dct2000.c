@@ -86,6 +86,7 @@ static const value_string encap_vals[] = {
     { DCT2000_ENCAP_SSCOP,               "SSCOP" },
     { WTAP_ENCAP_FRELAY,                 "Frame Relay" },
     { WTAP_ENCAP_MTP2,                   "MTP2" },
+    { DCT2000_ENCAP_NBAP,                "NBAP" },
     { DCT2000_ENCAP_UNHANDLED,           "Unhandled Protocol" },
     { 0,                                 NULL },
 };
@@ -103,6 +104,9 @@ void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(char *protocol_name);
+static void parse_outhdr_string(char *outhdr_string);
+static void attach_fp_info(packet_info *pinfo, gboolean received,
+                           const char *protocol_name, int variant);
 
 
 /* Look for the protocol data within an ipprim packet.
@@ -412,6 +416,11 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     {
         return find_dissector("nbap");
     }
+    else
+    if (strncmp(protocol_name, "gtp", strlen("gtp")) == 0)
+    {
+        return find_dissector("gtp");
+    }
 
     /* Try for an exact match */
     else
@@ -449,7 +458,7 @@ void parse_outhdr_string(char *outhdr_string)
 
         /* Convert digits into value */
         outhdr_values[outhdr_values_found++] =
-            atoi(format_text(outhdr_string+start_i, digits));
+            atoi((char*)format_text(outhdr_string+start_i, digits));
 
         /* Skip comma */
         n++;
@@ -691,9 +700,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0))
     {
-        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string((char*)tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
         attach_fp_info(pinfo, direction, protocol_name,
-                       atoi(tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
+                       atoi((char*)tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
     }
 
 
