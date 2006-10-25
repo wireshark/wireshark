@@ -57,9 +57,7 @@
 #include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)
 /* Mac OS X - use Launch Services to start a browser */
-#include <CoreFoundation/CFBase.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <ApplicationServices/ApplicationServices.h>
 #else
 /* Everything else - launch the browser ourselves */
