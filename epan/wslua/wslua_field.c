@@ -176,9 +176,9 @@ WSLUA_ATTR_GET FieldInfo_get_name(lua_State* L) {
 }
 
 static const luaL_reg FieldInfo_get[] = {
-    {"data_source", FieldInfo_get_data_source },
+/*    {"data_source", FieldInfo_get_data_source }, */
     {"range", FieldInfo_get_range},
-    {"hidden", FieldInfo_get_hidden},
+/*    {"hidden", FieldInfo_get_hidden}, */
     {"generated", FieldInfo_get_generated},
     {"name", FieldInfo_get_name},
     {"label", FieldInfo__tostring},
@@ -284,10 +284,10 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 			pushFieldInfo(L,g_ptr_array_index(found,i));
 			items_found++;
 		}
-		
+
 		g_ptr_array_free(found,TRUE);
 	}
-	
+
 	return items_found;
 }
 
