@@ -1,10 +1,10 @@
-/* TODO make the contracts require that all functions be called with valid 
+/* TODO make the contracts require that all functions be called with valid
  * pointers for itl and itlq and remove all tests for itl/itlq being NULL
  */
 /* TODO audit value parameter for proto_tree_add_boolean() calls */
 /* TODO scsi_verdesc_val needs to be updated from appendix D in spc-3 */
 /* packet-scsi.c
- * Routines for decoding SCSI CDBs and responses
+ * Routines for decoding SCSI CDBs and responsess
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
  * $Id$
@@ -62,12 +62,12 @@
  *
  * In addition to this, the other requirement made from the transport is to
  * provide ITL and ITLQ structures that are persistent.
- *   
+ *
  * The ITL structure uniquely identifies a Initiator/Target/Lun combination
- * and is among other things used to keep track of the device type for a 
+ * and is among other things used to keep track of the device type for a
  * specific LUN.
  *
- * The ITLQ structure uniquely identifies a specific scsi task and is used to 
+ * The ITLQ structure uniquely identifies a specific scsi task and is used to
  * keep track of OPCODEs between CDB/DATA/Responses and resp[onse times.
  *
  * This decoder attempts to track the type of SCSI device based on the response
@@ -411,7 +411,7 @@ static const fragment_items scsi_frag_items = {
  * This is semi-common in SCSI and it would be wrong to mark these packets
  * as [malformed packets].
  * These macros will reset the reported length to what the data pdu specified
- * and if a ReportedBoundsError is generated we will instead throw 
+ * and if a ReportedBoundsError is generated we will instead throw
  * ScsiBoundsError
  *
  * Please see dissect_spc3_inquiry() for an example how to use these
@@ -2127,7 +2127,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags, i;
 
-    if (!isreq && (cdata == NULL || !(cdata->itlq->flags & 0x3)) 
+    if (!isreq && (cdata == NULL || !(cdata->itlq->flags & 0x3))
     && (tvb_length_remaining(tvb, offset)>=1) ) {
         /*
          * INQUIRY response with device type information; add device type
@@ -2185,7 +2185,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* These pdus are sometimes truncated by SCSI allocation length
 	 * in the CDB
 	 */
-	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len); 
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
 
 	/* Qualifier and DeviceType */
         proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
@@ -2866,13 +2866,13 @@ dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset+4, 1,
                              "BUF: %u, Multi Session: %u, Mode 2 Form 2: %u, Mode 2 Form 1: %u,"
                              "Digital Port (2): %u, Digital Port (1): %u, Composite: %u, Audio Play: %u",
-                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4,
                              (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
         flags = tvb_get_guint8 (tvb, offset+5);
         proto_tree_add_text (tree, tvb, offset+5, 1,
                              "Read Bar Code: %u, UPC: %u, ISRC: %u, C2 Pointers supported: %u,"
                              "R-W Deinterleaved & corrected: %u, R-W Supported: %u, CD-DA Stream is Accurate: %u, CD-DA Cmds Supported: %u",
-                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4,
                              (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
         flags = tvb_get_guint8 (tvb, offset+6);
         proto_tree_add_text (tree, tvb, offset+6, 1,
@@ -3571,7 +3571,7 @@ dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset+3);
-        proto_tree_add_text (tree, tvb, offset+3, 1, 
+        proto_tree_add_text (tree, tvb, offset+3, 1,
                              "Persistent: %u, Prevent: %u",
                              flags & 0x02, flags & 0x01);
 
@@ -3759,7 +3759,7 @@ dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		return;
 	}
 
-	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len); 
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
         listlen = tvb_get_ntohl(tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 4, "LUN List Length: %u",
                              listlen);
@@ -4539,7 +4539,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		return;
 	}
 
-	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len); 
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
 
         len=tvb_get_ntohl(tvb, offset+0);
         proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 4, 0);
@@ -4803,20 +4803,20 @@ dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     if (tree && isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1, 
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "Data Type: %u",
                              flags & 0x1f);
 
-        proto_tree_add_text (tree, tvb, offset+1, 4, 
+        proto_tree_add_text (tree, tvb, offset+1, 4,
                              "Starting LBA: %u",
                              tvb_get_ntohl (tvb, offset+1));
 
-        proto_tree_add_text (tree, tvb, offset+7, 2, 
+        proto_tree_add_text (tree, tvb, offset+7, 2,
                              "Maximum Number of Descriptors: %u",
                              tvb_get_ntohs (tvb, offset+7));
 
         flags = tvb_get_guint8 (tvb, offset+9);
-        proto_tree_add_text (tree, tvb, offset+9, 1, 
+        proto_tree_add_text (tree, tvb, offset+9, 1,
                              "Type: %u",
                              flags);
 
@@ -6382,7 +6382,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s) (%s)", itlq->lun, 
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s) (%s)", itlq->lun,
 	val_to_str(itlq->scsi_opcode, csdata->cdb_vals, "CDB:0x%02x"),
 	val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
@@ -7836,7 +7836,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       gboolean isreq, itlq_nexus_t *itlq, itl_nexus_t *itl,
-                      guint32 relative_offset _U_)
+                      guint32 relative_offset)
 {
     int offset=0;
     proto_item *ti;
@@ -7850,7 +7850,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 expected_length;
     fragment_data *ipfd_head=NULL;
     tvbuff_t *next_tvb=tvb;
-    gboolean   update_col_info = TRUE;
+    gboolean   update_col_info = TRUE, more_frags = FALSE;
 
     if(!itlq || !itl){
         /* we have no record of this exchange and so we can't dissect the
@@ -7942,7 +7942,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    /* If we dont have the entire PDU there is no point in even trying 
+    /* If we dont have the entire PDU there is no point in even trying
      * reassembly
      */
     if(tvb_length_remaining(tvb, offset)!=tvb_reported_length_remaining(tvb, offset)){
@@ -7977,13 +7977,18 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     /* Start reassembly */
-    ipfd_head = fragment_add_check(tvb, offset, pinfo, 
+
+    if (tvb_length_remaining(tvb, offset) >= 0 &&
+	    (tvb_length_remaining(tvb,offset) + relative_offset) != expected_length) {
+        more_frags = TRUE;
+    }
+    ipfd_head = fragment_add_check(tvb, offset, pinfo,
                              itlq->first_exchange_frame, /* key */
                              scsi_fragment_table,
                              scsi_reassembled_table,
                              relative_offset,
                              tvb_length_remaining(tvb, offset),
-                             (tvb_length_remaining(tvb,offset)+relative_offset)!=expected_length);
+                             more_frags);
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, tree);
 
     if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
@@ -8090,7 +8095,7 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
 
     return csdata;
 }
-   
+
 
 void
 proto_register_scsi (void)
@@ -8927,8 +8932,8 @@ proto_register_scsi (void)
     prefs_register_enum_preference (scsi_module, "decode_scsi_messages_as",
                                     "Decode SCSI Messages As",
                                     "When Target Cannot Be Identified, Decode SCSI Messages As",
-                                    &scsi_def_devtype, 
-                                    scsi_devtype_options, 
+                                    &scsi_def_devtype,
+                                    scsi_devtype_options,
                                     FALSE);
 
     prefs_register_bool_preference(scsi_module, "defragment",
