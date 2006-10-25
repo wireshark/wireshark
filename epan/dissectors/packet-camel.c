@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-camel.c                                                           */
+/* ./packet-camel.c                                                           */
 /* ../../tools/asn2wrs.py -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.c */
@@ -121,57 +121,6 @@ static struct camelsrt_info_t * gp_camelsrt_info;
 
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
-static int hf_camel_reserved = -1;                /* INTEGER */
-static int hf_camel_aoc = -1;                     /* INTEGER */
-static int hf_camel_standardPartEnd = -1;         /* INTEGER */
-static int hf_camel_genOfVoiceAnn = -1;           /* INTEGER */
-static int hf_camel_voiceInfo2 = -1;              /* INTEGER */
-static int hf_camel_voiceInfo1 = -1;              /* INTEGER */
-static int hf_camel_voiceBack1 = -1;              /* INTEGER */
-static int hf_camel_iPRoutAdd = -1;               /* INTEGER */
-static int hf_camel_bilateralPart = -1;           /* OCTET_STRING_SIZE_0_3 */
-static int hf_camel_extension = -1;               /* INTEGER_1 */
-static int hf_camel_natureOfAddressIndicator = -1;  /* INTEGER */
-static int hf_camel_numberingPlanInd = -1;        /* INTEGER */
-static int hf_camel_digits1 = -1;                 /* OCTET_STRING_SIZE_0_19 */
-static int hf_camel_digits2 = -1;                 /* OCTET_STRING_SIZE_0_8 */
-static int hf_camel_typeOfShape = -1;             /* INTEGER */
-static int hf_camel_spare3 = -1;                  /* INTEGER */
-static int hf_camel_degreesOfLatitude = -1;       /* OCTET_STRING_SIZE_3 */
-static int hf_camel_degreesOfLongitude = -1;      /* OCTET_STRING_SIZE_3 */
-static int hf_camel_uncertaintyCode = -1;         /* OCTET_STRING_SIZE_1 */
-static int hf_camel_typeOfAddress = -1;           /* INTEGER */
-static int hf_camel_addressLength = -1;           /* INTEGER_4_16 */
-static int hf_camel_address = -1;                 /* OCTET_STRING_SIZE_4_16 */
-static int hf_camel_originalReasons = -1;         /* INTEGER */
-static int hf_camel_spare4 = -1;                  /* INTEGER_0 */
-static int hf_camel_indicator = -1;               /* INTEGER */
-static int hf_camel_reason = -1;                  /* INTEGER */
-static int hf_camel_spare2 = -1;                  /* INTEGER_0 */
-static int hf_camel_counter = -1;                 /* INTEGER */
-static int hf_camel_oddEven = -1;                 /* INTEGER */
-static int hf_camel_innInd = -1;                  /* INTEGER */
-static int hf_camel_spare5 = -1;                  /* INTEGER_0 */
-static int hf_camel_digits3 = -1;                 /* OCTET_STRING_SIZE_0_16 */
-static int hf_camel_niInd = -1;                   /* INTEGER */
-static int hf_camel_presentInd = -1;              /* INTEGER */
-static int hf_camel_screening = -1;               /* INTEGER */
-static int hf_camel_digits4 = -1;                 /* OCTET_STRING_SIZE_0_8 */
-static int hf_camel_spare6 = -1;                  /* INTEGER_0 */
-static int hf_camel_digits5 = -1;                 /* OCTET_STRING_SIZE_1_10 */
-static int hf_camel_o1ext = -1;                   /* INTEGER_1 */
-static int hf_camel_codingStandard = -1;          /* INTEGER */
-static int hf_camel_spare77 = -1;                 /* INTEGER_0 */
-static int hf_camel_location = -1;                /* INTEGER */
-static int hf_camel_o2ext = -1;                   /* INTEGER_1 */
-static int hf_camel_causeValue = -1;              /* INTEGER */
-static int hf_camel_diagnostics = -1;             /* OCTET_STRING_SIZE_0_30 */
-static int hf_camel_numberQualifierIndicator = -1;  /* INTEGER */
-static int hf_camel_digits6 = -1;                 /* OCTET_STRING_SIZE_0_8 */
-static int hf_camel_digits7 = -1;                 /* OCTET_STRING_SIZE_0_8 */
-static int hf_camel_ext = -1;                     /* INTEGER */
-static int hf_camel_typeOfNumber = -1;            /* T_typeOfNumber */
-static int hf_camel_digits8 = -1;                 /* OCTET_STRING_SIZE_0_40 */
 static int hf_camel_actimeDurationCharging = -1;  /* T_actimeDurationCharging */
 static int hf_camel_maxCallPeriodDuration = -1;   /* INTEGER_1_864000 */
 static int hf_camel_releaseIfdurationExceeded = -1;  /* BOOLEAN */
@@ -456,8 +405,6 @@ static int hf_camel_camelBusy = -1;               /* NULL */
 static int hf_camel_netDetNotReachable = -1;      /* NotReachableReason */
 static int hf_camel_notProvidedFromVLR = -1;      /* NULL */
 static int hf_camel_PrivateExtensionList_item = -1;  /* PrivateExtension */
-static int hf_camel_cellIdFixedLength = -1;       /* CellIdFixedLength */
-static int hf_camel_laiFixedLength = -1;          /* LAIFixedLength */
 static int hf_camel_VariablePartsArray_item = -1;  /* VariablePart */
 static int hf_camel_gmscAddress = -1;             /* ISDN_AddressString */
 static int hf_camel_ms_Classmark2 = -1;           /* MS_Classmark2 */
@@ -564,7 +511,7 @@ static int hf_camel_gsm_ForwardingPending = -1;   /* NULL */
 static int hf_camel_initialDPArgExtension = -1;   /* InitialDPArgExtension */
 static int hf_camel_callingPartyNumberas = -1;    /* ISDN_AddressString */
 static int hf_camel_locationInformationMSC = -1;  /* LocationInformation */
-static int hf_camel_tPShortMessageSubmissionSpecificInfo = -1;  /* TPShortMessageSubmissionInfo */
+static int hf_camel_tPShortMessageSpecificInfo = -1;  /* TPShortMessageSpecificInfo */
 static int hf_camel_tPProtocolIdentifier = -1;    /* TPProtocolIdentifier */
 static int hf_camel_tPDataCodingScheme = -1;      /* TPDataCodingScheme */
 static int hf_camel_tPValidityPeriod = -1;        /* TPValidityPeriod */
@@ -629,20 +576,6 @@ static gint ett_camel_stat = -1;
 
 /*--- Included file: packet-camel-ett.c ---*/
 #line 1 "packet-camel-ett.c"
-static gint ett_camel_PBSGSNCapabilities = -1;
-static gint ett_camel_PBIPSSPCapabilities = -1;
-static gint ett_camel_PBAddressString = -1;
-static gint ett_camel_PBISDNAddressString = -1;
-static gint ett_camel_PBGeographicalInformation = -1;
-static gint ett_camel_PBGSNAddress = -1;
-static gint ett_camel_PBRedirectionInformation = -1;
-static gint ett_camel_PBCalledPartyNumber = -1;
-static gint ett_camel_PBCallingPartyNumber = -1;
-static gint ett_camel_PBRedirectingNumber = -1;
-static gint ett_camel_PBCause = -1;
-static gint ett_camel_PBGenericNumber = -1;
-static gint ett_camel_PBLocationNumber = -1;
-static gint ett_camel_PBCalledPartyBCDNumber = -1;
 static gint ett_camel_AChBillingChargingCharacteristics = -1;
 static gint ett_camel_T_actimeDurationCharging = -1;
 static gint ett_camel_AChChargingAddress = -1;
@@ -783,7 +716,6 @@ static gint ett_camel_GPRSEventArray = -1;
 static gint ett_camel_SendChargingInformationGPRSArg = -1;
 static gint ett_camel_SubscriberState = -1;
 static gint ett_camel_PrivateExtensionList = -1;
-static gint ett_camel_CellIdOrLAI = -1;
 static gint ett_camel_LegID = -1;
 static gint ett_camel_VariablePartsArray = -1;
 static gint ett_camel_InitialDPArgExtension = -1;
@@ -1009,9 +941,6 @@ static int dissect_enteringLocationAreaId_impl(packet_info *pinfo, proto_tree *t
 static int dissect_leavingLocationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_leavingLocationAreaId);
 }
-static int dissect_laiFixedLength_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_laiFixedLength);
-}
 static int dissect_ms_Classmark2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_MS_Classmark2(TRUE, tvb, offset, pinfo, tree, hf_camel_ms_Classmark2);
 }
@@ -1026,613 +955,6 @@ static int dissect_iMSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 static int dissect_locationInformationMSC_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_LocationInformation(TRUE, tvb, offset, pinfo, tree, hf_camel_locationInformationMSC);
-}
-
-
-
-static int
-dissect_camel_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_reserved(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_reserved);
-}
-static int dissect_aoc(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_aoc);
-}
-static int dissect_standardPartEnd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_standardPartEnd);
-}
-static int dissect_genOfVoiceAnn(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_genOfVoiceAnn);
-}
-static int dissect_voiceInfo2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_voiceInfo2);
-}
-static int dissect_voiceInfo1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_voiceInfo1);
-}
-static int dissect_voiceBack1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_voiceBack1);
-}
-static int dissect_iPRoutAdd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_iPRoutAdd);
-}
-static int dissect_natureOfAddressIndicator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_natureOfAddressIndicator);
-}
-static int dissect_numberingPlanInd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_numberingPlanInd);
-}
-static int dissect_typeOfShape(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_typeOfShape);
-}
-static int dissect_spare3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_spare3);
-}
-static int dissect_typeOfAddress(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_typeOfAddress);
-}
-static int dissect_originalReasons(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_originalReasons);
-}
-static int dissect_indicator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_indicator);
-}
-static int dissect_reason(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_reason);
-}
-static int dissect_counter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_counter);
-}
-static int dissect_oddEven(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_oddEven);
-}
-static int dissect_innInd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_innInd);
-}
-static int dissect_niInd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_niInd);
-}
-static int dissect_presentInd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_presentInd);
-}
-static int dissect_screening(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_screening);
-}
-static int dissect_codingStandard(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_codingStandard);
-}
-static int dissect_location(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_location);
-}
-static int dissect_causeValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_causeValue);
-}
-static int dissect_numberQualifierIndicator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_numberQualifierIndicator);
-}
-static int dissect_ext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_ext);
-}
-static int dissect_local(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_local);
-}
-
-
-static const ber_sequence_t PBSGSNCapabilities_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_reserved },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_aoc },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBSGSNCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBSGSNCapabilities_sequence, hf_index, ett_camel_PBSGSNCapabilities);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_bilateralPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_3(FALSE, tvb, offset, pinfo, tree, hf_camel_bilateralPart);
-}
-
-
-static const ber_sequence_t PBIPSSPCapabilities_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_standardPartEnd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_reserved },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_genOfVoiceAnn },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_voiceInfo2 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_voiceInfo1 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_voiceBack1 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_iPRoutAdd },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_bilateralPart },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBIPSSPCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBIPSSPCapabilities_sequence, hf_index, ett_camel_PBIPSSPCapabilities);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_INTEGER_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_extension(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_1(FALSE, tvb, offset, pinfo, tree, hf_camel_extension);
-}
-static int dissect_o1ext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_1(FALSE, tvb, offset, pinfo, tree, hf_camel_o1ext);
-}
-static int dissect_o2ext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_1(FALSE, tvb, offset, pinfo, tree, hf_camel_o2ext);
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_19(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_digits1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_19(FALSE, tvb, offset, pinfo, tree, hf_camel_digits1);
-}
-
-
-static const ber_sequence_t PBAddressString_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_extension },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits1 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBAddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBAddressString_sequence, hf_index, ett_camel_PBAddressString);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_8(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_digits2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_8(FALSE, tvb, offset, pinfo, tree, hf_camel_digits2);
-}
-static int dissect_digits4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_8(FALSE, tvb, offset, pinfo, tree, hf_camel_digits4);
-}
-static int dissect_digits6(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_8(FALSE, tvb, offset, pinfo, tree, hf_camel_digits6);
-}
-static int dissect_digits7(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_8(FALSE, tvb, offset, pinfo, tree, hf_camel_digits7);
-}
-
-
-static const ber_sequence_t PBISDNAddressString_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_extension },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits2 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBISDNAddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBISDNAddressString_sequence, hf_index, ett_camel_PBISDNAddressString);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_degreesOfLatitude(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_3(FALSE, tvb, offset, pinfo, tree, hf_camel_degreesOfLatitude);
-}
-static int dissect_degreesOfLongitude(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_3(FALSE, tvb, offset, pinfo, tree, hf_camel_degreesOfLongitude);
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_uncertaintyCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(FALSE, tvb, offset, pinfo, tree, hf_camel_uncertaintyCode);
-}
-static int dissect_conferenceTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_conferenceTreatmentIndicator);
-}
-static int dissect_callCompletionTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callCompletionTreatmentIndicator);
-}
-static int dissect_pDPTypeOrganization_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeOrganization);
-}
-static int dissect_pDPTypeNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeNumber);
-}
-static int dissect_callDiversionTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callDiversionTreatmentIndicator);
-}
-static int dissect_callingPartyRestrictionIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartyRestrictionIndicator);
-}
-static int dissect_holdTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_holdTreatmentIndicator);
-}
-static int dissect_cwTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_cwTreatmentIndicator);
-}
-static int dissect_ectTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_ectTreatmentIndicator);
-}
-
-
-static const ber_sequence_t PBGeographicalInformation_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_typeOfShape },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare3 },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_degreesOfLatitude },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_degreesOfLongitude },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_uncertaintyCode },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBGeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBGeographicalInformation_sequence, hf_index, ett_camel_PBGeographicalInformation);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_INTEGER_4_16(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_addressLength(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_4_16(FALSE, tvb, offset, pinfo, tree, hf_camel_addressLength);
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_4_16(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_4_16(FALSE, tvb, offset, pinfo, tree, hf_camel_address);
-}
-
-
-static const ber_sequence_t PBGSNAddress_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_typeOfAddress },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_addressLength },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_address },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBGSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBGSNAddress_sequence, hf_index, ett_camel_PBGSNAddress);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_INTEGER_0(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_spare4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_spare4);
-}
-static int dissect_spare2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_spare2);
-}
-static int dissect_spare5(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_spare5);
-}
-static int dissect_spare6(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_spare6);
-}
-static int dissect_spare77(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_spare77);
-}
-static int dissect_foo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_foo);
-}
-
-
-static const ber_sequence_t PBRedirectionInformation_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_originalReasons },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare4 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_indicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_reason },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare2 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_counter },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBRedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBRedirectionInformation_sequence, hf_index, ett_camel_PBRedirectionInformation);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_16(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_digits3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_16(FALSE, tvb, offset, pinfo, tree, hf_camel_digits3);
-}
-
-
-static const ber_sequence_t PBCalledPartyNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_oddEven },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_innInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare5 },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits3 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBCalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBCalledPartyNumber_sequence, hf_index, ett_camel_PBCalledPartyNumber);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PBCallingPartyNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_oddEven },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_niInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_screening },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits4 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBCallingPartyNumber_sequence, hf_index, ett_camel_PBCallingPartyNumber);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_1_10(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_digits5(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_1_10(FALSE, tvb, offset, pinfo, tree, hf_camel_digits5);
-}
-
-
-static const ber_sequence_t PBRedirectingNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_oddEven },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_innInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare6 },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits5 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBRedirectingNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBRedirectingNumber_sequence, hf_index, ett_camel_PBRedirectingNumber);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_30(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_diagnostics(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_30(FALSE, tvb, offset, pinfo, tree, hf_camel_diagnostics);
-}
-
-
-static const ber_sequence_t PBCause_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_o1ext },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_codingStandard },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_spare77 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_location },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_o2ext },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_causeValue },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_diagnostics },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBCause_sequence, hf_index, ett_camel_PBCause);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PBGenericNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberQualifierIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_oddEven },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_niInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_screening },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits6 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBGenericNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBGenericNumber_sequence, hf_index, ett_camel_PBGenericNumber);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PBLocationNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_oddEven },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_natureOfAddressIndicator },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_innInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_screening },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits7 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBLocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBLocationNumber_sequence, hf_index, ett_camel_PBLocationNumber);
-
-  return offset;
-}
-
-
-static const value_string camel_T_typeOfNumber_vals[] = {
-  {   0, "unknown" },
-  {   1, "international" },
-  {   2, "national" },
-  {   3, "networkSpecific" },
-  {   4, "dedicatedAccess" },
-  {   5, "reserved5" },
-  {   6, "reserved6" },
-  {   7, "reservedExt" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_camel_T_typeOfNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_typeOfNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_T_typeOfNumber(FALSE, tvb, offset, pinfo, tree, hf_camel_typeOfNumber);
-}
-
-
-
-static int
-dissect_camel_OCTET_STRING_SIZE_0_40(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_digits8(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_OCTET_STRING_SIZE_0_40(FALSE, tvb, offset, pinfo, tree, hf_camel_digits8);
-}
-
-
-static const ber_sequence_t PBCalledPartyBCDNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ext },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_typeOfNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberingPlanInd },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digits8 },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_PBCalledPartyBCDNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PBCalledPartyBCDNumber_sequence, hf_index, ett_camel_PBCalledPartyBCDNumber);
-
-  return offset;
 }
 
 
@@ -1733,6 +1055,19 @@ static int dissect_tariffSwitchInterval_impl(packet_info *pinfo, proto_tree *tre
 }
 static int dissect_maxElapsedTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_INTEGER_1_86400(TRUE, tvb, offset, pinfo, tree, hf_camel_maxElapsedTime);
+}
+
+
+
+static int
+dissect_camel_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_local(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_camel_local);
 }
 
 
@@ -2425,6 +1760,43 @@ dissect_camel_AudibleIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 static int dissect_audibleIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_AudibleIndicator(TRUE, tvb, offset, pinfo, tree, hf_camel_audibleIndicator);
+}
+
+
+
+static int
+dissect_camel_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_conferenceTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_conferenceTreatmentIndicator);
+}
+static int dissect_callCompletionTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callCompletionTreatmentIndicator);
+}
+static int dissect_pDPTypeOrganization_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeOrganization);
+}
+static int dissect_pDPTypeNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeNumber);
+}
+static int dissect_callDiversionTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callDiversionTreatmentIndicator);
+}
+static int dissect_callingPartyRestrictionIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartyRestrictionIndicator);
+}
+static int dissect_holdTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_holdTreatmentIndicator);
+}
+static int dissect_cwTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_cwTreatmentIndicator);
+}
+static int dissect_ectTreatmentIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_camel_ectTreatmentIndicator);
 }
 
 
@@ -4816,6 +4188,19 @@ static int dissect_o_smsFailureSpecificInfo_impl(packet_info *pinfo, proto_tree 
 }
 
 
+
+static int
+dissect_camel_INTEGER_0(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_foo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_INTEGER_0(FALSE, tvb, offset, pinfo, tree, hf_camel_foo);
+}
+
+
 static const ber_sequence_t T_o_smsSubmittedSpecificInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_foo },
   { 0, 0, 0, NULL }
@@ -6461,16 +5846,6 @@ static int dissect_SMSEventArray_item(packet_info *pinfo, proto_tree *tree, tvbu
 }
 
 
-
-static int
-dissect_camel_TariffSwitchInterval(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 static const value_string camel_TimerID_vals[] = {
   {   0, "tssf" },
   { 0, NULL }
@@ -6535,6 +5910,9 @@ dissect_camel_TPShortMessageSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_tPShortMessageSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_TPShortMessageSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_camel_tPShortMessageSpecificInfo);
+}
 
 
 
@@ -6544,9 +5922,6 @@ dissect_camel_TPShortMessageSubmissionInfo(gboolean implicit_tag _U_, tvbuff_t *
                                        NULL);
 
   return offset;
-}
-static int dissect_tPShortMessageSubmissionSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_TPShortMessageSubmissionInfo(TRUE, tvb, offset, pinfo, tree, hf_camel_tPShortMessageSubmissionSpecificInfo);
 }
 
 
@@ -6563,39 +5938,10 @@ static int dissect_tPValidityPeriod_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 
-static const value_string camel_UnavailableNetworkResource_vals[] = {
-  {   0, "unavailableResources" },
-  {   1, "componentFailure" },
-  {   2, "basicCallProcessingException" },
-  {   3, "resourceStatusFailure" },
-  {   4, "endUserFailure" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_camel_UnavailableNetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_camel_SpecializedResourceReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
 
   return offset;
 }
@@ -6678,24 +6024,11 @@ static int dissect_netDetNotReachable(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static int
-dissect_camel_AgeOfLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_camel_CellIdFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
-}
-static int dissect_cellIdFixedLength_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_CellIdFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_cellIdFixedLength);
 }
 
 
@@ -7071,28 +6404,6 @@ static int dissect_subscriberState_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
-static const value_string camel_CellIdOrLAI_vals[] = {
-  {   0, "cellIdFixedLength" },
-  {   1, "laiFixedLength" },
-  { 0, NULL }
-};
-
-static const ber_choice_t CellIdOrLAI_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cellIdFixedLength_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_laiFixedLength_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_CellIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 CellIdOrLAI_choice, hf_index, ett_camel_CellIdOrLAI,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const asn_namedbit SupportedCamelPhases_bits[] = {
   {  0, &hf_camel_SupportedCamelPhases_phase1, -1, -1, "phase1", NULL },
   {  1, &hf_camel_SupportedCamelPhases_phase2, -1, -1, "phase2", NULL },
@@ -7242,16 +6553,6 @@ static int
 dissect_camel_PlayToneArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    PlayToneArg_sequence, hf_index, ett_camel_PlayToneArg);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_GeodeticInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -7864,7 +7165,7 @@ static const ber_sequence_t InitialDPSMSArg_sequence[] = {
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationInformationGPRS_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sMSCAddress_impl },
   { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeAndTimezone_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tPShortMessageSubmissionSpecificInfo_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tPShortMessageSpecificInfo_impl },
   { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tPProtocolIdentifier_impl },
   { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tPDataCodingScheme_impl },
   { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tPValidityPeriod_impl },
@@ -8762,210 +8063,6 @@ void proto_register_camel(void) {
 
 /*--- Included file: packet-camel-hfarr.c ---*/
 #line 1 "packet-camel-hfarr.c"
-    { &hf_camel_reserved,
-      { "reserved", "camel.reserved",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_aoc,
-      { "aoc", "camel.aoc",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_standardPartEnd,
-      { "standardPartEnd", "camel.standardPartEnd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_genOfVoiceAnn,
-      { "genOfVoiceAnn", "camel.genOfVoiceAnn",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_voiceInfo2,
-      { "voiceInfo2", "camel.voiceInfo2",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_voiceInfo1,
-      { "voiceInfo1", "camel.voiceInfo1",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_voiceBack1,
-      { "voiceBack1", "camel.voiceBack1",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_iPRoutAdd,
-      { "iPRoutAdd", "camel.iPRoutAdd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_bilateralPart,
-      { "bilateralPart", "camel.bilateralPart",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_3", HFILL }},
-    { &hf_camel_extension,
-      { "extension", "camel.extension",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_1", HFILL }},
-    { &hf_camel_natureOfAddressIndicator,
-      { "natureOfAddressIndicator", "camel.natureOfAddressIndicator",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_numberingPlanInd,
-      { "numberingPlanInd", "camel.numberingPlanInd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_digits1,
-      { "digits1", "camel.digits1",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_19", HFILL }},
-    { &hf_camel_digits2,
-      { "digits2", "camel.digits2",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_8", HFILL }},
-    { &hf_camel_typeOfShape,
-      { "typeOfShape", "camel.typeOfShape",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_spare3,
-      { "spare3", "camel.spare3",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_degreesOfLatitude,
-      { "degreesOfLatitude", "camel.degreesOfLatitude",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_3", HFILL }},
-    { &hf_camel_degreesOfLongitude,
-      { "degreesOfLongitude", "camel.degreesOfLongitude",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_3", HFILL }},
-    { &hf_camel_uncertaintyCode,
-      { "uncertaintyCode", "camel.uncertaintyCode",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_1", HFILL }},
-    { &hf_camel_typeOfAddress,
-      { "typeOfAddress", "camel.typeOfAddress",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_addressLength,
-      { "addressLength", "camel.addressLength",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_4_16", HFILL }},
-    { &hf_camel_address,
-      { "address", "camel.address",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_4_16", HFILL }},
-    { &hf_camel_originalReasons,
-      { "originalReasons", "camel.originalReasons",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_spare4,
-      { "spare4", "camel.spare4",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_0", HFILL }},
-    { &hf_camel_indicator,
-      { "indicator", "camel.indicator",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_reason,
-      { "reason", "camel.reason",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_spare2,
-      { "spare2", "camel.spare2",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_0", HFILL }},
-    { &hf_camel_counter,
-      { "counter", "camel.counter",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_oddEven,
-      { "oddEven", "camel.oddEven",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_innInd,
-      { "innInd", "camel.innInd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_spare5,
-      { "spare5", "camel.spare5",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_0", HFILL }},
-    { &hf_camel_digits3,
-      { "digits3", "camel.digits3",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_16", HFILL }},
-    { &hf_camel_niInd,
-      { "niInd", "camel.niInd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_presentInd,
-      { "presentInd", "camel.presentInd",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_screening,
-      { "screening", "camel.screening",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_digits4,
-      { "digits4", "camel.digits4",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_8", HFILL }},
-    { &hf_camel_spare6,
-      { "spare6", "camel.spare6",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_0", HFILL }},
-    { &hf_camel_digits5,
-      { "digits5", "camel.digits5",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_1_10", HFILL }},
-    { &hf_camel_o1ext,
-      { "o1ext", "camel.o1ext",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_1", HFILL }},
-    { &hf_camel_codingStandard,
-      { "codingStandard", "camel.codingStandard",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_spare77,
-      { "spare77", "camel.spare77",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_0", HFILL }},
-    { &hf_camel_location,
-      { "location", "camel.location",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_o2ext,
-      { "o2ext", "camel.o2ext",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER_1", HFILL }},
-    { &hf_camel_causeValue,
-      { "causeValue", "camel.causeValue",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_diagnostics,
-      { "diagnostics", "camel.diagnostics",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_30", HFILL }},
-    { &hf_camel_numberQualifierIndicator,
-      { "numberQualifierIndicator", "camel.numberQualifierIndicator",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_digits6,
-      { "digits6", "camel.digits6",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_8", HFILL }},
-    { &hf_camel_digits7,
-      { "digits7", "camel.digits7",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_8", HFILL }},
-    { &hf_camel_ext,
-      { "ext", "camel.ext",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "camel.INTEGER", HFILL }},
-    { &hf_camel_typeOfNumber,
-      { "typeOfNumber", "camel.typeOfNumber",
-        FT_UINT32, BASE_DEC, VALS(camel_T_typeOfNumber_vals), 0,
-        "camel.T_typeOfNumber", HFILL }},
-    { &hf_camel_digits8,
-      { "digits8", "camel.digits8",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.OCTET_STRING_SIZE_0_40", HFILL }},
     { &hf_camel_actimeDurationCharging,
       { "actimeDurationCharging", "camel.actimeDurationCharging",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10102,14 +9199,6 @@ void proto_register_camel(void) {
       { "Item", "camel.PrivateExtensionList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "camel.PrivateExtension", HFILL }},
-    { &hf_camel_cellIdFixedLength,
-      { "cellIdFixedLength", "camel.cellIdFixedLength",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.CellIdFixedLength", HFILL }},
-    { &hf_camel_laiFixedLength,
-      { "laiFixedLength", "camel.laiFixedLength",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.LAIFixedLength", HFILL }},
     { &hf_camel_VariablePartsArray_item,
       { "Item", "camel.VariablePartsArray_item",
         FT_UINT32, BASE_DEC, VALS(camel_VariablePart_vals), 0,
@@ -10534,10 +9623,10 @@ void proto_register_camel(void) {
       { "locationInformationMSC", "camel.locationInformationMSC",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.LocationInformation", HFILL }},
-    { &hf_camel_tPShortMessageSubmissionSpecificInfo,
-      { "tPShortMessageSubmissionSpecificInfo", "camel.tPShortMessageSubmissionSpecificInfo",
+    { &hf_camel_tPShortMessageSpecificInfo,
+      { "tPShortMessageSpecificInfo", "camel.tPShortMessageSpecificInfo",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.TPShortMessageSubmissionInfo", HFILL }},
+        "camel.TPShortMessageSpecificInfo", HFILL }},
     { &hf_camel_tPProtocolIdentifier,
       { "tPProtocolIdentifier", "camel.tPProtocolIdentifier",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -10707,20 +9796,6 @@ void proto_register_camel(void) {
 
 /*--- Included file: packet-camel-ettarr.c ---*/
 #line 1 "packet-camel-ettarr.c"
-    &ett_camel_PBSGSNCapabilities,
-    &ett_camel_PBIPSSPCapabilities,
-    &ett_camel_PBAddressString,
-    &ett_camel_PBISDNAddressString,
-    &ett_camel_PBGeographicalInformation,
-    &ett_camel_PBGSNAddress,
-    &ett_camel_PBRedirectionInformation,
-    &ett_camel_PBCalledPartyNumber,
-    &ett_camel_PBCallingPartyNumber,
-    &ett_camel_PBRedirectingNumber,
-    &ett_camel_PBCause,
-    &ett_camel_PBGenericNumber,
-    &ett_camel_PBLocationNumber,
-    &ett_camel_PBCalledPartyBCDNumber,
     &ett_camel_AChBillingChargingCharacteristics,
     &ett_camel_T_actimeDurationCharging,
     &ett_camel_AChChargingAddress,
@@ -10861,7 +9936,6 @@ void proto_register_camel(void) {
     &ett_camel_SendChargingInformationGPRSArg,
     &ett_camel_SubscriberState,
     &ett_camel_PrivateExtensionList,
-    &ett_camel_CellIdOrLAI,
     &ett_camel_LegID,
     &ett_camel_VariablePartsArray,
     &ett_camel_InitialDPArgExtension,

@@ -9,227 +9,6 @@
 
 -- $Id$
 
-
-
---*************************************
--- MsgSetIdentification
---*************************************
-
--- XXX MsgSetIdentification DEFINITIONS  ::=
--- XXX BEGIN
--- XXX END
-
---********************************************
--- PackBin Fix
---********************************************
-
-PackedBinCAMEL3Fix DEFINITIONS  ::=
-BEGIN
-
-PBSGSNCapabilities ::= SEQUENCE
-{
-   reserved       INTEGER,
-   aoc            INTEGER
-}
-
-
-END
-
-
---********************************************
--- PackBin Variable
---********************************************
-
-PackedBinCAMEL3Variable DEFINITIONS  ::=
-BEGIN
-
-PBIPSSPCapabilities ::= SEQUENCE {
-   standardPartEnd  INTEGER,
-   reserved         INTEGER,
-   genOfVoiceAnn    INTEGER,
-   voiceInfo2       INTEGER,
-   voiceInfo1       INTEGER,
-   voiceBack1        INTEGER,
-   iPRoutAdd        INTEGER,
-   bilateralPart    OCTET STRING (SIZE(0..3))
-}
-
-END
-
-
-PacBinMap2Pac DEFINITIONS  ::=
-BEGIN
-
--- maxAddressLength  INTEGER ::= 20
-PBAddressString ::= SEQUENCE {
-       extension                 INTEGER(1),
-       natureOfAddressIndicator  INTEGER,
-       numberingPlanInd          INTEGER,
-       digits1                   
-                                
-                                OCTET STRING (SIZE(0..19))
-}
-
-PBISDNAddressString ::= SEQUENCE {
-       extension                 INTEGER(1),
-       natureOfAddressIndicator  INTEGER,
-       numberingPlanInd          INTEGER,
-       digits2                   
-                                
-                                OCTET STRING (SIZE(0..8))
-}
-
-PBGeographicalInformation ::= SEQUENCE {
-        typeOfShape                 INTEGER,
-        spare3                       INTEGER,
-        degreesOfLatitude           OCTET STRING (SIZE(3)),
-        degreesOfLongitude          OCTET STRING (SIZE(3)),
-        uncertaintyCode             OCTET STRING (SIZE(1))
-}
--- Refers to geographical Information defined in 3GPP TS 23.032.
--- Only the description of an ellipsoid point with uncertainty circle
--- as specified in 3GPP TS 23.032 is allowed to be used
--- The internal structure according to 3GPP TS 23.032 is as follows:
--- Type of shape (ellipsoid point with uncertainty circle) 1 octet
--- Degrees of Latitude 3 octets
--- Degrees of Longitude 3 octets
--- Uncertainty code 1 octet
-
-PBGSNAddress ::= SEQUENCE {
-        typeOfAddress               INTEGER,
-        addressLength               INTEGER(4..16),
-        address                     OCTET STRING (SIZE(4..16))
-}
--- Address Type 0 and Address Length 4 are used when Address is an IPv4 address.
--- Address Type 1 and Address Length 16 are used when Address is an IPv6 address.
-
-END
-
-PacBinInapFix DEFINITIONS  ::=
-BEGIN
-
-PBRedirectionInformation ::= SEQUENCE {
-        originalReasons          INTEGER,
-        spare4                    INTEGER(0),
-        indicator                INTEGER,
-        reason                   INTEGER,
-        spare2                   INTEGER(0),
-        counter                  INTEGER
-        }
-
-END
-
-
---********************************************
--- PackBin Digits
---********************************************
---
-
-PacBinInapDigits DEFINITIONS  ::=
-BEGIN
-
-PBCalledPartyNumber ::= SEQUENCE {
-        oddEven                    INTEGER,
-        natureOfAddressIndicator   INTEGER,
-        innInd                     INTEGER,
-        numberingPlanInd           INTEGER,
-        spare5                      INTEGER(0),
-   -- 2-32 bcdDigits
-        digits3          
-                         OCTET STRING (SIZE(0..16))
-        }
--- the Destination Address Field is not present if the destination address length is set to zero.
--- This is the case e.g. when the ANSI ISUP Nature Of Address indicator indicates no number present,
--- operator requested (1110100) or no number present, cut-through call to carrier (1110101).
--- See also see 3GPP TS 23.078 [42].
-
-PBCallingPartyNumber ::= SEQUENCE {
-        oddEven                    INTEGER,
-        natureOfAddressIndicator   INTEGER,
-        niInd                      INTEGER,
-        numberingPlanInd           INTEGER,
-        presentInd                 INTEGER,
-        screening                  INTEGER,
-    -- 0-16 bcdDigits
-        digits4          
-                         OCTET STRING (SIZE(0..8))
-        }
-
-PBRedirectingNumber ::= SEQUENCE {
-        oddEven                    INTEGER,
-        natureOfAddressIndicator   INTEGER,
-        innInd                     INTEGER,
-        numberingPlanInd           INTEGER,
-        spare6                      INTEGER(0),
-   -- 2-20 bcdDigits
-        digits5          
-                         OCTET STRING (SIZE(1..10))
-        }
-
-
-PBCause ::= SEQUENCE {
-        o1ext                      INTEGER(1),
-        codingStandard             INTEGER,
-        spare77                      INTEGER(0),
-        location                   INTEGER,
-        o2ext                      INTEGER(1),
-        causeValue                 INTEGER,
-        diagnostics       OCTET STRING (SIZE(0..30))
-                        -- add 1 octet for diagnostics field
-        }
-
-PBGenericNumber ::= SEQUENCE {
-        numberQualifierIndicator   INTEGER,
-        oddEven                    INTEGER,
-        natureOfAddressIndicator   INTEGER,
-        niInd                      INTEGER,
-        numberingPlanInd           INTEGER,
-        presentInd                 INTEGER,
-        screening                  INTEGER,
-        digits6          
-                         OCTET STRING (SIZE(0..8))
-        }
-
-
-PBLocationNumber ::= SEQUENCE {
-        oddEven                    INTEGER,
-        natureOfAddressIndicator   INTEGER,
-        innInd                     INTEGER,
-        numberingPlanInd           INTEGER,
-        presentInd                 INTEGER,
-        screening                  INTEGER,
-        digits7          
-                         OCTET STRING (SIZE(0..8))
-        }
-
-END
-
-
-PacBinCamel2Var DEFINITIONS  ::=
-BEGIN
-
--- See 3GPP TS 29.078
--- and 3GPP TS 24.008, section 10.5.4.7
-PBCalledPartyBCDNumber ::= SEQUENCE {
-        ext                      INTEGER,
-        typeOfNumber             ENUMERATED {
-                        unknown         (0),
-                        international   (1),
-                        national        (2),
-                        networkSpecific (3),
-                        dedicatedAccess (4),
-                        reserved5       (5),
-                        reserved6       (6),
-                        reservedExt     (7)
-                        },
-        numberingPlanInd          INTEGER,
-        digits8                   
-                                 
-                                 OCTET STRING (SIZE(0..40))
-}
-
-END
-
 --*********************************************
 -- Core-INAP-CS1-Operations DEFINITIONS
 --*********************************************
@@ -1777,9 +1556,6 @@ SMSEvent ::= SEQUENCE
     monitorMode  [1] MonitorMode
 }
 
-TariffSwitchInterval ::= INTEGER (1 .. 86400)
--- TariffSwitchInterval is measured in 1 second units
-
 -- TimeAndTimezone notes: not recursive, exported,
 -- locally refd 7 times, import refd 0 times
 TimeAndTimezone ::= 
@@ -1923,17 +1699,6 @@ TransferredVolumeRollOver ::= CHOICE {
 --	rO-VolumeIfNoTariffSwitch, rO-VolumeSinceLastTariffSwitch and rO-VolumeTariffSwitchInterval
 --	present counters indicating the number of parameter range rollovers.
 
--- UnavailableNetworkResource notes: not recursive, exported,
--- locally refd 0 times, import refd 0 times
-UnavailableNetworkResource ::=  ENUMERATED
-{
-    unavailableResources         (0),
-    componentFailure             (1),
-    basicCallProcessingException (2),
-    resourceStatusFailure        (3),
-    endUserFailure               (4)
-}
-
 -- VariablePart notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 VariablePart ::= CHOICE
@@ -1975,10 +1740,6 @@ VariablePart ::= CHOICE
 -- locally refd 0 times, import refd 0 times
 SpecializedResourceReportArg ::=  NULL
 
--- Priority notes: not recursive, exported,
--- locally refd 0 times, import refd 0 times
-Priority ::= INTEGER (0..2147483647)
-
 -- CUG-Interlock notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
 CUG-Interlock ::=
@@ -2008,11 +1769,6 @@ NotReachableReason ::= ENUMERATED
         restrictedArea (2),
         notRegistred (3)
 }
-
--- AgeOfLocationInformation notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-AgeOfLocationInformation ::= INTEGER (0..32767)
-
 
 -- AddressString notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2353,18 +2109,7 @@ SEQUENCE SIZE (1..maxNumOfPrivateExtensions) OF PrivateExtension
 
 -- ISDN-AddressString notes: not recursive, exported,
 -- locally refd 9 times, import refd 0 times
-ISDN-AddressString ::=
-    
-    
-    OCTET STRING (SIZE(1..maxISDN-AddressLength))
-
--- CellIdOrLAI notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CellIdOrLAI ::= CHOICE
-{
-    cellIdFixedLength [0] CellIdFixedLength,
-    laiFixedLength [1] LAIFixedLength
-}
+ISDN-AddressString ::= OCTET STRING (SIZE(1..maxISDN-AddressLength))
 
 
 -- LegID notes: not recursive, exported,
@@ -2376,8 +2121,7 @@ LegID ::= CHOICE
 }
 
 
-VariablePartsArray ::= 
-                       SEQUENCE SIZE (1..5) OF VariablePart
+VariablePartsArray ::= SEQUENCE SIZE (1..5) OF VariablePart
 
 
 -- InitialDPArgExtension notes: not recursive, exported,
@@ -2458,9 +2202,6 @@ CellGlobalIdOrServiceAreaIdOrLAI ::= OCTET STRING (SIZE (5..7))
 --    OCTET STRING (SIZE (7))
 -- This coding would disrupt the backward compatibillity, so the cellGlobalIdOrServiceAreaIdOrLAI
 -- parameter is set as an OCTET STRING, as it was in previous implementations.
-
-
-GeodeticInformation ::= OCTET STRING (SIZE(10))
 
 -- Local imports
 SupportedCamelPhases ::= BIT STRING {
@@ -2947,14 +2688,14 @@ InitialDPSMSArg ::=
 {
     serviceKey                          [0]  ServiceKey,
     destinationSubscriberNumber         [1]  CalledPartyBCDNumber         OPTIONAL,
-    callingPartyNumberas                  [2]  ISDN-AddressString           OPTIONAL,
+    callingPartyNumberas                [2]  ISDN-AddressString           OPTIONAL,
     eventTypeSMS                        [3]  EventTypeSMS                 OPTIONAL,
     iMSI                                [4]  IMSI                         OPTIONAL,
     locationInformationMSC              [5]  LocationInformation          OPTIONAL,
     locationInformationGPRS             [6]  LocationInformationGPRS      OPTIONAL,
     sMSCAddress                         [7]  ISDN-AddressString           OPTIONAL,
     timeAndTimezone                     [8]  TimeAndTimezone              OPTIONAL,
-    tPShortMessageSubmissionSpecificInfo [9] TPShortMessageSubmissionInfo OPTIONAL,
+    tPShortMessageSpecificInfo			[9]  TPShortMessageSpecificInfo	  OPTIONAL,
     tPProtocolIdentifier                [10] TPProtocolIdentifier         OPTIONAL,
     tPDataCodingScheme                  [11] TPDataCodingScheme           OPTIONAL,
     tPValidityPeriod                    [12] TPValidityPeriod             OPTIONAL,
