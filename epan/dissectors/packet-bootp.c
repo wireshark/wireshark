@@ -643,12 +643,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    { OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
 	    { 0,                  NULL                                           } };
 
-	if (bp_tree != NULL) {
-		/* Normal cases */
-		text = bootp_get_opt_text(code);
-		ftype = bootp_get_opt_ftype(code);
-	}
-
 	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
 
@@ -753,6 +747,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* Don't put anything in the protocol tree. */
 		return consumed;
 	}
+
+	/* Normal cases */
+	text = bootp_get_opt_text(code);
+	ftype = bootp_get_opt_ftype(code);
 
 	optoff = voff+2;
 
@@ -1216,7 +1214,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		if (code == pkt_ccc_option) {
 			skip_opaque = TRUE;
 			proto_item_append_text(vti,
-				"CableLabs Client Configuration (%d bytes)");
+				"CableLabs Client Configuration (%d bytes)",
+				optlen);
 			optend = optoff + optlen;
 			while (optoff < optend) {
 				switch (pkt_ccc_protocol_version) {
