@@ -214,7 +214,7 @@ Wireshark Info
 	  <listitem><para>View/Coloring Rules</para></listitem>
 	  <listitem><para>Capture/Capture Filters</para></listitem>
 	  <listitem><para>Analyze/Display Filters</para></listitem>
-	  <listitem><para>"Analyze/Enabled Protocols</para></listitem>
+	  <listitem><para>Analyze/Enabled Protocols</para></listitem>
 	</itemizedlist>
 	If you're fond of the "Save" button it can be resurrected in the
 	User Interface preferences.
