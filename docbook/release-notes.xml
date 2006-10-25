@@ -362,12 +362,10 @@ VRRP,
 X.509ce
 X11,
 YMSG,
-WTLS,
-
+WTLS
 
     </para>
     </section>
-
 
     <section><title>Removed Protocols</title> <para>
 
