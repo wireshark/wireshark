@@ -191,7 +191,7 @@ dissect_task_mgmt_flags (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *
 
 	if (!flags)
 		proto_item_append_text(item, " (No values set)");
-				
+
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_obsolete, tvb, offset, 1, flags);
 	if (flags&0x80){
 		proto_item_append_text(item, "  OBSOLETE");
@@ -435,7 +435,9 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 			   1, 0);
       lun=tvb_get_guint8(tvb, offset+1);
     }
-    fchdr->itlq->lun=lun;
+
+    if (fchdr->itlq)
+        fchdr->itlq->lun=lun;
 
     itl=(itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, lun);
     if(!itl){
@@ -485,7 +487,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 	}
 
     }
-	
+
 }
 
 static void
@@ -570,7 +572,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         /* rsp_info */
         if(rsplen){
             tvbuff_t *rspinfo_tvb;
-       
+
             rspinfo_tvb=tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
             dissect_fcp_rspinfo(tvb, tree, 0);
 
@@ -580,7 +582,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         /* sense info */
         if(snslen){
             tvbuff_t *sns_tvb;
-       
+
             sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
             dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
                                   snslen,
@@ -770,35 +772,35 @@ proto_register_fcp (void)
         { &hf_fcp_scsistatus,
           {"SCSI Status", "fcp.status", FT_UINT8, BASE_HEX,
            VALS (scsi_status_val), 0x0, "", HFILL}},
-	{ &hf_fcp_mgmt_flags_obsolete, 
+	{ &hf_fcp_mgmt_flags_obsolete,
 	  { "Obsolete", "fcp.mgmt.flags.obsolete", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_obsolete_tfs), 0x80, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_clear_aca, 
+	{ &hf_fcp_mgmt_flags_clear_aca,
 	  { "Clear ACA", "fcp.mgmt.flags.clear_aca", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_aca_tfs), 0x40, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_target_reset, 
+	{ &hf_fcp_mgmt_flags_target_reset,
 	  { "Target Reset", "fcp.mgmt.flags.target_reset", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_target_reset_tfs), 0x20, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_lu_reset, 
+	{ &hf_fcp_mgmt_flags_lu_reset,
 	  { "LU Reset", "fcp.mgmt.flags.lu_reset", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_lu_reset_tfs), 0x10, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_rsvd, 
+	{ &hf_fcp_mgmt_flags_rsvd,
 	  { "Rsvd", "fcp.mgmt.flags.rsvd", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_rsvd_tfs), 0x08, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_clear_task_set, 
+	{ &hf_fcp_mgmt_flags_clear_task_set,
 	  { "Clear Task Set", "fcp.mgmt.flags.clear_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_task_set_tfs), 0x04, "", HFILL }},
-	{ &hf_fcp_mgmt_flags_abort_task_set, 
+	{ &hf_fcp_mgmt_flags_abort_task_set,
 	  { "Abort Task Set", "fcp.mgmt.flags.abort_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_abort_task_set_tfs), 0x02, "", HFILL }},
-	{ &hf_fcp_rsp_flags_bidi, 
+	{ &hf_fcp_rsp_flags_bidi,
 	  { "Bidi Rsp", "fcp.rsp.flags.bidi", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_tfs), 0x80, "", HFILL }},
-	{ &hf_fcp_rsp_flags_bidi_rru, 
+	{ &hf_fcp_rsp_flags_bidi_rru,
 	  { "Bidi Read Resid Under", "fcp.rsp.flags.bidi_rru", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_rru_tfs), 0x40, "", HFILL }},
-	{ &hf_fcp_rsp_flags_bidi_rro, 
+	{ &hf_fcp_rsp_flags_bidi_rro,
 	  { "Bidi Read Resid Over", "fcp.rsp.flags.bidi_rro", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_rro_tfs), 0x20, "", HFILL }},
-	{ &hf_fcp_rsp_flags_conf_req, 
+	{ &hf_fcp_rsp_flags_conf_req,
 	  { "Conf Req", "fcp.rsp.flags.conf_req", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_conf_req_tfs), 0x10, "", HFILL }},
-	{ &hf_fcp_rsp_flags_resid_under, 
+	{ &hf_fcp_rsp_flags_resid_under,
 	  { "Resid Under", "fcp.rsp.flags.resid_under", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_resid_under_tfs), 0x08, "", HFILL }},
-	{ &hf_fcp_rsp_flags_resid_over, 
+	{ &hf_fcp_rsp_flags_resid_over,
 	  { "Resid Over", "fcp.rsp.flags.resid_over", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_resid_over_tfs), 0x04, "", HFILL }},
-	{ &hf_fcp_rsp_flags_sns_vld, 
+	{ &hf_fcp_rsp_flags_sns_vld,
 	  { "SNS Vld", "fcp.rsp.flags.sns_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_sns_vld_tfs), 0x02, "", HFILL }},
-	{ &hf_fcp_rsp_flags_res_vld, 
+	{ &hf_fcp_rsp_flags_res_vld,
 	  { "RES Vld", "fcp.rsp.flags.res_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_res_vld_tfs), 0x01, "", HFILL }},
         { &hf_fcp_request_in,
           { "Request In", "fcp.request_in", FT_FRAMENUM, BASE_NONE, NULL,
