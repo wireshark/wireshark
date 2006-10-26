@@ -61,15 +61,6 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
 
-	/*
-	 * Find the end of the first line.
-	 *
-	 * Note that "tvb_find_line_end()" will return a value that is
-	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
-	 * call won't throw an exception.
-	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-	line = tvb_get_ptr(tvb, offset, linelen);
 
 	if (pinfo->match_port == pinfo->destport)
 		is_request = TRUE;
@@ -81,79 +72,89 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
 		 */
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		line = tvb_get_ptr(tvb, offset, linelen);
+
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-		    is_request ? "Request" : "Response",
-		    format_text(line, linelen));
+			     is_request ? "Request" : "Response",
+			     format_text(line, linelen));
 	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1,
-		    FALSE);
+					 FALSE);
 		imap_tree = proto_item_add_subtree(ti, ett_imap);
 
 		if (is_request) {
 			proto_tree_add_boolean_hidden(imap_tree,
-			    hf_imap_request, tvb, 0, 0, TRUE);
+						      hf_imap_request, tvb, 0, 0, TRUE);
 		} else {
 			proto_tree_add_boolean_hidden(imap_tree,
-			    hf_imap_response, tvb, 0, 0, TRUE);
+						      hf_imap_response, tvb, 0, 0, TRUE);
 		}
 
-		/*
-		 * Put the line into the protocol tree.
-		 */
-		ti = proto_tree_add_text(imap_tree, tvb, offset,
-		    next_offset - offset, "%s",
-		    tvb_format_text(tvb, offset, next_offset - offset));
-		reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
+		while(tvb_length_remaining(tvb, offset) > 2) {
 
-		/*
-		 * Show the first line as tags + requests or replies.
-		 */
+			/*
+			 * Find the end of each line
+			 *
+			 * Note that "tvb_find_line_end()" will return a value that is
+			 * not longer than what's in the buffer, so the "tvb_get_ptr()"
+			 * call won't throw an exception.
+			 */
+			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+			line = tvb_get_ptr(tvb, offset, linelen);
 
-		/*
-		 * Extract the first token, and, if there is a first
-		 * token, add it as the request or reply tag.
-		 */
-		tokenlen = get_token_len(line, line + linelen, &next_token);
-		if (tokenlen != 0) {
-			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Request Tag: %s",
-				    format_text(line, tokenlen));
-			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Response Tag: %s",
-				    format_text(line, tokenlen));
+			/*
+			 * Put the line into the protocol tree.
+			 */
+			ti = proto_tree_add_text(imap_tree, tvb, offset,
+						 next_offset - offset, "%s",
+						 tvb_format_text(tvb, offset, next_offset - offset));
+			reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
+
+			/*
+			 * Show each line as tags + requests or replies.
+			 */
+
+			/*
+			 * Extract the first token, and, if there is a first
+			 * token, add it as the request or reply tag.
+			 */
+			tokenlen = get_token_len(line, line + linelen, &next_token);
+			if (tokenlen != 0) {
+				if (is_request) {
+					proto_tree_add_text(reqresp_tree, tvb, offset,
+							    tokenlen, "Request Tag: %s",
+							    format_text(line, tokenlen));
+				} else {
+					proto_tree_add_text(reqresp_tree, tvb, offset,
+							    tokenlen, "Response Tag: %s",
+							    format_text(line, tokenlen));
+				}
+				offset += next_token - line;
+				linelen -= next_token - line;
+				line = next_token;
 			}
-			offset += next_token - line;
-			linelen -= next_token - line;
-			line = next_token;
-		}
 
-		/*
-		 * Add the rest of the line as request or reply data.
-		 */
-		if (linelen != 0) {
-			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Request: %s",
-				    format_text(line, linelen));
-			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Response: %s",
-				    format_text(line, linelen));
+			/*
+			 * Add the rest of the line as request or reply data.
+			 */
+			if (linelen != 0) {
+				if (is_request) {
+					proto_tree_add_text(reqresp_tree, tvb, offset,
+							    linelen, "Request: %s",
+							    format_text(line, linelen));
+				} else {
+					proto_tree_add_text(reqresp_tree, tvb, offset,
+							    linelen, "Response: %s",
+							    format_text(line, linelen));
+				}
 			}
-		}
 
-		/*
-		 * XXX - show the rest of the frame; this requires that
-		 * we handle literals, quoted strings, continuation
-		 * responses, etc..
-		 *
-		 * This involves a state machine, and attaching
-		 * state information to the packets.
-		 */
+			offset += linelen+2; /* Skip over last line and \r\n at the end of it */
+
+		}
 	}
 }
 
