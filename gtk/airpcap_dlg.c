@@ -2223,43 +2223,16 @@ gtk_container_add (GTK_CONTAINER (left_h_button_box),
 	     reset_configuration_bt);
 GTK_WIDGET_SET_FLAGS (reset_configuration_bt, GTK_CAN_DEFAULT);
 
-right_h_button_box = gtk_hbutton_box_new ();
-gtk_widget_set_name (right_h_button_box, "right_h_button_box");
+right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 gtk_widget_show (right_h_button_box);
 gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
 	    FALSE, 0);
 gtk_button_box_set_layout (GTK_BUTTON_BOX (right_h_button_box),
 		     GTK_BUTTONBOX_END);
 
-#if GTK_MAJOR_VERSION >= 2
-ok_bt = gtk_button_new_with_mnemonic ("Ok");
-#else
-ok_bt = gtk_button_new_with_label ("Ok");
-#endif
-gtk_widget_set_name (ok_bt, "ok_bt");
-gtk_widget_show (ok_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), ok_bt);
-GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
-
-#if GTK_MAJOR_VERSION >= 2
-apply_bt = gtk_button_new_with_mnemonic ("Apply");
-#else
-apply_bt = gtk_button_new_with_label ("Apply");
-#endif
-gtk_widget_set_name (apply_bt, "apply_bt");
-gtk_widget_show (apply_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), apply_bt);
-GTK_WIDGET_SET_FLAGS (apply_bt, GTK_CAN_DEFAULT);
-
-#if GTK_MAJOR_VERSION >= 2
-cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-#else
-cancel_bt = gtk_button_new_with_label ("Cancel");
-#endif
-gtk_widget_set_name (cancel_bt, "cancel_bt");
-gtk_widget_show (cancel_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), cancel_bt);
-GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+ok_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_OK);
+apply_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_APPLY);
+cancel_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_CANCEL);
 
 /* Connect the callbacks */
 SIGNAL_CONNECT (airpcap_advanced_w, "delete_event", window_delete_event_cb, airpcap_advanced_w);
@@ -2672,51 +2645,31 @@ gtk_widget_show (key_v_button_box);
 gtk_box_pack_start (GTK_BOX (keys_v_sub_box), key_v_button_box, FALSE, TRUE,
 	      0);
 
-#if GTK_MAJOR_VERSION >= 2
-add_new_key_bt = gtk_button_new_with_mnemonic ("Add New Key");
-#else
-add_new_key_bt = gtk_button_new_with_label ("Add New Key");
-#endif
+add_new_key_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
 gtk_widget_set_name (add_new_key_bt, "add_new_key_bt");
 gtk_widget_show (add_new_key_bt);
 gtk_container_add (GTK_CONTAINER (key_v_button_box), add_new_key_bt);
 GTK_WIDGET_SET_FLAGS (add_new_key_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERSION >= 2
-remove_key_bt = gtk_button_new_with_mnemonic ("Remove Key");
-#else
-remove_key_bt = gtk_button_new_with_label ("Remove Key");
-#endif
-gtk_widget_set_name (remove_key_bt, "remove_key_bt");
-gtk_widget_show (remove_key_bt);
-gtk_container_add (GTK_CONTAINER (key_v_button_box), remove_key_bt);
-GTK_WIDGET_SET_FLAGS (remove_key_bt, GTK_CAN_DEFAULT);
-
-#if GTK_MAJOR_VERSION >= 2
-edit_key_bt = gtk_button_new_with_mnemonic ("Edit Key");
-#else
-edit_key_bt = gtk_button_new_with_label ("Edit Key");
-#endif  
+edit_key_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
 gtk_widget_set_name (edit_key_bt, "edit_key_bt");
 gtk_widget_show (edit_key_bt);
 gtk_container_add (GTK_CONTAINER (key_v_button_box), edit_key_bt);
 GTK_WIDGET_SET_FLAGS (edit_key_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERSION >= 2
-move_key_up_bt = gtk_button_new_with_mnemonic ("Move Key Up");
-#else
-move_key_up_bt = gtk_button_new_with_label ("Move Key Up");
-#endif
+remove_key_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+gtk_widget_set_name (remove_key_bt, "remove_key_bt");
+gtk_widget_show (remove_key_bt);
+gtk_container_add (GTK_CONTAINER (key_v_button_box), remove_key_bt);
+GTK_WIDGET_SET_FLAGS (remove_key_bt, GTK_CAN_DEFAULT);
+
+move_key_up_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
 gtk_widget_set_name (move_key_up_bt, "move_key_up_bt");
 gtk_widget_show (move_key_up_bt);
 gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_up_bt);
 GTK_WIDGET_SET_FLAGS (move_key_up_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERSION >= 2
-move_key_down_bt = gtk_button_new_with_mnemonic ("Move Key Down");
-#else
-move_key_down_bt = gtk_button_new_with_label ("Move Key Down");
-#endif
+move_key_down_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
 gtk_widget_set_name (move_key_down_bt, "move_key_down_bt");
 gtk_widget_show (move_key_down_bt);
 gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_down_bt);
@@ -2755,7 +2708,7 @@ gtk_container_add (GTK_CONTAINER (left_h_button_box),
 	     reset_configuration_bt);
 GTK_WIDGET_SET_FLAGS (reset_configuration_bt, GTK_CAN_DEFAULT);
 
-right_h_button_box = gtk_hbutton_box_new ();
+right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 gtk_widget_set_name (right_h_button_box, "right_h_button_box");
 gtk_widget_show (right_h_button_box);
 gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
@@ -2763,35 +2716,9 @@ gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
 gtk_button_box_set_layout (GTK_BUTTON_BOX (right_h_button_box),
 		     GTK_BUTTONBOX_END);
 
-#if GTK_MAJOR_VERSION >= 2
-ok_bt = gtk_button_new_with_mnemonic ("Ok");
-#else
-ok_bt = gtk_button_new_with_label ("Ok");
-#endif
-gtk_widget_set_name (ok_bt, "ok_bt");
-gtk_widget_show (ok_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), ok_bt);
-GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
-
-#if GTK_MAJOR_VERSION >= 2
-apply_bt = gtk_button_new_with_mnemonic ("Apply");
-#else
-apply_bt = gtk_button_new_with_label ("Apply");
-#endif
-gtk_widget_set_name (apply_bt, "apply_bt");
-gtk_widget_show (apply_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), apply_bt);
-GTK_WIDGET_SET_FLAGS (apply_bt, GTK_CAN_DEFAULT);
-
-#if GTK_MAJOR_VERSION >= 2
-cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-#else
-cancel_bt = gtk_button_new_with_label ("Cancel");
-#endif
-gtk_widget_set_name (cancel_bt, "cancel_bt");
-gtk_widget_show (cancel_bt);
-gtk_container_add (GTK_CONTAINER (right_h_button_box), cancel_bt);
-GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+ok_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_OK);
+apply_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_APPLY);
+cancel_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_CANCEL);
 
 /* Connect the callbacks */
 SIGNAL_CONNECT (key_management_w, "delete_event", window_delete_event_cb, key_management_w);
