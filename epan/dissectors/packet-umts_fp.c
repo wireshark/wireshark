@@ -1031,7 +1031,7 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Transmit power level */
         proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
-                             (float)(tvb_get_guint8(tvb, offset)) / 10);
+                             (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
         offset++;
 
         /* TB data */

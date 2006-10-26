@@ -458,7 +458,7 @@ void parse_outhdr_string(char *outhdr_string)
 
         /* Convert digits into value */
         outhdr_values[outhdr_values_found++] =
-            atoi((char*)format_text(outhdr_string+start_i, digits));
+            atoi((char*)format_text((guchar*)outhdr_string+start_i, digits));
 
         /* Skip comma */
         n++;
@@ -681,7 +681,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Add useful details to protocol tree label */
-    protocol_name = tvb_get_ephemeral_string(tvb, protocol_start, protocol_length);
+    protocol_name = (char*)tvb_get_ephemeral_string(tvb, protocol_start, protocol_length);
     if (tree)
     {
         proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
