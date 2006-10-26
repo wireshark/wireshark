@@ -137,7 +137,7 @@ if(if_info != NULL)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
    	gtk_signal_handler_unblock_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
 
-	if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(if_info));
+	if_label_text = g_strdup_printf("AirPcap Interface: #%s", airpcap_get_if_string_number(if_info));
 	gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);
 	g_free(if_label_text);
 	}
@@ -148,14 +148,15 @@ else
 		gtk_widget_set_sensitive(airpcap_tb,FALSE);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_crc_filter_combo)->entry),"");
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_channel)->entry),"");
-		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"Not a valid Wireless Interface");
+		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"AirPcap interface: Not selected");
 		}
 	else
 		{
+		/* this shouldn't be visible as the toolbar is hidden if no AirPcap available */
 		gtk_widget_set_sensitive(airpcap_tb,FALSE);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_crc_filter_combo)->entry),"");
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_channel)->entry),"");
-		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"No Wireless Interface Found");
+		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"AirPcap interface: None available");
 		}
 	}
 }
@@ -204,7 +205,7 @@ if(if_info != NULL)
    	gtk_signal_handler_unblock_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
 
 
-	if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(if_info));
+	if_label_text = g_strdup_printf("AirPcap Interface: #%s", airpcap_get_if_string_number(if_info));
 	gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);
 	g_free(if_label_text);
 	}
@@ -215,14 +216,15 @@ else
 		gtk_widget_set_sensitive(airpcap_tb,FALSE);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_crc_filter_combo)->entry),"");
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_channel)->entry),"");
-		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"Not a valid Wireless Interface");
+		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"AirPcap interface: Not selected");
 		}
 	else
 		{
+		/* this shouldn't be visible as the toolbar is hidden if no AirPcap available */
 		gtk_widget_set_sensitive(airpcap_tb,FALSE);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_crc_filter_combo)->entry),"");
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(airpcap_toolbar_channel)->entry),"");
-		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"No Wireless Interface Found");
+		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),"AirPcap interface: None available");
 		}
 	}
 }
