@@ -1365,9 +1365,11 @@ AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
 
 	if test "x$want_adns" = "xdefaultyes"; then
 		want_adns=yes
-		withval=/usr/local
-		if test -d "$withval"; then
-			AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+			withval=/usr/local
+			if test -d "$withval"; then
+				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			fi
 		fi
 	fi
 
