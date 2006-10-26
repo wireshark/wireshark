@@ -83,14 +83,9 @@ static int hf_camel_invokeId = -1;              /* InvokeId */
 static int hf_camel_invoke = -1;                /* InvokePDU */
 static int hf_camel_returnResult = -1;          /* InvokePDU */
 static int hf_camel_returnResult_result = -1;
-static int hf_camel_getPassword = -1;  
-static int hf_camel_currentPassword = -1;  
-static int hf_camel_nature_of_number = -1;
-static int hf_camel_number_plan = -1;
 static int hf_camel_imsi_digits = -1;
 static int hf_camel_addr_extension = -1;
 static int hf_camel_addr_natureOfAddressIndicator = -1;
-static int hf_camel_addr_nature_of_number = -1;
 static int hf_camel_addr_numberingPlanInd = -1;
 static int hf_camel_addr_digits = -1;
 static int hf_camel_cause_indicator = -1;
@@ -476,11 +471,9 @@ static int hf_camel_legToBeSplit = -1;            /* LegID */
 static int hf_camel_destinationReference = -1;    /* Integer4 */
 static int hf_camel_originationReference = -1;    /* Integer4 */
 static int hf_camel_eventSpecificInformationSMS = -1;  /* EventSpecificInformationSMS */
-static int hf_camel_sMSEvents = -1;               /* SMSEventArray */
-static int hf_camel_SMSEventArray_item = -1;      /* SMSEvent */
 static int hf_camel_bcsmEvents = -1;              /* BCSMEventArray */
 static int hf_camel_BCSMEventArray_item = -1;     /* BCSMEvent */
-static int hf_camel_callingPartysNumber = -1;     /* ISDN_AddressString */
+static int hf_camel_callingPartysNumber = -1;     /* SMS_AddressString */
 static int hf_camel_destinationSubscriberNumber = -1;  /* CalledPartyBCDNumber */
 static int hf_camel_sMSCAddress = -1;             /* ISDN_AddressString */
 static int hf_camel_requestedInformationList = -1;  /* RequestedInformationList */
@@ -509,7 +502,7 @@ static int hf_camel_calledPartyBCDNumber = -1;    /* CalledPartyBCDNumber */
 static int hf_camel_timeAndTimezone = -1;         /* TimeAndTimezone */
 static int hf_camel_gsm_ForwardingPending = -1;   /* NULL */
 static int hf_camel_initialDPArgExtension = -1;   /* InitialDPArgExtension */
-static int hf_camel_callingPartyNumberas = -1;    /* ISDN_AddressString */
+static int hf_camel_callingPartyNumberas = -1;    /* SMS_AddressString */
 static int hf_camel_locationInformationMSC = -1;  /* LocationInformation */
 static int hf_camel_tPShortMessageSpecificInfo = -1;  /* TPShortMessageSpecificInfo */
 static int hf_camel_tPProtocolIdentifier = -1;    /* TPProtocolIdentifier */
@@ -517,6 +510,9 @@ static int hf_camel_tPDataCodingScheme = -1;      /* TPDataCodingScheme */
 static int hf_camel_tPValidityPeriod = -1;        /* TPValidityPeriod */
 static int hf_camel_smsReferenceNumber = -1;      /* CallReferenceNumber */
 static int hf_camel_sgsnNumber = -1;              /* ISDN_AddressString */
+static int hf_camel_calledPartyNumber1 = -1;      /* ISDN_AddressString */
+static int hf_camel_sMSEvents = -1;               /* SMSEventArray */
+static int hf_camel_SMSEventArray_item = -1;      /* SMSEvent */
 static int hf_camel_privateExtensionList = -1;    /* PrivateExtensionList */
 static int hf_camel_pcs_Extensions = -1;          /* PCS_Extensions */
 static int hf_camel_chargingCharacteristics = -1;  /* ChargingCharacteristics */
@@ -551,7 +547,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 114 "packet-camel-template.c"
+#line 109 "packet-camel-template.c"
 
 gboolean gcamel_HandleSRT=FALSE;
 extern gboolean gcamel_PersistentSRT;
@@ -746,8 +742,6 @@ static gint ett_camel_SendChargingInformationArg = -1;
 static gint ett_camel_SplitLegArg = -1;
 static gint ett_camel_CAPGPRSReferenceNumber = -1;
 static gint ett_camel_EventReportSMSArg = -1;
-static gint ett_camel_RequestReportSMSEventArg = -1;
-static gint ett_camel_SMSEventArray = -1;
 static gint ett_camel_ResetTimerSMSArg = -1;
 static gint ett_camel_RequestReportBCSMEventArg = -1;
 static gint ett_camel_BCSMEventArray = -1;
@@ -759,6 +753,8 @@ static gint ett_camel_InitialDPGPRSArg = -1;
 static gint ett_camel_CallGapArg = -1;
 static gint ett_camel_InitialDPArg = -1;
 static gint ett_camel_InitialDPSMSArg = -1;
+static gint ett_camel_RequestReportSMSEventArg = -1;
+static gint ett_camel_SMSEventArray = -1;
 static gint ett_camel_ExtensionContainer = -1;
 static gint ett_camel_ApplyChargingGPRSArg = -1;
 static gint ett_camel_ApplyChargingReportGPRSArg = -1;
@@ -768,7 +764,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 136 "packet-camel-template.c"
+#line 131 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -2339,9 +2335,6 @@ static int dissect_gmscAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 static int dissect_gsmSCFAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_gsmSCFAddress);
 }
-static int dissect_callingPartysNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartysNumber);
-}
 static int dissect_sMSCAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_sMSCAddress);
 }
@@ -2351,11 +2344,11 @@ static int dissect_mSISDN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int dissect_mscAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_mscAddress);
 }
-static int dissect_callingPartyNumberas_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartyNumberas);
-}
 static int dissect_sgsnNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_sgsnNumber);
+}
+static int dissect_calledPartyNumber1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_calledPartyNumber1);
 }
 
 
@@ -4337,8 +4330,7 @@ dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, t
 
 static int
 dissect_camel_FCISMSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -5826,6 +5818,12 @@ dissect_camel_SMS_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+static int dissect_callingPartysNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_SMS_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartysNumber);
+}
+static int dissect_callingPartyNumberas_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_SMS_AddressString(TRUE, tvb, offset, pinfo, tree, hf_camel_callingPartyNumberas);
+}
 
 
 static const ber_sequence_t SMSEvent_sequence[] = {
@@ -5912,16 +5910,6 @@ dissect_camel_TPShortMessageSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tv
 }
 static int dissect_tPShortMessageSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_TPShortMessageSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_camel_tPShortMessageSpecificInfo);
-}
-
-
-
-static int
-dissect_camel_TPShortMessageSubmissionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
 }
 
 
@@ -6019,36 +6007,6 @@ dissect_camel_NotReachableReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 }
 static int dissect_netDetNotReachable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_NotReachableReason(FALSE, tvb, offset, pinfo, tree, hf_camel_netDetNotReachable);
-}
-
-
-
-static int
-dissect_camel_CellIdFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_Ext_TeleserviceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_Ext_BearerServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
 }
 
 
@@ -6301,15 +6259,6 @@ static int
 dissect_camel_EntityReleasedGPRSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    EntityReleasedGPRSArg_sequence, hf_index, ett_camel_EntityReleasedGPRSArg);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_FurnishChargingInformationGPRSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -6918,37 +6867,6 @@ dissect_camel_EventReportSMSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 }
 
 
-static const ber_sequence_t SMSEventArray_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SMSEventArray_item },
-};
-
-static int
-dissect_camel_SMSEventArray(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      SMSEventArray_sequence_of, hf_index, ett_camel_SMSEventArray);
-
-  return offset;
-}
-static int dissect_sMSEvents_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_SMSEventArray(TRUE, tvb, offset, pinfo, tree, hf_camel_sMSEvents);
-}
-
-
-static const ber_sequence_t RequestReportSMSEventArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sMSEvents_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_RequestReportSMSEventArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RequestReportSMSEventArg_sequence, hf_index, ett_camel_RequestReportSMSEventArg);
-
-  return offset;
-}
-
-
 static const ber_sequence_t ResetTimerSMSArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timerID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_timervalue_impl },
@@ -7058,6 +6976,15 @@ static int
 dissect_camel_PromptAndCollectUserInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    PromptAndCollectUserInformationArg_sequence, hf_index, ett_camel_PromptAndCollectUserInformationArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_camel_FurnishChargingInformationGPRSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_camel_FCIGPRSBillingChargingCharacteristics(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -7173,6 +7100,10 @@ static const ber_sequence_t InitialDPSMSArg_sequence[] = {
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_smsReferenceNumber_impl },
   { BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscAddress_impl },
   { BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsnNumber_impl },
+  { BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ms_Classmark2_impl },
+  { BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gPRSMSClass_impl },
+  { BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iMEI_impl },
+  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyNumber1_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -7189,6 +7120,37 @@ dissect_camel_InitialDPSMSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 static int
 dissect_camel_ReleaseSMSArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_camel_RPCause(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SMSEventArray_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SMSEventArray_item },
+};
+
+static int
+dissect_camel_SMSEventArray(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SMSEventArray_sequence_of, hf_index, ett_camel_SMSEventArray);
+
+  return offset;
+}
+static int dissect_sMSEvents_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_SMSEventArray(TRUE, tvb, offset, pinfo, tree, hf_camel_sMSEvents);
+}
+
+
+static const ber_sequence_t RequestReportSMSEventArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sMSEvents_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_RequestReportSMSEventArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RequestReportSMSEventArg_sequence, hf_index, ett_camel_RequestReportSMSEventArg);
 
   return offset;
 }
@@ -7340,7 +7302,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 244 "packet-camel-template.c"
+#line 239 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -7413,7 +7375,7 @@ char camel_number_to_char(int number)
  * 24.011 8.2.5.4
  */   
 static guint8
-dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, guint len,
+dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 		    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
 {
   guint8	oct;
@@ -9483,14 +9445,6 @@ void proto_register_camel(void) {
       { "eventSpecificInformationSMS", "camel.eventSpecificInformationSMS",
         FT_UINT32, BASE_DEC, VALS(camel_EventSpecificInformationSMS_vals), 0,
         "camel.EventSpecificInformationSMS", HFILL }},
-    { &hf_camel_sMSEvents,
-      { "sMSEvents", "camel.sMSEvents",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "camel.SMSEventArray", HFILL }},
-    { &hf_camel_SMSEventArray_item,
-      { "Item", "camel.SMSEventArray_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.SMSEvent", HFILL }},
     { &hf_camel_bcsmEvents,
       { "bcsmEvents", "camel.bcsmEvents",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9502,7 +9456,7 @@ void proto_register_camel(void) {
     { &hf_camel_callingPartysNumber,
       { "callingPartysNumber", "camel.callingPartysNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.ISDN_AddressString", HFILL }},
+        "camel.SMS_AddressString", HFILL }},
     { &hf_camel_destinationSubscriberNumber,
       { "destinationSubscriberNumber", "camel.destinationSubscriberNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -9618,7 +9572,7 @@ void proto_register_camel(void) {
     { &hf_camel_callingPartyNumberas,
       { "callingPartyNumberas", "camel.callingPartyNumberas",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "camel.ISDN_AddressString", HFILL }},
+        "camel.SMS_AddressString", HFILL }},
     { &hf_camel_locationInformationMSC,
       { "locationInformationMSC", "camel.locationInformationMSC",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9647,6 +9601,18 @@ void proto_register_camel(void) {
       { "sgsnNumber", "camel.sgsnNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
         "camel.ISDN_AddressString", HFILL }},
+    { &hf_camel_calledPartyNumber1,
+      { "calledPartyNumber", "camel.calledPartyNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.ISDN_AddressString", HFILL }},
+    { &hf_camel_sMSEvents,
+      { "sMSEvents", "camel.sMSEvents",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "camel.SMSEventArray", HFILL }},
+    { &hf_camel_SMSEventArray_item,
+      { "Item", "camel.SMSEventArray_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.SMSEvent", HFILL }},
     { &hf_camel_privateExtensionList,
       { "privateExtensionList", "camel.privateExtensionList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9773,7 +9739,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 964 "packet-camel-template.c"
+#line 959 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9966,8 +9932,6 @@ void proto_register_camel(void) {
     &ett_camel_SplitLegArg,
     &ett_camel_CAPGPRSReferenceNumber,
     &ett_camel_EventReportSMSArg,
-    &ett_camel_RequestReportSMSEventArg,
-    &ett_camel_SMSEventArray,
     &ett_camel_ResetTimerSMSArg,
     &ett_camel_RequestReportBCSMEventArg,
     &ett_camel_BCSMEventArray,
@@ -9979,6 +9943,8 @@ void proto_register_camel(void) {
     &ett_camel_CallGapArg,
     &ett_camel_InitialDPArg,
     &ett_camel_InitialDPSMSArg,
+    &ett_camel_RequestReportSMSEventArg,
+    &ett_camel_SMSEventArray,
     &ett_camel_ExtensionContainer,
     &ett_camel_ApplyChargingGPRSArg,
     &ett_camel_ApplyChargingReportGPRSArg,
@@ -9988,7 +9954,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 984 "packet-camel-template.c"
+#line 979 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

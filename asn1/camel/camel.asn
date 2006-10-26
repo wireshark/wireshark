@@ -896,9 +896,12 @@ FCIGPRSBillingChargingCharacteristics ::= CAMEL-FCIGPRSBillingChargingCharacteri
 
 -- FCISMSBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-FCISMSBillingChargingCharacteristics ::=
 
-OCTET STRING (SIZE (cAPSpecificBoundSetminFCIBillingChargingLength ..cAPSpecificBoundSetmaxFCIBillingChargingLength ))
+--FCISMSBillingChargingCharacteristics ::= OCTET STRING (SIZE (cAPSpecificBoundSetminFCIBillingChargingLength ..cAPSpecificBoundSetmaxFCIBillingChargingLength ))
+--	(CONSTRAINED BY { shall be the result of the BER-encoded value of type 
+--	CAMEL-FCISMSBillingChargingCharacteristics {bound}})
+
+FCISMSBillingChargingCharacteristics ::= CAMEL-FCISMSBillingChargingCharacteristics
 
 -- ForwardServiceInteractionInd notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1663,9 +1666,6 @@ TPShortMessageSpecificInfo ::= OCTET STRING (SIZE (1))
 -- contains the 1st octect of the applicable TPDU or the SMS-COMMAND TPDU as specified in
 -- 3GPP TS 23.040 [6].
 
--- TPShortMessageSubmissionInfo notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-TPShortMessageSubmissionInfo ::= OCTET STRING (SIZE (1))
 
 -- TPValidityPeriod notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1777,22 +1777,6 @@ AddressString ::=
     
     OCTET STRING (SIZE(1..maxAddressLength))
 
--- CellIdFixedLength notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CellIdFixedLength ::=
-    
-    
-    OCTET STRING (SIZE (7))
-    -- Refers to Cell Global Identification defined in TS GSM 03.03.
-    -- Octets ares encoded according to TS GSM 04.08.
-    -- The internal structure is defined as follows:
-    --   Mobile Country Code:   3 digits according to CCITT Rec E.212.
-    --                          1 digits filler (1111)
-    --   Mobile Network Code:   2 digits according to CCITT Rec E.212.
-    --   Location Area Code:    2 octets according to TS GSM 04.08.
-    --   Cell Identify:         2 octets (CI) according to TS GSM 04.08.
-
-
 -- LAIFixedLength notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 -- IMPORTED fom GSM MAP
@@ -1809,19 +1793,6 @@ CellIdFixedLength ::=
 -- ServiceKey notes: not recursive, exported,
 -- locally refd 6 times, import refd 0 times
 ServiceKey ::= INTEGER (0..2147483647)
-
--- Ext-TeleserviceCode notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-Ext-TeleserviceCode ::=
-
-OCTET STRING (SIZE (1..5))
-
--- Ext-BearerServiceCode notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-Ext-BearerServiceCode ::=
-
-OCTET STRING (SIZE (1..5))
-
 
 
 -- Duration notes: not recursive, exported,
@@ -2046,15 +2017,6 @@ EntityReleasedGPRSArg ::=
     gPRSCause [0] GPRSCause,
     pDPID     [1] PDPId      OPTIONAL
 }
-
--- FurnishChargingInformationGPRSArg notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-FurnishChargingInformationGPRSArg ::= CAMEL-FCIGPRSBillingChargingCharacteristics
-
--- FCIGPRSBillingChargingCharacteristics type.
--- Shall be the result of the BER-encoded value of type
--- CAMEL-FCIGPRSBillingChargingCharacteristics
-
 
 -- ReleaseGPRSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2494,21 +2456,6 @@ EventReportSMSArg ::=
 
 
 
--- RequestReportSMSEventArg notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-RequestReportSMSEventArg ::=
-
- SEQUENCE
-{
-    sMSEvents  [0]  SMSEventArray,
-    extensions [10] ExtensionsArray OPTIONAL
-}
-
-SMSEventArray ::= 
-		  SEQUENCE SIZE (1..10) OF SMSEvent
-
-
-
 -- ResetTimerSMSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 ResetTimerSMSArg ::=
@@ -2546,7 +2493,7 @@ ConnectSMSArg ::=
 
  SEQUENCE
 {
-    callingPartysNumber         [0] ISDN-AddressString   OPTIONAL,
+    callingPartysNumber         [0] SMS-AddressString   OPTIONAL,
     destinationSubscriberNumber [1] CalledPartyBCDNumber OPTIONAL,
     sMSCAddress                 [2] ISDN-AddressString   OPTIONAL,
     extensions                  [10] ExtensionsArray     OPTIONAL
@@ -2593,6 +2540,26 @@ PromptAndCollectUserInformationArg ::=
     extensions                [3] ExtensionsArray   OPTIONAL
 }
 
+--furnishChargingInformationGPRS {PARAMETERS-BOUND : bound} OPERATION ::= {
+--	ARGUMENT		FurnishChargingInformationGPRSArg {bound}
+--	RETURN RESULT	FALSE
+--	ERRORS			{missingParameter |
+--					taskRefused |
+--					unexpectedComponentSequence |
+--					unexpectedDataValue |
+--					unexpectedParameter |
+--					unknownPDPID}
+--	CODE			opcode-furnishChargingInformationGPRS}
+-- Direction: gsmSCF -> gprsSSF, Timer: Tfcig 
+-- This operation is used to request the gprsSSF to generate, register a logical record or to 
+-- include some information in the default logical GPRS record.
+-- The registered logical record is intended for off line charging of the GPRS session
+-- or PDP Context.
+
+-- FurnishChargingInformationGPRSArg {PARAMETERS-BOUND : bound} ::=
+--	FCIGPRSBillingChargingCharacteristics{bound}
+
+FurnishChargingInformationGPRSArg ::= FCIGPRSBillingChargingCharacteristics
 
 
 -- InitialDPGPRSArg notes: not recursive, exported,
@@ -2688,7 +2655,7 @@ InitialDPSMSArg ::=
 {
     serviceKey                          [0]  ServiceKey,
     destinationSubscriberNumber         [1]  CalledPartyBCDNumber         OPTIONAL,
-    callingPartyNumberas                [2]  ISDN-AddressString           OPTIONAL,
+    callingPartyNumberas                [2]  SMS-AddressString            OPTIONAL,
     eventTypeSMS                        [3]  EventTypeSMS                 OPTIONAL,
     iMSI                                [4]  IMSI                         OPTIONAL,
     locationInformationMSC              [5]  LocationInformation          OPTIONAL,
@@ -2700,11 +2667,32 @@ InitialDPSMSArg ::=
     tPDataCodingScheme                  [11] TPDataCodingScheme           OPTIONAL,
     tPValidityPeriod                    [12] TPValidityPeriod             OPTIONAL,
     extensions                          [13] ExtensionsArray              OPTIONAL,
+	...,
     smsReferenceNumber                  [14] CallReferenceNumber          OPTIONAL,
     mscAddress                          [15] ISDN-AddressString           OPTIONAL,
-    sgsnNumber                          [16] ISDN-AddressString           OPTIONAL
+    sgsnNumber                          [16] ISDN-AddressString           OPTIONAL,
+	ms-Classmark2						[17] MS-Classmark2							OPTIONAL,
+	gPRSMSClass 						[18] GPRSMSClass							OPTIONAL,
+	iMEI								[19] IMEI									OPTIONAL,
+	calledPartyNumber					[20] ISDN-AddressString						OPTIONAL
 }
 
+-- ReleaseSMSArg notes: not recursive, exported,
+-- locally refd 0 times, import refd 0 times
+ReleaseSMSArg ::= RPCause
+
+-- RequestReportSMSEventArg notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+RequestReportSMSEventArg ::=
+
+ SEQUENCE
+{
+    sMSEvents  [0]  SMSEventArray,
+    extensions [10] ExtensionsArray OPTIONAL
+}
+
+SMSEventArray ::= 
+		  SEQUENCE SIZE (1..10) OF SMSEvent
 
 
 -- ExtensionContainer notes: not recursive, exported,
@@ -2716,12 +2704,6 @@ ExtensionContainer ::=   SEQUENCE
 }
 
 
--- ReleaseSMSArg notes: not recursive, exported,
--- locally refd 0 times, import refd 0 times
-ReleaseSMSArg ::= RPCause
-
-
---OCTET STRING (SIZE (1))
 
 -- ApplyChargingGPRSArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times

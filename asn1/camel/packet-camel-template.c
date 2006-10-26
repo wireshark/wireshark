@@ -75,14 +75,9 @@ static int hf_camel_invokeId = -1;              /* InvokeId */
 static int hf_camel_invoke = -1;                /* InvokePDU */
 static int hf_camel_returnResult = -1;          /* InvokePDU */
 static int hf_camel_returnResult_result = -1;
-static int hf_camel_getPassword = -1;  
-static int hf_camel_currentPassword = -1;  
-static int hf_camel_nature_of_number = -1;
-static int hf_camel_number_plan = -1;
 static int hf_camel_imsi_digits = -1;
 static int hf_camel_addr_extension = -1;
 static int hf_camel_addr_natureOfAddressIndicator = -1;
-static int hf_camel_addr_nature_of_number = -1;
 static int hf_camel_addr_numberingPlanInd = -1;
 static int hf_camel_addr_digits = -1;
 static int hf_camel_cause_indicator = -1;
@@ -313,7 +308,7 @@ char camel_number_to_char(int number)
  * 24.011 8.2.5.4
  */   
 static guint8
-dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, guint len,
+dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 		    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
 {
   guint8	oct;
