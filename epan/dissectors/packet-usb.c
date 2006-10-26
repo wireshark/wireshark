@@ -797,7 +797,8 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     static guint32 src_addr, dst_addr, tmp_addr; /* has to be static due to SET_ADDRESS */
     guint32 src_port, dst_port;
     gboolean is_request;
-    usb_conv_info_t *usb_conv_info;
+    usb_conv_info_t *usb_conv_info=NULL;
+    usb_trans_info_t *usb_trans_info=NULL;
     conversation_t *conversation;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -923,9 +924,37 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
+    pinfo->usb_conv_info=usb_conv_info;
    
 
-
+    /* request/response matching so we can keep track of transaction specific
+     * data.
+     */
+    if(is_request){
+        /* this is a request */
+        usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+        if(!usb_trans_info){
+            usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
+            usb_trans_info->request_in=pinfo->fd->num;
+            usb_trans_info->response_in=0;
+            usb_trans_info->requesttype=0;
+            usb_trans_info->request=0;
+            se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+        }
+        usb_conv_info->usb_trans_info=usb_trans_info;
+    } else {
+        /* this is a response */
+        if(pinfo->fd->flags.visited){
+            usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+        } else {
+            usb_trans_info=se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
+            if(usb_trans_info){
+                usb_trans_info->response_in=pinfo->fd->num;
+                se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+            }
+        } 
+        usb_conv_info->usb_trans_info=usb_trans_info;
+    }
 
 
     switch(type){
@@ -969,9 +998,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         usb_setup_dissector dissector;
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
-        guint8 requesttype, request;
-        usb_trans_info_t *usb_trans_info;
-
+ 
         ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(ti);
 
@@ -981,25 +1008,14 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             /* this is a request */
             ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(usb_setup_t), "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
-            requesttype=tvb_get_guint8(tvb, offset);        
+            usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);        
             offset=dissect_usb_setup_bmrequesttype(setup_tree, tvb, offset);
 
 
             /* read the request code and spawn off to a class specific 
              * dissector if found 
              */
-            request=tvb_get_guint8(tvb, offset);
-            usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
-            if(!usb_trans_info){
-                usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
-                usb_trans_info->request_in=pinfo->fd->num;
-                usb_trans_info->response_in=0;
-                usb_trans_info->requesttype=requesttype;
-                usb_trans_info->request=request;
-                se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
-            }
-            usb_conv_info->usb_trans_info=usb_trans_info;
-            pinfo->usb_conv_info=usb_conv_info;
+            usb_trans_info->request=tvb_get_guint8(tvb, offset);
 
             /* Try to find a class specific dissector */  
             next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
@@ -1021,7 +1037,7 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
             dissector=NULL;
             for(tmp=setup_dissectors;tmp->dissector;tmp++){
-                if(tmp->request==request){
+                if(tmp->request==usb_trans_info->request){
                     dissector=tmp->dissector;
                     break;
                 }
@@ -1042,28 +1058,16 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             tvbuff_t *next_tvb;
 
             /* this is a response */
-            if(pinfo->fd->flags.visited){
-                usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
-            } else {
-                usb_trans_info=se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
-                if(usb_trans_info){
-                    usb_trans_info->response_in=pinfo->fd->num;
-                    se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
-                }
-            }
-            if(usb_trans_info){
-                usb_conv_info->usb_trans_info=usb_trans_info;
+            if(usb_conv_info->usb_trans_info){
                 dissector=NULL;
                 for(tmp=setup_dissectors;tmp->dissector;tmp++){
-                    if(tmp->request==usb_trans_info->request){
+                    if(tmp->request==usb_conv_info->usb_trans_info->request){
                         dissector=tmp->dissector;
                         break;
                     }
                 }
 
                 /* Try to find a class specific dissector */  
-                usb_conv_info->usb_trans_info=usb_trans_info;
-                pinfo->usb_conv_info=usb_conv_info;
                 next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
                 if(dissector_try_port(usb_control_dissector_table, usb_conv_info->class, next_tvb, pinfo, tree)){
                     return;
@@ -1072,14 +1076,14 @@ dissect_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                     col_clear(pinfo->cinfo, COL_INFO);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-                        val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
+                        val_to_str(usb_conv_info->usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
                 }
 
                 if(dissector){
-                    dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+                    dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
                 }
             } else {
-                /* could not find a matching request */
+                /* no matching request available */
             }
         }
         return;
