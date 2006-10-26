@@ -1097,7 +1097,7 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             /* Power offset */
             proto_tree_add_float(tree, hf_fp_power_offset, tvb, offset, 1,
                                  (float)(-32.0) +
-                                  ((float)(tvb_get_guint8(tvb, offset)) * (float)(0.25)));
+                                  ((float)(int)(tvb_get_guint8(tvb, offset)) * (float)(0.25)));
             offset++;
 
             /* Code number */
@@ -1123,7 +1123,7 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     
             /* Transmit power level */
             proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
-                                 (float)(tvb_get_guint8(tvb, offset)) / 10);
+                                 (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
             offset++;
         }
 
@@ -1446,7 +1446,7 @@ void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
 void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* SIR target */
-    float target = -8.2 + (0.1 * (float)(tvb_get_guint8(tvb, offset)));
+    float target = -8.2 + (0.1 * (float)(int)(tvb_get_guint8(tvb, offset)));
     proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
 
     if (check_col(pinfo->cinfo, COL_INFO))
