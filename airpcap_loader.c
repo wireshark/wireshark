@@ -55,6 +55,12 @@
  */
 static HMODULE AirpcapLib = NULL;
 
+/*
+ * Set to TRUE if the DLL was successfully loaded AND all functions
+ * are present.
+ */
+static gboolean AirpcapLoaded = FALSE;
+
 static AirpcapGetLastErrorHandler g_PAirpcapGetLastError;
 static AirpcapGetDeviceListHandler g_PAirpcapGetDeviceList;
 static AirpcapFreeDeviceListHandler g_PAirpcapFreeDeviceList;
@@ -106,28 +112,28 @@ keys_cb_data_t* user_data;
 decryption_key_t* new_key;
 
 /* Retrieve user data info */
-user_data = (keys_cb_data_t*)ud; 
+user_data = (keys_cb_data_t*)ud;
 
 if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
     my_string = g_strdup(*pref->varp.string);
-    
+
     if( my_string != NULL)
         {
         /* Key is added only if not null ... */
         if( (g_strcasecmp(my_string,"") != 0) && (wep_key_is_valid(my_string)))
             {
             new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-            
+
             new_key->key = g_string_new(my_string);
             g_free(my_string);
-            
+
             new_key->bits = new_key->key->len * 4;
-            
+
             new_key->type = AIRPCAP_KEYTYPE_WEP;
-            
+
             new_key->ssid = NULL;
-            
+
             user_data->list = g_list_append(user_data->list,new_key);
             user_data->number_of_keys++;
             user_data->current_index++;
@@ -195,26 +201,26 @@ keys_cb_data_t* user_data;
 gint wep_key_number = 0;
 
 /* Retrieve user data info */
-user_data = (keys_cb_data_t*)ud; 
+user_data = (keys_cb_data_t*)ud;
 
 if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
     /* Ok, the pref we're gonna set is a wep_key ... but what number? */
     sscanf(pref->name,"wep_key%d",&wep_key_number);
-    
+
     if(user_data->current_index < user_data->number_of_keys)
         {
         if(wep_key_number == (user_data->current_index+1))
             {
             my_string = g_strdup((char*)g_list_nth_data(user_data->list,user_data->current_index));
-            
+
 			g_free((void *)*pref->varp.string);
-			*pref->varp.string = (void *)g_strdup(my_string);  
-                          
+			*pref->varp.string = (void *)g_strdup(my_string);
+
             g_free(my_string);
             }
         }
-    else /* If the number of keys has been reduced somehow, we need to delete all the other keys 
+    else /* If the number of keys has been reduced somehow, we need to delete all the other keys
           * (remember that the new ones have been probably overwritten)
           */
         {
@@ -237,7 +243,7 @@ load_wlan_wep_keys(airpcap_if_info_t* info_if)
 keys_cb_data_t* user_data;
 guint i;
 gchar *tmp = NULL;
-                                      
+
 if(info_if == NULL) return FALSE;
 
 /* Retrieve the wlan preferences */
@@ -256,9 +262,9 @@ prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)user_data);
 
 /* Now the key list should be filled */
 
-/* 
+/*
  * Signal that we've changed things, and run the 802.11 dissector's
- * callback 
+ * callback
  */
 wlan_prefs->prefs_changed = TRUE;
 
@@ -294,7 +300,7 @@ GString *new_key;
 gchar s[3];
 PAirpcapKeysCollection KeysCollection;
 ULONG KeysCollectionSize;
-UCHAR KeyByte; 
+UCHAR KeyByte;
 UINT keys_in_list = 0;
 decryption_key_t* key_item = NULL;
 
@@ -331,7 +337,7 @@ for(i = 0; i < keys_in_list; i++)
 	/* Retrieve the Item corresponding to the i-th key */
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
 	new_key = g_string_new(key_item->key->str);
-	
+
 	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
@@ -343,8 +349,8 @@ for(i = 0; i < keys_in_list; i++)
 		KeyByte = (UCHAR)strtol(s, NULL, 16);
 		KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
 	}
-	
-	g_string_free(new_key,TRUE);	
+
+	g_string_free(new_key,TRUE);
 }
 
 /*
@@ -372,7 +378,7 @@ airpcap_save_selected_if_configuration(info_if);
 return TRUE;
 }
 
-/* 
+/*
  *  Function used to save to the preference file the Decryption Keys.
  */
 gboolean
@@ -382,7 +388,7 @@ GList* key_list = NULL;
 char* tmp_key = NULL;
 guint keys_in_list,i;
 keys_cb_data_t* user_data;
-                                      
+
 if(info_if == NULL) return FALSE;
 
 /* Retrieve the wlan preferences */
@@ -399,8 +405,8 @@ for(i=0; i<keys_in_list; i++)
 /* Only if it is a WEP key... */
 if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
     {
-    tmp_key = airpcap_get_key_string(info_if->keysCollection->Keys[i]);   
-    key_list = g_list_append(key_list,g_strdup(tmp_key));    
+    tmp_key = airpcap_get_key_string(info_if->keysCollection->Keys[i]);
+    key_list = g_list_append(key_list,g_strdup(tmp_key));
     g_free(tmp_key);
     }
 }
@@ -411,7 +417,7 @@ keys_in_list = g_list_length(key_list);
 /* Fill the structure */
 user_data->list = key_list;
 user_data->current_index = 0;
-user_data->number_of_keys= keys_in_list; 
+user_data->number_of_keys= keys_in_list;
 
 /* Retrieve the wlan preferences */
 wlan_prefs = prefs_find_module("wlan");
@@ -458,6 +464,7 @@ cant_get_airpcap_if_list_error_message(const char *err_str)
 BOOL
 airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapStoreCurConfigAsAdapterDefault(ah);
 }
 
@@ -467,6 +474,7 @@ airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah)
 PAirpcapHandle
 airpcap_if_open(PCHAR name, PCHAR err)
 {
+	if (!AirpcapLoaded) return NULL;
 	return g_PAirpcapOpen(name,err);
 }
 
@@ -476,8 +484,8 @@ airpcap_if_open(PCHAR name, PCHAR err)
 VOID
 airpcap_if_close(PAirpcapHandle handle)
 {
-g_PAirpcapClose(handle);
-
+	if (!AirpcapLoaded) return;
+	g_PAirpcapClose(handle);
 }
 
 /*
@@ -486,6 +494,7 @@ g_PAirpcapClose(handle);
 BOOL
 airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, UINT LedNumber)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapTurnLedOn(AdapterHandle,LedNumber);
 }
 
@@ -495,6 +504,7 @@ airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, UINT LedNumber)
 BOOL
 airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapTurnLedOff(AdapterHandle,LedNumber);
 }
 
@@ -504,6 +514,7 @@ airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber)
 BOOL
 airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetDeviceChannel(ah,ch);
 }
 
@@ -513,6 +524,7 @@ airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch)
 BOOL
 airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetDeviceChannel(ah,ch);
 }
 
@@ -522,6 +534,7 @@ airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch)
 BOOL
 airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetLinkType(ah,lt);
 }
 
@@ -531,6 +544,7 @@ airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt)
 BOOL
 airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetLinkType(ah,lt);
 }
 
@@ -540,6 +554,7 @@ airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt)
 BOOL
 airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL fcs)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetFcsPresence(ah,fcs);
 }
 
@@ -549,6 +564,7 @@ airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL fcs)
 BOOL
 airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL fcs)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetFcsPresence(ah,fcs);
 }
 
@@ -558,6 +574,7 @@ airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL fcs)
 BOOL
 airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnable)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetDecryptionState(ah,PEnable);
 }
 
@@ -567,6 +584,7 @@ airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnab
 BOOL
 airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetDecryptionState(ah,Enable);
 }
 
@@ -576,6 +594,7 @@ airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable
 BOOL
 airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetFcsValidation(ah,val);
 }
 
@@ -585,6 +604,7 @@ airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val)
 BOOL
 airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetFcsValidation(ah,val);
 }
 
@@ -594,6 +614,7 @@ airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val)
 BOOL
 airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection)
 {
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapSetDeviceKeys(AdapterHandle,KeysCollection);
 }
 
@@ -602,7 +623,8 @@ airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection 
  */
 BOOL
 airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize)
-{   
+{
+	if (!AirpcapLoaded) return FALSE;
 	return g_PAirpcapGetDeviceKeys(AdapterHandle,KeysCollection,PKeysCollectionSize);
 }
 
@@ -625,7 +647,7 @@ gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 		if_info->description = g_strdup(description);
 	if_info->ip_addr = NULL;
 	if_info->loopback = FALSE;
-	
+
 	/* Probably I have to switch on the leds!!! */
 	ad = airpcap_if_open(if_info->name, ebuf);
 	if(ad)
@@ -653,32 +675,34 @@ gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 BOOL
 airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 {
-if_info->keysCollectionSize = 0;
-if_info->keysCollection = NULL;
+	if (!if_info) return FALSE;
 
-if(!airpcap_if_get_device_keys(ad, NULL, &(if_info->keysCollectionSize)))
-	{
-	if(if_info->keysCollectionSize == 0)
+	if_info->keysCollectionSize = 0;
+	if_info->keysCollection = NULL;
+
+	if(!airpcap_if_get_device_keys(ad, NULL, &(if_info->keysCollectionSize)))
 		{
-		if_info->keysCollection = NULL;
-		airpcap_if_close(ad);
-		return FALSE;
-		}
+		if(if_info->keysCollectionSize == 0)
+			{
+			if_info->keysCollection = NULL;
+			airpcap_if_close(ad);
+			return FALSE;
+			}
 
-	if_info->keysCollection = (PAirpcapKeysCollection)malloc(if_info->keysCollectionSize);
-	if(!if_info->keysCollection)
-		{
-		if_info->keysCollectionSize = 0;
-		if_info->keysCollection = NULL;
-		airpcap_if_close(ad);
-		return FALSE;
-		}
+		if_info->keysCollection = (PAirpcapKeysCollection)malloc(if_info->keysCollectionSize);
+		if(!if_info->keysCollection)
+			{
+			if_info->keysCollectionSize = 0;
+			if_info->keysCollection = NULL;
+			airpcap_if_close(ad);
+			return FALSE;
+			}
 
-	airpcap_if_get_device_keys(ad, if_info->keysCollection, &(if_info->keysCollectionSize));
-	return TRUE;
-	}
-airpcap_if_close(ad);
-return FALSE;
+		airpcap_if_get_device_keys(ad, if_info->keysCollection, &(if_info->keysCollectionSize));
+		return TRUE;
+		}
+	airpcap_if_close(ad);
+	return FALSE;
 }
 
 /*
@@ -687,6 +711,8 @@ return FALSE;
 void
 airpcap_if_save_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 {
+	if (!if_info || !AirpcapLoaded) return;
+
 	if(if_info->keysCollection != NULL)
 		g_PAirpcapSetDeviceKeys(ad,if_info->keysCollection);
 }
@@ -737,12 +763,14 @@ get_airpcap_interface_list(int *err, char *err_str)
 	GList  *il = NULL;
 	airpcap_if_info_t *if_info;
 	int i, n_adapts;
-    AirpcapDeviceDescription *devsList, *adListEntry;
+	AirpcapDeviceDescription *devsList, *adListEntry;
 
-	if(!g_PAirpcapGetDeviceList(&devsList, err_str))
+	if (err)
+		*err = NO_AIRPCAP_INTERFACES_FOUND;
+
+	if(!AirpcapLoaded || !g_PAirpcapGetDeviceList(&devsList, err_str))
 	{
 		/* No interfaces, return il = NULL; */
-		*err = NO_AIRPCAP_INTERFACES_FOUND;
 		return il;
 	}
 
@@ -761,7 +789,6 @@ get_airpcap_interface_list(int *err, char *err_str)
 	{
 		/* No interfaces, return il= NULL */
 		g_PAirpcapFreeDeviceList(devsList);
-		*err = NO_AIRPCAP_INTERFACES_FOUND;
 		return il;
 	}
 
@@ -772,7 +799,7 @@ get_airpcap_interface_list(int *err, char *err_str)
 	for(i = 0; i < n_adapts; i++)
 	{
 		if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
-        il = g_list_append(il, if_info);
+		il = g_list_append(il, if_info);
 
 		adListEntry = adListEntry->next;
 	}
@@ -789,28 +816,28 @@ get_airpcap_interface_list(int *err, char *err_str)
 gchar* get_airpcap_name_from_description(GList* if_list, gchar* description)
 {
 unsigned int ifn;
-GList* curr;
-airpcap_if_info_t* if_info;
+	GList* curr;
+	airpcap_if_info_t* if_info;
 
-ifn = 0;
-if(if_list != NULL)
-	{
-	while( ifn < g_list_length(if_list) )
+	ifn = 0;
+	if(if_list != NULL)
 		{
-		curr = g_list_nth(if_list, ifn);
+		while( ifn < g_list_length(if_list) )
+			{
+			curr = g_list_nth(if_list, ifn);
 
-		if_info = NULL;
-		if(curr != NULL)
-			if_info = curr->data;
-		if(if_info != NULL)
-			if ( g_ascii_strcasecmp(if_info->description,description) == 0)
-				{
-				return if_info->name;
-				}
-		ifn++;
+			if_info = NULL;
+			if(curr != NULL)
+				if_info = curr->data;
+			if(if_info != NULL)
+				if ( g_ascii_strcasecmp(if_info->description,description) == 0)
+					{
+					return if_info->name;
+					}
+			ifn++;
+			}
 		}
-	}
-return NULL;
+	return NULL;
 }
 
 /*
@@ -819,29 +846,29 @@ return NULL;
  */
 airpcap_if_info_t* get_airpcap_if_by_name(GList* if_list, const gchar* name)
 {
-unsigned int ifn;
-GList* curr;
-airpcap_if_info_t* if_info;
+	unsigned int ifn;
+	GList* curr;
+	airpcap_if_info_t* if_info;
 
-ifn = 0;
-if(if_list != NULL)
-	{
-	while( ifn < g_list_length(if_list) )
+	ifn = 0;
+	if(if_list != NULL)
 		{
-		curr = g_list_nth(if_list, ifn);
+		while( ifn < g_list_length(if_list) )
+			{
+			curr = g_list_nth(if_list, ifn);
 
-		if_info = NULL;
-		if(curr != NULL)
-			if_info = curr->data;
-		if(if_info != NULL)
-			if ( g_ascii_strcasecmp(if_info->name,name) == 0)
-				{
-				return if_info;
-				}
-		ifn++;
+			if_info = NULL;
+			if(curr != NULL)
+				if_info = curr->data;
+			if(if_info != NULL)
+				if ( g_ascii_strcasecmp(if_info->name,name) == 0)
+					{
+					return if_info;
+					}
+			ifn++;
+			}
 		}
-	}
-return NULL;
+	return NULL;
 }
 
 /*
@@ -850,46 +877,46 @@ return NULL;
 gchar*
 airpcap_get_key_string(AirpcapKey key)
 {
-unsigned int j = 0;
-unsigned int l = 0;
-gchar *dst,*src;
+	unsigned int j = 0;
+	unsigned int l = 0;
+	gchar *dst,*src;
 
-src = NULL;
+	src = NULL;
 
-if(key.KeyType == AIRPCAP_KEYTYPE_WEP)
-	{
-	if(key.KeyLen != 0)
-	    {
-        /* Allocate the string used to store the ASCII representation of the WEP key */
-        dst = (gchar*)g_malloc(sizeof(gchar)*WEP_KEY_MAX_CHAR_SIZE + 1);
-        /* Make sure that the first char is '\0' in order to make g_strlcat() work */
-        dst[0]='\0';
-        
-	    for(j = 0; j < key.KeyLen; j++)
+	if(key.KeyType == AIRPCAP_KEYTYPE_WEP)
+		{
+		if(key.KeyLen != 0)
 		    {
-		    src = g_strdup_printf("%.2x\0", key.KeyData[j]);
-		    /*
-             * XXX - use g_strconcat() instead ??? 
-             */		
-	    	l = g_strlcat(dst,src,WEP_KEY_MAX_CHAR_SIZE+1);
-	    	}
-    	g_free(src);
-        }
-	}
-else if(key.KeyType == AIRPCAP_KEYTYPE_TKIP)
-    {
-    /* XXX - Add code here */
-    }
-else if(key.KeyType == AIRPCAP_KEYTYPE_CCMP)
-    {
-    /* XXX - Add code here */
-    }
-else
-    {
-    /* XXX - Add code here */
-    }
+		/* Allocate the string used to store the ASCII representation of the WEP key */
+		dst = (gchar*)g_malloc(sizeof(gchar)*WEP_KEY_MAX_CHAR_SIZE + 1);
+		/* Make sure that the first char is '\0' in order to make g_strlcat() work */
+		dst[0]='\0';
 
-return dst;
+		    for(j = 0; j < key.KeyLen; j++)
+			    {
+			    src = g_strdup_printf("%.2x\0", key.KeyData[j]);
+			    /*
+			     * XXX - use g_strconcat() or GStrings instead ???
+			     */
+			l = g_strlcat(dst,src,WEP_KEY_MAX_CHAR_SIZE+1);
+			}
+		g_free(src);
+		}
+		}
+	else if(key.KeyType == AIRPCAP_KEYTYPE_TKIP)
+	    {
+	    /* XXX - Add code here */
+	    }
+	else if(key.KeyType == AIRPCAP_KEYTYPE_CCMP)
+	    {
+	    /* XXX - Add code here */
+	    }
+	else
+	    {
+	    /* XXX - Add code here */
+	    }
+
+	return dst;
 }
 
 /*
@@ -898,29 +925,29 @@ return dst;
  */
 gpointer get_airpcap_if_from_description(GList* if_list, const gchar* description)
 {
-unsigned int ifn;
-GList* curr;
-airpcap_if_info_t* if_info;
+	unsigned int ifn;
+	GList* curr;
+	airpcap_if_info_t* if_info;
 
-ifn = 0;
-if(if_list != NULL)
-	{
-	while( ifn < g_list_length(if_list) )
+	ifn = 0;
+	if(if_list != NULL)
 		{
-		curr = g_list_nth(if_list, ifn);
+		while( ifn < g_list_length(if_list) )
+			{
+			curr = g_list_nth(if_list, ifn);
 
-		if_info = NULL;
-		if(curr != NULL)
-			if_info = curr->data;
-		if(if_info != NULL)
-			if ( g_ascii_strcasecmp(if_info->description,description) == 0)
-				{
-				return if_info;
-				}
-		ifn++;
+			if_info = NULL;
+			if(curr != NULL)
+				if_info = curr->data;
+			if(if_info != NULL)
+				if ( g_ascii_strcasecmp(if_info->description,description) == 0)
+					{
+					return if_info;
+					}
+			ifn++;
+			}
 		}
-	}
-return NULL;
+	return NULL;
 }
 
 /*
@@ -934,7 +961,7 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
 	int a;
 
 	a = sscanf(if_info->name,AIRPCAP_DEVICE_NUMBER_EXTRACT_STRING,&n);
-    
+
     /* If sscanf() returned 1, it means that has read a number, so interface is not "Any"
      * Otherwise, check if it is the "Any" adapter...
      */
@@ -979,19 +1006,19 @@ airpcap_get_if_string_number_from_description(gchar* description)
 airpcap_if_info_t*
 airpcap_get_default_if(GList* airpcap_if_list)
 {
-int ifn = 0;
-GList* popdown_if_list = NULL;
-GList* curr = NULL;
+	int ifn = 0;
+	GList* popdown_if_list = NULL;
+	GList* curr = NULL;
 
-	gchar* s;
-	airpcap_if_info_t* if_info = NULL;
+		gchar* s;
+		airpcap_if_info_t* if_info = NULL;
 
-    if(prefs.capture_device != NULL)
-    {
-	s = g_strdup(get_if_name(prefs.capture_device));
-	if_info = get_airpcap_if_by_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
-	g_free(s);
-    }
+	    if(prefs.capture_device != NULL)
+	    {
+		s = g_strdup(get_if_name(prefs.capture_device));
+		if_info = get_airpcap_if_by_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
+		g_free(s);
+	    }
 	return if_info;
 }
 
@@ -1001,39 +1028,39 @@ GList* curr = NULL;
 void
 airpcap_load_selected_if_configuration(airpcap_if_info_t* if_info)
 {
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
+	gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+	PAirpcapHandle ad;
 
-if(if_info != NULL)
-	{
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
-
-	if(ad)
+	if(if_info != NULL)
 		{
-		/* Stop blinking (if it was blinkig!)*/
-		if(if_info->blinking)
+		ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
+
+		if(ad)
 			{
-			/* Turn on the light (if it was off) */
-			if(!(if_info->led)) airpcap_if_turn_led_on(ad, 0);
+			/* Stop blinking (if it was blinkig!)*/
+			if(if_info->blinking)
+				{
+				/* Turn on the light (if it was off) */
+				if(!(if_info->led)) airpcap_if_turn_led_on(ad, 0);
+				}
+
+			/* Apply settings... */
+			airpcap_if_get_device_channel(ad,&(if_info->channel));
+			airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
+			airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
+			airpcap_if_get_link_type(ad,&(if_info->linkType));
+			airpcap_if_get_decryption_state(ad, &(if_info->DecryptionOn));
+			/* get the keys, if everything is ok, close the adapter */
+			if(airpcap_if_load_keys(ad,if_info))
+				airpcap_if_close(ad);
+
+			if_info->saved = TRUE;
 			}
-
-		/* Apply settings... */
-		airpcap_if_get_device_channel(ad,&(if_info->channel));
-		airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
-		airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
-		airpcap_if_get_link_type(ad,&(if_info->linkType));
-		airpcap_if_get_decryption_state(ad, &(if_info->DecryptionOn));
-		/* get the keys, if everything is ok, close the adapter */
-		if(airpcap_if_load_keys(ad,if_info))
-			airpcap_if_close(ad);
-
-		if_info->saved = TRUE;
+		else
+			{
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, " Error in opening adapter for %s",if_info->description);
+			}
 		}
-	else
-		{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, " Error in opening adapter for %s",if_info->description);
-		}
-	}
 }
 
 /*
@@ -1042,47 +1069,47 @@ if(if_info != NULL)
 void
 airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info)
 {
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
+	gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+	PAirpcapHandle ad;
 
-if(if_info != NULL)
-	{
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
-
-	if(ad)
+	if(if_info != NULL)
 		{
-		/* Stop blinking (if it was blinkig!)*/
-		if(if_info->blinking)
-			{
-			/* Turn on the light (if it was off) */
-			if(!(if_info->led)) airpcap_if_turn_led_on(ad, 0);
-			}
+		ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
 
-		/* Apply settings... */
-		airpcap_if_set_device_channel(ad,if_info->channel);
-		airpcap_if_set_fcs_validation(ad,if_info->CrcValidationOn);
-		airpcap_if_set_fcs_presence(ad,if_info->IsFcsPresent);
-		airpcap_if_set_link_type(ad,if_info->linkType);
-		airpcap_if_set_decryption_state(ad, if_info->DecryptionOn);
-		airpcap_if_save_keys(ad,if_info);
-
-		/* ... and save them */
-		if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+		if(ad)
 			{
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save Wireless configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-			if_info->saved = FALSE;
+			/* Stop blinking (if it was blinkig!)*/
+			if(if_info->blinking)
+				{
+				/* Turn on the light (if it was off) */
+				if(!(if_info->led)) airpcap_if_turn_led_on(ad, 0);
+				}
+
+			/* Apply settings... */
+			airpcap_if_set_device_channel(ad,if_info->channel);
+			airpcap_if_set_fcs_validation(ad,if_info->CrcValidationOn);
+			airpcap_if_set_fcs_presence(ad,if_info->IsFcsPresent);
+			airpcap_if_set_link_type(ad,if_info->linkType);
+			airpcap_if_set_decryption_state(ad, if_info->DecryptionOn);
+			airpcap_if_save_keys(ad,if_info);
+
+			/* ... and save them */
+			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+				{
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save Wireless configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+				if_info->saved = FALSE;
+				airpcap_if_close(ad);
+				return;
+				}
+
+			if_info->saved = TRUE;
 			airpcap_if_close(ad);
-			return;
 			}
-
-		if_info->saved = TRUE;
-		airpcap_if_close(ad);
+		else
+			{
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, " Error in opening adapter for %s",if_info->description);
+			}
 		}
-	else
-		{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, " Error in opening adapter for %s",if_info->description);
-		}
-	}
 }
 
 /*
@@ -1094,37 +1121,37 @@ if(if_info != NULL)
 void
 print_key_list(GList* key_list)
 {
-gint n,i;
-decryption_key_t* tmp;
-                      
-n = g_list_length(key_list);
+	gint n,i;
+	decryption_key_t* tmp;
 
-g_print("\n\n********* KEY LIST **********\n\n");
+	n = g_list_length(key_list);
 
-g_print("NUMBER OF KEYS IN LIST : %d\n\n",n);
+	g_print("\n\n********* KEY LIST **********\n\n");
 
-for(i =0; i < n; i++)
-{
-g_print("[%d] :\n",i+1);
-tmp = (decryption_key_t*)(g_list_nth_data(key_list,i));
-g_print("KEY : %s\n",tmp->key->str);
+	g_print("NUMBER OF KEYS IN LIST : %d\n\n",n);
 
-g_print("BITS: %d\n",tmp->bits);
+	for(i =0; i < n; i++)
+	{
+		g_print("[%d] :\n",i+1);
+		tmp = (decryption_key_t*)(g_list_nth_data(key_list,i));
+		g_print("KEY : %s\n",tmp->key->str);
 
-if(tmp->type == AIRPCAP_KEYTYPE_WEP)
-    g_print("TYPE: %s\n",AIRPCAP_WEP_KEY_STRING);
-else if(tmp->type == AIRPCAP_KEYTYPE_TKIP)
-    g_print("TYPE: %s\n",AIRPCAP_WPA_KEY_STRING);
-else if(tmp->type == AIRPCAP_KEYTYPE_CCMP)
-    g_print("TYPE: %s\n",AIRPCAP_WPA2_KEY_STRING);
-else 
-    g_print("TYPE: %s\n","???");
+		g_print("BITS: %d\n",tmp->bits);
 
-g_print("SSID: %s\n",(tmp->ssid != NULL) ? tmp->ssid->str : "---");
-g_print("\n");
-}
+		if(tmp->type == AIRPCAP_KEYTYPE_WEP)
+		    g_print("TYPE: %s\n",AIRPCAP_WEP_KEY_STRING);
+		else if(tmp->type == AIRPCAP_KEYTYPE_TKIP)
+		    g_print("TYPE: %s\n",AIRPCAP_WPA_KEY_STRING);
+		else if(tmp->type == AIRPCAP_KEYTYPE_CCMP)
+		    g_print("TYPE: %s\n",AIRPCAP_WPA2_KEY_STRING);
+		else
+		    g_print("TYPE: %s\n","???");
 
-g_print("\n*****************************\n\n");
+		g_print("SSID: %s\n",(tmp->ssid != NULL) ? tmp->ssid->str : "---");
+		g_print("\n");
+	}
+
+	g_print("\n*****************************\n\n");
 }
 
 /*
@@ -1134,54 +1161,54 @@ g_print("\n*****************************\n\n");
 GList*
 get_airpcap_device_keys(airpcap_if_info_t* info_if)
 {
-/* tmp vars */
-char* tmp_key = NULL;
-guint i,keys_in_list = 0;
+	/* tmp vars */
+	char* tmp_key = NULL;
+	guint i,keys_in_list = 0;
 
-/* real vars*/
-decryption_key_t *new_key  = NULL;
-GList            *key_list = NULL;
-            
-/* Number of keys in key list */
-if(info_if->keysCollectionSize != 0)
-    keys_in_list = (guint)(info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey);
-else
-    keys_in_list = 0;
-    
-for(i=0; i<keys_in_list; i++)
-{
-/* Different things to do depending on the key type  */
-if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
-    {
-    /* allocate memory for the new key item */
-    new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-    
-    /* fill the fields */
-    /* KEY */
-    tmp_key = airpcap_get_key_string(info_if->keysCollection->Keys[i]);
-    new_key->key = g_string_new(tmp_key);
-    g_free(tmp_key);
-    
-    /* BITS */
-    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an exadecimal number) */
-    
-    /* SSID not used in WEP keys */
-    new_key->ssid = NULL;
-    
-    /* TYPE (WEP in this case) */
-    new_key->type = info_if->keysCollection->Keys[i].KeyType;
-    
-    /* Append the new element in the list */
-    key_list = g_list_append(key_list,(gpointer)new_key);    
-    }
-else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
-    {
-    /* XXX - Not supported yet */
-    }
-else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
-    {
-    /* XXX - Not supported yet */
-    }
+	/* real vars*/
+	decryption_key_t *new_key  = NULL;
+	GList            *key_list = NULL;
+
+	/* Number of keys in key list */
+	if(info_if->keysCollectionSize != 0)
+	    keys_in_list = (guint)(info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey);
+	else
+	    keys_in_list = 0;
+
+	for(i=0; i<keys_in_list; i++)
+	{
+	/* Different things to do depending on the key type  */
+	if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+	    {
+	    /* allocate memory for the new key item */
+	    new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+	    /* fill the fields */
+	    /* KEY */
+	    tmp_key = airpcap_get_key_string(info_if->keysCollection->Keys[i]);
+	    new_key->key = g_string_new(tmp_key);
+	    g_free(tmp_key);
+
+	    /* BITS */
+	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an exadecimal number) */
+
+	    /* SSID not used in WEP keys */
+	    new_key->ssid = NULL;
+
+	    /* TYPE (WEP in this case) */
+	    new_key->type = info_if->keysCollection->Keys[i].KeyType;
+
+	    /* Append the new element in the list */
+	    key_list = g_list_append(key_list,(gpointer)new_key);
+	    }
+	else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
+	    {
+	    /* XXX - Not supported yet */
+	    }
+	else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
+	    {
+	    /* XXX - Not supported yet */
+	    }
 }
 
 return key_list;
@@ -1189,242 +1216,242 @@ return key_list;
 
 /*
  * Returns the list of the decryption keys specified for wireshark, NULL if
- * no key is found 
+ * no key is found
  */
 GList*
 get_wireshark_keys()
 {
-keys_cb_data_t* wep_user_data = NULL;
-keys_cb_data_t* wpa_user_data = NULL;
-keys_cb_data_t* wpa2_user_data= NULL;
+	keys_cb_data_t* wep_user_data = NULL;
+	keys_cb_data_t* wpa_user_data = NULL;
+	keys_cb_data_t* wpa2_user_data= NULL;
 
-gchar *tmp = NULL;
+	gchar *tmp = NULL;
 
-GList* final_list = NULL;
-GList* wep_final_list = NULL;
-GList* wpa_final_list = NULL;
-GList* wpa2_final_list = NULL;
-                
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
+	GList* final_list = NULL;
+	GList* wep_final_list = NULL;
+	GList* wpa_final_list = NULL;
+	GList* wpa2_final_list = NULL;
 
-/* Allocate a structure used to keep infos  between the callbacks */
-wep_user_data = (keys_cb_data_t*)g_malloc(sizeof(keys_cb_data_t));
+	/* Retrieve the wlan preferences */
+	wlan_prefs = prefs_find_module("wlan");
 
-/* Fill the structure */
-wep_user_data->list = NULL;
-wep_user_data->current_index = 0;
-wep_user_data->number_of_keys= 0; /* Still unknown */
+	/* Allocate a structure used to keep infos  between the callbacks */
+	wep_user_data = (keys_cb_data_t*)g_malloc(sizeof(keys_cb_data_t));
 
-/* Run the callback on each 802.11 preference */
-/* XXX - Right now, only WEP keys will be loaded */
-prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)wep_user_data);
-prefs_pref_foreach(wlan_prefs, get_wpa_key, (gpointer)wpa_user_data);
-prefs_pref_foreach(wlan_prefs, get_wpa2_key, (gpointer)wpa2_user_data);
+	/* Fill the structure */
+	wep_user_data->list = NULL;
+	wep_user_data->current_index = 0;
+	wep_user_data->number_of_keys= 0; /* Still unknown */
 
-/* Copy the list field in the user data structure pointer into the final_list */
-if(wep_user_data != NULL)  wep_final_list  = wep_user_data->list;
-if(wpa_user_data != NULL)  wpa_final_list  = wpa_user_data->list;
-if(wpa2_user_data != NULL) wpa2_final_list = wpa2_user_data->list;
+	/* Run the callback on each 802.11 preference */
+	/* XXX - Right now, only WEP keys will be loaded */
+	prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)wep_user_data);
+	prefs_pref_foreach(wlan_prefs, get_wpa_key, (gpointer)wpa_user_data);
+	prefs_pref_foreach(wlan_prefs, get_wpa2_key, (gpointer)wpa2_user_data);
 
-/* XXX - Merge the three lists!!!!! */
-final_list = wep_final_list;
+	/* Copy the list field in the user data structure pointer into the final_list */
+	if(wep_user_data != NULL)  wep_final_list  = wep_user_data->list;
+	if(wpa_user_data != NULL)  wpa_final_list  = wpa_user_data->list;
+	if(wpa2_user_data != NULL) wpa2_final_list = wpa2_user_data->list;
 
-/* free the wep_user_data structure */
-g_free(wep_user_data);
-/* free the wpa_user_data structure */
-g_free(wpa_user_data);
-/* free the wpa2_user_data structure */
-g_free(wpa2_user_data);
+	/* XXX - Merge the three lists!!!!! */
+	final_list = wep_final_list;
 
-return final_list;
+	/* free the wep_user_data structure */
+	g_free(wep_user_data);
+	/* free the wpa_user_data structure */
+	g_free(wpa_user_data);
+	/* free the wpa2_user_data structure */
+	g_free(wpa2_user_data);
+
+	return final_list;
 }
 
 /*
- * Merges two lists of keys and return a newly created GList. If a key is 
+ * Merges two lists of keys and return a newly created GList. If a key is
  * found multiple times, it will just appear once!
- * list1 and list 2 pointer will have to be freed manually if needed!!! 
- * If the total number of keys exceeeds the maximum number allowed, 
+ * list1 and list 2 pointer will have to be freed manually if needed!!!
+ * If the total number of keys exceeeds the maximum number allowed,
  * exceeding keys will be discarded...
  */
 GList*
 merge_key_list(GList* list1, GList* list2)
 {
-guint n1=0,n2=0;
-guint i;
-decryption_key_t *dk1=NULL,
-                 *dk2=NULL, 
-                 *new_dk=NULL;
+	guint n1=0,n2=0;
+	guint i;
+	decryption_key_t *dk1=NULL,
+			  *dk2=NULL,
+			  *new_dk=NULL;
 
-GList* merged_list = NULL;
+	GList* merged_list = NULL;
 
-if( (list1 == NULL) && (list2 == NULL) )
-    return NULL;
+	if( (list1 == NULL) && (list2 == NULL) )
+	    return NULL;
 
-if(list1 == NULL)
-    {
-    n1 = 0;
-    n2 = g_list_length(list2);
-    
-    for(i=0;i<n2;i++)
-        {
-        new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-        dk2 = (decryption_key_t *)g_list_nth_data(list2,i);
-        
-        new_dk->bits = dk2->bits;
-        new_dk->type = dk2->type;
-        new_dk->key  = g_string_new(dk2->key->str);
-        if(dk2->ssid != NULL)
-            new_dk->ssid = g_string_new(dk2->ssid->str);
-        else
-            new_dk->ssid = NULL;
+	if(list1 == NULL)
+	    {
+	    n1 = 0;
+	    n2 = g_list_length(list2);
 
-  		/* Check the total length of the merged list */
-		if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)      
-			merged_list = g_list_append(merged_list,(gpointer)new_dk);
-        }   
-    }
-else if(list2 == NULL)
-    {
-    n1 = g_list_length(list1);
-    n2 = 0;
-    
-    for(i=0;i<n1;i++)
-        {
-        new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-        dk1 = (decryption_key_t*)g_list_nth_data(list1,i);
-        
-        new_dk->bits = dk1->bits;
-        new_dk->type = dk1->type;
-        new_dk->key  = g_string_new(dk1->key->str);
-        if(dk1->ssid != NULL)
-            new_dk->ssid = g_string_new(dk1->ssid->str);
-        else
-            new_dk->ssid = NULL;
-        
-		/* Check the total length of the merged list */
-		if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)      
-			merged_list = g_list_append(merged_list,(gpointer)new_dk);
-        }   
-    }
-else
-    {
-    n1 = g_list_length(list1);
-    n2 = g_list_length(list2);
-    
-    /* Copy the whole list1 into merged_list */
-    for(i=0;i<n1;i++)
-    {
-    new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-    dk1 = (decryption_key_t *)g_list_nth_data(list1,i);
-    
-    new_dk->bits = dk1->bits;
-    new_dk->type = dk1->type;
-    new_dk->key  = g_string_new(dk1->key->str);
-    
-    if(dk1->ssid != NULL)
-        new_dk->ssid = g_string_new(dk1->ssid->str);
-    else
-        new_dk->ssid = NULL;
+	    for(i=0;i<n2;i++)
+		{
+		new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+		dk2 = (decryption_key_t *)g_list_nth_data(list2,i);
 
-	/* Check the total length of the merged list */
-	if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)  
-		merged_list = g_list_append(merged_list,(gpointer)new_dk);
-    }   
-    
-    /* Look for keys that are present in list2 but aren't in list1 yet...
-     * Add them to merged_list
-     */
-    for(i=0;i<n2;i++)
-        {
-        dk2 = (decryption_key_t *)g_list_nth_data(list2,i);
-        
-        if(!key_is_in_list(dk2,merged_list))
-            {
-            new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-            
-            new_dk->bits = dk2->bits;
-            new_dk->type = dk2->type;
-            new_dk->key  = g_string_new(dk2->key->str);
-            if(dk2->ssid != NULL)
-                new_dk->ssid = g_string_new(dk2->ssid->str);
-            else
-                new_dk->ssid = NULL;
-            
+		new_dk->bits = dk2->bits;
+		new_dk->type = dk2->type;
+		new_dk->key  = g_string_new(dk2->key->str);
+		if(dk2->ssid != NULL)
+		    new_dk->ssid = g_string_new(dk2->ssid->str);
+		else
+		    new_dk->ssid = NULL;
+
 			/* Check the total length of the merged list */
 			if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)
 				merged_list = g_list_append(merged_list,(gpointer)new_dk);
-            }        
-        }
-    }
+		}
+	    }
+	else if(list2 == NULL)
+	    {
+	    n1 = g_list_length(list1);
+	    n2 = 0;
 
-return merged_list;
+	    for(i=0;i<n1;i++)
+		{
+		new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+		dk1 = (decryption_key_t*)g_list_nth_data(list1,i);
+
+		new_dk->bits = dk1->bits;
+		new_dk->type = dk1->type;
+		new_dk->key  = g_string_new(dk1->key->str);
+		if(dk1->ssid != NULL)
+		    new_dk->ssid = g_string_new(dk1->ssid->str);
+		else
+		    new_dk->ssid = NULL;
+
+			/* Check the total length of the merged list */
+			if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)
+				merged_list = g_list_append(merged_list,(gpointer)new_dk);
+		}
+	    }
+	else
+	    {
+	    n1 = g_list_length(list1);
+	    n2 = g_list_length(list2);
+
+	    /* Copy the whole list1 into merged_list */
+	    for(i=0;i<n1;i++)
+	    {
+	    new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+	    dk1 = (decryption_key_t *)g_list_nth_data(list1,i);
+
+	    new_dk->bits = dk1->bits;
+	    new_dk->type = dk1->type;
+	    new_dk->key  = g_string_new(dk1->key->str);
+
+	    if(dk1->ssid != NULL)
+		new_dk->ssid = g_string_new(dk1->ssid->str);
+	    else
+		new_dk->ssid = NULL;
+
+		/* Check the total length of the merged list */
+		if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)
+			merged_list = g_list_append(merged_list,(gpointer)new_dk);
+	    }
+
+	    /* Look for keys that are present in list2 but aren't in list1 yet...
+	     * Add them to merged_list
+	     */
+	    for(i=0;i<n2;i++)
+		{
+		dk2 = (decryption_key_t *)g_list_nth_data(list2,i);
+
+		if(!key_is_in_list(dk2,merged_list))
+		    {
+		    new_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+		    new_dk->bits = dk2->bits;
+		    new_dk->type = dk2->type;
+		    new_dk->key  = g_string_new(dk2->key->str);
+		    if(dk2->ssid != NULL)
+			new_dk->ssid = g_string_new(dk2->ssid->str);
+		    else
+			new_dk->ssid = NULL;
+
+				/* Check the total length of the merged list */
+				if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)
+					merged_list = g_list_append(merged_list,(gpointer)new_dk);
+		    }
+		}
+	    }
+
+	return merged_list;
 }
 
 /*
- * Use this function to free a key list. 
+ * Use this function to free a key list.
  */
 void
 free_key_list(GList *list)
 {
-guint i,n;
-decryption_key_t *curr_key;
+	guint i,n;
+	decryption_key_t *curr_key;
 
-if(list == NULL)
-    return;
-    
-n = g_list_length(list);
+	if(list == NULL)
+	    return;
 
-for(i = 0; i < n; i++)
-{
-curr_key = (decryption_key_t*)g_list_nth_data(list,i);
+	n = g_list_length(list);
 
-/* Free all the strings */
-if(curr_key->key != NULL)
-    g_string_free(curr_key->key,TRUE);
-    
-if(curr_key->ssid != NULL)
-g_string_free(curr_key->ssid,TRUE);
+	for(i = 0; i < n; i++)
+	{
+		curr_key = (decryption_key_t*)g_list_nth_data(list,i);
 
-/* free the decryption_key_t structure*/
-g_free(curr_key);
-curr_key = NULL;
-}
+		/* Free all the strings */
+		if(curr_key->key != NULL)
+		    g_string_free(curr_key->key,TRUE);
 
-/* Free the list */
-g_list_free(list);
+		if(curr_key->ssid != NULL)
+		g_string_free(curr_key->ssid,TRUE);
 
-return;
+		/* free the decryption_key_t structure*/
+		g_free(curr_key);
+		curr_key = NULL;
+	}
+
+	/* Free the list */
+	g_list_free(list);
+
+	return;
 }
 
 
 /*
  * If the given key is contained in the list, returns TRUE.
- * Returns FALSE otherwise. 
+ * Returns FALSE otherwise.
  */
 gboolean
 key_is_in_list(decryption_key_t *dk,GList *list)
 {
-guint i,n;
-decryption_key_t* curr_key = NULL;
-gboolean found = FALSE;
+	guint i,n;
+	decryption_key_t* curr_key = NULL;
+	gboolean found = FALSE;
 
-if( (list == NULL) || (dk == NULL) )
-    return FALSE;
+	if( (list == NULL) || (dk == NULL) )
+	    return FALSE;
 
-n = g_list_length(list);
+	n = g_list_length(list);
 
-if(n < 1)
-    return FALSE;
+	if(n < 1)
+	    return FALSE;
 
-for(i = 0; i < n; i++)
-{
-curr_key = (decryption_key_t*)g_list_nth_data(list,i); 
-if(keys_are_equals(dk,curr_key))
-    found = TRUE;  
-}     
+	for(i = 0; i < n; i++)
+	{
+		curr_key = (decryption_key_t*)g_list_nth_data(list,i);
+		if(keys_are_equals(dk,curr_key))
+		    found = TRUE;
+	}
 
-return found;
+	return found;
 }
 
 /*
@@ -1433,28 +1460,27 @@ return found;
 gboolean
 keys_are_equals(decryption_key_t *k1,decryption_key_t *k2)
 {
+	if((k1==NULL) || (k2==NULL))
+	    return FALSE;
 
-if((k1==NULL) || (k2==NULL))
-    return FALSE;
-    
-if( g_string_equal(k1->key,k2->key) &&
-    (k1->bits == k2->bits) && /* If the previous is TRUE, this must be TRUE as well */
-    k1->type == k2->type)
-    {
-    /* Check the ssid... if the key type is WEP, the two fields should be NULL */
-    if((k1->ssid == NULL) && (k2->ssid == NULL))
-        return TRUE;
-    
-    /* Check if one of them is null and one is not... */
-    if((k1->ssid == NULL) || (k2->ssid == NULL))
-        return FALSE;
-        
-    /* If they are not null, they must share the same ssid */
-    return g_string_equal(k1->ssid,k2->ssid);
-    }
+	if( g_string_equal(k1->key,k2->key) &&
+	    (k1->bits == k2->bits) && /* If the previous is TRUE, this must be TRUE as well */
+	    k1->type == k2->type)
+	    {
+	    /* Check the ssid... if the key type is WEP, the two fields should be NULL */
+	    if((k1->ssid == NULL) && (k2->ssid == NULL))
+		return TRUE;
 
-/* Some field is not equal ... */
-return FALSE;
+	    /* Check if one of them is null and one is not... */
+	    if((k1->ssid == NULL) || (k2->ssid == NULL))
+		return FALSE;
+
+	    /* If they are not null, they must share the same ssid */
+	    return g_string_equal(k1->ssid,k2->ssid);
+	    }
+
+	/* Some field is not equal ... */
+	return FALSE;
 }
 
 /*
@@ -1465,46 +1491,46 @@ return FALSE;
 gboolean
 key_lists_are_equal(GList* list1, GList* list2)
 {
-guint n1=0,n2=0;
-guint i;
-decryption_key_t *dk1=NULL,*dk2=NULL;
+	guint n1=0,n2=0;
+	guint i;
+	decryption_key_t *dk1=NULL,*dk2=NULL;
 
-n1 = g_list_length(list1);
-n2 = g_list_length(list2);
+	n1 = g_list_length(list1);
+	n2 = g_list_length(list2);
 
-if(n1 != n2) return FALSE;
+	if(n1 != n2) return FALSE;
 
-for(i=0;i<n1;i++)
-{
-dk1=(decryption_key_t*)g_list_nth_data(list1,i);
-dk2=(decryption_key_t*)g_list_nth_data(list2,i);
+	for(i=0;i<n1;i++)
+	{
+		dk1=(decryption_key_t*)g_list_nth_data(list1,i);
+		dk2=(decryption_key_t*)g_list_nth_data(list2,i);
 
-if(!g_string_equal(dk1->key,dk2->key)) return FALSE;
-}
+		if(!g_string_equal(dk1->key,dk2->key)) return FALSE;
+	}
 
-return TRUE;
+	return TRUE;
 }
 
 static guint
 test_if_on(pref_t *pref, gpointer ud _U_)
 {
-gboolean *is_on;
-gboolean number;
+	gboolean *is_on;
+	gboolean number;
 
-/* Retrieve user data info */
-is_on = (gboolean*)ud; 
+	/* Retrieve user data info */
+	is_on = (gboolean*)ud;
 
 
-if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
-    {
-    number = *pref->varp.boolp;
-    
-    if(number) *is_on = TRUE;
-    else *is_on = FALSE;
+	if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+	    {
+	    number = *pref->varp.boolp;
 
-    return 1;
-    }
-return 0;
+	    if(number) *is_on = TRUE;
+	    else *is_on = FALSE;
+
+	    return 1;
+	    }
+	return 0;
 }
 
 /*
@@ -1513,15 +1539,15 @@ return 0;
 gboolean
 wireshark_decryption_on()
 {
-gboolean is_on;
+	gboolean is_on;
 
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
+	/* Retrieve the wlan preferences */
+	wlan_prefs = prefs_find_module("wlan");
 
-/* Run the callback on each 802.11 preference */
-prefs_pref_foreach(wlan_prefs, test_if_on, (gpointer)&is_on);
+	/* Run the callback on each 802.11 preference */
+	prefs_pref_foreach(wlan_prefs, test_if_on, (gpointer)&is_on);
 
-return is_on;
+	return is_on;
 }
 
 /*
@@ -1530,38 +1556,38 @@ return is_on;
 gboolean
 airpcap_decryption_on()
 {
-gboolean is_on = FALSE;
+	gboolean is_on = FALSE;
 
-if(airpcap_if_selected != NULL)
-    {
-    is_on = (gboolean)airpcap_if_selected->DecryptionOn;
-    }
- 
-return is_on;
+	if(airpcap_if_selected != NULL)
+	    {
+	    is_on = (gboolean)airpcap_if_selected->DecryptionOn;
+	    }
+
+	return is_on;
 }
 
 static guint
 set_on_off(pref_t *pref, gpointer ud _U_)
 {
-gboolean *is_on;
-gboolean number;
+	gboolean *is_on;
+	gboolean number;
 
-/* Retrieve user data info */
-is_on = (gboolean*)ud; 
+	/* Retrieve user data info */
+	is_on = (gboolean*)ud;
 
-if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
-    {
-    number = *pref->varp.boolp;
-    
-    g_free((void *)*pref->varp.boolp);
-    if(*is_on)
-        *pref->varp.boolp = TRUE; 
-    else
-        *pref->varp.boolp = FALSE;
-        
-    return 1;
-    }
-return 0;
+	if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+	    {
+	    number = *pref->varp.boolp;
+
+	    g_free((void *)*pref->varp.boolp);
+	    if(*is_on)
+		*pref->varp.boolp = TRUE;
+	    else
+		*pref->varp.boolp = FALSE;
+
+	    return 1;
+	    }
+	return 0;
 }
 
 /*
@@ -1570,23 +1596,23 @@ return 0;
 void
 set_wireshark_decryption(gboolean on_off)
 {
-gboolean is_on;
+	gboolean is_on;
 
-is_on = on_off;
+	is_on = on_off;
 
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
+	/* Retrieve the wlan preferences */
+	wlan_prefs = prefs_find_module("wlan");
 
-/* Run the callback on each 802.11 preference */
-prefs_pref_foreach(wlan_prefs, set_on_off, (gpointer)&is_on);
+	/* Run the callback on each 802.11 preference */
+	prefs_pref_foreach(wlan_prefs, set_on_off, (gpointer)&is_on);
 
-/* 
- * Signal that we've changed things, and run the 802.11 dissector's
- * callback 
- */
-wlan_prefs->prefs_changed = TRUE;
+	/*
+	 * Signal that we've changed things, and run the 802.11 dissector's
+	 * callback
+	 */
+	wlan_prefs->prefs_changed = TRUE;
 
-prefs_apply(wlan_prefs);
+	prefs_apply(wlan_prefs);
 }
 
 /*
@@ -1595,48 +1621,48 @@ prefs_apply(wlan_prefs);
 gboolean
 set_airpcap_decryption(gboolean on_off)
 {
-/* We need to directly access the .ddl functions here... */
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
+	/* We need to directly access the .ddl functions here... */
+	gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+	PAirpcapHandle ad;
 
-gboolean success = TRUE;
+	gboolean success = TRUE;
 
-gint n = 0;
-gint i = 0;
-airpcap_if_info_t* curr_if = NULL;
+	gint n = 0;
+	gint i = 0;
+	airpcap_if_info_t* curr_if = NULL;
 
-n = g_list_length(airpcap_if_list);
+	n = g_list_length(airpcap_if_list);
 
-/* The same kind of settings should be propagated to all the adapters */
-/* Apply this change to all the adapters !!! */
-for(i = 0; i < n; i++)
-    {
-    curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+	/* The same kind of settings should be propagated to all the adapters */
+	/* Apply this change to all the adapters !!! */
+	for(i = 0; i < n; i++)
+	    {
+	    curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
 
-    if( curr_if != NULL )
-    	{
-    	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
-   		if(ad)
-            {                                                                                     
-            curr_if->DecryptionOn = (gboolean)on_off;
-        	airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
-        	/* Save configuration for the curr_if */
-        	if(!airpcap_if_store_cur_config_as_adapter_default(ad))
-        		{
-        		success = FALSE;
-        		}
-        	airpcap_if_close(ad);
-            }
-        }
-    }
+	    if( curr_if != NULL )
+		{
+		ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
+			if(ad)
+		    {
+		    curr_if->DecryptionOn = (gboolean)on_off;
+			airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
+			/* Save configuration for the curr_if */
+			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
+				{
+				success = FALSE;
+				}
+			airpcap_if_close(ad);
+		    }
+		}
+	    }
 
-return success;
+	return success;
 }
 
 
-/* DINAMICALLY LIBRARY LOADER */
+/* DYNAMIC LIBRARY LOADER */
 /*
- *  Used to dinamically load the airpcap library in order link it only when
+ *  Used to dynamically load the airpcap library in order link it only when
  *  it's present on the system
  */
 BOOL load_airpcap(void)
@@ -1698,7 +1724,7 @@ get_runtime_airpcap_version(GString *str)
 	guint vmaj, vmin, vrev, build;
 
 	/* See if the DLL has been loaded successfully.  Bail if it hasn't */
-	if (AirpcapLib == NULL || g_PAirpcapGetVersion == NULL) {
+	if (AirpcapLoaded == FALSE) {
 		g_string_append(str, "without AirPcap");
 		return;
 	}
