@@ -2417,7 +2417,8 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 
 	/* update column info now */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": PCRID=0x%x",
+            u32ProvCRID);
 	}
 
 	return offset;
@@ -2473,8 +2474,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 						&u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
+		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
