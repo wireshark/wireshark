@@ -539,7 +539,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 				(tvb_get_ntohs(tvb, 10) / 65536.0);
 	proto_tree_add_double_format(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
 				   rootdispersion,
-				   "Clock Dispersion: %9.4f sec",
+				   "Root Dispersion: %9.4f sec",
 				   rootdispersion);
 
 	/* Now, there is a problem with secondary servers.  Standards
@@ -846,8 +846,8 @@ proto_register_ntp(void)
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
 			NULL, 0, "Root Delay", HFILL }},
 		{ &hf_ntp_rootdispersion, {
-			"Clock Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC,
-			NULL, 0, "Clock Dispersion", HFILL }},
+			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC,
+			NULL, 0, "Root Dispersion", HFILL }},
 		{ &hf_ntp_refid, {
 			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, "Reference Clock ID", HFILL }},
