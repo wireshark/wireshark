@@ -14,7 +14,7 @@
 # check_64bit_format(I64 FORMAT_64BIT)
 # 
 # if(NOT FORMAT_64BIT)
-#   message(FATAL " 64 bit formart missing")
+#   message(FATAL " 64 bit format missing")
 # endif(NOT FORMAT_64BIT)
 # 
 # set(PRIX64 "${FORMAT_64BIT}X")

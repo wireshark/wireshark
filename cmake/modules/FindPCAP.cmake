@@ -1,25 +1,62 @@
 # - Find pcap
 # Find the PCAP includes and library
+# http://www.tcpdump.org/
 #
+# The environment variable PCAPDIR allows to specficy where to find 
+# libpcap in non standard location.
+#  
 #  PCAP_INCLUDE_DIRS - where to find pcap.h, etc.
 #  PCAP_LIBRARIES   - List of libraries when using pcap.
 #  PCAP_FOUND       - True if pcap found.
 
-#Includes
-FIND_PATH(PCAP_INCLUDE_DIR pcap.h
-  /usr/local/include
-  /usr/include
-)
+
+IF(EXISTS $ENV{PCAPDIR})
+  FIND_PATH(PCAP_INCLUDE_DIR 
+    NAMES
+    pcap/pcap.h
+    pcap.h
+    PATHS
+      $ENV{PCAPDIR}
+    NO_DEFAULT_PATH
+  )
+  
+  FIND_LIBRARY(PCAP_LIBRARY
+    NAMES 
+      pcap
+    PATHS
+      $ENV{PCAPDIR}
+    NO_DEFAULT_PATH
+  )
+  
+
+ELSE(EXISTS $ENV{PCAPDIR})
+  FIND_PATH(PCAP_INCLUDE_DIR 
+    NAMES
+    pcap/pcap.h
+    pcap.h
+  )
+  
+  FIND_LIBRARY(PCAP_LIBRARY
+    NAMES 
+      pcap
+  )
+  
+ENDIF(EXISTS $ENV{PCAPDIR})
 
 SET(PCAP_INCLUDE_DIRS ${PCAP_INCLUDE_DIR})
-
-#Library
-FIND_LIBRARY(PCAP_LIBRARY
-  NAMES pcap
-  PATHS /usr/lib /usr/local/lib
-)
-
 SET(PCAP_LIBRARIES ${PCAP_LIBRARY})
+
+IF(PCAP_INCLUDE_DIRS)
+  MESSAGE(STATUS "Pcap include dirs set to ${PCAP_INCLUDE_DIRS}")
+ELSE(PCAP_INCLUDE_DIRS)
+  MESSAGE(FATAL " Pcap include dirs cannot be found")
+ENDIF(PCAP_INCLUDE_DIRS)
+
+IF(PCAP_LIBRARIES)
+  MESSAGE(STATUS "Pcap library set to  ${PCAP_LIBRARIES}")
+ELSE(PCAP_LIBRARIES)
+  MESSAGE(FATAL "Pcap library cannot be found")
+ENDIF(PCAP_LIBRARIES)
 
 #Functions
 INCLUDE(CheckFunctionExists)

@@ -25,17 +25,25 @@ project(wireshark C)
 
 set(dumpcap_LIBS wiretap)
 
+#Where to find local cmake scripts
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 
 # Disable this later. Alternative: "make VERBOSE=1"
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(BUILD_SHARED_LIBS ON)
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/wiretap)
+#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ... 
+include(CMakeInstallDirs)
 
-add_definitions(-DHAVE_CONFIG_H -D_U_=\"__attribute__\(\(unused\)\)\")
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/wiretap
+)
 
 #Where to put libraries
 if(NOT LIBRARY_OUTPUT_PATH)
@@ -50,10 +58,27 @@ option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
 option(ENABLE_ADNS	     "Build with adns support" ON)
 option(ENABLE_DBUS	     "Build with D-Bus support" OFF)
 option(ENABLE_DBUS_TEST  "Build with D-Bus unitest support" OFF)
+option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 
-if(BUILD_WIRESHARK OR BUILD_TSHARK)
+if(ENABLE_EXTRA_GCC_CHECKS)
+  set(WIRESHARK_EXTRA_GCC_FLAGS -Wcast-qual -Wcast-align -Wbad-function-cast
+      -pedantic -Wstrict-prototypes -Wmissing-declarations -Wwrite-strings)
+endif(ENABLE_EXTRA_GCC_CHECKS)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(
+    -DHAVE_CONFIG_H
+    -D_U_=\"__attribute__\(\(unused\)\)\"
+    -Wall -Wpointer-arith -W
+    ${WIRESHARK_EXTRA_GCC_FLAGS}
+  )
+else(CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(-DHAVE_CONFIG_H -D_U_=\"\")
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(BUILD_WIRESHARK OR BUILD_TSHARK OR BUILD_DUMPCAP)
   subdirs(wiretap)
-endif(BUILD_WIRESHARK OR BUILD_TSHARK)
+endif(BUILD_WIRESHARK OR BUILD_TSHARK OR BUILD_DUMPCAP)
 
 #The minimum package list
 set(PACKAGELIST GLIB2 ZLIB PCAP ${PACKAGELIST})
@@ -94,10 +119,10 @@ set(CPACK_PACKAGE_NAME wireshark)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
 set(CPACK_PACKAGE_VENDOR "wireshark")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "94")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_MINOR "99")
+set(CPACK_PACKAGE_VERSION_PATCH "4")
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
@@ -166,7 +191,7 @@ check_64bit_format(q FORMAT_64BIT)
 check_64bit_format(I64 FORMAT_64BIT)
 
 if(NOT FORMAT_64BIT)
-  message(FATAL " 64 bit formart missing")
+  message(FATAL " 64 bit format missing")
 endif(NOT FORMAT_64BIT)
 
 set(PRIX64 "${FORMAT_64BIT}X")
@@ -220,9 +245,7 @@ if(BUILD_DUMPCAP)
 
   add_executable(dumpcap ${DUMPCAP_FILES})
   target_link_libraries(dumpcap ${dumpcap_LIBS})
-  install(TARGETS dumpcap RUNTIME DESTINATION bin)
+  install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR})
 
 endif(BUILD_DUMPCAP)
-
-
 
