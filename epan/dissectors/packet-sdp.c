@@ -197,6 +197,11 @@ static guint32  msrp_ipaddr[4];
 static guint16  msrp_port_number;
 
 
+/* Protocol registration */
+void proto_register_sdp(void);
+void proto_reg_handoff_sdp(void);
+
+
 /* static functions */
 
 static void call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti,
@@ -380,8 +385,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tokenoffset = 2;
     if (hf == hf_unknown)
       tokenoffset = 0;
-    string = tvb_get_ephemeral_string(tvb, offset + tokenoffset,
-                                      linelen - tokenoffset);
+    string = (char*)tvb_get_ephemeral_string(tvb, offset + tokenoffset,
+                                             linelen - tokenoffset);
     sub_ti = proto_tree_add_string(sdp_tree, hf, tvb, offset, linelen,
                                    string);
     call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
@@ -861,7 +866,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
   
   offset = next_offset + 1;
 
-  if (strcmp(field_name, "ipbcp") == 0) {
+  if (strcmp((char*)field_name, "ipbcp") == 0) {
     offset = tvb_pbrk_guint8(tvb,offset,-1,"0123456789");
 
     if (offset == -1)
@@ -1131,12 +1136,13 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, gui
   offset = next_offset;
 
   /* Dissect the MPEG4 profile-level-id parameter if present */
-  if (mime_type != NULL && strcmp(mime_type, "MP4V-ES") == 0) {
-    if (strcmp(field_name, "profile-level-id") == 0) {
+  if (mime_type != NULL && strcmp((char*)mime_type, "MP4V-ES") == 0) {
+    if (strcmp((char*)field_name, "profile-level-id") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-      item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen, atol(format_specific_parameter));
+      item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen,
+                                 atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
     }
   }
@@ -1195,7 +1201,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
   /* Special parsing for some field name types */
   
   /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
-  if (strcmp(field_name, "rtpmap") == 0) {
+  if (strcmp((char*)field_name, "rtpmap") == 0) {
 
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
@@ -1272,7 +1278,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
         return;
   }
 
-  if (strcmp(field_name, "fmtp") == 0) {
+  if (strcmp((char*)field_name, "fmtp") == 0) {
     proto_item *fmtp_item, *media_format_item;
     proto_tree *fmtp_tree;
 
@@ -1331,7 +1337,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
   }
 
   /* msrp attributes that contain address needed for conversation */
-  if (strcmp(field_name, "path") == 0) {
+  if (strcmp((char*)field_name, "path") == 0) {
     const char *msrp_res = "msrp://";
     if (strncmp(attribute_value, msrp_res, strlen(msrp_res)) == 0){
       int address_offset, port_offset, port_end_offset;
@@ -1346,9 +1352,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
       port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
       
       /* Attempt to convert address */
-      if (inet_pton(AF_INET, tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
+      if (inet_pton(AF_INET, (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
         /* Get port number */
-        msrp_port_number = atoi(tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
+        msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
 
         /* Set flag so this info can be used */
         msrp_transport_address_set = TRUE;
