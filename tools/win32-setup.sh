@@ -4,7 +4,7 @@
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2006-09-27/packages"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2006-11-26/packages"
 
 err_exit () {
 	echo ""

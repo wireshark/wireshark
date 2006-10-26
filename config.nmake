@@ -69,7 +69,7 @@ GTK2_INST_VERSION=2.6
 PANGO_INST_VERSION=1.8
 # Support for GTK 2.8 is currently experimental ...
 #GTK2_INST_VERSION=2.8
-#PANGO_INST_VERSION=1.10
+#PANGO_INST_VERSION=1.12
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -228,7 +228,8 @@ ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 # Set GETTEXT_DIR to the directory in which the
 # GETTEXT include files and library resides.
 #
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
+#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic 
@@ -444,8 +445,10 @@ GTK2_LIB_DIR=2.4.0
 GTK2_LIB_DIR=2.2.0
 !ENDIF
 
-# the lib dir of PANGO didn't changed since 1.4.0
-!IF "$(PANGO_INST_VERSION)" == "1.10"
+# the lib dir of PANGO changed in 1.12
+!IF "$(PANGO_INST_VERSION)" == "1.12"
+PANGO_LIB_DIR=1.5.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.10"
 PANGO_LIB_DIR=1.4.0
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
 PANGO_LIB_DIR=1.4.0
