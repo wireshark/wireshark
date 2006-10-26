@@ -962,12 +962,13 @@ Single-byte accessor:
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 
-Network-to-host-order accessors for 16-bit integers (guint16), 32-bit
-integers (guint32), and 24-bit integers:
+Network-to-host-order accessors for 16-bit integers (guint16), 24-bit
+integers, 32-bit integers (guint32), and 64-bit integers (guint64):
 
 guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
-guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
 guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
+guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+guint64 tvb_get_ntoh64(tvbuff_t*, gint offset);
 
 Network-to-host-order accessors for single-precision and
 double-precision IEEE floating-point numbers:
@@ -976,11 +977,13 @@ gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
 gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
 
 Little-Endian-to-host-order accessors for 16-bit integers (guint16),
-32-bit integers (guint32), and 24-bit integers:
+24-bit integers, 32-bit integers (guint32), and 64-bit integers
+(guint64):
 
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
-guint32 tvb_get_letohl(tvbuff_t*, gint offset);
 guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
+guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
 
 Little-Endian-to-host-order accessors for single-precision and
 double-precision IEEE floating-point numbers:
