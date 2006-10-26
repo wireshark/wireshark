@@ -412,6 +412,10 @@ static gint ett_xr_ssrc                 = -1;
 static gint  ett_xr_loss_chunk = -1;
 static gint ett_poc1_conn_contents	= -1;
 
+/* Protocol registration */
+void proto_register_rtcp(void);
+void proto_reg_handoff_rtcp(void);
+
 /* Main dissection function */
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
      proto_tree *tree );
@@ -1215,7 +1219,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_item( tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
 		offset++;
 
-		reason_text = tvb_get_ephemeral_string(tvb, offset, reason_length);
+		reason_text = (char*)tvb_get_ephemeral_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
 		/* Allow for terminating null character */
 		offset += (reason_length+1);
@@ -1507,12 +1511,12 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             
             /* MOS LQ */
             proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1, 
-                                 (gfloat)tvb_get_guint8(tvb, offset) / 10);
+                                 (gfloat)(int)(tvb_get_guint8(tvb, offset) / 10));
             offset++;
             
             /* MOS CQ */
             proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1, 
-                                 (gfloat)tvb_get_guint8(tvb, offset) / 10);
+                                 (gfloat)(int)(tvb_get_guint8(tvb, offset) / 10));
             offset++;
             
             /* PLC, JB Adaptive, JB Rate */
