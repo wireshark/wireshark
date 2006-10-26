@@ -2205,8 +2205,10 @@ Richard van der Hoff	<richardv [AT] mxtelecom.com> {
 	Exception logic fixes
 }
 
-Shaun Jackman		<sjackman [AT] telus.net> {
+Shaun Jackman		<sjackman [AT] gmail.com> {
+	RDM enhancements
 	Serial Infrared support
+	IrDA support
 }
 
 Jon Oberheide           <jon [AT] oberheide.org> {
