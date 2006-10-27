@@ -9,7 +9,7 @@
 # formatting objects processor
 # Additional options to fop.
 # This needs to contain at least the argument '-Xmx256m'
-FOP_OPTS=-Xmx256m
+FOP_OPTS?=-Xmx256m
 
 # fop executable
 # Leave these commented out if you don't have fop instlled or you
@@ -17,7 +17,7 @@ FOP_OPTS=-Xmx256m
 #
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP=fop-0.20.5/fop.bat
+FOP?=fop-0.20.5/fop.bat
 #
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
@@ -29,7 +29,7 @@ FOP=fop-0.20.5/fop.bat
 # html help compiler (Win32 only)
 # Leave these commented out if you don't have HHC installed or you
 # don't want CHM documentation.
-HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+HHC=?"/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # html to text converter for text version of release notes, e.g. elinks.
@@ -37,16 +37,16 @@ HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 # (cygwin: lynx works, elinks not available, links and true doesn't produce output)
 #HTML2TXT=elinks -dump -dump-width 72
 #HTML2TXT=links -dump -width 72
-HTML2TXT=lynx -dump -width=72 -nolist -stdin
+HTML2TXT?=lynx -dump -width=72 -nolist -stdin
 #HTML2TXT="true"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 # the XSL processor
-XSLTPROC="xsltproc"
+XSLTPROC?="xsltproc"
 
 # the XML validator (from the xsltproc package)
-XMLLINT="xmllint"
+XMLLINT?="xmllint"
 
 # Automatically generate .pdf files from .fo files
 .fo.pdf:
