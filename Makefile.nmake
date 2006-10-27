@@ -820,11 +820,11 @@ install-deps2: install-common-deps2
 	xcopy $(GTK2_DIR)\bin\libcairo-2.dll $(INSTALL2_DIR)  /d
 	xcopy $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL2_DIR) /d
 !ENDIF
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines
-	xcopy "$(GTK_WIMP_DIR)\libwimp.dll" $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines /d
-!IF "$(GTK2_INST_VERSION)" != "2.8"
-	if not exist $(INSTALL2_DIR)\share\themes\Default\gtk-2.0 mkdir $(INSTALL2_DIR)\share\themes\Default\gtk-2.0
-	xcopy "$(GTK_WIMP_DIR)\Theme\gtk-2.0\gtkrc" $(INSTALL2_DIR)\share\themes\Default\gtk-2.0 /d
+!IFDEF GTK_WIMP_DIR
+	if not exist $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR)
+	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
+	if not exist $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR)
+	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) /d
 !ENDIF
 !ENDIF
 

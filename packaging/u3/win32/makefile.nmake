@@ -263,10 +263,9 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
 	$(COPY) $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
-
 !IFDEF GTK_WIMP_DIR
-	$(COPY) $(GTK_WIMP_DIR)\libwimp.dll $(HOST) $(COPY_FLAGS)
-	$(COPY) $(GTK_THEME_DIR)\gtkrc $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
+	$(COPY) $(GTK_WIMP_DLLSRC_DIR)\libwimp.dll $(HOST)\$(GTK_WIMP_DLLDST_DIR) $(COPY_FLAGS)
+	$(COPY) $(GTK_WIMP_RCSRC_DIR)\gtkrc $(HOST)\$(GTK_WIMP_RCDST_DIR) $(COPY_FLAGS)
 !ENDIF
 !ELSE
 !IFDEF GTK1_DIR

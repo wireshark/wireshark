@@ -60,10 +60,6 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 # (MAJOR + MINOR Version number but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
 #
-#GTK2_INST_VERSION=2.2
-#PANGO_INST_VERSION=1.2
-#GTK2_INST_VERSION=2.4
-#PANGO_INST_VERSION=1.4
 # GTK 2.6 is the mainline since Ethereal 0.10.14
 GTK2_INST_VERSION=2.6
 PANGO_INST_VERSION=1.8
@@ -82,7 +78,6 @@ PANGO_INST_VERSION=1.8
 # (in this case these GTK-Wimp related settings will have no effect)
 #
 GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
-GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -435,14 +430,18 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 GTK2_LIB_DIR=2.4.0
 NEED_LIBPNG_DLL=USE
 NEED_CAIRO_DLL=USE
-GTK_WIMP_DIR=$(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines
-GTK_THEME_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
+GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.4.0\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.4.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 GTK2_LIB_DIR=2.4.0
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
-GTK2_LIB_DIR=2.4.0
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.2"
-GTK2_LIB_DIR=2.2.0
+GTK_WIMP_DLLSRC_DIR=$(GTK_WIMP_DIR)
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.4.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
+GTK_WIMP_RCDST_DIR=share\themes\Default\gtk-2.0
+GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 !ENDIF
 
 # the lib dir of PANGO changed in 1.12
