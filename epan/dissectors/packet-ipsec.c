@@ -688,7 +688,7 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
    Params:
       - char *sa : the Security Association in char *
       - guint index_start : the index to start to find the protocol type
-      - gint *pt_protocol_typ : the protocl type found. Either IPv4, Either IPv6 (IPSEC_SA_IPV4, IPSEC_SA_IPV6)
+      - gint *pt_protocol_typ : the protocol type found. Either IPv4 or IPv6 (IPSEC_SA_IPV4, IPSEC_SA_IPV6)
       - guint *index_end : the last index of the protocol type
 */
 #ifdef HAVE_LIBGCRYPT
@@ -720,7 +720,7 @@ esp_sa_parse_protocol_typ(const gchar *sa, guint index_start, gint *pt_protocol_
 
   *index_end = IPSEC_TYP_LEN + index_start + 1;
 
-g_warning("For %s returning %d, %c, %d", sa, *pt_protocol_typ, sa[*index_end], *index_end);
+/* g_warning("For %s returning %d, %c, %d", sa, *pt_protocol_typ, sa[*index_end], *index_end); */
   return done_flag;
 }
 #endif
@@ -1879,7 +1879,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	      if(g_esp_enable_encryption_decode)
 		{
-		  /* Desactivation of the Heuristic to decrypt using the NULL encryption algorithm since the packet is matching a SA */
+		  /* Deactivation of the Heuristic to decrypt using the NULL encryption algorithm since the packet is matching a SA */
 		  null_encryption_decode_heuristic = FALSE;
 
 		  switch(esp_crypt_algo)
@@ -1915,8 +1915,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
-				decrypt_ok = FALSE;
+			        fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %i)\n",
+			                 esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+			        decrypt_ok = FALSE;
 			      }
 			    else
 			      decrypt_using_libgcrypt = TRUE;
@@ -1971,7 +1972,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			      default:
 				{
-				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
+				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",
+				           esp_crypt_key_len * 8);
 				  decrypt_ok = FALSE;
 				}
 			      }
@@ -2006,7 +2008,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %i)\n",
+				         esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
 				decrypt_ok = FALSE;
 			      }
 			    else
@@ -2150,7 +2153,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits)\n",esp_crypt_key_len * 8);
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %i)\n",
+				        esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
 				decrypt_ok = FALSE;
 			      }
 			    else
@@ -2680,7 +2684,7 @@ proto_register_ipsec(void)
 
       PREF_STR_INIT();
       g_string_sprintf(name_str, "encryption_key_%d", i + 1);
-      g_string_sprintf(title_str, "Encryption Key #", i + 1);
+      g_string_sprintf(title_str, "Encryption Key #%d", i + 1);
 
       prefs_register_string_preference(esp_module, name_str->str, title_str->str,
 			"Encryption key. May be ASCII or hexadecimal (if "
