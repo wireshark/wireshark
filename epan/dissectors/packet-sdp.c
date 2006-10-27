@@ -446,7 +446,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     set_rtp = FALSE;
     /* Add rtp and rtcp conversation, if available (overrides t38 if conversation already set) */
     if((!pinfo->fd->flags.visited) && port!=0 && is_rtp && (is_ipv4_addr || is_ipv6_addr)){
-      src_addr.data=(char *)&ipaddr;
+      src_addr.data=(guint8*)&ipaddr;
       if(rtp_handle){
         rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
                         transport_info.media[n].rtp_dyn_payload);
@@ -460,7 +460,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Add t38 conversation, if available and only if no rtp */
     if((!pinfo->fd->flags.visited) && port!=0 && !set_rtp && is_t38 && is_ipv4_addr){
-      src_addr.data=(char *)&ipaddr;
+      src_addr.data=(guint8*)&ipaddr;
       if(t38_handle){
         t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
       }
@@ -473,7 +473,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(msrp_handle){
                 src_addr.type=AT_IPv4;
                 src_addr.len=4;
-                src_addr.data=(char *)&msrp_ipaddr;
+                src_addr.data=(guint8*)&msrp_ipaddr;
                 msrp_add_address(pinfo, &src_addr, msrp_port_number, "SDP", pinfo->fd->num);
             }
         }
@@ -936,7 +936,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   if(next_offset != -1){
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                         atoi((char*)tvb_get_string(tvb, offset, tokenlen)));
@@ -955,7 +955,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
@@ -970,7 +970,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
   /* Save port protocol */
-  transport_info->media_proto[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  transport_info->media_proto[transport_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
@@ -1228,8 +1228,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 	/* get_string is needed here as the string is "saved" in a hashtable */
-    transport_info->encoding_name = tvb_get_string(tvb, offset,
-                                                             tokenlen);
+    transport_info->encoding_name = (char*)tvb_get_string(tvb, offset, tokenlen);
 
     key=g_malloc( sizeof(gint) );
     *key=atol((char*)payload_type);
