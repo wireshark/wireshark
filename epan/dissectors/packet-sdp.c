@@ -642,7 +642,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     return;
   tokenlen = next_offset - offset;
   /* Save connection address type */
-  transport_info->connection_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  transport_info->connection_type = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -657,11 +657,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     tokenlen = -1; /* end of tvbuff */
     /* Save connection address */
     transport_info->connection_address =
-        tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+        (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
   } else {
     tokenlen = next_offset - offset;
     /* Save connection address */
-    transport_info->connection_address = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    transport_info->connection_address = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
   }
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -867,7 +867,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
   offset = next_offset + 1;
 
   if (strcmp((char*)field_name, "ipbcp") == 0) {
-    offset = tvb_pbrk_guint8(tvb,offset,-1,"0123456789");
+    offset = tvb_pbrk_guint8(tvb,offset,-1,(guint8 *)"0123456789");
 
     if (offset == -1)
       return;
@@ -881,7 +881,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
     
     proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_version,tvb,offset,tokenlen,FALSE);
 
-    offset = tvb_pbrk_guint8(tvb,offset,-1,"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    offset = tvb_pbrk_guint8(tvb,offset,-1,(guint8 *)"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
     if (offset == -1)
       return;
@@ -939,7 +939,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        atoi(tvb_get_string(tvb, offset, tokenlen)));
+                        atoi((char*)tvb_get_string(tvb, offset, tokenlen)));
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
     if(next_offset == -1)
@@ -959,7 +959,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
     /* XXX Remember Port */
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        atoi(tvb_get_string(tvb, offset, tokenlen)));
+                        atoi((char*)tvb_get_string(tvb, offset, tokenlen)));
     offset = next_offset + 1;
   }
 
@@ -992,9 +992,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                "RTP/AVP") == 0) {
       media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
-                            tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
+                            tokenlen, val_to_str(atol((char*)media_format), rtp_payload_type_vals, "%u"));
       index = transport_info->media[transport_info->media_count].pt_count;
-      transport_info->media[transport_info->media_count].pt[index] = atol(media_format);
+      transport_info->media[transport_info->media_count].pt[index] = atol((char*)media_format);
       if (index < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
         transport_info->media[transport_info->media_count].pt_count++;
     } else {
@@ -1232,7 +1232,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
                                                              tokenlen);
 
     key=g_malloc( sizeof(gint) );
-    *key=atol(payload_type);
+    *key=atol((char*)payload_type);
 
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
@@ -1258,7 +1258,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
             else {    /* we create a new key and encoding_name to assign to the other hash tables */
                 gint *key2;
                 key2=g_malloc( sizeof(gint) );
-                *key2=atol(payload_type);
+                *key2=atol((char*)payload_type);
                 g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                                     key2, transport_info->encoding_name);
             }
@@ -1317,7 +1317,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
       fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
       decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
-                      transport_info->encoding_name);
+                      (guint8 *)transport_info->encoding_name);
 
       offset = next_offset + 1;
     }
@@ -1332,14 +1332,14 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
     fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
     decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
-                    transport_info->encoding_name);
+                    (guint8 *)transport_info->encoding_name);
     return;
   }
 
   /* msrp attributes that contain address needed for conversation */
   if (strcmp((char*)field_name, "path") == 0) {
     const char *msrp_res = "msrp://";
-    if (strncmp(attribute_value, msrp_res, strlen(msrp_res)) == 0){
+    if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
       int address_offset, port_offset, port_end_offset;
 
       /* Address starts here */
