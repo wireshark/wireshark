@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /*
 	IGMP is defined in the following RFCs
@@ -30,7 +30,7 @@
 	RFC3376	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC3376  DVMRP  MRDISC  MSNIP  IGAP
+	type	RFC988	RFC1054	RFC2236 RFC3376  DVMRP  MRDISC  MSNIP  IGAP  RGMP
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
@@ -53,6 +53,10 @@
 	0x40                                                           ??c
 	0x41                                                           ??c
 	0x42                                                           ??c
+	0xfc                                                                  8
+	0xfd                                                                  8
+	0xfe                                                                  8
+	0xff                                                                  8
 
    * Differs in second byte of protocol. Always 0 in V1
 
@@ -93,6 +97,12 @@
         IGAP : Internet Group membership Authentication Protocol
 	draft-hayashi-igap-03.txt
 
+   d RGMP Protocol  see packet-rgmp.c
+
+	RGMP : Router-port Group Management Protocol
+	RFC3488
+	TTL == 1 and IP.DST==224.0.0.25 for all packets
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -112,6 +122,7 @@
 #include "packet-mrdisc.h"
 #include "packet-msnip.h"
 #include "packet-igap.h"
+#include "packet-rgmp.h"
 
 static int proto_igmp = -1;
 static int hf_type = -1;
@@ -164,6 +175,7 @@ static int ett_mtrace_block = -1;
 
 #define MC_ALL_ROUTERS		0xe0000002
 #define MC_ALL_IGMPV3_ROUTERS	0xe0000016
+#define MC_RGMP			0xe0000019
 
 
 #define IGMP_V0_CREATE_GROUP_REQUEST	0x01
@@ -890,6 +902,16 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case IGMP_IGAP_QUERY:
 	case IGMP_IGAP_LEAVE:
 		offset = dissect_igap(tvb, pinfo, parent_tree, offset);
+		break;
+
+	case IGMP_RGMP_HELLO:
+	case IGMP_RGMP_BYE:
+	case IGMP_RGMP_JOIN:
+	case IGMP_RGMP_LEAVE:
+		dst = g_htonl(MC_RGMP);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_rgmp(tvb, pinfo, parent_tree, offset);
+		}
 		break;
 
 	default:
