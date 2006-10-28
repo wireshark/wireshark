@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -122,6 +122,7 @@ static int hf_tcp_segment_overlap_conflict = -1;
 static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
+static int hf_tcp_options = -1;
 static int hf_tcp_option_mss = -1;
 static int hf_tcp_option_mss_val = -1;
 static int hf_tcp_option_wscale = -1;
@@ -2442,8 +2443,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
     tvb_ensure_bytes_exist(tvb, offset +  20, optlen);
     if (tcp_tree != NULL) {
-      tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
-        "Options: (%u bytes)", optlen);
+      guint8 *p_options = tvb_get_ephemeral_string(tvb, offset + 20, optlen);
+      tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20, 
+        optlen, p_options, "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     } else
       field_tree = NULL;
@@ -2774,6 +2776,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_reassembled_in,
 		{ "Reassembled PDU in frame", "tcp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
+
+		{ &hf_tcp_options,
+		  { "TCP Options", "tcp.options", FT_BYTES,
+		    BASE_HEX, NULL, 0x0, "TCP Options", HFILL }},
 
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN,
