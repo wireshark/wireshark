@@ -12,7 +12,7 @@
 	<title>How to add a new capture type to libpcap</title>
 	<para>
 	The following is an excerpt from a developer mailing list mail, about 
-	adding ISO 9141 and 14230 (simple serial line car diagnostics) to 
+	adding ISO 9141 and 14230 (simple serial line card diagnostics) to 
 	Wireshark:
 	</para>
 	<para>

@@ -1070,7 +1070,7 @@ static guint get_foo_message_len(tvbuff_t *tvb, int offset)
 	<title>How to tap protocols</title>
 	<para>
 	Adding a Tap interface to a protocol allows it to do some useful things.
-	In particular you can produce protocol statistics from teh tap interface.
+	In particular you can produce protocol statistics from the tap interface.
 	</para>
 	<para>
 	A tap is basically a way of allowing other items to see whats happening as

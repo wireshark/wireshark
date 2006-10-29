@@ -466,7 +466,7 @@
 		If you get an error/warning message, copy the text of that message (and 
 		also a few lines before and after it, if there are some), so others may 
 		find the build step where things go wrong. 
-		Please don't give something like: "I get a warning when comiling x" 
+		Please don't give something like: "I get a warning when compiling x" 
 		as this won't give any direction to look at.
 	  </para>
 	</listitem>
