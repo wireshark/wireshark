@@ -29,7 +29,7 @@ FOP?=fop-0.20.5/fop.bat
 # html help compiler (Win32 only)
 # Leave these commented out if you don't have HHC installed or you
 # don't want CHM documentation.
-HHC=?"/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+HHC?="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
 # html to text converter for text version of release notes, e.g. elinks.
