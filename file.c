@@ -583,12 +583,15 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
 	  cf->count, cf->state, *err);*/
 
+  packet_list_thaw();
+
+  /* moving to the end of the packet list - if the user requested so.
+     this doesn't seem to work well with a frozen GTK_Clist, so do this after
+     packet_list_thaw() is done, see bugzilla 1188 */
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
   if (auto_scroll_live && cf->plist_end != NULL)
     packet_list_moveto_end();
-
-  packet_list_thaw();
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to exit Wireshark.  Return CF_READ_ABORTED
