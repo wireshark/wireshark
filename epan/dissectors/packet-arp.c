@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -839,12 +839,14 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
 
-  /* ARP requests with the same sender and target protocol address
-     are flagged as "gratuitous ARPs", i.e. ARPs sent out as, in
-     effect, an announcement that the machine has MAC address
-     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY, to provoke
-     complaints if some other machine has the same IPv4 address. */
-  if ((ar_op == ARPOP_REQUEST) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
+  /* ARP requests/replies with the same sender and target protocol
+     address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
+     in effect, an announcement that the machine has MAC address
+     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to 
+     provoke complaints if some other machine has the same IPv4 address,
+     replies are used to announce relocation of network address, like 
+     in failover solutions. */
+  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
     is_gratuitous = TRUE;
   else
     is_gratuitous = FALSE;
@@ -853,7 +855,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (ar_op) {
       case ARPOP_REQUEST:
 	if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Gratuitous ARP",
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
                        arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
 	else
           col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
@@ -861,9 +863,13 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                        arpproaddr_to_str(spa_val, ar_pln, ar_pro));
         break;
       case ARPOP_REPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
-                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
+        if (is_gratuitous)
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        else
+          col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro),
+                       arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
         break;
       case ARPOP_RREQUEST:
       case ARPOP_IREQUEST:
@@ -889,8 +895,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))  {
-      if (is_gratuitous)
+      if (is_gratuitous && (ar_op == ARPOP_REQUEST))
         op_str = "request/gratuitous ARP";
+      if (is_gratuitous && (ar_op == ARPOP_REPLY))
+        op_str = "reply/gratuitous ARP";
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 					"Address Resolution Protocol (%s)", op_str);
     } else
@@ -1092,7 +1100,7 @@ proto_register_arp(void)
   static gint *ett[] = {
     &ett_arp,
     &ett_atmarp_nsap,
-    &ett_atmarp_tl,
+    &ett_atmarp_tl
   };
 
   module_t *arp_module;
