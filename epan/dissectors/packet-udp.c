@@ -58,9 +58,11 @@ static int hf_udp_length = -1;
 static int hf_udplite_checksum_coverage = -1;
 static int hf_udplite_checksum_coverage_bad = -1;
 static int hf_udp_checksum = -1;
+static int hf_udp_checksum_good = -1;
 static int hf_udp_checksum_bad = -1;
 
 static gint ett_udp = -1;
+static gint ett_udp_checksum = -1;
 
 /* Preferences */
 
@@ -176,6 +178,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   int        offset = 0;
   static e_udphdr udphstruct[4], *udph;
   static int udph_count=0;
+  proto_tree *checksum_tree;
+  proto_item *item;
 
   udph_count++;
   if(udph_count>=4){
@@ -272,12 +276,22 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (udph->uh_sum == 0) {
       /* No checksum supplied in the packet. */
       if (ip_proto == IP_PROTO_UDP) {
-        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
+        item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
           "Checksum: 0x%04x (none)", 0);
+
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+        proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	  offset + 6, 2, FALSE);
+        proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+	  offset + 6, 2, FALSE);
       } else {
-        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
+        item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
           "Checksum: 0x%04x (Illegal)", 0);
-        proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
+
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+        proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	  offset + 6, 2, FALSE);
+        proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
 	  offset + 6, 2, TRUE);
       }
     } else if (!pinfo->fragmented && len >= reported_len &&
@@ -290,54 +304,75 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
       if (((ip_proto == IP_PROTO_UDP) && (udp_check_checksum)) ||
           ((ip_proto == IP_PROTO_UDPLITE) && (udplite_check_checksum))) {
-      	/* Set up the fields of the pseudo-header. */
-	cksum_vec[0].ptr = pinfo->src.data;
-	cksum_vec[0].len = pinfo->src.len;
-	cksum_vec[1].ptr = pinfo->dst.data;
-        cksum_vec[1].len = pinfo->dst.len;
-        cksum_vec[2].ptr = (const guint8 *)&phdr;
-        switch (pinfo->src.type) {
+      /* Set up the fields of the pseudo-header. */
+      cksum_vec[0].ptr = pinfo->src.data;
+      cksum_vec[0].len = pinfo->src.len;
+      cksum_vec[1].ptr = pinfo->dst.data;
+      cksum_vec[1].len = pinfo->dst.len;
+      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      switch (pinfo->src.type) {
 
-        case AT_IPv4:
-	  phdr[0] = g_htonl((ip_proto<<16) + reported_len);
-	  cksum_vec[2].len = 4;
-	  break;
+      case AT_IPv4:
+	phdr[0] = g_htonl((ip_proto<<16) + reported_len);
+	cksum_vec[2].len = 4;
+	break;
 
-        case AT_IPv6:
-          phdr[0] = g_htonl(reported_len);
-          phdr[1] = g_htonl(ip_proto);
-          cksum_vec[2].len = 8;
-          break;
+      case AT_IPv6:
+        phdr[0] = g_htonl(reported_len);
+        phdr[1] = g_htonl(ip_proto);
+        cksum_vec[2].len = 8;
+        break;
 
-        default:
-          /* UDP runs only atop IPv4 and IPv6.... */
-          DISSECTOR_ASSERT_NOT_REACHED();
-          break;
-        }
-        cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_sum_cov);
-        cksum_vec[3].len = udph->uh_sum_cov;
-        computed_cksum = in_cksum(&cksum_vec[0], 4);
-        if (computed_cksum == 0) {
-          proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-            offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
-        } else {
-  	  proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
-	     offset + 6, 2, TRUE);
-          proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-            offset + 6, 2, udph->uh_sum,
-	    "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by checksum offloading?)]", udph->uh_sum,
-	     in_cksum_shouldbe(udph->uh_sum, computed_cksum));
-        }
+      default:
+        /* UDP runs only atop IPv4 and IPv6.... */
+        DISSECTOR_ASSERT_NOT_REACHED();
+        break;
+      }
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_sum_cov);
+      cksum_vec[3].len = udph->uh_sum_cov;
+      computed_cksum = in_cksum(&cksum_vec[0], 4);
+      if (computed_cksum == 0) {
+        item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
+
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	   offset + 6, 2, TRUE);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+	   offset + 6, 2, FALSE);
       } else {
-        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [validation disabled]", udph->uh_sum);
+        item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+          offset + 6, 2, udph->uh_sum,
+	  "Checksum: 0x%04x [incorrect, should be 0x%04x]", udph->uh_sum,
+	   in_cksum_shouldbe(udph->uh_sum, computed_cksum));
+
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	   offset + 6, 2, FALSE);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+	   offset + 6, 2, TRUE);
       }
     } else {
-      proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+        item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [validation disabled]", udph->uh_sum);
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	   offset + 6, 2, FALSE);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+	   offset + 6, 2, FALSE);
+      }
+    } else {    	
+      item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
         offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
+
+        checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+	   offset + 6, 2, FALSE);
+	proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+	   offset + 6, 2, FALSE);
     }
   }
-    
+
   /* Skip over header */
   offset += 8;
 
@@ -396,15 +431,19 @@ proto_register_udp(void)
 
 		{ &hf_udp_length,
 		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
-
-		{ &hf_udp_checksum_bad,
-		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Maybe caused by checksum offloading, see: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+			"", HFILL }},
 
 		{ &hf_udp_checksum,
 		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }}
+			"Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+
+		{ &hf_udp_checksum_good,
+		{ "Good Checksum",	"udp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+
+		{ &hf_udp_checksum_bad,
+		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }}
 	};
 
 	static hf_register_info hf_lite[] = {
@@ -418,7 +457,8 @@ proto_register_udp(void)
 	};
 
 	static gint *ett[] = {
-		&ett_udp
+		&ett_udp,
+		&ett_udp_checksum
 	};
 
 	proto_udp = proto_register_protocol("User Datagram Protocol",
