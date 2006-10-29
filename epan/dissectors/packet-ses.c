@@ -1803,6 +1803,9 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  OK,let's check SPDU length  */
 	/*  get length of SPDU */
 	len = get_item_len(tvb, offset+1, &len_len);
+	if(len == 0)
+		return FALSE; /* Not a valid PDU */
+
 	/*  add header length     */
 	len+=len_len;
 	/* do we have enough bytes ? */
