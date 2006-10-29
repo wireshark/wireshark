@@ -1,5 +1,5 @@
 /* packet-udp.c
- * Routines for UDP packet disassembly
+ * Routines for UDP/UDPLite packet disassembly
  *
  * $Id$
  *
@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -62,10 +62,19 @@ static int hf_udp_checksum_bad = -1;
 
 static gint ett_udp = -1;
 
+/* Preferences */
+
 /* Place UDP summary in proto tree */
 static gboolean udp_summary_in_tree = TRUE;
-/* Ignore an invalid checksum coverage field and continue dissection */
+
+/* Check UDP checksums */
+static gboolean udp_check_checksum = TRUE;
+
+/* Ignore an invalid checksum coverage field for UDPLite */
 static gboolean udplite_ignore_checksum_coverage = TRUE;
+
+/* Check UDPLite checksums */
+static gboolean udplite_check_checksum = TRUE;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -279,50 +288,56 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 	 XXX - make a bigger scatter-gather list once we do fragment
 	 reassembly? */
 
-      /* Set up the fields of the pseudo-header. */
-      cksum_vec[0].ptr = pinfo->src.data;
-      cksum_vec[0].len = pinfo->src.len;
-      cksum_vec[1].ptr = pinfo->dst.data;
-      cksum_vec[1].len = pinfo->dst.len;
-      cksum_vec[2].ptr = (const guint8 *)&phdr;
-      switch (pinfo->src.type) {
+      if (((ip_proto == IP_PROTO_UDP) && (udp_check_checksum)) ||
+          ((ip_proto == IP_PROTO_UDPLITE) && (udplite_check_checksum))) {
+      	/* Set up the fields of the pseudo-header. */
+	cksum_vec[0].ptr = pinfo->src.data;
+	cksum_vec[0].len = pinfo->src.len;
+	cksum_vec[1].ptr = pinfo->dst.data;
+        cksum_vec[1].len = pinfo->dst.len;
+        cksum_vec[2].ptr = (const guint8 *)&phdr;
+        switch (pinfo->src.type) {
 
-      case AT_IPv4:
-	phdr[0] = g_htonl((ip_proto<<16) + reported_len);
-	cksum_vec[2].len = 4;
-	break;
+        case AT_IPv4:
+	  phdr[0] = g_htonl((ip_proto<<16) + reported_len);
+	  cksum_vec[2].len = 4;
+	  break;
 
-      case AT_IPv6:
-        phdr[0] = g_htonl(reported_len);
-        phdr[1] = g_htonl(ip_proto);
-        cksum_vec[2].len = 8;
-        break;
+        case AT_IPv6:
+          phdr[0] = g_htonl(reported_len);
+          phdr[1] = g_htonl(ip_proto);
+          cksum_vec[2].len = 8;
+          break;
 
-      default:
-        /* UDP runs only atop IPv4 and IPv6.... */
-        DISSECTOR_ASSERT_NOT_REACHED();
-        break;
-      }
-      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_sum_cov);
-      cksum_vec[3].len = udph->uh_sum_cov;
-      computed_cksum = in_cksum(&cksum_vec[0], 4);
-      if (computed_cksum == 0) {
-        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
+        default:
+          /* UDP runs only atop IPv4 and IPv6.... */
+          DISSECTOR_ASSERT_NOT_REACHED();
+          break;
+        }
+        cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_sum_cov);
+        cksum_vec[3].len = udph->uh_sum_cov;
+        computed_cksum = in_cksum(&cksum_vec[0], 4);
+        if (computed_cksum == 0) {
+          proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+            offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
+        } else {
+  	  proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
+	     offset + 6, 2, TRUE);
+          proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+            offset + 6, 2, udph->uh_sum,
+	    "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by checksum offloading?)]", udph->uh_sum,
+	     in_cksum_shouldbe(udph->uh_sum, computed_cksum));
+        }
       } else {
-	proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
-	   offset + 6, 2, TRUE);
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, udph->uh_sum,
-	  "Checksum: 0x%04x [incorrect, should be 0x%04x]", udph->uh_sum,
-	   in_cksum_shouldbe(udph->uh_sum, computed_cksum));
+          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [validation disabled]", udph->uh_sum);
       }
     } else {
       proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
         offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
     }
   }
-
+    
   /* Skip over header */
   offset += 8;
 
@@ -381,15 +396,15 @@ proto_register_udp(void)
 
 		{ &hf_udp_length,
 		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			"Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 		{ &hf_udp_checksum_bad,
 		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			"Maybe caused by checksum offloading, see: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 		{ &hf_udp_checksum,
 		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			"", HFILL }}
 	};
 
 	static hf_register_info hf_lite[] = {
@@ -399,11 +414,11 @@ proto_register_udp(void)
 
 		{ &hf_udplite_checksum_coverage,
 		{ "Checksum coverage",	"udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			"", HFILL }}
 	};
 
 	static gint *ett[] = {
-		&ett_udp,
+		&ett_udp
 	};
 
 	proto_udp = proto_register_protocol("User Datagram Protocol",
@@ -430,12 +445,20 @@ proto_register_udp(void)
 	    "Try heuristic sub-dissectors first",
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
 	    &try_heuristic_first);
+	prefs_register_bool_preference(udp_module, "check_checksum",
+	    "Validate the UDP checksum if possible",
+	    "Whether to validate the UDP checksum",
+	    &udp_check_checksum);
 
 	udplite_module = prefs_register_protocol(proto_udplite, NULL);
 	prefs_register_bool_preference(udplite_module, "ignore_checksum_coverage",
 	    "Ignore UDPlite checksum coverage",
 	    "Ignore an invalid checksum coverage field and continue dissection",
 	    &udplite_ignore_checksum_coverage);
+	prefs_register_bool_preference(udplite_module, "check_checksum",
+	    "Validate the UDPlite checksum if possible",
+	    "Whether to validate the UDPlite checksum",
+	    &udplite_check_checksum);
 }
 
 void
