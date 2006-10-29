@@ -13,7 +13,7 @@
    height="1052.3622047"
    id="svg1315"
    sodipodi:version="0.32"
-   inkscape:version="0.42"
+   inkscape:version="0.43"
    sodipodi:docbase="/home/gerald/devel/wsweb/material"
    sodipodi:docname="wsicon.svg"
    inkscape:export-filename="/home/gerald/devel/wsweb/material/wsicon.png"
@@ -21,6 +21,17 @@
    inkscape:export-ydpi="179.96001">
   <defs
      id="defs1317">
+    <linearGradient
+       id="linearGradient3953">
+      <stop
+         id="stop3955"
+         offset="0"
+         style="stop-color:#d8d8d8;stop-opacity:0.81967211" />
+      <stop
+         id="stop3957"
+         offset="1.0000000"
+         style="stop-color:#ffffff;stop-opacity:0.01092896" />
+    </linearGradient>
     <linearGradient
        id="linearGradient3500">
       <stop
@@ -64,6 +75,16 @@
        y2="317.43823"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.023684,0.000000,0.000000,1.000000,-4.386892,-1.000000)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3953"
+       id="linearGradient3951"
+       x1="171.48636"
+       y1="278.75113"
+       x2="171.69682"
+       y2="286.53772"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.920098,0,0,1.197587,14.85736,-51.25143)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -74,7 +95,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="5.6789797"
      inkscape:cx="183.67754"
-     inkscape:cy="727.79943"
+     inkscape:cy="732.13599"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -119,5 +140,23 @@
        inkscape:export-filename="/home/gerald/devel/wsweb/image/wsicon200.png"
        inkscape:export-xdpi="180.00999"
        inkscape:export-ydpi="180.00999" />
+    <rect
+       style="opacity:1;fill:url(#linearGradient3951);fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3070"
+       width="87"
+       height="75.448029"
+       x="140.39999"
+       y="280.91415"
+       rx="8.9496937"
+       ry="8.7835617" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.01092894;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5705"
+       width="1"
+       height="0"
+       x="157"
+       y="285.36218"
+       rx="8.9496937"
+       ry="0" />
   </g>
 </svg>
