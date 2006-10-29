@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py GNM.asn packet-gnm-template.c packet-gnm-template.h gnm.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c gnm.cnf -s packet-gnm-template GNM.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c gnm.cnf -s packet-gnm-template GNM.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

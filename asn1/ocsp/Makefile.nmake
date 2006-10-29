@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py OCSP.asn packet-ocsp-template.c packet-ocsp-template.h ocsp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c ocsp.cnf -s packet-ocsp-template OCSP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c ocsp.cnf -s packet-ocsp-template OCSP.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

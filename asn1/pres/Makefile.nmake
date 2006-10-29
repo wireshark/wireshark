@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py ISO8823-PRESENTATION.asn packet-pres-template.c packet-pres-template.h pres.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

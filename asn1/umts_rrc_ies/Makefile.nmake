@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py umts_rrc_InformationElements.asn packet-umts_rrc_ies-template.c packet-umts_rrc_ies-template.h umts_rrc_ies.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -u -e -p $(PROTOCOL_NAME) -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -u -e -p $(PROTOCOL_NAME) -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py ULP.asn packet-ulp-template.c packet-ulp-template.h ulp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -u -e -p $(PROTOCOL_NAME) -c ulp.cnf -s packet-ulp-template ULP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -u -e -p $(PROTOCOL_NAME) -c ulp.cnf -s packet-ulp-template ULP.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

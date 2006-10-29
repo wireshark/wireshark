@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py  MULTIMEDIA-SYSTEM-CONTROL.asn $(PROTOCOL_NAME).cnf packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template  MULTIMEDIA-SYSTEM-CONTROL.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template  MULTIMEDIA-SYSTEM-CONTROL.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py PKINIT.asn packet-pkinit-template.c packet-pkinit-template.h pkinit.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -e -b -p $(PROTOCOL_NAME) -c pkinit.cnf -s packet-pkinit-template PKINIT.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -e -b -p $(PROTOCOL_NAME) -c pkinit.cnf -s packet-pkinit-template PKINIT.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py AuthenticationFramework.asn packet-x509af-template.c packet-x509af-template.h x509af.cnf ../x509if/x509if-exp.cnf ../x509sat/x509sat-exp.cnf ../x509ce/x509ce-exp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

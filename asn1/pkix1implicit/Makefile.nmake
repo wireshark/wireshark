@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py PKIX1IMPLICIT93.asn packet-pkix1implicit-template.c packet-pkix1implicit-template.h pkix1implicit.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -e -b -p $(PROTOCOL_NAME) -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn 
+	$(PYTHON) "../../tools/asn2wrs.py" -e -b -p $(PROTOCOL_NAME) -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn 
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

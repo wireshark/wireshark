@@ -65,7 +65,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 plugin.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making plugin.c (using python)
-	@$(PYTHON) ../../tools/make-dissector-reg.py . plugin $(DISSECTOR_SRC)
+	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(DISSECTOR_SRC)
 !ELSE
 	@echo Making plugin.c (using sh)
 	@$(SH) ../../tools/make-dissector-reg . plugin $(DISSECTOR_SRC)

@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py PKIXTSP.asn packet-pkixtsp-template.c packet-pkixtsp-template.h pkixtsp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

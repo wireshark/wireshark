@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py tcap.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h tcap.cnf 
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c tcap.cnf -s packet-$(PROTOCOL_NAME)-template tcap.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c tcap.cnf -s packet-$(PROTOCOL_NAME)-template tcap.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

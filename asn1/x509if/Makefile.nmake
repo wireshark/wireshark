@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py InformationFramework.asn packet-x509if-template.c packet-x509if-template.h x509if.cnf ../x509sat/x509sat-exp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c x509if.cnf -s packet-x509if-template InformationFramework.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c x509if.cnf -s packet-x509if-template InformationFramework.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

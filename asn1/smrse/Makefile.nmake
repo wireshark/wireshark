@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py SMRSE.asn packet-smrse-template.c packet-smrse-template.h smrse.cnf 
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c smrse.cnf -s packet-smrse-template SMRSE.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c smrse.cnf -s packet-smrse-template SMRSE.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

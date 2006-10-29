@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py ansi_map.asn packet-ansi_map-template.c packet-ansi_map-template.h ansi_map.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

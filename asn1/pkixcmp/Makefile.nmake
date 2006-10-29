@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py CMP.asn packet-cmp-template.c packet-cmp-template.h cmp.cnf 
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2wrs.py -b -e -p $(PROTOCOL_NAME) -c cmp.cnf -s packet-cmp-template CMP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c cmp.cnf -s packet-cmp-template CMP.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
