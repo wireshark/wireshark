@@ -177,11 +177,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
     color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
-#if GTK_MAJOR_VERSION < 2
-    color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
-#else
     color_t_to_gdkcolor(&style->text[GTK_STATE_NORMAL], &colorf->fg_color);
-#endif
     gtk_widget_set_style(filt_name_entry, style);
 
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
@@ -199,12 +195,6 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     SIGNAL_CONNECT(filt_text_entry, "changed", filter_te_syntax_check_cb, NULL);
     gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
-#if 0
-    style = gtk_style_copy(gtk_widget_get_style(filt_text_entry));
-    style->base[GTK_STATE_NORMAL] = colorf->bg_color;
-    style->fg[GTK_STATE_NORMAL]   = colorf->fg_color;
-#endif
-    gtk_widget_set_style(filt_text_entry, style);
     gtk_style_unref(style);
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), filt_text_entry, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, filt_text_entry, ("This is the editable text of the filter"), NULL);
@@ -371,11 +361,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 
     style = gtk_widget_get_style(filt_name_entry);
     new_bg_color = style->base[GTK_STATE_NORMAL];
-#if GTK_MAJOR_VERSION < 2
-    new_fg_color = style->fg[GTK_STATE_NORMAL];
-#else
     new_fg_color = style->text[GTK_STATE_NORMAL];
-#endif
 
     filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
     filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
@@ -590,13 +576,9 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 	style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
 	if (is_bg)
 	  style->base[GTK_STATE_NORMAL] = new_color;
-#if GTK_MAJOR_VERSION < 2
-	else
-	  style->fg[GTK_STATE_NORMAL] = new_color;
-#else
         else
 	  style->text[GTK_STATE_NORMAL] = new_color;
-#endif
+
 	gtk_widget_set_style(filt_name_entry, style);
 	gtk_style_unref(style);
   }
