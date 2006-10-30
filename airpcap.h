@@ -159,7 +159,7 @@ AirpcapMacAddress, *PAirpcapMacAddress;
 
 	KeysCollectionSize = sizeof(AirpcapKeysCollection) + NumKeys * sizeof(AirpcapKey);
 
-	KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
+	KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
 	if(!KeysCollection)
 	{
 		// Error

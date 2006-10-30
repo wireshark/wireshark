@@ -49,6 +49,11 @@
 #define AIRPCAP_WPA_KEY_STRING  "WPA"
 #define AIRPCAP_WPA2_KEY_STRING "WPA2"
 
+#define AIRPCAP_DLL_OK			0
+#define AIRPCAP_DLL_OLD			1
+#define AIRPCAP_DLL_ERROR		2
+#define AIRPCAP_DLL_NOT_FOUND	3
+
 typedef PCHAR (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
 typedef BOOL (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, PCHAR Ebuf);
 typedef VOID (*AirpcapFreeDeviceListHandler)(PAirpcapDeviceDescription PAllDevs);
@@ -73,10 +78,15 @@ typedef BOOL (*AirpcapSetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, Ai
 typedef BOOL (*AirpcapGetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, PAirpcapValidationType PValidationType);
 typedef BOOL (*AirpcapSetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
 typedef BOOL (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+typedef BOOL (*AirpcapSetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+typedef BOOL (*AirpcapGetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
 typedef BOOL (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 typedef BOOL (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
+typedef BOOL (*AirpcapSetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+typedef BOOL (*AirpcapGetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 typedef BOOL (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
 typedef VOID (*AirpcapGetVersionHandler)(PUINT VersionMajor, PUINT VersionMinor, PUINT VersionRev, PUINT VersionBuild);
+
 /*
  * The list of interfaces returned by "get_airpcap_interface_list()" is
  * a list of these structures.
@@ -138,6 +148,13 @@ BOOL
 load_wlan_wep_keys(airpcap_if_info_t* info_if);
 
 /*
+ * Function used to read the Decryption Keys from the preferences and store them
+ * properly into the airpcap adapter.
+ */
+BOOL
+load_wlan_driver_wep_keys();
+
+/*
  *  Function used to save to the prefereces file the Decryption Keys.
  */
 BOOL
@@ -159,6 +176,12 @@ wep_key_is_valid(char* key);
  */
 static void
 free_airpcap_if_cb(gpointer data, gpointer user_data _U_);
+
+/*
+ * USED FOR DEBUG ONLY... PRINTS AN AirPcap ADAPTER STRUCTURE in a fancy way.
+ */
+void
+airpcap_if_info_print(airpcap_if_info_t* if_info);
 
 /*
  * Used to retrieve the two chars string from interface
@@ -191,10 +214,22 @@ BOOL
 airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
+ * Function used to load the WEP keys from the global driver list
+ */
+BOOL
+airpcap_if_load_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
+
+/*
  * Function used to save the WEP keys for a selected interface
  */
 void
 airpcap_if_save_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
+
+/*
+ * Function used to save the WEP keys for a selected interface
+ */
+void
+airpcap_if_save_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
  * Airpcap wrapper, used to get the fcs validation of an airpcap adapter
@@ -282,10 +317,15 @@ BOOL airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber);
 airpcap_if_info_t* airpcap_if_info_new(char *name, char *description);
 
 /*
+ * This function will create a new fake drivers' interface, to load global keys...
+ */
+airpcap_if_info_t* airpcap_driver_fake_if_info_new();
+
+/*
  *  Used to dinamically load the airpcap library in order link it only when
  *  it's present on the system.
  */
-BOOL load_airpcap(void);
+int load_airpcap(void);
 
 /*
  * Get an error message string for a CANT_GET_INTERFACE_LIST error from
@@ -358,6 +398,66 @@ BOOL
 airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
 
 /*
+ * Airpcap wrapper, used to save the settings for the selected_if
+ */
+BOOL
+airpcap_if_set_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+
+/*
+ * Airpcap wrapper, used to save the settings for the selected_if
+ */
+BOOL
+airpcap_if_get_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+
+/*
+ * Airpcap wrapper, used to get the decryption enabling of an airpcap driver
+ */
+BOOL
+airpcap_if_get_driver_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnable);
+/*
+ * Airpcap wrapper, used to set the decryption enabling of an airpcap driver
+ */
+BOOL
+airpcap_if_set_driver_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable);
+
+/*
+ * Save the configuration for the specified interface
+ */
+void
+airpcap_save_driver_if_configuration(airpcap_if_info_t* fake_if_info);
+
+/*
+ * Free an instance of airpcap_if_info_t
+ */
+void
+airpcap_if_info_free(airpcap_if_info_t *if_info);
+
+/*
+ * This function will tell the airpcap driver the key list to use
+ * This will be stored into the registry...
+ */
+BOOL
+write_wlan_driver_wep_keys_to_regitry(GList* key_list);
+
+/*
+ * Clear keys and decryption status for the specified interface
+ */
+void
+airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if);
+
+/* 
+ *  Function used to save to the preference file the Decryption Keys.
+ */
+int
+save_wlan_driver_wep_keys();
+
+/* 
+ *  Function used to save to the preference file the Decryption Keys.
+ */
+int
+save_wlan_wireshark_wep_keys(GList* key_ls);
+
+/*
  * DECRYPTION KEYS FUNCTIONS
  */
 /*
@@ -372,6 +472,13 @@ print_key_list(GList* key_list);
  */
 GList*
 get_airpcap_device_keys(airpcap_if_info_t* if_info);
+
+/*
+ * Retrieves a GList of decryption_key_t structures containing infos about the
+ * keys for the global AirPcap driver... returns NULL if no keys are found.
+ */
+GList*
+get_airpcap_driver_keys();
 
 /*
  * Returns the list of the decryption keys specified for wireshark, NULL if
@@ -414,13 +521,13 @@ void
 free_key_list(GList *list);
 
 /*
- * Returns TRUE if the Wireshark decryption is active, false otherwise
+ * Returns TRUE if the Wireshark decryption is active, FALSE otherwise
  */
 gboolean
 wireshark_decryption_on();
 
 /*
- * Returns TRUE if the AirPcap decryption is active, false otherwise
+ * Returns TRUE if the AirPcap decryption for the current adapter is active, FALSE otherwise
  */
 gboolean
 airpcap_decryption_on();

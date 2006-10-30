@@ -81,6 +81,12 @@ void
 airpcap_add_key_to_list(GtkWidget *keylist, gchar* type, gchar* key, gchar* ssid);
 
 /*
+ * Takes the keys from the GtkList widget, and add them to the interface list
+ */
+void
+airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_if_info);
+
+/*
  * Modify a key given a list and a row
  */
 void
@@ -90,7 +96,7 @@ airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key
  * Fill the list with the keys
  */
 void
-airpcap_fill_key_list(GtkWidget *keylist,airpcap_if_info_t* if_info);
+airpcap_fill_key_list(GtkWidget *keylist);
 
 /*
  * Function used to retrieve the AirpcapValidationType given the string name.

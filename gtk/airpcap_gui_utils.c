@@ -274,35 +274,41 @@ g_free(new_row[2]);
  * Fill the list with the keys
  */
 void
-airpcap_fill_key_list(GtkWidget *keylist,airpcap_if_info_t* if_info)
+airpcap_fill_key_list(GtkWidget *keylist)
 {
 gchar*		 s;
 unsigned int i,n;
 gchar*       new_row[3];
+airpcap_if_info_t* fake_if_info;
+GList*		 wireshark_key_list=NULL;
+decryption_key_t* curr_key = NULL;
 
 n = 0;
 
-	if( (if_info != NULL) && (if_info->keysCollection != NULL))
+fake_if_info = airpcap_driver_fake_if_info_new();
+	
+	/* We can retrieve the driver's key list (i.e. we have the right .dll)*/
+	if( (fake_if_info != NULL) && (fake_if_info->keysCollection != NULL))
 		{
-        n = if_info->keysCollection->nKeys;
- 		for(i = 0; i < if_info->keysCollection->nKeys; i++)
+        n = fake_if_info->keysCollection->nKeys;
+ 		for(i = 0; i < n; i++)
 			{
-			s = airpcap_get_key_string(if_info->keysCollection->Keys[i]);
+			s = airpcap_get_key_string(fake_if_info->keysCollection->Keys[i]);
 			
-			if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+			if(fake_if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
 			{
             new_row[0] = g_strdup(AIRPCAP_WEP_KEY_STRING);
 			new_row[1] = g_strdup(s);
 			new_row[2] = g_strdup("");
             }
-            else if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
+            else if(fake_if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
             {
             new_row[0] = g_strdup(AIRPCAP_WPA_KEY_STRING);
 			new_row[1] = g_strdup(s);
 			/* XXX - Put here the SSID */
 			new_row[2] = g_strdup("");     
             }
-            else if(if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
+            else if(fake_if_info->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
             {
             new_row[0] = g_strdup(AIRPCAP_WPA2_KEY_STRING);
 			new_row[1] = g_strdup(s);
@@ -326,6 +332,32 @@ n = 0;
 			g_free(s);
 			}
 		}
+	else
+		{
+		wireshark_key_list = get_wireshark_keys();
+		n = g_list_length(wireshark_key_list);
+		
+		for(i = 0; i < n; i++)
+			{
+			curr_key = (decryption_key_t*)g_list_nth_data(wireshark_key_list,i);
+			s = g_strdup(curr_key->key->str);
+			
+            new_row[0] = g_strdup(AIRPCAP_WEP_KEY_STRING);
+			new_row[1] = g_strdup(s);
+			new_row[2] = g_strdup("");
+
+			gtk_clist_append(GTK_CLIST(keylist),new_row);
+			
+			g_free(new_row[0]);
+			g_free(new_row[1]);
+			g_free(new_row[2]);
+			
+			g_free(s);
+			}
+		}
+
+airpcap_if_info_free(fake_if_info);
+return;
 }
 
 /*
@@ -575,7 +607,7 @@ KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(Airpc
 /*
  * Allocate the collection
  */
-KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
+KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
 if(!KeysCollection)
 {
 	/* Simple dialog ERROR */
@@ -634,6 +666,104 @@ return;
 }
 
 /*
+ * Takes the keys from the GtkList widget, and add them to the interface list
+ */
+void
+airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_if_info)
+{
+GString		*new_key;
+
+gchar		*text_entered = NULL;
+
+/* airpcap stuff */
+UINT i, j;
+gchar s[3];
+PAirpcapKeysCollection KeysCollection;
+ULONG KeysCollectionSize;
+UCHAR KeyByte;
+
+UINT keys_in_list = 0;
+
+gchar *row_type,
+      *row_key,
+      *row_ssid;
+
+if(fake_if_info == NULL)
+	return;
+
+keys_in_list = GTK_CLIST(key_ls)->rows;
+
+/*
+ * Save the encryption keys, if we have any of them
+ */
+KeysCollectionSize = 0;
+
+/*
+ * Calculate the size of the keys collection
+ */
+KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
+
+/*
+ * Allocate the collection
+ */
+KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
+if(!KeysCollection)
+{
+	/* Simple dialog ERROR */
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed mamory allocation for KeysCollection!");
+	return;
+}
+
+/*
+ * Populate the key collection
+ */
+KeysCollection->nKeys = keys_in_list;
+
+for(i = 0; i < keys_in_list; i++)
+{
+    /* Retrieve the row infos */
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);  
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid); 
+    
+    if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_WEP;
+    else if(g_strcasecmp(row_type,AIRPCAP_WPA_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_TKIP;
+    else if(g_strcasecmp(row_type,AIRPCAP_WPA2_KEY_STRING) == 0)
+    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_CCMP;
+
+	/* Retrieve the Item corresponding to the i-th key */
+	new_key = g_string_new(row_key);
+	
+	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
+	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
+
+	for(j = 0 ; j < new_key->len; j += 2)
+	{
+		s[0] = new_key->str[j];
+		s[1] = new_key->str[j+1];
+		s[2] = '\0';
+		KeyByte = (UCHAR)strtol(s, NULL, 16);
+		KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
+	}
+}
+
+/*
+ * Free the old adapter key collection!
+ */
+if(fake_if_info->keysCollection != NULL)
+	g_free(fake_if_info->keysCollection);
+
+/*
+ * Set this collection ad the new one
+ */
+fake_if_info->keysCollection = KeysCollection;
+fake_if_info->keysCollectionSize = KeysCollectionSize;
+return;
+}
+
+/*
  * This function will take the current keys (widget list), specified for the
  * current adapter, and save them as default for ALL the others.
  */
@@ -642,33 +772,57 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 {
 gint if_n = 0;
 gint i = 0;
+gint r = 0;
+gint n = 0;
 airpcap_if_info_t* curr_if = NULL;
+airpcap_if_info_t* fake_info_if = NULL;
+GList* key_list=NULL;
+char* tmp_key = NULL;
+
+/*
+ * Save the key list for driver.
+ */
+fake_info_if = airpcap_driver_fake_if_info_new();
+
+airpcap_add_keys_to_driver_from_list(key_ls,fake_info_if);
+airpcap_save_driver_if_configuration(fake_info_if);
+airpcap_if_info_free(fake_info_if);
 
 if( (if_list == NULL) || (info_if == NULL) ) return;
 
 if_n = g_list_length(if_list);
 
-/* For all the adapters in the list, save those keys as default */
+/* For all the adapters in the list, empty the key list */
 for(i = 0; i < if_n; i++)
       {
       curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
       
       if(curr_if != NULL)
           {
-          /* If the interface is not the active one, we need to free it's
-             key list and copy in the selected key list... */
-          airpcap_add_keys_from_list(key_ls,curr_if);
+          /* XXX - Set an empty collection */
+		  airpcap_if_clear_decryption_settings(curr_if);
               
           /* Save to registry */
           airpcap_save_selected_if_configuration(curr_if);
           }
       }      
-      
+
 /* Save the settings of the given interface as default for Wireshark...
  * By the way, now all the adapters have the same keys, so it is not
  * really necessary to use THIS specific one...
  */
-save_wlan_wep_keys(info_if);                                          
+if( (r = save_wlan_driver_wep_keys()) == 0)
+	{
+	/* Create a list of keys from the list widget... */
+	n = GTK_CLIST(key_ls)->rows;
+	for(i = 0; i < n; i++)
+		{
+		gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&tmp_key);
+		key_list = g_list_append(key_list,(gpointer)g_strdup(tmp_key));
+		}
+
+	r = save_wlan_wireshark_wep_keys(key_list);
+	}
 }
 
 /*
@@ -689,12 +843,16 @@ airpcap_check_decryption_keys(GList* if_list)
 gint if_n = 0;
 gint i = 0;
 gint n_adapters_keys = 0; 
+gint n_driver_keys = 0;
+gint n_wireshark_keys = 0;
 airpcap_if_info_t* curr_if = NULL;
 
 GList* wireshark_key_list;
+GList* driver_key_list;
 GList* curr_adapter_key_list;
 
 gboolean equals = TRUE;
+gboolean adapters_keys_equals=TRUE;
 
 /* 
  * If no AirPcap interface is found, return TRUE, so Wireshark
@@ -707,16 +865,26 @@ if_n = g_list_length(if_list);
 
 /* Get Wireshark preferences keys */
 wireshark_key_list = get_wireshark_keys();
+n_wireshark_keys = g_list_length(wireshark_key_list);
+
+/* Retrieve AirPcap driver's keys */
+driver_key_list = get_airpcap_driver_keys();
+n_driver_keys = g_list_length(driver_key_list);
+
+equals &= key_lists_are_equal(wireshark_key_list,driver_key_list);
 
 for(i = 0; i < if_n; i++)
       {
       curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
       curr_adapter_key_list = get_airpcap_device_keys(curr_if);
       n_adapters_keys += g_list_length(curr_adapter_key_list);
-      equals &= key_lists_are_equal(wireshark_key_list,curr_adapter_key_list);
+      adapters_keys_equals &= key_lists_are_equal(wireshark_key_list,curr_adapter_key_list);
       }
 
-if(n_adapters_keys == 0) /* No keys set in any of the AirPcap adapters... */
+if(n_adapters_keys != 0) /* If for some reason at least one specific key has been found */
+	equals &= adapters_keys_equals;	/* */
+
+if(n_driver_keys == 0) /* No keys set in any of the AirPcap adapters... */
     return TRUE; /* Use Wireshark keys and set them ad default for airpcap devices */
 
 return equals;
@@ -748,7 +916,7 @@ if_n = g_list_length(if_list);
 for(i = 0; i < if_n; i++)
       {
       curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
-      load_wlan_wep_keys(curr_if);
+      load_wlan_driver_wep_keys();
       }
 }
 
@@ -763,23 +931,28 @@ gint if_n = 0;
 gint key_n = 0;
 gint i = 0;
 airpcap_if_info_t* curr_if = NULL;
+GList* empty_key_list = NULL;
 
 if( (key_list == NULL) || (adapters_list == NULL)) return;
 
 if_n = g_list_length(adapters_list);
 key_n = g_list_length(key_list);
 
+/* Set the driver's global list of keys. */
+write_wlan_driver_wep_keys_to_regitry(key_list);
+
+/* Empty the key list for each interface */
 for(i = 0; i < if_n; i++)
       {
       curr_if = (airpcap_if_info_t*)g_list_nth_data(adapters_list,i);
-      write_wlan_wep_keys_to_regitry(curr_if,key_list);
+      write_wlan_wep_keys_to_regitry(curr_if,empty_key_list);
       }
 
 /*
  * This will set the keys of the current adapter as Wireshark default...
  * Now all the adapters have the same keys, so curr_if is ok as any other...
  */
-save_wlan_wep_keys(curr_if);
+save_wlan_driver_wep_keys();
 }
 
 #endif /* HAVE_AIRPCAP */

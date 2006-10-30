@@ -2084,6 +2084,7 @@ main(int argc, char *argv[])
   int                  status;
 
 #ifdef HAVE_AIRPCAP
+  int           airpcap_dll_ret_val;
   char			err_str[AIRPCAP_ERRBUF_SIZE];
   gchar			*cant_get_if_list_errstr;
 #endif
@@ -2129,7 +2130,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_AIRPCAP
    /* Load the airpcap.dll.  This must also be done before collecting
     * run-time version information. */
-  if(load_airpcap())
+  airpcap_dll_ret_val = load_airpcap();
+  if(airpcap_dll_ret_val == AIRPCAP_DLL_OK)
 	{
 	/* load the airpcap interfaces */
 	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
@@ -2140,10 +2142,27 @@ main(int argc, char *argv[])
                   cant_get_if_list_errstr);
     g_free(cant_get_if_list_errstr);
 	}
-
 	/* select the first ad default (THIS SHOULD BE CHANGED) */
 	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 	}
+  else if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
+	{
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+			"WARNING: The version of AirPcap on this system\n"
+			"does not support driver-level decryption.  Please\n"
+			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
+	}
+	/*
+	 * XXX - Maybe we need to warn the user if one of the following happens???
+	 */
+/*  else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
+    {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+    }
+  else if(airpcap_dll_ret_val == AIRPCAP_DLL_NOT_FOUND)
+	{
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+	}*/
 #endif
 
   /* Start windows sockets */
