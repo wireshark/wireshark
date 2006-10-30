@@ -837,6 +837,7 @@ packet_list_set_selected_row(gint row)
 		/* even after move still invisible (happens with empty list) -> give up */
 		if(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) !=
 			GTK_VISIBILITY_FULL) {
+			eth_clist_thaw(ETH_CLIST(packet_list));
 			return;
 		}
 
