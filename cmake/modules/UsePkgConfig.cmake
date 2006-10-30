@@ -1,3 +1,11 @@
+###################################################################
+#
+# Copyright (c) 2006 Frederic Heem, <frederic.heem@telsey.it>
+# Copyright (c) 2002 Kitware, Inc., Insight Consortium.  All rights reserved.
+# See Copyright.txt or http://www.cmake.org/HTML/Copyright.html for details.
+#  All rights reserved.
+#
+###################################################################
 # - pkg-config module for CMake
 #
 # Defines the following macros:
