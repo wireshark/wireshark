@@ -1386,6 +1386,7 @@ AC_OUTPUT(
   plugins/stats_tree/Makefile
   plugins/v5ua/Makefile
   tools/Makefile
+  tools/idl2wrs.sh
   tools/lemon/Makefile
   ,)
 
