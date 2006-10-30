@@ -79,6 +79,14 @@ static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 static int hf_icmpv6_checksum_bad = -1;
 static int hf_icmpv6_haad_ha_addrs = -1;
+static int hf_icmpv6_ra_cur_hop_limit = -1;
+static int hf_icmpv6_ra_router_lifetime = -1;
+static int hf_icmpv6_ra_reachable_time = -1;
+static int hf_icmpv6_ra_retrans_timer = -1;
+
+static int hf_icmpv6_option = -1;
+static int hf_icmpv6_option_type = -1;
+static int hf_icmpv6_option_length = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -172,6 +180,19 @@ static const value_string names_fmip6_naack_opt_status[] = {
 	{ 0,			NULL }
 };
 
+static const value_string option_vals[] = {
+	{ ND_OPT_SOURCE_LINKADDR,	"Source link-layer address" },
+	{ ND_OPT_TARGET_LINKADDR,	"Target link-layer address" },
+	{ ND_OPT_PREFIX_INFORMATION,	"Prefix information" },
+	{ ND_OPT_REDIRECTED_HEADER,	"Redirected header" },
+	{ ND_OPT_MTU,			"MTU" },
+	{ ND_OPT_ADVINTERVAL,		"Advertisement Interval" },
+	{ ND_OPT_HOMEAGENT_INFO,	"Home Agent Information" },
+	{ ND_OPT_MAP,			"HMIPv6 MAP option" },
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK,	"Neighbor Advertisement Acknowledgment" },
+	{ 0,			NULL }
+};
+
 static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -221,7 +242,7 @@ again:
     len = opt->nd_opt_len << 3;
 
     /* !!! specify length */
-    ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
+    ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, len, FALSE);
     icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
     if (len == 0) {
@@ -232,45 +253,19 @@ again:
 	return; /* we must not try to decode this */
     }
 
-    switch (opt->nd_opt_type) {
-    case ND_OPT_SOURCE_LINKADDR:
-	typename = "Source link-layer address";
-	break;
-    case ND_OPT_TARGET_LINKADDR:
-	typename = "Target link-layer address";
-	break;
-    case ND_OPT_PREFIX_INFORMATION:
-	typename = "Prefix information";
-	break;
-    case ND_OPT_REDIRECTED_HEADER:
-	typename = "Redirected header";
-	break;
-    case ND_OPT_MTU:
-	typename = "MTU";
-	break;
-    case ND_OPT_ADVINTERVAL:
-	typename = "Advertisement Interval";
-	break;
-    case ND_OPT_HOMEAGENT_INFO:
-	typename = "Home Agent Information";
-	break;
-    case ND_OPT_MAP:
-	typename = "HMIPv6 MAP option";
-	break;
-    case FMIP6_OPT_NEIGHBOR_ADV_ACK:
-	typename = "Neighbor Advertisement Acknowledgment";
-	break;
-    default:
-	typename = "Unknown";
-	break;
-    }
+    typename = val_to_str(opt->nd_opt_type, option_vals, "Unknown");
 
-    proto_tree_add_text(icmp6opt_tree, tvb,
+    /* Add option name to option root label */
+    proto_item_append_text(ti, " (%s)", typename);
+
+    /* Option type */
+    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_type, tvb,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1,
-	"Type: %u (%s)", opt->nd_opt_type, typename);
-    proto_tree_add_text(icmp6opt_tree, tvb,
+	opt->nd_opt_type);
+    /* Option length */
+    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-	"Length: %u bytes (%u)", opt->nd_opt_len << 3, opt->nd_opt_len);
+	opt->nd_opt_len << 3);
 
     /* decode... */
     switch (opt->nd_opt_type) {
@@ -509,6 +504,9 @@ again:
     }
 
     offset += (opt->nd_opt_len << 3);
+
+    /* Set length of option tree */
+    proto_item_set_len(ti, opt->nd_opt_len << 3);
     goto again;
 }
 
@@ -1627,14 +1625,18 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    ra = &nd_router_advert;
 	    tvb_memcpy(tvb, (guint8 *)ra, offset, sizeof *ra);
-	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct nd_router_advert, nd_ra_curhoplimit),
-		1, "Cur hop limit: %u", ra->nd_ra_curhoplimit);
 
+	    /* Current hop limit */
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_cur_hop_limit, tvb,
+		offset + offsetof(struct nd_router_advert, nd_ra_curhoplimit),
+		1, ra->nd_ra_curhoplimit);
+
+	    /* Flags */
 	    flagoff = offset + offsetof(struct nd_router_advert, nd_ra_flags_reserved);
 	    ra_flags = tvb_get_guint8(tvb, flagoff);
 	    tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", ra_flags);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
 			ND_RA_FLAG_MANAGED, 8, "Managed", "Not managed"));
@@ -1648,16 +1650,22 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_enumerated_bitfield(ra_flags, ND_RA_FLAG_RTPREF_MASK, 8,
 		names_router_pref, "Router preference: %s"));
-	    proto_tree_add_text(icmp6_tree, tvb,
+
+	    /* Router lifetime */
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_router_lifetime, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
-		2, "Router lifetime: %u",
-		(guint16)g_ntohs(ra->nd_ra_router_lifetime));
-	    proto_tree_add_text(icmp6_tree, tvb,
+		2, (guint16)g_ntohs(ra->nd_ra_router_lifetime));
+
+	    /* Reachable time */
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_reachable_time, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_reachable), 4,
-		"Reachable time: %u", pntohl(&ra->nd_ra_reachable));
-	    proto_tree_add_text(icmp6_tree, tvb,
+		pntohl(&ra->nd_ra_reachable));
+
+	    /* Retrans timer */
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_retrans_timer, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_retransmit), 4,
-		"Retrans time: %u", pntohl(&ra->nd_ra_retransmit));
+		pntohl(&ra->nd_ra_retransmit));
+
 	    dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_router_advert), pinfo, icmp6_tree);
 	    break;
 	  }
@@ -1917,6 +1925,27 @@ proto_register_icmpv6(void)
       { "Home Agent Addresses", "icmpv6.haad.ha_addrs",
        FT_IPv6, BASE_HEX, NULL, 0x0,
        "", HFILL }},
+    { &hf_icmpv6_ra_cur_hop_limit,
+      { "Cur hop limit",           "icmpv6.ra.cur_hop_limit", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"Current hop limit", HFILL }},
+    { &hf_icmpv6_ra_router_lifetime,
+      { "Router lifetime",           "icmpv6.ra.router_lifetime", FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Router lifetime (s)", HFILL }},
+    { &hf_icmpv6_ra_reachable_time,
+      { "Reachable time",           "icmpv6.ra.reachable_time", FT_UINT32,  BASE_DEC, NULL, 0x0,
+      	"Reachable time (ms)", HFILL }},
+    { &hf_icmpv6_ra_retrans_timer,
+      { "Retrans timer",           "icmpv6.ra.retrans_timer", FT_UINT32,  BASE_DEC, NULL, 0x0,
+      	"Retrans timer (ms)", HFILL }},
+    { &hf_icmpv6_option,
+      { "ICMPv6 Option",           "icmpv6.option", FT_NONE,  BASE_NONE, NULL, 0x0,
+      	"Option", HFILL }},
+    { &hf_icmpv6_option_type,
+      { "Type",           "icmpv6.option.type", FT_UINT8,  BASE_DEC, VALS(option_vals), 0x0,
+      	"Options type", HFILL }},
+    { &hf_icmpv6_option_length,
+      { "Length",           "icmpv6.option.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"Options length (in bytes)", HFILL }},
   };
   static gint *ett[] = {
     &ett_icmpv6,
