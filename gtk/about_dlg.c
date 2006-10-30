@@ -80,7 +80,7 @@ about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 }
 
 
-GtkWidget *
+GtkWidget*
 splash_new(char *message)
 {
     GtkWidget *win;

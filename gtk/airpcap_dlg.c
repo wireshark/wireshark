@@ -558,7 +558,7 @@ airpcap_change_if(GtkWidget *entry _U_, gpointer data)
 	/* Remove old keys */
 	gtk_list_remove_items(GTK_LIST(key_ls),GTK_LIST(key_ls)->children);
 	/* Add new keys */
-	airpcap_fill_key_list(key_ls,airpcap_if_selected);
+	airpcap_fill_key_list(key_ls);
 
 	/* Enable the signals again */
 	block_advanced_signals = FALSE;
@@ -1831,7 +1831,6 @@ cf_redissect_packets(&cfile);
 void
 update_decryption_mode_cm(GtkWidget *w)
 {
-
 /* Wireshark decryption is on */                       
 if(wireshark_decryption_on())
     {
@@ -2508,6 +2507,7 @@ airpcap_if_selected = airpcap_if_active;
 /* Create the new window */
 key_management_w = window_new(GTK_WINDOW_TOPLEVEL, "Decryption Keys Management");
 
+
 gtk_container_set_border_width (GTK_CONTAINER (key_management_w), 5);
 gtk_window_set_title (GTK_WINDOW (key_management_w),
 		"Decryption Keys Management");
@@ -2605,8 +2605,6 @@ gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (keys_scrolled_w), GTK_POLIC
 key_ls = gtk_clist_new (3);
 gtk_widget_set_name (key_ls, "key_ls");
 gtk_widget_show (key_ls);
-
-airpcap_fill_key_list(key_ls,airpcap_if_selected);
 
 gtk_container_add (GTK_CONTAINER (keys_scrolled_w), key_ls);
 gtk_clist_set_column_width (GTK_CLIST (key_ls), 0, 54);
@@ -2756,6 +2754,7 @@ OBJECT_SET_DATA (key_management_w, AIRPCAP_ADVANCED_CANCEL_KEY, cancel_bt);
 OBJECT_SET_DATA(key_management_w,AIRPCAP_TOOLBAR_KEY,toolbar);
 OBJECT_SET_DATA (key_management_w, AIRPCAP_TOOLBAR_DECRYPTION_KEY, toolbar_decryption_ck);
 
+/* FIRST OF ALL, CHECK THE KEY COLLECTIONS */
 /* 
  * This will read the decryption keys from the preferences file, and will store 
  * them into the registry... 
@@ -2768,9 +2767,10 @@ if(!airpcap_check_decryption_keys(airpcap_if_list))
 else /* Keys from lists are equals, or wireshark has got no keys */
     {
     airpcap_load_decryption_keys(airpcap_if_list);
+	airpcap_fill_key_list(key_ls);
     /* At the end, so that it appears completely all together ... */
-    gtk_widget_show (key_management_w);    
-    }
+	gtk_widget_show (key_management_w); 
+	}
 }
 
 /*
@@ -3102,6 +3102,7 @@ on_keys_check_cancel_bt_clicked (GtkWidget *button, gpointer user_data)
 {
 GtkWidget *key_management_w;
 GtkWidget *keys_check_w;
+GtkWidget *key_ls;
 
 keys_check_w = GTK_WIDGET(user_data);
 
@@ -3109,11 +3110,13 @@ key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
 /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
    and is not NULL if it was called when the Key Management widget has been clicked */
-  if(key_management_w != NULL)
-     {
-     /*  ... */
-     gtk_widget_show (key_management_w);
-     }
+if(key_management_w != NULL)
+    {
+    /*  ... */
+	key_ls = OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
+	airpcap_fill_key_list(key_ls);
+    gtk_widget_show (key_management_w);
+    }
 
 gtk_widget_destroy(keys_check_w);
 }
@@ -3157,22 +3160,53 @@ on_keep_bt_clicked (GtkWidget *button, gpointer user_data)
 {
 GtkWidget *key_management_w;
 GtkWidget *keys_check_w;
+GtkWidget *key_ls=NULL;
+
+GList* wireshark_keys=NULL;
+guint n_wireshark_keys = 0;
+
+GList* merged_keys=NULL;
+guint n_merged_keys = 0;
+
+guint n_adapters=0;
+guint n_total_keys=0;
 
 keys_check_w = GTK_WIDGET(user_data);
 
 key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
-   and is not NULL if it was called when the Key Management widget has been clicked */
-  if(key_management_w != NULL)
-     {
-     /*  ... */
-     gtk_widget_show (key_management_w);
-     }
+n_adapters = g_list_length(airpcap_if_list);
 
+/* Retrieve Wireshark keys */
+wireshark_keys = get_wireshark_keys();
+n_wireshark_keys = g_list_length(wireshark_keys);
+n_total_keys += n_wireshark_keys;
+
+merged_keys = merge_key_list(wireshark_keys,NULL);
+n_merged_keys = g_list_length(merged_keys);
+
+/* Set up this new list as default for Wireshark and Adapters... */
+airpcap_save_decryption_keys(merged_keys,airpcap_if_list);
+
+/* Write the preferences to the preferences file (here is not needed, by the way)*/
+write_prefs_to_file();
+
+/* Free the memory */
+free_key_list(wireshark_keys);
+free_key_list(merged_keys);
+
+/* Close the window */
 gtk_widget_destroy(keys_check_w);
 
-airpcap_load_decryption_keys(airpcap_if_list);
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+   and is not NULL if it was called when the Key Management widget has been clicked */
+if(key_management_w != NULL)
+    {
+    /*  ... */
+	key_ls = OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
+	airpcap_fill_key_list(key_ls);
+    gtk_widget_show (key_management_w);
+    }
 }
 
 void
@@ -3180,15 +3214,18 @@ on_merge_bt_clicked (GtkWidget * button, gpointer user_data)
 {
 GtkWidget *key_management_w;
 GtkWidget *keys_check_w;
+GtkWidget *key_ls;
 
 guint n_adapters = 0;
 guint n_wireshark_keys = 0;
+guint n_driver_keys = 0;
 guint n_curr_adapter_keys = 0;
 guint n_total_keys = 0;
 guint n_merged_keys = 0;
 guint i = 0;
 
 GList* wireshark_keys=NULL;
+GList* driver_keys=NULL;
 GList* current_adapter_keys=NULL;
 GList* merged_list = NULL;
 GList* merged_list_tmp = NULL;
@@ -3199,24 +3236,23 @@ keys_check_w = GTK_WIDGET(user_data);
 
 key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
-
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
-   and is not NULL if it was called when the Key Management widget has been clicked */
-if(key_management_w != NULL)
-    {
-    /*  ... */
-    gtk_widget_show (key_management_w);
-    }
-
 n_adapters = g_list_length(airpcap_if_list);
 
+/* Retrieve Wireshark keys */
 wireshark_keys = get_wireshark_keys();
 n_wireshark_keys = g_list_length(wireshark_keys);
 n_total_keys += n_wireshark_keys;
 
 merged_list = merge_key_list(wireshark_keys,NULL);
 
-/* NOW wireshark_keys IS no more needed... at the end, we will have to free it! */
+/* Retrieve AirPcap driver's keys */
+driver_keys = get_airpcap_driver_keys();
+n_driver_keys = g_list_length(driver_keys);
+n_total_keys += n_driver_keys;
+
+merged_list = merge_key_list(merged_list,driver_keys);
+
+/* NOW wireshark_keys and driver_keys ARE no more needed... at the end, we will have to free them! */
 for(i = 0; i<n_adapters; i++)
     {
     curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
@@ -3239,8 +3275,19 @@ airpcap_save_decryption_keys(merged_list,airpcap_if_list);
 write_prefs_to_file();
 
 free_key_list(wireshark_keys);
+free_key_list(driver_keys);
 
 gtk_widget_destroy(keys_check_w);
+
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+   and is not NULL if it was called when the Key Management widget has been clicked */
+if(key_management_w != NULL)
+    {
+    /*  ... */
+	key_ls = OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
+	airpcap_fill_key_list(key_ls);
+    gtk_widget_show (key_management_w);
+    }
 }
 
 
@@ -3249,15 +3296,18 @@ on_import_bt_clicked (GtkWidget * button, gpointer user_data)
 {
 GtkWidget *key_management_w;
 GtkWidget *keys_check_w;
+GtkWidget *key_ls;
 
 guint n_adapters = 0;
 guint n_wireshark_keys = 0;
+guint n_driver_keys = 0;
 guint n_curr_adapter_keys = 0;
 guint n_total_keys = 0;
 guint n_merged_keys = 0;
 guint i = 0;
 
 GList* wireshark_keys=NULL;
+GList* driver_keys=NULL;
 GList* current_adapter_keys=NULL;
 GList* merged_list = NULL;
 GList* merged_list_tmp = NULL;
@@ -3268,20 +3318,18 @@ keys_check_w = GTK_WIDGET(user_data);
 
 key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
-
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
-   and is not NULL if it was called when the Key Management widget has been clicked */
-if(key_management_w != NULL)
-    {
-    /*  ... */
-    gtk_widget_show (key_management_w);
-    }
-
 n_adapters = g_list_length(airpcap_if_list);
 
 wireshark_keys = get_wireshark_keys();
 n_wireshark_keys = g_list_length(wireshark_keys);
 n_total_keys += n_wireshark_keys;
+
+/* Retrieve AirPcap driver's keys */
+driver_keys = get_airpcap_driver_keys();
+n_driver_keys = g_list_length(driver_keys);
+n_total_keys += n_driver_keys;
+
+merged_list = merge_key_list(merged_list,driver_keys);
 
 /* NOW wireshark_keys IS no more needed... at the end, we will have to free it! */
 for(i = 0; i<n_adapters; i++)
@@ -3306,8 +3354,19 @@ airpcap_save_decryption_keys(merged_list,airpcap_if_list);
 write_prefs_to_file();
 
 free_key_list(wireshark_keys);
+free_key_list(driver_keys);
 
 gtk_widget_destroy(keys_check_w);
+
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+   and is not NULL if it was called when the Key Management widget has been clicked */
+if(key_management_w != NULL)
+    {
+    /*  ... */
+	key_ls = OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
+	airpcap_fill_key_list(key_ls);
+    gtk_widget_show (key_management_w);
+    }
 }
 
 
@@ -3316,6 +3375,7 @@ on_ignore_bt_clicked (GtkWidget * button, gpointer user_data)
 {
 GtkWidget *key_management_w;
 GtkWidget *keys_check_w;
+GtkWidget *key_ls;
 
 keys_check_w = GTK_WIDGET(user_data);
 
@@ -3323,11 +3383,13 @@ key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
 /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
    and is not NULL if it was called when the Key Management widget has been clicked */
-  if(key_management_w != NULL)
-     {
-     /*  ... */
-     gtk_widget_show (key_management_w);
-     }
+if(key_management_w != NULL)
+    {
+    /*  ... */
+	key_ls = OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
+	airpcap_fill_key_list(key_ls);
+    gtk_widget_show (key_management_w);
+    }
 
 gtk_widget_destroy(keys_check_w);
 }
