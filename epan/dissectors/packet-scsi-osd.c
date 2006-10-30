@@ -42,7 +42,6 @@
 
 static int proto_scsi_osd		= -1;
 int hf_scsi_osd_opcode			= -1;
-static int hf_scsi_osd_control		= -1;
 static int hf_scsi_osd_add_cdblen	= -1;
 static int hf_scsi_osd_svcaction	= -1;
 static int hf_scsi_osd_option		= -1;
@@ -2403,7 +2402,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* dissecting the CDB */
 	if (isreq && iscdb) {
-		proto_tree_add_item (tree, hf_scsi_osd_control, tvb, offset, 1, 0);
+		proto_tree_add_item (tree, hf_scsi_control, tvb, offset, 1, 0);
 		offset++;
 
 		/* 5 reserved bytes */
@@ -2750,9 +2749,6 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_opcode,
           {"OSD Opcode", "scsi.osd.opcode", FT_UINT8, BASE_HEX,
            VALS (scsi_osd_vals), 0x0, "", HFILL}},
-        { &hf_scsi_osd_control,
-          {"Control", "scsi.osd.cdb.control", FT_UINT8, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_add_cdblen,
           {"Additional CDB Length", "scsi.osd.addcdblen", FT_UINT8, BASE_DEC,
            NULL, 0x0, "", HFILL}},

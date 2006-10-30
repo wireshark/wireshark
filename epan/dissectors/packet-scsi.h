@@ -134,6 +134,7 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC2_RESERVE10              0x56
 #define SCSI_SPC2_SENDDIAG               0x1D
 #define SCSI_SPC2_SETDEVICEID            0xA4
+#define SCSI_SBC2_STARTSTOPUNIT          0x1B
 #define SCSI_SPC2_TESTUNITRDY            0x00
 #define SCSI_SPC2_WRITEBUFFER            0x3B
 #define SCSI_SPC2_VARLENCDB              0x7F
@@ -146,6 +147,15 @@ void dissect_spc3_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void dissect_spc3_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc3_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_sbc2_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq _U_, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+
 
 
 
@@ -197,5 +207,87 @@ void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint
 WS_VAR_IMPORT const value_string scsi_sbc2_vals[];
 WS_VAR_IMPORT const value_string scsi_mmc_vals[];
 WS_VAR_IMPORT const value_string scsi_ssc2_vals[];
+
+extern int hf_scsi_control;
+extern int hf_scsi_alloclen16;
+
+
+
+
+/* These two defines are used to handle cases where data coming back from
+ * the device is truncated due to a too short allocation_length specified
+ * in the command CDB.
+ * This is semi-common in SCSI and it would be wrong to mark these packets
+ * as [malformed packets].
+ * These macros will reset the reported length to what the data pdu specified
+ * and if a ReportedBoundsError is generated we will instead throw
+ * ScsiBoundsError
+ *
+ * Please see dissect_spc3_inquiry() for an example how to use these
+ * macros.
+ */
+#define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
+    {									\
+	gboolean short_packet;						\
+	tvbuff_t *new_tvb;						\
+	guint32 end_data_offset=0;					\
+									\
+	short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
+	new_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);\
+	tvb=new_tvb;							\
+	offset=0;							\
+	TRY {
+
+#define END_TRY_SCSI_CDB_ALLOC_LEN 					\
+		    if(end_data_offset){				\
+			/* just verify we can read all the bytes we were\
+			 * supposed to.					\
+			 */						\
+			tvb_get_guint8(tvb,end_data_offset);		\
+	    	}							\
+	    } /* TRY */							\
+	CATCH(BoundsError) {						\
+		if(short_packet){					\
+			/* this was a short packet */			\
+			RETHROW;					\
+		} else {						\
+			/* We probably tried to dissect beyond the end	\
+			 * of the alloc len reported in the data	\
+			 * pdu. This is not an error so dont flag it as	\
+			 * one						\
+			 * it is the alloc_len in the CDB that is the	\
+			 * important one				\
+			 */						\
+		}							\
+	    }								\
+	CATCH(ReportedBoundsError) {					\
+		if(short_packet){					\
+			/* this was a short packet */			\
+			RETHROW;					\
+		} else {						\
+			/* this packet was not really short but limited	\
+			 * due to a short SCSI allocation length	\
+			 */						\
+			THROW(ScsiBoundsError);				\
+		}							\
+	    }								\
+	CATCH_ALL {							\
+		RETHROW;						\
+	}								\
+	ENDTRY;								\
+    }
+
+/* If the data pdu contains an alloc_len as well, this macro can be set
+ * to registe this offset for the TRY section above.
+ * At the end of the TRY section we will, if set, verify that the data
+ * pdu contained all bytes that was specified in the data alloc len.
+ *
+ * This macro does currently not do anything but we might enhance it in
+ * the future. There is no harm in teaching the dissector about how long
+ * the data pdu is supposed to be according to alloc_len in the data pdu
+ */
+#define SET_SCSI_DATA_END(offset)					\
+	end_data_offset=offset;
+
 
 #endif
