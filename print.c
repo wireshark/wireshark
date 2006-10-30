@@ -257,7 +257,9 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			label_ptr = "";
 		}
 
-		fputs("<field show=\"", pdata->fh);
+		/* Show empty name since it is a required field */
+		fputs("<field name=\"", pdata->fh);
+		fputs("\" show=\"", pdata->fh);
 		print_escaped_xml(pdata->fh, label_ptr);
 
 		fprintf(pdata->fh, "\" size=\"%d", fi->length);
