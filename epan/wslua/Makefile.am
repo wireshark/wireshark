@@ -70,6 +70,7 @@ MAINTAINERCLEANFILES = \
 	init.lua
 
 EXTRA_DIST = \
+	$(pkgdata_DATA) \
 	declare_wslua.h \
 	register_wslua.c \
 	taps \
