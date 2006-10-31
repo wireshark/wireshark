@@ -356,7 +356,17 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset+=4;
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request  Offset:0x%"PRIx64" Length:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", from, nbd_trans->datalen);
+			switch(nbd_trans->type){
+			case NBD_CMD_WRITE:
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%"PRIx64" Length:%d", from, nbd_trans->datalen);
+				break;
+			case NBD_CMD_READ:
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%"PRIx64" Length:%d", from, nbd_trans->datalen);
+				break;
+			case NBD_CMD_DISC:
+				col_add_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
+				break;
+			}
 		}
 
 		if(nbd_trans->type==NBD_CMD_WRITE){
