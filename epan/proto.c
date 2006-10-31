@@ -4893,25 +4893,10 @@ proto_registrar_dump_fields(int format)
 		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
 
 		/*
-		 * Skip fields with zero-length names or abbreviations;
-		 * the pseudo-field for "proto_tree_add_text()" is such
-		 * a field, and we don't want it in the list of filterable
-		 * fields.
-		 *
-		 * XXX - perhaps the name and abbrev field should be null
-		 * pointers rather than null strings for that pseudo-field,
-		 * but we'd have to add checks for null pointers in some
-		 * places if we did that.
-		 *
-		 * Or perhaps protocol tree items added with
-		 * "proto_tree_add_text()" should have -1 as the field index,
-		 * with no pseudo-field being used, but that might also
-		 * require special checks for -1 to be added.
-		 */
-		/* XXX - we could just skip the special text
-		 * pseudo-field by testing: if (hfinfo->id == hf_text_only)
-		 * */
-		if (hfinfo->name[0] == 0 || hfinfo->abbrev[0] == 0)
+		 * Skip the pseudo-field for "proto_tree_add_text()" since
+		 * we don't want it in the list of filterable fields.
+         */
+        if (hfinfo->id == hf_text_only)
 			continue;
 
 		/* format for protocols */
