@@ -2163,7 +2163,10 @@ fake_if_info = airpcap_driver_fake_if_info_new();
 
 if(fake_if_info != NULL)
     {
-    is_on = (gboolean)fake_if_info->DecryptionOn;
+	if(fake_if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
+		is_on = TRUE;
+	else if(fake_if_info->DecryptionOn == AIRPCAP_DECRYPTION_OFF)
+		is_on = FALSE;
     }
 
 airpcap_if_info_free(fake_if_info);
