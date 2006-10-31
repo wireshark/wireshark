@@ -373,10 +373,10 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   simple_dialog_cb_t    callback_fct    = OBJECT_GET_DATA(win, CALLBACK_FCT_KEY);
   gpointer              data            = OBJECT_GET_DATA(win, CALLBACK_DATA_KEY);
 
-  window_destroy(GTK_WIDGET(win));
-
   if (callback_fct)
     (callback_fct) (win, button, data);
+
+    window_destroy(GTK_WIDGET(win));
 }
 
 void
@@ -403,7 +403,7 @@ void simple_dialog_check_set(gpointer dialog, gchar *text) {
 }
 
 gboolean simple_dialog_check_get(gpointer dialog) {
-    GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
+    GtkWidget *ask_cb = OBJECT_GET_DATA(GTK_WIDGET(dialog), CHECK_BUTTON);
 
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
 }

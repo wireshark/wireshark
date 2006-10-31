@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -31,7 +31,7 @@
  * http://www.tightvnc.com/
  * http://ultravnc.sourceforge.net/
  * ...
- * 
+ *
  * The protocol itself is known as RFB - Remote Frame Buffer Protocol.
  *
  * This code is based on the protocol specification:
@@ -264,12 +264,12 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 
-	/* Retrieve information from conversation 
+	/* Retrieve information from conversation
 	 * or add it if it isn't there yet */
 	hash_info = conversation_get_proto_data(conversation, proto_vnc);
 	if(!hash_info) {
 		hash_info = se_alloc(sizeof(vnc_hash_entry_t));
-		
+
 		/* We must be on the first packet now */
 		hash_info->first_packet_number   = pinfo->fd->num;
 
@@ -296,7 +296,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!hash_info->second_packet_number && pinfo->fd->num > hash_info->first_packet_number) {
 		/* We're on the second packet of the conversation */
 		hash_info->second_packet_number = pinfo->fd->num;
-		
+
 	} else if(hash_info->second_packet_number && !hash_info->third_packet_number && pinfo->fd->num > hash_info->second_packet_number) {
 		/* We're on the third packet of the conversation */
 		hash_info->third_packet_number = pinfo->fd->num;
@@ -326,10 +326,10 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* We're on the ninth packet of the conversation */
 		hash_info->ninth_packet_number = pinfo->fd->num;
 	}
-	
+
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VNC");
 
 	/* First, clear the info column */
@@ -343,7 +343,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset = 0; /* Start at the beginning of the VNC protocol data */
-		
+
 	/* Server Protocol Version */
 
 	if(pinfo->fd->num == hash_info->first_packet_number) {
@@ -351,7 +351,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hash_info->server_proto_ver = g_strtod(tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Server protocol version: %s", tvb_get_ephemeral_string(tvb, 4, 7));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Server protocol version: %s", tvb_format_text(tvb, 4, 7));
 	}
 
 	/* Second Packet = Client Protocol Version */
@@ -359,15 +359,15 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(vnc_tree, hf_vnc_client_proto_ver, tvb, 4, 7, FALSE);
 		hash_info->client_proto_ver = g_strtod(tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
-		if (check_col(pinfo->cinfo, COL_INFO)) 
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Client protocol version: %s", tvb_get_ephemeral_string(tvb, 4, 7));
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Client protocol version: %s", tvb_format_text(tvb, 4, 7));
 
 	}
 
 	/* Security Types Supported */
 	else if(pinfo->fd->num == hash_info->third_packet_number) {
-				
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Security types supported");
 
 		/* We're checking against the client protocol version because the client is the final decider
@@ -376,7 +376,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(hash_info->client_proto_ver >= 3.007) {
 			proto_tree_add_item(vnc_tree, hf_vnc_num_security_types, tvb, offset, 1, FALSE);
 			num_security_types = tvb_get_guint8(tvb, offset);
-					
+
 			for(offset = 1; offset <= num_security_types; offset++) {
 				proto_tree_add_item(vnc_tree, hf_vnc_security_type, tvb, offset, 1, FALSE);
 			}
@@ -391,7 +391,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Authentication type selected by client */
 	/* This field is skipped by versions < 3.007 so the packet number is off on each if statement below */
 	else if(hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->forth_packet_number) {
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Authentication type selected by client");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_client_security_type, tvb, offset, 1, FALSE);
@@ -400,7 +400,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Authentication challenge from server */
 	else if((hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->fifth_packet_number) ||
 		(hash_info->client_proto_ver  < 3.007 && pinfo->fd->num == hash_info->forth_packet_number)) {
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Authentication challenge from server");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_auth_challenge, tvb, offset, 16, FALSE);
@@ -409,7 +409,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Authentication response from client */
 	else if((hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->sixth_packet_number) ||
 		(hash_info->client_proto_ver  < 3.007 && pinfo->fd->num == hash_info->fifth_packet_number)) {
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Authentication response from client");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_auth_response, tvb, offset, 16, FALSE);
@@ -418,8 +418,8 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Authentication result */
 	else if((hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->seventh_packet_number) ||
 		(hash_info->client_proto_ver  < 3.007 && pinfo->fd->num == hash_info->sixth_packet_number)) {
-			
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Authentication result");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_auth_result, tvb, offset, 4, FALSE);
@@ -441,22 +441,22 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else if((hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->eighth_packet_number) ||
 		(hash_info->client_proto_ver  < 3.007 && pinfo->fd->num == hash_info->seventh_packet_number)) {
 
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Share desktop flag");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_share_desktop_flag, tvb, offset, 1, FALSE);
 	}
-		
+
 	/* Various parameters for the frame buffer (screen) from the server */
 	else if((hash_info->client_proto_ver >= 3.007 && pinfo->fd->num == hash_info->ninth_packet_number) ||
 		(hash_info->client_proto_ver  < 3.007 && pinfo->fd->num == hash_info->eighth_packet_number)) {
 
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer parameters");
 
 		proto_tree_add_item(vnc_tree, hf_vnc_width, tvb, offset, 2, FALSE);
 		offset += 2;
-			
+
 		proto_tree_add_item(vnc_tree, hf_vnc_height, tvb, offset, 2, FALSE);
 		offset += 2;
 
@@ -465,13 +465,13 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(vnc_tree, hf_vnc_server_depth, tvb, offset, 1, FALSE);
 		offset += 1;
-			
+
 		proto_tree_add_item(vnc_tree, hf_vnc_server_big_endian_flag, tvb, offset, 1, FALSE);
 		offset += 1;
 
 		proto_tree_add_item(vnc_tree, hf_vnc_server_true_color_flag, tvb, offset, 1, FALSE);
 		offset += 1;
-		       
+
 		proto_tree_add_item(vnc_tree, hf_vnc_server_red_max, tvb, offset, 2, FALSE);
 		offset += 2;
 
@@ -497,10 +497,10 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(vnc_tree, hf_vnc_desktop_name_len, tvb, offset, 4, FALSE);
 			desktop_name_len = tvb_get_ntohl(tvb, offset); /* 32-bit big endian accessor */
 			offset += 4;
-			
+
 			proto_tree_add_item(vnc_tree, hf_vnc_desktop_name, tvb, offset, desktop_name_len, FALSE);
 		}
-			
+
 	}
 
 	/* All packets beyond #9 */
@@ -513,13 +513,13 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch(message_type) {
 
 			case 0 : /* Client Set Pixel Format */
-				if (check_col(pinfo->cinfo, COL_INFO)) 
+				if (check_col(pinfo->cinfo, COL_INFO))
 					col_set_str(pinfo->cinfo, COL_INFO, "Client set pixel format");
 
 				ti = proto_tree_add_item(vnc_tree, hf_vnc_client_message_type, tvb, offset, 1, FALSE);
 				vnc_client_message_type_tree = proto_item_add_subtree(ti, ett_vnc_client_message_type);
-				offset += 1;					
-					
+				offset += 1;
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_padding, tvb, offset, 3, FALSE);
 				offset += 3; /* Skip over 3 bytes of padding */
 
@@ -529,30 +529,30 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_depth, tvb, offset, 1, FALSE);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_big_endian_flag, tvb, offset, 1,
 						    FALSE);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_true_color_flag, tvb, offset, 1,
 						    FALSE);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_red_max, tvb, offset, 2, FALSE);
 				offset += 2;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_green_max, tvb, offset, 2, FALSE);
 				offset += 2;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_blue_max, tvb, offset, 2, FALSE);
 				offset += 2;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_red_shift, tvb, offset, 1, FALSE);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_green_shift, tvb, offset, 1, FALSE);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_client_blue_shift, tvb, offset, 1, FALSE);
 				offset += 1;
 
@@ -562,7 +562,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case 2 : /* Client Set Encodings */
-				if (check_col(pinfo->cinfo, COL_INFO)) 
+				if (check_col(pinfo->cinfo, COL_INFO))
 					col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
 
 				ti = proto_tree_add_item(vnc_tree, hf_vnc_client_message_type, tvb, offset, 1, FALSE);
@@ -578,7 +578,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "Number of encodings: %d", number_of_encodings);
 				offset += 2;
 
-					
+
 				for(counter = 1; counter <= number_of_encodings; counter++) {
 					proto_tree_add_item(vnc_client_message_type_tree,
 							    hf_vnc_client_set_encodings_encoding_type, tvb, offset, 4, FALSE);
@@ -594,7 +594,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti = proto_tree_add_item(vnc_tree, hf_vnc_client_message_type, tvb, offset, 1, FALSE);
 				vnc_client_message_type_tree = proto_item_add_subtree(ti, ett_vnc_client_message_type);
 				offset += 1;
-					
+
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_update_req_incremental,
 						    tvb, offset, 1, FALSE);
 				offset += 1;
@@ -614,7 +614,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(vnc_client_message_type_tree, hf_vnc_update_req_height, tvb,
 						    offset, 2, FALSE);
 				offset += 2;
-					
+
 				break;
 
 			case 4 : /* Client Key Event */
@@ -698,15 +698,15 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (check_col(pinfo->cinfo, COL_INFO))
 					col_append_str(pinfo->cinfo, COL_INFO, "Unknown client message type");
 
-				proto_tree_add_text(vnc_tree, tvb, 0, -1, "Unknown client message type");				
+				proto_tree_add_text(vnc_tree, tvb, 0, -1, "Unknown client message type");
 
 				break;
 			}
 
 		} else { /* Packet is going from server to client */
-				
+
 			message_type = tvb_get_guint8(tvb, offset);
-				
+
 			switch(message_type) {
 
 			case 0 : /* Server Framebuffer Update */
@@ -724,7 +724,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "Data");
 
 				break;
-						
+
 			case 1 : /* Server Set Colormap Entries */
 				if (check_col(pinfo->cinfo, COL_INFO))
 					col_set_str(pinfo->cinfo, COL_INFO, "Server set colormap entries");
@@ -736,7 +736,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					pinfo->desegment_len = (number_of_colors * 6) + 6 - tvb_length_remaining(tvb, offset);
 					return;
 				}
-				
+
 				ti = proto_tree_add_item(vnc_tree, hf_vnc_server_message_type, tvb, offset, 1, FALSE);
 				vnc_server_message_type_tree = proto_item_add_subtree(ti, ett_vnc_server_message_type);
 				offset += 1;
@@ -755,7 +755,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 2;
 
 				for(counter = 1; counter <= number_of_colors; counter++) {
-				      	ti = proto_tree_add_text(vnc_colormap_num_groups, tvb, offset, 6, 
+				      	ti = proto_tree_add_text(vnc_colormap_num_groups, tvb, offset, 6,
 										"Color group #%d", counter);
 					vnc_colormap_color_group = proto_item_add_subtree(ti, ett_vnc_colormap_color_group);
 
@@ -771,7 +771,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							    hf_vnc_colormap_blue, tvb, offset, 2, FALSE);
 					offset += 2;
 				}
-					
+
 				break;
 
 			case 2 : /* Server Ring Bell (on client) */
@@ -811,18 +811,18 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(vnc_server_message_type_tree, hf_vnc_server_cut_text, tvb, offset, text_len,
 						    FALSE);
 				offset += text_len;
-					
+
 				break;
 
-			default : 
+			default :
 				if (check_col(pinfo->cinfo, COL_INFO))
 					col_append_str(pinfo->cinfo, COL_INFO, "Server framebuffer update (continuation)");
 
 				proto_tree_add_text(vnc_tree, tvb, 0, -1, "Server framebuffer update data (continuation)");
-				
+
 				break;
 			}
-			
+
 		}
 	}
 }
@@ -831,7 +831,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_vnc(void)
-{                 
+{
 	module_t *vnc_module; /* To handle our preferences */
 
 	/* Setup list of header fields */
@@ -844,7 +844,7 @@ proto_register_vnc(void)
 
                 { &hf_vnc_server_proto_ver,
 		  { "Server protocol version", "vnc.server_proto_ver",
-		    FT_STRING, BASE_NONE, NULL, 0x0,          
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "VNC protocol version on server", HFILL }
                 },
 		{ &hf_vnc_client_proto_ver,
@@ -1091,7 +1091,7 @@ proto_register_vnc(void)
 		    FT_INT32, BASE_DEC, VALS(encoding_types_vs), 0x0,
 		    "Type of encoding used to send pixel data from server to client", HFILL }
 		},
-	       
+
 		/* Client Framebuffer Update Request */
 		{ &hf_vnc_update_req_incremental,
 		  { "Incremental update", "vnc.update_req_incremental",
@@ -1193,7 +1193,7 @@ proto_register_vnc(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_vnc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-        
+
 	/* Register our preferences module */
 	vnc_module = prefs_register_protocol(proto_vnc, proto_reg_handoff_vnc);
 
@@ -1221,18 +1221,18 @@ proto_reg_handoff_vnc(void)
 
 		/* We don't register a port for the VNC HTTP server because that simply provides a java program
 		 * for download via the normal HTTP protocol.  The java program then connects to a standard VNC port (above). */
-		
+
 		inited = TRUE;
 	}
 
 	if(vnc_preference_alternate_port != 5500 && vnc_preference_alternate_port != 5501 &&
 	   vnc_preference_alternate_port != 5900 && vnc_preference_alternate_port != 5901 &&
 	   vnc_preference_alternate_port != 0) {
-		
+
 		dissector_delete("tcp.port", vnc_preference_alternate_port_last, vnc_handle);
       		vnc_preference_alternate_port_last = vnc_preference_alternate_port;     /* Save this setting to see if has changed later */
        		dissector_add("tcp.port", vnc_preference_alternate_port, vnc_handle);   /* Register the new port setting */
-		
+
 	}
 
 }

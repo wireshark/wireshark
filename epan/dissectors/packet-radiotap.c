@@ -199,6 +199,14 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #define BITNO_2(x) (((x) & 2) ? 1 : 0)
 #define BIT(n)	(1 << n)
 
+/*
+ * XXX - There are roundup macros defined in other dissectors.  We should
+ * move them to a common location at some point.
+ */
+#ifndef roundup2
+#define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
+#endif
+
 void
 capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
 {
@@ -652,7 +660,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    if (tree) {
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
-			tvb, offset, 1, tvb_get_guint8(tvb, offset), 
+			tvb, offset, 1, tvb_get_guint8(tvb, offset),
 			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    offset++;
@@ -783,7 +791,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=2;
 	    break;
 	case IEEE80211_RADIOTAP_FCS:
-        /* This handles the case of an FCS exiting inside the radiotap header. */
+        /* This handles the case of an FCS existing inside the radiotap header. */
+	    offset = roundup2(offset, 4);
 	    if (length_remaining < 4)
 		break;
         if (tree) {

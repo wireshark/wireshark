@@ -193,6 +193,8 @@ static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *fi
 
 #ifdef HAVE_AIRPCAP
 GtkWidget *airpcap_tb;
+GtkWidget *driver_warning_dialog;
+int    airpcap_dll_ret_val = -1;
 #endif
 
 static GtkWidget	*info_bar;
@@ -2084,7 +2086,6 @@ main(int argc, char *argv[])
   int                  status;
 
 #ifdef HAVE_AIRPCAP
-  int           airpcap_dll_ret_val;
   char			err_str[AIRPCAP_ERRBUF_SIZE];
   gchar			*cant_get_if_list_errstr;
 #endif
@@ -2145,17 +2146,14 @@ main(int argc, char *argv[])
 	/* select the first ad default (THIS SHOULD BE CHANGED) */
 	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 	}
-  else if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
-	{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-			"WARNING: The version of AirPcap on this system\n"
-			"does not support driver-level decryption.  Please\n"
-			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
-	}
 	/*
 	 * XXX - Maybe we need to warn the user if one of the following happens???
 	 */
-/*  else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
+/* else if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
+	{
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
+	}
+	else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
     {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
     }
@@ -4310,6 +4308,15 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(welcome_pane);
 }
 
+static 
+void driver_warning_dialog_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+	gboolean r;
+	
+	r = simple_dialog_check_get(dialog);
+    recent.airpcap_driver_check_show = !r;
+}
+
 static void
 show_main_window(gboolean doing_work)
 {
@@ -4341,5 +4348,34 @@ else /* Keys from lists are equals, or wireshark has got no keys */
     {
     airpcap_load_decryption_keys(airpcap_if_list);
     }
+
+if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
+{
+if(recent.airpcap_driver_check_show)
+	{
+	driver_warning_dialog = simple_dialog(ESD_TYPE_ERROR
+		, ESD_BTN_OK, "%s",
+			"WARNING: The version of AirPcap on this system\n"
+			"does not support driver-level decryption.  Please\n"
+			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
+	simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
+	simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, (gpointer) driver_warning_dialog);
+	}
+}
+/*
+ * XXX - Maybe we need to warn the user if one of the following happens???
+ */
+/*  else if(airpcap_dll_ret_val == AIRPCAP_DLL_OK)
+{
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OK\n");
+}
+else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
+{
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+}
+else if(airpcap_dll_ret_val == AIRPCAP_DLL_NOT_FOUND)
+{
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+}*/
 #endif
 }
