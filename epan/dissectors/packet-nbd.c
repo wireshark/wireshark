@@ -356,7 +356,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset+=4;
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s 0x%"PRIx64" %d", val_to_str(nbd_trans->type, nbd_type_vals, "unknown:%x"), from, nbd_trans->datalen);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request  Offset:0x%"PRIx64" Length:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", from, nbd_trans->datalen);
 		}
 
 		if(nbd_trans->type==NBD_CMD_WRITE){
@@ -364,6 +364,9 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 		break;
 	case NBD_RESPONSE_MAGIC:
+		item=proto_tree_add_uint(tree, hf_nbd_type, tvb, 0, 0, nbd_trans->type);
+		PROTO_ITEM_SET_GENERATED(item);
+
 		error=tvb_get_ntohl(tvb, offset);
 		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, FALSE);
 		offset+=4;
@@ -373,7 +376,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset+=8;
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Error:%d", val_to_str(nbd_trans->type, nbd_type_vals, "unknown:%x"), error);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  Error:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", error);
 		}
 
 		if(nbd_trans->type==NBD_CMD_READ){
