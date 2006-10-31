@@ -34,8 +34,8 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-lemon_SOURCES = \
-	lemon.c
+lemon: lemon.c
+	$(CC_FOR_BUILD) -D_U_="" $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $<
 
 EXTRA_DIST = \
 	cppmagic.h		\

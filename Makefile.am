@@ -416,7 +416,7 @@ ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
 rdps: rdps.c
-	$(CC) $(CFLAGS) -o rdps $(srcdir)/rdps.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o rdps $(srcdir)/rdps.c
 
 randpkt_additional_libs = wiretap/libwiretap.la
 

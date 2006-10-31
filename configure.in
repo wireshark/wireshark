@@ -5,7 +5,13 @@ AC_INIT(cfile.h)
 AC_PREREQ(2.52)
 
 dnl Check for CPU / vendor / OS
-AC_CANONICAL_HOST
+dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
+dnl `AC_CANONICAL_HOST', or `AC_CANONICAL_TARGET', depending on the
+dnl needs.  Using `AC_CANONICAL_TARGET' is enough to run the two other
+dnl macros.
+
+dnl AC_CANONICAL_HOST
+dnl AC_CANONICAL_BUILD
 AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE(wireshark, 0.99.4)
@@ -57,6 +63,12 @@ AC_SUBST(FLEX_PATH)
 AC_SUBST(PYTHON)
 AC_SUBST(XSLTPROC)
 AC_SUBST(XMLLINT)
+
+if test "x$CC_FOR_BUILD" = x
+then
+       CC_FOR_BUILD=$(CC)
+fi
+AC_SUBST(CC_FOR_BUILD)
 
 # Check for doxygen
 AC_PATH_PROG(DOXYGEN, doxygen)
