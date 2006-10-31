@@ -1641,7 +1641,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_ucp_pdu_len(tvbuff_t *tvb, int offset)
+get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     guint	 intval=0;
     int		 i;

@@ -82,7 +82,7 @@ static gboolean tali_desegment = TRUE;
 
 /* Code to actually dissect the packets */
 static guint
-get_tali_pdu_len(tvbuff_t *tvb, int offset)
+get_tali_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 length;
 

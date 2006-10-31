@@ -314,7 +314,7 @@ static const value_string ymsg_status_vals[] = {
 	{0, NULL}
 };
 
-static guint get_ymsg_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_ymsg_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Find the end of the current content line and return its length */
@@ -348,7 +348,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_ymsg_pdu_len(tvbuff_t *tvb, int offset)
+get_ymsg_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 plen;
 

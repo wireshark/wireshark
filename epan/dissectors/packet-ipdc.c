@@ -67,7 +67,7 @@ void proto_reg_handoff_ipdc(void);
 
 
 static guint
-get_ipdc_pdu_len(tvbuff_t *tvb, int offset)
+get_ipdc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
         /* lower 10 bits only */
         guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
@@ -97,7 +97,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	gshort nr = tvb_get_guint8(tvb,0);
 	gshort ns = tvb_get_guint8(tvb,1);
-        guint payload_len = get_ipdc_pdu_len(tvb,0);
+        guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0);
 
         gshort protocol_id;
         gshort trans_id_size;

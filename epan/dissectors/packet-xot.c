@@ -52,7 +52,7 @@ static gboolean xot_desegment = TRUE;
 
 static dissector_handle_t x25_handle;
 
-static guint get_xot_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 plen;
 

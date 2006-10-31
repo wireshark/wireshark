@@ -591,7 +591,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_dsi_pdu_len(tvbuff_t *tvb, int offset)
+get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 plen;
 	guint8	dsi_flags,dsi_command;

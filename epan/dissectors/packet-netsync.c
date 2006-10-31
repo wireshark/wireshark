@@ -443,7 +443,7 @@ static gint dissect_netsync_cmd_nonexistant(tvbuff_t *tvb,  gint offset, proto_t
 }
 
 static guint
-get_netsync_pdu_len(tvbuff_t *tvb, int offset)
+get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint size = 0, size_bytes;
 

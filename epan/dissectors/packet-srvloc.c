@@ -1302,7 +1302,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_srvloc_pdu_len(tvbuff_t *tvb, int offset)
+get_srvloc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     /*
      * Get the length of the SRVLOC packet.

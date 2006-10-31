@@ -294,7 +294,7 @@ static const char* get_message_type(tvbuff_t *tvb) {
 	return message_type;
 }
 
-static guint get_slsk_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_slsk_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 msg_len;
 	msg_len = tvb_get_letohl(tvb, offset);

@@ -1617,7 +1617,7 @@ static void dissect_emule_udp_message(guint8 msg_type,
 }
 
 
-static guint get_edonkey_tcp_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_edonkey_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     guint32 msg_len;
 

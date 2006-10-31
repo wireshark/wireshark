@@ -329,7 +329,7 @@ static const aim_tlv fnac_tlvs[] = {
 };
 
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_aim_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
@@ -433,7 +433,7 @@ static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return tvb_length(tvb);
 }
 
-static guint get_aim_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_aim_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 plen;
 

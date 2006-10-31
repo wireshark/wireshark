@@ -595,7 +595,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 }
 
 static guint
-dcm_get_pdu_len(tvbuff_t *tvb, int offset)
+dcm_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     guint32 len;
 

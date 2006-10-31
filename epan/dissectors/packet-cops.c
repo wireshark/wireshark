@@ -844,7 +844,7 @@ static gint ett_docsis_request_transmission_policy = -1;
 
 void proto_reg_handoff_cops(void);
 
-static guint get_cops_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_cops_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type);
@@ -892,7 +892,7 @@ dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_cops_pdu_len(tvbuff_t *tvb, int offset)
+get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   /*
    * Get the length of the COPS message.

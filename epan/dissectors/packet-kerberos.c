@@ -4235,7 +4235,7 @@ kerberos_rm_to_reclen(guint krb_rm)
 }
 
 guint
-get_krb_pdu_len(tvbuff_t *tvb, int offset)
+get_krb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     guint krb_rm;
     gint pdulen;

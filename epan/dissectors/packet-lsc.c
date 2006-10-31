@@ -297,7 +297,7 @@ dissect_lsc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Determine length of LSC message */
 static guint
-get_lsc_pdu_len(tvbuff_t *tvb, int offset)
+get_lsc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint8 op_code;
   guint pdu_len;

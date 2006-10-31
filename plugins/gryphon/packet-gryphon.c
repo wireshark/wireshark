@@ -148,7 +148,7 @@ static const char *frame_type[] = {
 #define FRAME_HEADER_LEN	8
 
 static guint
-get_gryphon_pdu_len(tvbuff_t *tvb, int offset)
+get_gryphon_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     guint16 plen;
     int padded_len;

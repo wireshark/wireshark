@@ -40,7 +40,7 @@ void proto_register_s5066(void);
 void proto_reg_handoff_s5066(void);
 /* Main dissectors */
 static void dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static guint get_s5066_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_s5066_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Service type and address dissectors */
 static guint dissect_s5066_servicetype(tvbuff_t *tvb, guint offset, proto_tree *tree);
@@ -1256,7 +1256,7 @@ dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-get_s5066_pdu_len(tvbuff_t *tvb, int offset)
+get_s5066_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 plen;
 

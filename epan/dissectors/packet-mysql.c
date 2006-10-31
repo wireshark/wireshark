@@ -467,7 +467,7 @@ typedef struct my_stmt_data
 void proto_reg_handoff_mysql(void);
 void proto_register_mysql(void);
 static void dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static guint get_mysql_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
 static int mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
@@ -913,7 +913,7 @@ static void dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* dissector helper: length of PDU */
-static guint get_mysql_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint plen= tvb_get_letoh24(tvb, offset);
 	return plen + 4; /* add length field + packet number */

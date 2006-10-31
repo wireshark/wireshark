@@ -1038,7 +1038,7 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /* Get the length of a single CAST PDU */
-static guint get_cast_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint32 hdr_data_length;
 

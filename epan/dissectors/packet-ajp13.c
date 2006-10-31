@@ -746,7 +746,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * packet length. see comments in packet-tcp.c:tcp_dissect_pdus().
  */
 static guint
-get_ajp13_pdu_len(tvbuff_t *tvb, int offset)
+get_ajp13_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 magic;
   guint16 plen;

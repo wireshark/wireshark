@@ -1094,7 +1094,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 	DBG1("consumed --> %d\n", reported_reply_data);
 }
 
-static guint get_icep_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_icep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	return tvb_get_letohl(tvb, offset + 10);
 }

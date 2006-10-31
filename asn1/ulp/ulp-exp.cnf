@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\ulp-exp.cnf
-# ../../tools/asn2wrs.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn
+# ./ulp-exp.cnf
+# ../../tools/asn2wrs.py -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn
 
 #.MODULE
 ULP  ulp

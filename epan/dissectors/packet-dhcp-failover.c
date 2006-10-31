@@ -338,7 +338,7 @@ static const value_string tls_request_vals[] =
 
 /* Code to actually dissect the packets */
 static guint
-get_dhcpfo_pdu_len(tvbuff_t *tvb, int offset)
+get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	/*
 	 * Return the length of the DHCP failover packet.

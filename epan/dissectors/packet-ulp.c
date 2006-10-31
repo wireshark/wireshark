@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ulp.c                                                             */
-/* ../../tools/asn2wrs.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
+/* ./packet-ulp.c                                                             */
+/* ../../tools/asn2wrs.py -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -2145,7 +2145,7 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree 
 
 static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   dissect_ulp_ULP_PDU(tvb, 0, &asn1_ctx, tree, hf_ulp_ULP_PDU_PDU);
 }
 
@@ -2155,7 +2155,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 static guint
-get_ulp_pdu_len(tvbuff_t *tvb, int offset)
+get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	/* PDU length = Message length */
 	return tvb_get_ntohs(tvb,offset);

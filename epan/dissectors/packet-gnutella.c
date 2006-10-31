@@ -325,7 +325,7 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-get_gnutella_pdu_len(tvbuff_t *tvb, int offset) {
+get_gnutella_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
 	guint32 size;
 
 	size = tvb_get_letohl(

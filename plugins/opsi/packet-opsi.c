@@ -391,7 +391,7 @@ void decode_time_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int of
 /****************************************************************************/
 
 /* To find the correct size of the PDU. Needed by the desegmentation feature*/
-static guint get_opsi_pdu_len(tvbuff_t *tvb, int offset)
+static guint get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   /*
    * Get the length of the OPSI packet.

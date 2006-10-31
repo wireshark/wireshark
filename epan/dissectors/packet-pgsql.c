@@ -89,7 +89,7 @@ static void dissect_pgsql_fe_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_be_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_msg(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_pgsql(tvbuff_t *, packet_info *, proto_tree *);
-static guint pgsql_length(tvbuff_t *, int);
+static guint pgsql_length(packet_info *, tvbuff_t *, int);
 
 static const value_string fe_messages[] = {
     { 'p', "Password message" },
@@ -389,7 +389,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    message starting at tvb[offset]. */
 
 static guint
-pgsql_length(tvbuff_t *tvb, int offset)
+pgsql_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     gint n = 0;
     guchar type;
