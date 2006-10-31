@@ -629,6 +629,7 @@ static const value_string t30_data_signalling_rate_vals[] = {
 	{ 0x07, "Reserved" },
 	{ 0x0B, "Not used" },
 	{ 0x0F, "Reserved" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_data_signalling_rate_dcs_vals[] = {
@@ -648,6 +649,7 @@ static const value_string t30_data_signalling_rate_dcs_vals[] = {
 	{ 0x07, "Reserved" },
 	{ 0x0B, "Reserved" },
 	{ 0x0F, "Reserved" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_recording_width_capabilities_vals[] = {
@@ -655,6 +657,7 @@ static const value_string t30_recording_width_capabilities_vals[] = {
 	{ 0x01, "Scan line length 215 mm +- 1% and Scan line length 255 mm +- 1% and Scan line length 303 mm +- 1%" },
 	{ 0x02, "Scan line length 215 mm +- 1% and Scan line length 255 mm +- 1%" },
 	{ 0x03, "Invalid" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_recording_width_dcs_vals[] = {
@@ -662,6 +665,7 @@ static const value_string t30_recording_width_dcs_vals[] = {
 	{ 0x01, "Scan line length 303 mm +- 1%" },
 	{ 0x02, "Scan line length 255 mm +- 1%" },
 	{ 0x03, "Invalid" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_recording_length_capability_vals[] = {
@@ -669,6 +673,7 @@ static const value_string t30_recording_length_capability_vals[] = {
 	{ 0x01, "Unlimited" },
 	{ 0x02, "A4 (297 mm) and B4 (364 mm)" },
 	{ 0x03, "Invalid" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_recording_length_dcs_vals[] = {
@@ -676,6 +681,7 @@ static const value_string t30_recording_length_dcs_vals[] = {
 	{ 0x01, "Unlimited" },
 	{ 0x02, "B4 (364 mm)" },
 	{ 0x03, "Invalid" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_minimum_scan_line_time_rec_vals[] = {
@@ -687,6 +693,7 @@ static const value_string t30_minimum_scan_line_time_rec_vals[] = {
 	{ 0x06, "20 ms at 3.85 l/mm: T7.7 = 1/2 T3.85" },
 	{ 0x05, "40 ms at 3.85 l/mm: T7.7 = 1/2 T3.85" },
 	{ 0x07, "00 ms at 3.85 l/mm: T7.7 = T3.85" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_partial_page_fcf2_vals[] = {
@@ -698,6 +705,7 @@ static const value_string t30_partial_page_fcf2_vals[] = {
 	{ 0xF9, "PRI-EOM in optional T.4 error correction mode" },
 	{ 0xFA, "PRI-MPS in optional T.4 error correction mode" },
 	{ 0xFC, "PRI-EOP in optional T.4 error correction mode" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_minimum_scan_line_time_dcs_vals[] = {
@@ -706,6 +714,7 @@ static const value_string t30_minimum_scan_line_time_dcs_vals[] = {
 	{ 0x02, "10 ms" },
 	{ 0x04, "05 ms" },
 	{ 0x07, "00 ms" },
+	{ 0,    NULL }
 };
 
 static const value_string t30_SharedDataMemory_capacity_vals[] = {
@@ -713,6 +722,7 @@ static const value_string t30_SharedDataMemory_capacity_vals[] = {
 	{ 0x01, "Level 1 = 1.0 Mbytes" },
 	{ 0x02, "Level 2 = 2.0 Mbytes" },
 	{ 0x03, "Level 3 = unlimited (i.e. >= 32 Mbytes)" },
+	{ 0,    NULL }
 };
 
 static const true_false_string t30_octets_preferred_value = {
