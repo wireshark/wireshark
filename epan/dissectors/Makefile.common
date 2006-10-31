@@ -469,6 +469,7 @@ DISSECTOR_SRC =	\
 	packet-multipart.c	\
 	packet-mysql.c	\
 	packet-nbap.c	\
+	packet-nbd.c	\
 	packet-nbipx.c	\
 	packet-nbns.c	\
 	packet-ncp.c	\
