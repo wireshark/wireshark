@@ -102,7 +102,6 @@
 #define ETHERTYPE_EPL_V1	0x3E3F
 #endif
 
-============================ 6000 ============================
 #ifndef ETHERTYPE_DEC
 #define ETHERTYPE_DEC		0x6000
 #endif
@@ -143,7 +142,6 @@
 #define ETHERTYPE_RAW_FR	0x6559	/* Raw Frame Relay        [RFC1701] */
 #endif
 
-============================ 8000 ============================
 #ifndef ETHERTYPE_REVARP
 #define ETHERTYPE_REVARP	0x8035
 #endif
