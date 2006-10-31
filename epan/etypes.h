@@ -53,6 +53,24 @@
  * of the IEEE URLs ultimately go to the same page.)
  */
 
+/* Order these values by number */
+
+#ifndef ETHERTYPE_XNS_IDP
+#define ETHERTYPE_XNS_IDP	0x0600
+#endif
+
+#ifndef ETHERTYPE_IP
+#define ETHERTYPE_IP		0x0800
+#endif
+
+#ifndef ETHERTYPE_X25L3
+#define ETHERTYPE_X25L3		0x0805
+#endif
+
+#ifndef ETHERTYPE_ARP
+#define ETHERTYPE_ARP		0x0806
+#endif
+
 #ifndef ETHERTYPE_VINES_IP
 #define ETHERTYPE_VINES_IP	0x0bad
 #endif
@@ -80,26 +98,11 @@
 #define ETHERTYPE_3C_NBP_DGRAM	0x3c07
 #endif
 
-#ifndef ETHERTYPE_XNS_IDP
-#define ETHERTYPE_XNS_IDP	0x0600
-#endif
-
-#ifndef ETHERTYPE_IP
-#define ETHERTYPE_IP		0x0800
-#endif
-
 #ifndef ETHERTYPE_EPL_V1
 #define ETHERTYPE_EPL_V1	0x3E3F
 #endif
 
-#ifndef ETHERTYPE_X25L3
-#define ETHERTYPE_X25L3		0x0805
-#endif
-
-#ifndef ETHERTYPE_ARP
-#define ETHERTYPE_ARP		0x0806
-#endif
-
+============================ 6000 ============================
 #ifndef ETHERTYPE_DEC
 #define ETHERTYPE_DEC		0x6000
 #endif
@@ -140,6 +143,7 @@
 #define ETHERTYPE_RAW_FR	0x6559	/* Raw Frame Relay        [RFC1701] */
 #endif
 
+============================ 8000 ============================
 #ifndef ETHERTYPE_REVARP
 #define ETHERTYPE_REVARP	0x8035
 #endif
@@ -164,12 +168,12 @@
 #define ETHERTYPE_AARP		0x80f3
 #endif
 
-#ifndef ETHERTYPE_IPX
-#define ETHERTYPE_IPX		0x8137
-#endif
-
 #ifndef ETHERTYPE_VLAN
 #define ETHERTYPE_VLAN		0x8100	/* 802.1Q Virtual LAN */
+#endif
+
+#ifndef ETHERTYPE_IPX
+#define ETHERTYPE_IPX		0x8137
 #endif
 
 #ifndef ETHERTYPE_SNMP
@@ -220,12 +224,12 @@
 #define ETHERTYPE_MPLS_MULTI	0x8848	/* MPLS multicast packet */
 #endif
 
-#ifndef ETHERTYPE_PPPOED
-#define ETHERTYPE_PPPOED	0x8863	/* PPPoE Discovery Protocol */
-#endif
-
 #ifndef ETHERTYPE_FOUNDRY
 #define ETHERTYPE_FOUNDRY	0x885a	/* Some Foundry proprietary protocol */
+#endif
+
+#ifndef ETHERTYPE_PPPOED
+#define ETHERTYPE_PPPOED	0x8863	/* PPPoE Discovery Protocol */
 #endif
 
 #ifndef ETHERTYPE_PPPOES
@@ -280,10 +284,6 @@
 #define ETHERTYPE_IEEE802_OUI_EXTENDED 0x88B7	/* IEEE 802a OUI Extended Ethertype */
 #endif
 
-#ifndef ETHERTYPE_RSN_PREAUTH
-#define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
-#endif
-
 #ifndef ETHERTYPE_IEC61850_GOOSE
 #define ETHERTYPE_IEC61850_GOOSE	0x88b8  /* IEC 61850 is a global standard for the use in utility communication,*/
 #endif										/* in particular for the information exchange between IED's in a power */
@@ -308,6 +308,10 @@
 #ifndef ETHERTYPE_TIPC
 #define ETHERTYPE_TIPC	0x88ca  /* TIPC  (Transparent Inter Process Communication, */
 #endif							/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
+
+#ifndef ETHERTYPE_RSN_PREAUTH
+#define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
+#endif
 
 #ifndef ETHERTYPE_LLDP
 #define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
