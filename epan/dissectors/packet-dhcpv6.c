@@ -955,11 +955,11 @@ proto_register_dhcpv6(void)
     { &hf_fqdn_1,
       { "Reserved", "", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL}},
     { &hf_fqdn_2,
-      { "N", "", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "", HFILL}},
+      { "N", "dhcpv6.msgtype.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "", HFILL}},
     { &hf_fqdn_3,
-      { "O", "", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, "", HFILL}},
+      { "O", "dhcpv6.msgtype.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, "", HFILL}},
     { &hf_fqdn_4,
-      { "S", "", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "", HFILL}}
+      { "S", "dhcpv6.msgtype.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "", HFILL}}
     
   };
   static gint *ett[] = {
