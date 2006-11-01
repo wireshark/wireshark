@@ -2643,7 +2643,9 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 	return pi;
 }
 
-
+/* Throw an exception if we exceed this many tree items. */
+/* XXX - This should probably be a preference */
+#define MAX_TREE_ITEMS (1 * 1000 * 1000)
 /* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
@@ -2670,6 +2672,14 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 
 	DISSECTOR_ASSERT(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
+
+	PTREE_DATA(tree)->count++;
+	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {
+		/* Let the exception handler add items to the tree */
+		PTREE_DATA(tree)->count = 0;
+		THROW_MESSAGE(DissectorError,
+			ep_strdup_printf("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS));
+	}
 
 	PROTO_NODE_NEW(pnode);
 	pnode->parent = tnode;
@@ -3087,7 +3097,7 @@ proto_tree_create_root(void)
 	 * but for some reason the default 'visible' is not
 	 * changed, then we'll find out very quickly. */
 	pnode->tree_data->visible = FALSE;
-	
+
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;
 
@@ -5109,7 +5119,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 			return TRUE;
 		case FT_NONE:
 			/*
-			 * Doesn't have a value, but may still want to test 
+			 * Doesn't have a value, but may still want to test
 			 * for its presence in a trace
 			 */
 			return TRUE;
