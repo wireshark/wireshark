@@ -2284,7 +2284,7 @@ set_airpcap_decryption(gboolean on_off)
 
 	/* Set the driver decryption */
 	ad_driver = airpcap_if_open(fake_if_info->name, ebuf);
-	if(ad)
+	if(ad_driver)
 		{
 		if(on_off)
 			airpcap_if_set_driver_decryption_state(ad_driver,AIRPCAP_DECRYPTION_ON);
