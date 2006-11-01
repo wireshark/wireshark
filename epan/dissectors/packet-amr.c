@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * References:
- * RFC 3267 
- * http://www.ietf.org/rfc/rfc3267.txt?number=3267
+ * RFC 3267  http://www.ietf.org/rfc/rfc3267.txt?number=3267
+ * 3GPP TS 26.101
  */
 
 #ifdef HAVE_CONFIG_H
@@ -52,12 +52,6 @@ static int hf_amr_reserved	= -1;
 static int hf_amr_toc_f		= -1;
 static int hf_amr_toc_ft	= -1;
 static int hf_amr_toc_q		= -1;
-static int hf_amr_toc_f_unaligned1 = -1;
-static int hf_amr_toc_ft_unaligned1 = -1;
-static int hf_amr_toc_q_unaligned1 = -1;
-static int hf_amr_toc_f_unaligned2 = -1;
-static int hf_amr_toc_ft_unaligned2 = -1;
-static int hf_amr_toc_q_unaligned2 = -1;
 
 static int hf_amr_if1_ft = -1;
 static int hf_amr_if1_fqi = -1;
@@ -68,6 +62,10 @@ static int hf_amr_if1_sti_mode_ind = -1;
 static int hf_amr_sti = -1;
 
 static int hf_amr_if2_ft = -1;
+
+static int hf_amr_be_reserved = -1;
+static int hf_amr_be_ft = -1;
+static int hf_amr_be_reserved2 = -1;
 
 
 /* Initialize the subtree pointers */
@@ -85,7 +83,7 @@ gint amr_encoding_type = 0;
 
 static const value_string amr_encoding_type_value[] = {
 	{0,			"RFC 3267"}, 
-	{1,			"RFC 3267 bandwidth-efficient mode"}, /* Not coded */
+	{1,			"RFC 3267 bandwidth-efficient mode"}, 
 	{2,			"AMR IF 1"},
 	{3,			"AMR IF 2"},
 	{ 0,	NULL }
@@ -103,6 +101,7 @@ static const value_string amr_codec_mode_vals[] = {
 	{ 0,	NULL }
 };
 
+/* Ref 3GPP TS 26.101 table 1a */
 static const value_string amr_codec_mode_request_vals[] = {
 	{0,			"AMR 4,75 kbit/s"}, 
 	{1,			"AMR 5,15 kbit/s"},
@@ -182,7 +181,50 @@ dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(octet, amr_codec_mode_request_vals, "Unknown (%d)" ));
 }
+/*
+ * 4.3.5.1. Single Channel Payload Carrying a Single Frame
+ * 
+ *    The following diagram shows a bandwidth-efficient AMR payload from a
+ *    single channel session carrying a single speech frame-block.
+ * 
+ *    In the payload, no specific mode is requested (CMR=15), the speech
+ *    frame is not damaged at the IP origin (Q=1), and the coding mode is
+ *    AMR 7.4 kbps (FT=4).  The encoded speech bits, d(0) to d(147), are
+ *    arranged in descending sensitivity order according to [2].  Finally,
+ *    two zero bits are added to the end as padding to make the payload
+ *    octet aligned.
+ * 
+ *     0                   1                   2                   3
+ *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    | CMR=15|0| FT=4  |1|d(0)                                       |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
+static void
+dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	proto_item *item;
+	guint8 octet;
+	int offset =0;
 
+	proto_tree_add_item(tree, hf_amr_cmr, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_be_reserved, tvb, offset, 1, FALSE);
+	octet = tvb_get_guint8(tvb,offset) & 0x08;
+	if ( octet != 0  ){
+		item = proto_tree_add_text(tree, tvb, offset, -1, "Reserved != 0, wrongly encoded or not bandwidth-efficient.");
+		PROTO_ITEM_SET_GENERATED(item);
+		return;
+	}
+	proto_tree_add_item(tree, hf_amr_be_ft, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_amr_be_reserved2, tvb, offset, 2, FALSE);
+	offset++;
+	octet = tvb_get_guint8(tvb,offset) & 0x40;
+	if ( octet != 0x40  ){
+		item = proto_tree_add_text(tree, tvb, offset, -1, "Reserved != 1, wrongly encoded or not bandwidth-efficient.");
+		PROTO_ITEM_SET_GENERATED(item);
+		return;
+	}
+	
+}
 /* Code to actually dissect the packets */
 static void
 dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -208,9 +250,11 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload decoded as %s",val_to_str(amr_encoding_type, amr_encoding_type_value, "Unknown value - Error"));
 
 		switch (amr_encoding_type){
-		case 0:
-		case 1:
+		case 0: /* RFC 3267 Byte aligned */
 			break;
+		case 1: /* RFC 3267 Bandwidth-efficient */
+			dissect_amr_be(tvb, pinfo, amr_tree);
+			return;
 		case 2: /* AMR IF1 */
 			dissect_amr_if1(tvb, pinfo, amr_tree);
 			return;
@@ -228,43 +272,28 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ( octet != 0  ){
 			item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Reserved != 0, wrongly encoded or not octet aligned. Decoding as bandwidth-efficient mode");
 			PROTO_ITEM_SET_GENERATED(item);
-			if (!tvb_length_remaining(tvb,offset))
-				return;
-			/*     0 1 2 3 4 5
-			 *   +-+-+-+-+-+-+
-			 *   |F|  FT   |Q|
-			 *   +-+-+-+-+-+-+
-			 */
-
-			toc_item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload Table of Contents");
-			toc_tree = proto_item_add_subtree(toc_item, ett_amr_toc);
-
-			proto_tree_add_item(amr_tree, hf_amr_toc_f_unaligned1, tvb, offset, 2, FALSE);
-			proto_tree_add_item(amr_tree, hf_amr_toc_ft_unaligned1, tvb, offset, 2, FALSE);
-			proto_tree_add_item(amr_tree, hf_amr_toc_q_unaligned1, tvb, offset, 2, FALSE);
-			if (octet & 0x04)
-				return;
-			octet = tvb_get_guint8(tvb,offset+1);
-			proto_tree_add_item(amr_tree, hf_amr_toc_f_unaligned2, tvb, offset, 2, FALSE);
-			proto_tree_add_item(amr_tree, hf_amr_toc_ft_unaligned2, tvb, offset, 2, FALSE);
-			proto_tree_add_item(amr_tree, hf_amr_toc_q_unaligned2, tvb, offset, 2, FALSE);
-			if (octet & 0x20)
-				return;
 			return;
+
 		}
 
 		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
 		offset++;
 		toc_offset = offset;
-		/* If interleaced ILL and ILP follows here */
-
-		/* Payload Table of Contents 
-		 * A ToC entry takes the following format in octet-aligned mode:
+		/*
+		 *  A ToC entry takes the following format in octet-aligned mode:
 		 *
-		 *  0 1 2 3 4 5 6 7
-		 * +-+-+-+-+-+-+-+-+
-		 * |F|  FT   |Q|P|P|
-		 * +-+-+-+-+-+-+-+-+
+		 *    0 1 2 3 4 5 6 7
+		 *   +-+-+-+-+-+-+-+-+
+		 *   |F|  FT   |Q|P|P|
+		 *   +-+-+-+-+-+-+-+-+
+		 *
+		 *   F (1 bit): see definition in Section 4.3.2.
+		 *
+		 *   FT (4 bits unsigned integer): see definition in Section 4.3.2.
+		 *
+		 *   Q (1 bit): see definition in Section 4.3.2.
+		 *
+		 *   P bits: padding bits, MUST be set to zero.
 		 */
 		octet = tvb_get_guint8(tvb,offset);
 		toc_item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload Table of Contents");
@@ -344,41 +373,11 @@ proto_register_amr(void)
 		{ &hf_amr_toc_ft,
 			{ "FT bits",           "amr.toc.ft",
 			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x78,          
-			"FT bits", HFILL }
+			"Frame type index", HFILL }
 		},
 		{ &hf_amr_toc_q,
 			{ "Q bit",           "amr.toc.q",
 			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x04,          
-			"Frame quality indicator bit", HFILL }
-		},
-		{ &hf_amr_toc_f_unaligned1,
-			{ "F bit",           "amr.toc.f.ual1",
-			FT_BOOLEAN, 16, TFS(&toc_f_bit_vals), 0x0800,          
-			"F bit", HFILL }
-		},
-		{ &hf_amr_toc_ft_unaligned1,
-			{ "FT bits",           "amr.toc.ft.ual1",
-			FT_UINT16, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x0780,          
-			"FT bits", HFILL }
-		},
-		{ &hf_amr_toc_q_unaligned1,
-			{ "Q bit",           "amr.toc.ua1.q.ual1",
-			FT_BOOLEAN, 16, TFS(&toc_q_bit_vals), 0x0040,          
-			"Frame quality indicator bit", HFILL }
-		},
-		{ &hf_amr_toc_f_unaligned2,
-			{ "F bit",           "amr.toc.f.ual2",
-			FT_BOOLEAN, 16, TFS(&toc_f_bit_vals), 0x0020,          
-			"F bit", HFILL }
-		},
-		{ &hf_amr_toc_ft_unaligned2,
-			{ "FT bits",           "amr.toc.ft.ual2",
-			FT_UINT16, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x001e,          
-			"FT bits", HFILL }
-		},
-		{ &hf_amr_toc_q_unaligned2,
-			{ "Q bit",           "amr.toc.ua1.q.ual2",
-			FT_BOOLEAN, 16, TFS(&toc_q_bit_vals), 0x00001,          
 			"Frame quality indicator bit", HFILL }
 		},
 		{ &hf_amr_if1_ft,
@@ -421,6 +420,21 @@ proto_register_amr(void)
 			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x08,          
 			"Frame quality indicator bit", HFILL }
 		},
+		{ &hf_amr_be_reserved,
+			{ "Reserved",           "amr.be.reserved",
+			FT_UINT8, BASE_DEC, NULL, 0x08,          
+			"Reserved", HFILL }
+		},
+		{ &hf_amr_be_ft,
+			{ "Frame Type",           "amr.be.ft",
+			FT_UINT16, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x0780,          
+			"Frame Type", HFILL }
+		},
+		{ &hf_amr_be_reserved2,
+			{ "Reserved",           "amr.be.reserved2",
+			FT_UINT16, BASE_DEC, NULL, 0x0040,          
+			"Reserved", HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
@@ -429,7 +443,8 @@ proto_register_amr(void)
 		&ett_amr_toc,
 	};
     static enum_val_t encoding_types[] = {
-	{"RFC 3267 Byte aligned", "RFC 3267", 0},
+	{"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
+	{"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1}, 
 	{"AMR IF1", "AMR IF1", 2},
 	{"AMR IF2", "AMR IF2", 3},
 	{NULL, NULL, -1}
