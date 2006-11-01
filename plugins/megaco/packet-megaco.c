@@ -18,6 +18,8 @@
 *						<karl.knoebl@siemens.com>
 *	provide info to COL_INFO and some "prettification"
 *
+* Copyright (c) 2006 Anders Broman <anders.broman@ericsson.com>
+*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1999 Gerald Combs
@@ -67,6 +69,7 @@
 #define RESERVEDGROUPTOKEN	3
 #define H324_H223CAPR		4
 #define H324_MUXTBL_IN		5
+#define H324_MUXTBL_OUT		6
 void proto_reg_handoff_megaco(void);
 
 /* Define the megaco proto */
@@ -107,6 +110,7 @@ static int hf_megaco_Event_Buffer_Control		= -1;
 static int hf_megaco_mode						= -1;
 static int hf_megaco_reserve_group				= -1;
 static int hf_megaco_h324_muxtbl_in				= -1;
+static int hf_megaco_h324_muxtbl_out			= -1;
 static int hf_megaco_h324_h223capr				= -1;
 static int hf_megaco_reserve_value				= -1;
 static int hf_megaco_streamid 					= -1;
@@ -1364,7 +1368,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 			tvb_format_text(tvb, tvb_current_offset,
 			tokenlen));
 	}
-	tvb_current_offset = tvb_next_offset ;
+	tvb_current_offset = tvb_next_offset;
 
 
 
@@ -1447,8 +1451,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 					tvb_format_text(tvb, tvb_help_offset,
 					tokenlen));
 
-			}
-			else {
+			}else{
 				tokenlen =  (tvb_RBRKT+1) - tvb_offset;
 				proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_error_Frame, tvb,
 					tvb_offset, tokenlen,
@@ -2774,6 +2777,7 @@ static const megaco_tokens_t megaco_localParam_names[] = {
 		 */
 		{ "h324/h223capr",				NULL }, /* 4 */
 		{ "h324/muxtbl_in",				NULL },
+		{ "h324/muxtbl_out",			NULL },
 };
 
 /* Returns index of megaco_tokens_t */
@@ -2920,6 +2924,22 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 			break;
 
+		case H324_MUXTBL_OUT:
+
+			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_h324_muxtbl_out, tvb,
+				tvb_current_offset, tokenlen,
+				tvb_format_text(tvb, tvb_current_offset,
+				tokenlen));
+
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+
+			tokenlen = tvb_offset - tvb_help_offset;
+			msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
+			/* Call the existing rotine with tree = NULL to avoid an entry to the tree */
+			dissect_megaco_h245(tvb, pinfo, NULL, tvb_help_offset, tokenlen, msg);
+
+			break;
+
 		default:
 			proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
 				"%s", tvb_format_text(tvb,tvb_help_offset,
@@ -3022,6 +3042,9 @@ proto_register_megaco(void)
 		{ &hf_megaco_h324_muxtbl_in,
 		{ "h324/muxtbl_in", "megaco.h324_muxtbl_in", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/muxtbl_in", HFILL }},
+		{ &hf_megaco_h324_muxtbl_out,
+		{ "h324/muxtbl_out", "megaco.h324_muxtbl_out", FT_STRING, BASE_DEC, NULL, 0x0,
+		"h324/muxtbl_out", HFILL }},
 		{ &hf_megaco_h324_h223capr,
 		{ "h324/h223capr", "megaco._h324_h223capr", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/h223capr", HFILL }},
