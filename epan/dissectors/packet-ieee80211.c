@@ -41,6 +41,9 @@
  *
  * 03/22/2004 - Added dissection of RSN IE
  * Jouni Malinen <jkmaline@cc.hut.fi>
+ *
+ * 10/24/2005 - Add dissection for 802.11e
+ * Zhu Yi <yi.zhu@intel.com>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -244,6 +247,20 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
  */
 #define KEY_OCTET_WEP_KEY(x)    (((x) & 0xC0) >> 6)
 
+/*
+ * Extract subfields from TS Info field.
+ */
+#define TSI_TYPE(x)		(((x) & 0x000001) >> 0)
+#define TSI_TSID(x)		(((x) & 0x00001E) >> 1)
+#define TSI_DIR(x)		(((x) & 0x000060) >> 5)
+#define TSI_ACCESS(x)		(((x) & 0x000180) >> 7)
+#define TSI_AGG(x)		(((x) & 0x000200) >> 9)
+#define TSI_APSD(x)		(((x) & 0x000400) >> 10)
+#define TSI_UP(x)		(((x) & 0x003800) >> 11)
+#define TSI_ACK(x)		(((x) & 0x00C000) >> 14)
+#define TSI_SCHED(x)		(((x) & 0x010000) >> 16)
+#define TSI_RESERVED(x)		(((x) & 0xFE0000) >> 17)
+
 #define KEY_EXTIV		0x20
 #define EXTIV_LEN		8
 
@@ -335,6 +352,13 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define FIELD_WME_ACTION_CODE	0x0E	/* Management notification action code */
 #define FIELD_WME_DIALOG_TOKEN	0x0F	/* Management notification dialog token */
 #define FIELD_WME_STATUS_CODE	0x10	/* Management notification setup response status code */
+#define FIELD_QOS_ACTION_CODE	0x11
+#define FIELD_QOS_TS_INFO	0x12
+#define FIELD_DLS_ACTION_CODE	0x13
+#define FIELD_DST_MAC_ADDR	0X14	/* DLS destination MAC address */
+#define FIELD_SRC_MAC_ADDR	0X15	/* DLS source MAC address */
+#define FIELD_DLS_TIMEOUT	0X16	/* DLS timeout value */
+#define FIELD_SCHEDULE_INFO	0X17	/* Schedule Info field */
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -352,8 +376,8 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define TAG_REQUEST		 0x0A
 #define TAG_QBSS_LOAD		 0x0B
 #define TAG_EDCA_PARAM_SET	 0x0C
-#define TAG_TRAF_SPEC		 0x0D
-#define TAG_TRAF_CLASS		 0x0E
+#define TAG_TSPEC		 0x0D
+#define TAG_TCLAS		 0x0E
 #define TAG_SCHEDULE		 0x0F
 #define TAG_CHALLENGE_TEXT       0x10
 #define TAG_POWER_CONSTRAINT	 0x20
@@ -480,6 +504,15 @@ static const char *wme_acs[4] = {
 #define SM_ACTION_TPC_REPORT		3
 #define SM_ACTION_CHAN_SWITCH_ANNC	4
 
+#define SM_ACTION_ADDTS_REQUEST		0
+#define SM_ACTION_ADDTS_RESPONSE	1
+#define SM_ACTION_DELTS			2
+#define SM_ACTION_QOS_SCHEDULE		3
+
+#define SM_ACTION_DLS_REQUEST		0
+#define SM_ACTION_DLS_RESPONSE		1
+#define SM_ACTION_DLS_TEARDOWN		2
+
 static int proto_wlan = -1;
 static packet_info * g_pinfo;
 
@@ -589,6 +622,11 @@ static int ff_action_code = -1;		/* 8 bit Action code */
 static int ff_dialog_token = -1;	/* 8 bit Dialog token */
 static int ff_wme_action_code = -1;	/* Management notification action code */
 static int ff_wme_status_code = -1;	/* Management notification setup response status code */
+static int ff_qos_action_code = -1;
+static int ff_dls_action_code = -1;
+static int ff_dst_mac_addr = -1;	/* DLS destination MAC addressi */
+static int ff_src_mac_addr = -1;	/* DLS source MAC addressi */
+static int ff_dls_timeout = -1;		/* DLS timeout value */
 
 /* ************************************************************************* */
 /*            Flags found in the capability field (fixed field)              */
@@ -658,6 +696,52 @@ static int hf_qbss2_scount = -1;
 static int hf_qbss_version = -1;
 static int hf_qbss_adc = -1;
 
+static int hf_ts_info = -1;
+static int hf_tsinfo_type = -1;
+static int hf_tsinfo_tsid = -1;
+static int hf_tsinfo_dir = -1;
+static int hf_tsinfo_access = -1;
+static int hf_tsinfo_agg = -1;
+static int hf_tsinfo_apsd = -1;
+static int hf_tsinfo_up = -1;
+static int hf_tsinfo_ack = -1;
+static int hf_tsinfo_sched = -1;
+static int tspec_nor_msdu = -1;
+static int tspec_max_msdu = -1;
+static int tspec_min_srv = -1;
+static int tspec_max_srv = -1;
+static int tspec_inact_int = -1;
+static int tspec_susp_int = -1;
+static int tspec_srv_start = -1;
+static int tspec_min_data = -1;
+static int tspec_mean_data = -1;
+static int tspec_peak_data = -1;
+static int tspec_burst_size = -1;
+static int tspec_delay_bound = -1;
+static int tspec_min_phy = -1;
+static int tspec_surplus = -1;
+static int tspec_medium = -1;
+static int ts_delay = -1;
+static int hf_class_type = -1;
+static int hf_class_mask = -1;
+static int hf_ether_type = -1;
+static int hf_tclas_process = -1;
+static int hf_sched_info = -1;
+static int hf_sched_srv_start = -1;
+static int hf_sched_srv_int = -1;
+static int hf_sched_spec_int = -1;
+static int cf_version = -1;
+static int cf_ipv4_src = -1;
+static int cf_ipv4_dst = -1;
+static int cf_src_port = -1;
+static int cf_dst_port = -1;
+static int cf_dscp = -1;
+static int cf_protocol = -1;
+static int cf_ipv6_src = -1;
+static int cf_ipv6_dst = -1;
+static int cf_flow = -1;
+static int cf_tag_type = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -678,6 +762,8 @@ static gint ett_wep_parameters = -1;
 static gint ett_rsn_cap_tree = -1;
 
 static gint ett_80211_mgt_ie = -1;
+static gint ett_tsinfo_tree = -1;
+static gint ett_sched_tree = -1;
 
 static const fragment_items frag_items = {
 	&ett_fragment,
@@ -1011,6 +1097,87 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_WME_STATUS_CODE:
       proto_tree_add_item (tree, ff_wme_status_code, tvb, offset, 1, TRUE);
       break;
+
+    case FIELD_QOS_ACTION_CODE:
+      proto_tree_add_item (tree, ff_qos_action_code, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_QOS_TS_INFO:
+      {
+	proto_item *tsinfo_item;
+	proto_tree *tsinfo_tree;
+	guint32 tsi;
+	
+	tsinfo_item = proto_tree_add_item(tree, hf_ts_info, tvb,
+					  offset, 3, TRUE);
+	tsinfo_tree = proto_item_add_subtree(tsinfo_item, ett_tsinfo_tree);
+	tsi = tvb_get_letoh24(tvb, offset);
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_type, tvb,
+			    offset, 3, TSI_TYPE (tsi));
+	if (TSI_TSID (tsi) < 8)
+	{
+	  proto_tree_add_text(tsinfo_tree, tvb, offset, 3,
+	  		      "TSID: %u (< 8 is invalid)", TSI_TSID (tsi));
+	}
+	else
+	{
+	  proto_tree_add_uint(tsinfo_tree, hf_tsinfo_tsid, tvb,
+			      offset, 3, TSI_TSID (tsi));
+	}
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_dir, tvb,
+			    offset, 3, TSI_DIR (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_access, tvb,
+			    offset, 3, TSI_ACCESS (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_agg, tvb,
+			    offset, 3, TSI_AGG (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_apsd, tvb,
+			    offset, 3, TSI_APSD (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_up, tvb,
+			    offset, 3, TSI_UP (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_ack, tvb,
+			    offset, 3, TSI_ACK (tsi));
+	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_sched, tvb,
+			    offset, 3, TSI_SCHED (tsi));
+      }
+      break;
+
+    case FIELD_DLS_ACTION_CODE:
+      proto_tree_add_item (tree, ff_dls_action_code, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_DST_MAC_ADDR:
+      proto_tree_add_item (tree, ff_dst_mac_addr, tvb, offset, 6, TRUE);
+      break;
+
+    case FIELD_SRC_MAC_ADDR:
+      proto_tree_add_item (tree, ff_src_mac_addr, tvb, offset, 6, TRUE);
+      break;
+
+    case FIELD_DLS_TIMEOUT:
+      proto_tree_add_item (tree, ff_dls_timeout, tvb, offset, 2, TRUE);
+      break;
+
+    case FIELD_SCHEDULE_INFO:
+      {
+	proto_item *sched_item;
+	proto_tree *sched_tree;
+	guint16 sched;
+
+	sched_item = proto_tree_add_item(tree, hf_sched_info,
+					 tvb, offset, 2, TRUE);
+	sched_tree = proto_item_add_subtree(sched_item, ett_sched_tree);
+	sched = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(sched_tree, hf_tsinfo_agg, tvb, offset,
+			    2, sched & 0x0001);
+	if (sched & 0x0001)
+	{
+	  proto_tree_add_uint(sched_tree, hf_tsinfo_tsid, tvb, offset,
+			      2, (sched & 0x001E) >> 1);
+	  proto_tree_add_uint(sched_tree, hf_tsinfo_dir, tvb, offset,
+			      2, (sched & 0x0060) >> 5);
+	}
+      }
+    break;
     }
 }
 
@@ -1476,8 +1643,8 @@ static const value_string tag_num_vals[] = {
 	{ TAG_REQUEST,		    "Request"},
 	{ TAG_QBSS_LOAD,	    "QBSS Load Element"},
 	{ TAG_EDCA_PARAM_SET,	    "EDCA Parameter Set"},
-	{ TAG_TRAF_SPEC,	    "Traffic Specification"},
-	{ TAG_TRAF_CLASS,	    "Traffic Classification"},
+	{ TAG_TSPEC,		    "Traffic Specification"},
+	{ TAG_TCLAS,		    "Traffic Classification"},
 	{ TAG_SCHEDULE,		    "Schedule"},
 	{ TAG_TS_DELAY,		    "TS Delay"},
 	{ TAG_TCLAS_PROCESS,	    "TCLAS Processing"},
@@ -1541,7 +1708,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_SSID:
       if(beacon_padding == 0) /* padding bug */
       {
-        char *ssid;
+        guint8 *ssid; /* The SSID may consist of arbitrary bytes */
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1735,7 +1902,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     case TAG_COUNTRY_INFO: /* IEEE 802.11d-2001 and IEEE 802.11j-2004 */
       {
-        char ccode[2+1];
+        guint8 ccode[2+1];
 
         if (tag_len < 3)
         {
@@ -1818,6 +1985,134 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
+      break;
+
+    case TAG_TSPEC:
+      if (tag_len != 55)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"TSPEC tag length %u != 55", tag_len);
+	break;
+      }
+      add_fixed_field (tree, tvb, offset + 2, FIELD_QOS_TS_INFO);
+      proto_tree_add_item(tree, tspec_nor_msdu, tvb, offset + 5, 2, TRUE);
+      proto_tree_add_item(tree, tspec_max_msdu, tvb, offset + 7, 2, TRUE);
+      proto_tree_add_item(tree, tspec_min_srv, tvb, offset + 9, 4, TRUE);
+      proto_tree_add_item(tree, tspec_max_srv, tvb, offset + 13, 4, TRUE);
+      proto_tree_add_item(tree, tspec_inact_int, tvb, offset + 17, 4, TRUE);
+      proto_tree_add_item(tree, tspec_susp_int, tvb, offset + 21, 4, TRUE);
+      proto_tree_add_item(tree, tspec_srv_start, tvb, offset + 25, 4, TRUE);
+      proto_tree_add_item(tree, tspec_min_data, tvb, offset + 29, 4, TRUE);
+      proto_tree_add_item(tree, tspec_mean_data, tvb, offset + 33, 4, TRUE);
+      proto_tree_add_item(tree, tspec_peak_data, tvb, offset + 37, 4, TRUE);
+      proto_tree_add_item(tree, tspec_burst_size, tvb, offset + 41, 4, TRUE);
+      proto_tree_add_item(tree, tspec_delay_bound, tvb, offset + 45, 4, TRUE);
+      proto_tree_add_item(tree, tspec_min_phy, tvb, offset + 49, 4, TRUE);
+      proto_tree_add_item(tree, tspec_surplus, tvb, offset + 53, 2, TRUE);
+      proto_tree_add_item(tree, tspec_medium, tvb, offset + 55, 2, TRUE);
+      break;
+
+    case TAG_TS_DELAY:
+      if (tag_len != 4)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"TS_DELAY tag length %u != 4", tag_len);
+	break;
+      }
+      proto_tree_add_item(tree, ts_delay, tvb, offset + 2, 4, TRUE);
+      break;
+
+    case TAG_TCLAS:
+      if (tag_len < 6)
+      {
+	proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"TCLAS element is too small %u", tag_len);
+	break;
+      }
+      {
+	guint8 type;
+	guint8 version;
+
+	type = tvb_get_guint8(tvb, offset + 2);
+	proto_tree_add_item(tree, hf_tsinfo_up, tvb, offset + 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_class_type, tvb, offset + 3, 1, TRUE);
+	proto_tree_add_item(tree, hf_class_mask, tvb, offset + 4, 1, TRUE);
+	switch (type) 
+	  {
+	    case 0:
+	      proto_tree_add_item(tree, ff_src_mac_addr, tvb, offset + 5,
+	      			  6, TRUE);
+	      proto_tree_add_item(tree, ff_dst_mac_addr, tvb, offset + 11,
+	      			  6, TRUE);
+	      proto_tree_add_item(tree, hf_ether_type, tvb, offset + 17,
+	      			  2, TRUE);
+	      break;
+
+	    case 1:
+	      version = tvb_get_guint8(tvb, offset + 5);
+	      proto_tree_add_item(tree, cf_version, tvb, offset + 5, 1, TRUE);
+	      if (version == 4)
+	      {
+	        proto_tree_add_item(tree, cf_ipv4_src, tvb, offset + 6,
+				    4, FALSE);
+	        proto_tree_add_item(tree, cf_ipv4_dst, tvb, offset + 10,
+				    4, FALSE);
+	        proto_tree_add_item(tree, cf_src_port, tvb, offset + 14,
+				    2, FALSE);
+	        proto_tree_add_item(tree, cf_dst_port, tvb, offset + 16,
+				    2, FALSE);
+	        proto_tree_add_item(tree, cf_dscp, tvb, offset + 18,
+				    1, FALSE);
+	        proto_tree_add_item(tree, cf_protocol, tvb, offset + 19,
+				    1, FALSE);
+	      }
+	      else if (version == 6)
+	      {
+	        proto_tree_add_item(tree, cf_ipv6_src, tvb, offset + 6,
+				    16, FALSE);
+	        proto_tree_add_item(tree, cf_ipv6_dst, tvb, offset + 22,
+				    16, FALSE);
+	        proto_tree_add_item(tree, cf_src_port, tvb, offset + 38,
+				    2, FALSE);
+	        proto_tree_add_item(tree, cf_dst_port, tvb, offset + 40,
+				    2, FALSE);
+	        proto_tree_add_item(tree, cf_flow, tvb, offset + 42,
+				    3, FALSE);
+	      }
+	      break;
+
+	    case 2:
+	      proto_tree_add_item(tree, cf_tag_type, tvb, offset + 5,
+	      			  2, TRUE);
+	      break;
+
+	    default:
+	      break;
+	  }
+      }
+      break;
+
+    case TAG_TCLAS_PROCESS:
+      if (tag_len != 1)
+      {
+	proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"TCLAS_PROCESS element length %u != 1", tag_len);
+	break;
+      }
+      proto_tree_add_item(tree, hf_tclas_process, tvb, offset + 2, 1, TRUE);
+      break;
+
+    case TAG_SCHEDULE:
+      if (tag_len != 14)
+      {
+	proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"TCLAS_PROCESS element length %u != 14", tag_len);
+	break;
+      }
+      add_fixed_field (tree, tvb, offset + 2, FIELD_SCHEDULE_INFO);
+      proto_tree_add_item(tree, hf_sched_srv_start, tvb, offset + 4, 4, TRUE);
+      proto_tree_add_item(tree, hf_sched_srv_int, tvb, offset + 8, 4, TRUE);
+      proto_tree_add_item(tree, hf_sched_spec_int, tvb, offset + 12, 2, TRUE);
       break;
 
     case TAG_CHALLENGE_TEXT:
@@ -2135,6 +2430,94 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
 		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
 		  offset = 2;	/* Size of fixed fields */
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  offset = 2;	/* Size of fixed fields */
+		  break;
+		}
+	      break;
+
+	    case CAT_QOS:
+	      switch (tvb_get_guint8(tvb, 1))
+	        {
+		case SM_ACTION_ADDTS_REQUEST:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  offset = 3;
+		  break;
+
+		case SM_ACTION_ADDTS_RESPONSE:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 5);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  add_fixed_field (fixed_tree, tvb, 3, FIELD_STATUS_CODE);
+		  offset = 5;
+		  break;
+
+		case SM_ACTION_DELTS:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 7);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_QOS_TS_INFO);
+		  add_fixed_field (fixed_tree, tvb, 5, FIELD_REASON_CODE);
+		  offset = 7;
+		  break;
+
+		case SM_ACTION_QOS_SCHEDULE:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  offset = 2;
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  offset = 2;	/* Size of fixed fields */
+		  break;
+		}
+	      break;
+
+	    case CAT_DLS:
+	      switch (tvb_get_guint8(tvb, 1))
+	        {
+		case SM_ACTION_DLS_REQUEST:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 18);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
+		  add_fixed_field (fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
+		  add_fixed_field (fixed_tree, tvb, 14, FIELD_CAP_INFO);
+		  add_fixed_field (fixed_tree, tvb, 16, FIELD_DLS_TIMEOUT);
+		  offset = 18;
+		  break;
+
+		case SM_ACTION_DLS_RESPONSE:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 16);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+		  add_fixed_field (fixed_tree, tvb, 4, FIELD_DST_MAC_ADDR);
+		  add_fixed_field (fixed_tree, tvb, 10, FIELD_SRC_MAC_ADDR);
+		  offset = 16;
+		  if (!ff_status_code)
+		    add_fixed_field (fixed_tree, tvb, 16, FIELD_CAP_INFO);
+		  break;
+
+		case SM_ACTION_DLS_TEARDOWN:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 18);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
+		  add_fixed_field (fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
+		  add_fixed_field (fixed_tree, tvb, 14, FIELD_REASON_CODE);
+		  offset = 16;
 		  break;
 
 		default:
@@ -3616,10 +3999,73 @@ proto_register_ieee80211 (void)
 
   static const value_string ack_policy[] = {
     {0x00, "Normal Ack"},
-    {0x02, "No Ack"},
-    {0x01, "No explicit Ack"},
+    {0x01, "No Ack"},
+    {0x02, "No explicit Ack"},
     {0x03, "Block Ack"},
     {0x00, NULL}
+  };
+
+  static const value_string qos_action_codes[] = {
+    {SM_ACTION_ADDTS_REQUEST, "ADDTS Request"},
+    {SM_ACTION_ADDTS_RESPONSE, "ADDTS Response"},
+    {SM_ACTION_DELTS, "DELTS"},
+    {SM_ACTION_QOS_SCHEDULE, "Schedule"},
+    {0, NULL}
+  };
+
+  static const value_string dls_action_codes[] = {
+    {SM_ACTION_DLS_REQUEST, "DLS Request"},
+    {SM_ACTION_DLS_RESPONSE, "DLS Response"},
+    {SM_ACTION_DLS_TEARDOWN, "DLS Teardown"},
+    {0, NULL}
+  };
+
+  static const value_string tsinfo_type[] = {
+    {0x0, "Aperiodic or unspecified Traffic"},
+    {0x1, "Periodic Traffic"},
+    {0, NULL}
+  };
+
+  static const value_string tsinfo_direction[] = {
+    {0x00, "Uplink"},
+    {0x01, "Downlink"},
+    {0x02, "Direct link"},
+    {0x03, "Bidirectional link"},
+    {0, NULL}
+  };
+
+  static const value_string tsinfo_access[] = {
+    {0x00, "Reserved"},
+    {0x01, "EDCA"},
+    {0x02, "HCCA"},
+    {0x03, "HEMM"},
+    {0, NULL}
+  };
+
+  static const value_string qos_up[] = {
+    {0x00, "Best Effort"},
+    {0x01, "Background"},
+    {0x02, "Spare"},
+    {0x03, "Excellent Effort"},
+    {0x04, "Controlled Load"},
+    {0x05, "Video"},
+    {0x06, "Voice"},
+    {0x07, "Network Control"},
+    {0, NULL}
+  };
+
+  static const value_string classifier_type[] = {
+    {0x00, "Ethernet parameters"},
+    {0x01, "TCP/UDP IP parameters"},
+    {0x02, "IEEE 802.1D/Q parameters"},
+    {0, NULL}
+  };
+
+  static const value_string tclas_process[] = {
+    {0x00, "Incoming MSDU's higher layer parameters have to match to the parameters in all associated TCLAS elements."},
+    {0x01, "Incoming MSDU's higher layer parameters have to match to at least one of the associated TCLAS elements."},
+    {0x02, "Incoming MSDU's that do not belong to any other TS are classified to the TS for which this TCLAS Processing element is used. In this case, there will not be any associated TCLAS elements."},
+    {0, NULL}
   };
 
   static hf_register_info hf[] = {
@@ -3986,6 +4432,28 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&wme_status_codes), 0,
       "Management notification setup response status code", HFILL }},
 
+    {&ff_qos_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT16, BASE_HEX, VALS (&qos_action_codes), 0,
+      "QoS management action code", HFILL }},
+
+    {&ff_dls_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT16, BASE_HEX, VALS (&dls_action_codes), 0,
+      "DLS management action code", HFILL }},
+
+    {&ff_dst_mac_addr,
+     {"Destination address", "wlan_mgt.fixed.dst_mac_addr",
+      FT_ETHER, BASE_NONE, NULL, 0, "Destination MAC address", HFILL }},
+
+    {&ff_src_mac_addr,
+     {"Source address", "wlan_mgt.fixed.src_mac_addr",
+      FT_ETHER, BASE_NONE, NULL, 0, "Source MAC address", HFILL }},
+
+    {&ff_dls_timeout,
+     {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
+      FT_UINT16, BASE_HEX, NULL, 0, "DLS timeout value", HFILL }},
+
     {&tag_number,
      {"Tag", "wlan_mgt.tag.number",
       FT_UINT8, BASE_DEC, VALS(tag_num_vals), 0,
@@ -4105,6 +4573,186 @@ proto_register_ieee80211 (void)
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
       FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 
+    {&hf_ts_info,
+     {"TS Info", "wlan_mgt.ts_info",
+      FT_UINT24, BASE_HEX, NULL, 0, "TS Info field", HFILL }},
+
+    {&hf_tsinfo_type,
+     {"Traffic Type", "wlan_mgt.ts_info.type", FT_UINT8, BASE_DEC,
+      VALS (&tsinfo_type), 0, "TS Info Traffic Type", HFILL }},
+
+    {&hf_tsinfo_tsid,
+     {"TSID", "wlan_mgt.ts_info.tsid",
+      FT_UINT8, BASE_DEC, NULL, 0, "TS Info TSID", HFILL }},
+
+    {&hf_tsinfo_dir,
+     {"Direction", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
+      VALS (&tsinfo_direction), 0, "TS Info Direction", HFILL }},
+
+    {&hf_tsinfo_access,
+     {"Access Policy", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
+      VALS (&tsinfo_access), 0, "TS Info Access Policy", HFILL }},
+
+    {&hf_tsinfo_agg,
+     {"Aggregation", "wlan_mgt.ts_info.agg", FT_UINT8, BASE_DEC,
+      NULL, 0, "TS Info Access Policy", HFILL }},
+
+    {&hf_tsinfo_apsd,
+     {"APSD", "wlan_mgt.ts_info.apsd", FT_UINT8, BASE_DEC,
+      NULL, 0, "TS Info APSD", HFILL }},
+
+    {&hf_tsinfo_up,
+     {"UP", "wlan_mgt.ts_info.up", FT_UINT8, BASE_DEC,
+      VALS (&qos_up), 0, "TS Info User Priority", HFILL }},
+
+    {&hf_tsinfo_ack,
+     {"Ack Policy", "wlan_mgt.ts_info.ack", FT_UINT8, BASE_DEC,
+      VALS (&ack_policy), 0, "TS Info Ack Policy", HFILL }},
+
+    {&hf_tsinfo_sched,
+     {"Schedule", "wlan_mgt.ts_info.sched", FT_UINT8, BASE_DEC,
+      NULL, 0, "TS Info Schedule", HFILL }},
+
+    {&tspec_nor_msdu,
+     {"Normal MSDU Size", "wlan_mgt.tspec.nor_msdu",
+      FT_UINT16, BASE_DEC, NULL, 0, "Normal MSDU Size", HFILL }},
+
+    {&tspec_max_msdu,
+     {"Maximum MSDU Size", "wlan_mgt.tspec.max_msdu",
+      FT_UINT16, BASE_DEC, NULL, 0, "Maximum MSDU Size", HFILL }},
+
+    {&tspec_min_srv,
+     {"Minimum Service Interval", "wlan_mgt.tspec.min_srv",
+      FT_UINT32, BASE_DEC, NULL, 0, "Minimum Service Interval", HFILL }},
+
+    {&tspec_max_srv,
+     {"Maximum Service Interval", "wlan_mgt.tspec.max_srv",
+      FT_UINT32, BASE_DEC, NULL, 0, "Maximum Service Interval", HFILL }},
+
+    {&tspec_inact_int,
+     {"Inactivity Interval", "wlan_mgt.tspec.inact_int",
+      FT_UINT32, BASE_DEC, NULL, 0, "Inactivity Interval", HFILL }},
+
+    {&tspec_susp_int,
+     {"Suspension Interval", "wlan_mgt.tspec.susp_int",
+      FT_UINT32, BASE_DEC, NULL, 0, "Suspension Interval", HFILL }},
+
+    {&tspec_srv_start,
+     {"Service Start Time", "wlan_mgt.tspec.srv_start",
+      FT_UINT32, BASE_DEC, NULL, 0, "Service Start Time", HFILL }},
+
+    {&tspec_min_data,
+     {"Minimum Data Rate", "wlan_mgt.tspec.min_data",
+      FT_UINT32, BASE_DEC, NULL, 0, "Minimum Data Rate", HFILL }},
+
+    {&tspec_mean_data,
+     {"Mean Data Rate", "wlan_mgt.tspec.mean_data",
+      FT_UINT32, BASE_DEC, NULL, 0, "Mean Data Rate", HFILL }},
+
+    {&tspec_peak_data,
+     {"Peak Data Rate", "wlan_mgt.tspec.peak_data",
+      FT_UINT32, BASE_DEC, NULL, 0, "Peak Data Rate", HFILL }},
+
+    {&tspec_burst_size,
+     {"Burst Size", "wlan_mgt.tspec.burst_size",
+      FT_UINT32, BASE_DEC, NULL, 0, "Burst Size", HFILL }},
+
+    {&tspec_delay_bound,
+     {"Delay Bound", "wlan_mgt.tspec.delay_bound",
+      FT_UINT32, BASE_DEC, NULL, 0, "Delay Bound", HFILL }},
+
+    {&tspec_min_phy,
+     {"Minimum PHY Rate", "wlan_mgt.tspec.min_phy",
+      FT_UINT32, BASE_DEC, NULL, 0, "Minimum PHY Rate", HFILL }},
+
+    {&tspec_surplus,
+     {"Surplus Bandwidth Allowance", "wlan_mgt.tspec.surplus",
+      FT_UINT16, BASE_DEC, NULL, 0, "Surplus Bandwidth Allowance", HFILL }},
+
+    {&tspec_medium,
+     {"Medium Time", "wlan_mgt.tspec.medium",
+      FT_UINT16, BASE_DEC, NULL, 0, "Medium Time", HFILL }},
+
+    {&ts_delay,
+     {"TS Delay", "wlan_mgt.ts_delay",
+      FT_UINT32, BASE_DEC, NULL, 0, "TS Delay", HFILL }},
+
+    {&hf_class_type,
+     {"Classifier Type", "wlan_mgt.tclas.class_type", FT_UINT8, BASE_DEC,
+      VALS (classifier_type), 0, "Classifier Type", HFILL }},
+
+    {&hf_class_mask,
+     {"Classifier Mask", "wlan_mgt.tclas.class_mask", FT_UINT8, BASE_HEX,
+      NULL, 0, "Classifier Mask", HFILL }},
+
+    {&hf_ether_type,
+     {"Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
+      NULL, 0, "Classifier Parameters Ethernet Type", HFILL }},
+
+    {&hf_tclas_process,
+     {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
+      VALS (tclas_process), 0, "TCLAS Porcessing", HFILL }},
+
+    {&hf_sched_info,
+     {"Schedule Info", "wlan_mgt.sched.sched_info",
+      FT_UINT16, BASE_HEX, NULL, 0, "Schedule Info field", HFILL }},
+
+    {&hf_sched_srv_start,
+     {"Service Start Time", "wlan_mgt.sched.srv_start",
+      FT_UINT32, BASE_HEX, NULL, 0, "Service Start Time", HFILL }},
+
+    {&hf_sched_srv_int,
+     {"Service Interval", "wlan_mgt.sched.srv_int",
+      FT_UINT32, BASE_HEX, NULL, 0, "Service Interval", HFILL }},
+
+    {&hf_sched_spec_int,
+     {"Specification Interval", "wlan_mgt.sched.spec_int",
+      FT_UINT16, BASE_HEX, NULL, 0, "Specification Interval", HFILL }},
+
+    {&cf_version,
+     {"IP Version", "wlan_mgt.tclas.params.version",
+      FT_UINT8, BASE_DEC, NULL, 0, "IP Version", HFILL }},
+
+    {&cf_ipv4_src,
+     {"IPv4 Src Addr", "wlan_mgt.tclas.params.ipv4_src",
+      FT_IPv4, BASE_NONE, NULL, 0, "IPv4 Src Addr", HFILL }},
+
+    {&cf_ipv4_dst,
+     {"IPv4 Dst Addr", "wlan_mgt.tclas.params.ipv4_dst",
+      FT_IPv4, BASE_NONE, NULL, 0, "IPv4 Dst Addr", HFILL }},
+
+    {&cf_src_port,
+     {"Source Port", "wlan_mgt.tclas.params.src_port",
+      FT_UINT16, BASE_DEC, NULL, 0, "Source Port", HFILL }},
+
+    {&cf_dst_port,
+     {"Destination Port", "wlan_mgt.tclas.params.dst_port",
+      FT_UINT16, BASE_DEC, NULL, 0, "Destination Port", HFILL }},
+
+    {&cf_dscp,
+     {"DSCP", "wlan_mgt.tclas.params.dscp",
+      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 DSCP Field", HFILL }},
+
+    {&cf_protocol,
+     {"Protocol", "wlan_mgt.tclas.params.protocol",
+      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 Protocol", HFILL }},
+
+    {&cf_ipv6_src,
+     {"IPv6 Src Addr", "wlan_mgt.tclas.params.ipv6_src",
+      FT_IPv6, BASE_NONE, NULL, 0, "IPv6 Src Addr", HFILL }},
+
+    {&cf_ipv6_dst,
+     {"IPv6 Dst Addr", "wlan_mgt.tclas.params.ipv6_dst",
+      FT_IPv6, BASE_NONE, NULL, 0, "IPv6 Dst Addr", HFILL }},
+
+    {&cf_flow,
+     {"Flow Label", "wlan_mgt.tclas.params.flow",
+      FT_UINT24, BASE_HEX, NULL, 0, "IPv6 Flow Label", HFILL }},
+
+    {&cf_tag_type,
+     {"802.1Q Tag Type", "wlan_mgt.tclas.params.tag_type",
+      FT_UINT16, BASE_HEX, NULL, 0, "802.1Q Tag Type", HFILL }},
+
   };
 
   static gint *tree_array[] = {
@@ -4122,6 +4770,8 @@ proto_register_ieee80211 (void)
     &ett_cap_tree,
     &ett_rsn_cap_tree,
     &ett_80211_mgt_ie,
+    &ett_tsinfo_tree,
+    &ett_sched_tree,
   };
   module_t *wlan_module;
 
