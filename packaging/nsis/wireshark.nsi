@@ -1138,6 +1138,18 @@ Function myShowCallback
 	; Get the Windows version
 	Call GetWindowsVersion
 	Pop $R0 ; Windows Version
+
+	; Check if we're able to run with this version
+	StrCmp $R0 '95' lbl_winversion_unsupported
+	StrCmp $R0 '98' lbl_winversion_unsupported
+	StrCmp $R0 'ME' lbl_winversion_unsupported
+	;StrCmp $R0 'NT 4.0' lbl_winversion_unsupported
+	Goto lbl_winversion_supported
+lbl_winversion_unsupported:
+	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!" 
+	Quit
+
+lbl_winversion_supported:
 !ifdef GTK2_DIR
 	; Enable GTK-Wimp only for Windows 2000/XP/2003
 	; ...as Win9x/ME/NT known to have problems with it!
