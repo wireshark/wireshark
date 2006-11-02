@@ -2127,10 +2127,21 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 
 			gint total_gap = (seconds_between_packets*1000) +
 			                 (nseconds_between_packets / 1000000);
-			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
+			gint dlsr_ms = (int)(((double)dlsr/(double)65536) * 1000.0);
+			gint delay;
 
-            /* Record that the LSR matches */
-            p_packet_data->lsr_matched = TRUE;
+			if (dlsr_ms > total_gap)
+			{
+				delay = 0;
+			}
+			else
+			{
+				/* Delay is gap - dlsr */
+				delay = total_gap - dlsr_ms;
+			}
+
+			/* Record that the LSR matches */
+			p_packet_data->lsr_matched = TRUE;
 
 			/* No useful calculation can be done if dlsr not set... */
 			if (dlsr)
