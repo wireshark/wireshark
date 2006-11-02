@@ -270,9 +270,11 @@ oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	 * up as an OID if it does, and if that fails,
 	 * we'll log a message.
 	 */
+	/* do not try it as '.' is handled as valid separator for hexbytes :(
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
+	*/
 
 	bytes = g_byte_array_new();
 	res = oid_str_to_bytes(s, bytes);
