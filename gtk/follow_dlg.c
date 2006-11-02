@@ -607,7 +607,7 @@ follow_read_stream(follow_info_t *follow_info,
     gchar               initbuf[256];
     guint32             server_packet_count = 0;
     guint32             client_packet_count = 0;
-    char                buffer[FLT_BUF_SIZE];
+    char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
     size_t              nchars;
     static const gchar	hexchars[16] = "0123456789abcdef";
 
@@ -1010,7 +1010,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
      * doesn't blow up on excessive long lines.
      */
     if (line_break == FALSE)
-        buffer[--i] = '\n';
+        buffer[i] = '\n';
 #endif
 
 #if GTK_MAJOR_VERSION < 2
