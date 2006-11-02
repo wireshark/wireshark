@@ -296,6 +296,7 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 
 	g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
 	g_slist_free(if_info->ip_addr);
+	g_free(if_info);
 }
 
 void

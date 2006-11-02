@@ -25,6 +25,7 @@
 # include "config.h"
 #endif
 
+#include <stdlib.h> /* for exit() */
 #include <glib.h>
 
 #include <string.h>
@@ -232,8 +233,6 @@ main(int argc, char *argv[])
   int                  opt;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
-  GString             *comp_info_str;
-  GString             *runtime_info_str;
 
 #ifdef _WIN32
   WSADATA              wsaData;
@@ -272,13 +271,6 @@ main(int argc, char *argv[])
   SetConsoleCtrlHandler(&ConsoleCtrlHandlerRoutine, TRUE);
 #endif  /* _WIN32 */
 
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, NULL);
 
   /* the default_log_handler will use stdout, which makes trouble in */
   /* capture child mode, as it uses stdout for it's sync_pipe */
@@ -325,9 +317,22 @@ main(int argc, char *argv[])
         exit_main(0);
         break;
       case 'v':        /* Show version and exit */
+      {
+        GString             *comp_info_str;
+        GString             *runtime_info_str;
+        /* Assemble the compile-time version information string */
+        comp_info_str = g_string_new("Compiled with ");
+        get_compiled_version_info(comp_info_str, NULL);
+
+        /* Assemble the run-time version information string */
+        runtime_info_str = g_string_new("Running ");
+        get_runtime_version_info(runtime_info_str, NULL);		
         show_version(comp_info_str, runtime_info_str);
+        g_string_free(comp_info_str, TRUE);
+        g_string_free(runtime_info_str, TRUE);
         exit_main(0);
         break;
+      }
       /*** capture option specific ***/
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
