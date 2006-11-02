@@ -8,6 +8,7 @@
  * Copyright 1998 Gerald Combs
  *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
+ * Copyright 2006, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  *
  * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
  *
@@ -310,14 +311,24 @@ again:
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    ND_OPT_PI_FLAG_SITEPREF, 8,
 		    "Site prefix", "Not site prefix"));
-	proto_tree_add_text(icmp6opt_tree, tvb,
-	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
-	    4, "Valid lifetime: 0x%08x",
-	    pntohl(&pi->nd_opt_pi_valid_time));
-	proto_tree_add_text(icmp6opt_tree, tvb,
-	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
-	    4, "Preferred lifetime: 0x%08x",
-	    pntohl(&pi->nd_opt_pi_preferred_time));
+	if (pntohl(&pi->nd_opt_pi_valid_time) == 0xffffffff)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
+				4, "Valid lifetime: infinity");
+	else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
+				4, "Valid lifetime: %u",
+				pntohl(&pi->nd_opt_pi_valid_time));
+	if (pntohl(&pi->nd_opt_pi_preferred_time) == 0xffffffff)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
+				4, "Preferred lifetime: infinity");
+	else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
+				4, "Preferred lifetime: %u",
+				pntohl(&pi->nd_opt_pi_preferred_time));
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix),
 	    16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
