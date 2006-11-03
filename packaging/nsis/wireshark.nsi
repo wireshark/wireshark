@@ -534,7 +534,7 @@ ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
 StrCmp $0 "0" SecRequired_skip_FileExtensions
 WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark file"
 WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\wireshark.exe" "%1"'
-WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\wireshark.exe",0'
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\wireshark.exe",1'
 push $R0
 	StrCpy $R0 ".5vw"
   	Call Associate

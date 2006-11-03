@@ -2,7 +2,8 @@
 
 #include "win32-file-dlg.rc"
 
-WIRESHARK_ICON		ICON			"wireshark.ico"
+WIRESHARK_ICON1		ICON			"wireshark.ico"
+WIRESHARK_ICON2	ICON			"wiresharkdoc.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @RC_VERSION@,0
