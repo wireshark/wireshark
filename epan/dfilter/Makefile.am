@@ -90,7 +90,7 @@ scanner.o : scanner.c grammar.h
 LEMON=../../tools/lemon
 
 grammar.h : grammar.c 
-grammar.c : grammar.lemon $(LEMON)/lemon
-	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
+grammar.c : grammar.lemon $(LEMON)/lemon$(EXEEXT)
+	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 

@@ -77,7 +77,7 @@ mate_parser.c : mate_parser.l
 LEMON = ../../tools/lemon
 
 mate_grammar.h : mate_grammar.c
-mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon
-	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
+mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
+	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
