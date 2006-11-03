@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h245.h                                                            */
+/* ./packet-h245.h                                                            */
 /* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.h */
@@ -138,6 +138,7 @@ int dissect_h245_QOSCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, prot
 int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h245-exp.h ---*/
 #line 125 "packet-h245-template.h"

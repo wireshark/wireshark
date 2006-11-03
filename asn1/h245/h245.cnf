@@ -9,6 +9,7 @@ DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
 QOSCapability
 H223Capability
+H223LogicalChannelParameters
 
 #.PDU
 OpenLogicalChannel
