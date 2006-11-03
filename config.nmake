@@ -11,7 +11,7 @@
 # It's highly recommended to leave MAJOR/MINOR/MICRO unchanged
 VERSION_MAJOR=0
 VERSION_MINOR=99
-VERSION_MICRO=4
+VERSION_MICRO=5
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
 VERSION_EXTRA=
