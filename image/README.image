@@ -13,18 +13,36 @@ clist_descend.xpm		indicators
 dn_arrow.xpm			Up and down arrows (originally intended for
 up_arrow.xpm			filter dialogs - not currently used)
 
-wsicon16.xpm			Wireshark logo in various sizes
+wsicon.svg			Canonical vector source for the wireshark icon.
+wsicon256.png			Canonical raster source for the wireshark icon.
+				Generated from wsicon.svg.
+
+wsiconcap.svg			Canonical vector source for the "capture" icon.
+wsiconcap256.png		Canonical raster source for the "capture" icon.
+				Generated from wsiconcap.svg.
+
+wsicondoc.svg			Canonical vector source for the "document" icon.
+wsicondoc256.png		Canonical raster source for the "document" icon.
+				Generated from wsiconcap.svg.
+
+wsicon16.png			Wireshark icons in various sizes
+wsicon32.png
+wsicon48.png
+wsicon64.png
+wsicon16.xpm
 wsicon32.xpm
 wsicon48.xpm
 wsicon64.xpm
 
-wireshark.ico			Windows icon file with 16 and 32 pixel
-				3D logo icons, high and low color
-				
+wireshark.ico			Windows application icon file with 16 and 32
+				pixel 3D logo icons, high and low color
+wiresharkdoc.ico		Windows document icon file with 16 and 32
+				pixel 3D logo icons, high and low color
+
 hi16-app-wireshark.png		KDE Icon Factory Styleguide-compliant
 hi32-app-wireshark.png		(http://www.kde.org/artist/introduction.html)
 hi48-app-wireshark.png		icons
-lo16-app-wireshark.png 
+lo16-app-wireshark.png
 lo32-app-wireshark.png
 lo48-app-wireshark.png
 
