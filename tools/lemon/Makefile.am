@@ -26,7 +26,7 @@
 # is an archive library, any executable linking against libwireshark will
 # also need to link against libftypes.
 
-noinst_PROGRAMS = lemon
+noinst_PROGRAMS = lemon$(EXEEXT)
 
 CLEANFILES = \
 	*~
@@ -34,7 +34,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-lemon: lemon.c
+lemon$(EXEEXT): lemon.c
 	$(CC_FOR_BUILD) -D_U_="" $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $<
 
 EXTRA_DIST = \
