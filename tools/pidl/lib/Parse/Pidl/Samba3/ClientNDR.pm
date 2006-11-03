@@ -52,7 +52,23 @@ sub ParseFunction($$)
 		} 
 	}
 
+	pidl "";
+	pidl "if (DEBUGLEVEL >= 10)";
+	pidl "\tNDR_PRINT_IN_DEBUG($fn->{NAME}, &r);";
+	pidl "";
 	pidl "status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, $ufn, &r, (ndr_pull_flags_fn_t)ndr_pull_$fn->{NAME}, (ndr_push_flags_fn_t)ndr_push_$fn->{NAME});";
+	pidl "";
+
+	pidl "if ( !NT_STATUS_IS_OK(status) ) {";
+	indent;
+	pidl "return status;";
+	deindent;
+	pidl "}";
+
+	pidl "";
+	pidl "if (DEBUGLEVEL >= 10)";
+	pidl "\tNDR_PRINT_OUT_DEBUG($fn->{NAME}, &r);";
+	pidl "";
 	pidl "if (NT_STATUS_IS_ERR(status)) {";
 	pidl "\treturn status;";
 	pidl "}";
@@ -63,7 +79,16 @@ sub ParseFunction($$)
 
 		fatal($e, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
 
-		pidl "*$e->{NAME} = *r.out.$e->{NAME};";
+		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") && ($e->{LEVELS}[0]->{POINTER_TYPE} eq "unique") ) {
+			pidl "if ( $e->{NAME} ) {";
+			indent;
+			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
+			deindent;
+			pidl "}";
+		} else {
+			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
+		}
+			
 	}
 
 	pidl"";

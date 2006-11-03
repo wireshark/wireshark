@@ -452,7 +452,7 @@ sub Function($$$)
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		pidl_code "offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf\_$ifname\_werror, &status);\n";
 		pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
-		pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, DOS_errors, \"Unknown DOS error 0x%08x\"));\n";
+		pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, WERR_errors, \"Unknown DOS error 0x%08x\"));\n";
 		
 		$hf_used{"hf\_$ifname\_werror"} = 1;
 	} else {
@@ -749,7 +749,7 @@ sub ProcessInterface($)
 	}
 
 	if (defined($hf_used{"hf_$x->{NAME}_werror"})) {
-		register_hf_field("hf_$x->{NAME}_werror", "Windows Error", "$x->{NAME}.werror", "FT_UINT32", "BASE_HEX", "VALS(DOS_errors)", 0, "");
+		register_hf_field("hf_$x->{NAME}_werror", "Windows Error", "$x->{NAME}.werror", "FT_UINT32", "BASE_HEX", "VALS(WERR_errors)", 0, "");
 	}
 
 	RegisterInterface($x);

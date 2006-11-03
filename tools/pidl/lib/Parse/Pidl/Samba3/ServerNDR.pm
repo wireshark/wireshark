@@ -38,9 +38,9 @@ sub AllocOutVar($$$$)
 
 	if ($l->{TYPE} eq "ARRAY") {
 		my $size = ParseExpr($l->{SIZE_IS}, $env);
-		pidl "$name = talloc_array_size($mem_ctx, sizeof(*$name), $size);";
+		pidl "$name = talloc_zero_size($mem_ctx, sizeof(*$name) * $size);";
 	} else {
-		pidl "$name = talloc_size($mem_ctx, sizeof(*$name));";
+		pidl "$name = talloc_zero_size($mem_ctx, sizeof(*$name));";
 	}
 
 	pidl "if ($name == NULL) {";
@@ -70,8 +70,10 @@ sub ParseFunction($$)
 	pidl "}";
 	pidl "";
 	pidl "pull = ndr_pull_init_blob(&blob, mem_ctx);";
-	pidl "if (pull == NULL)";
+	pidl "if (pull == NULL) {";
+	pidl "\ttalloc_free(mem_ctx);";
 	pidl "\treturn False;";
+	pidl "}";
 	pidl "";
 	pidl "pull->flags |= LIBNDR_FLAG_REF_ALLOC;";
 	pidl "status = ndr_pull_$fn->{NAME}(pull, NDR_IN, &r);";
@@ -80,12 +82,19 @@ sub ParseFunction($$)
 	pidl "\treturn False;";
 	pidl "}";
 	pidl "";
+	pidl "if (DEBUGLEVEL >= 10)";
+	pidl "\tNDR_PRINT_IN_DEBUG($fn->{NAME}, &r);";
+	pidl "";
 
 	my %env = ();
+	my $hasout = 0;
 	foreach (@{$fn->{ELEMENTS}}) {
+		if (grep(/out/, @{$_->{DIRECTION}})) { $hasout = 1; }
 		next unless (grep (/in/, @{$_->{DIRECTION}}));
 		$env{$_->{NAME}} = "r.in.$_->{NAME}";
 	}
+
+	pidl "ZERO_STRUCT(r.out);" if ($hasout);
 
 	my $proto = "_$fn->{NAME}(pipes_struct *p";
 	my $ret = "_$fn->{NAME}(p";
@@ -115,6 +124,15 @@ sub ParseFunction($$)
 	pidl "$ret;";
 
 	pidl "";
+	pidl "if (p->rng_fault_state) {";
+	pidl "\ttalloc_free(mem_ctx);";
+	pidl "\t/* Return True here, srv_pipe_hnd.c will take care */";
+	pidl "\treturn True;";
+	pidl "}";
+	pidl "";
+	pidl "if (DEBUGLEVEL >= 10)";
+	pidl "\tNDR_PRINT_OUT_DEBUG($fn->{NAME}, &r);";
+	pidl "";
 	pidl "push = ndr_push_init_ctx(mem_ctx);";
 	pidl "if (push == NULL) {";
 	pidl "\ttalloc_free(mem_ctx);";
@@ -128,7 +146,7 @@ sub ParseFunction($$)
 	pidl "}";
 	pidl "";
 	pidl "blob = ndr_push_blob(push);";
-	pidl "if (!prs_init_data_blob(&p->out_data.rdata, &blob, p->mem_ctx)) {";
+	pidl "if (!prs_copy_data_in(&p->out_data.rdata, (const char *)blob.data, (uint32)blob.length)) {";
 	pidl "\ttalloc_free(mem_ctx);";
 	pidl "\treturn False;";
 	pidl "}";

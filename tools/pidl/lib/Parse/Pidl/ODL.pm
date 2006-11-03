@@ -38,8 +38,8 @@ sub FunctionAddObjArgs($)
 	});
 	unshift(@{$e->{ELEMENTS}}, {
 		'NAME' => 'ORPCthat',
-		'POINTERS' => 0,
-		'PROPERTIES' => { 'out' => '1' },
+		'POINTERS' => 1,
+		'PROPERTIES' => { 'out' => '1', 'ref' => '1' },
 		'TYPE' => 'ORPCTHAT',
 		'FILE' => $e->{FILE},
 		'LINE' => $e->{LINE}
