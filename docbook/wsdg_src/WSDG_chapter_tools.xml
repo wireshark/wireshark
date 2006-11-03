@@ -192,14 +192,21 @@
 	<row>
 	  <entry><xref linkend="ChToolsSubversion"/></entry>
 	  <entry>-</entry>
-	  <entry><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></entry>
+	  <entry>Subversion</entry>
+	  <entry>Only needed if you access the Wireshark sources using 
+	  the subversion repository (the recommended way).</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsSubversionGUI"/></entry>
+	  <entry>-</entry>
+	  <entry>TortoiseSVN</entry>
 	  <entry>Only needed if you access the Wireshark sources using 
 	  the subversion repository (the recommended way).</entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsNSIS"/></entry>
 	  <entry>-</entry>
-	  <entry><ulink url="http://nsis.sourceforge.net">NSIS</ulink></entry>
+	  <entry>NSIS</entry>
 	  <entry>Only needed if you want to build your own 
 	  wireshark-setup.exe.</entry>
 	</row>
@@ -336,12 +343,25 @@
 	quite helpful.
 	</para>
 	<section>
+	<title>Subversion</title>
+	<para>
+	If you want to work with the Wireshark subversion source repositories 
+	(which is highly recommended, see <xref linkend="ChSrcObtain"/>), 
+	it's recommended to install Subversion. 
+	This makes the first time setup easy and enables the Wireshark build 
+	process to determine your current source code revision.
+	You can download the setup from 
+	<ulink url="http://subversion.tigris.org/"/> and simply install it.
+	</para>
+	</section>
+	<section>
 	<title>TortoiseSVN</title>
 	<para>
 	If you want to work with the Wireshark subversion source repositories 
 	(which is highly recommended, see <xref linkend="ChSrcObtain"/>), 
-	it's recommended to use TortoiseSVN. You can download the setup from 
-	<ulink url="http://tortoisesvn.tigris.org/"/> and simply install it.
+	it's recommended to use TortoiseSVN for your everyday work. 
+	You can download the setup from <ulink 
+	url="http://tortoisesvn.tigris.org/"/> and simply install it.
 	</para>
 	</section>
 	<section>
@@ -451,8 +471,8 @@
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[gcc (GCC) 3.3.3 (cygwin special)
-Copyright (C) 2003 Free Software Foundation, Inc.
+<![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
+Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</programlisting>
@@ -592,7 +612,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[GNU gdb 2003-09-20-cvs (cygwin-special)
+<![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
 Copyright 2003 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
 welcome to change it and/or distribute copies of it under certain conditions.
@@ -680,8 +700,8 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[GNU Make 3.80
-Copyright (C) 2002  Free Software Foundation, Inc.
+<![CDATA[GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.]]>
@@ -713,7 +733,7 @@ PARTICULAR PURPOSE.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.8168.0
+<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
 Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
@@ -781,8 +801,8 @@ Stop.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[GNU bash, version 2.05b.0(1)-release (i686-pc-cygwin)
-Copyright (C) 2002 Free Software Foundation, Inc.]]>
+<![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
+Copyright (C) 2005 Free Software Foundation, Inc.]]>
 	</programlisting>
 	However, the version string may vary.
 	</para>
@@ -829,7 +849,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	should result in something like:
 	</para>
 	<para>
-	<computeroutput>Python 2.3.3</computeroutput>
+	<computeroutput>Python 2.4.3</computeroutput>
 	</para>
 	<para>
 	However, the version string may vary.
@@ -842,7 +862,22 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	Have a look at <ulink url="http://python.org/download/"/>
 	to download the latest stable release. You can download a setup there,
 	which will install the python system typically into
-	<filename>C:\python23</filename> or similiar.
+	<filename>C:\Python24</filename> or similiar.
+	</para>
+	<para>
+	After correct installation, typing inside the command line (cmd.exe) - 
+	this must be entered in the Python directory, the installer won't set 
+	the PATH:
+	</para>
+	<para>
+	<prompt>C:\Python24&gt;</prompt> <userinput>python -V</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[Python 2.4.4]]>
+	</programlisting>
+	However, the version string may vary. 
 	</para>
 	</section>
 
@@ -879,9 +914,10 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[This is perl, v5.8.5 built for cygwin-thread-multi-64int
+<![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
+(with 1 registered patch, see perl -V for more detail)
 
-Copyright 1987-2004, Larry Wall
+Copyright 1987-2005, Larry Wall
 
 Perl may be copied only under the terms of either the Artistic License or the
 GNU General Public License, which may be found in the Perl 5 source kit.
@@ -956,7 +992,7 @@ Built 18:08:02 Feb  4 2003
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[GNU sed version 4.0.9
+<![CDATA[GNU sed version 4.1.5
 Copyright (C) 2003 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
@@ -1004,10 +1040,10 @@ to the extent permitted by law.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[bison (GNU Bison) 1.875b
+<![CDATA[bison (GNU Bison) 2.3
 Written by Robert Corbett and Richard Stallman.
 
-Copyright (C) 2003 Free Software Foundation, Inc.
+Copyright (C) 2006 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</programlisting>
@@ -1086,11 +1122,6 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<xref linkend="ChSrcObtain"/>.
 	</para>
 	<para>
-	Along with the traditional command-line client, several GUI clients are 
-	available for a number of platforms, see
-	<ulink url="http://subversion.tigris.org/project_links.html"/>.
-	</para>
-	<para>
 	You will find more instructions in <xref linkend="ChSrcAnon"/> how to 
 	use the subversion client.
 	</para>
@@ -1099,7 +1130,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>UNIX or Win32 Cygwin: svn (subversion)</title>
 	<para>
 	SVN is available for most of the UNIX-like platforms and as the 
-	<application>Devel/subversion</application> package from the <link 
+	<application>subversion</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
 	<para>
@@ -1127,6 +1158,58 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 ...]]>
 	</programlisting>
 	However, the version string may vary.
+	</para>
+	</section>
+
+	<section id="ChToolsWin32SVN">
+	<title>Win32 native: svn</title>
+	<para>
+	The subversion command line tools for Win32 can be found at: 
+	<ulink url="http://subversion.tigris.org/"/>. 
+	This will come with both client and server software - only the client 
+	software will be used.
+	</para>
+	<para>
+	After correct installation, typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>svn --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[svn, Version 1.4.0 (r21228)
+
+Copyright (C) 2000-2006 CollabNet.
+...]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+	</section>
+
+	<section id="ChToolsSubversionGUI">
+	<title>Subversion (SVN) GUI client (optional)</title>
+	<para>
+	Along with the traditional command-line client, several GUI clients are 
+	available for a number of platforms, see
+	<ulink url="http://subversion.tigris.org/project_links.html"/>.
+	</para>
+	<warning><title>Keep subversion program versions in sync!</title>
+	<para>
+	If you are working with both command line and GUI clients, keep
+	the subversion program versions in sync, at least the major/minor versions 
+	(e.g. 1.4).
+	</para>
+	</warning>
+
+	<section id="ChToolsUnixSVNGUI">
+	<title>UNIX or Win32 Cygwin: -</title>
+	<para>
+	XXX - could someone recommend a good UNIX GUI client for subversion?
+	</para>
+	<para>
+	Cygwin don't provide any GUI client for subversion.
 	</para>
 	</section>
 
@@ -1348,7 +1431,7 @@ written by Larry Wall and Paul Eggert]]>
 	<title>Win32: NSIS (optional)</title>
 	<para>
 	The NSIS (Nullsoft Scriptable Install System) is used to generate a
-	setup.exe from all the files needed to be installed, including all
+	wireshark-setup-&lt;version&gt;.exe from all the files needed to be installed, including all
 	required DLL's and such.
 	</para>
 	<para>
