@@ -2458,5 +2458,8 @@ proto_reg_handoff_ber(void)
 
 	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
 	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);
+}
 
+gboolean oid_has_dissector(const char *oid) {
+  return(dissector_get_string_handle(ber_oid_dissector_table, oid) != NULL);
 }

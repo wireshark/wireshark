@@ -113,7 +113,7 @@ LDAPResult ::= SEQUENCE {
 
 Referral ::= SEQUENCE OF LDAPURL
 
-LDAPURL ::= LDAPString -- limited to characters permitted in URLs
+LDAPURL ::= OCTET STRING -- LDAPString - - limited to characters permitted in URLs
 
 Controls ::= SEQUENCE OF Control
 
@@ -365,6 +365,55 @@ ExtendedResponse ::= [APPLICATION 24]  SEQUENCE {
 }
 
 ResponseName ::= LDAPOID
+
+-- RFC 2696 - Simple Paged Results Manipulation
+
+SearchControlValue ::= SEQUENCE {
+  size	INTEGER --(0..maxInt)--,
+                -- requested page size from client
+                -- result set size estimate from server
+  cookie OCTET STRING
+}
+
+-- RFC 2891 - Server Side Sorting of Search Results
+
+SortKeyList ::= SEQUENCE OF SEQUENCE {
+  attributeType   AttributeDescription,
+  orderingRule    [0] MatchingRuleId OPTIONAL,
+  reverseOrder    [1] BOOLEAN DEFAULT FALSE }
+
+SortResult ::= SEQUENCE {
+  sortResult  ENUMERATED {
+    success                   (0), -- results are sorted
+    operationsError           (1), -- server internal failure
+    timeLimitExceeded         (3), -- timelimit reached before
+    -- sorting was completed
+    strongAuthRequired        (8), -- refused to return sorted
+    -- results via insecure
+    -- protocol
+    adminLimitExceeded       (11), -- too many matching entries
+    -- for the server to sort
+    noSuchAttribute          (16), -- unrecognized attribute
+    -- type in sort key
+    inappropriateMatching    (18), -- unrecognized or
+    -- inappropriate matching
+    -- rule in sort key
+    insufficientAccessRights (50), -- refused to return sorted
+    -- results to this client
+    busy                     (51), -- too busy to process
+    unwillingToPerform       (53), -- unable to sort
+    other                    (80)
+  },
+  attributeType [0] AttributeDescription OPTIONAL }
+
+
+-- Draft RFC - but used in some implementations
+
+ReplControlValue ::= SEQUENCE {
+  parentsFirst  	INTEGER,
+  maxReturnLength	INTEGER,
+  cookie		OCTET STRING
+}
 
 END
 

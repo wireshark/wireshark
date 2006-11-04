@@ -28,6 +28,15 @@ LDAPOID  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 
+#.REGISTER
+SearchControlValue 	B "1.2.840.113556.1.4.319" "pagedResultsControl"
+SortKeyList	   	B "1.2.840.113556.1.4.473" "sortKeyList"
+SortResult		B "1.2.840.113556.1.4.474" "sortResult"
+ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
+
+#.FN_FTR LDAPURL
+	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
 #.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 #.FN_HDR LDAPOID
 
@@ -35,13 +44,19 @@ AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 	const gchar *name;
 	proto_item	*item = NULL;
 
-
 #.FN_FTR LDAPOID
+	
+	object_identifier_id = NULL;
+
 	if (!parameter_tvb)
 		return offset;
-	item = get_ber_last_created_item();
-	name = get_oid_str_name(tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0)));
+
+	object_identifier_id = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+	name = get_oid_str_name(object_identifier_id);
+
 	if(name){
+		item = get_ber_last_created_item();
+
 		proto_item_append_text(item, " (%s)", name);
 		proto_item_append_text(tree, " %s", name);	
 	}
@@ -253,12 +268,19 @@ ldap_conv_info_t *ldap_info;
         ldapstring = "<ROOT>";
 
      if(hf_index == hf_ldap_baseObject) {
-  	/* this is search - but it on the scanline */
+  	/* this is search - put it on the scanline */
 	if(check_col(pinfo->cinfo, COL_INFO)) 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);
   
   	if(ldm_tree)
   	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+
+
+	if(!parameter_tvb) {
+
+	  proto_item_append_text(ber_last_created_item, " (%%s)", ldapstring); 
+	}
+
      } else if ((hf_index == hf_ldap_errorMessage) && result) { /* only show message if not success */
 	if(check_col(pinfo->cinfo, COL_INFO)) 
           col_append_fstr(pinfo->cinfo, COL_INFO, "(%%s) ", ldapstring);     
@@ -617,6 +639,23 @@ ldap_conv_info_t *ldap_info;
 	}
 	return offset;
 
+#.FN_BODY Control/controlValue
+	gint8 class;
+	gboolean pc, ind;
+	gint32 tag;
+	guint32 len;
+	
+	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
+		/* remove the OCTET STRING encoding */		
+		offset=dissect_ber_identifier(pinfo, NULL, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, NULL, tvb, offset, &len, &ind);
+
+		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+		offset += len;
+	} else {
+		%(DEFAULT_BODY)s
+	}
 
 #.NO_EMIT
 AttributeType

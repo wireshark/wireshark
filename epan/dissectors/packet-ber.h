@@ -176,5 +176,7 @@ void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t disse
 void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+gboolean oid_has_dissector(const char *oid);
+
 #endif  /* __PACKET_BER_H__ */
 

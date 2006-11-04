@@ -157,11 +157,11 @@ static gint ett_mscldap_netlogon_flags = -1;
 #include "packet-ldap-ett.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
+static const char *object_identifier_id = NULL; /* LDAP OID */
 
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
 static guint    ldap_tcp_port = 389;
-static guint    ldap_max_pdu_size = 65535;
 
 static gboolean do_protocolop = FALSE;
 static gchar    *attr_type = NULL;
@@ -1332,8 +1332,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	sasl_len=tvb_get_ntohl(tvb, 0);
  
-	if( (sasl_len>ldap_max_pdu_size) 
-	||  (sasl_len<2) ){
+	if( sasl_len<2 ){
 		goto this_was_not_sasl;
 	}
 
@@ -1367,7 +1366,7 @@ this_was_not_sasl:
 	offset=get_ber_length(NULL, tvb, 1, &ldap_len, &ind);
 
 	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
-	if(ldap_len<2 || ldap_len>ldap_max_pdu_size){
+	if(ldap_len<2){
 		goto this_was_not_normal_ldap;
 	}
 
@@ -1623,16 +1622,12 @@ void proto_register_ldap(void) {
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
     "Reassemble LDAP messages spanning multiple TCP segments",
     "Whether the LDAP dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings, and disable \"Verify length\" in the BER protocol settings",
+    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
   prefs_register_uint_preference(ldap_module, "tcp.port", "LDAP TCP Port",
 				 "Set the port for LDAP operations",
 				 10, &ldap_tcp_port);
-
-  prefs_register_uint_preference(ldap_module, "max_pdu", "LDAP Maximum PDU Size",
-				 "The maximum LDAP PDU size. PDUs larger than this will be considered invalid.",
-				 10, &ldap_max_pdu_size);
 
   proto_cldap = proto_register_protocol(
 	  "Connectionless Lightweight Directory Access Protocol",
@@ -1699,6 +1694,10 @@ proto_reg_handoff_ldap(void)
 	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
 	register_ldap_name_dissector("objectSid", dissect_ldap_sid, proto_ldap);
 	register_ldap_name_dissector("nTSecurityDescriptor", dissect_ldap_nt_sec_desc, proto_ldap);
+
+#include "packet-ldap-dis-tab.c"
+	
+
 }
 
 
