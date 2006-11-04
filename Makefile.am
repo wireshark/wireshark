@@ -659,7 +659,7 @@ EXTRA_DIST = \
 	image/wsicon.svg	\
 	image/wsicon16.png	\
 	image/wsicon16.xpm	\
-	image/wsicon200.png	\
+	image/wsicon256.png	\
 	image/wsicon32.png	\
 	image/wsicon32.xpm	\
 	image/wsicon48.png	\
@@ -668,9 +668,11 @@ EXTRA_DIST = \
 	image/wsicon64.xpm	\
 	image/wsiconcap.svg	\
 	image/wsiconcap16.xpm	\
-	image/wsiconcap200.png	\
+	image/wsiconcap256.png	\
 	image/wsiconcap32.xpm	\
 	image/wsiconcap48.xpm	\
+	image/wsicondoc.svg	\
+	image/wsicondoc256.png	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
