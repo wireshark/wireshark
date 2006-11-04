@@ -1148,7 +1148,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_print_text_data("decrypted app data",pi->app_data.data,
                     pi->app_data.data_len);
 
-                call_dissector(association->handle, new_tvb, pinfo, proto_tree_get_root(tree));
+                call_dissector(association->handle, new_tvb, pinfo, tree?tree->parent:NULL);
             }
         }
         break;
