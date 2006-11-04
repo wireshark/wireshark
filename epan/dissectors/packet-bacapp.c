@@ -3021,7 +3021,6 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 					"status-flags: ", BACnetStatusFlags);
 				break;
 			default:
-				return offset;
 				break;
 			}
 		}
@@ -3185,7 +3184,6 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				offset = fEnumeratedTagSplit (tvb, subtree, offset,
 					"operation-expected: ", BACnetLifeSafetyOperation, 64);
 			default:
-				return offset;
 				break;
 			}
 		}
