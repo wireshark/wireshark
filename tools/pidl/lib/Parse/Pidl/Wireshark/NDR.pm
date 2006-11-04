@@ -36,6 +36,7 @@ sub error($$)
 my @ett;
 
 my %hf_used = ();
+my %return_types = ();
 my %dissector_used = ();
 
 my $conformance = undef;
@@ -146,7 +147,7 @@ sub Enum($$$)
 	}
 	
 	pidl_hdr "extern const value_string $valsstring\[];";
-	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);";
+	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);";
 
 	pidl_def "const value_string ".$valsstring."[] = {";
     	foreach (@{$e->{ELEMENTS}}) {
@@ -159,10 +160,10 @@ sub Enum($$$)
 
 	pidl_fn_start $dissectorname;
 	pidl_code "int";
-	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)";
+	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)";
 	pidl_code "{";
 	indent;
-	pidl_code "offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, drep, hf_index, NULL);";
+	pidl_code "offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, drep, hf_index, param);";
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
@@ -434,7 +435,20 @@ sub Function($$$)
 	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
 	indent;
-	pidl_code "guint32 status;\n";
+	if ( not defined($fn->{RETURN_TYPE})) {
+	} elsif ($fn->{RETURN_TYPE} eq "NTSTATUS" or $fn->{RETURN_TYPE} eq "WERROR") 
+	{
+		pidl_code "guint32 status;\n";
+	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
+		if ($type->{DATA}->{TYPE} eq "ENUM") {
+			pidl_code "g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA}) . " status;\n";
+		} else {
+	    	print "$fn->{FILE}:$fn->{LINE}: error: return type `$fn->{RETURN_TYPE}' not yet supported\n";
+		}
+	} else {
+		print "$fn->{FILE}:$fn->{LINE}: error: unknown return type `$fn->{RETURN_TYPE}'\n";
+	}
+
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/out/,@{$_->{DIRECTION}})) {
 			pidl_code "$dissectornames{$_->{NAME}}";
@@ -448,15 +462,23 @@ sub Function($$$)
 		pidl_code "offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf\_$ifname\_status, &status);\n";
 		pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
 		pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, NT_errors, \"Unknown NT status 0x%08x\"));\n";
-		$hf_used{"hf\_$ifname\_status"} = 1;
+		$return_types{$ifname}->{"status"} = ["NTSTATUS", "Windows Error"];
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		pidl_code "offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf\_$ifname\_werror, &status);\n";
 		pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
 		pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, WERR_errors, \"Unknown DOS error 0x%08x\"));\n";
 		
-		$hf_used{"hf\_$ifname\_werror"} = 1;
-	} else {
-		print "$fn->{FILE}:$fn->{LINE}: error: return type `$fn->{RETURN_TYPE}' not yet supported\n";
+		$return_types{$ifname}->{"werror"} = ["WERROR", "Windows Error"];
+	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
+		if ($type->{DATA}->{TYPE} eq "ENUM") {
+			my $return_type = "g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA});
+			my $return_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($type->{DATA});
+
+			pidl_code "offset = $return_dissect(tvb, offset, pinfo, tree, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);";
+			pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
+			pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %s\", val_to_str(status, $ifname\_$fn->{RETURN_TYPE}\_vals, \"Unknown " . $fn->{RETURN_TYPE} . " error 0x%08x\"));\n";
+			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
+		}
 	}
 		
 
@@ -556,8 +578,8 @@ sub Union($$$)
 	my $switch_dissect;
 	my $switch_dt = getType($e->{SWITCH_TYPE});
 	if ($switch_dt->{DATA}->{TYPE} eq "ENUM") {
-		$switch_type = "g".Parse::Pidl::Typelist::enum_type_fn($switch_dt);
-		$switch_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($switch_dt);
+		$switch_type = "g".Parse::Pidl::Typelist::enum_type_fn($switch_dt->{DATA});
+		$switch_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($switch_dt->{DATA});
 	} elsif ($switch_dt->{DATA}->{TYPE} eq "SCALAR") {
 		$switch_type = "g$e->{SWITCH_TYPE}";
 		$switch_dissect = "dissect_ndr_$e->{SWITCH_TYPE}";
@@ -739,17 +761,17 @@ sub ProcessInterface($)
 	    pidl_def "";
 	}
 
+	$return_types{$x->{NAME}} = {};
+
 	Interface($x);
 
 	pidl_code "\n".DumpFunctionTable($x);
 
-	# Only register these two return types if they were actually used
-	if (defined($hf_used{"hf_$x->{NAME}_status"})) {
-		register_hf_field("hf_$x->{NAME}_status", "Status", "$x->{NAME}.status", "FT_UINT32", "BASE_HEX", "VALS(NT_errors)", 0, "");
-	}
-
-	if (defined($hf_used{"hf_$x->{NAME}_werror"})) {
-		register_hf_field("hf_$x->{NAME}_werror", "Windows Error", "$x->{NAME}.werror", "FT_UINT32", "BASE_HEX", "VALS(WERR_errors)", 0, "");
+	foreach (keys %{$return_types{$x->{NAME}}}) {
+		my ($type, $desc) = @{$return_types{$x->{NAME}}->{$_}};
+		my $dt = find_type($type);
+		register_hf_field("hf_$x->{NAME}_$_", $desc, "$x->{NAME}.$_", $dt->{FT_TYPE}, "BASE_HEX", $dt->{VALSSTRING}, 0, "");
+		$hf_used{"hf_$x->{NAME}_$_"} = 1;
 	}
 
 	RegisterInterface($x);

@@ -188,18 +188,6 @@ sub check_null_pointer_deferred($)
 }
 
 #####################################################################
-# check that a variable we get from ParseExpr isn't a null pointer
-# void return varient
-sub check_null_pointer_void($)
-{
-	my $size = shift;
-	if ($size =~ /^\*/) {
-		my $size2 = substr($size, 1);
-		pidl "if ($size2 == NULL) return;";
-	}
-}
-
-#####################################################################
 # declare a function public or static, depending on its attributes
 sub fn_declare($$$)
 {
@@ -757,7 +745,6 @@ sub ParseElementPrint($$$)
 			pidl "ndr_print_$l->{DATA_TYPE}(ndr, \"$e->{NAME}\", $var_name);";
 		} elsif ($l->{TYPE} eq "SWITCH") {
 			my $switch_var = ParseExpr($l->{SWITCH_IS}, $env);
-			check_null_pointer_void($switch_var);
 			pidl "ndr_print_set_switch_value(ndr, " . get_pointer_to($var_name) . ", $switch_var);";
 		} 
 	}
@@ -1707,7 +1694,7 @@ sub ParseUnionPull($$)
 	pidl "int level;";
 	if (defined($switch_type)) {
 		if (Parse::Pidl::Typelist::typeIs($switch_type, "ENUM")) {
-			$switch_type = Parse::Pidl::Typelist::enum_type_fn(getType($switch_type));
+			$switch_type = Parse::Pidl::Typelist::enum_type_fn(getType($switch_type)->{DATA});
 		}
 		pidl mapType($switch_type) . " _level;";
 	}

@@ -347,7 +347,7 @@ sub ReadConformance($$)
 		shift @fields;
 
 		if (not defined($field_handlers{$cmd})) {
-			print "$f:$ln: Warning: Unknown command `$cmd'\n";
+			print "$f:$ln: warning: Unknown command `$cmd'\n";
 			next;
 		}
 		

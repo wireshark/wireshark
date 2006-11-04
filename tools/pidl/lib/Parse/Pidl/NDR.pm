@@ -75,7 +75,7 @@ my $scalar_alignment = {
 sub nonfatal($$)
 {
 	my ($e,$s) = @_;
-	warn ("$e->{FILE}:$e->{LINE}: Warning: $s\n");
+	warn ("$e->{FILE}:$e->{LINE}: warning: $s\n");
 }
 
 #####################################################################
