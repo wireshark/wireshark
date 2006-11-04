@@ -1,0 +1,372 @@
+/*
+   NSPI Implementation
+
+   OpenChange Project
+
+   Copyright (C) Julien Kerihuel 2006
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+
+
+#include "idl_types.h"
+
+[
+  uuid("f5cc5a18-4264-101a-8c59-08002b2f8426"),
+  endpoint("ncacn_np:[\\pipe\\exchange_nsp]", "ncacn_ip_tcp:"),
+  pointer_default(unique),
+  version(56.0),
+  helpstring("Exchange 5.5 Name Service Provider"),
+  helper("ndr_mapi.h")
+] interface nspi
+{
+
+#include "mapitags_enum.h"
+#include "mapicodes_enum.h"
+
+	/*****************/
+	/* Function 0x00 */
+
+	/*
+	** MAPIUID explanation:
+	** http://msdn.microsoft.com/library/default.asp?url=/library/en-us/mapi/html/c42065c2-b1f5-4930-84a6-6ef90c6162d0.asp
+	*/
+
+	typedef struct _MAPIUID{
+		uint8 ab[16];
+	} MAPIUID;
+
+	/* 
+	** input locale combination: 
+	** http://www.microsoft.com/globaldev/reference/win2k/setup/lcid.mspx
+	*/
+
+	typedef struct {
+		uint32 language;
+		uint32 method;
+	} input_locale;
+
+	typedef [flag(NDR_NOALIGN)] struct {
+		uint32	        handle;
+		uint32		flag;
+		MAPIUID		service_provider;
+		uint32		codepage;	/* CPID */
+		input_locale	input_locale;	/* LCID */
+	} MAPI_SETTINGS;
+
+	typedef struct {
+		[unique, length_is(cValues - 1), size_is(cValues - 1)] MAPITAGS *aulPropTag;
+		uint32 cValues;
+	} SPropTagArray;
+	
+	typedef struct {
+		[length_is(cValues - 1), size_is(cValues - 1)] uint32 *value;
+		uint32 cValues;
+	} instance_key;
+
+
+
+	/*****************/
+	/* Function 0x00 */
+	MAPISTATUS NspiBind(
+		[in] uint32			unknown,
+		[in] MAPI_SETTINGS		*settings,
+		[in,out,unique] GUID		*mapiuid,
+		[out] policy_handle		*handle
+		);
+
+	/*****************/
+	/* Function 0x01 */
+	MAPISTATUS NspiUnbind(
+		[in, out] policy_handle	*handle,
+		[in] uint32	       	status
+		);
+
+
+	void NspiUpdateStat();
+
+	/*****************/
+	/* Function 0x03 */
+	MAPISTATUS NspiQueryRows(
+		[in]				policy_handle	*handle,
+		[in]				uint32		flag,
+		[in,out]			MAPI_SETTINGS	*settings,
+		[in]				uint32		lRows,
+		[in][size_is(lRows)][unique]	uint32		*instance_key,
+		[in]				uint32		unknown,
+		[in]				SPropTagArray	*REQ_properties,
+		[out]				SRowSet		**RowSet
+		);
+
+	void NspiSeekEntries();
+
+	/*****************/
+	/* Function 0x05 */
+
+	
+
+	typedef struct {
+		[unique] MAPIUID *lpguid;
+		uint32 ulKind;
+		uint32 lID; /* this is actually a union in mapidefs.h */
+	} MAPINAMEID;
+
+/* Restriction types */
+#define RES_AND            0
+#define RES_OR             1
+#define RES_NOT            2
+#define RES_CONTENT        3
+#define RES_PROPERTY       4
+#define RES_COMPAREPROPS   5
+#define RES_BITMASK        6
+#define RES_SIZE           7
+#define RES_EXIST          8
+#define RES_SUBRESTRICTION 9
+#define RES_COMMENT        10
+
+	typedef struct {
+		uint32 relop;
+		MAPITAGS ulPropTag;
+		SPropValue *lpProp;
+	} SPropertyRestriction;
+
+	typedef struct {
+		uint32	cRes;
+		[size_is(cRes)][unique]SRestriction *lpRes;
+	} SAndRestriction;
+
+	typedef [switch_type(uint32)] union {
+		[case(RES_AND)           ] SAndRestriction resAnd;
+//     [case(RES_OR)            ] SOrRestriction resOr;
+//     [case(RES_NOT)           ] SNotRestriction resNot;
+//     [case(RES_CONTENT)       ] SContentRestriction resContent;
+		[case(RES_PROPERTY)      ] SPropertyRestriction resProperty;
+//     [case(RES_COMPAREPROPS)  ] SComparePropsRestriction resCompareProps;
+//     [case(RES_BITMASK)       ] SBitMaskRestriction resBitMask;
+//     [case(RES_SUBRESTRICTION)] SSubRestriction resSub;
+//     [case(RES_SIZE)          ] SSizeRestriction resSize;
+//     [case(RES_EXIST)         ] SExistRestriction resExist;
+  } SRestriction_CTR;
+
+	typedef [public] struct _SRestriction{
+		uint32 rt;
+		[switch_is(rt)] SRestriction_CTR res;
+	} SRestriction;
+
+/* Sort type */
+#define TABLE_SORT_ASCEND	0
+#define TABLE_SORT_DESCEND	0
+
+	typedef [public] struct _SSortOrder{
+		uint32 ulPropTag;
+		uint32 ulOrder;
+	} SSortOrder;
+
+	typedef [public] struct _SSortOrderSet{
+		uint32 cSorts;
+		uint32 cCategories;
+		uint32 cExpanded;
+		[size_is(cSorts)][unique]SSortOrder *aSort;
+	} SSortOrderSet;
+
+	MAPISTATUS NspiGetMatches(
+		[in]		policy_handle	*handle,
+		[in]		uint32		unknown1,
+		[in,out]	MAPI_SETTINGS	*settings,
+		[in][unique]	SPropTagArray	*PropTagArray,
+		[in]		uint32	       	unknown2,
+		[in][unique]	SRestriction	*restrictions,
+		[in]		uint32		unknown3,
+		[out]		instance_key	*instance_key,
+		[in][unique]	SPropTagArray	*REQ_properties,
+		[out]		SRowSet		**RowSet
+		);
+
+
+	void NspiResortRestriction();
+
+	/*****************/
+	/* Function 0x07 */
+
+	typedef struct {
+		[string, charset(DOS)] uint8 *str;
+	} NAME_STRING;
+
+	MAPISTATUS  NspiDNToEph(
+		[in] policy_handle	*handle,
+		[in] uint32		flag,
+		[in] uint32		size,
+		[in,ref][size_is(size)] NAME_STRING  *server_dn,
+		[out] instance_key	*instance_key
+		);
+
+	void NspiGetPropList();
+
+	/*****************/
+	/* Function 0x09 */
+	MAPISTATUS NspiGetProps(
+		[in]   	policy_handle		*handle,
+		[in]   	uint32			flag,
+		[in]	MAPI_SETTINGS		*settings,
+		[in]	SPropTagArray		*REQ_properties,
+		[out]	SRow			**REPL_values
+		);
+
+
+	void NspiCompareDNTs();
+	void NspiModProps();
+
+#define	PT_UNSPECIFIED	0x0000
+#define	PT_NULL		0x0001
+#define	PT_I2		0x0002
+#define	PT_LONG		0x0003
+#define	PT_R4		0x0004
+#define	PT_DOUBLE	0x0005
+#define	PT_CURRENCY	0x0006
+#define	PT_APPTIME	0x0007
+#define	PT_ERROR	0x000a /* means the given attr contains no value */
+#define	PT_BOOLEAN	0x000b
+#define	PT_OBJECT	0x000d
+#define	PT_I8		0x0014
+#define	PT_STRING8	0x001e
+#define	PT_UNICODE	0x001f
+#define	PT_SYSTIME	0x0040
+#define	PT_CLSID       	0x0048
+#define	PT_BINARY	0x0102
+
+/* Multi-valued properties */
+
+#define	PT_MV_I2       	0x1002
+#define	PT_MV_LONG     	0x1003
+#define	PT_MV_R4       	0x1004
+#define	PT_MV_DOUBLE   	0x1005
+#define	PT_MV_CURRENCY 	0x1006
+#define	PT_MV_APPTIME  	0x1007
+#define	PT_MV_I8       	0x1014
+#define	PT_MV_STRING8	0x101e
+#define	PT_MV_TSTRING	0x101e
+#define	PT_MV_UNICODE	0x101f
+#define	PT_MV_SYSTIME	0x1040
+#define	PT_MV_CLSID	0x1048
+#define	PT_MV_BINARY	0x1102
+
+	/*****************/
+	/* Function 0x0c */
+
+	typedef struct {
+		uint32				cb;
+		[size_is(cb)][unique] uint8    	*lpb;
+	} SBinary;
+
+	typedef struct {
+		uint32 dwLowDateTime;
+		uint32 dwHighDateTime;
+	} FILETIME;
+
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] uint16 *lpi;
+	} SShortArray;
+
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] uint32 *lpl; 
+	} MV_LONG_STRUCT;
+
+	typedef struct {
+		ascstr_noterm lppszA;
+	} LPSTR;
+
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] LPSTR **strings; 
+	} SLPSTRArray;
+
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] SBinary *lpbin;
+	} SBinaryArray;
+
+	typedef [flag(NDR_NOALIGN)] struct {
+		uint32 cValues;
+		[size_is(cValues)] uint32 *lpguid; 
+	} SGuidArray;
+
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] uint32 *lpi;
+	} MV_UNICODE_STRUCT;
+	
+	typedef struct {
+		uint32 cValues;
+		[size_is(cValues)] FILETIME *lpft;
+	} SDateTimeArray;
+
+	typedef [switch_type(uint32)] union {
+		[case(PT_I2)]			uint16			i;
+		[case(PT_LONG)]			uint32			l;
+		[case(PT_BOOLEAN)]		uint16			b;
+		[case(PT_STRING8)][unique][string,charset(DOS)] uint8	*lpszA;
+		[case(PT_BINARY)]		SBinary			bin;
+		[case(PT_UNICODE)]		[string,charset(UTF16)] uint16	*lpszW;
+		[case(PT_CLSID)]		MAPIUID			*lpguid;
+		[case(PT_SYSTIME)]		FILETIME		ft;
+		[case(PT_ERROR)]		MAPISTATUS		err;
+		[case(PT_MV_I2)]		SShortArray		MVi;
+		[case(PT_MV_LONG)]		MV_LONG_STRUCT		MVl;
+		[case(PT_MV_STRING8)]		SLPSTRArray		MVszA;
+		[case(PT_MV_BINARY)]		SBinaryArray		MVbin;
+		[case(PT_MV_CLSID)]		SGuidArray		MVguid;
+		[case(PT_MV_UNICODE)]		MV_UNICODE_STRUCT	MVszW;
+		[case(PT_MV_SYSTIME)]		SDateTimeArray		MVft;
+		[case(PT_NULL)]			uint32			null;
+		[case(PT_OBJECT)]		uint32			object;
+	} SPropValue_CTR;
+
+	typedef [public]struct {
+		MAPITAGS ulPropTag;
+		uint32 dwAlignPad;
+		[switch_is(ulPropTag & 0xFFFF)] SPropValue_CTR value; 
+	} SPropValue;
+	
+	typedef struct {
+		uint32 ulAdrEntryPad;
+		uint32 cValues;
+		[size_is(cValues)][unique] SPropValue *lpProps;
+	} SRow;
+
+
+	typedef [public] struct {
+		uint32 cRows;
+		[size_is(cRows)] SRow aRow[*];
+	} SRowSet;
+	
+	MAPISTATUS NspiGetHierarchyInfo(
+		[in] policy_handle	*handle,
+		[in] uint32		unknown1,
+		[in] MAPI_SETTINGS	*settings,
+ 		[in,out] uint32		*unknown2,
+ 		[out] SRowSet		**RowSet
+		);
+
+	void NspiGetTemplateInfo();
+	void NspiModLInkAtt();
+	void NspiDeleteEntries();
+	void NspiQueryColumns();
+	void NspiGetNamesFromIDs();
+	void NspiGetIDsFromNames();
+	void NspiResolveNames();
+	void NspiResolveNamesW();
+}
