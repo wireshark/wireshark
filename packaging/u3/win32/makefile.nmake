@@ -35,6 +35,7 @@ $(HOST):
 	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)
 	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
 	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	$(MKDIR) $(HOST)\$(GTK_WIMP_DLLDST_DIR)
 	$(MKDIR) $(HOST)\lib\pango
 	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)
 	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
@@ -87,6 +88,7 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\dtds\pocsettings.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\presence.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\reginfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\rlmi.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\rss.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\smil.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\xcap-caps.dtd $(DEVICE)\dtds $(COPY_FLAGS)
@@ -194,7 +196,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\radius\dictionary.versanet $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.wispr $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.xedia $(DEVICE)\radius $(COPY_FLAGS)
-	$(COPY) $(GTK_THEME_DIR)\gtkrc $(DEVICE)\share\themes\Default\gtk-2.0 $(COPY_FLAGS)
 	$(COPY) $(NET_SNMP_DIR)\mibs\*.txt $(DEVICE)\snmp\mibs $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\text2pcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\tshark.html $(DEVICE) $(COPY_FLAGS)
@@ -202,6 +203,8 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\doc\wireshark-filter.html $(DEVICE) $(COPY_FLAGS)
 !IFDEF LUA_DIR
 	$(COPY) $(TOPDIR)\epan\wslua\init.lua $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\epan\wslua\console.lua $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\epan\wslua\dtd_gen.lua $(DEVICE) $(COPY_FLAGS)
 !ENDIF
 # host
 #
