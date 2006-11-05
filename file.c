@@ -87,7 +87,7 @@ static guint32 cum_bytes = 0;
 
 static void cf_reset_state(capture_file *cf);
 
-static void read_packet(capture_file *cf, long offset);
+static int read_packet(capture_file *cf, long offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
@@ -562,6 +562,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
   gchar *err_info;
+  int newly_displayed_packets = 0;
 
   *err = 0;
 
@@ -576,21 +577,25 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, data_offset);
+    if (read_packet(cf, data_offset) != -1) {
+        newly_displayed_packets++;
+    }
     to_read--;
   }
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
 	  cf->count, cf->state, *err);*/
 
+  /* XXX - this causes "flickering" of the list */
   packet_list_thaw();
 
-  /* moving to the end of the packet list - if the user requested so.
+  /* moving to the end of the packet list - if the user requested so and 
+     we have some new packets.
      this doesn't seem to work well with a frozen GTK_Clist, so do this after
      packet_list_thaw() is done, see bugzilla 1188 */
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
-  if (auto_scroll_live && cf->plist_end != NULL)
+  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
     packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -902,7 +907,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   return row;
 }
 
-static void
+/* read in a new packet */
+/* returns the row of the new packet in the packet list or -1 if not displayed */
+static int
 read_packet(capture_file *cf, long offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
@@ -912,6 +919,7 @@ read_packet(capture_file *cf, long offset)
   int           passed;
   frame_data   *plist_end;
   epan_dissect_t *edt;
+  int row = -1;
 
   /* Allocate the next list entry, and add it to the list. */
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
@@ -952,7 +960,7 @@ read_packet(capture_file *cf, long offset)
     cf->count++;
     cf->f_datalen = offset + phdr->caplen;
     fdata->num = cf->count;
-    add_packet_to_packet_list(fdata, cf, pseudo_header, buf, TRUE);
+    row = add_packet_to_packet_list(fdata, cf, pseudo_header, buf, TRUE);
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
@@ -964,6 +972,8 @@ read_packet(capture_file *cf, long offset)
        seem to save a noticeable amount of time or space. */
     g_mem_chunk_free(cf->plist_chunk, fdata);
   }
+
+  return row;
 }
 
 cf_status_t
