@@ -17,10 +17,25 @@ MANUAL eventlog_dissect_element_Record_num_of_strings
 MANUAL eventlog_dissect_element_Record_stringoffset
 MANUAL eventlog_dissect_element_Record_strings
 
+
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions (open==0x0001)
+PARAM_VALUE eventlog_dissect_element_OpenEventLogW_handle_       0x0001
+PARAM_VALUE eventlog_dissect_element_OpenBackupEventLogW_handle_ 0x0001
+# Policyhandles are closed in these functions (close==0x0002)
+PARAM_VALUE eventlog_dissect_element_CloseEventLog_handle_       0x0002
+
+
+
 CODE START
 /* Add this one manually until we can compile LSA */
 static int
-lsa_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
+eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
 {
 	dcerpc_info *di;
 

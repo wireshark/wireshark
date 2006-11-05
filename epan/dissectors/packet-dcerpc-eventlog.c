@@ -259,7 +259,7 @@ static int eventlog_dissect_element_FlushEventLog_handle(tvbuff_t *tvb, int offs
 static int eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 /* Add this one manually until we can compile LSA */
 static int
-lsa_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
+eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
 {
 	dcerpc_info *di;
 	di=pinfo->private_data;
@@ -853,7 +853,7 @@ eventlog_dissect_element_ClearEventLogW_backupfilename(tvbuff_t *tvb, int offset
 static int
 eventlog_dissect_element_ClearEventLogW_backupfilename_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_ClearEventLogW_backupfilename,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_ClearEventLogW_backupfilename,0);
 
 	return offset;
 }
@@ -913,7 +913,7 @@ eventlog_dissect_element_BackupEventLogW_backupfilename(tvbuff_t *tvb, int offse
 static int
 eventlog_dissect_element_BackupEventLogW_backupfilename_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_BackupEventLogW_backupfilename,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_BackupEventLogW_backupfilename,0);
 
 	return offset;
 }
@@ -957,7 +957,7 @@ eventlog_dissect_element_CloseEventLog_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_CloseEventLog_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_CloseEventLog_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_CloseEventLog_handle, NULL, NULL, 0x0002&0x01, 0x0002&0x02);
 
 	return offset;
 }
@@ -1230,7 +1230,7 @@ eventlog_dissect_element_OpenEventLogW_unknown0_(tvbuff_t *tvb, int offset, pack
 static int
 eventlog_dissect_element_OpenEventLogW_logname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenEventLogW_logname,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenEventLogW_logname,0);
 
 	return offset;
 }
@@ -1238,7 +1238,7 @@ eventlog_dissect_element_OpenEventLogW_logname(tvbuff_t *tvb, int offset, packet
 static int
 eventlog_dissect_element_OpenEventLogW_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenEventLogW_servername,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenEventLogW_servername,0);
 
 	return offset;
 }
@@ -1270,7 +1270,7 @@ eventlog_dissect_element_OpenEventLogW_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_OpenEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenEventLogW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenEventLogW_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1335,7 +1335,7 @@ eventlog_dissect_element_RegisterEventSourceW_unknown0_(tvbuff_t *tvb, int offse
 static int
 eventlog_dissect_element_RegisterEventSourceW_logname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_RegisterEventSourceW_logname,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_RegisterEventSourceW_logname,0);
 
 	return offset;
 }
@@ -1343,7 +1343,7 @@ eventlog_dissect_element_RegisterEventSourceW_logname(tvbuff_t *tvb, int offset,
 static int
 eventlog_dissect_element_RegisterEventSourceW_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_RegisterEventSourceW_servername,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_RegisterEventSourceW_servername,0);
 
 	return offset;
 }
@@ -1440,7 +1440,7 @@ eventlog_dissect_element_OpenBackupEventLogW_unknown0_(tvbuff_t *tvb, int offset
 static int
 eventlog_dissect_element_OpenBackupEventLogW_logname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = lsa_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenBackupEventLogW_logname,0);
+	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,drep,hf_eventlog_eventlog_OpenBackupEventLogW_logname,0);
 
 	return offset;
 }
@@ -1472,7 +1472,7 @@ eventlog_dissect_element_OpenBackupEventLogW_handle(tvbuff_t *tvb, int offset, p
 static int
 eventlog_dissect_element_OpenBackupEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenBackupEventLogW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenBackupEventLogW_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -2099,7 +2099,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_GetNumRecords_handle, 
 	  { "Handle", "eventlog.eventlog_GetNumRecords.handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_eventlog_status, 
-	  { "Status", "eventlog.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, "", HFILL }},
+	  { "NT Error", "eventlog.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, "", HFILL }},
 	{ &hf_eventlog_eventlog_Record_sid_offset, 
 	  { "Sid Offset", "eventlog.eventlog_Record.sid_offset", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_logname, 
