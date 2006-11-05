@@ -126,7 +126,7 @@ static int efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb, int 
 static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int
-dom_dissect_struct_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
@@ -226,7 +226,7 @@ efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvbuff_t *tvb, int offs
 static int
 efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dom_dissect_struct_sid(tvb,offset,pinfo,tree,drep,hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid,0);
+	offset = efs_dissect_struct_dom_sid(tvb,offset,pinfo,tree,drep,hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid,0);
 
 	return offset;
 }
@@ -458,7 +458,7 @@ efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvbuff_t *tvb, int offset, p
 static int
 efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dom_dissect_struct_sid(tvb,offset,pinfo,tree,drep,hf_efs_ENCRYPTION_CERTIFICATE_pUserSid,0);
+	offset = efs_dissect_struct_dom_sid(tvb,offset,pinfo,tree,drep,hf_efs_ENCRYPTION_CERTIFICATE_pUserSid,0);
 
 	return offset;
 }
@@ -518,7 +518,7 @@ efs_dissect_element_EfsRpcOpenFileRaw_pvContext(tvbuff_t *tvb, int offset, packe
 static int
 efs_dissect_element_EfsRpcOpenFileRaw_pvContext_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_efs_EfsRpcOpenFileRaw_pvContext, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_efs_EfsRpcOpenFileRaw_pvContext, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -667,7 +667,7 @@ efs_dissect_element_EfsRpcCloseRaw_pvContext(tvbuff_t *tvb, int offset, packet_i
 static int
 efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_efs_EfsRpcCloseRaw_pvContext, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_efs_EfsRpcCloseRaw_pvContext, NULL, NULL, 0x0002&0x01, 0x0002&0x02);
 
 	return offset;
 }
@@ -679,8 +679,6 @@ efs_dissect_element_EfsRpcCloseRaw_pvContext_(tvbuff_t *tvb, int offset, packet_
 static int
 efs_dissect_EfsRpcCloseRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
 	offset = efs_dissect_element_EfsRpcCloseRaw_pvContext(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
