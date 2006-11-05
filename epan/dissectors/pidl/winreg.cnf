@@ -167,4 +167,12 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		&winreg_access_mask_info, NULL);
 	return offset;
 }
+
+/* FIXME: pidl generates the wrong name for external symbols */
+static int
+winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param)
+{
+	return initshutdown_dissect_struct_String(tvb, offset, pinfo, parent_tree, drep, hf_index, param);
+}
+
 CODE END

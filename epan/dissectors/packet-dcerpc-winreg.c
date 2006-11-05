@@ -417,6 +417,12 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		&winreg_access_mask_info, NULL);
 	return offset;
 }
+/* FIXME: pidl generates the wrong name for external symbols */
+static int
+winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param)
+{
+	return initshutdown_dissect_struct_String(tvb, offset, pinfo, parent_tree, drep, hf_index, param);
+}
 
 /* IDL: typedef bitmap { */
 /* IDL: } winreg_AccessMask; */
@@ -437,9 +443,9 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 /* IDL: } winreg_Type; */
 
 int
-winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, param);
 	return offset;
 }
 
@@ -635,9 +641,9 @@ winreg_dissect_struct_SecBuf(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 /* IDL: } winreg_CreateAction; */
 
 int
-winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, param);
 	return offset;
 }
 
@@ -827,7 +833,7 @@ winreg_dissect_element_OpenHKCR_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCR_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -899,7 +905,7 @@ winreg_dissect_element_OpenHKCU_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -971,7 +977,7 @@ winreg_dissect_element_OpenHKLM_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKLM_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1043,7 +1049,7 @@ winreg_dissect_element_OpenHKPD_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1115,7 +1121,7 @@ winreg_dissect_element_OpenHKU_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_OpenHKU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1163,7 +1169,7 @@ winreg_dissect_element_CloseKey_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_CloseKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0002&0x01, 0x0002&0x02);
 
 	return offset;
 }
@@ -1271,7 +1277,7 @@ winreg_dissect_element_CreateKey_new_handle(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_CreateKey_new_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1353,7 +1359,7 @@ winreg_dissect_element_DeleteKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_DeleteKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0002&0x01, 0x0002&0x02);
 
 	return offset;
 }
@@ -2803,7 +2809,7 @@ winreg_dissect_element_InitiateSystemShutdown_message(tvbuff_t *tvb, int offset,
 static int
 winreg_dissect_element_InitiateSystemShutdown_message_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = initshutdown_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_InitiateSystemShutdown_message,0);
+	offset = winreg_dissect_struct_initshutdown_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_InitiateSystemShutdown_message,0);
 
 	return offset;
 }
@@ -3006,7 +3012,7 @@ winreg_dissect_element_OpenHKCC_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCC_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -3078,7 +3084,7 @@ winreg_dissect_element_OpenHKDD_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKDD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -3276,7 +3282,7 @@ winreg_dissect_element_InitiateSystemShutdownEx_message(tvbuff_t *tvb, int offse
 static int
 winreg_dissect_element_InitiateSystemShutdownEx_message_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = initshutdown_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_InitiateSystemShutdownEx_message,0);
+	offset = winreg_dissect_struct_initshutdown_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_InitiateSystemShutdownEx_message,0);
 
 	return offset;
 }
@@ -3411,7 +3417,7 @@ winreg_dissect_element_OpenHKPT_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPT_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -3483,7 +3489,7 @@ winreg_dissect_element_OpenHKPN_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 1&0x01, 1&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
