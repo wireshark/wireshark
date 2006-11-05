@@ -270,6 +270,13 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 	proto_tree_add_item(tree, hf_scsi_osd_attributes_list_length, tvb, offset, 2, 0);
 	offset+=2;
 
+	/* if type is 1 length will be zero and we have to cycle over
+	 * all remaining bytes.   7.1.3.1 
+	 */
+	if(type==1){
+		length=tvb_length_remaining(tvb, offset);
+	}
+
 	while( (offset-start_offset)<(length+4) ){
 		switch(type){
 		case 0x01: /* retrieving attributes 7.1.3.2 */
@@ -282,6 +289,32 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 			number=tvb_get_ntohl(tvb, offset);
 			item=proto_tree_add_item(tree, hf_scsi_osd_attribute_number, tvb, offset, 4, 0);
 			offset+=4;
+
+			/* find the proper attributes page */
+			apn=NULL;
+			for(ap=attribute_pages;ap->attributes;ap++){
+				if(ap->page==page){
+					apn=ap->attributes;
+					break;
+				}
+			}
+			if(!apn){
+				proto_tree_add_text(tree, tvb, offset, length, "Unknown attribute page. can not decode attribute value");
+				break;
+			}
+			/* find the specific attribute */
+			for(;apn->name;apn++){
+				if(apn->number==number){
+					break;
+				}
+			}
+			if(!apn->name){
+				proto_tree_add_text(tree, tvb, offset, length, "Unknown attribute. can not decode attribute value");
+				break;
+			}
+			/* found it */
+			proto_item_append_text(item, " (%s)", apn->name);
+
 			break;
 		case 0x0f: /* create attributes 7.1.3.4 */
 			/* user object id */
@@ -475,8 +508,11 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		extra_data->get_list_allocation_length=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
-		proto_tree_add_item(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, 0);
+		/* 4.12.5 */
 		extra_data->retreived_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->retreived_list_offset=(extra_data->retreived_list_offset&0x0fffffff)<<((extra_data->retreived_list_offset>>28)&0x0f);
+		extra_data->retreived_list_offset<<=8;
+		proto_tree_add_uint(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, extra_data->retreived_list_offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_length, tvb, offset, 4, 0);
@@ -496,7 +532,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 
 
 static void
-dissect_osd_attribute_data_out(tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata)
+dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata)
 {
 	guint8 gsatype=0;
 	scsi_osd_extra_data_t *extra_data=NULL;
@@ -514,7 +550,7 @@ dissect_osd_attribute_data_out(tvbuff_t *tvb, int offset _U_, proto_tree *tree, 
 		break;
 	case 3: /* 5.2.2.3  attribute list */
 		if(extra_data->get_list_length){
-			proto_tree_add_text(tree, tvb, extra_data->get_list_offset, extra_data->get_list_length, "Get Attributes Data");
+			dissect_osd_attributes_list(pinfo, tvb, extra_data->get_list_offset, tree);
 		}
 		if(extra_data->set_list_length){
 			proto_tree_add_text(tree, tvb, extra_data->set_list_offset, extra_data->set_list_length, "Set Attributes Data");
@@ -543,7 +579,7 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset, pro
 		break;
 	case 3: /* 5.2.2.3  attribute list */
 		if(extra_data->get_list_allocation_length){
-			dissect_osd_attributes_list(pinfo, tvb, offset, tree);
+			dissect_osd_attributes_list(pinfo, tvb, extra_data->retreived_list_offset, tree);
 		}
 		break;
 	}
@@ -818,7 +854,7 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for format osd */
 	}
@@ -936,7 +972,7 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for create partition */
 	}
@@ -1074,7 +1110,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for LIST */
 	}
@@ -1198,7 +1234,7 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for create */
 	}
@@ -1261,7 +1297,7 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for remove partition */
 	}
@@ -1362,7 +1398,7 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for set key */
 	}
@@ -1428,7 +1464,7 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for remove */
 	}
@@ -1514,7 +1550,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for remove collection */
 	}
@@ -1606,7 +1642,7 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* xxx should dissect the data ? */
 	}
@@ -1683,7 +1719,7 @@ dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for create collection */
 	}
@@ -1764,7 +1800,7 @@ dissect_osd_flush(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for flush */
 	}
@@ -1847,7 +1883,7 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for flush collection */
 	}
@@ -1922,7 +1958,7 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* xxx should dissect the data ? */
 	}
@@ -1996,7 +2032,7 @@ dissect_osd_create_and_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* should we dissect the data? */
 	}
@@ -2067,7 +2103,7 @@ dissect_osd_flush_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for flush osd */
 	}
@@ -2146,7 +2182,7 @@ dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for flush partition */
 	}
@@ -2213,7 +2249,7 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for get attributes */
 	}
@@ -2288,7 +2324,7 @@ dissect_osd_list_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for list collection */
 	}
@@ -2364,7 +2400,7 @@ dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for READ */
 	}
@@ -2431,7 +2467,7 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* dissecting the DATA OUT */
 	if(isreq && !iscdb){
 		/* attribute data out */
-		dissect_osd_attribute_data_out(tvb, offset, tree, cdata);
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
 		/* no data out for set attributes */
 	}
