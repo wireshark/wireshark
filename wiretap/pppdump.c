@@ -100,8 +100,8 @@ typedef enum {
 } direction_enum;
 
 static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean pppdump_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
@@ -313,7 +313,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean
-pppdump_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
+pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	int		num_bytes;
 	direction_enum	direction;
@@ -702,7 +702,7 @@ done:
 /* Used to read packets in random-access fashion */
 static gboolean
 pppdump_seek_read(wtap *wth,
-		 long seek_off,
+		 gint64 seek_off,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
 		 int len,

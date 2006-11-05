@@ -87,7 +87,7 @@ static guint32 cum_bytes = 0;
 
 static void cf_reset_state(capture_file *cf);
 
-static int read_packet(capture_file *cf, long offset);
+static int read_packet(capture_file *cf, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
@@ -366,7 +366,7 @@ cf_read(capture_file *cf)
   const char  *errmsg;
   char         errmsg_errno[1024+1];
   gchar        err_str[2048+1];
-  long         data_offset;
+  gint64       data_offset;
   progdlg_t   *progbar = NULL;
   gboolean     stop_flag;
   gint64       size, file_pos;
@@ -560,7 +560,7 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 cf_read_status_t
 cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
-  long data_offset = 0;
+  gint64 data_offset = 0;
   gchar *err_info;
   int newly_displayed_packets = 0;
 
@@ -620,7 +620,7 @@ cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
-  long data_offset;
+  gint64 data_offset;
 
   if(cf->wth == NULL) {
     cf_close(cf);
@@ -910,7 +910,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
-read_packet(capture_file *cf, long offset)
+read_packet(capture_file *cf, gint64 offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
@@ -994,7 +994,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   gchar             err_str[2048+1];
   const char       *errmsg;
   gboolean          got_read_error = FALSE, got_write_error = FALSE;
-  long              data_offset;
+  gint64            data_offset;
   progdlg_t        *progbar = NULL;
   gboolean          stop_flag;
   gint64            f_len, file_pos;

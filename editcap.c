@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
   unsigned int choplen = 0;             /* No chop                */
   wtap_dumper *pdh;
   int count = 1;
-  long data_offset;
+  gint64 data_offset;
   struct wtap_pkthdr snap_phdr;
   const struct wtap_pkthdr *phdr;
   int err_type;

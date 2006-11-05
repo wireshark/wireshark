@@ -859,12 +859,12 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	return ret;
 }
 
-long wtap_get_bytes_dumped(wtap_dumper *wdh)
+gint64 wtap_get_bytes_dumped(wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
 
-void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped)
+void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
 }

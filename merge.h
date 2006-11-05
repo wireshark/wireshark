@@ -42,7 +42,7 @@ typedef enum {
 typedef struct merge_in_file_s {
   const char     *filename;
   wtap           *wth;
-  long            data_offset;
+  gint64          data_offset;
   in_file_state_e state;
   gint64          size;		/* file size */
 } merge_in_file_t;

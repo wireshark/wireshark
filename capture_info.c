@@ -224,7 +224,7 @@ void capture_info_new_packets(int to_read)
 {
     int err;
     gchar *err_info;
-    long data_offset;
+    gint64 data_offset;
     const struct wtap_pkthdr *phdr;
     union wtap_pseudo_header *pseudo_header;
     int wtap_linktype;

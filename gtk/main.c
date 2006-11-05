@@ -1401,11 +1401,11 @@ set_display_filename(capture_file *cf)
 
   /* convert file size */
   if (cf->f_datalen/1024/1024 > 10) {
-    size_str = g_strdup_printf("%ld MB", cf->f_datalen/1024/1024);
+    size_str = g_strdup_printf("%lld MB", cf->f_datalen/1024/1024);
   } else if (cf->f_datalen/1024 > 10) {
-    size_str = g_strdup_printf("%ld KB", cf->f_datalen/1024);
+    size_str = g_strdup_printf("%lld KB", cf->f_datalen/1024);
   } else {
-    size_str = g_strdup_printf("%ld Bytes", cf->f_datalen);
+    size_str = g_strdup_printf("%lld Bytes", cf->f_datalen);
   }
 
   /* statusbar */
@@ -1657,19 +1657,19 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
 #if 0
     /* XXX - don't show the highest expert level unless the TCP checksum offloading is "solved" */
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB [Expert: %s]",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld MB [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024/1024,
             val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB [Expert: %s]",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld KB [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024,
             val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes [Expert: %s]",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld Bytes [Expert: %s]",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen,
@@ -1677,17 +1677,17 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     }
 #endif
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld MB",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld KB",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024);
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld Bytes",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen);

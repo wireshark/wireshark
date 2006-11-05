@@ -48,8 +48,8 @@ typedef struct {
 	unsigned char *buf;	/* buffer into which we uncompress data */
 	size_t	nbytes;		/* number of bytes of data in that buffer */
 	int	nextout;	/* offset in that buffer of stream's current position */
-	long	comp_offset;	/* current offset in compressed data stream */
-	long	uncomp_offset;	/* current offset in uncompressed data stream */
+	gint64	comp_offset;	/* current offset in compressed data stream */
+	gint64	uncomp_offset;	/* current offset in uncompressed data stream */
 } ngsniffer_comp_stream_t;
 
 typedef struct {
@@ -111,8 +111,8 @@ typedef struct {
 	double		start_timestamp;
 	gboolean	wrapped;
 	guint32		nframes;
-	long		start_offset;
-	long		end_offset;
+	gint64		start_offset;
+	gint64		end_offset;
 	int		version_major;
 	gboolean	fcs_valid;	/* if packets have valid FCS at the end */
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
@@ -121,7 +121,7 @@ typedef struct {
 typedef struct {
 	time_t inittime;
 	int adjusted;
-	long next_packet_seek_start;
+	gint64 next_packet_seek_start;
 } ascend_t;
 
 typedef struct {
@@ -149,8 +149,8 @@ typedef struct {
 	guint32	start_usecs;
 } catapult_dct2000_t;
 
-typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, long*);
-typedef gboolean (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
+typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
+typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
 struct wtap {
 	FILE_T			fh;
@@ -162,7 +162,7 @@ struct wtap {
 	struct wtap_pkthdr	phdr;
 	union wtap_pseudo_header pseudo_header;
 
-	long			data_offset;
+	gint64			data_offset;
 
 	union {
 		libpcap_t		*pcap;
@@ -248,7 +248,7 @@ struct wtap_dumper {
 	int			snaplen;
 	int			encap;
 	gboolean	compressed;
-	long			bytes_dumped;
+	gint64		bytes_dumped;
 
 	union {
 		void			*opaque;

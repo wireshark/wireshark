@@ -89,8 +89,8 @@ static void init_time_offset(void)
 }
 
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean observer_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, packet_entry_header *packet_header,
@@ -230,7 +230,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
 /* reads the next packet */
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	int offset;
 	packet_entry_header packet_header;
@@ -280,7 +280,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 	    GUINT64_FROM_LE(packet_header.nano_seconds_since_2000);
 	wth->phdr.ts.secs =
 	    (time_t) (packet_header.nano_seconds_since_2000/1000000000 + seconds1970to2000);
-	wth->phdr.ts.nsecs = packet_header.nano_seconds_since_2000%1000000000;
+	wth->phdr.ts.nsecs = (int) (packet_header.nano_seconds_since_2000%1000000000);
 
 	/* set-up the packet buffer */
 	buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
@@ -306,7 +306,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 }
 
 /* reads a packet at an offset */
-static gboolean observer_seek_read(wtap *wth, long seek_off,
+static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {

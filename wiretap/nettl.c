@@ -175,8 +175,8 @@ struct nettlrec_ns_ls_drv_eth_hdr {
 /* header is followed by data and once again the total length (2 bytes) ! */
 
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
-		long *data_offset);
-static gboolean nettl_seek_read(wtap *wth, long seek_off,
+		gint64 *data_offset);
+static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
@@ -285,7 +285,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Read the next packet */
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
     int ret;
     gboolean fddihack=FALSE;
@@ -327,7 +327,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-nettl_seek_read(wtap *wth, long seek_off,
+nettl_seek_read(wtap *wth, gint64 seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err, gchar **err_info)
 {

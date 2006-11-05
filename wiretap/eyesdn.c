@@ -95,8 +95,8 @@ static const unsigned char eyesdn_hdr_magic[]  =
 #define EYESDN_MAX_PACKET_LEN	16384
 
 static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean eyesdn_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static gboolean parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf,
@@ -106,10 +106,10 @@ static int parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static long eyesdn_seek_next_packet(wtap *wth, int *err)
+static gint64 eyesdn_seek_next_packet(wtap *wth, int *err)
 {
   int byte;
-  long cur_off;
+  gint64 cur_off;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == 0xff) {
@@ -163,9 +163,9 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
-	long	offset;
+	gint64	offset;
 	guint8	*buf;
 	int	pkt_len;
 
@@ -195,7 +195,7 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-eyesdn_seek_read (wtap *wth, long seek_off,
+eyesdn_seek_read (wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {

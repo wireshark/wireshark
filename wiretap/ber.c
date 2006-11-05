@@ -42,7 +42,7 @@
 #define BER_UNI_TAG_SEQ	16	/* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET	17	/* SET, SET OF */
 
-static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
+static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
   guint8 *buf;
   gint64 file_size;
@@ -93,7 +93,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offse
   return TRUE;
 }
 
-static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_,
+static gboolean ber_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_,
 			      guint8 *pd, int length, int *err, gchar **err_info _U_)
 {
   int packet_size = length;

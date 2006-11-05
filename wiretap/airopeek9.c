@@ -78,8 +78,8 @@ typedef struct airopeek_utime {
 } airopeek_utime;
 
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean airopeekv9_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static void airopeekv9_close(wtap *wth);
@@ -475,7 +475,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 #define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
 
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
     hdr_info_t hdr_info;
     int hdrlen;
@@ -551,7 +551,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 
 
 static gboolean
-airopeekv9_seek_read(wtap *wth, long seek_off,
+airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {

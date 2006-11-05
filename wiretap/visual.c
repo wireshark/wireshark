@@ -113,9 +113,9 @@ struct visual_write_info
 
 /* Local functions to handle file reads and writes */
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
+    gint64 *data_offset);
 static void visual_close(wtap *wth);
-static gboolean visual_seek_read(wtap *wth, long seek_off,
+static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info);
 static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
@@ -233,7 +233,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
    the file has been read once, any Future access to the packets is
    done through seek_read. */
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
     struct visual_read_info *visual = wth->capture.generic;
     guint32 packet_size = 0;
@@ -330,7 +330,7 @@ static void visual_close(wtap *wth)
 /* Read packet data for random access.
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
-static gboolean visual_seek_read (wtap *wth, long seek_off,
+static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
     int *err, gchar **err_info _U_)
 {

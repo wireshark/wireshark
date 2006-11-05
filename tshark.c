@@ -178,7 +178,7 @@ static void report_counts_siginfo(int);
 #endif /* HAVE_LIBPCAP */
 
 static int load_cap_file(capture_file *, char *, int);
-static gboolean process_packet(capture_file *cf, long offset,
+static gboolean process_packet(capture_file *cf, gint64 offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
     const guchar *pd);
 static void show_capture_file_io_error(const char *, int, gboolean);
@@ -2048,7 +2048,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
   wtap_dumper *pdh;
   int          err;
   gchar        *err_info;
-  long         data_offset;
+  gint64       data_offset;
   char         *save_file_string = NULL;
 
   linktype = wtap_file_encap(cf->wth);
@@ -2185,7 +2185,7 @@ out:
 
 static void
 fill_in_fdata(frame_data *fdata, capture_file *cf,
-              const struct wtap_pkthdr *phdr, long offset)
+              const struct wtap_pkthdr *phdr, gint64 offset)
 {
   fdata->next = NULL;
   fdata->prev = NULL;
@@ -2246,7 +2246,7 @@ clear_fdata(frame_data *fdata)
 }
 
 static gboolean
-process_packet(capture_file *cf, long offset, const struct wtap_pkthdr *whdr,
+process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
                union wtap_pseudo_header *pseudo_header, const guchar *pd)
 {
   frame_data fdata;

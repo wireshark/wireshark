@@ -79,8 +79,8 @@ static const ascend_magic_string ascend_magic[] = {
 };
 
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean ascend_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static void ascend_close(wtap *wth);
@@ -88,10 +88,10 @@ static void ascend_close(wtap *wth);
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static long ascend_seek(wtap *wth, int *err)
+static gint64 ascend_seek(wtap *wth, int *err)
 {
   int byte;
-  long date_off = -1, cur_off, packet_off;
+  gint64 date_off = -1, cur_off, packet_off;
   guint string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
 
@@ -163,7 +163,7 @@ found:
 
 int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-  long offset;
+  gint64 offset;
   struct stat statbuf;
 
   /* We haven't yet allocated a data structure for our private stuff;
@@ -247,9 +247,9 @@ static void config_pseudo_header(union wtap_pseudo_header *pseudo_head)
 
 /* Read the next packet; called from wtap_read(). */
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset)
+	gint64 *data_offset)
 {
-  long offset;
+  gint64 offset;
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
   ascend_pkthdr header;
 
@@ -303,7 +303,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   return TRUE;
 }
 
-static gboolean ascend_seek_read(wtap *wth, long seek_off,
+static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {

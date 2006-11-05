@@ -137,13 +137,13 @@
 #define ISERIES_FORMAT_UNICODE  2
 
 static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
-			      long *data_offset);
-static gboolean iseries_seek_read (wtap * wth, long seek_off,
+			      gint64 *data_offset);
+static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
 				   union wtap_pseudo_header *pseudo_header,
 				   guint8 * pd, int len, int *err,
 				   gchar ** err_info);
 static gboolean iseries_check_file_type (wtap * wth, int *err, int format);
-static long iseries_seek_next_packet (wtap * wth, int *err);
+static gint64 iseries_seek_next_packet (wtap * wth, int *err);
 static int iseries_parse_packet (wtap * wth, FILE_T fh,
 				 union wtap_pseudo_header *pseudo_header,
 				 guint8 * pd, int *err, gchar ** err_info);
@@ -332,9 +332,9 @@ iseries_check_file_type (wtap * wth, int *err, int format)
  * Find the next packet and parse it; called from wtap_read().
  */
 static gboolean
-iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
+iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
 {
-  long offset;
+  gint64 offset;
   int pkt_len;
 
   /*
@@ -362,12 +362,13 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
  * Seeks to the beginning of the next packet, and returns the
  * byte offset.  Returns -1 on failure, and sets "*err" to the error.
  */
-static long
+static gint64
 iseries_seek_next_packet (wtap * wth, int *err)
 {
   char buf[ISERIES_LINE_LENGTH];
   int line;
-  long cur_off, buflen;
+  gint64 cur_off;
+  long buflen;
 
   /*
    * Seeks to the beginning of the next packet, and returns the
@@ -432,7 +433,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
  * Read packets in random-access fashion
  */
 static gboolean
-iseries_seek_read (wtap * wth, long seek_off,
+iseries_seek_read (wtap * wth, gint64 seek_off,
 		   union wtap_pseudo_header *pseudo_header, guint8 * pd,
 		   int len, int *err, gchar ** err_info)
 {
@@ -469,7 +470,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 		      union wtap_pseudo_header *pseudo_header, guint8 * pd,
 		      int *err, gchar ** err_info)
 {
-  long cur_off;
+  gint64 cur_off;
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
   int num_items_scanned, line, pktline, buflen;
   int pkt_len, cap_len, pktnum, month, day, year, hr, min, sec, csec;

@@ -112,8 +112,8 @@ static gchar outhdr_name[MAX_OUTHDR_NAME+1];
 /************************************************************/
 /* Functions called from wiretap                            */
 static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
-                                      long *data_offset);
-static gboolean catapult_dct2000_seek_read(wtap *wth, long seek_off,
+                                      gint64 *data_offset);
+static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                            union wtap_pseudo_header *pseudo_header,
                                            guchar *pd, int length,
                                            int *err, gchar **err_info);
@@ -127,7 +127,7 @@ static gboolean catapult_dct2000_dump_close(wtap_dumper *wdh, int *err);
 
 /************************************************************/
 /* Private helper functions                                 */
-static gboolean read_new_line(FILE_T fh, long *offset, gint *length);
+static gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length);
 static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset,
@@ -141,7 +141,7 @@ static gchar char_from_hex(guchar hex);
 
 static void set_pseudo_header_info(wtap *wth,
                                    int pkt_encap,
-                                   long file_offset,
+                                   gint64 file_offset,
                                    union wtap_pseudo_header *pseudo_header,
                                    packet_direction_t direction);
 static void set_aal_info(union wtap_pseudo_header *pseudo_header,
@@ -164,7 +164,7 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 /********************************************/
 int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    long    offset = 0;
+    gint64  offset = 0;
     time_t  timestamp;
     guint32 usecs;
     gint firstline_length;
@@ -269,9 +269,9 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 /* - return TRUE and details if found             */
 /**************************************************/
 gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
-                               long *data_offset)
+                               gint64 *data_offset)
 {
-    long offset = wth->data_offset;
+    gint64 offset = wth->data_offset;
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
     int encap;
@@ -290,7 +290,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
     while (1)
     {
         int line_length, seconds, useconds, data_chars;
-        long this_offset = offset;
+        gint64 this_offset = offset;
 
         /* Are looking for first packet after 2nd line */
         if (wth->data_offset == 0)
@@ -412,11 +412,11 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 /* Read & seek function.                          */
 /**************************************************/
 static gboolean
-catapult_dct2000_seek_read(wtap *wth, long seek_off,
+catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            union wtap_pseudo_header *pseudo_header, guchar *pd,
                            int length, int *err, gchar **err_info)
 {
-    long offset = wth->data_offset;
+    gint64 offset = wth->data_offset;
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
     int encap;
@@ -476,7 +476,7 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
     /* If get here, must have failed */
     *err = errno;
     *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
-                                "line at position %ld", seek_off);
+                                "line at position %lld", seek_off);
     return FALSE;
 }
 
@@ -700,7 +700,7 @@ static gboolean catapult_dct2000_dump_close(wtap_dumper *wdh _U_, int *err _U_)
 /* - on return 'offset' will point to the next position to read from  */
 /* - return TRUE if this read is successful                           */
 /**********************************************************************/
-gboolean read_new_line(FILE_T fh, long *offset, gint *length)
+gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
 {
     char *result;
 
@@ -1176,7 +1176,7 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
 /**************************************************************/
 void set_pseudo_header_info(wtap *wth,
                             int pkt_encap,
-                            long file_offset,
+                            gint64 file_offset,
                             union wtap_pseudo_header *pseudo_header,
                             packet_direction_t direction)
 {

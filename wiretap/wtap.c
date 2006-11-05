@@ -492,7 +492,7 @@ wtap_close(wtap *wth)
 }
 
 gboolean
-wtap_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
+wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -562,7 +562,7 @@ wtap_buf_ptr(wtap *wth)
 }
 
 gboolean
-wtap_seek_read(wtap *wth, long seek_off,
+wtap_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {

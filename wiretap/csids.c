@@ -45,8 +45,8 @@
  */
 
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean csids_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static void csids_close(wtap *wth);
@@ -145,7 +145,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
   guint8 *buf;
   int bytesRead = 0;
@@ -200,7 +200,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
 /* Used to read packets in random-access fashion */
 static gboolean
 csids_seek_read (wtap *wth,
-		 long seek_off,
+		 gint64 seek_off,
 		 union wtap_pseudo_header *pseudo_header _U_,
 		 guint8 *pd,
 		 int len,

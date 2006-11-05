@@ -143,15 +143,15 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static void etherpeek_fill_pseudo_header_v7(
     union wtap_pseudo_header *pseudo_header, airopeek_radio_hdr_t *radio_hdr);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean etherpeek_seek_read_v56(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static void etherpeek_close(wtap *wth);
@@ -363,7 +363,7 @@ static void etherpeek_close(wtap *wth)
 }
 
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint16 protoNum;
@@ -468,7 +468,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-etherpeek_seek_read_v7(wtap *wth, long seek_off,
+etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {
@@ -533,7 +533,7 @@ etherpeek_fill_pseudo_header_v7(union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
@@ -616,7 +616,7 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 }
 
 static gboolean
-etherpeek_seek_read_v56(wtap *wth, long seek_off,
+etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

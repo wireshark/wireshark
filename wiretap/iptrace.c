@@ -33,14 +33,14 @@
 #include "iptrace.h"
 
 static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info);
 
@@ -124,7 +124,7 @@ typedef struct {
 
 /* Read the next packet */
 static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -211,7 +211,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
 	return TRUE;
 }
 
-static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info _U_)
 {
@@ -303,7 +303,7 @@ typedef struct {
 
 /* Read the next packet */
 static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -390,7 +390,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 	return TRUE;
 }
 
-static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info _U_)
 {

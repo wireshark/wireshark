@@ -174,14 +174,14 @@ typedef struct _k12_src_desc_t {
  *
  * XXX: works at most with 0x1FFF bytes per record 
  */
-static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
+static gint get_record(guint8* buffer, FILE* fh, gint64 file_offset) {
 	long read;
 	long len;
-	int i;
-	long junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
+	gint64 i;
+	gint64 junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
     
 #ifdef DEBUG_K12
-    k12_dbg(5,"k12:get_record: ENTER offset=%u",file_offset);
+    k12_dbg(5,"k12:get_record: ENTER offset=%lld",file_offset);
 #endif
     
 	if  ( junky_offset != 0x2000 ) {
@@ -289,10 +289,10 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 	}
 }
 
-static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_offset) {
+static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
-	long offset;
+	gint64 offset;
 	long len;
 	guint32 type;
 	guint64 ts;
@@ -390,7 +390,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 }
 
 
-static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
     guint32 input;

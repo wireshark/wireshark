@@ -110,7 +110,7 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, file_box);
 
   /* length */
-  g_snprintf(string_buff, SUM_STR_MAX, "Length: %lu", summary.file_length);
+  g_snprintf(string_buff, SUM_STR_MAX, "Length: %lld", summary.file_length);
   add_string_to_box(string_buff, file_box);
 
   /* format */

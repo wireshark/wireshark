@@ -154,7 +154,7 @@ static guint32 start_time, secs, usecs, caplen, wirelen;
 static ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 static guint8 *pkt_data;
-static long first_hexbyte;
+static gint64 first_hexbyte;
 static FILE_T *fh_ptr;
 
 %}
@@ -446,7 +446,7 @@ init_parse_ascend()
    if there is none. */
 int
 parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
-		ascend_pkthdr *hdr, long *start_of_data)
+		ascend_pkthdr *hdr, gint64 *start_of_data)
 {
   /* yydebug = 1; */
   int retval;

@@ -104,12 +104,12 @@ typedef struct
 #define CST_5VW_SYSTEM_RECORD		0x00000000
 
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
+    gint64 *data_offset);
 static gboolean _5views_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static int _5views_read_header(wtap *wth, FILE_T fh,
     t_5VW_TimeStamped_Header  *hdr, int *err);
-static gboolean _5views_seek_read(wtap *wth, long seek_off,
+static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 
@@ -204,7 +204,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean
-_5views_read(wtap *wth, int *err, gchar **err_info _U_, long *data_offset)
+_5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 	int	bytes_read;
@@ -314,7 +314,7 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 }
 
 static gboolean
-_5views_seek_read(wtap *wth, long seek_off,
+_5views_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

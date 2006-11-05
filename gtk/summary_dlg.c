@@ -144,7 +144,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Name:", string_buff);
 
   /* length */
-  g_snprintf(string_buff, SUM_STR_MAX, "%lu bytes", summary.file_length);
+  g_snprintf(string_buff, SUM_STR_MAX, "%lld bytes", summary.file_length);
   add_string_to_table(table, &row, "Length:", string_buff);
 
   /* format */

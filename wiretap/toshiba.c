@@ -110,8 +110,8 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_MAX_PACKET_LEN	16384
 
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean toshiba_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -123,11 +123,11 @@ static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static long toshiba_seek_next_packet(wtap *wth, int *err)
+static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
 {
   int byte;
   guint level = 0;
-  long cur_off;
+  gint64 cur_off;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == toshiba_rec_magic[level]) {
@@ -233,9 +233,9 @@ int toshiba_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
-	long	offset;
+	gint64	offset;
 	guint8	*buf;
 	int	pkt_len;
 
@@ -265,7 +265,7 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-toshiba_seek_read (wtap *wth, long seek_off,
+toshiba_seek_read (wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {

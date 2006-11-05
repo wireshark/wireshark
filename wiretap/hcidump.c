@@ -39,7 +39,7 @@ struct dump_hdr {
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
 static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	struct dump_hdr dh;
 	guint8 *buf;
@@ -90,7 +90,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	return TRUE;
 }
 
-static gboolean hcidump_seek_read(wtap *wth, long seek_off,
+static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info _U_)
 {

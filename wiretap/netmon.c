@@ -105,8 +105,8 @@ struct netmon_atm_hdr {
 };
 
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean netmon_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
@@ -306,7 +306,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;
@@ -471,7 +471,7 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-netmon_seek_read(wtap *wth, long seek_off,
+netmon_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

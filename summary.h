@@ -43,7 +43,7 @@ typedef struct _summary_tally {
     double 	filtered_start; /* time in seconds, with msec resolution */
     double 	filtered_stop;  /* time in seconds, with msec resolution */
     const char	*filename;
-    long	file_length;	/* file length in bytes */
+    gint64	file_length;	/* file length in bytes */
     int		encap_type;	/* wiretap encapsulation type */
     gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
     int		snap;		/* Maximum captured packet length */

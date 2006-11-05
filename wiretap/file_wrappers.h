@@ -24,29 +24,28 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+extern gint64 file_seek(void *stream, gint64 offset, int whence, int *err);
+extern gint64 file_tell(void *stream);
+extern int file_error(void *fh);
+
 #ifdef HAVE_LIBZ
 
 extern FILE_T file_open(const char *path, const char *mode);
 #define filed_open gzdopen
-extern long file_seek(void *stream, long offset, int whence, int *err);
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
-extern long file_tell(void *stream);
 #define file_getc gzgetc
 #define file_gets(buf, len, file) gzgets((file), (buf), (len))
-extern int file_error(void *fh);
 #define file_eof gzeof
 
 #else /* No zLib */
+/* XXX - mixing eth_xxx and fxxx calls might not be a good idea with MSVC 2005! */
 #define file_open(path, mode) eth_fopen(path, mode)
 #define filed_open fdopen
-extern long file_seek(void *stream, long offset, int whence, int *err);
 #define file_read fread
 #define file_write fwrite
 #define file_close fclose
-extern int file_error(FILE *fh);
-#define file_tell ftell
 #define file_getc fgetc
 #define file_gets fgets
 #define file_eof feof

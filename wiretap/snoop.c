@@ -89,8 +89,8 @@ struct shomiti_trailer {
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean snoop_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
@@ -404,7 +404,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	guint32 rec_size;
 	guint32	packet_size;
@@ -554,7 +554,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-snoop_seek_read(wtap *wth, long seek_off,
+snoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

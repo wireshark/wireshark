@@ -85,8 +85,8 @@ static const char dbs_etherwatch_rec_magic[]  =
 #define DBS_ETHERWATCH_MAX_PACKET_LEN	16384
 
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean dbs_etherwatch_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static int parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf,
@@ -97,11 +97,11 @@ static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static long dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
+static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
 {
   int byte;
   unsigned int level = 0;
-  long cur_off;
+  gint64 cur_off;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == dbs_etherwatch_rec_magic[level]) {
@@ -206,9 +206,9 @@ int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
-	long	offset;
+	gint64	offset;
 	guint8	*buf;
 	int	pkt_len;
 
@@ -238,7 +238,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-dbs_etherwatch_seek_read (wtap *wth, long seek_off,
+dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header _U_,
 	guint8 *pd, int len, int *err, gchar **err_info)
 {

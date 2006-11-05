@@ -118,7 +118,7 @@ process_cap_file(wtap *wth, const char *filename)
   int			err;
   gchar			*err_info;
   gint64		size;
-  long  		data_offset;
+  gint64		data_offset;
   
   guint32		packet = 0;
   gint64		bytes = 0;

@@ -90,8 +90,8 @@ struct radcomrec_hdr {
 };
 
 static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean radcom_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
 	int *err, gchar **err_info);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
@@ -267,7 +267,7 @@ read_error:
 
 /* Read the next packet */
 static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
@@ -373,7 +373,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 }
 
 static gboolean
-radcom_seek_read(wtap *wth, long seek_off,
+radcom_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

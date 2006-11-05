@@ -167,11 +167,11 @@
 #define COSINE_MAX_PACKET_LEN	65536
 
 static gboolean empty_line(const gchar *line);
-static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
+static gint64 cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err);
 static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
-	long *data_offset);
-static gboolean cosine_seek_read(wtap *wth, long seek_off,
+	gint64 *data_offset);
+static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd,
 	int len, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(wtap *wth, const char *line,
@@ -202,9 +202,9 @@ static gboolean empty_line(const gchar *line)
 /* Seeks to the beginning of the next packet, and returns the
    byte offset. Copy the header line to hdr. Returns -1 on failure,
    and sets "*err" to the error and set hdr as NULL. */
-static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
+static gint64 cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 {
-	long cur_off;
+	gint64 cur_off;
 	char buf[COSINE_LINE_LENGTH];
 
 	while (1) {
@@ -306,9 +306,9 @@ int cosine_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
-	long	offset;
+	gint64	offset;
 	guint8	*buf;
 	int	pkt_len, caplen;
 	char	line[COSINE_LINE_LENGTH];
@@ -341,7 +341,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-cosine_seek_read (wtap *wth, long seek_off,
+cosine_seek_read (wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {

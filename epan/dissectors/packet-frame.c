@@ -252,9 +252,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  }
 
 	  if (show_file_off) {
-		  proto_tree_add_int_format(fh_tree, hf_frame_file_off, tvb,
+		  proto_tree_add_int64_format(fh_tree, hf_frame_file_off, tvb,
 				  0, 0, pinfo->fd->file_off,
-				  "File Offset: %ld (0x%lx)",
+				  "File Offset: %lld (0x%llx)",
 				  pinfo->fd->file_off, pinfo->fd->file_off);
 	  }
 
@@ -477,7 +477,7 @@ proto_register_frame(void)
 			"", HFILL }},
 
 		{ &hf_frame_file_off,
-		{ "File Offset",	"frame.file_off", FT_INT32, BASE_DEC, NULL, 0x0,
+		{ "File Offset",	"frame.file_off", FT_INT64, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_marked,

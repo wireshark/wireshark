@@ -46,7 +46,7 @@ typedef struct _capture_file {
   gchar       *filename;  /* Name of capture file */
   gboolean     is_tempfile; /* Is capture file a temporary file? */
   gboolean     user_saved;/* If capture file is temporary, has it been saved by user yet? */
-  long         f_datalen; /* Size of capture file data (uncompressed) */
+  gint64       f_datalen; /* Size of capture file data (uncompressed) */
   guint16      cd_t;      /* File type of capture file */
   int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */

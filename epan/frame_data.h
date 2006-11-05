@@ -47,7 +47,7 @@ typedef struct _frame_data {
   nstime_t     abs_ts;      /* Absolute timestamp */
   nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
   nstime_t     del_ts;      /* Delta timestamp (yes, it can be negative) */
-  long         file_off;    /* File offset */
+  gint64       file_off;    /* File offset */
   int          lnk_t;       /* Per-packet encapsulation/data-link type */
   struct {
 	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */

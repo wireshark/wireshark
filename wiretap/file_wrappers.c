@@ -115,7 +115,9 @@
 #include "file_wrappers.h"
 #include "file_util.h"
 
+
 #ifdef HAVE_LIBZ
+
 FILE_T
 file_open(const char *path, const char *mode)
 {
@@ -160,12 +162,13 @@ file_open(const char *path, const char *mode)
 	return ft;
 }
 
-long
-file_seek(void *stream, long offset, int whence, int *err)
+int
+file_seek(void *stream, gint64 offset, int whence, int *err)
 {
-	long ret;
+	gint64 ret;
 
-	ret = gzseek(stream, (z_off_t)offset, whence);
+	/* XXX - z_off_t is usually long, won't work >= 2GB! */
+	ret = (gint64) gzseek(stream, (z_off_t)offset, whence);
 	if (ret == -1) {
 		/*
 		 * XXX - "gzseek()", as of zlib 1.1.4, doesn't set
@@ -183,30 +186,18 @@ file_seek(void *stream, long offset, int whence, int *err)
 	return ret;
 }
 
-long
+gint64
 file_tell(void *stream)
 {
-	return (long)gztell(stream);
+	/* XXX - z_off_t is usually long, won't work >= 2GB! */
+	return (gint64)gztell(stream);
 }
-#else /* HAVE_LIBZ */
-long
-file_seek(void *stream, long offset, int whence, int *err)
-{
-	long ret;
-
-	ret = fseek(stream, offset, whence);
-	if (ret == -1)
-		*err = file_error(stream);
-	return ret;
-}
-#endif /* HAVE_LIBZ */
 
 /*
  * Routine to return a Wiretap error code (0 for no error, an errno
  * for a file error, or a WTAP_ERR_ code for other errors) for an
  * I/O stream.
  */
-#ifdef HAVE_LIBZ
 int
 file_error(void *fh)
 {
@@ -228,13 +219,80 @@ file_error(void *fh)
 		return WTAP_ERR_ZLIB + errnum;
 	}
 }
+
 #else /* HAVE_LIBZ */
-int
-file_error(FILE *fh)
+
+gint64
+file_seek(void *stream, gint64 offset, int whence, int *err)
 {
-	if (ferror(fh))
+	gint64 ret;
+#ifdef _WIN32
+        gint64 pos;
+#endif
+
+#ifdef _WIN32
+        /* Win32 version using fsetpos/fgetpos */
+        /* XXX - using fsetpos/fgetpos this way is UNDOCUMENTED, but I don't see a any better way :-( */
+        /* _lseeki64(_fileno(stream)) doesn't work as this will mangle the internal FILE handling data */
+        switch(whence) {
+        case(SEEK_SET):
+            /* do nothing */
+            break;
+        case(SEEK_CUR):
+            /* adjust offset */
+            /* XXX - CURRENTLY UNTESTED!!! */
+	    ret = fgetpos(stream, &pos);
+            if(ret != 0) {
+                *err = errno;
+                return ret;
+            }
+            offset += pos;
+            break;
+        case(SEEK_END):
+        default:
+            g_assert_not_reached();
+        }
+	ret = fsetpos(stream, &offset);
+	if(ret != 0) {
+		*err = errno;
+	}
+	/* XXX - won't work >= 2GB! */
+	/*ret = (gint64) fseek(stream, (long) offset, whence);
+	if(ret == -1) {
+		*err = errno;
+	}*/
+#else
+        /* "basic" version using fseek */
+	/* XXX - won't work >= 2GB! */
+	ret = (gint64) fseek(stream, (long) offset, whence);
+	if (ret == -1)
+		*err = file_error(stream);
+#endif
+        /*g_warning("Seek %lld whence %u ret %lld size %u", offset, whence, ret, sizeof(fpos_t));*/
+	return ret;
+}
+
+gint64
+file_tell(void *stream)
+{
+#ifdef _WIN32
+        /* Win32 version using _telli64 */
+        /* XXX - CURRENTLY UNTESTED!!! */
+	return _telli64(_fileno((FILE *)stream));
+#else
+        /* "basic" version using ftell */
+	/* XXX - ftell returns a long - won't work >= 2GB! */
+	return (gint64) ftell(stream);
+#endif
+}
+
+int
+file_error(void *fh)
+{
+	if (ferror((FILE *) fh))
 		return errno;
 	else
 		return 0;
 }
+
 #endif /* HAVE_LIBZ */

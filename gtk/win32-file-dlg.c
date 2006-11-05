@@ -770,7 +770,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     int         err = 0;
     gchar      *err_info;
     TCHAR       string_buff[PREVIEW_STR_MAX];
-    long        data_offset;
+    gint64      data_offset;
     guint       packet = 0;
     guint64     filesize;
     time_t      ti_time;

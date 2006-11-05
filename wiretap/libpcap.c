@@ -113,8 +113,8 @@ typedef enum {
 static libpcap_try_t libpcap_try(wtap *wth, int *err);
 
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean libpcap_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
@@ -1154,7 +1154,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 
 /* Read the next packet */
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;
@@ -1392,7 +1392,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-libpcap_seek_read(wtap *wth, long seek_off,
+libpcap_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {

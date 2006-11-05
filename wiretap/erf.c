@@ -69,8 +69,8 @@ static int erf_read_header(
 		guint32 *bytes_read,
 		guint32 *packet_size);
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-		long *data_offset);
-static gboolean erf_seek_read(wtap *wth, long seek_off,
+		gint64 *data_offset);
+static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err, gchar **err_info);
 static void erf_close(wtap *wth);
@@ -209,7 +209,7 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
 /* Read the next packet */
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	erf_header_t erf_header;
 	guint32 packet_size, bytes_read;
@@ -249,7 +249,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 	return TRUE;
 }
 
-static gboolean erf_seek_read(wtap *wth, long seek_off,
+static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err, gchar **err_info)
 {

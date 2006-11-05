@@ -118,8 +118,8 @@ static const guint8 LA_CyclicInformationFake[] = {
       };
 
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static void     lanalyzer_close(wtap *wth);
@@ -274,7 +274,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	int		packet_size = 0;
 	int		bytes_read;
@@ -396,7 +396,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	return TRUE;
 }
 
-static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
+static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

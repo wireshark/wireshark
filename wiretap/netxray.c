@@ -274,8 +274,8 @@ union netxrayrec_hdr {
 };
 
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
-static gboolean netxray_seek_read(wtap *wth, long seek_off,
+    gint64 *data_offset);
+static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
@@ -833,7 +833,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info _U_,
-    long *data_offset)
+    gint64 *data_offset)
 {
 	guint32	packet_size;
 	union netxrayrec_hdr hdr;
@@ -961,7 +961,7 @@ reread:
 }
 
 static gboolean
-netxray_seek_read(wtap *wth, long seek_off,
+netxray_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info _U_)
 {

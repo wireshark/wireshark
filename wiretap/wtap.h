@@ -513,7 +513,7 @@ struct catapult_dct2000_phdr
 		struct atm_phdr   atm;
 		struct p2p_phdr   p2p;
 	} inner_pseudo_header;
-	long seek_off;
+	gint64 seek_off;
 	struct wtap *wth;
 };
 
@@ -574,11 +574,11 @@ struct wtap* wtap_open_offline(const char *filename, int *err,
  * set the the offset in the file where the data for the read packet is
  * located. */
 gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
-    long *data_offset);
+    gint64 *data_offset);
 
 /*
  * Return an approximation of the amount of data we've read sequentially
- * from the file so far.  (gint64, in case that's 64 bits.)
+ * from the file so far.
  */
 gint64 wtap_read_so_far(wtap *wth, int *err);
 
@@ -606,7 +606,7 @@ int wtap_short_string_to_encap(const char *short_name);
 const char *wtap_strerror(int err);
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
-gboolean wtap_seek_read (wtap *wth, long seek_off,
+gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
@@ -621,8 +621,8 @@ gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
 void wtap_dump_flush(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
-long wtap_get_bytes_dumped(wtap_dumper *);
-void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped);
+gint64 wtap_get_bytes_dumped(wtap_dumper *);
+void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 
 /*
  * Wiretap error codes.

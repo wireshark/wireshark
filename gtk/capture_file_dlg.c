@@ -200,7 +200,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     time_t      time_current;
     int         err = 0;
     gchar      *err_info;
-    long        data_offset;
+    gint64      data_offset;
     const struct wtap_pkthdr *phdr;
     double      start_time = 0;	/* seconds, with nsec resolution */
     double      stop_time = 0;	/* seconds, with nsec resolution */
