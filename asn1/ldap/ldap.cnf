@@ -447,7 +447,8 @@ ldap_conv_info_t *ldap_info;
 
   valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
   
-  if (check_col(pinfo->cinfo, COL_INFO))
+  /* If auth is NTLM (10 or 11) don't add to column as the NTLM dissection will do this */
+  if (check_col(pinfo->cinfo, COL_INFO) && (auth !=  10) && (auth != 11))
     col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", valstr);
   
   if(ldm_tree)
@@ -620,10 +621,16 @@ ldap_conv_info_t *ldap_info;
 	proto_item_append_text(it, "%%s", Filter_string);
 
 #.FN_BODY AuthenticationChoice/ntlmsspNegotiate
+	/* make sure the protocol op comes first */
+       	ldap_do_protocolop(pinfo);
+
 	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
 	offset+=tvb_length_remaining(tvb, offset);
 
 #.FN_BODY AuthenticationChoice/ntlmsspAuth
+	/* make sure the protocol op comes first */
+       	ldap_do_protocolop(pinfo);
+
 	call_dissector(ntlmssp_handle, tvb, pinfo, tree);
 	offset+=tvb_length_remaining(tvb, offset);
 
@@ -635,6 +642,10 @@ ldap_conv_info_t *ldap_info;
 	if(  new_tvb
 	&&  (tvb_length(new_tvb)>=7)
 	&&  (!tvb_memeql(new_tvb, 0, "NTLMSSP", 7))){
+
+		/* make sure the protocol op comes first */
+        	ldap_do_protocolop(pinfo);
+
 		call_dissector(ntlmssp_handle, new_tvb, pinfo, tree);
 	}
 	return offset;
