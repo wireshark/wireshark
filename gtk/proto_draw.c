@@ -1033,7 +1033,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 #if GTK_MAJOR_VERSION < 2
   GdkFont       *cur_font, *new_font;
   GdkColor      *fg, *bg;
-  GtkTextView   *bv_text = GTK_TEXT(bv);
+  GtkText       *bv_text = GTK_TEXT(bv);
 #else
   GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
   GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
