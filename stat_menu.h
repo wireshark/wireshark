@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifndef __STATMENU_H__
@@ -50,9 +50,9 @@ typedef enum {
     REGISTER_STAT_GROUP_RESPONSE_TIME,
     REGISTER_STAT_GROUP_TELEPHONY,
     /* XXX - split into telephony and VoIP? */
-	REGISTER_ANALYZE_GROUP_NONE,
+	REGISTER_ANALYZE_GROUP_NONE
 #ifdef HAVE_LUA_5_1
-	REGISTER_TOOLS_GROUP_NONE,
+	,REGISTER_TOOLS_GROUP_NONE
 #endif
 } register_stat_group_t;
 
