@@ -125,6 +125,9 @@ static gint ett_osd_permission_bitmask	= -1;
 static gint ett_osd_security_parameters	= -1;
 
 
+#define PAGE_NUMBER_PARTITION		0x30000000
+#define PAGE_NUMBER_COLLECTION		0x60000000
+#define PAGE_NUMBER_ROOT		0x90000000
 
 /* There will be one such structure create for each conversation ontop of which
  * there is an OSD session
@@ -291,8 +294,11 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		extra_data->get_list_length=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
-		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_list_offset, tvb, offset, 4, 0);
+		/* 4.12.5 */
 		extra_data->get_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->get_list_offset=(extra_data->get_list_offset&0x0fffffff)<<((extra_data->get_list_offset>>28)&0x0f);
+		extra_data->get_list_offset<<=8;
+		proto_tree_add_uint(tree, hf_scsi_osd_get_attributes_list_offset, tvb, offset, 4, extra_data->get_list_offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_allocation_length, tvb, offset, 4, 0);
