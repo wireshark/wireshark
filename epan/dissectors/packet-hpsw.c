@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -257,12 +257,12 @@ proto_register_hpsw(void)
 			VALS(hpsw_tlv_type_vals), 0x0, "", HFILL }},
 		{ &hf_hpsw_tlvlength,
 		{ "Length", "hpsw.tlv_len", FT_UINT8, BASE_DEC,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, "", HFILL }}
 	};
 
 	static gint *ett[] = {
 		&ett_hpsw,
-		&ett_hpsw_tlv,
+		&ett_hpsw_tlv
 	};
 
 	proto_hpsw = proto_register_protocol( "HP Switch Protocol", "HPSW", "hpsw");
@@ -279,5 +279,5 @@ proto_reg_handoff_hpsw(void)
 
 	hpsw_handle = find_dissector("hpsw");
 
-	dissector_add("hpext.dxsap", 0x0623, hpsw_handle);
+	dissector_add("hpext.dxsap", HPEXT_HPSW, hpsw_handle);
 }

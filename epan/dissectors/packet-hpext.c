@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -48,6 +48,7 @@ static gint ett_hpext = -1;
 const value_string xsap_vals[] = {
 	{ HPEXT_DXSAP,  "RBOOT Destination Service Access Point" },
 	{ HPEXT_SXSAP,  "RBOOT Source Service Access Point" },
+	{ HPEXT_HPSW,   "HP Switch Protocol" },
 	{ HPEXT_SNMP,   "SNMP" },
 	{ 0x00,         NULL }
 };
@@ -102,10 +103,10 @@ proto_register_hpext(void)
 
 		{ &hf_hpext_sxsap,
 		{ "SXSAP", "hpext.sxsap", FT_UINT16, BASE_HEX,
-			VALS(xsap_vals), 0x0, "", HFILL }},
+			VALS(xsap_vals), 0x0, "", HFILL }}
 	};
 	static gint *ett[] = {
-		&ett_hpext,
+		&ett_hpext
 	};
 
 	proto_hpext = proto_register_protocol(
