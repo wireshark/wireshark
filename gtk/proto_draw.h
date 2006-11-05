@@ -116,7 +116,6 @@ extern void savehex_cb(GtkWidget * w, gpointer data);
  */
 extern void copy_hex_cb(GtkWidget * w, gpointer data, int data_type);
 
-#if GTK_MAJOR_VERSION < 2
 /** Redraw a given byte view window.
  *
  * @param bv the byte view
@@ -125,7 +124,7 @@ extern void copy_hex_cb(GtkWidget * w, gpointer data, int data_type);
  * @param finfo the current field info
  * @param len the byte view length
  */
-extern void packet_hex_print(GtkText *bv, const guint8 *pd, frame_data *fd,
+extern void packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 		 field_info *finfo, guint len);
 
 /**
@@ -134,33 +133,15 @@ extern void packet_hex_print(GtkText *bv, const guint8 *pd, frame_data *fd,
  *
  * @param bv the byte view
  */
-extern void packet_hex_reprint(GtkText *bv);
+extern void packet_hex_reprint(GtkWidget *bv);
 
+#if GTK_MAJOR_VERSION < 2
 /** Set a new font for all protocol trees.
  *
  * @param font the new font
  */
 extern void set_ptree_font_all(GdkFont *font);
 #else
-/** Redraw a given byte view window.
- *
- * @param bv the byte view
- * @param pd the packet data
- * @param fd the current fame
- * @param finfo the current field info
- * @param len the byte view length
- */
-extern void packet_hex_print(GtkTextView *bv, const guint8 *pd, frame_data *fd,
-		 field_info *finfo, guint len);
-
-/**
- * Redraw the text using the saved information. Usually called if
- * the preferences have changed.
- *
- * @param bv the byte view
- */
-extern void packet_hex_reprint(GtkTextView *bv);
-
 /** Set a new font for all protocol trees.
  *
  * @param font the new font

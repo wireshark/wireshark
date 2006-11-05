@@ -193,8 +193,8 @@ static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *fi
 
 #ifdef HAVE_AIRPCAP
 GtkWidget *airpcap_tb;
-GtkWidget *driver_warning_dialog;
-int    airpcap_dll_ret_val = -1;
+static GtkWidget *driver_warning_dialog;
+static int    airpcap_dll_ret_val = -1;
 #endif
 
 static GtkWidget	*info_bar;
@@ -690,11 +690,11 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
                 "Do you want to switch to \"Seconds Since Beginning of Capture\" now?");
             simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
         } else {
-      /* XXX hum, should better have a "cfile->current_row" here ... */
-      set_frame_reftime(!cfile.current_frame->flags.ref_time,
-	  	     cfile.current_frame,
-		     packet_list_find_row_from_data(cfile.current_frame));
-    }
+            /* XXX hum, should better have a "cfile->current_row" here ... */
+            set_frame_reftime(!cfile.current_frame->flags.ref_time,
+                              cfile.current_frame,
+                              packet_list_find_row_from_data(cfile.current_frame));
+        }
     }
     break;
   case REFTIME_FIND_NEXT:
@@ -757,7 +757,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
             return;	/* none */
 
         cf_unselect_field(&cfile);
-        packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data,
+        packet_hex_print(byte_view, byte_data,
                          cfile.current_frame, NULL, byte_len);
         return;
     }
@@ -823,13 +823,8 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         }
     }
 
-#if GTK_MAJOR_VERSION < 2
-    packet_hex_print(GTK_TEXT(byte_view), byte_data, cfile.current_frame,
-                     finfo, byte_len);
-#else
-    packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data, cfile.current_frame,
-                     finfo, byte_len);
-#endif
+    packet_hex_print(byte_view, byte_data, cfile.current_frame, finfo,
+                     byte_len);
 }
 
 #if GTK_MAJOR_VERSION < 2
@@ -854,8 +849,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 		return;	/* none */
 
 	cf_unselect_field(&cfile);
-	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
-		NULL, len);
+	packet_hex_print(byte_view, data, cfile.current_frame, NULL, len);
 }
 #endif
 
@@ -1445,19 +1439,21 @@ static void
 main_cf_cb_file_closing(capture_file *cf)
 {
 
-	/* if we have more than 10000 packets, show a splash screen while closing */
-	/* XXX - don't know a better way to decide wether to show or not,
-	 * as most of the time is spend in a single eth_clist_clear function,
-	 * so we can't use a progress bar here! */
-	if(cf->count > 10000) {
-		close_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sClosing file!%s\n\nPlease wait ...",
-			simple_dialog_primary_start(), simple_dialog_primary_end());
+    /* if we have more than 10000 packets, show a splash screen while closing */
+    /* XXX - don't know a better way to decide wether to show or not,
+     * as most of the time is spend in a single eth_clist_clear function,
+     * so we can't use a progress bar here! */
+    if(cf->count > 10000) {
+        close_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE,
+                                  "%sClosing file!%s\n\nPlease wait ...",
+                                  simple_dialog_primary_start(),
+                                  simple_dialog_primary_end());
 #if GTK_MAJOR_VERSION >= 2
-		gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
+        gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
 #else
-		gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER);
+        gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER);
 #endif
-	}
+    }
 
     /* Destroy all windows, which refer to the
        capture file we're closing. */
@@ -1837,17 +1833,17 @@ main_cf_cb_live_capture_stopping(capture_file *cf _U_)
     /* Beware: this state won't be called, if the capture child
      * closes the capturing on it's own! */
 #if 0
-	/* XXX - the time to stop the capture has been reduced (this was only a
-	 * problem on Win32 because of the capture piping), so showing a splash
-	 * isn't really necessary any longer. Unfortunately, the GTKClist packet
-	 * list seems to have problems updating after the dialog is closed, so
-	 * this was disabled here. */
+    /* XXX - the time to stop the capture has been reduced (this was only a
+     * problem on Win32 because of the capture piping), so showing a splash
+     * isn't really necessary any longer. Unfortunately, the GTKClist packet
+     * list seems to have problems updating after the dialog is closed, so
+     * this was disabled here. */
     stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...",
 		simple_dialog_primary_start(), simple_dialog_primary_end());
 #if GTK_MAJOR_VERSION >= 2
-	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
+    gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
 #else
-	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
+    gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
 #endif
 #endif
 }
@@ -1924,52 +1920,52 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
     case(cf_cb_file_closing):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
         main_cf_cb_file_closing(data);
         break;
     case(cf_cb_file_closed):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         main_cf_cb_file_closed(data);
         break;
     case(cf_cb_file_read_start):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read start");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read start");
         main_cf_cb_file_read_start(data);
         break;
     case(cf_cb_file_read_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         main_cf_cb_file_read_finished(data);
         break;
 #ifdef HAVE_LIBPCAP
     case(cf_cb_live_capture_prepared):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
         main_cf_cb_live_capture_prepared(data);
         break;
     case(cf_cb_live_capture_update_started):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_cf_cb_live_capture_update_started(data);
         break;
     case(cf_cb_live_capture_update_continue):
-		/*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
+        /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
         main_cf_cb_live_capture_update_continue(data);
         break;
     case(cf_cb_live_capture_update_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
         main_cf_cb_live_capture_update_finished(data);
         break;
     case(cf_cb_live_capture_fixed_started):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
         main_cf_cb_live_capture_fixed_started(data);
         break;
     case(cf_cb_live_capture_fixed_continue):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
         main_cf_cb_live_capture_fixed_continue(data);
         break;
     case(cf_cb_live_capture_fixed_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
         main_cf_cb_live_capture_fixed_finished(data);
         break;
     case(cf_cb_live_capture_stopping):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         main_cf_cb_live_capture_stopping(data);
         break;
 #endif
@@ -1983,19 +1979,19 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_field_unselected(data);
         break;
     case(cf_cb_file_safe_started):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe started");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe started");
         main_cf_cb_file_safe_started(data);
         break;
     case(cf_cb_file_safe_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe finished");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe finished");
         main_cf_cb_file_safe_finished(data);
         break;
     case(cf_cb_file_safe_reload_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: reload finished");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: reload finished");
         main_cf_cb_file_safe_reload_finished(data);
         break;
     case(cf_cb_file_safe_failed):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe failed");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe failed");
         main_cf_cb_file_safe_failed(data);
         break;
     default:
@@ -2132,36 +2128,39 @@ main(int argc, char *argv[])
    /* Load the airpcap.dll.  This must also be done before collecting
     * run-time version information. */
   airpcap_dll_ret_val = load_airpcap();
-  if(airpcap_dll_ret_val == AIRPCAP_DLL_OK)
-	{
-	/* load the airpcap interfaces */
-	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
 
-	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                  cant_get_if_list_errstr);
-    g_free(cant_get_if_list_errstr);
-	}
-	/* select the first ad default (THIS SHOULD BE CHANGED) */
-	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
-	}
-	/*
-	 * XXX - Maybe we need to warn the user if one of the following happens???
-	 */
-/* else if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
-	{
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
-	}
-	else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
-    {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+  switch (airpcap_dll_ret_val) {
+  case AIRPCAP_DLL_OK:
+    /* load the airpcap interfaces */
+    airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+
+    if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+      cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", cant_get_if_list_errstr);
+      g_free(cant_get_if_list_errstr);
     }
-  else if(airpcap_dll_ret_val == AIRPCAP_DLL_NOT_FOUND)
-	{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
-	}*/
+    /* select the first ad default (THIS SHOULD BE CHANGED) */
+    airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+    break;
+
+#if 0
+    /*
+     * XXX - Maybe we need to warn the user if one of the following happens???
+     */
+    case AIRPCAP_DLL_OLD:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
+      break;
+
+    case AIRPCAP_DLL_ERROR:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+      break;
+
+    case AIRPCAP_DLL_NOT_FOUND:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+      break;
 #endif
+  }
+#endif /* HAVE_AIRPCAP */
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
@@ -3077,7 +3076,7 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-	SetConsoleTitle(_T("Wireshark Debug Console"));
+    SetConsoleTitle(_T("Wireshark Debug Console"));
   }
 }
 
@@ -3248,7 +3247,7 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(filter_tb);
 
 #ifdef HAVE_AIRPCAP
-	gtk_widget_ref(airpcap_tb);
+    gtk_widget_ref(airpcap_tb);
 #endif
 
     gtk_widget_ref(pkt_scrollw);
@@ -3285,8 +3284,8 @@ void main_widgets_rearrange(void) {
     }
 
 #ifdef HAVE_AIRPCAP
-	/* airpcap toolbar */
-	gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
+    /* airpcap toolbar */
+    gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
 #endif
 
     /* fill the main layout panes */
@@ -3361,8 +3360,8 @@ void main_widgets_rearrange(void) {
     }
 
 #ifdef HAVE_AIRPCAP
-	/* airpcap toolbar */
-	gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
+    /* airpcap toolbar */
+    gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
 #endif
 
     /* statusbar */
@@ -3569,7 +3568,7 @@ main_widgets_show_or_hide(void)
     }
 
 #ifdef HAVE_AIRPCAP
-	if (recent.airpcap_toolbar_show) {
+    if (recent.airpcap_toolbar_show) {
         gtk_widget_show(airpcap_tb);
     } else {
         gtk_widget_hide(airpcap_tb);
@@ -3650,174 +3649,145 @@ window_state_event_cb (GtkWidget *widget _U_,
 static void
 airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
 {
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
-const gchar *s;
-int ch_num;
+  gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+  PAirpcapHandle ad;
+  const gchar *s;
+  int ch_num;
 
   s = gtk_entry_get_text(GTK_ENTRY(data));
 
-if((data != NULL) && (w != NULL) )
-	{
-	s = gtk_entry_get_text(GTK_ENTRY(data));
-	if((g_strcasecmp("",s)))
-		{
-		sscanf(s,"%d",&ch_num);
-		if(airpcap_if_active != NULL)
-			{
-			ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, airpcap_if_active->description), ebuf);
+  if ((data != NULL) && (w != NULL) ) {
+    s = gtk_entry_get_text(GTK_ENTRY(data));
+    if ((g_strcasecmp("",s))) {
+      sscanf(s,"%d",&ch_num);
+      if (airpcap_if_active != NULL) {
+        ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, airpcap_if_active->description), ebuf);
 
-			if(ad)
-				{
-				airpcap_if_set_device_channel(ad,ch_num);
-				airpcap_if_active->channel = ch_num;
-				airpcap_if_close(ad);
-				}
-			}
-		}
+        if(ad) {
+          airpcap_if_set_device_channel(ad,ch_num);
+          airpcap_if_active->channel = ch_num;
+          airpcap_if_close(ad);
 	}
+      }
+    }
+  }
 }
-#endif
 
-
-#ifdef HAVE_AIRPCAP
 /*
  * Callback for the wrong crc combo
  */
 static void
 airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data)
 {
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
+  gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+  PAirpcapHandle ad;
 
-if( !block_toolbar_signals && (airpcap_if_active != NULL))
-	{
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
+  if( !block_toolbar_signals && (airpcap_if_active != NULL)) {
+    ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
 
-	if(ad)
-		{
-		airpcap_if_active->CrcValidationOn = airpcap_get_validation_type(gtk_entry_get_text(GTK_ENTRY(entry)));
-		airpcap_if_set_fcs_validation(ad,airpcap_if_active->CrcValidationOn);
-		/* Save configuration */
-		if(!airpcap_if_store_cur_config_as_adapter_default(ad))
-			{
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-			}
-		airpcap_if_close(ad);
-		}
-	}
+    if (ad) {
+      airpcap_if_active->CrcValidationOn = airpcap_get_validation_type(gtk_entry_get_text(GTK_ENTRY(entry)));
+      airpcap_if_set_fcs_validation(ad,airpcap_if_active->CrcValidationOn);
+      /* Save configuration */
+      if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+      }
+      airpcap_if_close(ad);
+    }
+  }
 }
-#endif
 
-#ifdef HAVE_AIRPCAP
 void
 airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data)
 {
-/* We need to directly access the .ddl functions here... */
-gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-PAirpcapHandle ad;
+  /* We need to directly access the .ddl functions here... */
+  gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+  PAirpcapHandle ad;
 
-gint n = 0;
-gint i = 0;
-airpcap_if_info_t* curr_if = NULL;
+ gint n = 0;
+  gint i = 0;
+  airpcap_if_info_t* curr_if = NULL;
 
-/* Apply changes to the current adapter */
-if( (airpcap_if_active != NULL))
-    {
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
+  /* Apply changes to the current adapter */
+  if( (airpcap_if_active != NULL)) {
+    ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,airpcap_if_active->description), ebuf);
 
-	if(ad)
-		{
-		if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
-			{
-			airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
-			airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
-			/* Save configuration */
-			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
-				{
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-				}
-			airpcap_if_close(ad);
-			}
-		else
-			{
-			airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
-			airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
-			/* Save configuration */
-			if(!airpcap_if_store_cur_config_as_adapter_default(ad))
-				{
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-				}
-			airpcap_if_close(ad);
-			}
-		}
+    if(ad) {
+      if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON) {
+        airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
+        airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+        /* Save configuration */
+        if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
 	}
-else
-    {
- 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected!");
- 	return;
+        airpcap_if_close(ad);
+      } else {
+        airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
+        airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+        /* Save configuration */
+        if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+	}
+        airpcap_if_close(ad);
+      }
     }
+  } else {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected!");
+    return;
+  }
 
-n = g_list_length(airpcap_if_list);
+  n = g_list_length(airpcap_if_list);
 
-/* The same kind of settings should be propagated to all the adapters */
-/* Apply this change to all the adapters !!! */
-for(i = 0; i < n; i++)
-    {
+  /* The same kind of settings should be propagated to all the adapters */
+  /* Apply this change to all the adapters !!! */
+  for(i = 0; i < n; i++) {
     curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
 
-    if( (curr_if != NULL) && (curr_if != airpcap_if_selected) )
-    	{
-    	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
-   		if(ad)
-            {
-            curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
-        	airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
-        	/* Save configuration for the curr_if */
-        	if(!airpcap_if_store_cur_config_as_adapter_default(ad))
-        		{
-        		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-        		}
-        	airpcap_if_close(ad);
-            }
-        }
+    if( (curr_if != NULL) && (curr_if != airpcap_if_selected) ) {
+      ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
+      if(ad) {
+        curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
+        airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
+        /* Save configuration for the curr_if */
+        if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+	}
+        airpcap_if_close(ad);
+      }
     }
+  }
 }
-#endif
 
-#ifdef HAVE_AIRPCAP
 /*
  * Callback for the Advanced Wireless Settings button
  */
 static void
 toolbar_display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 {
-int *from_widget;
+    int *from_widget;
 
     from_widget = (gint*)g_malloc(sizeof(gint));
     *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
-	display_airpcap_advanced_cb(w,data);
+    display_airpcap_advanced_cb(w,data);
 }
-#endif
 
-#ifdef HAVE_AIRPCAP
 /*
  * Callback for the Decryption Key Management button
  */
 static void
 toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 {
-int *from_widget;
+    int *from_widget;
 
     from_widget = (gint*)g_malloc(sizeof(gint));
     *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
-	display_airpcap_key_management_cb(w,data);
+    display_airpcap_key_management_cb(w,data);
 }
-#endif
+#endif /* HAVE_AIRPCAP */
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
@@ -3875,7 +3845,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     tooltips = gtk_tooltips_new();
 
 #ifdef HAVE_AIRPCAP
-	airpcap_tooltips = gtk_tooltips_new();
+    airpcap_tooltips = gtk_tooltips_new();
 #endif
 
 #ifdef _WIN32
@@ -3961,147 +3931,119 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 #endif /* GTK_MAJOR_VERSION */
-       gtk_widget_show(airpcap_tb);
+    gtk_widget_show(airpcap_tb);
 
-	/* Interface Label */
-	if(airpcap_if_active != NULL)
-		{
-		if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_active));
-		interface_lb = gtk_label_new(if_label_text);
-		g_free(if_label_text);
-		}
-	else
-		{
-		interface_lb = gtk_label_new("No Wireless Interface Found  ");
-		}
+    /* Interface Label */
+    if(airpcap_if_active != NULL) {
+        if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_active));
+        interface_lb = gtk_label_new(if_label_text);
+        g_free(if_label_text);
+    } else {
+        interface_lb = gtk_label_new("No Wireless Interface Found  ");
+    }
 
-	/* Add the label to the toolbar */
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), interface_lb,
-        "Current Wireless Interface", "Private");
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
-	gtk_widget_show(interface_lb);
-	gtk_toolbar_insert_space(GTK_TOOLBAR(airpcap_tb),1);
+    /* Add the label to the toolbar */
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), interface_lb,
+                              "Current Wireless Interface", "Private");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
+    gtk_widget_show(interface_lb);
+    gtk_toolbar_insert_space(GTK_TOOLBAR(airpcap_tb),1);
 
 
     /* Create the "802.11 Channel:" label */
-	channel_lb = gtk_label_new(" 802.11 Channel: ");
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
-        "Current 802.11 Channel", "Private");
-	gtk_widget_show(channel_lb);
+    channel_lb = gtk_label_new(" 802.11 Channel: ");
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
+                              "Current 802.11 Channel", "Private");
+    gtk_widget_show(channel_lb);
 
-	#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize( GTK_WIDGET(channel_lb),
-                                  100,
-                                  28 );
-	#else
-	gtk_widget_set_size_request( GTK_WIDGET(channel_lb),
-                                  100,
-                                  28 );
-    #endif
+    WIDGET_SET_SIZE(channel_lb, 100, 28);
 
-	/* Create the channel combo box */
+    /* Create the channel combo box */
     channel_cm = gtk_combo_new();
-	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
+    gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
 
-	channel_list = g_list_append(channel_list, "1");
+    channel_list = g_list_append(channel_list, "1");
     channel_list = g_list_append(channel_list, "2");
     channel_list = g_list_append(channel_list, "3");
     channel_list = g_list_append(channel_list, "4");
-	channel_list = g_list_append(channel_list, "5");
-	channel_list = g_list_append(channel_list, "6");
-	channel_list = g_list_append(channel_list, "7");
-	channel_list = g_list_append(channel_list, "8");
-	channel_list = g_list_append(channel_list, "9");
-	channel_list = g_list_append(channel_list, "10");
-	channel_list = g_list_append(channel_list, "11");
-	channel_list = g_list_append(channel_list, "12");
-	channel_list = g_list_append(channel_list, "13");
-	channel_list = g_list_append(channel_list, "14");
+    channel_list = g_list_append(channel_list, "5");
+    channel_list = g_list_append(channel_list, "6");
+    channel_list = g_list_append(channel_list, "7");
+    channel_list = g_list_append(channel_list, "8");
+    channel_list = g_list_append(channel_list, "9");
+    channel_list = g_list_append(channel_list, "10");
+    channel_list = g_list_append(channel_list, "11");
+    channel_list = g_list_append(channel_list, "12");
+    channel_list = g_list_append(channel_list, "13");
+    channel_list = g_list_append(channel_list, "14");
 
     gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list) ;
 
-	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
-		"Change the 802.11 RF channel",
-        NULL);
+    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
+		"Change the 802.11 RF channel", NULL);
 
-	#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize( GTK_WIDGET(channel_cm),
-                                  90,
-                                  28 );
-	#else
-	gtk_widget_set_size_request( GTK_WIDGET(channel_cm),
-                                  90,
-                                  28 );
-    #endif
+    WIDGET_SET_SIZE(channel_cm, 90, 28);
 
-	if(airpcap_if_active != NULL)
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), airpcap_get_channel_name(airpcap_if_active->channel));
-	else
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
+    if(airpcap_if_active != NULL)
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), airpcap_get_channel_name(airpcap_if_active->channel));
+    else
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
 
-	/* callback for channel combo box */
-	SIGNAL_CONNECT(GTK_COMBO(channel_cm)->entry,"changed",airpcap_toolbar_channel_changed_cb,GTK_COMBO(channel_cm)->entry);
+    /* callback for channel combo box */
+    SIGNAL_CONNECT(GTK_COMBO(channel_cm)->entry,"changed",airpcap_toolbar_channel_changed_cb,GTK_COMBO(channel_cm)->entry);
     gtk_widget_show(channel_cm);
 
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_cm,
-        "802.11 Channel", "Private");
+                              "802.11 Channel", "Private");
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
-	/* Wrong CRC Label */
-	wrong_crc_lb = gtk_label_new(" FCS Filter: ");
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_lb,
-        "", "Private");
-	gtk_widget_show(wrong_crc_lb);
+    /* Wrong CRC Label */
+    wrong_crc_lb = gtk_label_new(" FCS Filter: ");
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_lb,
+                              "", "Private");
+    gtk_widget_show(wrong_crc_lb);
 
-	/* Wrong CRC combo */
-	wrong_crc_cm = gtk_combo_new();
-	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(wrong_crc_cm)->entry),FALSE);
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY,wrong_crc_cm);
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
-        "", "Private");
+    /* Wrong CRC combo */
+    wrong_crc_cm = gtk_combo_new();
+    gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(wrong_crc_cm)->entry),FALSE);
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY,wrong_crc_cm);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
+                              "", "Private");
 
-	#if GTK_MAJOR_VERSION >= 2
-    gtk_widget_set_size_request (wrong_crc_cm, 100, -1);
-    #else
-    gtk_widget_set_usize (wrong_crc_cm, 100, -1);
-    #endif
+    WIDGET_SET_SIZE(wrong_crc_cm, 100, -1);
 
-	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_ALL);
-	linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRECT);
+    linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_ALL);
+    linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRECT);
     linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT);
 
     gtk_combo_set_popdown_strings( GTK_COMBO(wrong_crc_cm), linktype_list) ;
 	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(wrong_crc_cm)->entry),
 	"Select the 802.11 FCS filter that the wireless adapter will apply.",
-    NULL);
+        NULL);
 
-	if(airpcap_if_active != NULL)
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry), airpcap_get_validation_name(airpcap_if_active->CrcValidationOn));
-	else
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry),"");
+    if(airpcap_if_active != NULL)
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry), airpcap_get_validation_name(airpcap_if_active->CrcValidationOn));
+    else
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry),"");
 
-	SIGNAL_CONNECT(GTK_COMBO(wrong_crc_cm)->entry,"changed",airpcap_toolbar_wrong_crc_combo_cb,airpcap_tb);
-	gtk_widget_show(wrong_crc_cm);
+    SIGNAL_CONNECT(GTK_COMBO(wrong_crc_cm)->entry,"changed",airpcap_toolbar_wrong_crc_combo_cb,airpcap_tb);
+    gtk_widget_show(wrong_crc_cm);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
     /* Decryption mode combo box */
     enable_decryption_lb = gtk_label_new ("Decryption Mode: ");
     gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
     gtk_widget_show (enable_decryption_lb);
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
     NULL, "Private");
 
     enable_decryption_cb = gtk_combo_new ();
     gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
     gtk_widget_show (enable_decryption_cb);
-    #if GTK_MAJOR_VERSION >= 2
-    gtk_widget_set_size_request (enable_decryption_cb, 83, -1);
-    #else
-    gtk_widget_set_usize (enable_decryption_cb, 83, -1);
-    #endif
+    WIDGET_SET_SIZE (enable_decryption_cb, 83, -1);
     enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
     enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
     enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
@@ -4114,7 +4056,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_editable_set_editable (GTK_EDITABLE (enable_decryption_en), FALSE);
     GTK_WIDGET_UNSET_FLAGS (enable_decryption_en, GTK_CAN_FOCUS);
 
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_cb,
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_cb,
         "Choose a Decryption Mode", "Private");
 
     /* Set current decryption mode!!!! */
@@ -4122,52 +4064,45 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, airpcap_tb);
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY,enable_decryption_cb);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
-	/* Advanced button */
-	advanced_bt = gtk_button_new_with_label("Wireless Settings...");
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
+    /* Advanced button */
+    advanced_bt = gtk_button_new_with_label("Wireless Settings...");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
 
-	SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
+    SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
         "Set Advanced Wireless Settings", "Private");
-	gtk_widget_show(advanced_bt);
+    gtk_widget_show(advanced_bt);
 
-	/* Key Management button */
-	key_management_bt = gtk_button_new_with_label("Decryption Keys...");
-	OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
+    /* Key Management button */
+    key_management_bt = gtk_button_new_with_label("Decryption Keys...");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
 
-	SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
-	gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
-        "Manage Decryption Keys", "Private");
-	gtk_widget_show(key_management_bt);
+    SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
+                              "Manage Decryption Keys", "Private");
+    gtk_widget_show(key_management_bt);
 
-	/* select the default interface */
-	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+    /* select the default interface */
+    airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 
-	/* If no airpcap interface is present, gray everything */
-	if(airpcap_if_active == NULL)
-		{
-    	if(airpcap_if_list == NULL)
-			{
-			/*No airpcap device found */
-			gtk_widget_set_sensitive(airpcap_tb,FALSE);
-			recent.airpcap_toolbar_show = FALSE;
-			}
-		else
-			{
-			/* default adapter is not airpcap... or is airpcap but is not found*/
-			airpcap_set_toolbar_stop_capture(airpcap_if_active);
-			gtk_widget_set_sensitive(airpcap_tb,FALSE);
-			recent.airpcap_toolbar_show = TRUE;
-			}
-		}
-    else
-		{
+    /* If no airpcap interface is present, gray everything */
+    if(airpcap_if_active == NULL) {
+        if(airpcap_if_list == NULL) {
+            /*No airpcap device found */
+            gtk_widget_set_sensitive(airpcap_tb,FALSE);
+            recent.airpcap_toolbar_show = FALSE;
+	} else {
+            /* default adapter is not airpcap... or is airpcap but is not found*/
+            airpcap_set_toolbar_stop_capture(airpcap_if_active);
+            gtk_widget_set_sensitive(airpcap_tb,FALSE);
+            recent.airpcap_toolbar_show = TRUE;
+	}
+    } else {
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
-		recent.airpcap_toolbar_show = TRUE;
-        }
-
+        recent.airpcap_toolbar_show = TRUE;
+    }
 #endif
 
     /* filter toolbar */
@@ -4308,14 +4243,16 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(welcome_pane);
 }
 
-static 
-void driver_warning_dialog_cb(gpointer dialog _U_, gint btn, gpointer data)
+#ifdef HAVE_AIRPCAP
+static void
+driver_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 {
-	gboolean r;
+    gboolean r;
 	
-	r = simple_dialog_check_get(dialog);
+    r = simple_dialog_check_get(dialog);
     recent.airpcap_driver_check_show = !r;
 }
+#endif
 
 static void
 show_main_window(gboolean doing_work)
@@ -4335,47 +4272,46 @@ show_main_window(gboolean doing_work)
   display_queued_messages();
 
 #ifdef HAVE_AIRPCAP
-/*
- * This will read the decryption keys from the preferences file, and will store
- * them into the registry...
- */
-if(!airpcap_check_decryption_keys(airpcap_if_list))
-    {
+  /*
+   * This will read the decryption keys from the preferences file, and will
+   * store them into the registry...
+   */
+  if(!airpcap_check_decryption_keys(airpcap_if_list)) {
     /* Ask the user what to do ...*/
     airpcap_keys_check_w(NULL,NULL);
-    }
-else /* Keys from lists are equals, or wireshark has got no keys */
-    {
+  } else {
+    /* Keys from lists are equals, or wireshark has got no keys */
     airpcap_load_decryption_keys(airpcap_if_list);
-    }
+  }
 
-if(airpcap_dll_ret_val == AIRPCAP_DLL_OLD)
-{
-if(recent.airpcap_driver_check_show)
-	{
-	driver_warning_dialog = simple_dialog(ESD_TYPE_ERROR
-		, ESD_BTN_OK, "%s",
+  switch (airpcap_dll_ret_val) {
+
+  case AIRPCAP_DLL_OK:
+    break;
+
+  case AIRPCAP_DLL_OLD:
+    if(recent.airpcap_driver_check_show) {
+      driver_warning_dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
 			"WARNING: The version of AirPcap on this system\n"
 			"does not support driver-level decryption.  Please\n"
 			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
-	simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
-	simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, (gpointer) driver_warning_dialog);
-	}
-}
-/*
- * XXX - Maybe we need to warn the user if one of the following happens???
- */
-/*  else if(airpcap_dll_ret_val == AIRPCAP_DLL_OK)
-{
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OK\n");
-}
-else if(airpcap_dll_ret_val == AIRPCAP_DLL_ERROR)
-{
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
-}
-else if(airpcap_dll_ret_val == AIRPCAP_DLL_NOT_FOUND)
-{
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
-}*/
+      simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
+      simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, (gpointer) driver_warning_dialog);
+    }
+    break;
+
+#if 0
+  /*
+   * XXX - Maybe we need to warn the user if one of the following happens???
+   */
+  case AIRPCAP_DLL_ERROR:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+    break;
+
+  case AIRPCAP_DLL_NOT_FOUND:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+    break;
 #endif
+  }
+#endif /* HAVE_AIRPCAP */
 }

@@ -214,11 +214,7 @@ redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
   if (bv != NULL) {
     data = get_byte_view_data_and_length(bv, &len);
     if (data != NULL)
-#if GTK_MAJOR_VERSION < 2
-      packet_hex_print(GTK_TEXT(bv), data, fd, finfo, len);
-#else
-      packet_hex_print(GTK_TEXT_VIEW(bv), data, fd, finfo, len);
-#endif
+      packet_hex_print(bv, data, fd, finfo, len);
   }
 }
 
@@ -678,13 +674,7 @@ byte_view_realize_cb(GtkWidget *bv, gpointer data _U_)
         /* This must be the dummy byte view if no packet is selected. */
         return;
     }
-#if GTK_MAJOR_VERSION < 2
-    packet_hex_print(GTK_TEXT(bv), byte_data, cfile.current_frame, NULL,
-                     byte_len);
-#else
-    packet_hex_print(GTK_TEXT_VIEW(bv), byte_data, cfile.current_frame, NULL,
-                     byte_len);
-#endif
+    packet_hex_print(bv, byte_data, cfile.current_frame, NULL, byte_len);
 }
 
 static GtkWidget *
@@ -824,7 +814,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, int data_type)
 		return;
 	}
 
-	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+	data_p = get_byte_view_data_and_length(bv, &len);
 	g_assert(data_p != NULL);
         
     g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
@@ -883,9 +873,9 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	const char *file = NULL;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
+	file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
 #else
-    file = gtk_file_selection_get_filename(GTK_FILE_SELECTION(savehex_dlg));
+	file = gtk_file_selection_get_filename(GTK_FILE_SELECTION(savehex_dlg));
 #endif
 
 	if (!file ||! *file) {
@@ -906,7 +896,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	 */
 	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
 	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
-	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -944,8 +934,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	GtkWidget   *dlg_lb;
 
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
-    win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
-    return;
+	win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
+	return;
 #endif
 
     /* don't show up the dialog, if no data has to be saved */
@@ -957,7 +947,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
 	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
-	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
@@ -1028,15 +1018,9 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
  * data, and ASCII data as three columns, so you can select purely in
  * the hex dump column.
  */
-#if GTK_MAJOR_VERSION < 2
 static void
-packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
+packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 			int bend, int encoding)
-#else
-static void
-packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
-			int bend, int encoding)
-#endif
 {
   int            i = 0, j, k, cur;
   guchar         line[MAX_LINE_LEN + 1];
@@ -1049,8 +1033,10 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 #if GTK_MAJOR_VERSION < 2
   GdkFont       *cur_font, *new_font;
   GdkColor      *fg, *bg;
+  GtkTextView   *bv_text = GTK_TEXT(bv);
 #else
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(bv));
+  GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
+  GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
   GtkTextIter    iter;
   const char    *revstyle;
   gchar         *convline;
@@ -1068,16 +1054,16 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 
 #if GTK_MAJOR_VERSION < 2
   /* Freeze the text for faster display */
-  gtk_text_freeze(bv);
+  gtk_text_freeze(bv_text);
 
   /* Clear out the text */
-  gtk_text_set_point(bv, 0);
+  gtk_text_set_point(bv_text, 0);
   /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
      http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
      http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
      for more information */
-  gtk_adjustment_set_value(bv->vadj, 0.0);
-  gtk_text_forward_delete(bv, gtk_text_get_length(bv));
+  gtk_adjustment_set_value(bv_text->vadj, 0.0);
+  gtk_text_forward_delete(bv_text, gtk_text_get_length(bv_text));
 #else
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
@@ -1169,7 +1155,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
     /* Display with inverse video ? */
 #if GTK_MAJOR_VERSION < 2
     if (prefs.gui_hex_dump_highlight_style) {
-      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, -1);
+      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, -1);
       /* Do we start in reverse? */
       reverse = i >= bstart && i < bend;
       fg = reverse ? &WHITE : &BLACK;
@@ -1189,7 +1175,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	newreverse = i >= bstart && i < bend;
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &BLACK;
 	  bg = &WHITE;
 	  cur = 0;
@@ -1204,7 +1190,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	}
 	/* Have we gone from plain to reversed? */
 	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &WHITE;
 	  bg = &BLACK;
 	  cur = 0;
@@ -1212,11 +1198,11 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	reverse = newreverse;
       }
       /* Print remaining part of line */
-      gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+      gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
       cur = 0;
       /* Print some space at the end of the line */
       line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, cur);
+      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, cur);
       cur = 0;
 
       /* Print the ASCII bit */
@@ -1244,7 +1230,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	newreverse = i >= bstart && i < bend;
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &BLACK;
 	  bg = &WHITE;
 	  cur = 0;
@@ -1257,7 +1243,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	}
 	/* Have we gone from plain to reversed? */
 	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &WHITE;
 	  bg = &BLACK;
 	  cur = 0;
@@ -1265,14 +1251,14 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	reverse = newreverse;
       }
       /* Print remaining part of line */
-      gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
+      gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
       cur = 0;
       line[cur++] = '\n';
       line[cur]   = '\0';
-      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, -1);
+      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, -1);
     }
     else {
-      gtk_text_insert(bv, user_font_get_regular(), NULL, NULL, line, -1);
+      gtk_text_insert(bv_text, user_font_get_regular(), NULL, NULL, line, -1);
       /* Do we start in bold? */
       cur_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
       j   = i;
@@ -1293,13 +1279,13 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	/* Did we cross a bold/plain boundary? */
 	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
-	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
 	  cur = 0;
 	}
       }
       line[cur++] = ' ';
-      gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
 
       cur = 0;
       i = j;
@@ -1326,14 +1312,14 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	/* Did we cross a bold/plain boundary? */
 	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
-	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
 	  cur = 0;
 	}
       }
       line[cur++] = '\n';
       line[cur]   = '\0';
-      gtk_text_insert(bv, cur_font, NULL, NULL, line, -1);
+      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, -1);
     }
 #else
     if (prefs.gui_hex_dump_highlight_style)
@@ -1457,34 +1443,28 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 
   /* scroll text into position */
 #if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(bv); /* must thaw before adjusting scroll bars */
+  gtk_text_thaw(bv_text); /* must thaw before adjusting scroll bars */
   if ( bstart > 0 ) {
     int linenum;
     float scrollval;
 
     linenum = bstart / BYTE_VIEW_WIDTH;
     scrollval = MIN(linenum * user_font_get_regular_height(),
-		    bv->vadj->upper - bv->vadj->page_size);
+		    bv_text->vadj->upper - bv_text->vadj->page_size);
 
-    gtk_adjustment_set_value(bv->vadj, scrollval);
+    gtk_adjustment_set_value(bv_text->vadj, scrollval);
   }
 #else
   if (mark) {
-      gtk_text_view_scroll_to_mark(bv, mark, 0.0, TRUE, 1.0, 0.0);
-      gtk_text_buffer_delete_mark(buf, mark);
+    gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
+    gtk_text_buffer_delete_mark(buf, mark);
   }
 #endif
 }
 
-#if GTK_MAJOR_VERSION < 2
 void
-packet_hex_print(GtkText *bv, const guint8 *pd, frame_data *fd,
+packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 		 field_info *finfo, guint len)
-#else
-void
-packet_hex_print(GtkTextView *bv, const guint8 *pd, frame_data *fd,
-		 field_info *finfo, guint len)
-#endif
 {
   /* do the initial printing and save the information needed 	*/
   /* to redraw the display if preferences change.		*/
@@ -1516,13 +1496,8 @@ packet_hex_print(GtkTextView *bv, const guint8 *pd, frame_data *fd,
  * Redraw the text using the saved information; usually called if
  * the preferences have changed.
  */
-#if GTK_MAJOR_VERSION < 2
 void
-packet_hex_reprint(GtkText *bv)
-#else
-void
-packet_hex_reprint(GtkTextView *bv)
-#endif
+packet_hex_reprint(GtkWidget *bv)
 {
   int start, end, encoding;
   const guint8 *data;
@@ -1530,7 +1505,7 @@ packet_hex_reprint(GtkTextView *bv)
 
   start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
   end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
-  data = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+  data = get_byte_view_data_and_length(bv, &len);
   g_assert(data != NULL);
   encoding = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY));
 

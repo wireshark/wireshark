@@ -225,8 +225,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
         }
 
 	DataPtr->finfo_selected = finfo;
-	packet_hex_print(GTK_TEXT(byte_view), data,
-		DataPtr->frame, finfo, len);
+	packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
 }
 
 /* called when a tree row is unselected in the popup packet window */
@@ -248,7 +247,7 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_,
 
 	data = get_byte_view_data_and_length(byte_view, &len);
 	g_assert(data != NULL);
-	packet_hex_reprint(GTK_TEXT(byte_view));
+	packet_hex_reprint(byte_view);
 }
 #else
 /* called when a tree row is (un)selected in the popup packet window */
@@ -282,8 +281,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
         }
 
         DataPtr->finfo_selected = finfo;
-        packet_hex_print(GTK_TEXT_VIEW(byte_view), data,
-                         DataPtr->frame, finfo, len);
+        packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
     }
     else
     {
@@ -295,7 +293,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 
         data = get_byte_view_data_and_length(byte_view, &len);
         g_assert(data != NULL);
-        packet_hex_reprint(GTK_TEXT_VIEW(byte_view));
+        packet_hex_reprint(byte_view);
     }
 }
 #endif
