@@ -770,6 +770,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-lsa.h	\
 	packet-dcerpc-mapi.h	\
 	packet-dcerpc-netlogon.h	\
+	packet-dcerpc-nspi.h	\
 	packet-dcerpc-nt.h	\
 	packet-dcerpc-pnp.h	\
 	packet-dcerpc-rras.h	\
