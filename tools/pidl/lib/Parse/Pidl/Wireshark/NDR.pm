@@ -256,14 +256,13 @@ sub Bitmap($$$)
 	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_UINT$size", "BASE_HEX", "0", "NULL", $size/8);
 }
 
-sub ElementLevel($$$$$)
+sub ElementLevel($$$$$$)
 {
-	my ($e,$l,$hf,$myname,$pn) = @_;
+	my ($e,$l,$hf,$myname,$pn,$ifname) = @_;
 
 	my $param = 0;
 
 	if (defined($conformance->{dissectorparams}->{$myname})) {
-		$conformance->{dissectorparams}->{$myname}->{PARAM} = 1;
 		$param = $conformance->{dissectorparams}->{$myname}->{PARAM};
 	}
 
@@ -327,10 +326,7 @@ sub ElementLevel($$$$$)
 				$call= $conformance->{types}->{$l->{DATA_TYPE}}->{DISSECTOR_NAME};
 				$conformance->{types}->{$l->{DATA_TYPE}}->{USED} = 1;
 			} else {
-				if ($l->{DATA_TYPE} =~ /^([a-z]+)\_(.*)$/)
-				{
-					pidl_code "offset = $1_dissect_struct_$2(tvb,offset,pinfo,tree,drep,$hf,$param);";
-				}
+				pidl_code "offset = $ifname\_dissect_struct_" . $l->{DATA_TYPE} . "(tvb,offset,pinfo,tree,drep,$hf,$param);";
 
 				return;
 			}
@@ -402,7 +398,7 @@ sub Element($$$)
 		pidl_code "{";
 		indent;
 
-		ElementLevel($e,$_,$hf,$dissectorname.$add,$pn);
+		ElementLevel($e,$_,$hf,$dissectorname.$add,$pn,$ifname);
 
 		pidl_code "";
 		pidl_code "return offset;";
@@ -442,6 +438,8 @@ sub Function($$$)
 	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
 		if ($type->{DATA}->{TYPE} eq "ENUM") {
 			pidl_code "g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA}) . " status;\n";
+		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
+			pidl_code "g$fn->{RETURN_TYPE} status;\n";
 		} else {
 	    	print "$fn->{FILE}:$fn->{LINE}: error: return type `$fn->{RETURN_TYPE}' not yet supported\n";
 		}
@@ -462,7 +460,7 @@ sub Function($$$)
 		pidl_code "offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf\_$ifname\_status, &status);\n";
 		pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
 		pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, NT_errors, \"Unknown NT status 0x%08x\"));\n";
-		$return_types{$ifname}->{"status"} = ["NTSTATUS", "Windows Error"];
+		$return_types{$ifname}->{"status"} = ["NTSTATUS", "NT Error"];
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		pidl_code "offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf\_$ifname\_werror, &status);\n";
 		pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
@@ -477,6 +475,11 @@ sub Function($$$)
 			pidl_code "offset = $return_dissect(tvb, offset, pinfo, tree, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);";
 			pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
 			pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %s\", val_to_str(status, $ifname\_$fn->{RETURN_TYPE}\_vals, \"Unknown " . $fn->{RETURN_TYPE} . " error 0x%08x\"));\n";
+			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
+		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
+			pidl_code "offset = dissect_ndr_$fn->{RETURN_TYPE}(tvb, offset, pinfo, tree, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);";
+			pidl_code "if (status != 0 && check_col(pinfo->cinfo, COL_INFO))";
+			pidl_code "\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %d\", status);\n";
 			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
 		}
 	}
@@ -770,6 +773,7 @@ sub ProcessInterface($)
 	foreach (keys %{$return_types{$x->{NAME}}}) {
 		my ($type, $desc) = @{$return_types{$x->{NAME}}->{$_}};
 		my $dt = find_type($type);
+		$dt or die("Unable to find information about return type `$type'");
 		register_hf_field("hf_$x->{NAME}_$_", $desc, "$x->{NAME}.$_", $dt->{FT_TYPE}, "BASE_HEX", $dt->{VALSSTRING}, 0, "");
 		$hf_used{"hf_$x->{NAME}_$_"} = 1;
 	}
@@ -839,6 +843,8 @@ sub Initialize($)
 		offset = dissect_ndr_nt_SID_with_options(tvb, offset, pinfo, tree, drep, param);
 	","FT_STRING", "BASE_DEC", 0, "NULL", 4);
 	register_type("WERROR", 
+		"offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_UINT32", "BASE_DEC", 0, "VALS(WERR_errors)", 4);
+	register_type("NTSTATUS", 
 		"offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_UINT32", "BASE_DEC", 0, "VALS(NT_errors)", 4);
 
 }
