@@ -1629,6 +1629,8 @@ void proto_register_ldap(void) {
 				 "Set the port for LDAP operations",
 				 10, &ldap_tcp_port);
 
+  prefs_register_obsolete_preference(ldap_module, "max_pdu");
+
   proto_cldap = proto_register_protocol(
 	  "Connectionless Lightweight Directory Access Protocol",
 	  "CLDAP", "cldap");

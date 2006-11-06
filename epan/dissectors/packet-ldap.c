@@ -4663,6 +4663,8 @@ void proto_register_ldap(void) {
 				 "Set the port for LDAP operations",
 				 10, &ldap_tcp_port);
 
+  prefs_register_obsolete_preference(ldap_module, "max_pdu");
+
   proto_cldap = proto_register_protocol(
 	  "Connectionless Lightweight Directory Access Protocol",
 	  "CLDAP", "cldap");
@@ -4739,7 +4741,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1699 "packet-ldap-template.c"
+#line 1701 "packet-ldap-template.c"
 	
 
 }
