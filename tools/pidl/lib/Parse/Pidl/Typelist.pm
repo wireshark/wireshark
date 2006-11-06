@@ -166,7 +166,7 @@ sub bitmap_type_fn($)
 {
 	my $bitmap = shift;
 
-	$bitmap->{TYPE} eq "BITMAP" or die("not an enum");
+	$bitmap->{TYPE} eq "BITMAP" or die("not a bitmap");
 
 	if (has_property($bitmap, "bitmap8bit")) {
 		return "uint8";
