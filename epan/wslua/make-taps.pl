@@ -88,7 +88,7 @@ sub dotap {
 		$enums{$ename} = [];
 		my $a = $enums{$ename};
 		
-		my $enumre = "typedef\\s+enum[^{]*{([^}]*)}[\\s\\n]*${ename}[\\s\\n]*;";
+		my $enumre = "typedef\\s+enum[^{]*{([^}]*)}[\\s\\n]*" . ${ename} . "[\\s\\n]*;";
 		if ($buf =~ s/$enumre//ms ) {
 			$types{$ename} = "/*$ename*/ lua_pushnumber(L,(lua_Number)v->%s);";
 			my $ebody = $1;
