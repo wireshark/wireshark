@@ -752,7 +752,6 @@ install-common-files:
 	xcopy ".\diameter\*.dtd" $(INSTALL_DIR)\diameter /d
 	xcopy ".\diameter\*.xml" $(INSTALL_DIR)\diameter /d
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
-	xcopy ".\plugins\acn\acn.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\agentx\agentx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\artnet\artnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\asn1\asn1.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
