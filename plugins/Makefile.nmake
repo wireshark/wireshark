@@ -7,7 +7,6 @@ include ..\config.nmake
 ############### no need to modify below this line #########
 
 all: \
-	acn \
 	agentx \
 	artnet \
 	asn1 \
