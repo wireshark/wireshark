@@ -33,11 +33,6 @@ all: \
 	v5ua
 
 
-acn:: 
-	cd acn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
 agentx:: 
 	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -157,8 +152,6 @@ v5ua::
 
 clean:
 	rm -rf $(VERSION)
-	cd acn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../artnet
@@ -209,8 +202,6 @@ clean:
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
 
 distclean: clean
-	cd acn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../artnet
@@ -261,8 +252,6 @@ distclean: clean
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
 maintainer-clean: distclean
-	cd acn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../artnet
@@ -319,7 +308,6 @@ install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
 	rm -rf $(VERSION)
 	mkdir $(VERSION)
-	xcopy acn\*.dll $(VERSION) /d
 	xcopy agentx\*.dll $(VERSION) /d
 	xcopy artnet\*.dll $(VERSION) /d
 	xcopy asn1\*.dll $(VERSION) /d
