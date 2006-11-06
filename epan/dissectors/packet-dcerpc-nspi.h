@@ -3488,6 +3488,19 @@ int nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb, int offset, packet_info *pi
 int nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_instance_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+#define RES_AND (0)
+#define RES_OR (1)
+#define RES_NOT (2)
+#define RES_CONTENT (3)
+#define RES_PROPERTY (4)
+#define RES_COMPAREPROPS (5)
+#define RES_BITMASK (6)
+#define RES_SIZE (7)
+#define RES_EXIST (8)
+#define RES_SUBRESTRICTION (9)
+#define RES_COMMENT (10)
+extern const value_string nspi_nspi_RestrictionType_vals[];
+int nspi_dissect_enum_RestrictionType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
 int nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_SRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);

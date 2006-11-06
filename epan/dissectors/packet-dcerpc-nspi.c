@@ -3667,6 +3667,20 @@ static int nspi_dissect_element_MAPINAMEID_lpguid(tvbuff_t *tvb, int offset, pac
 static int nspi_dissect_element_MAPINAMEID_lpguid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int nspi_dissect_element_MAPINAMEID_ulKind(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int nspi_dissect_element_MAPINAMEID_lID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+const value_string nspi_nspi_RestrictionType_vals[] = {
+	{ RES_AND, "RES_AND" },
+	{ RES_OR, "RES_OR" },
+	{ RES_NOT, "RES_NOT" },
+	{ RES_CONTENT, "RES_CONTENT" },
+	{ RES_PROPERTY, "RES_PROPERTY" },
+	{ RES_COMPAREPROPS, "RES_COMPAREPROPS" },
+	{ RES_BITMASK, "RES_BITMASK" },
+	{ RES_SIZE, "RES_SIZE" },
+	{ RES_EXIST, "RES_EXIST" },
+	{ RES_SUBRESTRICTION, "RES_SUBRESTRICTION" },
+	{ RES_COMMENT, "RES_COMMENT" },
+{ 0, NULL }
+};
 static int nspi_dissect_element_SPropertyRestriction_relop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int nspi_dissect_element_SPropertyRestriction_ulPropTag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int nspi_dissect_element_SPropertyRestriction_lpProp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -7678,6 +7692,27 @@ nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 
+/* IDL: typedef enum { */
+/* IDL: 	RES_AND=0, */
+/* IDL: 	RES_OR=1, */
+/* IDL: 	RES_NOT=2, */
+/* IDL: 	RES_CONTENT=3, */
+/* IDL: 	RES_PROPERTY=4, */
+/* IDL: 	RES_COMPAREPROPS=5, */
+/* IDL: 	RES_BITMASK=6, */
+/* IDL: 	RES_SIZE=7, */
+/* IDL: 	RES_EXIST=8, */
+/* IDL: 	RES_SUBRESTRICTION=9, */
+/* IDL: 	RES_COMMENT=10, */
+/* IDL: } nspi_RestrictionType; */
+
+int
+nspi_dissect_enum_RestrictionType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, param);
+	return offset;
+}
+
 /* IDL: typedef struct { */
 /* IDL: 	uint32 relop; */
 /* IDL: 	MAPITAGS ulPropTag; */
@@ -7807,9 +7842,9 @@ nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb, int offset, packet_info *pinf
 	return offset;
 }
 
-/* IDL: typedef [switch_type(uint32)] union { */
-/* IDL: [case(0)] [case(0)] SAndRestriction resAnd; */
-/* IDL: [case(4)] [case(4)] SPropertyRestriction resProperty; */
+/* IDL: typedef [switch_type(nspi_RestrictionType)] union { */
+/* IDL: [case(RES_AND)] [case(RES_AND)] SAndRestriction resAnd; */
+/* IDL: [case(RES_PROPERTY)] [case(RES_PROPERTY)] SPropertyRestriction resProperty; */
 /* IDL: } SRestriction_CTR; */
 
 static int
@@ -7846,11 +7881,11 @@ nspi_dissect_SRestriction_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &level);
 	switch(level) {
-		case 0:
+		case RES_AND:
 			offset = nspi_dissect_element_SRestriction_CTR_resAnd(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case 4:
+		case RES_PROPERTY:
 			offset = nspi_dissect_element_SRestriction_CTR_resProperty(tvb, offset, pinfo, tree, drep);
 		break;
 	}
@@ -7859,14 +7894,14 @@ nspi_dissect_SRestriction_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 	return offset;
 }
 /* IDL: typedef struct { */
-/* IDL: 	uint32 rt; */
+/* IDL: 	nspi_RestrictionType rt; */
 /* IDL: 	[switch_is(rt)] SRestriction_CTR res; */
 /* IDL: } SRestriction; */
 
 static int
 nspi_dissect_element_SRestriction_rt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_nspi_SRestriction_rt,NULL);
+	offset = nspi_dissect_enum_RestrictionType(tvb, offset, pinfo, tree, drep, hf_nspi_SRestriction_rt, 0);
 
 	return offset;
 }
@@ -10365,7 +10400,7 @@ void proto_register_dcerpc_nspi(void)
 	{ &hf_nspi_MAPINAMEID_ulKind, 
 	  { "Ulkind", "nspi.MAPINAMEID.ulKind", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_nspi_SRestriction_rt, 
-	  { "Rt", "nspi.SRestriction.rt", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "Rt", "nspi.SRestriction.rt", FT_UINT32, BASE_DEC, VALS(nspi_nspi_RestrictionType_vals), 0, "", HFILL }},
 	{ &hf_nspi_SPropValue_CTR_lpszA, 
 	  { "Lpsza", "nspi.SPropValue_CTR.lpszA", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_nspi_SBinary_cb, 

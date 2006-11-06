@@ -123,18 +123,20 @@
 		uint32 lID; /* this is actually a union in mapidefs.h */
 	} MAPINAMEID;
 
-/* Restriction types */
-#define RES_AND            0
-#define RES_OR             1
-#define RES_NOT            2
-#define RES_CONTENT        3
-#define RES_PROPERTY       4
-#define RES_COMPAREPROPS   5
-#define RES_BITMASK        6
-#define RES_SIZE           7
-#define RES_EXIST          8
-#define RES_SUBRESTRICTION 9
-#define RES_COMMENT        10
+	/* Restriction types */
+	typedef [v1_enum] enum {
+		RES_AND			= 0,
+		RES_OR			= 1,
+		RES_NOT			= 2,
+		RES_CONTENT		= 3,
+		RES_PROPERTY		= 4,
+		RES_COMPAREPROPS	= 5,
+		RES_BITMASK		= 6,
+		RES_SIZE		= 7,
+		RES_EXIST		= 8,
+		RES_SUBRESTRICTION	= 9,
+		RES_COMMENT		= 10
+	} nspi_RestrictionType;
 
 	typedef struct {
 		uint32 relop;
@@ -147,7 +149,7 @@
 		[size_is(cRes)][unique]SRestriction *lpRes;
 	} SAndRestriction;
 
-	typedef [switch_type(uint32)] union {
+	typedef [switch_type(nspi_RestrictionType)] union {
 		[case(RES_AND)           ] SAndRestriction resAnd;
 //     [case(RES_OR)            ] SOrRestriction resOr;
 //     [case(RES_NOT)           ] SNotRestriction resNot;
@@ -161,7 +163,7 @@
   } SRestriction_CTR;
 
 	typedef [public] struct _SRestriction{
-		uint32 rt;
+		nspi_RestrictionType rt;
 		[switch_is(rt)] SRestriction_CTR res;
 	} SRestriction;
 
