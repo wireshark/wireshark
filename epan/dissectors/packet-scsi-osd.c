@@ -184,8 +184,8 @@ typedef struct _scsi_osd_extra_data_t {
 			guint32 retreived_list_offset;
 			guint32 set_list_length;
 			guint32 set_list_offset;
-		};
-	};
+		} al;
+	} u;
 } scsi_osd_extra_data_t;
 
 static void
@@ -494,33 +494,33 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		break;
 	case 3: /* 5.2.2.3  attribute list */
 		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_list_length, tvb, offset, 4, 0);
-		extra_data->get_list_length=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.get_list_length=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
 		/* 4.12.5 */
-		extra_data->get_list_offset=tvb_get_ntohl(tvb, offset);
-		extra_data->get_list_offset=(extra_data->get_list_offset&0x0fffffff)<<((extra_data->get_list_offset>>28)&0x0f);
-		extra_data->get_list_offset<<=8;
-		proto_tree_add_uint(tree, hf_scsi_osd_get_attributes_list_offset, tvb, offset, 4, extra_data->get_list_offset);
+		extra_data->u.al.get_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.get_list_offset=(extra_data->u.al.get_list_offset&0x0fffffff)<<((extra_data->u.al.get_list_offset>>28)&0x0f);
+		extra_data->u.al.get_list_offset<<=8;
+		proto_tree_add_uint(tree, hf_scsi_osd_get_attributes_list_offset, tvb, offset, 4, extra_data->u.al.get_list_offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_allocation_length, tvb, offset, 4, 0);
-		extra_data->get_list_allocation_length=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.get_list_allocation_length=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
 		/* 4.12.5 */
-		extra_data->retreived_list_offset=tvb_get_ntohl(tvb, offset);
-		extra_data->retreived_list_offset=(extra_data->retreived_list_offset&0x0fffffff)<<((extra_data->retreived_list_offset>>28)&0x0f);
-		extra_data->retreived_list_offset<<=8;
-		proto_tree_add_uint(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, extra_data->retreived_list_offset);
+		extra_data->u.al.retreived_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.retreived_list_offset=(extra_data->u.al.retreived_list_offset&0x0fffffff)<<((extra_data->u.al.retreived_list_offset>>28)&0x0f);
+		extra_data->u.al.retreived_list_offset<<=8;
+		proto_tree_add_uint(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, extra_data->u.al.retreived_list_offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_length, tvb, offset, 4, 0);
-		extra_data->set_list_length=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.set_list_length=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_offset, tvb, offset, 4, 0);
-		extra_data->set_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.set_list_offset=tvb_get_ntohl(tvb, offset);
 		offset+=4;
 
 		/* 4 reserved bytes */
@@ -549,11 +549,11 @@ dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_
 /*qqq*/
 		break;
 	case 3: /* 5.2.2.3  attribute list */
-		if(extra_data->get_list_length){
-			dissect_osd_attributes_list(pinfo, tvb, extra_data->get_list_offset, tree);
+		if(extra_data->u.al.get_list_length){
+			dissect_osd_attributes_list(pinfo, tvb, extra_data->u.al.get_list_offset, tree);
 		}
-		if(extra_data->set_list_length){
-			proto_tree_add_text(tree, tvb, extra_data->set_list_offset, extra_data->set_list_length, "Set Attributes Data");
+		if(extra_data->u.al.set_list_length){
+			proto_tree_add_text(tree, tvb, extra_data->u.al.set_list_offset, extra_data->u.al.set_list_length, "Set Attributes Data");
 		}
 		break;
 	}
@@ -578,8 +578,8 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset, pro
 /*qqq*/
 		break;
 	case 3: /* 5.2.2.3  attribute list */
-		if(extra_data->get_list_allocation_length){
-			dissect_osd_attributes_list(pinfo, tvb, extra_data->retreived_list_offset, tree);
+		if(extra_data->u.al.get_list_allocation_length){
+			dissect_osd_attributes_list(pinfo, tvb, extra_data->u.al.retreived_list_offset, tree);
 		}
 		break;
 	}
