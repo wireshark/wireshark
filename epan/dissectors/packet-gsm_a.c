@@ -16145,9 +16145,9 @@ dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x40, BSSAP_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, "");
 
 	/*A3 Redial Redial O T 1 10.5.4.34 
-	/* TODO add this element 
-	ELEM_OPT_T(0xA3, BSSAP_PDU_TYPE_DTAP, DE_REDIAL, "");
-	*/
+	 * TODO add this element 
+	 * ELEM_OPT_T(0xA3, BSSAP_PDU_TYPE_DTAP, DE_REDIAL, "");
+	 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }

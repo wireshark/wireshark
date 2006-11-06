@@ -308,14 +308,13 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
         /*g_warning("interface_new#%u", pinfo->fd->num);*/
 
         interf = se_alloc(sizeof(dcom_interface_t));
-        interf->parent = NULL; //object;
+        interf->parent = NULL;
         interf->private_data = NULL;
         interf->first_packet = pinfo->fd->num;
         interf->iid = *iid;
         interf->ipid = *ipid;
 
         dcom_interfaces = g_list_append(dcom_interfaces, interf);
-        //object->interfaces = g_list_append(object->interfaces, interf);
         return interf;
     }
 

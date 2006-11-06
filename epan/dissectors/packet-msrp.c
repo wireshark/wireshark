@@ -236,7 +236,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* First time, get info from conversation */
 		p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
 		                           PT_TCP,
-		                           pinfo->destport, pinfo->srcport, 0);//NO_ADDR_B | NO_PORT_B);
+		                           pinfo->destport, pinfo->srcport, 0);
 
 		if (p_conv)
 		{
