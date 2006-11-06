@@ -917,8 +917,8 @@ static const value_string h248_reasons[] = {
 };
 
 static const value_string wildcard_modes[] = {
-    { 0, "All" },
-    { 1, "Choose" },
+    { 0, "Choose" },
+    { 1, "All" },
     { 0, NULL }
 };
 
