@@ -67,6 +67,7 @@ DISSECTOR_SRC =	\
 	packet-9p.c	\
 	packet-aarp.c	\
 	packet-acap.c	\
+	packet-acn.c	\
 	packet-acp133.c	\
 	packet-acse.c	\
 	packet-actrace.c	\
@@ -717,6 +718,7 @@ DISSECTOR_SRC =	\
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
 	format-oid.h	\
+	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
 	packet-actrace.h	\
