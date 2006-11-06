@@ -3,7 +3,7 @@
   <assemblyIdentity
     version="@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_MICRO@.0"
     processorArchitecture="X86"
-    name="EtherealDevelopmentTeam.Ethereal"
+    name="WiresharkDevelopmentTeam.Wireshark"
     type="win32"
   />
   <description>The world's most popular network protocol analyzer</description>
