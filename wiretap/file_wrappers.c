@@ -162,7 +162,7 @@ file_open(const char *path, const char *mode)
 	return ft;
 }
 
-int
+gint64
 file_seek(void *stream, gint64 offset, int whence, int *err)
 {
 	gint64 ret;
