@@ -375,7 +375,7 @@ AC_ARG_ENABLE(gtk2,
 AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 
 AC_ARG_ENABLE(threads,
-[  --enable-threads        use threads in wireshark.  [default=no]],enable_threads=$enableval,enable_threads=no)
+[  --enable-threads        use threads in wireshark.  [default=yes]],enable_threads=$enableval,enable_threads=yes)
 AM_CONDITIONAL(USE_THREADS, test x$enable_threads = xyes)
 
 AC_ARG_ENABLE(profile-build,
@@ -1373,7 +1373,6 @@ AC_OUTPUT(
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
   plugins/Makefile
-  plugins/acn/Makefile
   plugins/agentx/Makefile
   plugins/artnet/Makefile
   plugins/asn1/Makefile
