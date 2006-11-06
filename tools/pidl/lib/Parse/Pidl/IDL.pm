@@ -2987,9 +2987,9 @@ sub parse_string
 	return CleanData($idl);
 }
 
-sub parse_file($)
+sub parse_file($$)
 {
-	my ($filename) = @_;
+	my ($filename,$incdirs) = @_;
 
 	my $saved_delim = $/;
 	undef $/;
@@ -2997,7 +2997,8 @@ sub parse_file($)
 	if (! defined $cpp) {
 		$cpp = "cpp";
 	}
-	my $data = `$cpp -D__PIDL__ -xc $filename`;
+	my $includes = map { " -I$_" } @$incdirs;
+	my $data = `$cpp -D__PIDL__$includes -xc $filename`;
 	$/ = $saved_delim;
 
 	return parse_string($data, $filename);

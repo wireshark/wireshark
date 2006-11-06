@@ -17,7 +17,7 @@ pidl - An IDL compiler written in Perl
 
 pidl --help
 
-pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
@@ -57,6 +57,11 @@ Show list of available options.
 
 Write output files to the specified directory.  Defaults to the current 
 directory.
+
+=item I<--includedir DIR>
+
+Add DIR to the search path used by the preprocessor. This option can be 
+specified multiple times.
 		
 =item I<--parse-idl-tree>
 
@@ -440,6 +445,7 @@ sub FileSave($$)
     close(FILE);
 }
 
+my(@opt_incdirs) = (); 
 my($opt_help) = 0;
 my($opt_parse_idl_tree) = 0;
 my($opt_dump_idl_tree);
@@ -484,6 +490,7 @@ Generic Options:
  --warn-compat           warn about incompatibility with other compilers
  --quiet                 be quiet
  --verbose               be verbose
+ --includedir DIR        search DIR for included files
 
 Debugging:
  --dump-idl-tree[=FILE]  dump internal representation to file [BASENAME.pidl]
@@ -542,7 +549,8 @@ my $result = GetOptions (
 	    'com-header:s' => \$opt_com_header,
 	    'quiet' => \$opt_quiet,
 		'verbose' => \$opt_verbose,
-	    'warn-compat' => \$opt_warn_compat
+	    'warn-compat' => \$opt_warn_compat,
+		'includedir=s@' => \@opt_incdirs
 	    );
 
 if (not $result) {
@@ -571,7 +579,7 @@ sub process_file($)
 	} else {
 		require Parse::Pidl::IDL;
 
-		$pidl = Parse::Pidl::IDL::parse_file($idl_file);
+		$pidl = Parse::Pidl::IDL::parse_file($idl_file, \@opt_incdirs);
 		defined @$pidl || die "Failed to parse $idl_file";
 		require Parse::Pidl::Typelist;
 		Parse::Pidl::Typelist::LoadIdl($pidl);
