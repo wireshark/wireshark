@@ -47,8 +47,6 @@
 #endif
 
 /* forward reference */
-void proto_register_linx();
-void proto_reg_handoff_linx();
 static void dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_linx = -1;
