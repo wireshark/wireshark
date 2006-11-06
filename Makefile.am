@@ -652,6 +652,7 @@ EXTRA_DIST = \
 	image/tshark.rc.in	\
 	image/up_arrow.xpm	\
 	image/win32-file-dlg.rc \
+	image/wiresharkdoc.ico	\
 	image/wireshark.exe.manifest.in \
 	image/wireshark.ico	\
 	image/wireshark.rc.in	\
