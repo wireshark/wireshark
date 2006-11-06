@@ -256,7 +256,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
     if (color_filters_used()) {
         curr = color_filter_list;
 
-        while( (curr = g_slist_next(curr)) != NULL) {
+        while(curr != NULL) {
             colorf = curr->data;
             if ((colorf->c_colorfilter != NULL) &&
                  dfilter_apply_edt(colorf->c_colorfilter, edt)) {
@@ -264,6 +264,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
                     packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
                     return colorf;
             }
+            curr = g_slist_next(curr);
         }
     }
 
