@@ -54,117 +54,117 @@ static gint ett_nspi_SRowSet = -1;
 
 
 /* Header field declarations */
-static gint hf_nspi_SPropValue_CTR_MVl = -1;
-static gint hf_nspi_SPropValue_CTR_MVszW = -1;
-static gint hf_nspi_SPropValue_CTR_ft = -1;
-static gint hf_nspi_instance_key_cValues = -1;
-static gint hf_nspi_SSortOrderSet_cSorts = -1;
-static gint hf_nspi_SRow_ulAdrEntryPad = -1;
-static gint hf_nspi_FILETIME_dwLowDateTime = -1;
-static gint hf_nspi_SPropertyRestriction_lpProp = -1;
-static gint hf_nspi_SPropValue_CTR_err = -1;
-static gint hf_nspi_opnum = -1;
-static gint hf_nspi_MAPIUID_ab = -1;
-static gint hf_nspi_MAPI_SETTINGS_service_provider = -1;
-static gint hf_nspi_NspiGetMatches_restrictions = -1;
-static gint hf_nspi_SSortOrder_ulOrder = -1;
-static gint hf_nspi_SRow_cValues = -1;
-static gint hf_nspi_SAndRestriction_lpRes = -1;
-static gint hf_nspi_MAPINAMEID_lpguid = -1;
-static gint hf_nspi_NspiGetMatches_REQ_properties = -1;
-static gint hf_nspi_SLPSTRArray_cValues = -1;
-static gint hf_nspi_SSortOrderSet_cCategories = -1;
-static gint hf_nspi_MAPISTATUS_status = -1;
-static gint hf_nspi_SPropValue_ulPropTag = -1;
-static gint hf_nspi_FILETIME_dwHighDateTime = -1;
-static gint hf_nspi_NspiBind_settings = -1;
-static gint hf_nspi_SSortOrder_ulPropTag = -1;
-static gint hf_nspi_NspiGetMatches_PropTagArray = -1;
-static gint hf_nspi_SRowSet_cRows = -1;
-static gint hf_nspi_NspiGetMatches_RowSet = -1;
-static gint hf_nspi_SPropValue_dwAlignPad = -1;
-static gint hf_nspi_SSortOrderSet_cExpanded = -1;
-static gint hf_nspi_SPropValue_CTR_bin = -1;
-static gint hf_nspi_SGuidArray_cValues = -1;
-static gint hf_nspi_NspiQueryRows_unknown = -1;
-static gint hf_nspi_MV_LONG_STRUCT_cValues = -1;
-static gint hf_nspi_MAPINAMEID_ulKind = -1;
-static gint hf_nspi_SRestriction_rt = -1;
-static gint hf_nspi_SPropValue_CTR_lpszA = -1;
-static gint hf_nspi_SBinary_cb = -1;
-static gint hf_nspi_SPropValue_CTR_lpguid = -1;
-static gint hf_nspi_NspiGetProps_REPL_values = -1;
-static gint hf_nspi_NspiDNToEph_flag = -1;
-static gint hf_nspi_SPropValue_CTR_MVft = -1;
-static gint hf_nspi_NspiBind_unknown = -1;
-static gint hf_nspi_MV_LONG_STRUCT_lpl = -1;
-static gint hf_nspi_MAPI_SETTINGS_flag = -1;
-static gint hf_nspi_NspiDNToEph_instance_key = -1;
-static gint hf_nspi_SPropValue_CTR_null = -1;
-static gint hf_nspi_SDateTimeArray_lpft = -1;
-static gint hf_nspi_SPropValue_CTR_b = -1;
-static gint hf_nspi_SPropValue_CTR_MVbin = -1;
-static gint hf_nspi_NspiBind_mapiuid = -1;
-static gint hf_nspi_input_locale_language = -1;
-static gint hf_nspi_SPropValue_CTR_lpszW = -1;
-static gint hf_nspi_NspiQueryRows_REQ_properties = -1;
-static gint hf_nspi_SBinaryArray_lpbin = -1;
-static gint hf_nspi_NspiGetMatches_unknown1 = -1;
-static gint hf_nspi_SPropValue_CTR_i = -1;
-static gint hf_nspi_NspiGetMatches_unknown2 = -1;
-static gint hf_nspi_SRowSet_aRow = -1;
-static gint hf_nspi_NspiGetMatches_unknown3 = -1;
-static gint hf_nspi_SPropTagArray_aulPropTag = -1;
-static gint hf_nspi_MAPI_SETTINGS_handle = -1;
-static gint hf_nspi_MAPI_SETTINGS_input_locale = -1;
-static gint hf_nspi_MAPINAMEID_lID = -1;
-static gint hf_nspi_MV_UNICODE_STRUCT_lpi = -1;
-static gint hf_nspi_SPropValue_CTR_l = -1;
-static gint hf_nspi_SRestriction_CTR_resProperty = -1;
-static gint hf_nspi_SBinary_lpb = -1;
 static gint hf_nspi_NspiGetHierarchyInfo_unknown1 = -1;
-static gint hf_nspi_SSortOrderSet_aSort = -1;
-static gint hf_nspi_SShortArray_lpi = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_unknown2 = -1;
-static gint hf_nspi_NspiDNToEph_size = -1;
-static gint hf_nspi_NspiGetMatches_settings = -1;
-static gint hf_nspi_SPropValue_CTR_MVguid = -1;
-static gint hf_nspi_SPropertyRestriction_relop = -1;
-static gint hf_nspi_NAME_STRING_str = -1;
-static gint hf_nspi_NspiQueryRows_settings = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_settings = -1;
-static gint hf_nspi_NspiQueryRows_lRows = -1;
-static gint hf_nspi_SRestriction_res = -1;
-static gint hf_nspi_SLPSTRArray_strings = -1;
-static gint hf_nspi_SAndRestriction_cRes = -1;
-static gint hf_nspi_SPropTagArray_cValues = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_RowSet = -1;
-static gint hf_nspi_MV_UNICODE_STRUCT_cValues = -1;
-static gint hf_nspi_SDateTimeArray_cValues = -1;
-static gint hf_nspi_input_locale_method = -1;
-static gint hf_nspi_NspiGetProps_settings = -1;
-static gint hf_nspi_NspiQueryRows_flag = -1;
-static gint hf_nspi_SGuidArray_lpguid = -1;
-static gint hf_nspi_NspiGetProps_flag = -1;
-static gint hf_nspi_NspiQueryRows_instance_key = -1;
-static gint hf_nspi_NspiGetProps_REQ_properties = -1;
-static gint hf_nspi_SRestriction_CTR_resAnd = -1;
-static gint hf_nspi_SPropValue_CTR_MVszA = -1;
-static gint hf_nspi_NspiUnbind_status = -1;
-static gint hf_nspi_SBinaryArray_cValues = -1;
-static gint hf_nspi_NspiQueryRows_RowSet = -1;
-static gint hf_nspi_instance_key_value = -1;
-static gint hf_nspi_SRow_lpProps = -1;
-static gint hf_nspi_NspiGetMatches_instance_key = -1;
-static gint hf_nspi_SShortArray_cValues = -1;
-static gint hf_nspi_SPropValue_value = -1;
-static gint hf_nspi_SPropertyRestriction_ulPropTag = -1;
+static gint hf_nspi_SPropValue_CTR_ft = -1;
 static gint hf_nspi_SPropValue_CTR_object = -1;
-static gint hf_nspi_MAPI_SETTINGS_codepage = -1;
-static gint hf_nspi_LPSTR_lppszA = -1;
-static gint hf_nspi_SPropValue_CTR_MVi = -1;
+static gint hf_nspi_input_locale_language = -1;
+static gint hf_nspi_SPropValue_CTR_MVft = -1;
+static gint hf_nspi_SDateTimeArray_lpft = -1;
+static gint hf_nspi_SSortOrderSet_aSort = -1;
+static gint hf_nspi_SGuidArray_lpguid = -1;
+static gint hf_nspi_SPropValue_dwAlignPad = -1;
+static gint hf_nspi_NspiQueryRows_instance_key = -1;
+static gint hf_nspi_SSortOrderSet_cCategories = -1;
+static gint hf_nspi_MAPINAMEID_ulKind = -1;
 static gint hf_nspi_NspiDNToEph_server_dn = -1;
+static gint hf_nspi_MAPIUID_ab = -1;
+static gint hf_nspi_SPropValue_CTR_b = -1;
+static gint hf_nspi_SRow_ulAdrEntryPad = -1;
+static gint hf_nspi_SPropValue_CTR_null = -1;
+static gint hf_nspi_SBinary_cb = -1;
+static gint hf_nspi_SBinaryArray_lpbin = -1;
+static gint hf_nspi_SShortArray_cValues = -1;
+static gint hf_nspi_SRowSet_aRow = -1;
+static gint hf_nspi_NspiBind_mapiuid = -1;
+static gint hf_nspi_SPropValue_value = -1;
+static gint hf_nspi_SGuidArray_cValues = -1;
+static gint hf_nspi_instance_key_cValues = -1;
+static gint hf_nspi_SRestriction_CTR_resProperty = -1;
+static gint hf_nspi_NspiQueryRows_lRows = -1;
+static gint hf_nspi_MV_UNICODE_STRUCT_cValues = -1;
+static gint hf_nspi_SSortOrder_ulOrder = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_RowSet = -1;
+static gint hf_nspi_MAPINAMEID_lID = -1;
+static gint hf_nspi_NspiQueryRows_settings = -1;
+static gint hf_nspi_SBinaryArray_cValues = -1;
+static gint hf_nspi_SRestriction_rt = -1;
+static gint hf_nspi_NspiGetMatches_unknown2 = -1;
+static gint hf_nspi_SLPSTRArray_strings = -1;
+static gint hf_nspi_FILETIME_dwHighDateTime = -1;
+static gint hf_nspi_NspiGetProps_REPL_values = -1;
+static gint hf_nspi_SRow_cValues = -1;
+static gint hf_nspi_SPropValue_ulPropTag = -1;
+static gint hf_nspi_NspiGetProps_settings = -1;
+static gint hf_nspi_NspiDNToEph_instance_key = -1;
+static gint hf_nspi_SRestriction_CTR_resAnd = -1;
+static gint hf_nspi_NspiGetMatches_RowSet = -1;
+static gint hf_nspi_MV_UNICODE_STRUCT_lpi = -1;
+static gint hf_nspi_SSortOrderSet_cSorts = -1;
+static gint hf_nspi_SSortOrder_ulPropTag = -1;
+static gint hf_nspi_SPropValue_CTR_MVbin = -1;
+static gint hf_nspi_opnum = -1;
+static gint hf_nspi_NspiUnbind_status = -1;
+static gint hf_nspi_SAndRestriction_lpRes = -1;
+static gint hf_nspi_NspiDNToEph_size = -1;
+static gint hf_nspi_SPropValue_CTR_MVi = -1;
+static gint hf_nspi_SPropertyRestriction_lpProp = -1;
+static gint hf_nspi_NspiGetMatches_unknown3 = -1;
+static gint hf_nspi_MAPI_SETTINGS_flag = -1;
+static gint hf_nspi_instance_key_value = -1;
+static gint hf_nspi_NspiGetMatches_settings = -1;
+static gint hf_nspi_MV_LONG_STRUCT_cValues = -1;
+static gint hf_nspi_SRowSet_cRows = -1;
+static gint hf_nspi_MAPI_SETTINGS_service_provider = -1;
+static gint hf_nspi_SPropValue_CTR_l = -1;
+static gint hf_nspi_SAndRestriction_cRes = -1;
+static gint hf_nspi_NspiQueryRows_flag = -1;
+static gint hf_nspi_NspiQueryRows_REQ_properties = -1;
+static gint hf_nspi_SPropValue_CTR_MVl = -1;
+static gint hf_nspi_NspiGetProps_flag = -1;
+static gint hf_nspi_MAPISTATUS_status = -1;
+static gint hf_nspi_SPropValue_CTR_MVszW = -1;
+static gint hf_nspi_LPSTR_lppszA = -1;
+static gint hf_nspi_SPropValue_CTR_MVszA = -1;
 static gint hf_nspi_handle = -1;
+static gint hf_nspi_NspiGetMatches_restrictions = -1;
+static gint hf_nspi_NspiQueryRows_RowSet = -1;
+static gint hf_nspi_SRow_lpProps = -1;
+static gint hf_nspi_MAPI_SETTINGS_input_locale = -1;
+static gint hf_nspi_SPropertyRestriction_ulPropTag = -1;
+static gint hf_nspi_SPropTagArray_aulPropTag = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_unknown2 = -1;
+static gint hf_nspi_SBinary_lpb = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_settings = -1;
+static gint hf_nspi_SSortOrderSet_cExpanded = -1;
+static gint hf_nspi_NspiQueryRows_unknown = -1;
+static gint hf_nspi_input_locale_method = -1;
+static gint hf_nspi_NspiGetMatches_instance_key = -1;
+static gint hf_nspi_SPropValue_CTR_lpszA = -1;
+static gint hf_nspi_SPropValue_CTR_bin = -1;
+static gint hf_nspi_SShortArray_lpi = -1;
+static gint hf_nspi_SPropValue_CTR_lpszW = -1;
+static gint hf_nspi_NspiGetMatches_PropTagArray = -1;
+static gint hf_nspi_SLPSTRArray_cValues = -1;
+static gint hf_nspi_SPropValue_CTR_err = -1;
+static gint hf_nspi_NAME_STRING_str = -1;
+static gint hf_nspi_SPropertyRestriction_relop = -1;
+static gint hf_nspi_SPropValue_CTR_MVguid = -1;
+static gint hf_nspi_MAPINAMEID_lpguid = -1;
+static gint hf_nspi_FILETIME_dwLowDateTime = -1;
+static gint hf_nspi_NspiGetMatches_REQ_properties = -1;
+static gint hf_nspi_SPropTagArray_cValues = -1;
+static gint hf_nspi_SPropValue_CTR_lpguid = -1;
+static gint hf_nspi_SPropValue_CTR_i = -1;
+static gint hf_nspi_MAPI_SETTINGS_codepage = -1;
+static gint hf_nspi_NspiDNToEph_flag = -1;
+static gint hf_nspi_NspiBind_unknown = -1;
+static gint hf_nspi_MAPI_SETTINGS_handle = -1;
+static gint hf_nspi_SRestriction_res = -1;
+static gint hf_nspi_NspiGetProps_REQ_properties = -1;
+static gint hf_nspi_MV_LONG_STRUCT_lpl = -1;
+static gint hf_nspi_NspiGetMatches_unknown1 = -1;
+static gint hf_nspi_SDateTimeArray_cValues = -1;
+static gint hf_nspi_NspiBind_settings = -1;
 
 static gint proto_dcerpc_nspi = -1;
 /* Version information */
@@ -7501,7 +7501,7 @@ nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	[size_is(cValues-1)] [length_is(cValues-1)] [unique(1)] MAPITAGS *aulPropTag; */
+/* IDL: 	[unique(1)] [length_is(cValues-1)] [size_is(cValues-1)] MAPITAGS *aulPropTag; */
 /* IDL: 	uint32 cValues; */
 /* IDL: } SPropTagArray; */
 
@@ -7564,7 +7564,7 @@ nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	[size_is(cValues-1)] [length_is(cValues-1)] [unique(1)] uint32 *value; */
+/* IDL: 	[unique(1)] [length_is(cValues-1)] [size_is(cValues-1)] uint32 *value; */
 /* IDL: 	uint32 cValues; */
 /* IDL: } instance_key; */
 
@@ -7781,7 +7781,7 @@ nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb, int offset, packet_info 
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cRes; */
-/* IDL: 	[size_is(cRes)] [unique(1)] SRestriction *lpRes; */
+/* IDL: 	[unique(1)] [size_is(cRes)] SRestriction *lpRes; */
 /* IDL: } SAndRestriction; */
 
 static int
@@ -7991,7 +7991,7 @@ nspi_dissect_struct_SSortOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 /* IDL: 	uint32 cSorts; */
 /* IDL: 	uint32 cCategories; */
 /* IDL: 	uint32 cExpanded; */
-/* IDL: 	[size_is(cSorts)] [unique(1)] SSortOrder *aSort; */
+/* IDL: 	[unique(1)] [size_is(cSorts)] SSortOrder *aSort; */
 /* IDL: } SSortOrderSet; */
 
 static int
@@ -8073,7 +8073,7 @@ nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	[charset(DOS)] [unique(1)] uint8 *str; */
+/* IDL: 	[unique(1)] [charset(DOS)] uint8 *str; */
 /* IDL: } NAME_STRING; */
 
 static int
@@ -8121,7 +8121,7 @@ nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cb; */
-/* IDL: 	[size_is(cb)] [unique(1)] uint8 *lpb; */
+/* IDL: 	[unique(1)] [size_is(cb)] uint8 *lpb; */
 /* IDL: } SBinary; */
 
 static int
@@ -8231,7 +8231,7 @@ nspi_dissect_struct_FILETIME(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] uint16 *lpi; */
+/* IDL: 	[unique(1)] [size_is(cValues)] uint16 *lpi; */
 /* IDL: } SShortArray; */
 
 static int
@@ -8294,7 +8294,7 @@ nspi_dissect_struct_SShortArray(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpl; */
+/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpl; */
 /* IDL: } MV_LONG_STRUCT; */
 
 static int
@@ -8396,7 +8396,7 @@ nspi_dissect_struct_LPSTR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] LPSTR **strings; */
+/* IDL: 	[unique(1)] [size_is(cValues)] LPSTR **strings; */
 /* IDL: } SLPSTRArray; */
 
 static int
@@ -8467,7 +8467,7 @@ nspi_dissect_struct_SLPSTRArray(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] SBinary *lpbin; */
+/* IDL: 	[unique(1)] [size_is(cValues)] SBinary *lpbin; */
 /* IDL: } SBinaryArray; */
 
 static int
@@ -8530,7 +8530,7 @@ nspi_dissect_struct_SBinaryArray(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpguid; */
+/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpguid; */
 /* IDL: } SGuidArray; */
 
 static int
@@ -8593,7 +8593,7 @@ nspi_dissect_struct_SGuidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpi; */
+/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpi; */
 /* IDL: } MV_UNICODE_STRUCT; */
 
 static int
@@ -8656,7 +8656,7 @@ nspi_dissect_struct_MV_UNICODE_STRUCT(tvbuff_t *tvb, int offset, packet_info *pi
 
 /* IDL: typedef struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] FILETIME *lpft; */
+/* IDL: 	[unique(1)] [size_is(cValues)] FILETIME *lpft; */
 /* IDL: } SDateTimeArray; */
 
 static int
@@ -8721,9 +8721,9 @@ nspi_dissect_struct_SDateTimeArray(tvbuff_t *tvb, int offset, packet_info *pinfo
 /* IDL: [case(0x0002)] [case(0x0002)] uint16 i; */
 /* IDL: [case(0x0003)] [case(0x0003)] uint32 l; */
 /* IDL: [case(0x000b)] [case(0x000b)] uint16 b; */
-/* IDL: [case(0x001e)] [charset(DOS)] [unique(1)] [case(0x001e)] uint8 *lpszA; */
+/* IDL: [case(0x001e)] [unique(1)] [charset(DOS)] [case(0x001e)] uint8 *lpszA; */
 /* IDL: [case(0x0102)] [case(0x0102)] SBinary bin; */
-/* IDL: [case(0x001f)] [charset(UTF16)] [unique(1)] [case(0x001f)] uint16 *lpszW; */
+/* IDL: [case(0x001f)] [unique(1)] [charset(UTF16)] [case(0x001f)] uint16 *lpszW; */
 /* IDL: [case(0x0048)] [unique(1)] [case(0x0048)] MAPIUID *lpguid; */
 /* IDL: [case(0x0040)] [case(0x0040)] FILETIME ft; */
 /* IDL: [case(0x000a)] [case(0x000a)] MAPISTATUS err; */
@@ -9067,7 +9067,7 @@ nspi_dissect_struct_SPropValue(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 /* IDL: typedef struct { */
 /* IDL: 	uint32 ulAdrEntryPad; */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[size_is(cValues)] [unique(1)] SPropValue *lpProps; */
+/* IDL: 	[unique(1)] [size_is(cValues)] SPropValue *lpProps; */
 /* IDL: } SRow; */
 
 static int
@@ -9251,8 +9251,8 @@ nspi_dissect_element_NspiBind_handle_(tvbuff_t *tvb, int offset, packet_info *pi
 
 /* IDL: MAPISTATUS NspiBind( */
 /* IDL: [in] uint32 unknown, */
-/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
-/* IDL: [out] [in] [unique(1)] GUID *mapiuid, */
+/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
+/* IDL: [out] [unique(1)] [in] GUID *mapiuid, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
@@ -9311,7 +9311,7 @@ nspi_dissect_element_NspiUnbind_status(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 /* IDL: MAPISTATUS NspiUnbind( */
-/* IDL: [out] [in] [ref] policy_handle *handle, */
+/* IDL: [out] [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 status */
 /* IDL: ); */
 
@@ -9477,13 +9477,13 @@ nspi_dissect_element_NspiQueryRows_RowSet__(tvbuff_t *tvb, int offset, packet_in
 }
 
 /* IDL: MAPISTATUS NspiQueryRows( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
-/* IDL: [out] [in] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [out] [ref] [in] MAPI_SETTINGS *settings, */
 /* IDL: [in] uint32 lRows, */
-/* IDL: [size_is(lRows)] [unique(1)] [in] uint32 *instance_key, */
+/* IDL: [unique(1)] [in] [size_is(lRows)] uint32 *instance_key, */
 /* IDL: [in] uint32 unknown, */
-/* IDL: [in] [ref] SPropTagArray *REQ_properties, */
+/* IDL: [ref] [in] SPropTagArray *REQ_properties, */
 /* IDL: [out] [ref] SRowSet **RowSet */
 /* IDL: ); */
 
@@ -9686,9 +9686,9 @@ nspi_dissect_element_NspiGetMatches_RowSet__(tvbuff_t *tvb, int offset, packet_i
 }
 
 /* IDL: MAPISTATUS NspiGetMatches( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 unknown1, */
-/* IDL: [out] [in] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [out] [ref] [in] MAPI_SETTINGS *settings, */
 /* IDL: [unique(1)] [in] SPropTagArray *PropTagArray, */
 /* IDL: [in] uint32 unknown2, */
 /* IDL: [unique(1)] [in] SRestriction *restrictions, */
@@ -9830,10 +9830,10 @@ nspi_dissect_element_NspiDNToEph_instance_key_(tvbuff_t *tvb, int offset, packet
 }
 
 /* IDL: MAPISTATUS NspiDNToEph( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
 /* IDL: [in] uint32 size, */
-/* IDL: [size_is(size)] [in] [ref] NAME_STRING *server_dn, */
+/* IDL: [ref] [in] [size_is(size)] NAME_STRING *server_dn, */
 /* IDL: [out] [ref] instance_key *instance_key */
 /* IDL: ); */
 
@@ -9963,10 +9963,10 @@ nspi_dissect_element_NspiGetProps_REPL_values__(tvbuff_t *tvb, int offset, packe
 }
 
 /* IDL: MAPISTATUS NspiGetProps( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
-/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
-/* IDL: [in] [ref] SPropTagArray *REQ_properties, */
+/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
+/* IDL: [ref] [in] SPropTagArray *REQ_properties, */
 /* IDL: [out] [ref] SRow **REPL_values */
 /* IDL: ); */
 
@@ -10112,10 +10112,10 @@ nspi_dissect_element_NspiGetHierarchyInfo_RowSet__(tvbuff_t *tvb, int offset, pa
 }
 
 /* IDL: MAPISTATUS NspiGetHierarchyInfo( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] uint32 unknown1, */
-/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
-/* IDL: [out] [in] [ref] uint32 *unknown2, */
+/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
+/* IDL: [out] [ref] [in] uint32 *unknown2, */
 /* IDL: [out] [ref] SRowSet **RowSet */
 /* IDL: ); */
 
@@ -10329,228 +10329,228 @@ static dcerpc_sub_dissector nspi_dissectors[] = {
 void proto_register_dcerpc_nspi(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_nspi_SPropValue_CTR_MVl, 
-	  { "Mvl", "nspi.SPropValue_CTR.MVl", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVszW, 
-	  { "Mvszw", "nspi.SPropValue_CTR.MVszW", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_ft, 
-	  { "Ft", "nspi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_instance_key_cValues, 
-	  { "Cvalues", "nspi.instance_key.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrderSet_cSorts, 
-	  { "Csorts", "nspi.SSortOrderSet.cSorts", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRow_ulAdrEntryPad, 
-	  { "Uladrentrypad", "nspi.SRow.ulAdrEntryPad", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_FILETIME_dwLowDateTime, 
-	  { "Dwlowdatetime", "nspi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropertyRestriction_lpProp, 
-	  { "Lpprop", "nspi.SPropertyRestriction.lpProp", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_err, 
-	  { "Err", "nspi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, VALS(nspi_MAPISTATUS_vals), 0, "", HFILL }},
-	{ &hf_nspi_opnum, 
-	  { "Operation", "nspi.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPIUID_ab, 
-	  { "Ab", "nspi.MAPIUID.ab", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_service_provider, 
-	  { "Service Provider", "nspi.MAPI_SETTINGS.service_provider", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_restrictions, 
-	  { "Restrictions", "nspi.NspiGetMatches.restrictions", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrder_ulOrder, 
-	  { "Ulorder", "nspi.SSortOrder.ulOrder", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRow_cValues, 
-	  { "Cvalues", "nspi.SRow.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SAndRestriction_lpRes, 
-	  { "Lpres", "nspi.SAndRestriction.lpRes", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPINAMEID_lpguid, 
-	  { "Lpguid", "nspi.MAPINAMEID.lpguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_REQ_properties, 
-	  { "Req Properties", "nspi.NspiGetMatches.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SLPSTRArray_cValues, 
-	  { "Cvalues", "nspi.SLPSTRArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrderSet_cCategories, 
-	  { "Ccategories", "nspi.SSortOrderSet.cCategories", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPISTATUS_status, 
-	  { "MAPISTATUS", "nspi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(nspi_MAPISTATUS_vals), 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_ulPropTag, 
-	  { "Ulproptag", "nspi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
-	{ &hf_nspi_FILETIME_dwHighDateTime, 
-	  { "Dwhighdatetime", "nspi.FILETIME.dwHighDateTime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiBind_settings, 
-	  { "Settings", "nspi.NspiBind.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrder_ulPropTag, 
-	  { "Ulproptag", "nspi.SSortOrder.ulPropTag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_PropTagArray, 
-	  { "Proptagarray", "nspi.NspiGetMatches.PropTagArray", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRowSet_cRows, 
-	  { "Crows", "nspi.SRowSet.cRows", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_RowSet, 
-	  { "Rowset", "nspi.NspiGetMatches.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_dwAlignPad, 
-	  { "Dwalignpad", "nspi.SPropValue.dwAlignPad", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrderSet_cExpanded, 
-	  { "Cexpanded", "nspi.SSortOrderSet.cExpanded", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_bin, 
-	  { "Bin", "nspi.SPropValue_CTR.bin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SGuidArray_cValues, 
-	  { "Cvalues", "nspi.SGuidArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_unknown, 
-	  { "Unknown", "nspi.NspiQueryRows.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MV_LONG_STRUCT_cValues, 
-	  { "Cvalues", "nspi.MV_LONG_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPINAMEID_ulKind, 
-	  { "Ulkind", "nspi.MAPINAMEID.ulKind", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRestriction_rt, 
-	  { "Rt", "nspi.SRestriction.rt", FT_UINT32, BASE_DEC, VALS(nspi_nspi_RestrictionType_vals), 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpszA, 
-	  { "Lpsza", "nspi.SPropValue_CTR.lpszA", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SBinary_cb, 
-	  { "Cb", "nspi.SBinary.cb", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpguid, 
-	  { "Lpguid", "nspi.SPropValue_CTR.lpguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetProps_REPL_values, 
-	  { "Repl Values", "nspi.NspiGetProps.REPL_values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiDNToEph_flag, 
-	  { "Flag", "nspi.NspiDNToEph.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVft, 
-	  { "Mvft", "nspi.SPropValue_CTR.MVft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiBind_unknown, 
-	  { "Unknown", "nspi.NspiBind.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MV_LONG_STRUCT_lpl, 
-	  { "Lpl", "nspi.MV_LONG_STRUCT.lpl", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_flag, 
-	  { "Flag", "nspi.MAPI_SETTINGS.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiDNToEph_instance_key, 
-	  { "Instance Key", "nspi.NspiDNToEph.instance_key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_null, 
-	  { "Null", "nspi.SPropValue_CTR.null", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SDateTimeArray_lpft, 
-	  { "Lpft", "nspi.SDateTimeArray.lpft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_b, 
-	  { "B", "nspi.SPropValue_CTR.b", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVbin, 
-	  { "Mvbin", "nspi.SPropValue_CTR.MVbin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiBind_mapiuid, 
-	  { "Mapiuid", "nspi.NspiBind.mapiuid", FT_GUID, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_input_locale_language, 
-	  { "Language", "nspi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpszW, 
-	  { "Lpszw", "nspi.SPropValue_CTR.lpszW", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_REQ_properties, 
-	  { "Req Properties", "nspi.NspiQueryRows.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SBinaryArray_lpbin, 
-	  { "Lpbin", "nspi.SBinaryArray.lpbin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown1, 
-	  { "Unknown1", "nspi.NspiGetMatches.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_i, 
-	  { "I", "nspi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown2, 
-	  { "Unknown2", "nspi.NspiGetMatches.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRowSet_aRow, 
-	  { "Arow", "nspi.SRowSet.aRow", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown3, 
-	  { "Unknown3", "nspi.NspiGetMatches.unknown3", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropTagArray_aulPropTag, 
-	  { "Aulproptag", "nspi.SPropTagArray.aulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_handle, 
-	  { "Handle", "nspi.MAPI_SETTINGS.handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_input_locale, 
-	  { "Input Locale", "nspi.MAPI_SETTINGS.input_locale", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPINAMEID_lID, 
-	  { "Lid", "nspi.MAPINAMEID.lID", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MV_UNICODE_STRUCT_lpi, 
-	  { "Lpi", "nspi.MV_UNICODE_STRUCT.lpi", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_l, 
-	  { "L", "nspi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRestriction_CTR_resProperty, 
-	  { "Resproperty", "nspi.SRestriction_CTR.resProperty", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SBinary_lpb, 
-	  { "Lpb", "nspi.SBinary.lpb", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_nspi_NspiGetHierarchyInfo_unknown1, 
 	  { "Unknown1", "nspi.NspiGetHierarchyInfo.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SSortOrderSet_aSort, 
-	  { "Asort", "nspi.SSortOrderSet.aSort", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SShortArray_lpi, 
-	  { "Lpi", "nspi.SShortArray.lpi", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_unknown2, 
-	  { "Unknown2", "nspi.NspiGetHierarchyInfo.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiDNToEph_size, 
-	  { "Size", "nspi.NspiDNToEph.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_settings, 
-	  { "Settings", "nspi.NspiGetMatches.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVguid, 
-	  { "Mvguid", "nspi.SPropValue_CTR.MVguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropertyRestriction_relop, 
-	  { "Relop", "nspi.SPropertyRestriction.relop", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NAME_STRING_str, 
-	  { "Str", "nspi.NAME_STRING.str", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_settings, 
-	  { "Settings", "nspi.NspiQueryRows.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_settings, 
-	  { "Settings", "nspi.NspiGetHierarchyInfo.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_lRows, 
-	  { "Lrows", "nspi.NspiQueryRows.lRows", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRestriction_res, 
-	  { "Res", "nspi.SRestriction.res", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SLPSTRArray_strings, 
-	  { "Strings", "nspi.SLPSTRArray.strings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SAndRestriction_cRes, 
-	  { "Cres", "nspi.SAndRestriction.cRes", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropTagArray_cValues, 
-	  { "Cvalues", "nspi.SPropTagArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_RowSet, 
-	  { "Rowset", "nspi.NspiGetHierarchyInfo.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MV_UNICODE_STRUCT_cValues, 
-	  { "Cvalues", "nspi.MV_UNICODE_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SDateTimeArray_cValues, 
-	  { "Cvalues", "nspi.SDateTimeArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_input_locale_method, 
-	  { "Method", "nspi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetProps_settings, 
-	  { "Settings", "nspi.NspiGetProps.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_flag, 
-	  { "Flag", "nspi.NspiQueryRows.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SGuidArray_lpguid, 
-	  { "Lpguid", "nspi.SGuidArray.lpguid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetProps_flag, 
-	  { "Flag", "nspi.NspiGetProps.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_instance_key, 
-	  { "Instance Key", "nspi.NspiQueryRows.instance_key", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetProps_REQ_properties, 
-	  { "Req Properties", "nspi.NspiGetProps.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRestriction_CTR_resAnd, 
-	  { "Resand", "nspi.SRestriction_CTR.resAnd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVszA, 
-	  { "Mvsza", "nspi.SPropValue_CTR.MVszA", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiUnbind_status, 
-	  { "Status", "nspi.NspiUnbind.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SBinaryArray_cValues, 
-	  { "Cvalues", "nspi.SBinaryArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiQueryRows_RowSet, 
-	  { "Rowset", "nspi.NspiQueryRows.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_instance_key_value, 
-	  { "Value", "nspi.instance_key.value", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SRow_lpProps, 
-	  { "Lpprops", "nspi.SRow.lpProps", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_NspiGetMatches_instance_key, 
-	  { "Instance Key", "nspi.NspiGetMatches.instance_key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SShortArray_cValues, 
-	  { "Cvalues", "nspi.SShortArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_value, 
-	  { "Value", "nspi.SPropValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropertyRestriction_ulPropTag, 
-	  { "Ulproptag", "nspi.SPropertyRestriction.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_ft, 
+	  { "Ft", "nspi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_nspi_SPropValue_CTR_object, 
 	  { "Object", "nspi.SPropValue_CTR.object", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_codepage, 
-	  { "Codepage", "nspi.MAPI_SETTINGS.codepage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_nspi_LPSTR_lppszA, 
-	  { "Lppsza", "nspi.LPSTR.lppszA", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVi, 
-	  { "Mvi", "nspi.SPropValue_CTR.MVi", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_input_locale_language, 
+	  { "Language", "nspi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVft, 
+	  { "Mvft", "nspi.SPropValue_CTR.MVft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SDateTimeArray_lpft, 
+	  { "Lpft", "nspi.SDateTimeArray.lpft", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrderSet_aSort, 
+	  { "Asort", "nspi.SSortOrderSet.aSort", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SGuidArray_lpguid, 
+	  { "Lpguid", "nspi.SGuidArray.lpguid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_dwAlignPad, 
+	  { "Dwalignpad", "nspi.SPropValue.dwAlignPad", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_instance_key, 
+	  { "Instance Key", "nspi.NspiQueryRows.instance_key", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrderSet_cCategories, 
+	  { "Ccategories", "nspi.SSortOrderSet.cCategories", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPINAMEID_ulKind, 
+	  { "Ulkind", "nspi.MAPINAMEID.ulKind", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_nspi_NspiDNToEph_server_dn, 
 	  { "Server Dn", "nspi.NspiDNToEph.server_dn", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPIUID_ab, 
+	  { "Ab", "nspi.MAPIUID.ab", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_b, 
+	  { "B", "nspi.SPropValue_CTR.b", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRow_ulAdrEntryPad, 
+	  { "Uladrentrypad", "nspi.SRow.ulAdrEntryPad", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_null, 
+	  { "Null", "nspi.SPropValue_CTR.null", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SBinary_cb, 
+	  { "Cb", "nspi.SBinary.cb", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SBinaryArray_lpbin, 
+	  { "Lpbin", "nspi.SBinaryArray.lpbin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SShortArray_cValues, 
+	  { "Cvalues", "nspi.SShortArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRowSet_aRow, 
+	  { "Arow", "nspi.SRowSet.aRow", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiBind_mapiuid, 
+	  { "Mapiuid", "nspi.NspiBind.mapiuid", FT_GUID, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_value, 
+	  { "Value", "nspi.SPropValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SGuidArray_cValues, 
+	  { "Cvalues", "nspi.SGuidArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_instance_key_cValues, 
+	  { "Cvalues", "nspi.instance_key.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRestriction_CTR_resProperty, 
+	  { "Resproperty", "nspi.SRestriction_CTR.resProperty", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_lRows, 
+	  { "Lrows", "nspi.NspiQueryRows.lRows", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MV_UNICODE_STRUCT_cValues, 
+	  { "Cvalues", "nspi.MV_UNICODE_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrder_ulOrder, 
+	  { "Ulorder", "nspi.SSortOrder.ulOrder", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_RowSet, 
+	  { "Rowset", "nspi.NspiGetHierarchyInfo.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPINAMEID_lID, 
+	  { "Lid", "nspi.MAPINAMEID.lID", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_settings, 
+	  { "Settings", "nspi.NspiQueryRows.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SBinaryArray_cValues, 
+	  { "Cvalues", "nspi.SBinaryArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRestriction_rt, 
+	  { "Rt", "nspi.SRestriction.rt", FT_UINT32, BASE_DEC, VALS(nspi_nspi_RestrictionType_vals), 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown2, 
+	  { "Unknown2", "nspi.NspiGetMatches.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SLPSTRArray_strings, 
+	  { "Strings", "nspi.SLPSTRArray.strings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_FILETIME_dwHighDateTime, 
+	  { "Dwhighdatetime", "nspi.FILETIME.dwHighDateTime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetProps_REPL_values, 
+	  { "Repl Values", "nspi.NspiGetProps.REPL_values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRow_cValues, 
+	  { "Cvalues", "nspi.SRow.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_ulPropTag, 
+	  { "Ulproptag", "nspi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
+	{ &hf_nspi_NspiGetProps_settings, 
+	  { "Settings", "nspi.NspiGetProps.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiDNToEph_instance_key, 
+	  { "Instance Key", "nspi.NspiDNToEph.instance_key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRestriction_CTR_resAnd, 
+	  { "Resand", "nspi.SRestriction_CTR.resAnd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_RowSet, 
+	  { "Rowset", "nspi.NspiGetMatches.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MV_UNICODE_STRUCT_lpi, 
+	  { "Lpi", "nspi.MV_UNICODE_STRUCT.lpi", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrderSet_cSorts, 
+	  { "Csorts", "nspi.SSortOrderSet.cSorts", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrder_ulPropTag, 
+	  { "Ulproptag", "nspi.SSortOrder.ulPropTag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVbin, 
+	  { "Mvbin", "nspi.SPropValue_CTR.MVbin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_opnum, 
+	  { "Operation", "nspi.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiUnbind_status, 
+	  { "Status", "nspi.NspiUnbind.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SAndRestriction_lpRes, 
+	  { "Lpres", "nspi.SAndRestriction.lpRes", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiDNToEph_size, 
+	  { "Size", "nspi.NspiDNToEph.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVi, 
+	  { "Mvi", "nspi.SPropValue_CTR.MVi", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropertyRestriction_lpProp, 
+	  { "Lpprop", "nspi.SPropertyRestriction.lpProp", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown3, 
+	  { "Unknown3", "nspi.NspiGetMatches.unknown3", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_flag, 
+	  { "Flag", "nspi.MAPI_SETTINGS.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_instance_key_value, 
+	  { "Value", "nspi.instance_key.value", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_settings, 
+	  { "Settings", "nspi.NspiGetMatches.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MV_LONG_STRUCT_cValues, 
+	  { "Cvalues", "nspi.MV_LONG_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRowSet_cRows, 
+	  { "Crows", "nspi.SRowSet.cRows", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_service_provider, 
+	  { "Service Provider", "nspi.MAPI_SETTINGS.service_provider", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_l, 
+	  { "L", "nspi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SAndRestriction_cRes, 
+	  { "Cres", "nspi.SAndRestriction.cRes", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_flag, 
+	  { "Flag", "nspi.NspiQueryRows.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_REQ_properties, 
+	  { "Req Properties", "nspi.NspiQueryRows.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVl, 
+	  { "Mvl", "nspi.SPropValue_CTR.MVl", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetProps_flag, 
+	  { "Flag", "nspi.NspiGetProps.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPISTATUS_status, 
+	  { "MAPISTATUS", "nspi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(nspi_MAPISTATUS_vals), 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVszW, 
+	  { "Mvszw", "nspi.SPropValue_CTR.MVszW", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_LPSTR_lppszA, 
+	  { "Lppsza", "nspi.LPSTR.lppszA", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVszA, 
+	  { "Mvsza", "nspi.SPropValue_CTR.MVszA", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_nspi_handle, 
 	  { "Handle", "nspi.handle", FT_BYTES, BASE_NONE, NULL, 0, " ", HFILL }},
+	{ &hf_nspi_NspiGetMatches_restrictions, 
+	  { "Restrictions", "nspi.NspiGetMatches.restrictions", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_RowSet, 
+	  { "Rowset", "nspi.NspiQueryRows.RowSet", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRow_lpProps, 
+	  { "Lpprops", "nspi.SRow.lpProps", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_input_locale, 
+	  { "Input Locale", "nspi.MAPI_SETTINGS.input_locale", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropertyRestriction_ulPropTag, 
+	  { "Ulproptag", "nspi.SPropertyRestriction.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
+	{ &hf_nspi_SPropTagArray_aulPropTag, 
+	  { "Aulproptag", "nspi.SPropTagArray.aulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, "", HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_unknown2, 
+	  { "Unknown2", "nspi.NspiGetHierarchyInfo.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SBinary_lpb, 
+	  { "Lpb", "nspi.SBinary.lpb", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_settings, 
+	  { "Settings", "nspi.NspiGetHierarchyInfo.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SSortOrderSet_cExpanded, 
+	  { "Cexpanded", "nspi.SSortOrderSet.cExpanded", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiQueryRows_unknown, 
+	  { "Unknown", "nspi.NspiQueryRows.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_input_locale_method, 
+	  { "Method", "nspi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_instance_key, 
+	  { "Instance Key", "nspi.NspiGetMatches.instance_key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpszA, 
+	  { "Lpsza", "nspi.SPropValue_CTR.lpszA", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_bin, 
+	  { "Bin", "nspi.SPropValue_CTR.bin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SShortArray_lpi, 
+	  { "Lpi", "nspi.SShortArray.lpi", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpszW, 
+	  { "Lpszw", "nspi.SPropValue_CTR.lpszW", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_PropTagArray, 
+	  { "Proptagarray", "nspi.NspiGetMatches.PropTagArray", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SLPSTRArray_cValues, 
+	  { "Cvalues", "nspi.SLPSTRArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_err, 
+	  { "Err", "nspi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, VALS(nspi_MAPISTATUS_vals), 0, "", HFILL }},
+	{ &hf_nspi_NAME_STRING_str, 
+	  { "Str", "nspi.NAME_STRING.str", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropertyRestriction_relop, 
+	  { "Relop", "nspi.SPropertyRestriction.relop", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVguid, 
+	  { "Mvguid", "nspi.SPropValue_CTR.MVguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPINAMEID_lpguid, 
+	  { "Lpguid", "nspi.MAPINAMEID.lpguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_FILETIME_dwLowDateTime, 
+	  { "Dwlowdatetime", "nspi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_REQ_properties, 
+	  { "Req Properties", "nspi.NspiGetMatches.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropTagArray_cValues, 
+	  { "Cvalues", "nspi.SPropTagArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpguid, 
+	  { "Lpguid", "nspi.SPropValue_CTR.lpguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SPropValue_CTR_i, 
+	  { "I", "nspi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_codepage, 
+	  { "Codepage", "nspi.MAPI_SETTINGS.codepage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiDNToEph_flag, 
+	  { "Flag", "nspi.NspiDNToEph.flag", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiBind_unknown, 
+	  { "Unknown", "nspi.NspiBind.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_handle, 
+	  { "Handle", "nspi.MAPI_SETTINGS.handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SRestriction_res, 
+	  { "Res", "nspi.SRestriction.res", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetProps_REQ_properties, 
+	  { "Req Properties", "nspi.NspiGetProps.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_nspi_MV_LONG_STRUCT_lpl, 
+	  { "Lpl", "nspi.MV_LONG_STRUCT.lpl", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown1, 
+	  { "Unknown1", "nspi.NspiGetMatches.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_SDateTimeArray_cValues, 
+	  { "Cvalues", "nspi.SDateTimeArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_nspi_NspiBind_settings, 
+	  { "Settings", "nspi.NspiBind.settings", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	};
 
 
