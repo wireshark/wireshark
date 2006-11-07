@@ -201,6 +201,14 @@ Wireshark is running.  Use the tvbuff routines to extract individual
 items from the packet, or use "proto_tree_add_item()" and let it extract
 the items for you.
 
+Don't use structures that overlay packet data, or into which you copy
+packet data; the C programming language does not guarantee any
+particular alignment of fields within a structure, and even the
+extensions that try to guarantee that are compiler-specific and not
+necessarily supported by all compilers used to build Wireshark.  Using
+bitfields in those structures are even worse; the order of bitfields
+is not guaranteed.
+
 Don't use "ntohs()", "ntohl()", "htons()", or "htonl()"; the header
 files required to define or declare them differ between platforms, and
 you might be able to get away with not including the appropriate header
