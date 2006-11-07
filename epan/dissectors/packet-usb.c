@@ -410,7 +410,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
     proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
     offset++;
 
-    if(!usb_trans_info->get_descriptor.index){
+    if(!usb_trans_info->u.get_descriptor.index){
         /* list of languanges */
         while(len>(offset-old_offset)){
             /* wLANGID */
@@ -686,16 +686,16 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
     if(is_request){
         /* descriptor type */
         proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, FALSE);
-        usb_trans_info->get_descriptor.type=tvb_get_guint8(tvb, offset);
+        usb_trans_info->u.get_descriptor.type=tvb_get_guint8(tvb, offset);
         offset++;
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str(usb_trans_info->get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
+                val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
         }
 
         /* descriptor index */
         proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, FALSE);
-        usb_trans_info->get_descriptor.index=tvb_get_guint8(tvb, offset);
+        usb_trans_info->u.get_descriptor.index=tvb_get_guint8(tvb, offset);
         offset++;
 
         /* language id */
@@ -708,9 +708,9 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
     } else {
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str(usb_trans_info->get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
+                val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
         }
-        switch(usb_trans_info->get_descriptor.type){
+        switch(usb_trans_info->u.get_descriptor.type){
         case USB_DT_DEVICE:
             offset=dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;

@@ -37,7 +37,7 @@ typedef struct _usb_trans_info_t {
             guint8 type;
             guint8 index;
         } get_descriptor;
-    };
+    } u;
 
 
     /* used to pass the interface class from the
