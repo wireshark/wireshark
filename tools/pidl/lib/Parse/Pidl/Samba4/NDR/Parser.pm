@@ -2221,6 +2221,28 @@ sub FunctionTable($)
 }
 
 #####################################################################
+# generate include statements for imported idl files
+sub HeaderImport
+{
+	my @imports = @_;
+	foreach (@imports) {
+		s/\.idl\"$//;
+		s/^\"//;
+		pidl choose_header("librpc/gen_ndr/ndr_$_\.h", "gen_ndr/ndr_$_.h");
+	}
+}
+
+#####################################################################
+# generate include statements for included header files
+sub HeaderInclude
+{
+	my @includes = @_;
+	foreach (@includes) {
+		pidl_hdr "#include $_";
+	}
+}
+
+#####################################################################
 # generate prototypes and defines for the interface definitions
 # FIXME: these prototypes are for the DCE/RPC client functions, not the 
 # NDR parser and so do not belong here, technically speaking
@@ -2237,16 +2259,11 @@ sub HeaderInterface($)
 	}
 
 	if (defined $interface->{PROPERTIES}->{depends}) {
-		my @d = split / /, $interface->{PROPERTIES}->{depends};
-		foreach my $i (@d) {
-			pidl choose_header("librpc/gen_ndr/ndr_$i\.h", "gen_ndr/ndr_$i.h");
-		}
+		HeaderImport(split / /, $interface->{PROPERTIES}->{depends});
 	}
 
 	if (defined $interface->{PROPERTIES}->{helper}) {
-		foreach (split / /, $interface->{PROPERTIES}->{helper}) {
-			pidl_hdr "#include $_";
-		}
+		HeaderInclude(split / /, $interface->{PROPERTIES}->{helper});
 	}
 
 	if (defined $interface->{PROPERTIES}->{uuid}) {
@@ -2390,6 +2407,8 @@ sub Parse($$$)
 
 	foreach (@{$ndr}) {
 		($_->{TYPE} eq "INTERFACE") && ParseInterface($_, \%needed);
+		($_->{TYPE} eq "IMPORT") && HeaderImport(@{$_->{PATHS}});
+		($_->{TYPE} eq "INCLUDE") && HeaderInclude(@{$_->{PATHS}});
 	}
 
 	return ($res_hdr, $res);

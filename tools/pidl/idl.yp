@@ -18,10 +18,40 @@ idl:
 	#empty  { {} }
 	| idl interface { push(@{$_[1]}, $_[2]); $_[1] }
 	| idl coclass { push(@{$_[1]}, $_[2]); $_[1] }
+	| idl import { push(@{$_[1]}, $_[2]); $_[1] }
+	| idl include { push(@{$_[1]}, $_[2]); $_[1] }
+	| idl importlib { push(@{$_[1]}, $_[2]); $_[1] }
+;
+
+import: 'import' commalist ';' {{
+			"TYPE" => "IMPORT", 
+			"PATHS" => $_[2],
+		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "LINE" => $_[0]->YYData->{LINE}
+		}}
+;
+include: 'include' commalist ';' {{ 
+			"TYPE" => "INCLUDE", 
+			"PATHS" => $_[2],
+		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "LINE" => $_[0]->YYData->{LINE}
+		}}
+;
+importlib: 'importlib' commalist ';' {{ 
+			"TYPE" => "IMPORTLIB", 
+			"PATHS" => $_[2],
+		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "LINE" => $_[0]->YYData->{LINE}
+		}}
+;
+
+commalist: 
+      text { [ $_[1] ] }
+    | commalist ',' text { push(@{$_[1]}, $_[3]); $_[1] }
 ;
 
 coclass: property_list 'coclass' identifier '{' interface_names '}' optional_semicolon
-          {$_[3] => {
+          {{
                "TYPE" => "COCLASS", 
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
@@ -37,7 +67,7 @@ interface_names:
 ;
 
 interface: property_list 'interface' identifier base_interface '{' definitions '}' optional_semicolon
-          {$_[3] => {
+          {{
                "TYPE" => "INTERFACE", 
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
@@ -442,7 +472,8 @@ again:
 			$parser->YYData->{LAST_TOKEN} = $1;
 			if ($1 =~ 
 			    /^(coclass|interface|const|typedef|declare|union
-			      |struct|enum|bitmap|void|unsigned|signed)$/x) {
+			      |struct|enum|bitmap|void|unsigned|signed|import|include
+				  |importlib)$/x) {
 				return $1;
 			}
 			return('IDENTIFIER',$1);
@@ -480,7 +511,7 @@ sub parse_file($$)
 	if (! defined $cpp) {
 		$cpp = "cpp";
 	}
-	my $includes = map { " -I$_" } @$incdirs;
+	my $includes = join('',map { " -I$_" } @$incdirs);
 	my $data = `$cpp -D__PIDL__$includes -xc $filename`;
 	$/ = $saved_delim;
 

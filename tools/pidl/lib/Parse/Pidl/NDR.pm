@@ -661,6 +661,7 @@ sub Parse($)
 
 	foreach (@{$idl}) {
 		($_->{TYPE} eq "INTERFACE") && push(@ndr, ParseInterface($_));
+		($_->{TYPE} eq "IMPORT") && push(@ndr, $_);
 	}
 
 	return \@ndr;
@@ -1044,6 +1045,14 @@ sub ValidInterface($)
 	my($interface) = shift;
 	my($data) = $interface->{DATA};
 
+	if (has_property($interface, "depends")) {
+		nonfatal $interface, "depends() is pidl-specific and deprecated. Use `import' instead";
+	}
+
+	if (has_property($interface, "helper")) {
+		nonfatal $interface, "helper() is pidl-specific and deprecated. Use `include' instead";
+	}
+
 	ValidProperties($interface,"INTERFACE");
 
 	if (has_property($interface, "pointer_default") && 
@@ -1081,6 +1090,8 @@ sub Validate($)
 	foreach my $x (@{$idl}) {
 		($x->{TYPE} eq "INTERFACE") && 
 		    ValidInterface($x);
+		($x->{TYPE} eq "IMPORTLIB") &&
+			nonfatal($x, "importlib() not supported");
 	}
 }
 

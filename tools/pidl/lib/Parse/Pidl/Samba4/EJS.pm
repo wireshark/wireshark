@@ -730,6 +730,16 @@ sub EjsConst($)
     $constants{$const->{NAME}} = $const->{VALUE};
 }
 
+sub EjsImport
+{
+	my @imports = @_;
+	foreach (@imports) {
+		s/\.idl\"$//;
+		s/^\"//;
+		pidl_hdr "#include \"librpc/gen_ndr/ndr_$_\_ejs\.h\"\n";
+	}
+}
+
 #####################################################################
 # parse the interface definitions
 sub EjsInterface($$)
@@ -744,9 +754,7 @@ sub EjsInterface($$)
 	pidl_hdr "#define _HEADER_EJS_$interface->{NAME}\n\n";
 
 	if (has_property($interface, "depends")) {
-		foreach (split / /, $interface->{PROPERTIES}->{depends}) {
-			pidl_hdr "#include \"librpc/gen_ndr/ndr_$_\_ejs\.h\"\n";
-		}
+		EjsImport(split / /, $interface->{PROPERTIES}->{depends});
 	}
 
 	pidl_hdr "\n";
@@ -834,8 +842,9 @@ sub Parse($$)
 	    ($x->{TYPE} eq "INTERFACE") && NeededInterface($x, \%needed);
     }
 
-    foreach my $x (@{$ndr}) {
+    foreach my $x (@$ndr) {
 	    ($x->{TYPE} eq "INTERFACE") && EjsInterface($x, \%needed);
+		($x->{TYPE} eq "IMPORT") && EjsImport(@{$x->{PATHS}});
     }
 
     return ($res_hdr, $res);

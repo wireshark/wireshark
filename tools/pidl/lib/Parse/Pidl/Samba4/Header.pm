@@ -307,6 +307,24 @@ sub HeaderFunction($)
     pidl "};\n\n";
 }
 
+sub HeaderImport
+{
+	my @imports = @_;
+	foreach (@imports) {
+		s/\.idl\"$//;
+		s/^\"//;
+		pidl "#include \"librpc/gen_ndr/$_\.h\"\n";
+	}
+}
+
+sub HeaderInclude
+{
+	my @includes = @_;
+	foreach (@includes) {
+		pidl "#include $_\n";
+	}
+}
+
 #####################################################################
 # parse the interface definitions
 sub HeaderInterface($)
@@ -317,10 +335,7 @@ sub HeaderInterface($)
 	pidl "#define _HEADER_$interface->{NAME}\n\n";
 
 	if (defined $interface->{PROPERTIES}->{depends}) {
-		my @d = split / /, $interface->{PROPERTIES}->{depends};
-		foreach my $i (@d) {
-			pidl "#include \"librpc/gen_ndr/$i\.h\"\n";
-		}
+		HeaderImport(split / /, $interface->{PROPERTIES}->{depends});
 	}
 
 	foreach my $d (@{$interface->{DATA}}) {
@@ -358,6 +373,8 @@ sub Parse($)
 	
     foreach (@{$idl}) {
 	    ($_->{TYPE} eq "INTERFACE") && HeaderInterface($_);
+	    ($_->{TYPE} eq "IMPORT") && HeaderImport(@{$_->{PATHS}});
+	    ($_->{TYPE} eq "INCLUDE") && HeaderInclude(@{$_->{PATHS}});
     }
     return $res;
 }

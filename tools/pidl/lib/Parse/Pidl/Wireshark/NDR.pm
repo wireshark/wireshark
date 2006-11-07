@@ -717,6 +717,25 @@ sub RegisterInterfaceHandoff($)
 	}
 }
 
+sub ProcessInclude
+{
+	my @includes = @_;
+	foreach (@includes) {
+		pidl_hdr "#include \"$_\"\n";
+	}
+}
+
+sub ProcessImport
+{
+	my @imports = @_;
+	foreach (@imports) {
+		next if($_ eq "security");
+		s/\.idl\"$//;
+		s/^\"//;
+		pidl_hdr "#include \"packet-dcerpc-$_\.h\"\n";
+	}
+}
+
 sub ProcessInterface($)
 {
 	my ($x) = @_;
@@ -728,12 +747,8 @@ sub ProcessInterface($)
 	pidl_hdr "#define $define";
 	pidl_hdr "";
 
-	if (defined $x->{PROPERTIES}->{depends}) {
-		foreach (split / /, $x->{PROPERTIES}->{depends}) {
-			next if($_ eq "security");
-			pidl_hdr "#include \"packet-dcerpc-$_\.h\"\n";
-		}
-	}
+	ProcessImport(split / /, $x->{PROPERTIES}->{depends}) if 
+				 (defined $x->{PROPERTIES}->{depends});
 
 	pidl_def "static gint proto_dcerpc_$x->{NAME} = -1;";
 	register_ett("ett_dcerpc_$x->{NAME}");
@@ -897,7 +912,11 @@ sub Parse($$$$)
 
 	# Wireshark protocol registration
 
-	ProcessInterface($_) foreach (@$ndr);
+	foreach (@$ndr) {
+		ProcessInterface($_) if ($_->{TYPE} eq "INTERFACE");
+		ProcessImport(@{$_->{PATHS}}) if ($_->{TYPE} eq "IMPORT");
+		ProcessInclude(@{$_->{PATHS}}) if ($_->{TYPE} eq "INCLUDE");
+	}
 
 	$res{ett} = DumpEttDeclaration();
 	$res{hf} = DumpHfDeclaration();

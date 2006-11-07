@@ -18,6 +18,7 @@ sub get_interface($$)
 	my($if,$n) = @_;
 
 	foreach(@$if) {
+		next if ($_->{TYPE} ne "INTERFACE");
 		return $_ if($_->{NAME} eq $n);
 	}
 	
@@ -62,8 +63,10 @@ sub ReplaceInterfacePointers($)
 sub ODL2IDL($)
 {
 	my $odl = shift;
-	
-	foreach my $x (@{$odl}) {
+	my $addedorpc = 0;
+
+	foreach my $x (@$odl) {
+		next if ($x->{TYPE} ne "INTERFACE");
 		# Add [in] ORPCTHIS *this, [out] ORPCTHAT *that
 		# and replace interfacepointers with MInterfacePointer
 		# for 'object' interfaces
@@ -72,13 +75,7 @@ sub ODL2IDL($)
 				($e->{TYPE} eq "FUNCTION") && FunctionAddObjArgs($e);
 				ReplaceInterfacePointers($e);
 			}
-			# Object interfaces use ORPC
-			my @depends = ();
-			if(has_property($x, "depends")) {
-				@depends = split /,/, $x->{PROPERTIES}->{depends};
-			}
-			push @depends, "orpc";
-			$x->{PROPERTIES}->{depends} = join(',',@depends);
+			$addedorpc = 1;
 		}
 
 		if ($x->{BASE}) {
@@ -91,6 +88,13 @@ sub ODL2IDL($)
 			}
 		}
 	}
+
+	unshift (@$odl, {
+		TYPE => "IMPORT", 
+		PATHS => [ "\"orpc.idl\"" ],
+		FILE => undef,
+		LINE => undef
+	}) if ($addedorpc);
 
 	return $odl;
 }
