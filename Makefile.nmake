@@ -870,8 +870,9 @@ install-common-deps:
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NET_SNMP_DIR
-	if not exist $(INSTALL_DIR)\mibs mkdir $(INSTALL_DIR)\mibs
-	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\mibs /d
+	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
+	if not exist $(INSTALL_DIR)\snmp\mibs mkdir $(INSTALL_DIR)\snmp\mibs
+	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 !IFDEF LUA_DIR
 	xcopy "$(LUA_DIR)\lib\dll\lua5.1.dll" $(INSTALL_DIR) /d
