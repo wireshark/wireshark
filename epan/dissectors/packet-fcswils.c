@@ -722,8 +722,8 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
     /* We skip the initial 4 bytes as we don't care about the opcode */
     tvb_memcpy (tvb, (guint8 *)&elp, 4, FC_SWILS_ELP_SIZE);
     
-    elp.r_a_tov = ntohl (elp.r_a_tov);
-    elp.e_d_tov = ntohl (elp.e_d_tov);
+    elp.r_a_tov = g_ntohl (elp.r_a_tov);
+    elp.e_d_tov = g_ntohl (elp.e_d_tov);
     elp.isl_flwctrl_mode = ntohs (elp.isl_flwctrl_mode);
     elp.flw_ctrl_parmlen = ntohs (elp.flw_ctrl_parmlen);
     

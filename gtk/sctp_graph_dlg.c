@@ -199,7 +199,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 			{
 				sack_header =(struct sack_chunk_header *)tlist->data;
 				nr=ntohs(sack_header->nr_of_gaps);
-				tsnumber = ntohl(sack_header->cum_tsn_ack);
+				tsnumber = g_ntohl(sack_header->cum_tsn_ack);
 
 				if (sack->secs>=u_data->io->x1_tmp_sec)
 				{
@@ -310,7 +310,7 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 		{
 			type = ((struct chunk_header *)tlist->data)->type;
 			if (type == SCTP_DATA_CHUNK_ID)
-				tsnumber = ntohl(((struct data_chunk_header *)tlist->data)->tsn);
+				tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
 			if (tsnumber>=min_tsn && tsnumber<=max_tsn && tsn->secs>=min_secs)
 			{
 					if (u_data->io->uoff)

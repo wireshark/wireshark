@@ -1773,7 +1773,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* XXX - this conversion is ugly */
         if (inet_aton(szStr, &ipaddr)) {
             if(get_host_ipaddr(szStr, &curr_ip)) {
-                curr_ip = ntohl(curr_ip);
+                curr_ip = g_ntohl(curr_ip);
 
     	        /*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s", 
                     ip_to_str( (gchar *) &curr_ip));*/
