@@ -245,13 +245,6 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
   
-  if(pipename == NULL){
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING, "cap_pipe_open_live: pipe name is NULL");
-    g_snprintf(errmsg, errmsgl,
-               "The capture session could not be initiated because the pipe is not valid, maybe lack of privileges?");
-    return -1;
-  }
-
   /*
    * XXX (T)Wireshark blocks until we return
    */
@@ -1032,8 +1025,6 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
       g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
 #endif
-      if(ld->pcap_h){
-       /* libpcap crashed when the pcap handle is NULL!!*/
 #ifdef _WIN32
       /*
        * On Windows, we don't support asynchronously telling a process to
@@ -1045,9 +1036,6 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #else
       inpkts = pcap_dispatch(ld->pcap_h, -1, ld->packet_cb, (u_char *) ld);
 #endif
-     } else {
-        inpkts = -1;
-      }
       if (inpkts < 0) {
         if (inpkts == -1) {
           /* Error, rather than pcap_breakloop(). */
@@ -1223,14 +1211,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    write_ok;
   gboolean    close_ok;
   gboolean    cfilter_error = FALSE;
-#define MSG_MAX_LENGTH 4096+1
-  char        errmsg[MSG_MAX_LENGTH] = "";
-  char        secondary_errmsg[MSG_MAX_LENGTH] = "";
+#define MSG_MAX_LENGTH 4096
+  char        errmsg[MSG_MAX_LENGTH+1];
+  char        secondary_errmsg[MSG_MAX_LENGTH+1];
   int         save_file_fd = -1;
-
-  if(capture_opts == NULL){
-    return FALSE;
-  }
 
   /* init the loop data */
   ld.go                 = TRUE;
@@ -1582,7 +1566,6 @@ error:
     if(capture_opts->save_file != NULL) {
       eth_unlink(capture_opts->save_file);
       g_free(capture_opts->save_file);
-	  capture_opts->save_file = NULL;
     }
   }
   capture_opts->save_file = NULL;
