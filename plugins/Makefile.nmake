@@ -152,149 +152,214 @@ v5ua::
 
 clean:
 	rm -rf $(VERSION)
-	cd ../agentx
+	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../artnet
+	cd ..
+	cd artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../asn1
+	cd ..
+	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../ciscosm
+	cd ..
+	cd ciscosm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../docsis
+	cd ..
+	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../enttec
+	cd ..
+	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../giop
+	cd ..
+	cd giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../gryphon
+	cd ..
+	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../h223
+	cd ..
+	cd h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../irda
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../lwres
+	cd ..
+	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../mate
+	cd ..
+	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../megaco
+	cd ..
+	cd megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../mgcp
+	cd ..
+	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../opsi
+	cd ..
+	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../pcli
+	cd ..
+	cd pcli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../profinet
+	cd ..
+	cd profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../rlm
+	cd ..
+	cd rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../rtnet
+	cd ..
+	cd rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../rudp
+	cd ..
+	cd rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../sbus
+	cd ..
+	cd sbus
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../stats_tree
+	cd ..
+	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../v5ua
+	cd ..
+	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
 
 distclean: clean
-	cd ../agentx
+	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../artnet
+	cd ..
+	cd artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../asn1
+	cd ..
+	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../ciscosm
+	cd ..
+	cd ciscosm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../docsis
+	cd ..
+	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../enttec
+	cd ..
+	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../giop
+	cd ..
+	cd giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../gryphon
+	cd ..
+	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../h223
+	cd ..
+	cd h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../irda
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../lwres
+	cd ..
+	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../mate
+	cd ..
+	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../megaco
+	cd ..
+	cd megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../mgcp
+	cd ..
+	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../opsi
+	cd ..
+	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../pcli
+	cd ..
+	cd pcli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../profinet
+	cd ..
+	cd profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../rlm
+	cd ..
+	cd rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../rtnet
+	cd ..
+	cd rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../rudp
+	cd ..
+	cd rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../sbus
+	cd ..
+	cd sbus
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../stats_tree
+	cd ..
+	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../v5ua
+	cd ..
+	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
 maintainer-clean: distclean
-	cd ../agentx
+	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../artnet
+	cd ..
+	cd artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../asn1
+	cd ..
+	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../ciscosm
+	cd ..
+	cd ciscosm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../docsis
+	cd ..
+	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../enttec
+	cd ..
+	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../giop
+	cd ..
+	cd giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../gryphon
+	cd ..
+	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../h223
+	cd ..
+	cd h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../irda
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../lwres
+	cd ..
+	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../mate
+	cd ..
+	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../megaco
+	cd ..
+	cd megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../mgcp
+	cd ..
+	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../opsi
+	cd ..
+	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../pcli
+	cd ..
+	cd pcli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../rlm
+	cd ..
+	cd rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../rtnet
+	cd ..
+	cd rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../rudp
+	cd ..
+	cd rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../sbus
+	cd ..
+	cd sbus
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../stats_tree
+	cd ..
+	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../v5ua
+	cd ..
+	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake maintainer-clean
