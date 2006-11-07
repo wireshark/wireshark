@@ -532,7 +532,7 @@ static void funnel_set_filter(const char* filter_string) {
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 }
 
-static void funnel_apply_filter() {
+static void funnel_apply_filter(void) {
 	const char* filter_string = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	main_filter_packets(&cfile, filter_string, FALSE);	
 }

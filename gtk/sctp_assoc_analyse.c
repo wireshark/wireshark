@@ -986,7 +986,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	}
 }
 
-void sctp_set_assoc_filter()
+void sctp_set_assoc_filter(void)
 {
 struct sctp_analyse * u_data;
 
