@@ -107,7 +107,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(DEVICE) $(COPY_FLAGS)
 !ENDIF
 	$(COPY) $(TOPDIR)\doc\mergecap.html $(DEVICE) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\acn\acn.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\agentx\agentx.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\artnet\artnet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\asn1\asn1.dll $(DEVICE)\plugins\$(VERSION)$(COPY_FLAGS)
