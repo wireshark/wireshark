@@ -70,9 +70,15 @@ bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 static int
 bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
-	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
-	 * as there's no trailing ":". */
-	return fv->value.bytes->len * 3 - 1;
+	if (fv->value.bytes->len == 0) {
+		/* Empty array of bytes, so the representation
+		 * is an empty string. */
+		return 0;
+	} else {
+		/* 3 bytes for each byte of the byte "NN:" minus 1 byte
+		 * as there's no trailing ":". */
+		return fv->value.bytes->len * 3 - 1;
+	}
 }
 
 static int
