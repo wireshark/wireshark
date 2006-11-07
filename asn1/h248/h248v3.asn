@@ -1,7 +1,7 @@
 MEDIA-GATEWAY-CONTROL {itu-t(0) recommendation(0) h(8) h248(248) modules(0)
 media-gateway-control(0) version3(3)}
 --
--- $Id$
+-- $Id:$
 --DEFINITIONS AUTOMATIC TAGS ::=
 --BEGIN
 -- Has been modified to pass through the ASN2ETH compiler
@@ -52,7 +52,7 @@ BEGIN
 		-- 25 - 15 0
 		-- | PC | NI |
 		-- 24 - 14 bits 2 bits
-		-- NOTE – 14 bits are defined for international use.
+		-- NOTE - 14 bits are defined for international use.
 		-- Two national options exist where the point code is 16 or 24 bits.
 		-- To octet align the mtpAddress, the MSBs shall be encoded as 0s.
 		...
@@ -971,7 +971,8 @@ BEGIN
 		serviceChangeAddress		[1] ServiceChangeAddress OPTIONAL,
 		serviceChangeVersion		[2] INTEGER(0..99) OPTIONAL,
 		serviceChangeProfile		[3] ServiceChangeProfile OPTIONAL,
-		serviceChangeReason			[4] Value,
+--		serviceChangeReason			[4] Value,
+		serviceChangeReason			[4] SCreasonValue,
 		-- A serviceChangeReason consists of a numeric reason code
 		-- and an optional text description.
 		-- The serviceChangeReason shall be a string consisting of
@@ -991,6 +992,12 @@ BEGIN
 		serviceChangeInfo			[9] AuditDescriptor OPTIONAL,
 		serviceChangeIncompleteFlag [10] NULL OPTIONAL
 	}
+
+-- Ws¡reshark extension to decode serviceChangeReason
+	SCreasonValue ::= SEQUENCE OF SCreasonValueOctetStr
+	SCreasonValueOctetStr ::= OCTET STRING
+	ServiceChangeReasonStr ::= IA5String
+-- end
 
 	ServiceChangeAddress ::= CHOICE
 	{
@@ -1026,7 +1033,7 @@ BEGIN
 
 	ServiceChangeProfile ::= SEQUENCE
 	{
-		profileName IA5String(SIZE (1..67))
+		profileName		[0] IA5String(SIZE (1..67))
 		-- 64 characters for name, 1 for "/", 2 for version to match ABNF
 	}
 

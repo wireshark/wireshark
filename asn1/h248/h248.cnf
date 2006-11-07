@@ -266,6 +266,17 @@ IndAudStatisticsDescriptor/statName		iAStatName
 	}
 #.END
 
+ 
+#.FN_BODY SCreasonValueOctetStr VAL_PTR = &parameter_tvb
+
+ tvbuff_t	*parameter_tvb;
+ %(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, pinfo _U_, tree, hf_h248_serviceChangeReasonStr);
+
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 IP6Address/address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL

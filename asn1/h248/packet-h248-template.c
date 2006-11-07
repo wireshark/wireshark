@@ -65,6 +65,8 @@ static int hf_h248_no_sig = -1;
 static int hf_h248_no_evt = -1;
 static int hf_h248_no_param = -1;
 
+static int hf_h248_serviceChangeReasonStr = -1;
+
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
@@ -113,6 +115,9 @@ static tvbuff_t* h248_tvb;
 
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
+
+/* Forward declarations */
+dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 
 static const value_string package_name_vals[] = {
@@ -505,8 +510,8 @@ static const value_string h248_reasons[] = {
 };
 
 static const value_string wildcard_modes[] = {
-    { 0, "Choose" },
-    { 1, "All" },
+    { 0, "All" },
+    { 1, "Choose" },
     { 0, NULL }
 };
 
@@ -1889,6 +1894,10 @@ void proto_register_h248(void) {
   { "Unknown Parameter", "h248.pkg.unknown.param",
 	  FT_BYTES, BASE_HEX, NULL, 0,
 	  "", HFILL }},
+  { &hf_h248_serviceChangeReasonStr,
+      { "ServiceChangeReasonStr", "h248.serviceChangeReasonstr",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "h248.IA5String", HFILL }},
 
 #include "packet-h248-hfarr.c"
 
