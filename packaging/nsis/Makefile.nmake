@@ -62,7 +62,7 @@ HELP=../../help/toc \
 	../../help/display_filters.txt \
 	../../help/faq.txt
 
-PLUGINS=../../plugins/acn/acn.dll \
+PLUGINS= \
 	../../plugins/agentx/agentx.dll \
 	../../plugins/artnet/artnet.dll \
 	../../plugins/asn1/asn1.dll \
