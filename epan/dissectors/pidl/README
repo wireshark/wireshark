@@ -12,7 +12,7 @@ which is basically every time you do an svn up in the Wireshark toplevel dir.
 
 In order to build, install yapp (on Suse, the rpm is named perl-Parse-Yapp),
 then do
-make Makefile.PL && make && && make install
+perl Makefile.PL && make && && make install
 
 This will build and install the binaries and the manpage (pidl.1).
 
