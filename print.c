@@ -341,37 +341,47 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			fputs("\" show=\"\" value=\"",  pdata->fh);
 			break;
 		default:
-			/* XXX - this is a hack until we can just call
-			 * fvalue_to_string_repr() for *all* FT_* types. */
-			dfilter_string = proto_construct_dfilter_string(fi,
+			/*
+			 * Set the 'show' attribute to empty string
+			 * if the field is zero-length.
+			 *
+			 * XXX - why does the code in the else clause
+			 * not do that correctly?
+			 */
+			if (fi->length == 0) {
+				fputs("\" show=\"",  pdata->fh);
+			} else {
+				/* XXX - this is a hack until we can just call
+				 * fvalue_to_string_repr() for *all* FT_*
+				 * types. */
+				dfilter_string = proto_construct_dfilter_string(fi,
 					pdata->edt);
-			if (dfilter_string != NULL) {
-				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+				if (dfilter_string != NULL) {
+					chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
-				/* XXX - Remove double-quotes. Again, once we
-				 * can call fvalue_to_string_repr(), we can
-				 * ask it not to produce the version for
-				 * display-filters, and thus, no
-				 * double-quotes. */
-				if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-					dfilter_string[strlen(dfilter_string)-1] = '\0';
-					chop_len++;
+					/* XXX - Remove double-quotes. Again,
+					 * once we can call fvalue_to_string_repr(), we can
+					 * ask it not to produce the version
+					 * for display-filters, and thus, no
+					 * double-quotes. */
+					if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+						dfilter_string[strlen(dfilter_string)-1] = '\0';
+						chop_len++;
+					}
+
+					fputs("\" show=\"", pdata->fh);
+					print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
 				}
-
-				fputs("\" show=\"", pdata->fh);
-				print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
 			}
-			if (fi->length > 0) {
-				fputs("\" value=\"", pdata->fh);
+			fputs("\" value=\"", pdata->fh);
 
-				if (fi->hfinfo->bitmask!=0) {
-					fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
-					fputs("\" unmaskedvalue=\"", pdata->fh);
-					write_pdml_field_hex_value(pdata, fi);
-				}
-				else {
-                    write_pdml_field_hex_value(pdata, fi);
-                }
+			if (fi->hfinfo->bitmask!=0) {
+				fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
+				fputs("\" unmaskedvalue=\"", pdata->fh);
+				write_pdml_field_hex_value(pdata, fi);
+			}
+			else {
+				write_pdml_field_hex_value(pdata, fi);
 			}
 		}
 
