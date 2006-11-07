@@ -154,18 +154,18 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 
-    if(PROTO_ITEM_IS_GENERATED(node)) {
-        label_ptr = g_strdup_printf("[%s]", label_ptr);
-    }
+	if (PROTO_ITEM_IS_GENERATED(node)) {
+		label_ptr = g_strdup_printf("[%s]", label_ptr);
+	}
 
 	if (!print_line(pdata->stream, pdata->level, label_ptr)) {
 		pdata->success = FALSE;
 		return;
 	}
 
-    if(PROTO_ITEM_IS_GENERATED(node)) {
-        g_free(label_ptr);
-    }
+	if (PROTO_ITEM_IS_GENERATED(node)) {
+		g_free(label_ptr);
+	}
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
@@ -341,47 +341,45 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			fputs("\" show=\"\" value=\"",  pdata->fh);
 			break;
 		default:
-			/*
-			 * Set the 'show' attribute to empty string
-			 * if the field is zero-length.
-			 *
-			 * XXX - why does the code in the else clause
-			 * not do that correctly?
-			 */
-			if (fi->length == 0) {
-				fputs("\" show=\"",  pdata->fh);
-			} else {
-				/* XXX - this is a hack until we can just call
-				 * fvalue_to_string_repr() for *all* FT_*
-				 * types. */
-				dfilter_string = proto_construct_dfilter_string(fi,
+			/* XXX - this is a hack until we can just call
+			 * fvalue_to_string_repr() for *all* FT_* types. */
+			dfilter_string = proto_construct_dfilter_string(fi,
 					pdata->edt);
-				if (dfilter_string != NULL) {
-					chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+			if (dfilter_string != NULL) {
+				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
-					/* XXX - Remove double-quotes. Again,
-					 * once we can call fvalue_to_string_repr(), we can
-					 * ask it not to produce the version
-					 * for display-filters, and thus, no
-					 * double-quotes. */
-					if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-						dfilter_string[strlen(dfilter_string)-1] = '\0';
-						chop_len++;
-					}
-
-					fputs("\" show=\"", pdata->fh);
-					print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
+				/* XXX - Remove double-quotes. Again, once we
+				 * can call fvalue_to_string_repr(), we can
+				 * ask it not to produce the version for
+				 * display-filters, and thus, no
+				 * double-quotes. */
+				if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+					dfilter_string[strlen(dfilter_string)-1] = '\0';
+					chop_len++;
 				}
-			}
-			fputs("\" value=\"", pdata->fh);
 
-			if (fi->hfinfo->bitmask!=0) {
-				fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
-				fputs("\" unmaskedvalue=\"", pdata->fh);
-				write_pdml_field_hex_value(pdata, fi);
+				fputs("\" show=\"", pdata->fh);
+				print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
 			}
-			else {
-				write_pdml_field_hex_value(pdata, fi);
+
+			/*
+			 * XXX - should we omit "value" for any fields?
+			 * What should we do for fields whose length is 0?
+			 * They might come from a pseudo-header or from
+			 * the capture header (e.g., time stamps), or
+			 * they might be generated fields.
+			 */
+			if (fi->length > 0) {
+				fputs("\" value=\"", pdata->fh);
+
+				if (fi->hfinfo->bitmask!=0) {
+					fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
+					fputs("\" unmaskedvalue=\"", pdata->fh);
+					write_pdml_field_hex_value(pdata, fi);
+				}
+				else {
+					write_pdml_field_hex_value(pdata, fi);
+				}
 			}
 		}
 
