@@ -66,9 +66,9 @@
 static gboolean dissect_acn_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 static guint32 acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset);
 static guint32 acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset);
-static guint32 acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, char *label);
+static guint32 acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, const char *label);
 static guint32 acn_add_channel_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
-static guint32 acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, char *label);
+static guint32 acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, const char *label);
 static guint32 acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt);
 static guint32 acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt);
 static guint32 dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
@@ -194,18 +194,18 @@ static const value_string acn_dmp_adt_v_vals[] = {
 };
 
 static const value_string acn_dmp_adt_d_vals[] = {
-  { 0, "Non-range, single data item" }, 
-  { 1, "Range, single data item" }, 
-  { 2, "Range, array of equal size data items" }, 
-  { 3, "Range, series of mixed size data items" }, 
+  { ACN_DMP_ADT_D_NS, "Non-range, single data item" }, 
+  { ACN_DMP_ADT_D_RS, "Range, single data item" }, 
+  { ACN_DMP_ADT_D_RE, "Range, array of equal size data items" }, 
+  { ACN_DMP_ADT_D_RM, "Range, series of mixed size data items" }, 
   { 0,       NULL },
 };
 
 static const value_string acn_dmp_adt_a_vals[] = {
-  { 0, "1 octet" }, 
-  { 1, "2 octets" }, 
-  { 2, "4 octets" }, 
-  { 3, "reserved" }, 
+  { ACN_DMP_ADT_A_1, "1 octet" }, 
+  { ACN_DMP_ADT_A_2, "2 octets" }, 
+  { ACN_DMP_ADT_A_4, "4 octets" }, 
+  { ACN_DMP_ADT_A_R, "reserved" }, 
   { 0,       NULL },
 };
 
@@ -413,7 +413,7 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /******************************************************************************/
 /* Add labled exiry                                                           */
 static guint32
-acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, char *label)
+acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, const char *label)
 {
   proto_item *pi;
   guint32 expiry;
@@ -453,7 +453,7 @@ acn_add_channel_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /******************************************************************************/
 /* Add an address tree                                                        */
 static guint32
-acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, char *label)
+acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, const char *label)
 {
   proto_item *pi;
   proto_tree *addr_tree = NULL;
@@ -531,18 +531,20 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
   proto_item *pi;
   proto_tree *this_tree = NULL;
+  guint8 D;
 
     /* header contains address and data type */
-  adt->byte = tvb_get_guint8(tvb, offset);
+  adt->flags = tvb_get_guint8(tvb, offset);
 
-  pi = proto_tree_add_text(tree, tvb, offset, 1, "Address and Data Type: %s (%d)", match_strval(adt->D, acn_dmp_adt_d_vals), adt->D);
+  D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
+  pi = proto_tree_add_text(tree, tvb, offset, 1, "Address and Data Type: %s (%d)", match_strval(D, acn_dmp_adt_d_vals), D);
 
   this_tree = proto_item_add_subtree(pi, ett_acn_address_type);
-  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_v, tvb, offset, 1, adt->byte);
-  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_r, tvb, offset, 1, adt->byte);
-  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_d, tvb, offset, 1, adt->byte);
-  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_x, tvb, offset, 1, adt->byte);
-  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_a, tvb, offset, 1, adt->byte);
+  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_v, tvb, offset, 1, adt->flags);
+  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_r, tvb, offset, 1, adt->flags);
+  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_d, tvb, offset, 1, adt->flags);
+  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_x, tvb, offset, 1, adt->flags);
+  proto_tree_add_uint(this_tree, hf_acn_dmp_adt_a, tvb, offset, 1, adt->flags);
   offset++;
 
   return offset; /* bytes used */
@@ -555,14 +557,17 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 {
   guint32 start_offset;
   guint32 bytes_used;
+  guint8 D, A;
 
   start_offset = offset;
 
-  switch (adt->D) {
+  D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
+  A = ACN_DMP_ADT_EXTRACT_A(adt->flags);
+  switch (D) {
     case ACN_DMP_ADT_D_NS: /* Non-range address, Single data item */
       adt->increment = 1;
       adt->count = 1;
-      switch (adt->A) { /* address */
+      switch (A) { /* address */
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           adt->address =   tvb_get_guint8(tvb, offset);
           offset += 1;
@@ -580,9 +585,9 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
           break;
         default: /* and ACN_DMP_ADT_A_R (Four octet address, (range: four octet address, increment, and count)*/
           return offset;
-      } /* of switch (adt->A)  */
+      } /* of switch (A)  */
 
-      if (adt->V) {
+      if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Virtual Address: %d", adt->address);
       } else {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Actual Address: %d", adt->address);
@@ -590,7 +595,7 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
       break;
 
     case ACN_DMP_ADT_D_RS: /* Range address, Single data item */
-      switch (adt->A) {
+      switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           adt->address =   tvb_get_guint8(tvb, offset);
           offset += 1;
@@ -620,9 +625,9 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           return offset;
-      } /* of switch (adt->A)  */
+      } /* of switch (A)  */
 
-      if (adt->V) {
+      if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Virtual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Actual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
@@ -630,7 +635,7 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
       break;
 
     case ACN_DMP_ADT_D_RE: /* Range address, Array of equal size data items */
-      switch (adt->A) {
+      switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           adt->address =   tvb_get_guint8(tvb, offset);
           offset += 1;
@@ -660,9 +665,9 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           return offset;
-      } /* of switch (adt->A)  */
+      } /* of switch (A)  */
 
-      if (adt->V) {
+      if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Virtual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Actual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
@@ -670,7 +675,7 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
       break;
 
     case ACN_DMP_ADT_D_RM: /* Range address, Series of mixed size data items */
-      switch (adt->A) {
+      switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           adt->address =   tvb_get_guint8(tvb, offset);
           offset += 1;
@@ -700,15 +705,15 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           return offset;
-      } /* of switch (adt->A)  */
+      } /* of switch (A)  */
       
-      if (adt->V) {
+      if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Virtual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_text(tree, tvb, start_offset, bytes_used, "Actual Address first: %d, inc: %d, count: %d", adt->address, adt->increment, adt->count);
       }
       break;
-  } /* of switch (adt->D) */
+  } /* of switch (D) */
   
   return offset;
 }
@@ -719,6 +724,7 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 static guint32
 acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
+  guint8 D, A;
   guint32 start_offset;
   guint32 data_size;
   guint32 data_value;
@@ -746,7 +752,8 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
   /*    equals the number of bytes in remaining in the pdu then there is      */
   /*    a 1 to one match                                                      */
 
-  switch (adt->D) {
+  D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
+  switch (D) {
     case ACN_DMP_ADT_D_NS:
     case ACN_DMP_ADT_D_RS:
       if (adt->data_length <= adt->count + 4) {
@@ -778,13 +785,14 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
   buffer = g_malloc(BUFFER_SIZE);
   buffer[0] = 0;
 
-  switch (adt->D) {
+  A = ACN_DMP_ADT_EXTRACT_A(adt->flags);
+  switch (D) {
     case ACN_DMP_ADT_D_NS: /* Non-range address, Single data item */
       /* calculate data size */
       data_size = adt->data_length;
       data_address = adt->address;
 
-      switch (adt->A) {
+      switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
           break;
@@ -837,7 +845,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       data_address = adt->address;
 
       for (x=0;x<adt->count;x++) {
-        switch (adt->A) {
+        switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
             break;
@@ -891,7 +899,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       data_address = adt->address;
 
       for (x=0;x<adt->count;x++) {
-        switch (adt->A) {
+        switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
             break;
@@ -947,7 +955,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       /* change the text */
       proto_item_set_text(ti, "Mixed size data items");
       break;
-  } /* of switch (adt->D) */
+  } /* of switch (D) */
   /* free our memory! */
   g_free(buffer);
   
@@ -959,6 +967,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 static guint32
 acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
+  guint8 D, A;
   guint32 start_offset;
   guint32 data_value;
   guint32 data_address;
@@ -977,10 +986,12 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
   buffer[0] = 0;
 
-  switch (adt->D) {
+  D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
+  A = ACN_DMP_ADT_EXTRACT_A(adt->flags);
+  switch (D) {
     case ACN_DMP_ADT_D_NS: /* Non-range address, Single data item */
       data_address = adt->address;
-      switch (adt->A) {
+      switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
           g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
           break;
@@ -1006,7 +1017,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     case ACN_DMP_ADT_D_RS: /* Range address, Single data item */
       data_address = adt->address;
       for (x=0;x<adt->count;x++) {
-        switch (adt->A) {
+        switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
             break;
@@ -1035,7 +1046,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     case ACN_DMP_ADT_D_RM: /* Range address, Series of mixed size data items */
       data_address = adt->address;
       for (x=0;x<adt->count;x++) {
-        switch (adt->A) {
+        switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             g_snprintf(buffer, BUFFER_SIZE, "Addr %2.2X ->", data_address);
             break;
@@ -1058,7 +1069,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         offset++;
       } /* of (x=0;x<adt->count;x++) */
       break;
-  } /* of switch (adt->D) */
+  } /* of switch (D) */
   /* free our memory! */
   g_free(buffer);
   
@@ -1071,11 +1082,12 @@ static guint32
 dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
-  acn_pdu_offsets pdu_offsets = {0,0,0,0,0}; 
+  acn_pdu_offsets pdu_offsets = {0,0,0,0,0};
+  guint8 D;
   guint8 octet;
   guint32 length1;
   guint32 length2;
@@ -1094,8 +1106,8 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   
   /* this pdu */
   const gchar *ptr;
-  acn_dmp_adt_type adt = {{0},0,0,0,0,0};
-  acn_dmp_adt_type adt2 = {{0},0,0,0,0,0};
+  acn_dmp_adt_type adt = {0,0,0,0,0,0};
+  acn_dmp_adt_type adt2 = {0,0,0,0,0,0};
   guint32 vector;
 
   /* save start of pdu block */
@@ -1104,13 +1116,13 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -1126,7 +1138,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmp_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -1137,7 +1149,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -1159,7 +1171,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   proto_item_append_text(ti, ptr);
 
   /* Set header offset */
-  if (pdu_flags.H) {
+  if (pdu_flags & ACN_PDU_FLAG_H) {
     /* use new values */
     header_offset = offset;
     last_pdu_offsets->header = offset;
@@ -1175,7 +1187,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   acn_add_dmp_address_type(tvb, pinfo, pdu_tree, header_offset, &adt);
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -1254,7 +1266,8 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       old_offset = data_offset;
       data_offset = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
       if (old_offset == data_offset) break;
-      switch (adt.D) {
+      D = ACN_DMP_ADT_EXTRACT_D(adt.flags);
+      switch (D) {
         case ACN_DMP_ADT_D_NS:
           address_count = 1;
           break;
@@ -1384,7 +1397,7 @@ static guint32
 dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -1412,13 +1425,13 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -1434,7 +1447,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -1445,7 +1458,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -1469,7 +1482,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -1537,7 +1550,7 @@ static guint32
 dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -1569,13 +1582,13 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -1591,7 +1604,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_client_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -1602,7 +1615,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -1619,7 +1632,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_uint(pdu_tree, hf_acn_member_id, tvb, vector_offset, 2, member_id);
 
   /* Set header offset */
-  if (pdu_flags.H) {
+  if (pdu_flags & ACN_PDU_FLAG_H) {
     /* use new values */
     header_offset = offset;
     last_pdu_offsets->header = offset;
@@ -1647,7 +1660,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   header_offset += 2;
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -1681,8 +1694,9 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 /******************************************************************************/
-// reverses the characters in a string
-void reverse(char *s)
+/* reverses the characters in a string */
+static void
+reverse(char *s)
 {
 	char c;
   long i,j;
@@ -1705,15 +1719,16 @@ void reverse(char *s)
 /*                                                                            */
 /*  returns end of string                                                     */
 /*  faster than printf()                                                      */
-char *ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_chars, gboolean show_zero)
+static char *
+ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_chars, gboolean show_zero)
 {
   guint8 i;
-  // verify base
+  /* verify base */
   if (base < 2 || base > 16) {
     *string = '\0';
     return(string);
   }
-  // deal with zeros
+  /* deal with zeros */
   if ((level == 0) && (!show_zero)) {
     for (i=0;i<min_chars;i++) {
       string[i] = '.';
@@ -1752,7 +1767,7 @@ static guint32
 dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -1777,7 +1792,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 /*  proto_tree *addr_tree = NULL; */
 
 /* this pdu */
-  acn_dmp_adt_type adt = {{0},0,0,0,0,0};
+  acn_dmp_adt_type adt = {0,0,0,0,0,0};
   const gchar *ptr;
   guint32 vector;
   char *buffer=NULL;
@@ -1795,13 +1810,13 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -1817,7 +1832,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmx_data_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -1828,7 +1843,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -1850,7 +1865,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_item_append_text(ti, ptr);
 
   /* Set header offset */
-  if (pdu_flags.H) {
+  if (pdu_flags & ACN_PDU_FLAG_H) {
     /* use new values */
     header_offset = offset;
     last_pdu_offsets->header = offset;
@@ -1866,7 +1881,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   acn_add_dmp_address_type(tvb, pinfo, pdu_tree, header_offset, &adt);
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -1943,7 +1958,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         item_cnt++;
 
         if (item_cnt == 20 || x == (end_offset-1)) {
-          // add leader...
+          /* add leader... */
           proto_tree_add_text(pdu_tree, tvb, data_offset, item_cnt, buffer);
           data_offset += 20;
           g_snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+20);
@@ -1981,7 +1996,7 @@ static guint32
 dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -2011,13 +2026,13 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -2034,7 +2049,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmx_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -2045,7 +2060,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -2068,7 +2083,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* NO HEADER DATA ON THESE* (at least so far) */
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -2113,7 +2128,7 @@ static guint32
 dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -2143,13 +2158,13 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++; 
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -2165,7 +2180,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_base_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -2176,7 +2191,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -2200,7 +2215,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   /* NO HEADER DATA ON THESE* (at least so far) */
 
   /* Adjust data */
-  if (pdu_flags.D) {
+  if (pdu_flags & ACN_PDU_FLAG_D) {
     /* use new values */
     data_offset = offset;
     data_length = pdu_length - pdu_flvh_length;
@@ -2353,7 +2368,7 @@ static guint32
 dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
-  acn_pdu_flags pdu_flags;
+  guint8 pdu_flags;
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
@@ -2384,13 +2399,13 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++); 
-  pdu_flags.byte =  octet & 0xf0;
+  pdu_flags =  octet & 0xf0;
   length1 = octet & 0x0f;                   /* bottom 4 bits only */
   length2 = tvb_get_guint8(tvb, offset++);  
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
-  if (pdu_flags.L) {
+  if (pdu_flags & ACN_PDU_FLAG_L) {
     length3 = tvb_get_guint8(tvb, offset);
     offset++;
     pdu_length = length3 | (length2 << 8) | (length1 << 16);
@@ -2406,7 +2421,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   pdu_tree = proto_item_add_subtree(ti, ett_acn_root_pdu);
 
   /* Add flag item and tree */
-  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags.byte);
+  pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
   proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
@@ -2417,7 +2432,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
   /* Set vector offset */
-  if (pdu_flags.V) {
+  if (pdu_flags & ACN_PDU_FLAG_V) {
     /* use new values */
     vector_offset = offset;
     last_pdu_offsets->vector = offset;
@@ -2442,7 +2457,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       proto_item_append_text(ti,": Root DMX");
   
       /* Set header offset */
-      if (pdu_flags.H) {
+      if (pdu_flags & ACN_PDU_FLAG_H) {
         /* use new values */
         header_offset = offset;
         last_pdu_offsets->header = offset;
@@ -2462,7 +2477,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       header_offset += 16;
   
       /* Adjust data */
-      if (pdu_flags.D) {
+      if (pdu_flags & ACN_PDU_FLAG_D) {
         /* use new values */
         data_offset = offset;
         data_length = pdu_length - pdu_flvh_length;
@@ -2488,7 +2503,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     proto_item_append_text(ti,": Root SDT");
 
     /* Set header offset */
-    if (pdu_flags.H) {
+    if (pdu_flags & ACN_PDU_FLAG_H) {
       /* use new values */
       header_offset = offset;
       last_pdu_offsets->header = offset;
@@ -2508,7 +2523,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     header_offset += 16;
 
     /* Adjust data */
-    if (pdu_flags.D) {
+    if (pdu_flags & ACN_PDU_FLAG_D) {
       /* use new values */
       data_offset = offset;
       data_length = pdu_length - pdu_flvh_length;

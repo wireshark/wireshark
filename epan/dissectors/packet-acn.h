@@ -35,17 +35,19 @@
 #ifndef PACKET_ACN_H__
 #define PACKET_ACN_H__
 
-// pdu flags
+/* pdu flags */
 #define ACN_PDU_FLAG_L		0x80
 #define ACN_PDU_FLAG_V		0x40
 #define ACN_PDU_FLAG_H  	0x20
 #define ACN_PDU_FLAG_D		0x10
 
-#define ACN_DMP_ADT_FLAG_V 0x80
-#define ACN_DMP_ADT_FLAG_R 0x40
-#define ACN_DMP_ADT_FLAG_D 0x30               
-#define ACN_DMP_ADT_FLAG_X 0xc0
-#define ACN_DMP_ADT_FLAG_A 0x03
+#define ACN_DMP_ADT_FLAG_V	0x80	/* V = Specifies whether address is a virtual address or not. */
+#define ACN_DMP_ADT_FLAG_R	0x40	/* R = Specifies whether address is relative to last valid address in packet or not. */
+#define ACN_DMP_ADT_FLAG_D	0x30	/* D1, D0 = Specify non-range or range address, single data, equal size or mixed size data array */
+#define ACN_DMP_ADT_EXTRACT_D(f)	(((f) & ACN_DMP_ADT_FLAG_D) >> 4)	
+#define ACN_DMP_ADT_FLAG_X	0x0c	/* X1, X0 = These bits are reserved and their values shall be set to 0 when encoded. Their values shall be ignored when decoding. */
+#define ACN_DMP_ADT_FLAG_A	0x03	/* A1, A0 = Size of Address elements */
+#define ACN_DMP_ADT_EXTRACT_A(f)	((f) & ACN_DMP_ADT_FLAG_A)
 
 #define ACN_DMP_ADT_V_VIRTUAL   0
 #define ACN_DMP_ADT_V_ACTUAL    1
@@ -72,7 +74,7 @@
 #define ACN_ADDR_IPV6                 2
 #define ACN_ADDR_IPPORT               3
 
-// STD Messages
+/* STD Messages */
 #define ACN_SDT_VECTOR_UNKNOWN        0
 #define ACN_SDT_VECTOR_REL_WRAP       1
 #define ACN_SDT_VECTOR_UNREL_WRAP     2
@@ -156,37 +158,13 @@ typedef struct
   guint32 start;
   guint32 vector;
   guint32 header;
-	guint32 data;
+  guint32 data;
   guint32 data_length;
 } acn_pdu_offsets;
 
 typedef struct
 {
-  union {
-  guint8  byte;
-    struct {
-    guint8  dummy:4;
-    guint8  D:1;
-    guint8  H:1;
-    guint8  V:1;
-    guint8  L:1;
-    };
-  };
-} acn_pdu_flags;
-
-
-typedef struct
-{
-  union {
-  guint8  byte;
-    struct {
-      guint8  A:2; //A1, A0 = Size of Address elements
-      guint8  X:2; //X1, X0 = These bits are reserved and their values shall be set to 0 when encoded. Their values shall be ignored when decoding.
-      guint8  D:2; //D1, D0 = Specify non-range or range address, single data, equal size or mixed size data array 
-      guint8  R:1; //R = Specifies whether address is relative to last valid address in packet or not.
-      guint8  V:1; //V = Specifies whether address is a virtual address or not.
-    };
-  };
+  guint8  flags;
   guint32 address;  /* or first address */
   guint32 increment;
   guint32 count;
