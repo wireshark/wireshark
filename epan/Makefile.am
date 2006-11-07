@@ -135,7 +135,6 @@ if HAVE_PLUGINS
 if ENABLE_STATIC
 
 plugin_src = \
-	../plugins/acn/packet-acn.c \
 	../plugins/artnet/packet-artnet.c \
 	../plugins/asn1/packet-asn1.c \
 	../plugins/docsis/packet-bpkmattr.c \
