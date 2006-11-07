@@ -91,7 +91,7 @@ typedef struct _packet_info {
 				   or 
 				   DESEGMENT_ONE_MORE_SEGMENT:
 				     Desegment one more full segment 
-				     (not yet implemented)
+				     (warning! only partially implemented)
 				   DESEGMENT_UNTIL_FIN:
 				     Desgment all data for this tcp session 
 				     until the FIN segment.

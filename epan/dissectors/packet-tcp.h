@@ -116,6 +116,8 @@ struct tcp_multisegment_pdu {
 	guint32 first_frame;
 	guint32 last_frame;
         nstime_t last_frame_time;
+	guint32 flags;
+#define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
 };
 
 typedef struct _tcp_flow_t {

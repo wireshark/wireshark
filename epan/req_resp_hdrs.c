@@ -107,7 +107,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			if (reported_length_remaining < 1) {
 				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 1;
+				pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 				return FALSE;
 			}
 
@@ -124,7 +124,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * byte.
 				 */
 				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 1;
+				pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 				return FALSE;
 			} else if (linelen == 0) {
 				/*

@@ -378,6 +378,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	msp->first_frame=pinfo->fd->num;
 	msp->last_frame=pinfo->fd->num;
 	msp->last_frame_time=pinfo->fd->abs_ts;
+	msp->flags=0;
 	se_tree_insert32(tcpd->fwd->multisegment_pdus, seq, (void *)msp);
 	return msp;
 }
@@ -1100,7 +1101,14 @@ again:
 		/* OK, this PDU was found, which means the segment continues
 		   a higher-level PDU and that we must desegment it.
 		*/
-		len=MIN(nxtseq, msp->nxtpdu) - seq;
+		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
+			/* The dissector asked for the entire segment */
+			len=tvb_length_remaining(tvb, offset);
+			msp->flags&=(~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
+		} else {
+			len=MIN(nxtseq, msp->nxtpdu) - seq;
+		}
+
 		ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
 			tcp_fragment_table,
 			seq - msp->seq,
@@ -1321,8 +1329,20 @@ again:
 
 	    if( ((nxtseq - deseg_seq) <= 1024*1024)
 	    &&  (!pinfo->fd->flags.visited) ){
-		msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
-			nxtseq + pinfo->desegment_len, tcpd);
+		if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
+			/* The subdissector asked to reassemble using the
+			 * entire next segment.
+			 * Just ask reassembly for one more byte
+			 * but set this msp flag so we can pick it up
+			 * above.
+			 */
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+				deseg_seq, nxtseq+1, tcpd);
+			msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+		} else {
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+				deseg_seq, nxtseq+pinfo->desegment_len, tcpd);
+		}
 
 		/* add this segment as the first one for this new pdu */
 		fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
