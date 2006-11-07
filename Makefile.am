@@ -357,7 +357,8 @@ editcap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 mergecap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 
 # Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 #
 # Build the version string
@@ -459,6 +460,7 @@ dumpcap_DEPENDENCIES = \
 dumpcap_LDADD = \
 	$(dumpcap_additional_libs)	\
 	@GLIB_LIBS@			\
+	@LIBGCRYPT_LIBS@		\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
 #
