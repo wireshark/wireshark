@@ -17,13 +17,16 @@ To add the ability to read a new capture file format, you have to:
 	used);
 
 	write a "read" routine that can read a packet from the file and
-	supply the packet length, captured data length, and time stamp,
-	and have the "open" routine set the "subtype_read" member of the
-	"wtap" structure supplied to it to point to that routine;
+	supply the packet length, captured data length, time stamp, and
+	packet pseudo-header (if any) and data, and have the "open"
+	routine set the "subtype_read" member of the "wtap" structure
+	supplied to it to point to that routine;
 
-	write a "seek and read" routine, if necessary, and have the
-	"open" routine set the "subtype_seek_read" member of the "wtap"
-	structure to point to that routine.
+	write a "seek and read" routine that can seek to a specified
+	location in the file for a packet and supply the packet
+	pseudo-header (if any) and data, and have the "open" routine set
+	the "subtype_seek_read" member of the "wtap" structure to point
+	to that routine;
 
 	write a "close" routine, if necessary (if, for example, the
 	"open" routine allocates any memory), and set the
