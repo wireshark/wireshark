@@ -578,7 +578,7 @@ static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
 
 /* Forward declarations */
-dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+static dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 
 static const value_string package_name_vals[] = {
