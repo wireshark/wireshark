@@ -275,7 +275,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
  if (!parameter_tvb)
 	return offset;
 
- dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, pinfo _U_, tree, hf_h248_serviceChangeReasonStr);
+ dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, pinfo, tree, hf_h248_serviceChangeReasonStr);
 
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
