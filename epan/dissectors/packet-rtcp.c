@@ -2218,40 +2218,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
 	}
 
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		/* The second octet contains the packet type */
-		/* switch ( pd[ offset + 1 ] ) { */
-		switch ( tvb_get_guint8( tvb, 1 ) ) {
-			case RTCP_SR:
-				col_set_str( pinfo->cinfo, COL_INFO, "Sender Report");
-				break;
-			case RTCP_RR:
-				col_set_str( pinfo->cinfo, COL_INFO, "Receiver Report");
-				break;
-			case RTCP_SDES:
-				col_set_str( pinfo->cinfo, COL_INFO, "Source Description");
-				break;
-			case RTCP_BYE:
-				col_set_str( pinfo->cinfo, COL_INFO, "Goodbye");
-				break;
-			case RTCP_APP:
-				col_set_str( pinfo->cinfo, COL_INFO, "Application");
-				break;
-			case RTCP_XR:
-				col_set_str( pinfo->cinfo, COL_INFO, "Extended report");
-				break;
-			case RTCP_FIR:
-				col_set_str( pinfo->cinfo, COL_INFO, "Full Intra-frame Request (H.261)");
-				break;
-			case RTCP_NACK:
-				col_set_str( pinfo->cinfo, COL_INFO, "Negative Acknowledgement (H.261)");
-				break;
-			default:
-				col_set_str( pinfo->cinfo, COL_INFO, "Unknown packet type");
-				break;
-		}
-	}
-
     /*
      * Check if there are at least 4 bytes left in the frame,
      * the last 16 bits of those is the length of the current
@@ -2269,6 +2235,13 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
          */
         if ( ( packet_type < 192 ) || ( packet_type >  207 ) )
             break;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+                         val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
+            col_set_fence(pinfo->cinfo, COL_INFO);
+        }
 
         /*
          * get the packet-length for the complete RTCP packet
