@@ -57,6 +57,8 @@ static gint ett_hpsw_tlv = -1;
 #define HPFOO_FIELD_8 0x8
 #define HPFOO_FIELD_9 0x9
 #define HPFOO_FIELD_10 0xa
+#define HPFOO_FIELD_12 0xc
+#define HPFOO_DEVICE_ID 0xd /* Interpretation of this field is an educated guess */
 #define HPFOO_MAC_ADDR 0xe
 
 static const value_string hpsw_tlv_type_vals[] = {
@@ -68,6 +70,8 @@ static const value_string hpsw_tlv_type_vals[] = {
 	{ HPFOO_FIELD_8,     "Field 8" },
 	{ HPFOO_FIELD_9,     "Field 9" },
 	{ HPFOO_FIELD_10,     "Field 10" },
+	{ HPFOO_FIELD_12,     "Field 12" },
+	{ HPFOO_DEVICE_ID,    "Device ID" },
 	{ HPFOO_MAC_ADDR,     "MAC Addr" },
 	{ 0x00,               NULL }
 };
@@ -194,8 +198,8 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_FIELD_8:
         if (length == 2) {
-            proto_item_set_text(ti, "Field 8: 0x%02x", tvb_get_ntohs(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 8: 0x%02x", tvb_get_ntohs(tvb,offset));
+            proto_item_set_text(ti, "Field 8: 0x%04x", tvb_get_ntohs(tvb,offset));
+            proto_tree_add_text(tree, tvb, offset, length, "Field 8: 0x%04x", tvb_get_ntohs(tvb,offset));
         } else {
             proto_item_set_text(ti, "Field 8: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "Field 8: Bad length %u", length);
@@ -204,8 +208,8 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_FIELD_9:
         if (length == 2) {
-            proto_item_set_text(ti, "Field 9: 0x%02x", tvb_get_ntohs(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 9: 0x%02x", tvb_get_ntohs(tvb,offset));
+            proto_item_set_text(ti, "Field 9: 0x%04x", tvb_get_ntohs(tvb,offset));
+            proto_tree_add_text(tree, tvb, offset, length, "Field 9: 0x%04x", tvb_get_ntohs(tvb,offset));
         } else {
             proto_item_set_text(ti, "Field 9: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "Field 9: Bad length %u", length);
@@ -214,11 +218,33 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_FIELD_10:
         if (length == 4) {
-            proto_item_set_text(ti, "Field 10: 0x%04x", tvb_get_ntohl(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 9: 0x%04x", tvb_get_ntohl(tvb,offset));
+            proto_item_set_text(ti, "Field 10: 0x%08x", tvb_get_ntohl(tvb,offset));
+            proto_tree_add_text(tree, tvb, offset, length, "Field 10: 0x%08x", tvb_get_ntohl(tvb,offset));
         } else {
             proto_item_set_text(ti, "Field 10: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "Field 10: Bad length %u", length);
+        }
+        break;
+
+    case HPFOO_FIELD_12:
+        if (length == 1) {
+            proto_item_set_text(ti, "Field 12: 0x%02x", tvb_get_guint8(tvb,offset));
+            proto_tree_add_text(tree, tvb, offset, length, "Field 12: 0x%02x", tvb_get_guint8(tvb,offset));
+        } else {
+            proto_item_set_text(ti, "Field 12: Bad length %u", length);
+            proto_tree_add_text(tree, tvb, offset, length, "Field 12: Bad length %u", length);
+        }
+        break;
+
+    case HPFOO_DEVICE_ID:
+        if (length == 10) {
+            const guint8 *macptr=tvb_get_ptr(tvb,offset,6);
+            guint32 id=tvb_get_ntohl(tvb, offset+6);
+            proto_item_set_text(ti, "Device ID: %s / %u", ether_to_str(macptr), id);
+            proto_tree_add_text(tree, tvb, offset, 10, "Device ID: %s / %u", ether_to_str(macptr), id);
+        } else {
+            proto_item_set_text(ti, "Device ID: Bad length %u", length);
+            proto_tree_add_text(tree, tvb, offset, length, "Device ID: Bad length %u", length);
         }
         break;
 
