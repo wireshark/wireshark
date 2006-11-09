@@ -1060,9 +1060,11 @@ void proto_register_catapult_dct2000(void)
     };
 
     module_t *catapult_dct2000_module;
-    
+
     /* Register protocol. */
-    proto_catapult_dct2000 = proto_register_protocol("DCT2000", "DCT2000", "dct2000");
+    proto_catapult_dct2000 = proto_register_protocol("Catapult DCT2000 packet",
+                                                     "DCT2000",
+                                                     "dct2000");
     proto_register_field_array(proto_catapult_dct2000, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

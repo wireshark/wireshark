@@ -85,6 +85,8 @@ static int hf_fp_user_buffer_size = -1;
 static int hf_fp_hsdsch_credits = -1;
 static int hf_fp_hsdsch_max_macd_pdu_len = -1;
 static int hf_fp_hsdsch_interval = -1;
+static int hf_fp_hsdsch_calculated_rate = -1;
+static int hf_fp_hsdsch_unlimited_rate = -1;
 static int hf_fp_hsdsch_repetition_period = -1;
 static int hf_fp_hsdsch_data_padding = -1;
 static int hf_fp_hsdsch_new_ie_flags = -1;
@@ -716,6 +718,7 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
                                        tvbuff_t *tvb, int offset)
 {
     proto_item *ti;
+    proto_item *rate_ti;
     guint16 max_pdu_length;
     guint8 repetition_period;
     guint8 interval;
@@ -760,6 +763,19 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     {
         proto_item_append_text(ti, " (unlimited repetition period)");
     }
+
+    /* Calculated and show effective rate enabled */
+    if ((credits == 0) || (repetition_period == 0))
+    {
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
+    }
+    else
+    {
+        rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
+                            credits * max_pdu_length * (1000 / (interval*10)));
+    }
+    PROTO_ITEM_SET_GENERATED(rate_ti);
+
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
@@ -1955,6 +1971,7 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         guint8 number_of_pdus;
         guint16 pdu_length;
+        guint16 user_buffer_size;
 
         /********************************/
         /* HS-DCH data here             */
@@ -1974,12 +1991,18 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset++;
 
         /* User buffer size */
+        user_buffer_size = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, FALSE);
         offset += 2;
 
         /* MAC-d PDUs */
         offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset, pdu_length,
                                        number_of_pdus);
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  User-Buffer-Size=%u", user_buffer_size);
+        }
 
         /* Extra R6 stuff */
         if (p_fp_info->release == 6)
@@ -2462,6 +2485,18 @@ void proto_register_fp(void)
             { "HS-DSCH Interval in milliseconds",
               "fp.hsdsch-interval", FT_UINT8, BASE_DEC, 0, 0x0,
               "HS-DSCH Interval in milliseconds", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_calculated_rate,
+            { "Calculated rate allocation (bps)",
+              "fp.hsdsch-calculated-rate", FT_UINT32, BASE_DEC, 0, 0x0,
+              "Calculated rate RNC is allowed to send in bps", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_unlimited_rate,
+            { "Unlimited rate",
+              "fp.hsdsch-unlimited_rate", FT_NONE, BASE_NONE, 0, 0x0,
+              "No restriction on rate at which date may be sent", HFILL
             }
         },
         { &hf_fp_hsdsch_repetition_period,
