@@ -50,6 +50,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean	content_length_found = FALSE;
 	gboolean	content_type_found = FALSE;
 	gboolean	chunked_encoding = FALSE;
+	gboolean	keepalive_found = FALSE;
 
 	/*
 	 * Do header desegmentation if we've been told to.
@@ -147,17 +148,30 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Content-Length:", 15) == 0) {
-					header_val = tvb_get_string(tvb,
+					header_val = tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 15,
 					    linelen - 15);
 					if (sscanf(header_val,
 					    "%li", &content_length)
 					    == 1)
 						content_length_found = TRUE;
-					g_free(header_val);
 				} else if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Content-Type:", 13) == 0) {
 					content_type_found = TRUE;
+				} else if (tvb_strncaseeql(tvb, next_offset_sav,
+				    "Connection:", 11) == 0) {
+					/* Check for keep-alive */
+					header_val = tvb_get_ephemeral_string(tvb,
+					    next_offset_sav + 11,
+					    linelen - 11);
+					if(header_val){
+						while(*header_val==' '){
+							header_val++;
+						}
+						if(!strncasecmp(header_val, "Keep-Alive", 10)){
+							keepalive_found = TRUE;
+						}
+					}
 				} else if (tvb_strncaseeql(tvb,
 					    next_offset_sav,
 					    "Transfer-Encoding:", 18) == 0) {
@@ -170,7 +184,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					gchar *p;
 					gint len;
 
-					header_val = tvb_get_string(tvb,
+					header_val = tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 18, linelen - 18);
 					p = header_val;
 					len = strlen(header_val);
@@ -192,7 +206,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							chunked_encoding = TRUE;
 						}
 					}
-					g_free(header_val);
 				}
 			}
 		}
@@ -269,7 +282,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 				
 				/* We have a line with the chunk size in it.*/
-				chunk_string = tvb_get_string(tvb, next_offset,
+				chunk_string = tvb_get_ephemeral_string(tvb, next_offset,
 				    linelen);
 				c = chunk_string;
 
@@ -285,10 +298,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					/* We couldn't get the chunk size,
 					 * so stop trying.
 					 */
-					g_free(chunk_string);
 					return TRUE;
 				}
-				g_free(chunk_string);
 
 				if (chunk_size == 0) {
 					/*
@@ -337,7 +348,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/* We found a content-type but no content-length.
 			 * This is probably a HTTP header for a session with
 			 * only one HTTP PDU and where the content spans
-			 * until the end of the tcp session.
+			 * until the end of the tcp session, unless there
+			 * is a keepalive header present in which case we
+			 * assume there is no message body at all and thus
+			 * we wont do any reassembly.
 			 * Set up tcp reassembly until the end of this session.
 			 */
 			length_remaining = tvb_length_remaining(tvb, next_offset);
@@ -346,6 +360,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				/*
 				 * It's a waste of time asking for more
 				 * data, because that data wasn't captured.
+				 */
+				return TRUE;
+			}
+
+			if (keepalive_found) {
+				/* We have a keep-alive but no content-length.
+				 * Assume there is no message body and dont
+				 * do any reassembly.
 				 */
 				return TRUE;
 			}
