@@ -2534,6 +2534,10 @@ Bill Florac               <bill.florac [AT] etcconnect.com> {
 	ACN support
 }
 
+Alex Burlyga              <Alex.Burlyga [AT] netapp.com> {
+	NetApp NFS filehandle dissectors
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2664,7 +2668,6 @@ Aaron Christensen	<aaronmf [AT] gmail.com>
 Ian Abel		<ianabel [AT] mxtelecom.com>
 Bryant Eastham		<beastham [AT] slc.mew.com>
 Taner Kurtulus		<taner.kurtulus [AT] tubitak.gov.tr>
-Alex Burlyga		<Alex.Burlyga [AT] netapp.com>
 Joe Breher		<linux [AT] q-music.com>
 Patrick vd Lageweg	<patrick [AT] bitwizard.nl> 
 
