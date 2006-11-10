@@ -765,7 +765,7 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     }
 
     /* Calculated and show effective rate enabled */
-    if ((credits == 0) || (repetition_period == 0))
+    if ((credits == 2047) || (repetition_period == 0))
     {
         rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
     }
