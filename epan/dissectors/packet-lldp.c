@@ -94,6 +94,8 @@ static int hf_profinet_port_rx_delay_remote = -1;
 static int hf_profinet_port_tx_delay_local = -1;
 static int hf_profinet_port_tx_delay_remote = -1;
 static int hf_profinet_cable_delay_local = -1;
+static int hf_profinet_mrp_domain_uuid = -1;
+static int hf_profinet_mrrt_port_status = -1;
 static int hf_profinet_cm_mac = -1;
 static int hf_unknown_subtype = -1;
 
@@ -426,6 +428,14 @@ const value_string profinet_port3_status_vals[] = {
 	{ 2,	"RTCLASS3_UP" },
 	{ 3,	"RTCLASS3_DOWN" },
 	{ 4,	"RTCLASS3_RUN" },
+	/* all other bits reserved */
+	{ 0,	NULL }
+};
+
+const value_string profinet_mrrt_port_status_vals[] = {
+	{ 0,	"OFF" },
+	{ 1,	"MRRT_CONFIGURED" },
+	{ 2,	"MRRT_UP" },
 	/* all other bits reserved */
 	{ 0,	NULL }
 };
@@ -2059,6 +2069,8 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
 	guint8 mac_addr[6];
+	e_guid_t * uuid;
+	guint16 mrrt_PortStatus;
 
 	
 	/* Get subtype */
@@ -2124,7 +2136,19 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		break;
 	}
 	/*case 3:*/		/* XXX - Alias */
-    /*case 4:*/     /* XXX - MRP Port Status */
+	case 4:		/* MRP Port Status */
+	{
+	    /* DomainUUID */
+	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+	    proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+	    offset += 16;
+
+	    /* MRRT PortStatus */
+	    mrrt_PortStatus = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_uint(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, mrrt_PortStatus);
+	    offset+=2;
+	    break;
+	}
     case 5:     /* Chassis MAC */
     {
 	    proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
@@ -2497,6 +2521,14 @@ proto_register_lldp(void)
 		{ &hf_profinet_class3_port_status,
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
 	   		VALS(profinet_port3_status_vals), 0x0, "", HFILL }
+		},
+		{ &hf_profinet_mrp_domain_uuid,
+			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_mrrt_port_status,
+			{ "MRRT PortStatus",	"lldp.profinet.mrrt_port_status", FT_UINT16, BASE_HEX,
+	   		VALS(profinet_mrrt_port_status_vals), 0x0, "", HFILL }
 		},
 		{ &hf_profinet_cm_mac,
 			{ "CMMacAdd",	"lldp.profinet.rtc3_port_status", FT_ETHER, BASE_NONE,
