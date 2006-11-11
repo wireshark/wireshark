@@ -744,7 +744,6 @@ se_free_all(void)
 #endif /* DEBUG_USE_CANARIES */
 #endif
 
-
 	/* move all used chunks over to the free list */
 	while(se_packet_mem.used_list){
 		npc=se_packet_mem.used_list;
@@ -1500,4 +1499,26 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 	}
 
 	return emem_tree_lookup32_array(se_tree, key);
+}
+
+
+static void
+emem_tree_print_nodes(emem_tree_node_t* node, int level)
+{
+	int i;
+	for(i=0;i<level;i++){
+		printf("    ");
+	}
+	printf("NODE:%08x parent:%08x left:0x%08x right:%08x key:%d data:0x%08x\n",(int)node,(int)node->parent,(int)node->left,(int)node->right,node->key32,(int)node->data);
+	if(node->left)
+		emem_tree_print_nodes(node->left, level+1);
+	if(node->right)
+		emem_tree_print_nodes(node->right, level+1);
+}
+void
+emem_print_tree(emem_tree_t* emem_tree)
+{
+	printf("EMEM tree type:%d name:%s tree:0x%08x\n",emem_tree->type,emem_tree->name,(int)emem_tree->tree);
+	if(emem_tree->tree)
+		emem_tree_print_nodes(emem_tree->tree, 0);
 }

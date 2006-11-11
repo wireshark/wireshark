@@ -343,7 +343,7 @@ void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k);
 
 
 
-
+void emem_print_tree(emem_tree_t* emem_tree);
 
 
 
