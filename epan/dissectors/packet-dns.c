@@ -882,8 +882,8 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type, int class,
-  guint ttl, gushort data_len)
+  const char *name, int namelen, int type, int class, int flush,
+  guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree, *Z_tree;
   proto_item *Z_item = NULL;
@@ -894,8 +894,16 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
 		"Type: %s", dns_type_description(type));
   offset += 2;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "UDP payload size: %u",
+  if (is_mdns) {
+    proto_tree_add_text(rr_tree, tvb, offset, 2, "%s",
+                        decode_numeric_bitfield(class, 0x7fff, 16,
+                                                "UDP payload size: %u"));
+    proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2,
+       flush);
+  } else {
+    proto_tree_add_text(rr_tree, tvb, offset, 2, "UDP payload size: %u",
       class & 0xffff);
+  }
   offset += 2;
   proto_tree_add_text(rr_tree, tvb, offset, 1, "Higher bits in extended RCODE: 0x%x",
       (ttl >> 24) & 0xff0);
@@ -1014,7 +1022,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     &type, &class);
   data_offset += len;
   cur_offset += len;
-  if (is_mdns && type != T_OPT) {
+  if (is_mdns) {
     /* Split the FLUSH flag and the class */
     flush = class & C_FLUSH;
     class &= ~C_FLUSH;
@@ -1048,8 +1056,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name_out, type_name, class_name);
-      if (is_mdns && flush)
-        proto_item_append_text(trr, ", cache flush");
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     type, class, flush, ttl, data_len, is_mdns);
     } else  {
@@ -1057,8 +1063,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s", name_out, type_name);
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
-		     type, class, ttl, data_len);
+		     type, class, flush, ttl, data_len, is_mdns);
     }
+    if (is_mdns && flush)
+      proto_item_append_text(trr, ", cache flush");
   }
 
   if (data_len == 0)
