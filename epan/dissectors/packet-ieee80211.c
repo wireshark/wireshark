@@ -1107,7 +1107,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 	proto_item *tsinfo_item;
 	proto_tree *tsinfo_tree;
 	guint32 tsi;
-	
+
 	tsinfo_item = proto_tree_add_item(tree, hf_ts_info, tvb,
 					  offset, 3, TRUE);
 	tsinfo_tree = proto_item_add_subtree(tsinfo_item, ett_tsinfo_tree);
@@ -2037,7 +2037,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	proto_tree_add_item(tree, hf_tsinfo_up, tvb, offset + 2, 1, TRUE);
 	proto_tree_add_item(tree, hf_class_type, tvb, offset + 3, 1, TRUE);
 	proto_tree_add_item(tree, hf_class_mask, tvb, offset + 4, 1, TRUE);
-	switch (type) 
+	switch (type)
 	  {
 	    case 0:
 	      proto_tree_add_item(tree, ff_src_mac_addr, tvb, offset + 5,
@@ -3647,7 +3647,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_datapad (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE,
       pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE);
 }
 
@@ -4788,6 +4788,7 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
   register_dissector("wlan_bsfc", dissect_ieee80211_bsfc, proto_wlan);
   register_dissector("wlan_datapad", dissect_ieee80211_datapad, proto_wlan);
+  register_dissector("wlan_radio", dissect_ieee80211_radio, proto_wlan);
   register_init_routine(wlan_defragment_init);
 
   wlan_tap = register_tap("wlan");

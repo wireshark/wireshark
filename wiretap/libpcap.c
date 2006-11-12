@@ -86,7 +86,7 @@ struct mtp2_hdr {
 #endif
 
 /*
- * The fake link-layer header of LAPD packets 
+ * The fake link-layer header of LAPD packets
  */
 struct lapd_sll_hdr {
     guint16 sll_pkttype;    /* packet type */
@@ -639,7 +639,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	gboolean aix;
 	int file_encap;
 
-	
+
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
@@ -697,7 +697,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	case PCAP_SWAPPED_NSEC_MAGIC:
 		/* Host that wrote it out has a byte order opposite to
-		   ours, and was running a program using either ss990915 
+		   ours, and was running a program using either ss990915
 		   or ss991029 libpcap. */
 		byte_swapped = TRUE;
 		modified = FALSE;
@@ -1277,6 +1277,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		 * supplies an FCS?
 		 */
 		wth->pseudo_header.ieee_802_11.fcs_len = -1;
+		wth->pseudo_header.ieee_802_11.channel = 0;
+		wth->pseudo_header.ieee_802_11.data_rate = 0;
+		wth->pseudo_header.ieee_802_11.signal_level = 0;
 		break;
 
 	case WTAP_ENCAP_IRDA:
@@ -1814,7 +1817,7 @@ libpcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 	}
 
 	return libpcap_get_mtp2_pseudoheader(&mtp2_hdr, pseudo_header);
-	     
+
 }
 
 static gboolean

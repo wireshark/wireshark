@@ -141,6 +141,7 @@ static int hf_radiotap_pad = -1;
 static int hf_radiotap_length = -1;
 static int hf_radiotap_present = -1;
 static int hf_radiotap_mactime = -1;
+static int hf_radiotap_channel = -1;
 static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
 static int hf_radiotap_datarate = -1;
@@ -186,7 +187,7 @@ static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
 static gint ett_radiotap_flags = -1;
 
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_radio_handle;
 static dissector_handle_t ieee80211_datapad_handle;
 
 static void
@@ -425,6 +426,9 @@ proto_register_radiotap(void)
     { &hf_radiotap_fcs,
        { "802.11 FCS", "radiotap.fcs",
 	 FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_channel,
+      { "Channel", "radiotap.channel",
+	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_channel_frequency,
       { "Channel frequency", "radiotap.channel.freq",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -530,7 +534,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint8 dbm;
     guint8 db, rflags;
     guint32 present, next_present;
-    int bit;
+    int bit, channel;
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -659,8 +663,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    if (tree) {
+		pinfo->pseudo_header->ieee_802_11.data_rate = rate;
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
-			tvb, offset, 1, tvb_get_guint8(tvb, offset),
+			tvb, offset, 1, rate,
 			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    offset++;
@@ -750,10 +755,19 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (tree) {
 		freq = tvb_get_letohs(tvb, offset);
 		flags = tvb_get_letohs(tvb, offset+2);
-	        proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
-			tvb, offset, 2, freq,
-			"Channel: %u (chan %u)", freq, ieee80211_mhz2ieee(freq, flags));
-	        proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
+		channel = ieee80211_mhz2ieee(freq, flags);
+		if (channel < 1) {
+			proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
+				tvb, offset, 2, freq,
+				"Channel frequency: %u (invalid)", freq);
+		} else {
+			pinfo->pseudo_header->ieee_802_11.channel = (guint8) channel;
+			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel,
+				tvb, offset, 2, (guint32) channel);
+			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_frequency,
+				tvb, offset, 2, freq);
+		}
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
 			tvb, offset+2, 2, flags);
 	    }
 	    offset+=4;
@@ -784,8 +798,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (length_remaining < 2)
 		break;
 	    if (tree) {
+		pinfo->pseudo_header->ieee_802_11.signal_level = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_quality,
-				tvb, offset, 2, tvb_get_letohs(tvb, offset));
+				tvb, offset, 2, pinfo->pseudo_header->ieee_802_11.signal_level);
 	    }
 	    offset+=2;
 	    length_remaining-=2;
@@ -854,7 +869,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* dissect the 802.11 header next */
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
-        ieee80211_datapad_handle : ieee80211_handle,
+        ieee80211_datapad_handle : ieee80211_radio_handle,
         next_tvb, pinfo, tree);
 }
 
@@ -864,7 +879,7 @@ proto_reg_handoff_radiotap(void)
     dissector_handle_t radiotap_handle;
 
     /* handle for 802.11 dissector */
-    ieee80211_handle = find_dissector("wlan");
+    ieee80211_radio_handle = find_dissector("wlan_radio");
     ieee80211_datapad_handle = find_dissector("wlan_datapad");
 
     radiotap_handle = create_dissector_handle(dissect_radiotap, proto_radiotap);
