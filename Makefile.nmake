@@ -505,9 +505,9 @@ verify_tools:
 setup: verify_tools
 !IF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.8/glib-2.12.1.zip
+		glib gtk2.8/glib-2.12.4.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.8/glib-dev-2.12.1.zip
+		glib gtk2.8/glib-dev-2.12.4.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-2.6.6.zip
@@ -580,9 +580,9 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/gtk+-dev-2.8.20.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.8/cairo-1.2.2.zip
+		gtk2 gtk2.8/cairo-1.2.6.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.8/cairo-dev-1.2.2.zip
+		gtk2 gtk2.8/cairo-dev-1.2.6.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/atk-1.10.3.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -617,11 +617,11 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 !ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.12"
+!IF "$(PANGO_INST_VERSION)" == "1.14"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.8/pango-1.12.3.zip
+		gtk2 gtk2.8/pango-1.14.5.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.8/pango-dev-1.12.3.zip
+		gtk2 gtk2.8/pango-dev-1.14.5.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.10"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/pango-1.10.1.zip
@@ -804,14 +804,14 @@ install-deps2: install-common-deps2
 	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)
 	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
 	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
-	if not exist $(INSTALL2_DIR)\lib\pango mkdir $(INSTALL2_DIR)\lib\pango
-	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)
-	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
+#	if not exist $(INSTALL2_DIR)\lib\pango mkdir $(INSTALL2_DIR)\lib\pango
+#	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)
+#	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* $(INSTALL2_DIR)\etc\gtk-2.0 /d
 	xcopy $(GTK2_DIR)\etc\pango\pango.* $(INSTALL2_DIR)\etc\pango /d
 	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
 	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
-	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
+#	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
 !IFDEF NEED_LIBPNG_DLL
 	xcopy $(GTK2_DIR)\bin\libpng13.dll $(INSTALL2_DIR) /d
 !ENDIF
