@@ -823,14 +823,14 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   if (cinfo != NULL) {
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
-    if (is_mdns && qu)
-      col_append_str(cinfo, COL_INFO, ", \"QU\" question");
+    if (is_mdns)
+      col_append_fstr(cinfo, COL_INFO, ", \"%s\" question", qu ? "QU" : "QM");
   }
   if (dns_tree != NULL) {
     tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
 		   name_out, type_name, dns_class_name(class));
-    if (is_mdns && qu)
-      proto_item_append_text(tq, ", \"QU\" question");
+    if (is_mdns)
+      proto_item_append_text(tq, ", \"%s\" question", qu ? "QU" : "QM");
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
