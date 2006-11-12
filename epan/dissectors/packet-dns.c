@@ -3,6 +3,8 @@
  *
  * RFC 1034, RFC 1035
  * RFC 2136 for dynamic DNS
+ * http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
+ *  for multicast DNS
  *
  * $Id$
  *
@@ -70,9 +72,13 @@ static int hf_dns_count_add_rr = -1;
 static int hf_dns_qry_name = -1;
 static int hf_dns_qry_type = -1;
 static int hf_dns_qry_class = -1;
+static int hf_dns_qry_class_mdns = -1;
+static int hf_dns_qry_qu = -1;
 static int hf_dns_rr_name = -1;
 static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
+static int hf_dns_rr_class_mdns = -1;
+static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_tsig_error = -1;
@@ -195,6 +201,8 @@ typedef struct _dns_conv_info_t {
 #define C_HS		4		/* Hesiod */
 #define	C_NONE		254		/* none */
 #define	C_ANY		255		/* any */
+
+#define C_QU		(1<<15)		/* High bit is set in queries for unicast queries */
 #define C_FLUSH         (1<<15)         /* High bit is set for MDNS cache flush */
 
 /* Bit fields in the flags */
@@ -521,7 +529,6 @@ static const value_string dns_classes[] = {
 	{C_HS, "HS"},
 	{C_NONE, "NONE"},
 	{C_ANY, "ANY"},
-	{C_IN | C_FLUSH, "FLUSH"},
 	{0,NULL}
 };
 
@@ -779,7 +786,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, const char *nsew)
 
 static int
 dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
-  column_info *cinfo, proto_tree *dns_tree)
+  column_info *cinfo, proto_tree *dns_tree, gboolean is_mdns)
 {
   int len;
   char *name;
@@ -787,6 +794,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int name_len;
   int type;
   int class;
+  int qu;
   const char *type_name;
   int data_offset;
   int data_start;
@@ -798,6 +806,12 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   len = get_dns_name_type_class(tvb, offset, dns_data_offset, &name, &name_len,
     &type, &class);
   data_offset += len;
+  if (is_mdns) {
+    /* Split the QU flag and the class */
+    qu = class & C_QU;
+    class &= ~C_QU;
+  } else
+    qu = 0;
 
   type_name = dns_type_name(type);
 
@@ -809,10 +823,14 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   if (cinfo != NULL) {
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
+    if (is_mdns && qu)
+      col_append_str(cinfo, COL_INFO, ", \"QU\" question");
   }
   if (dns_tree != NULL) {
     tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
 		   name_out, type_name, dns_class_name(class));
+    if (is_mdns && qu)
+      proto_item_append_text(tq, ", \"QU\" question");
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
@@ -822,7 +840,12 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 		"Type: %s", dns_type_description(type));
     offset += 2;
 
-    proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, class);
+    if (is_mdns) {
+      proto_tree_add_uint(q_tree, hf_dns_qry_class_mdns, tvb, offset, 2, class);
+      proto_tree_add_boolean(q_tree, hf_dns_qry_qu, tvb, offset, 2, qu);
+    } else
+      proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, class);
+    
     offset += 2;
   }
 
@@ -832,8 +855,8 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type, int class,
-  guint ttl, gushort data_len)
+  const char *name, int namelen, int type, int class, int flush,
+  guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree;
 
@@ -843,7 +866,11 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
 		"Type: %s", dns_type_description(type));
   offset += 2;
-  proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, class);
+  if (is_mdns) {
+    proto_tree_add_uint(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, class);
+    proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2, flush);
+  } else
+    proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, class);
   offset += 2;
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
 		"Time to live: %s", time_secs_to_str(ttl));
@@ -960,7 +987,8 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
 
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
-  column_info *cinfo, proto_tree *dns_tree, packet_info *pinfo)
+  column_info *cinfo, proto_tree *dns_tree, packet_info *pinfo,
+  gboolean is_mdns)
 {
   int len;
   char *name;
@@ -968,6 +996,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   int name_len;
   int type;
   int class;
+  int flush;
   const char *class_name;
   const char *type_name;
   int data_offset;
@@ -985,6 +1014,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     &type, &class);
   data_offset += len;
   cur_offset += len;
+  if (is_mdns && type != T_OPT) {
+    /* Split the FLUSH flag and the class */
+    flush = class & C_FLUSH;
+    class &= ~C_FLUSH;
+  } else
+    flush = 0;
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
@@ -997,8 +1032,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   data_offset += 2;
   cur_offset += 2;
 
-  if (cinfo != NULL)
+  if (cinfo != NULL) {
     col_append_fstr(cinfo, COL_INFO, " %s", type_name);
+    if (is_mdns && flush)
+      col_append_str(cinfo, COL_INFO, ", cache flush");
+  }
   if (dns_tree != NULL) {
     /*
      * The name might contain octets that aren't printable characters,
@@ -1010,8 +1048,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name_out, type_name, class_name);
+      if (is_mdns && flush)
+        proto_item_append_text(trr, ", cache flush");
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
-		     type, class, ttl, data_len);
+		     type, class, flush, ttl, data_len, is_mdns);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offset,
 		    (data_offset - data_start) + data_len,
@@ -2278,7 +2318,8 @@ bad_rr:
 
 static int
 dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
-    int count, column_info *cinfo, proto_tree *dns_tree, int isupdate)
+    int count, column_info *cinfo, proto_tree *dns_tree, gboolean isupdate,
+    gboolean is_mdns)
 {
   int start_off, add_off;
   proto_tree *qatree = NULL;
@@ -2291,7 +2332,8 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     qatree = proto_item_add_subtree(ti, ett_dns_qry);
   }
   while (count-- > 0) {
-    add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, cinfo, qatree);
+    add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, cinfo, qatree,
+                                is_mdns);
     cur_off += add_off;
   }
   if (ti)
@@ -2303,7 +2345,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     int count, column_info *cinfo, proto_tree *dns_tree, const char *name,
-    packet_info *pinfo)
+    packet_info *pinfo, gboolean is_mdns)
 {
   int start_off, add_off;
   proto_tree *qatree = NULL;
@@ -2316,7 +2358,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   }
   while (count-- > 0) {
     add_off = dissect_dns_answer(
-	    tvb, cur_off, dns_data_offset, cinfo, qatree, pinfo);
+	    tvb, cur_off, dns_data_offset, cinfo, qatree, pinfo, is_mdns);
     cur_off += add_off;
   }
   if (ti)
@@ -2327,7 +2369,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static void
 dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_tcp)
+    gboolean is_tcp, gboolean is_mdns)
 {
   int offset = is_tcp ? 2 : 0;
   int dns_data_offset;
@@ -2562,7 +2604,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest,
 				     (!(flags & F_RESPONSE) ? cinfo : NULL),
-				     dns_tree, isupdate);
+				     dns_tree, isupdate, is_mdns);
   }
 
   if (ans > 0) {
@@ -2572,7 +2614,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				      ((flags & F_RESPONSE) ? cinfo : NULL),
 				      dns_tree, (isupdate ?
 						 "Prerequisites" : "Answers"),
-				      pinfo); 
+				      pinfo, is_mdns);
   }
 
   /* Don't add information about the authoritative name servers, or the
@@ -2582,13 +2624,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				      NULL, dns_tree,
 				      (isupdate ? "Updates" : 
 				       "Authoritative nameservers"),
-				      pinfo);
+				      pinfo, is_mdns);
   }
 
   if (add > 0) {
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
 				      NULL, dns_tree, "Additional records",
-				      pinfo);
+				      pinfo, is_mdns);
   }
 }
 
@@ -2598,7 +2640,7 @@ dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE);
 }
 
 static void
@@ -2607,7 +2649,7 @@ dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE);
 }
 
 
@@ -2633,7 +2675,7 @@ dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, TRUE);
+  dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE);
 }
 
 static void
@@ -2707,6 +2749,14 @@ proto_register_dns(void)
       { "Class",      	"dns.qry.class",
 	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x0,
 	"Query Class", HFILL }},
+    { &hf_dns_qry_class_mdns,
+      { "Class",      	"dns.qry.class",
+	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x7FFF,
+	"Query Class", HFILL }},
+    { &hf_dns_qry_qu,
+      { "\"QU\" question", 	"dns.qry.qu",
+	FT_BOOLEAN, 16, NULL, C_QU,
+	"QU flag", HFILL }},
     { &hf_dns_qry_name,
       { "Name",      	"dns.qry.name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2719,6 +2769,14 @@ proto_register_dns(void)
       { "Class",      	"dns.resp.class",
 	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x0,
 	"Response Class", HFILL }},
+    { &hf_dns_rr_class_mdns,
+      { "Class",      	"dns.resp.class",
+	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x7FFF,
+	"Response Class", HFILL }},
+    { &hf_dns_rr_cache_flush,
+      { "Cache flush", 	"dns.resp.cache_flush",
+	FT_BOOLEAN, 16, NULL, C_FLUSH,
+	"Cache flush flag", HFILL }},
     { &hf_dns_rr_name,
       { "Name",      	"dns.resp.name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
