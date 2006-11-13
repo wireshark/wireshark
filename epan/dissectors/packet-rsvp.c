@@ -128,6 +128,11 @@ typedef struct rsvp_session_ipv4_lsp_info {
     guint32 ext_tunnel_id;
 } rsvp_session_ipv4_lsp_info;
 
+typedef struct rsvp_session_agg_ipv4_info {
+    address destination;
+    guint8 dscp;
+} rsvp_session_agg_ipv4_info;
+
 typedef struct rsvp_session_ipv4_uni_info {
     address destination;
     guint16 udp_dest_port;
@@ -161,6 +166,7 @@ struct rsvp_request_key {
 	rsvp_session_ipv4_info session_ipv4;
 	rsvp_session_ipv6_info session_ipv6;
 	rsvp_session_ipv4_lsp_info session_ipv4_lsp;
+	rsvp_session_agg_ipv4_info session_agg_ipv4;
 	rsvp_session_ipv4_uni_info session_ipv4_uni;
 	rsvp_session_ipv4_enni_info session_ipv4_enni;
     } u;
@@ -602,6 +608,9 @@ enum {
 
     RSVP_SESSION_TYPE_IPV4_LSP = 7,
     RSVP_SESSION_TYPE_IPV6_LSP,
+
+    RSVP_SESSION_TYPE_AGGREGATE_IPV4 = 9,
+    RSVP_SESSION_TYPE_AGGREGATE_IPV6,
 
     RSVP_SESSION_TYPE_IPV4_UNI = 11,
     RSVP_SESSION_TYPE_IPV4_E_NNI = 15
@@ -1269,6 +1278,20 @@ rsvp_equal (gconstpointer k1, gconstpointer k2)
 
 	break;
 
+    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
+	if (ADDRESSES_EQUAL(&key1->u.session_agg_ipv4.destination,
+			    &key2->u.session_agg_ipv4.destination) == FALSE)
+	    return 0;
+
+	if (key1->u.session_agg_ipv4.dscp != key2->u.session_agg_ipv4.dscp)
+	    return 0;
+	
+	break;
+
+    case RSVP_SESSION_TYPE_AGGREGATE_IPV6:
+	/* this is not supported yet for conversations */
+	break;
+
     case RSVP_SESSION_TYPE_IPV4_UNI:
 	if (ADDRESSES_EQUAL(&key1->u.session_ipv4_uni.destination,
 			    &key2->u.session_ipv4_uni.destination) == FALSE)
@@ -1546,6 +1569,11 @@ static char *summary_session (tvbuff_t *tvb, int offset)
 		 tvb_get_ntohs(tvb, offset+10),
 		 tvb_get_ntohl(tvb, offset+12));
 	break;
+    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
+	g_snprintf(buf, 100, "SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
+		   ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
+		   tvb_get_guint8(tvb, offset+11));
+	break;
     case RSVP_SESSION_TYPE_IPV4_UNI:
 	g_snprintf(buf, 100, "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
@@ -1585,6 +1613,10 @@ static char *summary_template (tvbuff_t *tvb, int offset)
 	g_snprintf(buf, 80, "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10));
+	break;
+    case 9:
+	g_snprintf(buf, 80, "%s: IPv4-Aggregate, Aggregator %s. ", objtype,
+		   ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
 	break;
     default:
 	g_snprintf(buf, 80, "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
@@ -1688,6 +1720,29 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4, 
 		    tvb_get_ptr(tvb, offset2, 4));
 	rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+	rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
+	break;
+
+    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 9 - IPv4 Aggregate");
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_IP],
+			    tvb, offset2, 4, FALSE);
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+7, 1,
+			    "DSCP: %u (%s)",
+			    tvb_get_guint8(tvb, offset2+7),
+			    val_to_str(tvb_get_guint8(tvb, offset2+7),
+				       dscp_vals, "Unknown (%d)"));
+	/* 
+	 * Save this information to build the conversation request key 
+	 * later.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_AGGREGATE_IPV4;
+	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4, 
+		    tvb_get_ptr(tvb, offset2, 4));
+	rsvph->dscp = tvb_get_guint8(tvb, offset2+7);
 	rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
 	break;
 
@@ -2278,6 +2333,19 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	  */
 	 SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
 	 rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
+	 break;
+
+    case 9:
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			     "C-type: 9 - IPv4 Aggregate");
+	 proto_tree_add_item(rsvp_object_tree,
+			     rsvp_filter[RSVPF_SENDER_IP],
+			     tvb, offset2, 4, FALSE);
+
+	 /*
+	  * Save this information to build the conversation request key later.
+	  */
+	 SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
 	 break;
 
      default:
@@ -5245,6 +5313,13 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    rsvph->destination.data);
 	request_key.u.session_ipv4_lsp.udp_dest_port = rsvph->udp_dest_port;
 	request_key.u.session_ipv4_lsp.ext_tunnel_id = rsvph->ext_tunnel_id;
+	break;
+
+    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
+	SET_ADDRESS(&request_key.u.session_agg_ipv4.destination, 
+		    rsvph->destination.type, rsvph->destination.len,
+		    rsvph->destination.data);
+	request_key.u.session_agg_ipv4.dscp = rsvph->dscp;
 	break;
 
     case RSVP_SESSION_TYPE_IPV4_UNI:

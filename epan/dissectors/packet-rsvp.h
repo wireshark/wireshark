@@ -35,6 +35,7 @@ typedef struct rsvp_conversation_info
     guint16 udp_dest_port;
     guint8  protocol;
     guint32 ext_tunnel_id; 
+    guint8 dscp;
 } rsvp_conversation_info;
 
 extern const value_string gmpls_switching_type_str[];
