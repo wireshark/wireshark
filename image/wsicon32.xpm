@@ -1,7 +1,7 @@
 /* XPM */
 static const char *wsicon32_xpm[] = {
 /* columns rows colors chars-per-pixel */
-"32 32 146 2",
+"32 32 147 2",
 "   c #000000",
 ".  c #010709",
 "X  c #030B0E",
@@ -148,9 +148,10 @@ static const char *wsicon32_xpm[] = {
 "b. c #ACBBC1",
 "n. c #B1BCC1",
 "m. c #A5C1CD",
+"M. c None",
 /* pixels */
-"  @ > , d g h h j j k k k k z z z z z z z k j j j h f s > : .   ",
-"  @ t.f.g.g.n.n.n.n.b.n.n.b.b.b.b.b.b.b.s.s.s.p.p.i.u.u.y.l .   ",
+"M.M.> , d g h h j j k k k k z z z z z z z k j j j h f s > : M.M.",
+"M.@ t.f.g.g.n.n.n.n.b.n.n.b.b.b.b.b.b.b.s.s.s.p.p.i.u.u.y.l . M.",
 "  + ;.m.m.v.m.v.m.z.z.z.c.c.c.c.l.l.k.k.l.k.h.h.r.r.w.w.w.K O   ",
 "  1 A >.j.j.j.j.h.h.r.r.r.r.e.e.e.e.0.0.0.9.9.7.7.2.2.:.) Z 1   ",
 "  3 V Z =.7.7.7.7.7.8.6.6.6.6.6.6.4.1.1.1.1.<.,._ _ ( ! Z V 3   ",
@@ -179,6 +180,6 @@ static const char *wsicon32_xpm[] = {
 "  4 V B B B B V V Z A A U U Y Y Y Y Y U Y U A A V V V B B V 4   ",
 "  1 V B B B B B B B V V A A A A U U U U A A V V B B B B B V 1   ",
 "  + x V V V V V V V V V V V V A V V A V V V V V V V V V V x +   ",
-"    + 1 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 3 3 3 3 3 3 3 3 3 1 +     ",
-"                                                                "
+"M.  + 1 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 3 3 3 3 3 3 3 3 3 1 +   M.",
+"M.M.                                                        M.M."
 };

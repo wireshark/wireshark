@@ -172,9 +172,9 @@ static const char *wsicon48_xpm[] = {
 "E. c #B8C0C4",
 "W. c None",
 /* pixels */
-"W.W.    o o # # $ > > , , , < < < < 1 1 1 f f f f f f f f f f f 1 1 1 < < , > $ $ # # .     W.W.",
-"W.  # h f.g.j.k.k.b.b.n.n.n.n.n.n.m.m.m.m.m.m.m.m.m.m.m.m.m.n.b.b.b.l.l.k.j.h.h.g.f.j h f     W.",
-"    # h.E.R.E.R.E.R.R.R.R.T.T.T.T.T.U.L.U.L.K.I.U.J.J.F.J.J.D.D.S.S.S.S.Z.Z.c.Z.c.c.c.z.g       ",
+"W.W.W.  o o # # $ > > , , , < < < < 1 1 1 f f f f f f f f f f f 1 1 1 < < , > $ $ # # .   W.W.W.",
+"W.W.# h f.g.j.k.k.b.b.n.n.n.n.n.n.m.m.m.m.m.m.m.m.m.m.m.m.m.n.b.b.b.l.l.k.j.h.h.g.f.j h f   W.W.",
+"W.  # h.E.R.E.R.E.R.R.R.R.T.T.T.T.T.U.L.U.L.K.I.U.J.J.F.J.J.D.D.S.S.S.S.Z.Z.c.Z.c.c.c.z.g     W.",
 "    O %.U.U.U.U.U.I.I.I.I.I.I.I.Y.Y.Y.F.P.H.H.P.P.P.P.G.G.C.C.C.C.V.V.V.N.N.M.M.M.p.p.u.D O     ",
 "    3 Z >.F.F.F.A.A.A.A.A.A.C.A.C.C.C.C.B.B.B.B.B.B.B.d.d.d.d.d.d.i.i.i.u.u.r.r.0.0.>.^ N 3     ",
 "    w N C ;.M.M.M.M.M.M.d.d.d.d.d.d.d.a.a.a.a.y.y.y.y.t.t.t.t.w.w.q.9.7.7.7.2.;.;.-.~ B N w     ",
@@ -217,7 +217,7 @@ static const char *wsicon48_xpm[] = {
 "    w B N N N N N N N N N N N B Z Z Z Z Z Z P Z Z L Z P Z Z Z Z Z N Z N N N N N N N N N N w     ",
 "    4 N N N N N N N N N N N N N N B N B Z N Z Z Z Z Z Z Z Z Z B Z N N N N N N N N N N N N 3     ",
 "    O w N N B N N N N N B N B B N N N B B B B N Z Z B B N B B B N N B N N N N N B N N N p O     ",
-"      O 3 w p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p w 3 O       ",
-"W.          .   . .   . .   .     . .   . .   . .   .     . .   .   . .   . .   .             W.",
-"W.W.                                                                                        W.W."
+"W.    O 3 w p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p w 3 O     W.",
+"W.W.        .   . .   . .   .     . .   . .   . .   .     . .   .   . .   . .   .           W.W.",
+"W.W.W.                                                                                    W.W.W."
 };

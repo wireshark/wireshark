@@ -182,9 +182,9 @@ static const char *wsiconcap48_xpm[] = {
 "`. c #BAC8B4",
 "'. c None",
 /* pixels */
-"'.'.    X X @ @ # ; ; : : : > > > > , , h h h h h h h h h h h h , , > > > : ; # # @ @ .     '.'.",
-"'.  @ k c.v.n.m.m.Z.Z.Z.A.S.S.S.S.D.D.D.D.D.D.D.D.D.D.S.D.S.S.Z.Z.Z.Z.N.m.n.n.v.v.c.l k h     '.",
-"    @ b._.`._.`.`.`.).).).).(.^.(.^.).!.(.~.!.~.^.Q.Q.E.E.E.E.E.I.L.L.L.L.C.C.C.C.C.V.M.j       ",
+"'.'.'.  X X @ @ # ; ; : : : > > > > , , h h h h h h h h h h h h , , > > > : ; # # @ @ .   '.'.'.",
+"'.'.@ k c.v.n.m.m.Z.Z.Z.A.S.S.S.S.D.D.D.D.D.D.D.D.D.D.S.D.S.S.Z.Z.Z.Z.N.m.n.n.v.v.c.l k h   '.'.",
+"'.  @ b._.`._.`.`.`.).).).).(.^.(.^.).!.(.~.!.~.^.Q.Q.E.E.E.E.E.I.L.L.L.L.C.C.C.C.C.V.M.j     '.",
 "    o  ././././.~./.!.~.~.~.~.~.W.W.W.Y.R.R.R.T.R.T.T.T.J.T.J.J.J.J.H.J.H.G.G.z.z.z.z.j.J o     ",
 "    6 Y O.I.Y.Y.U.U.P.P.P.P.P.K.J.J.J.J.J.J.J.H.H.J.H.H.F.F.F.l.x.j.j.j.j.g.g.g.p.s.p.} K 6     ",
 "    s K U O.G.G.G.G.z.F.z.x.x.x.x.x.l.l.k.h.h.h.h.h.i.i.i.i.i.i.u.u.u.t.t.w.q.q.O.o.] K P s     ",
@@ -227,7 +227,7 @@ static const char *wsiconcap48_xpm[] = {
 "    s K K K K K K K K K K K K P P P I P T I I I I I I I I I T P I P P K P K K K K K K K K s     ",
 "    6 K K K K K K K K K K K K K K P P P P P P I I I P I P P P P P P K K K K K K K K K K P 6     ",
 "    o d K P P K P P P P K K K P P P P P P P P P P P P I P P P P P K K K K P K P P K P K d o     ",
-"      . 6 s d d d d d d f f d d d d d d d d d f f f d f d d d d f f f f d d d d d d s 6 o       ",
-"'.                .                     .                                 .                   '.",
-"'.'.                                                                                        '.'."
+"'.    . 6 s d d d d d d f f d d d d d d d d d f f f d f d d d d f f f f d d d d d d s 6 o     '.",
+"'.'.              .                     .                                 .                 '.'.",
+"'.'.'.                                                                                    '.'.'."
 };

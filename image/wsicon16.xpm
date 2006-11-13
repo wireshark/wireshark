@@ -1,7 +1,7 @@
 /* XPM */
 static const char *wsicon16_xpm[] = {
 /* columns rows colors chars-per-pixel */
-"16 16 200 2",
+"16 16 201 2",
 "   c #000305",
 ".  c #031219",
 "X  c #0E1112",
@@ -202,8 +202,9 @@ static const char *wsicon16_xpm[] = {
 "-X c #93BBCD",
 ";X c #97BBCB",
 ":X c #96BBCC",
+">X c None",
 /* pixels */
-"@ l }. XXXOX@X#X#XoX.X|.~.| k X ",
+">Xl }. XXXOX@X#X#XoX.X|.~.| k >X",
 "+ Q.;X:X:X*X*X&X%X$X{.[.].'.f.O ",
 "& U f.!.!._.).`./.^.D.A.a.p.D # ",
 "& S ) 1.r.j.c.M.s.Z g s 1.=.W ; ",
@@ -218,5 +219,5 @@ static const char *wsicon16_xpm[] = {
 "# z v V U 1.1.6.9.9.1.W C B z # ",
 "= S L L ) ..=.=.=.=.=. .) L S ; ",
 "o v S S S S H T L U U H S S v o ",
-"  o & & & & = = = = $ & & & o   "
+">Xo & & & & = = = = $ & & & o >X"
 };

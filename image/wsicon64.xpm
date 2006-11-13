@@ -182,11 +182,11 @@ static const char *wsicon64_xpm[] = {
 "`. c #B3C4CC",
 "'. c None",
 /* pixels */
-"'.'.'.                  o o o o o # o o # # # # $ # $ $ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 $ $ $ # # # # o o o .                 '.'.'.",
-"'.'.  . 2 s d g j j k l l l.l.z.z.z.x.x.x.x.x.c.c.v.v.v.V.V.v.V.V.V.V.V.V.V.B.B.N.v.v.x.v.x.x.x.z.z.l.l k k j h f d 3 #     '.'.",
-"'.    1 M.F.F.G.G.G.G.G.G.G.G.G.^.G.G.^.G.G.G.G.G.^.G.G.G.G.G.^.F.G.D.D.S.A.S.S.A.Z.Z.Z.C.C.C.C.M.M.M.n.n.n.n.n.v.x.x.g       '.",
-"      o z.G.`.`.`.`.`.`.`.`.`.`.`.`.^.`.~.`.`.`.`.~.^.~.~.(.~.(.~.~.~.~.~.~.~.~.W.~.W.W.W.W.R.R.R.R.R.R.Y.Y.L.L.L.m.b.d         ",
-"      . I ).`.`.).).).).).).).~.~.~.~.~.~.~.~.~.~.~.!.!.~.!.!.!./.Q.Q.Q.!.Q.Q.E.Q.U.I.I.I.I.P.P.P.P.P.H.H.H.H.H.j.j.d.a X       ",
+"'.'.'.'.'.              o o o o o # o o # # # # $ # $ $ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 $ $ $ # # # # o o o .             '.'.'.'.'.",
+"'.'.'.. 2 s d g j j k l l l.l.z.z.z.x.x.x.x.x.c.c.v.v.v.V.V.v.V.V.V.V.V.V.V.B.B.N.v.v.x.v.x.x.x.z.z.l.l k k j h f d 3 #   '.'.'.",
+"'.'.  1 M.F.F.G.G.G.G.G.G.G.G.G.^.G.G.^.G.G.G.G.G.^.G.G.G.G.G.^.F.G.D.D.S.A.S.S.A.Z.Z.Z.C.C.C.C.M.M.M.n.n.n.n.n.v.x.x.g     '.'.",
+"'.    o z.G.`.`.`.`.`.`.`.`.`.`.`.`.^.`.~.`.`.`.`.~.^.~.~.(.~.(.~.~.~.~.~.~.~.~.W.~.W.W.W.W.R.R.R.R.R.R.Y.Y.L.L.L.m.b.d       '.",
+"'.    . I ).`.`.).).).).).).).~.~.~.~.~.~.~.~.~.~.~.!.!.~.!.!.!./.Q.Q.Q.!.Q.Q.E.Q.U.I.I.I.I.P.P.P.P.P.H.H.H.H.H.j.j.d.a X     '.",
 "      5 S 3.~.~.~.~.~.~.~.W.W.W.W.!.~.!.!.Q.Q.Q.Q.Q.U.U.Q.Q.U.U.U.U.U.U.P.J.K.J.J.J.J.k.J.k.k.g.g.g.d.g.g.d.d.d.p.t._ C 5       ",
 "    . z C D 5.T.P.E.P.T.P.P.P.P.P.P.P.I.K.K.K.K.J.K.J.J.K.K.k.k.h.k.k.k.k.k.h.h.g.g.f.f.s.s.s.a.u.u.i.t.t.t.8.3.3._ C C z .     ",
 "    + n C C S 2.H.H.H.H.H.j.j.j.k.g.k.k.k.h.k.h.h.h.h.h.h.s.h.s.h.h.s.s.s.s.i.i.i.i.y.y.e.t.w.w.w.8.8.8.2.2.2.<.( S C C n +     ",
@@ -241,9 +241,9 @@ static const char *wsicon64_xpm[] = {
 "    O n C C C C C C C C C C C C C C C C C D D D D D D D Y D D D D Y Y D D Y D Y D U D D D D C C C C C C C C C C C C C C n @     ",
 "    . z C C C C C C C C C C C C C C C C C C C D C D D D D D D D D D D D D D D Z D D D C Z C Z Z C C C C C C C C C C C C z .     ",
 "      5 C C C C C C C C C C C C C C C C C C C C C D C D D D D D D D D D D D Z D D C C C C C C Z C C C C C C C C C C C C 5       ",
-"      X q C C C C C C C C C C C C C C C C C C C Z Z D C Z C Z C Z Z Z D Z Z Z Z Z Z C C C C C D C C C C C C C C C C C q .       ",
-"        . 5 z n m n n n m m n m n n m n m n n n m n n n n n m n m n m m m n m m n n m n m n n n m m m n n n m n n z 5 .         ",
-"'.          . + @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ O .           '.",
-"'.'.                                                                                                                        '.'.",
-"'.'.'.                                                                                                                    '.'.'."
+"'.    X q C C C C C C C C C C C C C C C C C C C Z Z D C Z C Z C Z Z Z D Z Z Z Z Z Z C C C C C D C C C C C C C C C C C q .     '.",
+"'.      . 5 z n m n n n m m n m n n m n m n n n m n n n n n m n m n m m m n m m n n m n m n n n m m m n n n m n n z 5 .       '.",
+"'.'.        . + @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ O .         '.'.",
+"'.'.'.                                                                                                                    '.'.'.",
+"'.'.'.'.'.                                                                                                            '.'.'.'.'."
 };

@@ -3,14 +3,19 @@
 RESOLUTIONS="64 48 32 16"
 
 CONVERT=convert
+XPM_OPTS="-channel A -threshold 50%"
 
 for RES in 64 48 32 16 ; do
     $CONVERT -resize ${RES}x${RES} wsicon256.png wsicon${RES}.png
-    $CONVERT -resize ${RES}x${RES} wsicon256.png wsicon${RES}.xpm
+    $CONVERT -resize ${RES}x${RES} $XPM_OPTS wsicon256.png xpm:- | \
+        sed -e "s/^static char \*-/static const char *wsicon${RES}_xpm/" > \
+        wsicon${RES}.xpm
 done
 
 for RES in 48 32 16 ; do
-    $CONVERT -resize ${RES}x${RES} wsiconcap256.png wsiconcap${RES}.xpm
+    $CONVERT -resize ${RES}x${RES} $XPM_OPTS wsiconcap256.png xpm:- | \
+        sed -e "s/^static char \*-/static const char *wsiconcap${RES}_xpm/" > \
+        wsiconcap${RES}.xpm
 done
 
 
