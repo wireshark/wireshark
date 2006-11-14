@@ -30,10 +30,21 @@
  */
 
 
-/* Note: PROTOABBREV name collision problem, 'dccp' is used by Distributed Checksum 
-   Clearinghouse Protocol.
-   This dissector should be named packet-dccp.c IMHO.
-*/
+/* NOTES: 
+ *
+ * PROTOABBREV name collision problem, 'dccp' is used by 
+ * Distributed Checksum Clearinghouse Protocol.
+ * This dissector should be named packet-dccp.c IMHO.
+ *
+ * Nov 13, 2006: makes checksum computation dependent
+ * upon the header CsCov field (cf. RFC 4340, 5.1) 
+ * (Gerrit Renker)
+ *
+ * Nov 13, 2006: removes the case where checksums are zero
+ * (unlike UDP/packet-udp, from which the code stems,
+ * zero checksums are illegal in DCCP (as in TCP))
+ * (Gerrit Renker)
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -541,6 +552,16 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 	} /* end while() */
 }
+/* compute DCCP checksum coverage according to RFC 4340, section 9 */
+static inline guint dccp_csum_coverage(const e_dcphdr *dcph, guint len)
+{
+	guint cov;
+	
+	if (dcph->cscov == 0)
+		return len;
+	cov = (dcph->data_offset + dcph->cscov - 1) * sizeof(guint32);
+	return (cov > len)? len : cov;
+}
 
 static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -595,7 +616,8 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* DBG("dcph->data_offset: %d\n", dcph->data_offset); */
 	dcph->cscov=tvb_get_guint8(tvb, offset+5)&0x0F;
 	/* DBG("dcph->cscov: %d\n", dcph->cscov); */
-	dcph->ccval=tvb_get_guint8(tvb, offset+5)&0xF0;
+	dcph->ccval=tvb_get_guint8(tvb, offset+5) &0xF0;
+	dcph->ccval >>= 4;
 	/* DBG("dcph->ccval: %d\n", dcph->ccval); */
 	dcph->checksum=tvb_get_ntohs(tvb, offset+6);
 	/* DBG("dcph->checksum: %d\n", dcph->checksum); */
@@ -662,15 +684,11 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(dcp_tree, hf_dcp_ccval, tvb, offset + 5, 1, dcph->ccval);
 		proto_tree_add_uint(dcp_tree, hf_dcp_cscov, tvb, offset + 5, 1, dcph->cscov);
 				
-		/* checksum analisys taken from packet-udp */
+		/* checksum analysis taken from packet-udp (difference: mandatory checksums in DCCP) */
 				
 		reported_len = tvb_reported_length(tvb);
 		len = tvb_length(tvb);
-		if (dcph->checksum == 0) {
-			/* No checksum supplied in the packet */
-			proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
-							 offset + 6, 2, dcph->checksum, "0x%04x (none)", dcph->checksum);
-		} else if (!pinfo->fragmented && len >= reported_len) {
+		if (!pinfo->fragmented && len >= reported_len) {
 
 			/* The packet isn't part of a fragmented datagram and isn't
 			   truncated, so we can checksum it.
@@ -703,7 +721,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				}
 				cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
-				cksum_vec[3].len = reported_len;
+				cksum_vec[3].len = dccp_csum_coverage(dcph, reported_len);
 				computed_cksum = in_cksum(&cksum_vec[0], 4);
 				if (computed_cksum == 0) {
 					proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
