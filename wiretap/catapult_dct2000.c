@@ -322,8 +322,9 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             int stub_offset = 0;
             line_prefix_info_t *line_prefix_info;
             char timestamp_string[32];
-            sprintf(timestamp_string, "%d.%04d", seconds, useconds/100);
             gint64 *pkey = NULL;
+
+            sprintf(timestamp_string, "%d.%04d", seconds, useconds/100);
 
             /* All packets go to Catapult DCT2000 stub dissector */
             wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -616,7 +617,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Look up line data prefix using stored offset */
     prefix = (line_prefix_info_t*)g_hash_table_lookup(file_externals->packet_prefix_table,
-                                                      (void*)&(pseudo_header->dct2000.seek_off));
+                                                      (const void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
     fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh);
@@ -1371,7 +1372,7 @@ guint wth_hash_func(gconstpointer v)
 gint packet_offset_equal(gconstpointer v, gconstpointer v2)
 {
     /* Dereferenced pointers must have same gint64 offset value */
-    return (*(gint64*)v == *(gint64*)v2);
+    return (*(const gint64*)v == *(const gint64*)v2);
 }
 
 
@@ -1381,7 +1382,7 @@ gint packet_offset_equal(gconstpointer v, gconstpointer v2)
 guint packet_offset_hash_func(gconstpointer v)
 {
     /* Use low-order bits of git64 offset value */
-    return (guint)(*(gint64*)v);
+    return (guint)(*(const gint64*)v);
 }
 
 
