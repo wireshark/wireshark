@@ -1777,7 +1777,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint16 len;
 
 	/* first, check do we have at least 4 bytes (type+length) */
-	if (!tvb_bytes_exist(tvb, 0, 4))
+	if (!tvb_bytes_exist(tvb, 0, 2))
 		return FALSE;	/* no */
 
 	/* can we recognize session PDU ? Return FALSE if  not */
@@ -1787,6 +1787,17 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (match_strval(type, ses_vals) == NULL)
 	{
 		return FALSE;  /* no, it isn't a session PDU */
+	}
+
+	/* can we recognize the second session PDU ? Return FALSE if not */
+	if(tvb_bytes_exist(tvb, 2, 2)) { /* Make sure there is a second one */
+		/*   get SPDU type */
+		type = tvb_get_guint8(tvb, offset+4);
+		/* check SPDU type */
+		if (match_strval(type, ses_vals) == NULL)
+			{
+				return FALSE;  /* no, it isn't a session PDU */
+			}
 	}
 
 	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be 
@@ -1803,8 +1814,6 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  OK,let's check SPDU length  */
 	/*  get length of SPDU */
 	len = get_item_len(tvb, offset+1, &len_len);
-	if(len == 0)
-		return FALSE; /* Not a valid PDU */
 
 	/*  add header length     */
 	len+=len_len;
