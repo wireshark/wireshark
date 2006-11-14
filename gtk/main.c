@@ -3619,6 +3619,10 @@ main_widgets_show_or_hide(void)
     } else {
         gtk_widget_hide(welcome_pane);
     }
+
+    /* workaround for bug in GtkCList to ensure packet list scrollbar is updated */
+    packet_list_freeze ();
+    packet_list_thaw ();
 }
 
 
