@@ -370,6 +370,7 @@ File "..\..\diameter\dictionary.xml"
 File "..\..\diameter\imscxdx.xml"
 File "..\..\diameter\mobileipv4.xml"
 File "..\..\diameter\nasreq.xml"
+File "..\..\diameter\sip.xml"
 File "..\..\diameter\sunping.xml"
 File "..\..\diameter\TGPPSh.xml"
 SetOutPath $INSTDIR

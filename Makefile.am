@@ -94,6 +94,7 @@ diameter_DATA = \
 	diameter/imscxdx.xml \
 	diameter/mobileipv4.xml \
 	diameter/nasreq.xml \
+	diameter/sip.xml \
 	diameter/sunping.xml \
 	diameter/TGPPSh.xml
 
