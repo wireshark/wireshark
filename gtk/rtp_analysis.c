@@ -80,7 +80,6 @@
 #include "image/clist_descend.xpm"
 
 #include <math.h>
-#include <fcntl.h>
 #include <string.h>
 #include <locale.h>
 

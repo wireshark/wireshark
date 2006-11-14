@@ -167,7 +167,6 @@ static enum
    because there are many ways it can cause trouble.
    On some systems, it contains special magic macros that don't work
    in GCC.  */
-#include <string.h>
 #define	my_index	strchr
 #else
 
