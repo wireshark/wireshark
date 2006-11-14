@@ -239,7 +239,7 @@ const value_string tipc_user_values[] = {
 #define TIPCv2_CHANGEOVER_PROTOCOL 10
 #define TIPCv2_NAME_DISTRIBUTOR    11
 #define TIPCv2_MSG_FRAGMENTER      12
-#define TIPCv2_LINK_CONFIGURATION  13
+#define TIPCv2_NEIGHBOUR_DISCOVERY  13
 
 const value_string tipcv2_user_values[] = {
 	{ TIPCv2_DATA_LOW,            "Low Priority Payload Data"},
@@ -254,7 +254,7 @@ const value_string tipcv2_user_values[] = {
 	{ TIPCv2_CHANGEOVER_PROTOCOL, "Link Changeover Protocol"},
 	{ TIPCv2_NAME_DISTRIBUTOR,    "Name Table Update Protocol"},
 	{ TIPCv2_MSG_FRAGMENTER,      "Message Fragmentation Protocol"},
-	{ TIPCv2_LINK_CONFIGURATION,  "Link Configuration Protocol"},
+	{ TIPCv2_NEIGHBOUR_DISCOVERY,  "Neighbour Discovery Protocol"},
 	{ 0, NULL}
 };
 
@@ -271,7 +271,7 @@ const value_string tipcv2_user_short_str_vals[] = {
 	{ TIPCv2_CHANGEOVER_PROTOCOL, "Changeover"},
 	{ TIPCv2_NAME_DISTRIBUTOR,    "Name Dist"},
 	{ TIPCv2_MSG_FRAGMENTER,      "Fragmenter"},
-	{ TIPCv2_LINK_CONFIGURATION,  "Link Cfg"},
+	{ TIPCv2_NEIGHBOUR_DISCOVERY,  "Ngbr Disc"},
 	{ 0, NULL}
 };
 
@@ -448,7 +448,7 @@ static const value_string tipcv2_fragmenter_mtype_strings[]={
 	{ 0, NULL}
 };
 
-/* TIPCv2_LINK_CONFIGURATION - Link Configuration Protocol
+/* TIPCv2_NEIGHBOUR_DISCOVERY 
  * 4.3.9 Neighbour Detection Protocol
  */
 
@@ -611,7 +611,7 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 		case TIPCv2_MSG_FRAGMENTER:
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_fragmenter_mtype_strings, "unknown"));
 			break;
-		case TIPCv2_LINK_CONFIGURATION:
+		case TIPCv2_NEIGHBOUR_DISCOVERY:
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_neighbour_mtype_strings, "unknown"));
 			break;
 		default:
@@ -1025,7 +1025,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offs
 			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 20,"Words 5-9 Unused for this user");
 			offset = offset + 20;
 			break;
-		case TIPCv2_LINK_CONFIGURATION:
+		case TIPCv2_NEIGHBOUR_DISCOVERY:
 /*
 The protocol for neighbour detection
    uses a special message format, with the following generic structure:
@@ -1612,7 +1612,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 		}else{
-			if (user != TIPCv2_LINK_CONFIGURATION){
+			if (user != TIPCv2_NEIGHBOUR_DISCOVERY){
 				/* W6 Originating Processor */
 				src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
 				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
@@ -1621,7 +1621,13 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
 				SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
 			}else{
-
+				/* W2 Destination Domain */
+				dst_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
+				SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+	
+				/* W3 Previous Node */
+				src_addr = tvb_get_ptr(tipc_tvb, offset + 12, 4);
+				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
 			}
 		}
 		break;
