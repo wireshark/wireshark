@@ -176,6 +176,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	char		string[128];
 	follow_tcp_stats_t stats;
 	follow_info_t	*follow_info;
+	tcp_stream_chunk sc;
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
@@ -206,7 +207,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	    return;
 	}
 
-	data_out_file = fdopen(tmp_fd, "wb");
+	data_out_file = fdopen(tmp_fd, "w+b");
 	if (data_out_file == NULL) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
@@ -255,9 +256,6 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* Free the filter string, as we're done with it. */
 	g_free(follow_filter);
-
-	/* The data_out_file should now be full of the streams information */
-	fclose(data_out_file);
 
 	/* The data_out_filename file now has all the text that was in the session */
 	streamwindow = dlg_window_new("Follow TCP Stream");
@@ -361,10 +359,28 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_widget_show(stream_mi);
 	follow_info->show_stream = BOTH_HOSTS;
 
+	/* Go back to the top of the file and read the first tcp_stream_chunk
+	 * to ensure that the IP addresses and port numbers in the drop-down
+	 * list are tied to the correct lines displayed by follow_read_stream()
+	 * later on (which also reads from this file).  Close the file when
+	 * we're done.
+	 */
+
+	rewind(data_out_file);
+	fread(&sc, 1, sizeof(sc), data_out_file);
+	fclose(data_out_file);
+
 	/* Host 0 --> Host 1 */
-	g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
-		 hostname0, port0, hostname1, port1,
-		 stats.bytes_written[0]);
+	if(sc.src_port == strtol(port0, NULL, 10)) {
+		g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+			   hostname0, port0, hostname1, port1,
+			   stats.bytes_written[0]);
+	} else {
+		g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+			   hostname1, port1, hostname0, port0,
+			   stats.bytes_written[0]);
+	}
+
 	stream_mi = gtk_menu_item_new_with_label(string);
 	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_client,
                        follow_info);
@@ -372,9 +388,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_widget_show(stream_mi);
 
 	/* Host 1 --> Host 0 */
-	g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
-		 hostname1, port1, hostname0, port0,
-		 stats.bytes_written[1]);
+	if(sc.src_port == strtol(port0, NULL, 10)) {
+		g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+			   hostname1, port1, hostname0, port0,
+			   stats.bytes_written[1]);
+	} else {
+		g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+			   hostname0, port0, hostname1, port1,
+			   stats.bytes_written[1]);
+	}
+
 	stream_mi = gtk_menu_item_new_with_label(string);
 	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_server,
                        follow_info);
