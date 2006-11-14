@@ -102,6 +102,24 @@ extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
  */
 extern gboolean byte_view_select(GtkWidget *widget, GdkEventButton *event);
 
+/** This highlights the field in the proto tree that is at position byte
+ *
+ * @param tvb the current tvbuff
+ * @param byte the byte offset within the packet to highlight
+ * @param tree_view the current tree_view
+ * @param tree the current tree
+ * @return TRUE if highlighting was successful
+ */
+#if GTK_MAJOR_VERSION < 2
+gboolean
+highlight_field(tvbuff_t *tvb, gint byte, GtkCTree *ctree,
+		proto_tree *tree);
+#else
+gboolean
+highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
+		proto_tree *tree);
+#endif
+
 /** Callback for "Export Selected Packet Bytes" operation.
  *
  * @param w unused

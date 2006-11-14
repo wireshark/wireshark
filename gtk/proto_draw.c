@@ -386,15 +386,10 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     GtkText      *bv = GTK_TEXT(widget);
 #else
     GtkTreeView  *tree_view;
-    GtkTreeModel *model;
-    GtkTreePath  *first_path, *path;
-    GtkTreeIter   parent;
     GtkTextView  *bv = GTK_TEXT_VIEW(widget);
     gint          x, y;
     GtkTextIter   iter;
-    struct field_lookup_info fli;
 #endif
-    field_info	 *finfo;
     int           row, column;
     int           byte;
     tvbuff_t     *tvb;
@@ -545,6 +540,34 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
 
     /* Get the data source tvbuff */
     tvb = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TVBUFF_KEY);
+
+#if GTK_MAJOR_VERSION < 2
+    return highlight_field(tvb, byte, ctree, tree);
+#else
+    return highlight_field(tvb, byte, tree_view, tree);
+#endif
+}
+
+/* This highlights the field in the proto tree that is at position byte */
+#if GTK_MAJOR_VERSION < 2
+gboolean
+highlight_field(tvbuff_t *tvb, gint byte, GtkCTree *ctree,
+		proto_tree *tree)
+#else
+gboolean
+highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
+		proto_tree *tree)
+#endif
+{
+#if GTK_MAJOR_VERSION < 2
+    GtkCTreeNode *node, *parent;
+#else
+    GtkTreeModel *model;
+    GtkTreePath  *first_path, *path;
+    GtkTreeIter   parent;
+    struct field_lookup_info fli;
+#endif
+    field_info	 *finfo;
 
     /* Find the finfo that corresponds to our byte. */
     finfo = proto_find_field_from_offset(tree, byte, tvb);

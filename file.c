@@ -2609,6 +2609,8 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 	c_match++;
 	if (c_match == textlen) {
 	  frame_matched = TRUE;
+	  cf->search_pos = i; /* Save the position of the last character
+			       for highlighting the field. */
 	  break;
 	}
       } else
@@ -2640,6 +2642,8 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
       c_match++;
       if (c_match == textlen) {
 	frame_matched = TRUE;
+	cf->search_pos = i; /* Save the position of the last character
+			       for highlighting the field. */
 	break;
       }
     } else
@@ -2671,6 +2675,8 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
       i++;
       if (c_match == textlen) {
 	frame_matched = TRUE;
+	cf->search_pos = i; /* Save the position of the last character 
+			       for highlighting the field. */
 	break;
       }
     } else
@@ -2697,6 +2703,8 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
       c_match++;
       if (c_match == datalen) {
 	frame_matched = TRUE;
+	cf->search_pos = i; /* Save the position of the last character 
+			       for highlighting the field. */
 	break;
       }
     } else

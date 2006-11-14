@@ -67,6 +67,7 @@ typedef struct _capture_file {
   gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */
   gboolean     hex;       /* TRUE is raw data search is being performed */
   gboolean     string;    /* TRUE is text search is being performed */
+  guint32      search_pos; /* Position of last character found in search */
   search_charset_t scs_type; /* Character set for text search */
   gboolean     case_type; /* TRUE if case-insensitive text search */
   gboolean     decode_data; /* TRUE if searching protocol tree text */
