@@ -7,6 +7,7 @@
 	<!ENTITY sunping SYSTEM "sunping.xml">
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
 	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
+	<!ENTITY sip SYSTEM "sip.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -1566,4 +1567,5 @@
 	&sunping;
 	&imscxdx;
 	&TGPPSh;
+	&sip;
 </dictionary>

@@ -8,12 +8,37 @@
 		<command name="Home-Agent-MIP" code="262" vendor-id="None"/>
 
 		<!-- ************************** Mobile-IPv4 AVPS ********************* -->
-		<avp name="MIP-Filter-Rule" code="347" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="IPFilterRule"/>
+		<avp name="MIP-Reg-Request" code="320" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="MIPRegistrationRequest"/>
 		</avp>
-		<avp name="MIP-Algorithm-Type" code="345" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="MIP-Reg-Reply" code="321" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MIP-MN-AAA-Auth" code="322" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<grouped>
+				<gavp name="MIP-MN-AAA-SPI"/>
+				<gavp name="MIP-Auth-Input-Data-Length"/>
+				<gavp name="MIP-Authenticator-Length"/>
+				<gavp name="MIP-Authenticator-Offset"/>
+			</grouped>
+		</avp>
+		<avp name="MIP-Foreign-Agent-Host" code="330" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="MIP-Mobile-Node-Address" code="333" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="MIP-Home-Agent-Address" code="334" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="MIP-Previous-FA-Host" code="335" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="MIP-Previous-FA-Addr" code="336" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="MIP-Feature-Vector" code="337" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
-			<enum name="HMAC-SHA-1" code="2"/>
 		</avp>
 		<avp name="MIP-Auth-Input-Data-Length" code="338" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
@@ -24,49 +49,24 @@
 		<avp name="MIP-Authenticator-Offset" code="340" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="MIP-FA-Challenge" code="344" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="MIP-Feature-Vector" code="337" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="MIP-Foreign-Agent-Host" code="330" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="MIP-Home-Agent-Address" code="334" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="MIP-MN-AAA-Auth" code="322" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<grouped>
-				<gavp name="MIP-MN-AAA-SPI"/>
-				<gavp name="MIP-Auth-Input-Data-Length"/>
-				<gavp name="MIP-Authenticator-Length"/>
-				<gavp name="MIP-Authenticator-Offset"/>
-			</grouped>
-		</avp>
 		<avp name="MIP-MN-AAA-SPI" code="341" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="MIP-Mobile-Node-Address" code="333" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="MIP-Previous-FA-Addr" code="336" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="MIP-Previous-FA-Host" code="335" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="MIP-Reg-Request" code="320" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="MIPRegistrationRequest"/>
-		</avp>
-		<avp name="MIP-Reg-Reply" code="321" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="MIP-FA-Challenge" code="344" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MIP-Algorithm-Type" code="345" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+			<enum name="HMAC-SHA-1" code="2"/>
 		</avp>
 		<avp name="MIP-Replay-Mode" code="346" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 			<enum name="None" code="1"/>
 			<enum name="Timestamps" code="2"/>
 			<enum name="Nonces" code="3"/>
+		</avp>
+		<avp name="MIP-Filter-Rule" code="347" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="IPFilterRule"/>
 		</avp>
 		<!-- ************************ END Mobile-IPv4 AVPS ******************* -->
 
