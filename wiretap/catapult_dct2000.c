@@ -61,7 +61,7 @@ typedef enum packet_direction_t
 typedef struct
 {
     gchar *before_time;
-    gchar *after_time;
+    gchar *after_time; /* If NULL assume " l " */
 } line_prefix_info_t;
 
 /*******************************************************************/
@@ -80,7 +80,7 @@ typedef struct dct2000_file_externals
        Records (file offset -> pre-data-prefix-string)
        N.B. This is only needed for dumping
     */
-    GHashTable *line_header_prefixes_table;
+    GHashTable *packet_prefix_table;
 } dct2000_file_externals_t;
 
 /* This global table maps wtap -> file_external structs */
@@ -151,9 +151,11 @@ static void set_isdn_info(union wtap_pseudo_header *pseudo_header,
 static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction);
 
+static gint wth_equal(gconstpointer v, gconstpointer v2);
+static guint wth_hash_func(gconstpointer v);
+static gint packet_offset_equal(gconstpointer v, gconstpointer v2);
+static guint packet_offset_hash_func(gconstpointer v);
 
-static gint prefix_equal(gconstpointer v, gconstpointer v2);
-static guint prefix_hash_func(gconstpointer v);
 static gboolean get_file_time_stamp(time_t *secs, guint32 *usecs);
 static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer user_data);
 
@@ -180,7 +182,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Create file externals table if it doesn't yet exist */
     if (file_externals_table == NULL)
     {
-        file_externals_table = g_hash_table_new(prefix_hash_func, prefix_equal);
+        file_externals_table = g_hash_table_new(wth_hash_func, wth_equal);
     }
 
 
@@ -249,10 +251,10 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 
-    /**********************************************/
-    /* Initialise line_header_prefixes_table      */
-    file_externals->line_header_prefixes_table =
-        g_hash_table_new(prefix_hash_func, prefix_equal);
+    /***************************************************************/
+    /* Initialise packet_prefix_table (index is offset into file)  */
+    file_externals->packet_prefix_table =
+        g_hash_table_new(packet_offset_hash_func, packet_offset_equal);
 
     /* Add file_externals for this wtap into the global table */
     g_hash_table_insert(file_externals_table,
@@ -321,6 +323,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             line_prefix_info_t *line_prefix_info;
             char timestamp_string[32];
             sprintf(timestamp_string, "%d.%04d", seconds, useconds/100);
+            gint64 *pkey = NULL;
 
             /* All packets go to Catapult DCT2000 stub dissector */
             wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -378,19 +381,31 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             /* Store the packet prefix in the hash table */
             line_prefix_info = g_malloc(sizeof(line_prefix_info_t));
 
+            /* Create and use buffer for contents before time */
             line_prefix_info->before_time = g_malloc(before_time_offset+1);
             strncpy(line_prefix_info->before_time, linebuff, before_time_offset);
             line_prefix_info->before_time[before_time_offset] = '\0';
 
-            line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
-            strncpy(line_prefix_info->after_time, linebuff+after_time_offset,
-                   dollar_offset - after_time_offset);
-            line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
+            /* Create and use buffer for contents before time.
+               Do this only if it doesn't correspond to " l ", which is by far the most
+               common case. */
+            if ((dollar_offset - after_time_offset -1 == strlen(" l ")) &&
+                (strncmp(linebuff+after_time_offset, " l ", strlen(" l ")) == 0))
+            {
+                line_prefix_info->after_time = NULL;
+            }
+            else
+            {
+                line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
+                strncpy(line_prefix_info->after_time, linebuff+after_time_offset,
+                        dollar_offset - after_time_offset);
+                line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
+            }
 
             /* Add packet entry into table */
-            g_hash_table_insert(file_externals->line_header_prefixes_table,
-                                (void*)this_offset, line_prefix_info);
-
+            pkey = g_malloc(sizeof(pkey));
+            *pkey = this_offset;
+            g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 
             /* Set pseudo-header if necessary */
             set_pseudo_header_info(wth, encap, this_offset, &wth->pseudo_header,
@@ -497,10 +512,10 @@ void catapult_dct2000_close(wtap *wth)
     }
 
     /* Free up its line prefix values */
-    g_hash_table_foreach_remove(file_externals->line_header_prefixes_table,
+    g_hash_table_foreach_remove(file_externals->packet_prefix_table,
                                 free_line_prefix_info, NULL);
     /* Free up its line prefix table */
-    g_hash_table_destroy(file_externals->line_header_prefixes_table);
+    g_hash_table_destroy(file_externals->packet_prefix_table);
 
     /* And remove the externals entry from the global table */
     g_hash_table_remove(file_externals_table, (void*)wth);
@@ -600,8 +615,8 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Write out this packet's prefix, including calculated timestamp */
 
     /* Look up line data prefix using stored offset */
-    prefix = (line_prefix_info_t*)g_hash_table_lookup(file_externals->line_header_prefixes_table,
-                                                      (void*)pseudo_header->dct2000.seek_off);
+    prefix = (line_prefix_info_t*)g_hash_table_lookup(file_externals->packet_prefix_table,
+                                                      (void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
     fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh);
@@ -624,7 +639,14 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     fwrite(time_string, 1, strlen(time_string), wdh->fh);
 
     /* Write out text between timestamp and start of hex data */
-    fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh);
+    if (prefix->after_time == NULL)
+    {
+        fwrite(" l ", 1, strlen(" l "), wdh->fh);
+    }
+    else
+    {
+        fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh);
+    }
 
 
     /****************************************************************/
@@ -1326,23 +1348,40 @@ gchar char_from_hex(guchar hex)
     return hex_lookup[hex];
 }
 
-
-/********************************************/
-/* Equality test for line-prefix hash table */
-/********************************************/
-gint prefix_equal(gconstpointer v, gconstpointer v2)
+/***************************************************/
+/* Equality function for file_externals hash table */
+/***************************************************/
+gint wth_equal(gconstpointer v, gconstpointer v2)
 {
     return (v == v2);
 }
 
+/***********************************************/
+/* Hash function for file_externals hash table */
+/***********************************************/
+guint wth_hash_func(gconstpointer v)
+{
+    return (guint)v;
+}
+
+
+/***********************************************/
+/* Equality test for packet prefix hash tables */
+/***********************************************/
+gint packet_offset_equal(gconstpointer v, gconstpointer v2)
+{
+    /* Dereferenced pointers must have same gint64 offset value */
+    return (*(gint64*)v == *(gint64*)v2);
+}
+
 
 /********************************************/
-/* Hash function for line-prefix hash table */
+/* Hash function for packet-prefix hash table */
 /********************************************/
-guint prefix_hash_func(gconstpointer v)
+guint packet_offset_hash_func(gconstpointer v)
 {
-    /* Just use pointer itself (is actually byte offset of line in file) */ 
-    return (guint)v;
+    /* Use low-order bits of git64 offset value */
+    return (guint)(*(gint64*)v);
 }
 
 
@@ -1424,14 +1463,20 @@ gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
 }
 
 /* Free the data allocated inside a line_prefix_info_t */
-gboolean free_line_prefix_info(gpointer key _U_, gpointer value,
+gboolean free_line_prefix_info(gpointer key, gpointer value,
                                gpointer user_data _U_)
 {
     line_prefix_info_t *info = (line_prefix_info_t*)value;
 
+    /* Free the 64-bit key value */
+    g_free(key);
+
     /* Free the strings inside */
     g_free(info->before_time);
-    g_free(info->after_time);
+    if (info->after_time)
+    {
+        g_free(info->after_time);
+    }
 
     /* And the structure itself */
     g_free(info);
