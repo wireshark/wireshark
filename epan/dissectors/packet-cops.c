@@ -87,7 +87,6 @@
 
 #include <epan/dissectors/format-oid.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include "packet-ber.h"
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.

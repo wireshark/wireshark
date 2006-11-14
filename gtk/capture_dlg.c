@@ -39,7 +39,6 @@
 #include <epan/addr_resolv.h>
 #include "main.h"
 #include "gui_utils.h"
-#include "capture.h"
 #include "capture_dlg.h"
 #include "capture_errs.h"
 #include "filter_dlg.h"

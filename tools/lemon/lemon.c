@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdlib.h>
 
 /*
  * Wrapper around "isupper()", "islower()", etc. to cast the argument to

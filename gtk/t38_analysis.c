@@ -47,7 +47,6 @@
 #include "main.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "graph_analysis.h"
 #include "gui_stat_menu.h"
 
 void voip_calls_init_tap(const char *);	

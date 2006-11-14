@@ -59,7 +59,6 @@
 #include <epan/prefs.h>
 #include "colors.h"
 #include "proto_draw.h"
-#include <epan/emem.h>
 
 
 

@@ -46,7 +46,6 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
-#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 #define TCP_PORT_PVFS2 3334

@@ -64,8 +64,6 @@
 
 #include <epan/to_str.h>
 
-#include <string.h>
-#include <ctype.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 

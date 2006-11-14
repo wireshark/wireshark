@@ -33,7 +33,6 @@
 #include <sys/time.h>
 #endif
 
-#include <string.h>
 #include "wtap.h"
 
 #ifdef NEED_GETOPT_H

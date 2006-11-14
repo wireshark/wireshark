@@ -46,7 +46,6 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;

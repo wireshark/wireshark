@@ -39,9 +39,6 @@
 #include <epan/sminmpec.h>
 #include <epan/prefs.h>
 
-#include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include "packet-nhrp.h"
 

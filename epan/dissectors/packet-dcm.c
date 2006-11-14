@@ -105,7 +105,6 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
 
 #include "packet-tcp.h"
 

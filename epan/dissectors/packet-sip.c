@@ -60,7 +60,6 @@
 
 #include "packet-sip.h"
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
