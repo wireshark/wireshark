@@ -504,6 +504,7 @@ DISSECTOR_SRC =	\
 	packet-ocsp.c	\
 	packet-oicq.c	\
 	packet-olsr.c	\
+	packet-omapi.c	\
 	packet-osi-options.c	\
 	packet-osi.c	\
 	packet-ospf.c	\
