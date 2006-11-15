@@ -98,10 +98,10 @@ gint find_val_for_string(const char *needle, const enum_val_t *haystack,
 
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */
-typedef int (*pref_set_pair_cb) (gchar *key, gchar *value);
+typedef int (*pref_set_pair_cb) (gchar *key, gchar *value, void *private_data);
 
 int
-read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct);
+read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data);
 
 
 

@@ -54,7 +54,7 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
 static struct preference *find_preference(module_t *, const char *);
-static int    set_pref(gchar*, gchar*);
+static int    set_pref(gchar*, gchar*, void *);
 static GList *get_string_list(gchar *);
 static gchar *put_string_list(GList *);
 static void   clear_string_list(GList *);
@@ -1132,7 +1132,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     mgcp_udp_port_count = 0;
 
     /* We succeeded in opening it; read it. */
-    err = read_prefs_file(gpf_path, pf, set_pref);
+    err = read_prefs_file(gpf_path, pf, set_pref, NULL);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -1166,7 +1166,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     mgcp_udp_port_count = 0;
 
     /* We succeeded in opening it; read it. */
-    err = read_prefs_file(pf_path, pf, set_pref);
+    err = read_prefs_file(pf_path, pf, set_pref, NULL);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -1194,7 +1194,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 /* read the preferences file (or similiar) and call the callback 
  * function to set each key/value pair found */
 int
-read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct)
+read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data)
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   int       got_c, state = START;
@@ -1219,7 +1219,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         if (isalnum(got_c)) {
           if (cur_var->len > 0) {
             if (got_val) {
-              switch (pref_set_pair_fct(cur_var->str, cur_val->str)) {
+              switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
 
 	      case PREFS_SET_SYNTAX_ERR:
                 g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
@@ -1282,7 +1282,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
   }
   if (cur_var->len > 0) {
     if (got_val) {
-      switch (pref_set_pair_fct(cur_var->str, cur_val->str)) {
+      switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
 
       case PREFS_SET_SYNTAX_ERR:
         g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
@@ -1359,7 +1359,7 @@ prefs_set_pref(char *prefarg)
 		return PREFS_SET_SYNTAX_ERR;
 	}
 
-	ret = set_pref(prefarg, p);
+	ret = set_pref(prefarg, p, NULL);
 	*colonp = ':';	/* put the colon back */
 	return ret;
 }
@@ -1500,7 +1500,7 @@ string_to_name_resolve(char *string, guint32 *name_resolve)
 }
 
 static int
-set_pref(gchar *pref_name, gchar *value)
+set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 {
   GList    *col_l, *col_l_elt;
   gint      llen;

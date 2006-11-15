@@ -298,7 +298,7 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 /* set one user's recent file key/value pair */
 static int
-read_set_recent_pair_static(gchar *key, gchar *value)
+read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 {
   long num;
   char *p;
@@ -452,7 +452,7 @@ read_set_recent_pair_static(gchar *key, gchar *value)
 
 /* set one user's recent file key/value pair */
 static int
-read_set_recent_pair_dynamic(gchar *key, gchar *value)
+read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
 {
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
 	add_menu_recent_capture_file(value);
@@ -502,7 +502,7 @@ recent_set_arg(char *prefarg)
 		return PREFS_SET_SYNTAX_ERR;
 	}
 
-	ret = read_set_recent_pair_static(prefarg, p);
+	ret = read_set_recent_pair_static(prefarg, p, NULL);
 	*colonp = ':';	/* put the colon back */
 	return ret;
 }
@@ -560,7 +560,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   *rf_path_return = NULL;
   if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(rf_path, rf, read_set_recent_pair_static);
+    read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
     fclose(rf);
     g_free(rf_path);
     rf_path = NULL;
@@ -592,7 +592,7 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
   *rf_path_return = NULL;
   if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic);
+    read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic, NULL);
 	/* set dfilter combobox to have an empty line */
     dfilter_combo_add_empty();
     fclose(rf);
