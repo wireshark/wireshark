@@ -106,6 +106,7 @@ dtdsdir = $(pkgdatadir)/dtds
 dtds_DATA = \
 	dtds/dc.dtd \
 	dtds/itunes.dtd \
+	dtds/mscml.dtd \
 	dtds/pocsettings.dtd \
 	dtds/presence.dtd \
 	dtds/reginfo.dtd \
