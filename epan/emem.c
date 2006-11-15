@@ -1339,7 +1339,7 @@ pe_tree_create(int type, char *name)
 	tree_list->type=type;
 	tree_list->tree=NULL;
 	tree_list->name=name;
-	tree_list->malloc=g_malloc;
+	tree_list->malloc=(void *(*)(size_t)) g_malloc;
 
 	return tree_list;
 }
