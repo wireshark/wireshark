@@ -592,7 +592,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, char** e
 	return TRUE;
 }
 
-static void funnel_reload() {
+static void funnel_reload(void) {
 	if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 }
 
