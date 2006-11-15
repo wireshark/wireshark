@@ -745,12 +745,13 @@ static xml_ns_t* duplicate_element(xml_ns_t* orig) {
 	return new_item;
 }
 
-static gchar* fully_qualified_name(GPtrArray* hier, gchar* name) {
+static gchar* fully_qualified_name(GPtrArray* hier, gchar* name, gchar* proto_name) {
 	guint i;
-	GString* s = g_string_new("");
+	GString* s = g_string_new(proto_name);
 	gchar* str;
-
-	for (i = 0; i < hier->len; i++) {
+	g_string_append(s,".");
+	
+	for (i = 1; i < hier->len; i++) {
 		g_string_sprintfa(s, "%s.",(gchar*)g_ptr_array_index(hier,i));
 	}
 
@@ -768,7 +769,8 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 								  GPtrArray* hier,
 								  GString* error,
 								  GArray* hfs,
-								  GArray* etts) {
+								  GArray* etts,
+								  char* proto_name) {
 	xml_ns_t* new;
 	xml_ns_t* orig;
 	gchar* fqn;
@@ -796,7 +798,7 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
         return NULL;
     }
 
-	fqn = fully_qualified_name(hier,elem_name);
+	fqn = fully_qualified_name(hier,elem_name,proto_name);
 
 	new = duplicate_element(orig);
 	new->fqn = fqn;
@@ -817,7 +819,7 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 		xml_ns_t* child_element = NULL;
 
         g_ptr_array_add(hier,elem_name);
-        child_element = make_xml_hier(child_name, root, elements, hier,error,hfs,etts);
+        child_element = make_xml_hier(child_name, root, elements, hier,error,hfs,etts,proto_name);
         g_ptr_array_remove_index_fast(hier,hier->len - 1);
 
 		if (child_element) {
@@ -947,7 +949,7 @@ next_attribute:
     /* the root element of the dtd's namespace */
 	root_element = g_malloc(sizeof(xml_ns_t));
     root_element->name = g_strdup(root_name);
-    root_element->fqn = root_element->name;
+    root_element->fqn = dtd_data->proto_name ? g_strdup(dtd_data->proto_name) : root_element->name;
     root_element->hf_tag = -1;
     root_element->hf_cdata = -1;
     root_element->ett = -1;
@@ -962,7 +964,7 @@ next_attribute:
     if (dtd_data->recursion) {
         xml_ns_t* orig_root;
 
-        make_xml_hier(root_name, root_element, elements,hier,errors,hfs,etts);
+        make_xml_hier(root_name, root_element, elements,hier,errors,hfs,etts,dtd_data->proto_name);
 
         g_hash_table_insert(root_element->elements,root_element->name,root_element);
 
@@ -972,7 +974,7 @@ next_attribute:
         if(orig_root) {
             struct _attr_reg_data d;
 
-            d.basename = root_name;
+            d.basename = dtd_data->proto_name;
             d.hf = hfs;
 
             root_element->attributes = copy_attributes_hash(orig_root->attributes);
@@ -988,7 +990,7 @@ next_attribute:
             curr_name = g_ptr_array_remove_index(root_element->element_names,0);
 
             if( ! g_hash_table_lookup(root_element->elements,curr_name) ) {
-                xml_ns_t* new = make_xml_hier(curr_name, root_element, elements,hier,errors,hfs,etts);
+                xml_ns_t* new = make_xml_hier(curr_name, root_element, elements,hier,errors,hfs,etts,dtd_data->proto_name);
                 g_hash_table_insert(root_element->elements,new->name,new);
             }
 
@@ -1008,7 +1010,7 @@ next_attribute:
 
             curr_name = g_ptr_array_remove_index(root_element->element_names,0);
             new = duplicate_element(g_hash_table_lookup(elements,curr_name));
-            new->fqn = fully_qualified_name(hier, curr_name);
+            new->fqn = fully_qualified_name(hier, curr_name, root_name);
 
             add_xml_field(hfs, &(new->hf_tag), curr_name, new->fqn);
             add_xml_field(hfs, &(new->hf_cdata), curr_name, new->fqn);
@@ -1047,7 +1049,7 @@ next_attribute:
 
         add_xml_field(hfs, &root_element->hf_cdata, root_element->name, root_element->fqn);
 
-		root_element->hf_tag = proto_register_protocol(dtd_data->description, dtd_data->proto_name, root_element->name);
+		root_element->hf_tag = proto_register_protocol(dtd_data->description, dtd_data->proto_name, dtd_data->proto_name);
 		proto_register_field_array(root_element->hf_tag, (hf_register_info*)hfs->data, hfs->len);
 		proto_register_subtree_array((gint**)etts->data, etts->len);
 

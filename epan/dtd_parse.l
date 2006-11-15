@@ -147,7 +147,7 @@ comma          ","
 pipe           "|"
 dquote         ["]
 
-name           [A-Za-z][-a-zA-Z0-9_]*
+name           [A-Za-z0-9][-a-zA-Z0-9_]*
 dquoted        ["][^\"]*["]
 squoted        ['][^\']*[']
 
