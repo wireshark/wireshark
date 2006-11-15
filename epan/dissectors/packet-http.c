@@ -142,9 +142,6 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_HKP			11371
 #define TCP_PORT_DAAP			3689
 
-#define HTTP_PORTS (TCP_PORT_HTTP || TCP_PORT_PROXY_HTTP || TCP_PORT_PROXY_ADMIN_HTTP || TCP_ALT_PORT_HTTP || TCP_RADAN_HTTP || \
-		    TCP_PORT_HKP || TCP_PORT_DAAP)
-
 /*
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
@@ -1430,18 +1427,30 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
 			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect hostname: %s", strings[0]);
 			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect port: %s", strings[1]);
 
-			/* Replaces the pinfo->destport or srcport with the port the http connect was done to */
-			/* pinfo->srcport and destport are guint32 variables (epan/packet_info.h) */
-			if (pinfo->destport  == HTTP_PORTS)
+			/* Replaces the pinfo->destport or srcport with the port the http connect was done to by
+			 * checking to see which is the http port. */
+			if (pinfo->destport == TCP_PORT_HTTP             || pinfo->destport == TCP_PORT_PROXY_HTTP ||
+			    pinfo->destport == TCP_PORT_PROXY_ADMIN_HTTP || pinfo->destport == TCP_ALT_PORT_HTTP   ||
+			    pinfo->destport == TCP_RADAN_HTTP            || pinfo->destport == TCP_PORT_HKP        ||
+			    pinfo->destport == TCP_PORT_DAAP             || pinfo->destport == http_alternate_tcp_port)
 				ptr = &pinfo->destport;
 			else
 				ptr = &pinfo->srcport;
 
 			*ptr = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
-			dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
-					    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
-					    tree, tree, tcpd);
+			/* We're going to get stuck in a loop if we call let dissect_tcp_payload call
+			   us, so call the data dissector instead for proxy connections to http ports. */
+			if(*ptr == TCP_PORT_HTTP             || *ptr == TCP_PORT_PROXY_HTTP ||
+			   *ptr == TCP_PORT_PROXY_ADMIN_HTTP || *ptr == TCP_ALT_PORT_HTTP   ||
+			   *ptr == TCP_RADAN_HTTP            || *ptr == TCP_PORT_HKP        ||
+			   *ptr == TCP_PORT_DAAP             || *ptr == http_alternate_tcp_port) {
+				call_dissector(data_handle, next_tvb, pinfo, tree);
+			} else {
+				dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
+						    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
+						    tree, tree, tcpd);
+			}
 		}
 
 		g_strfreev(strings); /* Free the result of g_strsplit() above */
