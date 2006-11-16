@@ -575,17 +575,24 @@ trying to keep things consistent for other users.
 
 1.1.5 White space convention.
 
-Avoid using tab expansions different from 8 spaces, as not all text editors in
-use by the developers support this.
+Avoid using tab expansions different from 8 column widths, as not all
+text editors in use by the developers support this. For a detailed
+discussion of tabs, spaces, and indentation, see
 
-When creating a new file, you are free to choose an indentation logic. Most of
-the files in Wireshark tend to use 2-space or 4-space indentation. You are
-encouraged to write a short comment on the indentation logic at the beginning
-of this new file.
+    http://www.jwz.org/doc/tabs-vs-spaces.html
 
-When editing an existing file, try following the existing indentation logic and
-even if it very tempting, never ever use a restyler/reindenter utility on an
-existing file.
+When creating a new file, you are free to choose an indentation logic.
+Most of the files in Wireshark tend to use 2-space or 4-space
+indentation. You are encouraged to write a short comment on the
+indentation logic at the beginning of this new file, especially if
+you're using non-mod-8 tabs.  The tabs-vs-spaces document above provides
+examples of Emacs and vi modelines for this purpose.
+
+When editing an existing file, try following the existing indentation
+logic and even if it very tempting, never ever use a restyler/reindenter
+utility on an existing file.  If you run across wildly varying
+indentation styles within the same file, it might be helpful to send a
+note to wireshark-dev for guidance.
 
 1.2 Skeleton code.
 
