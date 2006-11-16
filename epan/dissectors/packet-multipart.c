@@ -112,6 +112,8 @@ static const multipart_header_t multipart_headers[] = {
 
 /* Initialize the header fields */
 static gint hf_multipart_type = -1;
+static gint hf_multipart_part = -1;
+
 static gint hf_header_array[] = {
 	-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
 	-1, /* "Content-Disposition" */
@@ -555,8 +557,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	char *content_type_str = NULL;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, start, 0,
-				"Encapsulated multipart part");
+		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_multipart_body);
 	}
 	/*
@@ -620,6 +621,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 #else
 							content_type_str = g_ascii_strdown(value_str, -1);
 #endif
+							/* Show content-type in root 'part' label */
+							proto_item_append_text(ti, " (%s)", content_type_str);
 						}
 						break;
 
@@ -835,6 +838,13 @@ proto_register_multipart(void)
 				"mime_multipart.type",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"MIME multipart encapsulation type", HFILL
+			}
+		},
+		{ &hf_multipart_part,
+			{	"Encapsulated multipart part",
+				"mime_multipart.part",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"Encapsulated multipart part", HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_DISPOSITION],
