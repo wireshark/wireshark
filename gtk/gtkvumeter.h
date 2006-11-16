@@ -33,20 +33,20 @@ typedef struct _GtkVUMeter      GtkVUMeter;
 typedef struct _GtkVUMeterClass GtkVUMeterClass;
 
 typedef enum {
-    GTK_VUMETER_PEAK_FALLOFF_SLOW,
+    GTK_VUMETER_PEAK_FALLOFF_SLOW=1,    /* start with 1 to prevent CLAMP warnings */
     GTK_VUMETER_PEAK_FALLOFF_MEDIUM,
     GTK_VUMETER_PEAK_FALLOFF_FAST,
     GTK_VUMETER_PEAK_FALLOFF_USER
 } GtkVUMeterPeakFalloff;
 
 typedef enum {
-    GTK_VUMETER_SCALING_LINEAR,
+    GTK_VUMETER_SCALING_LINEAR=1,       /* start with 1 to prevent CLAMP warnings */
     GTK_VUMETER_SCALING_LOG
 } GtkVUMeterScaling;
 
 typedef enum
 {
-  GTK_VUMETER_LEFT_TO_RIGHT,
+  GTK_VUMETER_LEFT_TO_RIGHT=1,          /* start with 1 to prevent CLAMP warnings */
   GTK_VUMETER_RIGHT_TO_LEFT,
   GTK_VUMETER_BOTTOM_TO_TOP,
   GTK_VUMETER_TOP_TO_BOTTOM
