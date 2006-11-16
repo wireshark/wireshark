@@ -324,4 +324,7 @@ extern void packets_bar_update(void);
 extern void create_console(void);
 #endif
 
+/* Fill in capture options with values from the preferences */
+extern void prefs_to_capture_opts(void);
+
 #endif /* __MAIN_H__ */

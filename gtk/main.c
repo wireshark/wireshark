@@ -2428,17 +2428,8 @@ main(int argc, char *argv[])
   }
 #endif
 
-#ifdef HAVE_LIBPCAP
-  /* Set promiscuous mode from the preferences setting. */
-  /* the same applies to other preferences settings as well. */
-    capture_opts->promisc_mode   = prefs->capture_prom_mode;
-    capture_opts->show_info      = prefs->capture_show_info;
-    capture_opts->real_time_mode = prefs->capture_real_time;
-    auto_scroll_live             = prefs->capture_auto_scroll;
-#endif /* HAVE_LIBPCAP */
-
-  /* Set the name resolution code's flags from the preferences. */
-  g_resolv_flags = prefs->name_resolve;
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
 
   /* Read the capture filter file. */
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
@@ -4332,4 +4323,21 @@ show_main_window(gboolean doing_work)
 #endif
   }
 #endif /* HAVE_AIRPCAP */
+}
+
+/* Fill in capture options with values from the preferences */
+void
+prefs_to_capture_opts(void)
+{
+#ifdef HAVE_LIBPCAP
+  /* Set promiscuous mode from the preferences setting. */
+  /* the same applies to other preferences settings as well. */
+    capture_opts->promisc_mode   = prefs.capture_prom_mode;
+    capture_opts->show_info      = prefs.capture_show_info;
+    capture_opts->real_time_mode = prefs.capture_real_time;
+    auto_scroll_live             = prefs.capture_auto_scroll;
+#endif /* HAVE_LIBPCAP */
+
+  /* Set the name resolution code's flags from the preferences. */
+  g_resolv_flags = prefs.name_resolve;
 }

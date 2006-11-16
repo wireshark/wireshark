@@ -1371,6 +1371,9 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   prefs_main_apply_all(parent_w);
 
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
+
 	#ifdef HAVE_AIRPCAP
 	prefs_airpcap_update();
 	#endif
@@ -1399,6 +1402,9 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   }
 
   prefs_main_apply_all(parent_w);
+
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
 
   	#ifdef HAVE_AIRPCAP
 	prefs_airpcap_update();
@@ -1435,6 +1441,9 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
 	4) we did apply the protocol preferences, at least, in the past. */
   prefs_main_apply_all(parent_w);
+
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
