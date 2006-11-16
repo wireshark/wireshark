@@ -78,7 +78,7 @@ case "$1" in
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
 	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
-	unzip -nq "$DEST_PATH/$PACKAGE" ||
+	unzip -oq "$DEST_PATH/$PACKAGE" ||
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
 	echo "Verifying that the DLLs in $DEST_PATH/$DEST_SUBDIR are executable."
 	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
