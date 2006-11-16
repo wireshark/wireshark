@@ -144,12 +144,16 @@ static int hf_radiotap_mactime = -1;
 static int hf_radiotap_channel = -1;
 static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
+static int hf_radiotap_fhss_hopset = -1;
+static int hf_radiotap_fhss_pattern = -1;
 static int hf_radiotap_datarate = -1;
 static int hf_radiotap_antenna = -1;
 static int hf_radiotap_dbm_antsignal = -1;
 static int hf_radiotap_db_antsignal = -1;
 static int hf_radiotap_dbm_antnoise = -1;
 static int hf_radiotap_db_antnoise = -1;
+static int hf_radiotap_tx_attenuation = -1;
+static int hf_radiotap_db_tx_attenuation = -1;
 static int hf_radiotap_txpower = -1;
 
 /* "Present" flags */
@@ -201,12 +205,24 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #define BIT(n)	(1 << n)
 
 /*
- * XXX - There are roundup macros defined in other dissectors.  We should
- * move them to a common location at some point.
+ * The NetBSD ieee80211_radiotap man page
+ * (http://netbsd.gw.com/cgi-bin/man-cgi?ieee80211_radiotap+9+NetBSD-current)
+ * says:
+ *
+ *    Radiotap capture fields must be naturally aligned.  That is, 16-, 32-,
+ *    and 64-bit fields must begin on 16-, 32-, and 64-bit boundaries, respec-
+ *    tively.  In this way, drivers can avoid unaligned accesses to radiotap
+ *    capture fields.  radiotap-compliant drivers must insert padding before a
+ *    capture field to ensure its natural alignment.  radiotap-compliant packet
+ *    dissectors, such as tcpdump(8), expect the padding.
  */
-#ifndef roundup2
-#define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
-#endif
+
+/*
+ * Returns the amount required to align "offset" with "width"
+ */
+#define ALIGN_OFFSET(offset, width) \
+    ( (((offset) + ((width) - 1)) & (~((width) - 1))) - offset )
+
 
 void
 capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
@@ -435,6 +451,12 @@ proto_register_radiotap(void)
     { &hf_radiotap_channel_flags,
       { "Channel type", "radiotap.channel.flags",
 	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0, "", HFILL } },
+    { &hf_radiotap_fhss_hopset,
+      { "FHSS Hop Set", "radiotap.fhss.hopset",
+	FT_UINT8, BASE_DEC, NULL,  0x0, "", HFILL } },
+    { &hf_radiotap_fhss_pattern,
+      { "FHSS Pattern", "radiotap.fhss.pattern",
+	FT_UINT8, BASE_DEC, NULL,  0x0, "", HFILL } },
     { &hf_radiotap_datarate,
       { "Data rate", "radiotap.datarate",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -453,6 +475,12 @@ proto_register_radiotap(void)
     { &hf_radiotap_db_antnoise,
       { "SSI Noise (dB)", "radiotap.db_antnoise",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_tx_attenuation,
+      { "Transmit attenuation", "radiotap.txattenuation",
+	FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_db_tx_attenuation,
+      { "Transmit attenuation (dB)", "radiotap.db_txattenuation",
+	FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_txpower,
       { "Transmit power", "radiotap.txpower",
 	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -524,7 +552,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
     proto_item *hdr_fcs_ti = NULL;
     int hdr_fcs_offset = 0;
-    int offset;
+    int align_offset, offset;
     guint32 sent_fcs = 0;
     guint32 calc_fcs;
     tvbuff_t *next_tvb;
@@ -750,7 +778,10 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining--;
 	    break;
 	case IEEE80211_RADIOTAP_CHANNEL:
-	    if (length_remaining < 4)
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
 		break;
 	    if (tree) {
 		freq = tvb_get_letohs(tvb, offset);
@@ -767,24 +798,52 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_frequency,
 				tvb, offset, 2, freq);
 		}
+		/* We're already 2-byte aligned. */
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
 			tvb, offset+2, 2, flags);
 	    }
-	    offset+=4;
+	    offset+=4 /* Channel + flags */;
 	    length_remaining-=4;
 	    break;
 	case IEEE80211_RADIOTAP_FHSS:
-	case IEEE80211_RADIOTAP_TX_ATTENUATION:
-	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
 	    if (length_remaining < 2)
 		break;
-#if 0
-	    tvb_get_letohs(tvb, offset);
-#endif
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_hopset,
+		tvb, offset, 1, FALSE);
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_pattern,
+		tvb, offset, 1, FALSE);
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+	case IEEE80211_RADIOTAP_TX_ATTENUATION:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_tx_attenuation,
+		tvb, offset, 2, FALSE);
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_db_tx_attenuation,
+		tvb, offset, 2, FALSE);
 	    offset+=2;
 	    length_remaining-=2;
 	    break;
 	case IEEE80211_RADIOTAP_TSFT:
+	    align_offset = ALIGN_OFFSET(offset, 8);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
 	    if (length_remaining < 8)
 		break;
 	    if (tree) {
@@ -795,6 +854,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=8;
 	    break;
 	case IEEE80211_RADIOTAP_LOCK_QUALITY:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
 	    if (length_remaining < 2)
 		break;
 	    if (tree) {
@@ -807,7 +869,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case IEEE80211_RADIOTAP_FCS:
         /* This handles the case of an FCS existing inside the radiotap header. */
-	    offset = roundup2(offset, 4);
+	    align_offset = ALIGN_OFFSET(offset, 4);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
 	    if (length_remaining < 4)
 		break;
         if (tree) {
