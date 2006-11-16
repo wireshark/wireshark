@@ -109,7 +109,7 @@ static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
-static TCHAR *build_file_type_list(gboolean save);
+static TCHAR *build_file_type_list(gboolean save, int *item_to_select);
 static int file_type_from_list_index(gboolean save, int index);
 
 static int            filetype;
@@ -149,7 +149,7 @@ win32_open_file (HWND h_wnd) {
 #endif
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(FALSE /*save*/);
+    ofn.lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = FILE_OPEN_DEFAULT;
@@ -205,6 +205,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     GString *file_name8;
     gchar *file_last_dot;
     gchar *dirname;
+    int save_index;
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
        where appropriate */
@@ -212,10 +213,10 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(TRUE /*save*/);
+    ofn.lpstrFilter = build_file_type_list(TRUE /*save*/, &save_index);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_SAVE_DEFAULT;
+    ofn.nFilterIndex = save_index;
     ofn.lpstrFile = file_name16;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
@@ -325,7 +326,7 @@ win32_merge_file (HWND h_wnd) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(FALSE /*save*/);
+    ofn.lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = FILE_MERGE_DEFAULT;
@@ -1107,10 +1108,9 @@ file_type_from_list_index(gboolean save, int index) {
 
 
 static TCHAR *
-build_file_type_list(gboolean save) {
+build_file_type_list(gboolean save, int *item_to_select) {
     int   ft;
     guint index;
-    guint item_to_select;
     GString* str = g_string_new("");
     TCHAR *str16;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
@@ -1119,7 +1119,13 @@ build_file_type_list(gboolean save) {
 
     /* Default to the first supported file type, if the file's current
        type isn't supported. */
-    item_to_select = 0;
+    if(item_to_select) {
+        if(save) {
+            *item_to_select = FILE_SAVE_DEFAULT;
+        } else {
+            *item_to_select = FILE_OPEN_DEFAULT;
+        }
+    }
 
     /* append the "All Files" entry */
 	if (!save) {
@@ -1132,7 +1138,7 @@ build_file_type_list(gboolean save) {
     }
 
     /* Check all file types. */
-    index = 0;
+    index = 1;  /* the index is one based! */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
 	if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
 	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
@@ -1155,9 +1161,9 @@ build_file_type_list(gboolean save) {
     sa = g_array_append_vals(sa, str16, strlen(str->str));
     sa = g_array_append_val(sa, zero);
 
-	if (ft == filetype) {
+	if (ft == cfile.cd_t && item_to_select != NULL) {
 	    /* Default to the same format as the file, if it's supported. */
-	    item_to_select = index;
+	    *item_to_select = index;
 	}
 	index++;
     }
