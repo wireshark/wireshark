@@ -2,12 +2,13 @@
   wkssvc interface definitions
 */
 
+import "srvsvc.idl";
+
 [ uuid("6bffd098-a112-3610-9833-46c3f87e345a"),
   version(1.0),
   pointer_default(unique),
   pointer_default_top(unique),
-  helpstring("Workstation Service"),
-  depends(srvsvc)
+  helpstring("Workstation Service")
 ] interface wkssvc
 {
 	declare [v1_enum] enum srvsvc_PlatformId;

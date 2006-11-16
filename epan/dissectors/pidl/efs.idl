@@ -3,10 +3,11 @@
         by Jean-Baptiste Marchand
 */
 
+import "security.idl";
+
 [ 
   uuid("c681d488-d850-11d0-8c52-00c04fd90f7e"),
   version(1.0),
-  depends(security),
   pointer_default(unique)
 ] interface efs
 {

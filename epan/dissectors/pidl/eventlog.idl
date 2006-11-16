@@ -1,11 +1,12 @@
 #include "idl_types.h"
 
+import "lsa.idl", "security.idl";
+
 /*
   eventlog interface definition
 */
 [ uuid("82273fdc-e32a-18c3-3f78-827929dc23ea"),
   version(0.0),
-  depends(lsa,security),
   pointer_default(unique),
   helpstring("Event Logger")
 ] interface eventlog

@@ -1,5 +1,7 @@
 #include "idl_types.h"
 
+import "security.idl", "svcctl.idl";
+
 /*
   srvsvc interface definitions
 */
@@ -9,9 +11,7 @@
   endpoint("ncacn_np:[\\pipe\\srvsvc]", "ncacn_ip_tcp:", "ncalrpc:"),
   pointer_default(unique),
   pointer_default_top(unique),
-  helpstring("Server Service"),
-  depends(security,svcctl),
-  keepref
+  helpstring("Server Service")
 ] interface srvsvc
 {
 	declare bitmap svcctl_ServerType;

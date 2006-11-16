@@ -2,14 +2,15 @@
   winreg interface definition
 */
 
+import "lsa.idl", "initshutdown.idl", "security.idl";
+
 [ 
   uuid("338cd001-2244-31f1-aaaa-900038001003"),
   version(1.0),
   endpoint("ncacn_np:[\\pipe\\winreg]","ncacn_ip_tcp:","ncalrpc:"),
   pointer_default(unique),
   pointer_default_top(unique),
-  helpstring("Remote Registry Service"),
-  depends(lsa,initshutdown,security)
+  helpstring("Remote Registry Service")
 ] interface winreg
 {
 	declare bitmap security_secinfo;
