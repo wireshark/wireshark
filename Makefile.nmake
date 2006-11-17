@@ -167,7 +167,7 @@ wireshark.exe	:
 wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
@@ -177,14 +177,14 @@ wireshark-gtk2.exe	:
 wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !ENDIF
 
 tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj image\tshark.res
 <<
 
 capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
