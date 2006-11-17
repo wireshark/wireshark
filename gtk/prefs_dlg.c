@@ -58,9 +58,6 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif /* _WIN32 */
-#endif /* HAVE_LIBPCAP */
-
-#ifdef HAVE_AIRPCAP
 #include "airpcap.h"
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
