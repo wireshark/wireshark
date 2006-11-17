@@ -2258,10 +2258,6 @@ sub HeaderInterface($)
 		pidl choose_header("librpc/gen_ndr/ndr_orpc.h", "ndr/orpc.h");
 	}
 
-	if (defined $interface->{PROPERTIES}->{depends}) {
-		HeaderImport(split / /, $interface->{PROPERTIES}->{depends});
-	}
-
 	if (defined $interface->{PROPERTIES}->{helper}) {
 		HeaderInclude(split / /, $interface->{PROPERTIES}->{helper});
 	}

@@ -4,7 +4,7 @@
 # Published under the GNU General Public License
 use strict;
 
-use Test::More tests => 51;
+use Test::More tests => 59;
 use FindBin qw($RealBin);
 use lib "$RealBin/../lib";
 use Parse::Pidl::IDL;
@@ -80,3 +80,11 @@ testok "bitmapqual", "interface test { struct x { bitmap y z; }; };";
 testok "emptystructdecl", "interface test { struct x; };";
 testok "emptyenumdecl", "interface test { enum x; };";
 testok "emptytdstructdecl", "interface test { typedef struct x y; };";
+testok "import", "import \"foo.idl\";";
+testok "include", "include \"foo.h\";";
+testfail "import-noquotes", "import foo.idl;";
+testfail "include-noquotes", "include foo.idl;";
+testok "importlib", "importlib \"foo.idl\";";
+testfail "import-nosemicolon", "import \"foo.idl\"";
+testok "import-multiple", "import \"foo.idl\", \"bar.idl\";";
+testok "include-multiple", "include \"foo.idl\", \"bar.idl\";";

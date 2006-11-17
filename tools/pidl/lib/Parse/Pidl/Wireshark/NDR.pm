@@ -747,9 +747,6 @@ sub ProcessInterface($)
 	pidl_hdr "#define $define";
 	pidl_hdr "";
 
-	ProcessImport(split / /, $x->{PROPERTIES}->{depends}) if 
-				 (defined $x->{PROPERTIES}->{depends});
-
 	pidl_def "static gint proto_dcerpc_$x->{NAME} = -1;";
 	register_ett("ett_dcerpc_$x->{NAME}");
 	register_hf_field("hf_$x->{NAME}_opnum", "Operation", "$x->{NAME}.opnum", "FT_UINT16", "BASE_DEC", "NULL", 0, "");

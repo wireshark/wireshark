@@ -334,10 +334,6 @@ sub HeaderInterface($)
 	pidl "#ifndef _HEADER_$interface->{NAME}\n";
 	pidl "#define _HEADER_$interface->{NAME}\n\n";
 
-	if (defined $interface->{PROPERTIES}->{depends}) {
-		HeaderImport(split / /, $interface->{PROPERTIES}->{depends});
-	}
-
 	foreach my $d (@{$interface->{DATA}}) {
 		next if ($d->{TYPE} ne "CONST");
 		HeaderConst($d);

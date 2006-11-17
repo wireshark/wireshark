@@ -766,7 +766,6 @@ my %property_list = (
 	"endpoint"		=> ["INTERFACE"],
 	"pointer_default"	=> ["INTERFACE"],
 	"pointer_default_top"	=> ["INTERFACE"],
-	"depends"		=> ["INTERFACE"],
 	"helper"		=> ["INTERFACE"],
 	"authservice"		=> ["INTERFACE"],
 
@@ -1044,10 +1043,6 @@ sub ValidInterface($)
 {
 	my($interface) = shift;
 	my($data) = $interface->{DATA};
-
-	if (has_property($interface, "depends")) {
-		nonfatal $interface, "depends() is pidl-specific and deprecated. Use `import' instead";
-	}
 
 	if (has_property($interface, "helper")) {
 		nonfatal $interface, "helper() is pidl-specific and deprecated. Use `include' instead";

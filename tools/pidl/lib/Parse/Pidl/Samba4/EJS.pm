@@ -753,10 +753,6 @@ sub EjsInterface($$)
 	pidl_hdr "#ifndef _HEADER_EJS_$interface->{NAME}\n";
 	pidl_hdr "#define _HEADER_EJS_$interface->{NAME}\n\n";
 
-	if (has_property($interface, "depends")) {
-		EjsImport(split / /, $interface->{PROPERTIES}->{depends});
-	}
-
 	pidl_hdr "\n";
 
 	foreach my $d (@{$interface->{TYPES}}) {
