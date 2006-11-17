@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -390,7 +391,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             /* Create and use buffer for contents before time.
                Do this only if it doesn't correspond to " l ", which is by far the most
                common case. */
-            if ((dollar_offset - after_time_offset -1 == strlen(" l ")) &&
+            if (((size_t)(dollar_offset - after_time_offset -1) == strlen(" l ")) &&
                 (strncmp(linebuff+after_time_offset, " l ", strlen(" l ")) == 0))
             {
                 line_prefix_info->after_time = NULL;
@@ -492,7 +493,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     /* If get here, must have failed */
     *err = errno;
     *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
-                                "line at position %lld", seek_off);
+                                "line at position %" PRId64, seek_off);
     return FALSE;
 }
 
