@@ -58,9 +58,11 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif /* _WIN32 */
+#ifdef HAVE_AIRPCAP
 #include "airpcap.h"
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
+#endif
 #endif
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);

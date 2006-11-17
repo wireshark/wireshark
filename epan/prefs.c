@@ -54,7 +54,7 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
 static struct preference *find_preference(module_t *, const char *);
-static int    set_pref(gchar*, gchar*, void *);
+static prefs_set_pref_e set_pref(gchar*, gchar*, void *);
 static GList *get_string_list(gchar *);
 static gchar *put_string_list(GList *);
 static void   clear_string_list(GList *);
@@ -136,7 +136,7 @@ module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
  * the title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
  */
-static module_t *
+module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
     const char *description, void (*apply_cb)(void))
 {
