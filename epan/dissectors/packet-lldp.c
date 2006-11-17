@@ -97,6 +97,9 @@ static int hf_profinet_cable_delay_local = -1;
 static int hf_profinet_mrp_domain_uuid = -1;
 static int hf_profinet_mrrt_port_status = -1;
 static int hf_profinet_cm_mac = -1;
+static int hf_profinet_master_source_address = -1;
+static int hf_profinet_subdomain_uuid = -1;
+static int hf_profinet_ir_data_uuid = -1;
 static int hf_unknown_subtype = -1;
 
 /* Initialize the subtree pointers */
@@ -238,6 +241,7 @@ static const value_string profinet_subtypes[] = {
 	{ 3, "Alias" },
 	{ 4, "MRP Port Status" },
 	{ 5, "Chassis MAC" },
+	{ 6, "PTCP Status" },
 	{ 0, NULL }
 };
 
@@ -2155,8 +2159,24 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
         offset += 6;
         break;
     }
+    case 6:     /* PTCP status */
+    {
+	    /* MasterSourceAddress */
+	    proto_tree_add_ether(tree, hf_profinet_master_source_address, tvb, offset, 6, mac_addr);
+	    offset += 6;
+	    /* SubdomainUUID */
+	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+	    proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+	    offset += 16;
+            /* IRDataUUID */
+	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+	    proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+	    offset += 16;
+
+        break;
+    }
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2, FALSE);
+		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2-1, FALSE);
 	}
 }
 
@@ -2534,7 +2554,18 @@ proto_register_lldp(void)
 			{ "CMMacAdd",	"lldp.profinet.rtc3_port_status", FT_ETHER, BASE_NONE,
 	   		NULL, 0x0, "CMResponderMacAdd or CMInitiatorMacAdd", HFILL }
 		},
-
+		{ &hf_profinet_master_source_address,
+			{ "MasterSourceAddress",	"lldp.profinet.master_source_address", FT_ETHER, BASE_NONE,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_subdomain_uuid,
+			{ "SubdomainUUID",	"lldp.profinet.subdomain_uuid", FT_GUID, BASE_NONE,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_ir_data_uuid,
+			{ "IRDataUUID",	"lldp.profinet.ir_data_uuid", FT_GUID, BASE_NONE,
+	   		NULL, 0x0, "", HFILL }
+		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
 	   		NULL, 0x0, "", HFILL }
