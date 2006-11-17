@@ -1789,10 +1789,11 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return FALSE;  /* no, it isn't a session PDU */
 	}
 
-	/* can we recognize the second session PDU ? Return FALSE if not */
-	if(tvb_bytes_exist(tvb, 2, 2)) { /* Make sure there is a second one */
+	/* can we recognize the second session PDU if the first one was
+	 * a Give Tokens PDU? Return FALSE if not */
+	if(tvb_bytes_exist(tvb, 2, 2) && type == SES_GIVE_TOKENS) {
 		/*   get SPDU type */
-		type = tvb_get_guint8(tvb, offset+4);
+		type = tvb_get_guint8(tvb, offset+2);
 		/* check SPDU type */
 		if (match_strval(type, ses_vals) == NULL)
 			{
