@@ -136,7 +136,7 @@ module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
  * the title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
  */
-module_t *
+static module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
     const char *description, void (*apply_cb)(void))
 {
@@ -1319,11 +1319,11 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  */
-int
+prefs_set_pref_e
 prefs_set_pref(char *prefarg)
 {
 	gchar *p, *colonp;
-	int ret;
+	prefs_set_pref_e ret;
 
 	/*
 	 * Set the counters of "mgcp.{tcp,udp}.port" entries we've
@@ -1499,7 +1499,7 @@ string_to_name_resolve(char *string, guint32 *name_resolve)
   return '\0';
 }
 
-static int
+static prefs_set_pref_e
 set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 {
   GList    *col_l, *col_l_elt;

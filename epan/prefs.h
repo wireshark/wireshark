@@ -40,6 +40,7 @@
 #define MAX_VAL_LEN  1024
 
 /* only GTK1 *or* GTK2 font_name should be used */
+/* (we need to keep both in the preferences file but will only use the one suitable for the programs GTK version used) */
 #if GTK_MAJOR_VERSION < 2
 #define PREFS_GUI_FONT_NAME gui_font_name1
 #else
@@ -243,6 +244,7 @@ extern void prefs_apply_all(void);
  */
 extern void prefs_apply(module_t *module);
 
+
 struct preference;
 
 typedef struct preference pref_t;
@@ -256,6 +258,16 @@ extern gboolean prefs_is_registered_protocol(const char *name);
  * Returns the module title of a registered protocol (or NULL if unknown).
  */
 extern const char *prefs_get_title_by_name(const char *name);
+
+/** Given a module name, return a pointer to its pref_module struct,
+ * or NULL if it's not found.
+ *
+ * @param name The preference module name.  Usually the same as the protocol
+ * name, e.g. "tcp".
+ * @return A pointer to the corresponding preference module, or NULL if it
+ * wasn't found.
+ */
+extern module_t *prefs_find_module(const char *name);
 
 /*
  * Register a preference with an unsigned integral value.
@@ -354,21 +366,13 @@ extern void free_prefs(e_prefs *pr);
  * XXX - should supply, for syntax errors, a detailed explanation of
  * the syntax error.
  */
-#define PREFS_SET_OK		0	/* succeeded */
-#define PREFS_SET_SYNTAX_ERR	1	/* syntax error in string */
-#define PREFS_SET_NO_SUCH_PREF	2	/* no such preference */
-#define PREFS_SET_OBSOLETE	3	/* preference used to exist but no longer does */
+typedef enum {
+    PREFS_SET_OK,		/* succeeded */
+    PREFS_SET_SYNTAX_ERR,	/* syntax error in string */
+    PREFS_SET_NO_SUCH_PREF,	/* no such preference */
+    PREFS_SET_OBSOLETE		/* preference used to exist but no longer does */
+} prefs_set_pref_e;
 
-/** Given a module name, return a pointer to its pref_module struct,
- * or NULL if it's not found.
- *
- * @param name The preference module name.  Usually the same as the protocol
- * name, e.g. "tcp".
- * @return A pointer to the corresponding preference module, or NULL if it
- * wasn't found.
- */
-module_t *prefs_find_module(const char *name);
-
-extern int prefs_set_pref(char *prefarg);
+extern prefs_set_pref_e prefs_set_pref(char *prefarg);
 
 #endif /* prefs.h */

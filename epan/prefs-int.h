@@ -40,8 +40,8 @@ struct pref_module {
 };
 
 /*
- * Module used for protocol preferences. With MSVC and a 
- * libwireshark.dll, we need a special declaration.
+ * Module used for protocol preferences. 
+ * With MSVC and a libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT module_t *protocols_module;
 
