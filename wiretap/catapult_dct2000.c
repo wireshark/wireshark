@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <inttypes.h>
+/*#include <inttypes.h>*/
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -493,7 +493,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     /* If get here, must have failed */
     *err = errno;
     *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
-                                "line at position %" PRId64, seek_off);
+                                "line at position %lld", seek_off);
     return FALSE;
 }
 
