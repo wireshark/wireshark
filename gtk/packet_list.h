@@ -52,21 +52,21 @@ extern void packet_list_set_column_titles(void);
 extern void packet_list_resize_columns_cb(GtkWidget *widget, gpointer data);
 
 /** Mark the currently selected packet.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
 extern void packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Mark all packets in the list.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
 extern void packet_list_mark_all_frames_cb(GtkWidget *widget, gpointer data);
 
 /** Unmark all packets in the list.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
@@ -76,7 +76,7 @@ extern void packet_list_unmark_all_frames_cb(GtkWidget *widget, gpointer data);
 extern void packet_list_update_marked_frames(void);
 
 /** Gdk button click appeared, get row and column number in packet list from that position.
- * 
+ *
  * @param widget the packet list widget from packet_list_new()
  * @param event_button the button event clicked
  * @param row the row in the packet list
@@ -97,5 +97,14 @@ extern void packet_list_set_font(FONT_TYPE *font);
  * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
  */
 extern void packet_list_set_sel_browse(gboolean val);
+
+/** Move to the next packet
+ */
+extern void packet_list_next();
+
+/** Move to the previous packet
+ */
+extern void packet_list_prev();
+
 
 #endif /* __PACKET_LIST_H__ */

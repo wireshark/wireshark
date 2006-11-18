@@ -28,7 +28,7 @@
 
 /** @file
  *
- * Helper macros for gtk1.x / gtk2.x compatibility. Use these macros instead of the GTK deprecated functions, 
+ * Helper macros for gtk1.x / gtk2.x compatibility. Use these macros instead of the GTK deprecated functions,
  * to keep compatibility between GTK 1.x and 2.x.
  * For example in gtk2.x, gtk_signal_xxx is deprecated in favor of g_signal_xxx,
  *          gtk_object_xxx is deprecated in favor of g_object_xxx,
@@ -50,9 +50,9 @@
 gtk_signal_connect(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
                    (gpointer)(arg))
 
-/** This function is for registering a callback that will call another object's callback. 
- *  That is, instead of passing the object which is responsible for the event as the first 
- *  parameter of the callback, it is switched with the user data (so the object which emits 
+/** This function is for registering a callback that will call another object's callback.
+ *  That is, instead of passing the object which is responsible for the event as the first
+ *  parameter of the callback, it is switched with the user data (so the object which emits
  *  the signal will be the last parameter, which is where the user data usually is).
  *
  * @param widget the widget to connect to
@@ -65,7 +65,7 @@ gtk_signal_connect(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
 gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
                           (gpointer)(arg))
 
-/** Destroys all connections for a particular object, with the given 
+/** Destroys all connections for a particular object, with the given
  *  function-pointer and user-data.
  *
  * @param object the object which emits the signal
@@ -76,8 +76,8 @@ gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
 gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
 
 /** Each object carries around a table of associations from strings to pointers,
- *  this function lets you set an association. If the object already had an 
- *  association with that name, the old association will be destroyed. 
+ *  this function lets you set an association. If the object already had an
+ *  association with that name, the old association will be destroyed.
  *
  * @param widget object containing the associations
  * @param key name of the key
@@ -95,8 +95,8 @@ gtk_object_set_data(GTK_OBJECT(widget), key, (data))
 #define OBJECT_GET_DATA(widget, key) \
 gtk_object_get_data(GTK_OBJECT(widget), key)
 
-/** Sets the size of a widget. This will be useful to set the size of 
- * e.g. a GtkEntry. Don't use WIDGET_SET_SIZE() to set the size of a dialog 
+/** Sets the size of a widget. This will be useful to set the size of
+ * e.g. a GtkEntry. Don't use WIDGET_SET_SIZE() to set the size of a dialog
  * or window, use gtk_window_set_default_size() for that purpose!
  *
  * @param widget a GtkWidget
@@ -107,20 +107,15 @@ gtk_object_get_data(GTK_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
 
-/** Emits a signal. This causes the default handler and user-connected 
+/** Emits a signal. This causes the default handler and user-connected
  *  handlers to be run.
- *
- * @param widget the object that emits the signal
- * @param name the name of the signal
- * @param arg value to pass to the handlers or NULL
  */
-#define SIGNAL_EMIT_BY_NAME(widget, name, arg) \
-gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg)
+#define SIGNAL_EMIT_BY_NAME gtk_signal_emit_by_name
 
-/** This function aborts a signal's current emission. It will prevent the 
- *  default method from running, if the signal was GTK_RUN_LAST and you 
- *  connected normally (i.e. without the "after" flag). It will print a 
- *  warning if used on a signal which isn't being emitted. It will lookup the 
+/** This function aborts a signal's current emission. It will prevent the
+ *  default method from running, if the signal was GTK_RUN_LAST and you
+ *  connected normally (i.e. without the "after" flag). It will print a
+ *  warning if used on a signal which isn't being emitted. It will lookup the
  *  signal id for you.
  *
  * @param widget the object whose signal handlers you wish to stop
@@ -308,8 +303,7 @@ g_object_get_data(G_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
-#define SIGNAL_EMIT_BY_NAME(widget, name, arg) \
-g_signal_emit_by_name(G_OBJECT(widget), name, arg)
+#define SIGNAL_EMIT_BY_NAME g_signal_emit_by_name
 
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
 g_signal_stop_emission_by_name(G_OBJECT(widget), name)

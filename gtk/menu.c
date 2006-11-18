@@ -533,6 +533,10 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Go/Go to _Corresponding Packet", NULL, goto_framenum_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Go/Previous Packet", "<control>Up",
+                             packet_list_prev, 0, GTK_STOCK_GO_UP),
+    ITEM_FACTORY_STOCK_ENTRY("/Go/Next Packet", "<control>Down",
+                             packet_list_next, 0, GTK_STOCK_GO_DOWN),
     ITEM_FACTORY_STOCK_ENTRY("/Go/F_irst Packet", NULL,
                              goto_top_frame_cb, 0, GTK_STOCK_GOTO_TOP),
     ITEM_FACTORY_STOCK_ENTRY("/Go/_Last Packet", NULL,
@@ -831,13 +835,13 @@ menus_init(void) {
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
-	
+
 #ifdef HAVE_LUA_5_1
 		if (! have_items_in_tools_menu) {
 			gtk_widget_hide(gtk_item_factory_get_item(main_menu_factory,"/Tools"));
 		}
 #endif
-		
+
     merge_all_tap_menus(tap_menu_tree_root);
 
     /* Initialize enabled/disabled state of menu items */
@@ -2166,6 +2170,10 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Go/Go to Packet...",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/Go/Previous Packet",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/Go/Next Packet",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Go/First Packet",
       have_captured_packets);

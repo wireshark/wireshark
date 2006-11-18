@@ -331,7 +331,7 @@ void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
 
 static void mark_all_frames(gboolean set) {
   frame_data *fdata;
-  
+
   /* XXX: we might need a progressbar here */
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
@@ -369,8 +369,8 @@ gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
 				 gint *row, gint *column)
 {
-    return eth_clist_get_selection_info(ETH_CLIST(w), 
-                                 (gint) event_button->x, (gint) event_button->y, 
+    return eth_clist_get_selection_info(ETH_CLIST(w),
+                                 (gint) event_button->x, (gint) event_button->y,
                                   row, column);
 }
 
@@ -509,9 +509,9 @@ packet_list_new(e_prefs *prefs)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(pkt_scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 #if GTK_MAJOR_VERSION >= 2
-    /* the eth_clist will have it's own GTK_SHADOW_IN, so don't use a shadow 
+    /* the eth_clist will have it's own GTK_SHADOW_IN, so don't use a shadow
      * for both widgets */
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(pkt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(pkt_scrollw),
                                     GTK_SHADOW_NONE);
 #endif
 
@@ -525,7 +525,7 @@ packet_list_new(e_prefs *prefs)
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
     SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
-        /* For performance reasons, columns do not automatically resize, 
+        /* For performance reasons, columns do not automatically resize,
            but are resizeable by the user. */
         eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
         eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
@@ -642,7 +642,7 @@ packet_list_resize_columns(void) {
          large file, we might take considerably longer than that standard
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
-         progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
+         progbar = delayed_create_progress_dlg("Resizing", "Resize Columns",
            TRUE, &progbar_stop_flag, &progbar_start_time, progbar_val);
 
       if (i >= progbar_nextstep) {
@@ -698,6 +698,28 @@ void
 packet_list_select_row(gint row)
 {
     SIGNAL_EMIT_BY_NAME(packet_list, "select_row", row);
+}
+
+static void
+packet_list_next_prev(gboolean next)
+{
+    GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
+    SIGNAL_EMIT_BY_NAME(packet_list, "scroll_vertical",
+        next ? GTK_SCROLL_STEP_FORWARD : GTK_SCROLL_STEP_BACKWARD, 0.0);
+    /* Set the focus back where it was */
+    gtk_window_set_focus(GTK_WINDOW(top_level), focus);
+}
+
+void
+packet_list_next()
+{
+    packet_list_next_prev(TRUE);
+}
+
+void
+packet_list_prev()
+{
+    packet_list_next_prev(FALSE);
 }
 
 void
@@ -842,13 +864,13 @@ packet_list_set_selected_row(gint row)
 		}
 
 		/* The now selected row will be the first visible row in the list.
-		 * This is inconvenient, as the user is usually interested in some 
+		 * This is inconvenient, as the user is usually interested in some
 		 * packets *before* the currently selected one too.
 		 *
-		 * Try to adjust the visible rows, so the currently selected row will 
+		 * Try to adjust the visible rows, so the currently selected row will
 		 * be shown around the first third of the list screen.
-		 * 
-		 * (This won't even do any harm if the current row is the first or the 
+		 *
+		 * (This won't even do any harm if the current row is the first or the
 		 * last in the list) */
 		visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
 		first_row = row - visible_rows / 3;

@@ -128,7 +128,90 @@
 	  </para>
 	  </tip>
     </para>
-	</section>
+
+
+    <section id="ChUseMainWindowNavSection"><title>Main Window Navigation</title>
+	<para>
+          Packet list and detail navigation can be done entirely from the
+          keyboard.  <xref linkend="ChUseTabNav"/> shows a list of keystrokes
+          that will let you quickly move around a capture file.  See
+          <xref linkend="ChUseTabGo"/> for additional navigation keystrokes.
+        </para>
+	<table id="ChUseTabGo" frame="none">
+
+	<title>Keyboard Navigation</title>
+	  <tgroup cols="2">
+	    <colspec colnum="1" colwidth="72pt"/>
+	      <thead>
+		<row>
+		  <entry>Accelerator</entry>
+		  <entry>Description</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>Tab, Shift+Tab</entry>
+		  <entry><para>
+		      Move between screen elements, e.g. from the toolbars
+                      to the packet list to the packet detail.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Down</entry>
+		  <entry><para>
+		      Move to the next packet or detail item.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Up</entry>
+		  <entry><para>
+		      Move to the previous packet or detail item.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Ctrl-Down</entry>
+		  <entry><para>
+		      Move to the next packet, even if the packet
+                      list isn't focused.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Ctrl-Up</entry>
+		  <entry><para>
+		      Move to the previous packet, even if the packet
+                      list isn't focused.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Left</entry>
+		  <entry><para>
+		      In the packet detail, closes the selected tree item.
+                      If it's already closed, jumps to the parent node.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Right</entry>
+		  <entry><para>
+		      In the packet detail, opens the selected tree item.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Backspace</entry>
+		  <entry><para>
+		      In the packet detail, jumps to the parent node.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Return, Enter</entry>
+		  <entry><para>
+		      In the packet detail, toggles the selected
+                      tree item.
+		    </para></entry>
+		</row>
+	      </tbody>
+	  </tgroup>
+	</table>
+      </section>
 
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
@@ -991,6 +1074,24 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><command>Previous Packet</command></entry>
+		<entry>Ctrl+Up</entry>
+		<entry><para>
+		    Move to the previous packet in the list.  This can be
+                    used to move to the previous packet even if the packet
+                    list doesn't have keyboard focus.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Next Packet</command></entry>
+		<entry>Ctrl+Down</entry>
+		<entry><para>
+		    Move to the next packet in the list.  This can be
+                    used to move to the previous packet even if the packet
+                    list doesn't have keyboard focus.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>First Packet</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -1213,10 +1314,10 @@
 		<entry><command>Expert Info</command></entry>
 		<entry></entry>
 		<entry><para>
-			Open a dialog showing some expert information about the captured 
-			packets in a log style display. 
-			The amount of information will depend on the protocol and varies 
-			from  very detailed to none existing. This is currently a work in 
+			Open a dialog showing some expert information about the captured
+			packets in a log style display.
+			The amount of information will depend on the protocol and varies
+			from  very detailed to none existing. This is currently a work in
 			progress. XXX - add a new section about this and link from here
 		  </para></entry>
 	      </row>
@@ -1224,7 +1325,7 @@
 		<entry><command>Expert Info Composite</command></entry>
 		<entry></entry>
 		<entry><para>
-			Same information as in "Expert Info" but trying to group items 
+			Same information as in "Expert Info" but trying to group items
 			together for faster analysis.
 		  </para></entry>
 	      </row>
@@ -1870,7 +1971,7 @@
 		<entry>Filter input</entry>
 		<entry>
 	  <para>
-	    The area to enter or edit a display filter string, 
+	    The area to enter or edit a display filter string,
 		see <xref linkend="ChWorkBuildDisplayFilterSection"/>
 		. A syntax check of your filter string is done while you are typing.
 		The background will turn red if you enter an incomplete or invalid
