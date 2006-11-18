@@ -169,14 +169,14 @@
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl-Down</entry>
+		  <entry>Ctrl-Down, F8</entry>
 		  <entry><para>
 		      Move to the next packet, even if the packet
                       list isn't focused.
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl-Up</entry>
+		  <entry>Ctrl-Up, F7</entry>
 		  <entry><para>
 		      Move to the previous packet, even if the packet
                       list isn't focused.

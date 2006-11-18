@@ -31,6 +31,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <string.h>
 #include <ctype.h>
@@ -3798,6 +3799,22 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 }
 #endif /* HAVE_AIRPCAP */
 
+#if GTK_MAJOR_VERSION >= 2
+static int
+top_level_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_data _U_)
+{
+    switch (event->keyval) {
+        case GDK_F8:
+	    packet_list_next();
+	    return TRUE;
+        case GDK_F7:
+	    packet_list_prev();
+	    return TRUE;
+    }
+    return FALSE;
+}
+#endif
+
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
@@ -3870,6 +3887,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #if GTK_MAJOR_VERSION >= 2
     SIGNAL_CONNECT(GTK_OBJECT(top_level), "window_state_event",
                          G_CALLBACK (window_state_event_cb), NULL);
+    SIGNAL_CONNECT(GTK_OBJECT(top_level), "key-press-event",
+                         G_CALLBACK (top_level_key_pressed_cb), NULL );
 #endif
 
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
@@ -4257,7 +4276,7 @@ static void
 driver_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 {
     gboolean r;
-	
+
     r = simple_dialog_check_get(dialog);
     recent.airpcap_driver_check_show = !r;
 }
