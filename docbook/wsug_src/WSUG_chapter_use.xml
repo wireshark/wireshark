@@ -137,7 +137,7 @@
           that will let you quickly move around a capture file.  See
           <xref linkend="ChUseTabGo"/> for additional navigation keystrokes.
         </para>
-	<table id="ChUseTabGo" frame="none">
+	<table id="ChUseTabNav" frame="none">
 
 	<title>Keyboard Navigation</title>
 	  <tgroup cols="2">
@@ -212,6 +212,7 @@
 	  </tgroup>
 	</table>
       </section>
+  </section>
 
   <section id="ChUseMenuSection"><title>The Menu</title>
     <para>
