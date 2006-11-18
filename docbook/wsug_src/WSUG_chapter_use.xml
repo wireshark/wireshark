@@ -211,6 +211,10 @@
 	      </tbody>
 	  </tgroup>
 	</table>
+        <para>
+        Additionally, typing anywhere in the main window will start filling
+        in a display filter.
+        </para>
       </section>
   </section>
 
