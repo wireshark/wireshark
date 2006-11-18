@@ -710,7 +710,8 @@ packet_list_next_prev(gboolean next)
         next ? GTK_SCROLL_STEP_FORWARD : GTK_SCROLL_STEP_BACKWARD, 0.0);
 #if GTK_MAJOR_VERSION >= 2
     /* Set the focus back where it was */
-    gtk_window_set_focus(GTK_WINDOW(top_level), focus);
+    if (focus)
+        gtk_window_set_focus(GTK_WINDOW(top_level), focus);
 #endif
 }
 
