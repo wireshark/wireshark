@@ -1092,8 +1092,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (ssl){
 	    decrypt_ssl3_record(tvb, pinfo, offset,
 			    record_length, content_type, ssl, TRUE);
-	    /* if application data desegmentation is allowed */
-	    if(ssl_desegment_app_data)
+	    /* if application data desegmentation is allowed and needed */
+	    if(ssl_desegment_app_data && *need_desegmentation)
 		ssl_desegment_ssl_app_data(ssl,pinfo);
 
         }
