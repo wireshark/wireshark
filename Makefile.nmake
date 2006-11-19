@@ -657,7 +657,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/glib
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-1.5.0-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-1.5.1-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
