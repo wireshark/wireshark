@@ -503,6 +503,7 @@ verify_tools:
 # Download and install all the required libraries into WIRESHARK_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
 setup: verify_tools
+    if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-2.12.4.zip
