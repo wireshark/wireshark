@@ -3809,9 +3809,10 @@ top_level_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_
     } else if (event->keyval == GDK_F7) {
 	packet_list_prev();
 	return TRUE;
-    } else if ((event->keyval >= GDK_0 && event->keyval <= GDK_9) ||
+    } else if ( (event->keyval >= GDK_0 && event->keyval <= GDK_9) ||
     		(event->keyval >= GDK_A && event->keyval <= GDK_Z) ||
-		(event->keyval >= GDK_a && event->keyval <= GDK_z) ) {
+		(event->keyval >= GDK_a && event->keyval <= GDK_z) ||
+                event->keyval == GDK_exclam || event->keyval == GDK_parenleft) {
 	/* Forward the keypress on to the display filter entry */
 	if (main_display_filter_widget && !gtk_widget_is_focus(main_display_filter_widget)) {
 	    gtk_window_set_focus(GTK_WINDOW(top_level), main_display_filter_widget);
