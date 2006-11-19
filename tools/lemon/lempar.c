@@ -17,6 +17,7 @@
 ** Boston, MA  02111-1307, USA.
 **
 ** Modified 1997 to make it suitable for use with makeheaders.
+* Updated to sqlite lemon version 1.22
 */
 /* First off, code is include which follows the "include" declaration
 ** in the input file. */
@@ -125,7 +126,8 @@
 **  yy_default[]       Default action for each state.
 */
 %%
-#define YY_SZ_ACTTAB (sizeof(yy_action)/sizeof(yy_action[0]))
+#define YY_SZ_ACTTAB (int)(sizeof(yy_action)/sizeof(yy_action[0]))
+
 
 /* The next table maps tokens into fallback tokens.  If a construct
 ** like the following:
@@ -339,7 +341,7 @@ void ParseFree(
 */
 static int yy_find_shift_action(
   yyParser *pParser,        /* The parser */
-  int iLookAhead            /* The look-ahead token */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
   int stateno = pParser->yystack[pParser->yyidx].stateno;
@@ -352,19 +354,34 @@ static int yy_find_shift_action(
   }
   i += iLookAhead;
   if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
+    if( iLookAhead>0 ){
 #ifdef YYFALLBACK
-    int iFallback;            /* Fallback token */
-    if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
-           && (iFallback = yyFallback[iLookAhead])!=0 ){
+      int iFallback;            /* Fallback token */
+      if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
+             && (iFallback = yyFallback[iLookAhead])!=0 ){
 #ifndef NDEBUG
-      if( yyTraceFILE ){
-        fprintf(yyTraceFILE, "%sFALLBACK %s => %s\n",
-           yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[iFallback]);
+        if( yyTraceFILE ){
+          fprintf(yyTraceFILE, "%sFALLBACK %s => %s\n",
+             yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[iFallback]);
+        }
+#endif
+        return yy_find_shift_action(pParser, iFallback);
       }
 #endif
-      return yy_find_shift_action(pParser, iFallback);
+#ifdef YYWILDCARD
+      int j = i - iLookAhead + YYWILDCARD;
+      if( j>=0 && j<YY_SZ_ACTTAB && yy_lookahead[j]==YYWILDCARD ){
+#ifndef NDEBUG
+        if( yyTraceFILE ){
+          fprintf(yyTraceFILE, "%sWILDCARD %s => %s\n",
+             yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[YYWILDCARD]);
+        }
+#endif /* NDEBUG */
+
+        return yy_action[j];
+      }
+#endif /* YYWILDCARD */
     }
-#endif
     return yy_default[stateno];
   }else{
     return yy_action[i];
@@ -381,7 +398,7 @@ static int yy_find_shift_action(
 */
 static int yy_find_reduce_action(
   int stateno,              /* Current state number */
-  int iLookAhead            /* The look-ahead token */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
   /* int stateno = pParser->yystack[pParser->yyidx].stateno; */
@@ -474,7 +491,7 @@ static void yy_reduce(
   yymsp = &yypParser->yystack[yypParser->yyidx];
 #ifndef NDEBUG
   if( yyTraceFILE && yyruleno>=0 
-        && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
+        && yyruleno<(int)(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
     fprintf(yyTraceFILE, "%sReduce [%s].\n", yyTracePrompt,
       yyRuleName[yyruleno]);
   }

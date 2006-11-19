@@ -25,6 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
+** Updated to sqlite lemon version 1.40
 ** $Id$
 */
 #include <stdio.h>
@@ -203,6 +204,7 @@ struct lemon {
   struct symbol **symbols; /* Sorted array of pointers to symbols */
   int errorcnt;            /* Number of errors */
   struct symbol *errsym;   /* The error symbol */
+  struct symbol *wildcard; /* Token that matches anything */
   char *name;              /* Name of the generated parser */
   char *arg;               /* Declaration of the 3th argument to parser */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
@@ -1479,6 +1481,7 @@ int main(int argc _U_, char **argv)
     fprintf(stderr,"Exactly one filename argument is required.\n");
     exit(1);
   }
+  memset(&lem, 0, sizeof(lem));
   lem.errorcnt = 0;
 
   /* Initialize the machine */
@@ -1488,15 +1491,6 @@ int main(int argc _U_, char **argv)
   lem.argv0 = argv[0];
   lem.filename = get_optarg(0);
   lem.basisflag = basisflag;
-  lem.has_fallback = 0;
-  lem.nconflict = 0;
-  lem.name = lem.include = lem.arg = lem.tokentype = lem.start = 0;
-  lem.vartype = 0;
-  lem.stacksize = NULL;
-  lem.error = lem.overflow = lem.failure = lem.accept = lem.tokendest =
-     lem.tokenprefix = lem.outname = lem.extracode = 0;
-  lem.vardest = 0;
-  lem.tablesize = 0;
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
   lem.outdirname = outdirname;
@@ -1506,7 +1500,7 @@ int main(int argc _U_, char **argv)
   /* Parse the input file */
   Parse(&lem);
   if( lem.errorcnt ) exit(lem.errorcnt);
-  if( lem.rule==0 ){
+  if( lem.nrule==0 ){
     fprintf(stderr,"Empty grammar.\n");
     exit(1);
   }
@@ -2005,7 +1999,8 @@ struct pstate {
     RESYNC_AFTER_DECL_ERROR,
     WAITING_FOR_DESTRUCTOR_SYMBOL,
     WAITING_FOR_DATATYPE_SYMBOL,
-    WAITING_FOR_FALLBACK_ID
+    WAITING_FOR_FALLBACK_ID,
+	WAITING_FOR_WILDCARD_ID
   } state;                   /* The state of the parser */
   struct symbol *fallback;   /* The fallback token */
   struct symbol *lhs;        /* Left-hand side of current rule */
@@ -2308,6 +2303,8 @@ to follow the previous rule.");
        }else if( strcmp(x,"fallback")==0 ){
           psp->fallback = 0;
           psp->state = WAITING_FOR_FALLBACK_ID;
+        }else if( strcmp(x,"wildcard")==0 ){
+          psp->state = WAITING_FOR_WILDCARD_ID;
         }else{
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Unknown declaration keyword: \"%%%s\".",x);
@@ -2408,6 +2405,25 @@ to follow the previous rule.");
         }
       }
       break;
+    case WAITING_FOR_WILDCARD_ID:
+      if( x[0]=='.' ){
+        psp->state = WAITING_FOR_DECL_OR_RULE;
+      }else if( !isupper(x[0]) ){
+        ErrorMsg(psp->filename, psp->tokenlineno,
+          "%%wildcard argument \"%s\" should be a token", x);
+        psp->errorcnt++;
+      }else{
+        struct symbol *sp = Symbol_new(x);
+        if( psp->gp->wildcard==0 ){
+          psp->gp->wildcard = sp;
+        }else{
+          ErrorMsg(psp->filename, psp->tokenlineno,
+            "Extra wildcard to token: %s", x);
+          psp->errorcnt++;
+        }
+      }
+      break;
+
     case RESYNC_AFTER_RULE_ERROR:
 /*      if( x[0]=='.' ) psp->state = WAITING_FOR_DECL_OR_RULE;
 **      break; */
@@ -3200,7 +3216,7 @@ PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
   if( z==0 ) return "";
   while( n-- > 0 ){
     c = *(zText++);
-    if( c=='%' && zText[0]=='d' ){
+    if( c=='%' && n>0 && zText[0]=='d' ){
       sprintf(zInt, "%d", p1);
       p1 = p2;
       strcpy(&z[used], zInt);
@@ -3534,6 +3550,10 @@ void ReportTable(
   fprintf(out,"#define YYNOCODE %d\n",lemp->nsymbol+1);  lineno++;
   fprintf(out,"#define YYACTIONTYPE %s\n",
     minimum_size_type(0, lemp->nstate+lemp->nrule+5));  lineno++;
+  if( lemp->wildcard ){
+    fprintf(out,"#define YYWILDCARD %d\n",
+       lemp->wildcard->index); lineno++;
+  }
   print_stack_union(out,lemp,&lineno,mhflag);
   if( lemp->stacksize ){
     if( atoi(lemp->stacksize)<=0 ){
@@ -3929,7 +3949,8 @@ void ReportHeader(struct lemon *lemp)
 ** of defaults.
 **
 ** In this version, we take the most frequent REDUCE action and make
-** it the default.
+** it the default.  Except, there is no default if the wildcard token
+** is a possible look-ahead.
 */
 void CompressTables(struct lemon *lemp)
 {
@@ -3938,13 +3959,18 @@ void CompressTables(struct lemon *lemp)
   struct rule *rp, *rp2, *rbest;
   int nbest, n;
   int i;
+  int usesWildcard;
 
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
     nbest = 0;
     rbest = 0;
+	usesWildcard = 0;
 
     for(ap=stp->ap; ap; ap=ap->next){
+      if( ap->type==SHIFT && ap->sp==lemp->wildcard ){
+        usesWildcard = 1;
+      }
       if( ap->type!=REDUCE ) continue;
       rp = ap->x.rp;
       if( rp==rbest ) continue;
@@ -3962,8 +3988,10 @@ void CompressTables(struct lemon *lemp)
     }
 
     /* Do not make a default if the number of rules to default
-    ** is not at least 1 */
-    if( nbest<1 ) continue;
+    ** is not at least 1 or if the wildcard token is a possible
+    ** lookahead.
+    */
+    if( nbest<1 || usesWildcard ) continue;
 
 
     /* Combine matching REDUCE actions into a single default */
@@ -4119,6 +4147,7 @@ char *Strsafe(const char *y)
 {
   char *z;
 
+  if( y==0 ) return 0;
   z = Strsafe_find(y);
   if( z==0 && (z=malloc( strlen(y)+1 ))!=0 ){
     strcpy(z,y);
