@@ -523,8 +523,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	    break;
 	  }
 	  proto_tree_add_text(subtree, tvb, off, 2,
-			      "elapsed-time: %d sec",
-			      (guint32)tvb_get_ntohs(tvb, off));
+			      "elapsed-time: %u ms",
+			      10*(guint32)tvb_get_ntohs(tvb, off));
 	  break;
 	case OPTION_RELAY_MSG:
 	  if (optlen == 0) {
