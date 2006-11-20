@@ -5270,6 +5270,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 		case FT_IPXNET:
 		case FT_BOOLEAN:
 		case FT_STRING:
+		case FT_STRINGZ:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
