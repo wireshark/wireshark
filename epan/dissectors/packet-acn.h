@@ -25,12 +25,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
- /*
-    Version: 0.0.9   wrf 10-25-2006 Released to Wireshark community
-    Version: 0.0.10  wrf 10-25-2006 small revisions to submit...
-    Version: 0.0.11  wrf 10-29-2006 revisions to submit...
- */
  
 #ifndef PACKET_ACN_H__
 #define PACKET_ACN_H__

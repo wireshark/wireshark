@@ -33,9 +33,8 @@
       it would be better to show the block of data rather and
       address-data pair on each line...
 
-    Version: 0.0.9   wrf 10-25-2006 Released to Wireshark community
-    Version: 0.0.10  wrf 10-25-2006 small revisions to submit...
-    Version: 0.0.11  wrf 10-29-2006 revisions to submit...
+      Build CID to "Name" table from file so we can display real names 
+      rather than CIDs
  */
 
 /* Include files */
@@ -364,8 +363,8 @@ acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   offset += 2;
   proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, FALSE);
   offset += 2;
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address: ");
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address: ");
+  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
+  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
 
   session_count = tvb_get_ntohs(tvb, offset);
   for (x=0; x<session_count; x++) {
@@ -395,8 +394,8 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   offset += 16;
   proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, FALSE);
   offset += 2;
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address: ");
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address: ");
+  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
+  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
   proto_tree_add_item(this_tree, hf_acn_reciprocal_channel, tvb, offset, 2, FALSE);
   offset += 2;
 
@@ -411,17 +410,12 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /******************************************************************************/
-/* Add labled exiry                                                           */
+/* Add labeled expiry                                                         */
 static guint32
 acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, const char *label)
 {
-  proto_item *pi;
-  guint32 expiry;
-
-  expiry = tvb_get_ntohs(tvb, offset);
-  pi = proto_tree_add_text(tree, tvb, offset, 2, label);
-  proto_item_append_text(pi, " %d",  expiry);
-  offset += 2;
+  proto_tree_add_text(tree, tvb, offset, 2, "%s %d", label, tvb_get_guint8(tvb, offset));
+  offset += 1;
   return offset;
 }
 
@@ -486,7 +480,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     /* Append port and address to tree item */
     IPv4 = tvb_get_ipv4(tvb, offset);
     SET_ADDRESS(&addr, AT_IPv4, sizeof(IPv4), &IPv4);
-    proto_item_append_text(pi, "%s, Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s, Port %d", address_to_str(&addr), port);
     offset += 4;
     break;
   case ACN_ADDR_IPV6:
@@ -504,7 +498,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     /* Append port and address to tree item */
     tvb_get_ipv6(tvb, offset, &IPv6);
     SET_ADDRESS(&addr, AT_IPv6, sizeof(struct e_in6_addr), &IPv6);
-    proto_item_append_text(pi, "%s, Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s, Port %d", address_to_str(&addr), port);
     offset += 16;
     break;
   case ACN_ADDR_IPPORT:
@@ -517,7 +511,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     port = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, FALSE);
     /* Append port to tree item */
-    proto_item_append_text(pi, "%s Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s Port %d", address_to_str(&addr), port);
     offset += 2;
     break;
   }
@@ -1502,8 +1496,8 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
     break;
   case ACN_SDT_VECTOR_CHANNEL_PARAMS:
     data_offset = acn_add_channel_parameter(tvb, pinfo, pdu_tree, data_offset);
-    data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Address: ");
-    data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry: ");
+    data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Address:");
+    data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
    break;
   case ACN_SDT_VECTOR_LEAVE:
     /* nothing more */
@@ -2270,9 +2264,9 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     data_offset += 4;
     proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
     data_offset += 4;
-    data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Destination Address: ");
+    data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Destination Address:");
     data_offset = acn_add_channel_parameter(tvb, pinfo, pdu_tree, data_offset);
-    data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry: ");
+    data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
     break;
   case ACN_SDT_VECTOR_JOIN_REFUSE:
     pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
@@ -2391,7 +2385,6 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   /* this pdu */
   guint32 protocol_id;
   e_guid_t guid;
-  gchar buf[GUID_STR_LEN];
 
   /* save start of pdu block */
   pdu_start = offset;
@@ -2471,8 +2464,8 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   
       /* get Header (CID) 16 bytes */
       tvb_get_guid(tvb, header_offset, &guid, FALSE);
-      guid_to_str_buf(&guid, buf, sizeof(buf));
-      proto_item_append_text(ti, ", Src: %s", buf);
+      proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
+
       proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, FALSE);
       header_offset += 16;
   
@@ -2517,8 +2510,8 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     /* get Header (CID) 16 bytes */
     tvb_get_guid(tvb, header_offset, &guid, FALSE);
-    guid_to_str_buf(&guid, buf, sizeof(buf));
-    proto_item_append_text(ti, ", Src: %s", buf);
+    proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
+
     proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, FALSE);
     header_offset += 16;
 
