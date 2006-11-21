@@ -1,4 +1,6 @@
-$ID$
+$Revision$
+$Date$
+$Author$
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use some of the important functions and
@@ -25,7 +27,7 @@ You'll find additional information in the following README files:
 
 - README.capture - the capture engine internals
 - README.design - Wireshark software design - incomplete
-- READEM.developer - this file
+- README.developer - this file
 - README.display_filter - Display Filter Engine
 - README.idl2wrs - CORBA IDL converter
 - README.packaging - how to distribute a software package containing WS
@@ -3136,16 +3138,15 @@ The arguments to tcp_dissect_pdus are:
 
 The second reassembly mode is preferred when the dissector cannot determine 
 how many bytes it will need to read in order to determine the size of a PDU. 
-For this mode it is recommended that your dissector be the newer dissector 
-type which returns "int" rather than the older type which returned "void".
 
-This reassembly mode relies on Wireshark's mechanism for processing multiple PDUs
-per frame. When a dissector processes a PDU from a tvbuff the PDU may not be
-aligned to a frame of the underlying protocol. Wireshark allows dissectors to
-process PDUs in an idempotent way--dissectors only need to consider one PDU at a 
-time. If your dissector discovers that it can not process a complete PDU from 
-the current tvbuff the dissector should halt processing and request additional 
-bytes from the lower level dissector.
+This reassembly mode relies on Wireshark's mechanism for processing
+multiple PDUs per frame.  When a dissector processes a PDU from a tvbuff
+the PDU may not be aligned to a frame of the underlying protocol. 
+Wireshark allows dissectors to process PDUs in an idempotent
+way--dissectors only need to consider one PDU at a time.  If your
+dissector discovers that it can not process a complete PDU from the
+current tvbuff the dissector should halt processing and request
+additional bytes from the lower level dissector.
 
 Your dissect_PROTO will be called by the lower level dissector whenever 
 sufficient new bytes become available. Each time your dissector is called it is 
@@ -3155,20 +3156,19 @@ should examine the tvbuff provided and determine if an entire PDU is available.
 If sufficient bytes are available the dissector processes the PDU and returns 
 the length of the PDU from your dissect_PROTO.
 
-Completion of a PDU is signified by dissect_PROTO returning a positive value. 
-The value is the number of bytes which were processed from the tvbuff. If there 
-were insufficient bytes in the tvbuff to complete a PDU then the dissect_PROTO 
-returns a negative value requesting additional bytes. The negative return value 
-indicates how many additional bytes are required. Additionally dissect_PROTO 
-must update the pinfo structure to indicate that more bytes are required. The 
-desegment_offset field is the offset in the tvbuff at which the dissector will 
-continue processing when next called. The desegment_len field should contain the 
-estimated number of additional bytes required for completing the PDU. The 
-dissect_PROTO will not be called again until the specified number of bytes are
-available. pinfo->desegment_len may be set to -1 if dissect_PROTO cannot 
-determine how many additional bytes are required. Dissectors should set the
-desegment_len to a reasonable value when possible rather than always setting
--1 as it will generally be more efficient.
+Completion of a PDU is signified by dissect_PROTO returning a positive
+value.  The value is the number of bytes which were processed from the
+tvbuff.  If there were insufficient bytes in the tvbuff to complete a
+PDU then dissect_PROTO must update the pinfo structure to indicate that
+more bytes are required.  The desegment_offset field is the offset in
+the tvbuff at which the dissector will continue processing when next
+called.  The desegment_len field should contain the estimated number of
+additional bytes required for completing the PDU.  The dissect_PROTO
+will not be called again until the specified number of bytes are
+available.  pinfo->desegment_len may be set to -1 if dissect_PROTO
+cannot determine how many additional bytes are required.  Dissectors
+should set the desegment_len to a reasonable value when possible rather
+than always setting -1 as it will generally be more efficient.
 
 static hf_register_info hf[] = {
     {&hf_cstring,
@@ -3183,10 +3183,8 @@ static hf_register_info hf[] = {
 *   @param  tvb     The buffer to dissect.
 *   @param  pinfo   Packet Info.
 *   @param  tree    The protocol tree.
-*   @return Number of bytes from the tvbuff_t which were processed or a negative
-*           value indicating more bytes are needed.
 **/
-static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     guint offset = 0;
     gint available = tvb_reported_length_remaining(tvb, offset);
@@ -3196,7 +3194,7 @@ static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         /* No '\0' found, ask for another byte. */
         pinfo->desegment_offset = offset;
         pinfo->desegment_len = 1;
-        return -1;
+        return;
     }
     
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3208,8 +3206,6 @@ static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     if (tree) {
         proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
     }
-
-    return len;
 }
 
 This simple dissector will repeatedly return -1 requesting one more byte until 
@@ -3287,4 +3283,3 @@ ptvcursor_tree(ptvcursor_t*)
 void
 ptvcursor_set_tree(ptvcursor_t*, proto_tree *)
     sets a new proto_tree for the ptvcursor
-
