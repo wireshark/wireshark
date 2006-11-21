@@ -122,7 +122,7 @@ main(int argc, char **argv)
 
 	/* Check for filter on command line */
 	if (argc <= 1) {
-		fprintf(stderr, "Usage: dftest filter\n");
+		fprintf(stderr, "Usage: dftest <filter>\n");
 		exit(1);
 	}
 
