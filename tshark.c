@@ -981,6 +981,9 @@ main(int argc, char *argv[])
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
 
+        case PREFS_SET_OK:
+          break;
+
         case PREFS_SET_SYNTAX_ERR:
           cmdarg_err("Invalid -o flag \"%s\"", optarg);
           exit(1);
