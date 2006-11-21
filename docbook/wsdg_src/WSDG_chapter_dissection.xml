@@ -536,9 +536,10 @@ static const value_string packettypenames[] = {
    <programlisting>
    <![CDATA[
 	{ &hf_foo_pdu_type,
-	{ "FOO PDU Type",           "foo.type",
-	FT_UINT8, BASE_DEC, VALS(packettypenames), 0x0,
-	"", HFILL }
+		{ "FOO PDU Type", "foo.type",
+		FT_UINT8, BASE_DEC,
+		VALS(packettypenames), 0x0,
+		NULL, HFILL }
 	},
 ]]>	
    </programlisting></example>
@@ -558,19 +559,22 @@ static int hf_foo_endflag = -1;
 static int hf_foo_priorityflag = -1;
 ...
 	{ &hf_foo_startflag,
-	{ "FOO PDU Start Flags",           "foo.flags.start",
-	FT_BOOLEAN, 8, NULL, FOO_START_FLAG,
-	"", HFILL }
+		{ "FOO PDU Start Flags", "foo.flags.start",
+		FT_BOOLEAN, 8, 
+		NULL, FOO_START_FLAG,
+		NULL, HFILL }
 	},
 	{ &hf_foo_endflag,
-	{ "FOO PDU End Flags",           "foo.flags.end",
-	FT_BOOLEAN, 8, NULL, FOO_END_FLAG,
-	"", HFILL }
+		{ "FOO PDU End Flags", "foo.flags.end",
+		FT_BOOLEAN, 8,
+		NULL, FOO_END_FLAG,
+		NULL, HFILL }
 	},
 	{ &hf_foo_priorityflag,
-	{ "FOO PDU Priority Flags",           "foo.flags.priority",
-	FT_BOOLEAN, 8, NULL, FOO_PRIORITY_FLAG,
-	"", HFILL }
+		{ "FOO PDU Priority Flags", "foo.flags.priority",
+		FT_BOOLEAN, 8, 
+		NULL, FOO_PRIORITY_FLAG,
+		NULL, HFILL }
 	},
 ...
 	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE);
@@ -1038,7 +1042,7 @@ static void dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /* determine PDU length of protocol foo */
-static guint get_foo_message_len(tvbuff_t *tvb, int offset)
+static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* TODO: change this to your needs */
     return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */

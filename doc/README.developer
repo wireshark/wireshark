@@ -3120,12 +3120,12 @@ The arguments to tcp_dissect_pdus are:
 	the number of bytes of PDU data required to determine the length
 	of the PDU;
 
-	a routine that takes as arguments a tvbuff pointer and an offset
-	value representing the offset into the tvbuff at which a PDU
-	begins and should return - *without* throwing an exception (it
-	is guaranteed that the number of bytes specified by the previous
-	argument to tcp_dissect_pdus is available, but more data might
-	not be available, so don't refer to any data past that) - the
+	a routine that takes as arguments a packet_info pointer, a tvbuff
+	pointer and an offset value representing the offset into the tvbuff
+	at which a PDU begins and should return - *without* throwing an
+	exception (it is guaranteed that the number of bytes specified by the
+	previous argument to tcp_dissect_pdus is available, but more data
+	might not be available, so don't refer to any data past that) - the
 	total length of the PDU, in bytes;
 
 	a routine that's passed a tvbuff pointer, packet_info pointer,

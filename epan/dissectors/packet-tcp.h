@@ -76,7 +76,7 @@ struct tcpinfo {
  * "fixed_len" is the length of the fixed-length part of the PDU.
  *
  * "get_pdu_len()" is a routine called to get the length of the PDU from
- * the fixed-length part of the PDU; it's passed "tvb" and "offset".
+ * the fixed-length part of the PDU; it's passed "pinfo", "tvb" and "offset".
  *
  * "dissect_pdu()" is the routine to dissect a PDU.
  */
