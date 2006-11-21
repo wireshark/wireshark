@@ -878,7 +878,7 @@ Jeff Morriss            <jeff.morriss[AT]ulticom.com> {
 	SCCP Management support
 	MTP3 Management support
 	M3UA fixes
-	Support for Chinese ITU SS7 variant
+	Support for China and Japan ITU SS7 variants
 	ISUP tweaks
 	SSCOP over UDP and SSCF-NNI support
 }
