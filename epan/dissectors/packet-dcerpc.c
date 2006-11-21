@@ -4981,7 +4981,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case PDU_FACK:
-        dissect_dcerpc_dg_fack (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        /* Body is optional */
+        /* XXX - we assume "frag_len" is the length of the body */
+        if (hdr.frag_len != 0)
+            dissect_dcerpc_dg_fack (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_REJECT:
