@@ -293,6 +293,12 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     dlg = create_progress_dlg(task_title, item_title, terminate_is_stop,
                               stop_flag);
 
+    /*
+     * Flush out the dialog so we don't see an "empty" one until first update.
+     */
+    while (gtk_events_pending())
+	    gtk_main_iteration();
+
     /* set dialog start_time to the start of processing, not box creation */
     dlg->start_time = *start_time;
 
