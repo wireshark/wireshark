@@ -141,7 +141,7 @@ dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *t
     guint16 result;
 
     /* result */
-    result = tvb_get_letohs(tvb, offset);
+    result = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(tree, hf_kpasswd_result, tvb, offset, 2, result);
     offset+=2;
     if (check_col(pinfo->cinfo, COL_INFO))
