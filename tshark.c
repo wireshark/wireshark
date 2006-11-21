@@ -738,10 +738,6 @@ main(int argc, char *argv[])
 		    log_flags,
 		    log_func_ignore, NULL /* user_data */);
 
-  /* initialize memory allocation subsystem */
-  ep_init_chunk();
-  se_init_chunk();
-
   initialize_funnel_ops();
 
 #ifdef HAVE_LIBPCAP

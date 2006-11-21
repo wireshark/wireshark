@@ -2122,10 +2122,6 @@ main(int argc, char *argv[])
    */
   get_credential_info();
 
-  /* initialize memory allocation subsystem */
-  ep_init_chunk();
-  se_init_chunk();
-
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 

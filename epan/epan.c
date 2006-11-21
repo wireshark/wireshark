@@ -83,6 +83,10 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	report_open_failure_func = report_open_failure;
 	report_read_failure_func = report_read_failure;
 
+	/* initialize memory allocation subsystem */
+	ep_init_chunk();
+	se_init_chunk();
+
 	/* initialize the GUID to name mapping table */
 	guids_init();
 
