@@ -819,8 +819,8 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	gboolean already_added=pinfo->fd->flags.visited;
 
 
-    /* dissector shouldn't give us garbage tvb info */
-    DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, frag_data_len));
+	/* dissector shouldn't give us garbage tvb info */
+	DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, frag_data_len));
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -1780,7 +1780,8 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 	int hf;
 
 	if (first_frag)
-		proto_item_append_text(fi, " (%u bytes): ", tvb_length(tvb));
+		proto_item_append_text(fi, " (%u byte%s): ", tvb_length(tvb),
+		    plurality(tvb_length(tvb), "", "s"));
 	else
 		proto_item_append_text(fi, ", ");
 	proto_item_append_text(fi, "#%u(%u)", fd->frame, fd->len);
@@ -1801,11 +1802,12 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 		fei = proto_tree_add_uint_format(ft, hf,
 			tvb, offset, fd->len,
 			fd->frame,
-			"Frame: %u, payload: %u-%u (%u bytes)",
+			"Frame: %u, payload: %u-%u (%u byte%s)",
 			fd->frame,
 			offset,
 			offset+fd->len-1,
-			fd->len);
+			fd->len,
+			plurality(fd->len, "", "s"));
 	}
 	PROTO_ITEM_SET_GENERATED(fei);
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
