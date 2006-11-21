@@ -1506,6 +1506,9 @@ main_cf_cb_file_read_start(capture_file *cf)
   load_msg = g_strdup_printf(" Loading: %s", name_ptr);
   statusbar_push_file_msg(load_msg);
   g_free(load_msg);
+
+  /* Set up main window for a capture file. */
+  main_set_for_capture_file(TRUE);
 }
 
 static void
@@ -1521,9 +1524,6 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
     /* Enable menu items that make sense if you have some captured packets. */
     set_menus_for_captured_packets(TRUE);
-
-    /* Set up main window for a capture file. */
-    main_set_for_capture_file(TRUE);
 }
 
 #if GTK_MAJOR_VERSION >= 2

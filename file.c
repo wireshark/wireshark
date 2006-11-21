@@ -438,6 +438,12 @@ cf_read(capture_file *cf)
               progbar_val = 1.0;
           }
           if (progbar != NULL) {
+          	/* update the packet lists content */
+            packet_list_thaw();
+            if (auto_scroll_live && cf->plist_end != NULL)
+              packet_list_moveto_end();
+            packet_list_freeze();
+
             g_snprintf(status_str, sizeof(status_str),
                        "%" PRId64 "KB of %" PRId64 "KB",
                        file_pos / 1024, size / 1024);
