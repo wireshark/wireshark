@@ -37,8 +37,22 @@
 #define AUTH_UNIX 1
 #define AUTH_SHORT 2
 #define AUTH_DES 3
+#define AUTH_KRB4 4
+#define AUTH_DH 5
 #define RPCSEC_GSS 6
 #define AUTH_GSSAPI 300001
+/* Pseudo-flavors used for security mechanisms while using 
+ * RPCSEC_GSS
+ */
+#define RPCSEC_GSS_KRB5 390003
+#define RPCSEC_GSS_KRB5I 390004
+#define RPCSEC_GSS_KRB5P 390005
+#define RPCSEC_GSS_LIPKEY 390006
+#define RPCSEC_GSS_LIPKEY_I 390007
+#define RPCSEC_GSS_LIPKEY_P 390008
+#define RPCSEC_GSS_SPKM3 390009
+#define RPCSEC_GSS_SPKM3I 390010
+#define RPCSEC_GSS_SPKM3P 390011
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1

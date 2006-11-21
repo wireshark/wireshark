@@ -102,6 +102,15 @@ const value_string rpc_auth_flavor[] = {
 	{ AUTH_DES, "AUTH_DES" },
 	{ RPCSEC_GSS, "RPCSEC_GSS" },
 	{ AUTH_GSSAPI, "AUTH_GSSAPI" },
+	{ RPCSEC_GSS_KRB5, "RPCSEC_GSS_KRB5" },
+	{ RPCSEC_GSS_KRB5I, "RPCSEC_GSS_KRB5I" },
+	{ RPCSEC_GSS_KRB5P, "RPCSEC_GSS_KRB5P" },
+	{ RPCSEC_GSS_LIPKEY, "RPCSEC_GSS_LIPKEY" },
+	{ RPCSEC_GSS_LIPKEY_I, "RPCSEC_GSS_LIPKEY_I" },
+	{ RPCSEC_GSS_LIPKEY_P, "RPCSEC_GSS_LIPKEY_P" },
+	{ RPCSEC_GSS_SPKM3, "RPCSEC_GSS_SPKM3" },
+	{ RPCSEC_GSS_SPKM3I, "RPCSEC_GSS_SPKM3I" },
+	{ RPCSEC_GSS_SPKM3P, "RPCSEC_GSS_SPKM3P" },
 	{ 0, NULL }
 };
 
@@ -2196,7 +2205,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(rpc_call && rpc_call->rep_num){
 			proto_item *tmp_item;
 
-			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
+			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
 			    tvb, 0, 0, rpc_call->rep_num,
 			    "The reply to this request is in frame %u",
 			    rpc_call->rep_num);
@@ -2312,7 +2321,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(rpc_call && rpc_call->req_num){
 			proto_item *tmp_item;
 
-			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
+			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
 			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
