@@ -82,6 +82,10 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	report_failure_func = report_failure;
 	report_open_failure_func = report_open_failure;
 	report_read_failure_func = report_read_failure;
+
+	/* initialize the GUID to name mapping table */
+	guids_init();
+
 	except_init();
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();

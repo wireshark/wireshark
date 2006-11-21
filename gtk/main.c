@@ -2126,9 +2126,6 @@ main(int argc, char *argv[])
   ep_init_chunk();
   se_init_chunk();
 
-  /* initialize the GUID to name mapping table */
-  guids_init();
-
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 
