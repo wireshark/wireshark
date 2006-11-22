@@ -52,6 +52,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
+#include <epan/dissectors/packet-scsi-ssc.h>
 
 static GtkWidget *dlg=NULL;
 
@@ -208,7 +209,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 		break;
 	case SCSI_DEV_SSC:
 		rs->prog="SSC (tape)";
-		rs->cdbnames=scsi_ssc2_vals;
+		rs->cdbnames=scsi_ssc_vals;
 		hf_name="scsi.ssc.opcode";
 		break;
 	case SCSI_DEV_CDROM:

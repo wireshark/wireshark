@@ -142,6 +142,8 @@ typedef struct _scsi_cdb_table_t {
 void dissect_spc3_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
 void dissect_spc3_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc3_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc3_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc3_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc3_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
@@ -155,7 +157,27 @@ void dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 void dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc3_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 
+
+/* SMC2 Commands (until they get a new home in packet-scsi-smc.[ch]) */
+#define SCSI_SMC2_EXCHANGE_MEDIUM                 0x40
+#define SCSI_SMC2_INITIALIZE_ELEMENT_STATUS       0x07
+#define SCSI_SMC2_INITIALIZE_ELEMENT_STATUS_RANGE 0x37
+#define SCSI_SMC2_MOVE_MEDIUM                     0xA5
+#define SCSI_SMC2_MOVE_MEDIUM_ATTACHED            0xA7
+#define SCSI_SMC2_POSITION_TO_ELEMENT             0x2B
+#define SCSI_SMC2_READ_ATTRIBUTE                  0x8C
+#define SCSI_SMC2_READ_ELEMENT_STATUS             0xB8
+#define SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED    0xB4
+#define SCSI_SMC2_REQUEST_VOLUME_ELEMENT_ADDRESS  0xB5
+#define SCSI_SMC2_SEND_VOLUME_TAG                 0xB6
+#define SCSI_SMC2_WRITE_ATTRIBUTE                 0x8D
+void dissect_smc2_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 
 
 
@@ -211,6 +233,14 @@ WS_VAR_IMPORT const value_string scsi_ssc2_vals[];
 extern int hf_scsi_control;
 extern int hf_scsi_alloclen16;
 
+/* service actions */
+#define SHORT_FORM_BLOCK_ID        0x00
+#define SHORT_FORM_VENDOR_SPECIFIC 0x01
+#define LONG_FORM                  0x06
+#define EXTENDED_FORM              0x08
+#define SERVICE_READ_CAPACITY16	0x10
+#define SERVICE_READ_LONG16	0x11
+extern const value_string service_action_vals[];
 
 
 
