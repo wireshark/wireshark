@@ -650,7 +650,7 @@ rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 scsi_mmc_vals					DATA
 scsi_sbc2_vals					DATA
-scsi_ssc2_vals					DATA
+scsi_ssc_vals					DATA
 set_actual_length
 show_fragment_seq_tree
 show_fragment_tree
