@@ -5085,45 +5085,14 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 
 	switch(hfinfo->type) {
 
-		case FT_BOOLEAN:
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-		case FT_FRAMENUM:
-		case FT_UINT64:
-		case FT_INT64:
-		case FT_IPv4:
-		case FT_IPXNET:
-		case FT_IPv6:
-		case FT_FLOAT:
-		case FT_DOUBLE:
-		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-		case FT_STRING:
-		case FT_STRINGZ:
-		case FT_UINT_STRING:
-		case FT_ETHER:
-		case FT_BYTES:
-		case FT_UINT_BYTES:
-		case FT_PROTOCOL:
-		case FT_GUID:
-		case FT_OID:
-			/*
-			 * These all have values, so we can match.
-			 */
-			return TRUE;
 		case FT_NONE:
 			/*
 			 * Doesn't have a value, but may still want to test
 			 * for its presence in a trace
 			 */
 			return TRUE;
-		default:
+
+		case FT_PCRE:
 			/*
 			 * This doesn't have a value, so we'd match
 			 * on the raw bytes at this address.
@@ -5165,6 +5134,13 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 				length = tvb_length(finfo->ds_tvb);
 			if (length <= 0)
 				return FALSE;
+			return TRUE;
+
+		default:
+			/*
+			 * By default, assume the type has a value, so
+			 * we can match.
+			 */
 			return TRUE;
 	}
 }
@@ -5266,45 +5242,12 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
 			break;
 
-		/* These use the fvalue's "to_string_repr" method. */
-		case FT_IPXNET:
-		case FT_BOOLEAN:
-		case FT_STRING:
-		case FT_STRINGZ:
-		case FT_ETHER:
-		case FT_BYTES:
-		case FT_UINT_BYTES:
-		case FT_UINT_STRING:
-		case FT_FLOAT:
-		case FT_DOUBLE:
-		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-		case FT_IPv4:
-		case FT_IPv6:
-		case FT_GUID:
-		case FT_OID:
-			/* Figure out the string length needed.
-			 * 	The ft_repr length.
-			 * 	4 bytes for " == ".
-			 * 	1 byte for trailing NUL.
-			 */
-			dfilter_len = fvalue_string_repr_len(&finfo->value,
-					FTREPR_DFILTER);
-			dfilter_len += abbrev_len + 4 + 1;
-			buf = ep_alloc0(dfilter_len);
-
-			/* Create the string */
-			g_snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
-			fvalue_to_string_repr(&finfo->value,
-					FTREPR_DFILTER,
-					&buf[abbrev_len + 4]);
-			break;
-
 		case FT_PROTOCOL:
 			buf = ep_strdup(finfo->hfinfo->abbrev);
 			break;
 
-		default:
+		case FT_NONE:
+		case FT_PCRE:
 			/*
 			 * This doesn't have a value, so we'd match
 			 * on the raw bytes at this address.
@@ -5369,6 +5312,25 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					ptr += g_snprintf(ptr, buf_len-(ptr-buf), ":%02x", c);
 				}
 			}
+			break;
+
+		/* By default, use the fvalue's "to_string_repr" method. */
+		default:
+			/* Figure out the string length needed.
+			 * 	The ft_repr length.
+			 * 	4 bytes for " == ".
+			 * 	1 byte for trailing NUL.
+			 */
+			dfilter_len = fvalue_string_repr_len(&finfo->value,
+					FTREPR_DFILTER);
+			dfilter_len += abbrev_len + 4 + 1;
+			buf = ep_alloc0(dfilter_len);
+
+			/* Create the string */
+			g_snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
+			fvalue_to_string_repr(&finfo->value,
+					FTREPR_DFILTER,
+					&buf[abbrev_len + 4]);
 			break;
 	}
 
